@@ -19,7 +19,8 @@ let main = (threejs_canvas) => {
     let pointLight = new THREE.PointLight(rgb2hex(255, 255, 255), 0.5);
     scene.add(pointLight);
 
-    let geometry = new THREE.CubeGeometry(100, 100, 100);
+    let dimen = 100;
+    let geometry = new THREE.CubeGeometry(dimen, dimen/2, 2*dimen);
     let material = new THREE.MeshLambertMaterial({ color: appleCrayonColor('teal') });
     let mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(0, 0, -1000);
