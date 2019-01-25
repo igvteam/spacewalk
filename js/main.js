@@ -9,7 +9,12 @@ let main = (threejs_canvas) => {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
+    let target = new THREE.Vector3(0, 0, -1000);
+
     let camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 3000);
+
+    camera.position.set(300, 300, 700);
+    camera.lookAt( target );
 
     let scene = new THREE.Scene();
 
@@ -23,12 +28,12 @@ let main = (threejs_canvas) => {
     let geometry = new THREE.CubeGeometry(dimen, dimen/2, 2*dimen);
     let material = new THREE.MeshLambertMaterial({ color: appleCrayonColor('teal') });
     let mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0, 0, -1000);
+    mesh.position.set(target.x, target.y, target.z);
 
     scene.add(mesh);
 
     let render = () => {
-        mesh.rotation.x += 0.01;
+        // mesh.rotation.x += 0.01;
         mesh.rotation.y += 0.01;
         renderer.render(scene, camera);
         requestAnimationFrame(render);
