@@ -10,19 +10,24 @@ let main = (threejs_canvas) => {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    let camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 3000);
+    // const target = new THREE.Vector3(0, 0, -1000);
+    const target = new THREE.Vector3(0,0,0);
 
-    let controls = new OrbitControls(camera, renderer.domElement);
-
+    const near = 1e-1;
+    const far = 1e4;
+    let camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, near, far);
     camera.position.set(300, 300, 700);
-    let target = new THREE.Vector3(0, 0, -1000);
     camera.lookAt( target );
 
-    // controls.update();
-    controls.addEventListener("change", () => renderer.render(scene, camera));
+    let orbitControl = new OrbitControls(camera, renderer.domElement);
+    orbitControl.screenSpacePanning = false;
+    orbitControl.target = target;
+    orbitControl.update();
+    orbitControl.addEventListener("change", () => renderer.render(scene, camera));
 
     let scene = new THREE.Scene();
-    scene.background = new THREE.Color(appleCrayonColor('snow'));
+    // scene.background = new THREE.Color(appleCrayonColor('snow'));
+    scene.add( new THREE.GridHelper( 1000, 10 ) );
 
     let ambient = new THREE.AmbientLight(rgb2hex(255, 255, 255), 0.5);
     scene.add(ambient);
@@ -36,19 +41,21 @@ let main = (threejs_canvas) => {
     let material = new THREE.MeshNormalMaterial();
     let mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(target.x, target.y, target.z);
-
     scene.add(mesh);
 
-    // let animate = () => {
-    //     requestAnimationFrame( animate );
-    //     controls.update();
-    //     renderer.render( scene, camera );
-    // };
-    //
-    // animate();
+    let onWindowResize = () => {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.render( scene, camera );
+
+    };
+
+    window.addEventListener( 'resize', onWindowResize, false );
 
     renderer.render( scene, camera );
-
 };
 
 export { main };
