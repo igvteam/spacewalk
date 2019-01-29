@@ -36,10 +36,18 @@ let main = (threejs_canvas) => {
     scene.add(pointLight);
 
 
-    const dimen = 150;
+
+    let group = new THREE.Group();
+
+    const dimen = 128;
+    // let geometry = new THREE.TorusKnotBufferGeometry( dimen, dimen/4, 128, 64 );
     let geometry = new THREE.CubeGeometry(dimen, dimen/2, 2*dimen);
+
     let material = new THREE.MeshNormalMaterial();
+    // let material = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+
     let mesh = new THREE.Mesh(geometry, material);
+
     mesh.position.set(target.x, target.y, target.z);
     scene.add(mesh);
 
