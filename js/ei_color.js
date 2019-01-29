@@ -15,7 +15,7 @@ let appleCrayonPaletteDictionary =
         magnesium: "#b8b8b8",
         silver: "#d0d0d0",
         mercury: "#e8e8e8",
-        snow: "white",
+        snow: "#ffffff",
         //
         cayenne: "#891100",
         mocha: "#894800",
