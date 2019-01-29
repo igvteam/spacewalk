@@ -119,6 +119,7 @@ for my $filename (@filenames) {
 
                 print "bbox and centroid to $fn\n";
 
+                # ignore nan when calculating bbox
                 my $min_x = min grep(!/nan/, @exe);
                 my $min_y = min grep(!/nan/, @wye);
                 my $min_z = min grep(!/nan/, @zee);
@@ -138,12 +139,10 @@ for my $filename (@filenames) {
 
                 for (my $index = 0; $index <= $#exe; $index++) {
 
-                    # print "$exe[ $index ] $wye[ $index ] $zee[ $index ]\n";
-
-                    # molecule centered at 0,0,0
-                    my $xx = "nan" == $exe[ $index ] ? "FOO" : $exe[ $index ] - $center_x;
-                    my $yy = "nan" == $wye[ $index ] ? "FOO" : $wye[ $index ] - $center_y;
-                    my $zz = "nan" == $zee[ $index ] ? "FOO" : $zee[ $index ] - $center_z;
+                    # molecule centered at 0,0,0. ignore nan
+                    my $xx = "nan" eq $exe[ $index ] ? "nan" : $exe[ $index ] - $center_x;
+                    my $yy = "nan" eq $wye[ $index ] ? "nan" : $wye[ $index ] - $center_y;
+                    my $zz = "nan" eq $zee[ $index ] ? "nan" : $zee[ $index ] - $center_z;
     
                     print     "$xx $yy $zz\n";                
                     print $FH "$xx $yy $zz\n";
