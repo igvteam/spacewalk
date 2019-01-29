@@ -5,7 +5,7 @@ import {rgb2hex, appleCrayonColor } from './ei_color.js';
 let main = (threejs_canvas) => {
 
     let renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
-    renderer.setClearColor(appleCrayonColor('honeydew'));
+    renderer.setClearColor(appleCrayonColor('snow'));
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -19,33 +19,35 @@ let main = (threejs_canvas) => {
 
 let setup = async (scene, renderer, camera, orbitControl, target) => {
 
-    const response = await fetch('data/chr21/onemolecule/000001.txt');
+    const response = await fetch('data/chr21/IMR90OneMolecule/000001.txt');
     const text = await response.text();
 
     const lines = text.split(/\r?\n/);
 
     let bbox = lines.shift();
     const pieces = bbox.split(' ');
-    const dev_null = pieces.shift();
 
-    const [minX, minY, minZ, maxX, maxY, maxZ] = pieces.map((string) => { return parseInt(string, 10)});
-    console.log(minX, minY, minZ, maxX, maxY, maxZ);
+    // discard 'bbox' word
+    pieces.shift();
+
+    const [minX, minY, minZ, maxX, maxY, maxZ] = pieces.map((string) => { return parseFloat(string)});
 
     let xyz_list = [];
     for(let line of lines) {
-        let xyz = line.split(' ').map((string) => {
-            if ('NaN' === string) {
-                return NaN;
-            } else {
-                return parseFloat(string);
-            }
-        });
 
-        console.log(xyz[0], xyz[1], xyz[2]);
-        xyz_list.push(xyz);
+        let xyz = [];
+        if ("" === line) {
+            // ignore
+        } else {
+            xyz = line.split(' ').map((string) => { return 'nan' === string ? NaN : parseFloat(string); });
+            xyz_list.push(xyz);
+        }
+
     }
 
-    camera.position.set(300, 300, 700);
+    let dimen = Math.sqrt(2 * Math.max(maxX, maxY, maxZ) * Math.max(maxX, maxY, maxZ));
+    dimen *= 2;
+    camera.position.set(dimen, dimen, dimen);
     camera.lookAt( target );
 
     orbitControl.screenSpacePanning = false;
@@ -55,7 +57,7 @@ let setup = async (scene, renderer, camera, orbitControl, target) => {
 
 
     // scene.background = new THREE.Color(appleCrayonColor('snow'));
-    scene.add( new THREE.GridHelper( 2 * Math.max(maxX, maxY, maxZ), 16 ) );
+    scene.add( new THREE.GridHelper( 3 * Math.max(maxX, maxY, maxZ), 16 ) );
 
     let ambient = new THREE.AmbientLight(rgb2hex(255, 255, 255), 0.5);
     scene.add(ambient);
@@ -63,19 +65,15 @@ let setup = async (scene, renderer, camera, orbitControl, target) => {
     let pointLight = new THREE.PointLight(rgb2hex(255, 255, 255), 0.5);
     scene.add(pointLight);
 
-    let group = new THREE.Group();
+    // spheres
+    for (let position of xyz_list) {
+        makeSphereWithCenter(position, 24, scene);
+    }
 
-    const dimen = 128;
-    // let geometry = new THREE.TorusKnotBufferGeometry( dimen, dimen/4, 128, 64 );
-    let geometry = new THREE.CubeGeometry(dimen, dimen/2, 2*dimen);
-
-    let material = new THREE.MeshNormalMaterial();
-    // let material = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
-
-    let mesh = new THREE.Mesh(geometry, material);
-
-    mesh.position.set(target.x, target.y, target.z);
-    scene.add(mesh);
+    // cylinders
+    for (let i = 0, j = 1; j < xyz_list.length; ++i, ++j) {
+        makeCylinderWithEndPoints(xyz_list[ i ], xyz_list[ j ], scene);
+    }
 
     let onWindowResize = () => {
 
@@ -91,6 +89,34 @@ let setup = async (scene, renderer, camera, orbitControl, target) => {
 
     renderer.render( scene, camera );
 
+};
+
+let makeSphereWithCenter = (center, radius, scene) => {
+
+    const [ x, y, z ] = center;
+    if (isNaN(x)) {
+        return;
+    }
+
+    const material = new THREE.MeshNormalMaterial();
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 64, 64), material);
+    sphere.position.set(x, y, z);
+
+    scene.add(sphere);
+};
+
+let makeCylinderWithEndPoints = (a, b, scene) => {
+
+    const [ x0, y0, z0 ] = a;
+    const [ x1, y1, z1 ] = b;
+    if (isNaN(x0) || isNaN(x1)) {
+        return;
+    }
+
+    const path = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
+    const material = new THREE.MeshNormalMaterial();
+
+    scene.add(new THREE.Mesh(new THREE.TubeGeometry(path, 20, 12, 8, false), material));
 };
 
 export { main };
