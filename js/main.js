@@ -14,24 +14,28 @@ let main = (threejs_canvas) => {
     let orbitControl = new OrbitControls(camera, renderer.domElement);
     let scene = new THREE.Scene();
 
-    setup(scene, renderer, camera, orbitControl, new THREE.Vector3(0,0,0));
+    setup(scene, renderer, camera, orbitControl);
 };
 
-let setup = async (scene, renderer, camera, orbitControl, target) => {
+let setup = async (scene, renderer, camera, orbitControl) => {
 
     const response = await fetch('data/chr21/IMR90OneMolecule/000001.txt');
     const text = await response.text();
 
     const lines = text.split(/\r?\n/);
 
+    let dev_null;
 
-    let bbox = lines.shift();
-    const pieces = bbox.split(' ');
+    // line 0 - bbox
+    dev_null = lines.shift();
+    const bbox = dev_null.split(' ');
+    bbox.shift(); // discard 'bbox' keyword
 
-    // discard 'bbox' word
-    pieces.shift();
+    const [ minX, minY, minZ, maxX, maxY, maxZ ] = bbox.map((string) => { return parseFloat(string)});
+    const [ centerX, centerY, centerZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
+    const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
 
-    const [minX, minY, minZ, maxX, maxY, maxZ] = pieces.map((string) => { return parseFloat(string)});
+    const target = new THREE.Vector3(centerX, centerY, centerZ);
 
     let xyz_list = [];
     for(let line of lines) {
@@ -46,8 +50,11 @@ let setup = async (scene, renderer, camera, orbitControl, target) => {
 
     }
 
-    let dimen = Math.sqrt(2 * Math.max(maxX, maxY, maxZ) * Math.max(maxX, maxY, maxZ));
-    dimen *= 2;
+    let dimen = 0.5 * Math.max(extentX, extentY, extentZ);
+    dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
+
+    dimen /= .75;
+
     camera.position.set(dimen, dimen, dimen);
     camera.lookAt( target );
 
@@ -56,9 +63,7 @@ let setup = async (scene, renderer, camera, orbitControl, target) => {
     orbitControl.update();
     orbitControl.addEventListener("change", () => renderer.render(scene, camera));
 
-
-    // scene.background = new THREE.Color(appleCrayonColor('snow'));
-    scene.add( new THREE.GridHelper( 3 * Math.max(maxX, maxY, maxZ), 16 ) );
+    scene.add( new THREE.GridHelper( 2 * Math.max(extentX, extentY, extentZ), 16 ) );
 
     let ambient = new THREE.AmbientLight(rgb2hex(255, 255, 255), 0.5);
     scene.add(ambient);
