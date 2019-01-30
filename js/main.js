@@ -106,7 +106,6 @@ let makeSphereWithCenter = (center, radius, scene) => {
         return;
     }
 
-
     const flatColor = new THREE.MeshBasicMaterial();
     let index = xyz_list.indexOf(center);
 
