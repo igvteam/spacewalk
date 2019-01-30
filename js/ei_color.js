@@ -57,6 +57,9 @@ let appleCrayonPaletteDictionary =
         carnation: "#ff7fd3"
     };
 
+let appleCrayonNames = Object.keys(appleCrayonPaletteDictionary);
+console.log('crayon names ' + appleCrayonNames.length);
+
 let appleCrayonColor = (name) => {
     let string = appleCrayonPaletteDictionary[ name ];
     let tokens = string.split('');
@@ -66,5 +69,5 @@ let appleCrayonColor = (name) => {
     return result;
 };
 
-export { rgb2hex, appleCrayonColor };
+export { rgb2hex, appleCrayonNames, appleCrayonColor };
 

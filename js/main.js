@@ -1,25 +1,32 @@
 import * as THREE from './three.module.js';
 import OrbitControls from './orbit-controls-es6.js';
-import {rgb2hex, appleCrayonColor } from './ei_color.js';
+import { appleCrayonNames, appleCrayonColor } from './ei_color.js';
 
+let scene;
+let renderer;
+let camera;
+let orbitControl;
+let xyz_list;
 let main = (threejs_canvas) => {
 
-    let renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
+    renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
     renderer.setClearColor(appleCrayonColor('snow'));
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     const [ near, far, fov ] = [ 1e-1, 1e5, 35 ];
-    let camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
-    let orbitControl = new OrbitControls(camera, renderer.domElement);
-    let scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
+    orbitControl = new OrbitControls(camera, renderer.domElement);
+    scene = new THREE.Scene();
 
     setup(scene, renderer, camera, orbitControl);
 };
 
 let setup = async (scene, renderer, camera, orbitControl) => {
 
-    const response = await fetch('data/chr21/IMR90OneMolecule/000001.txt');
+    // const path = 'data/chr21/IMR90OneMolecule/hacked.txt';
+    const path = 'data/chr21/IMR90OneMolecule/000001.txt';
+    const response = await fetch(path);
     const text = await response.text();
 
     const lines = text.split(/\r?\n/);
@@ -37,7 +44,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     const target = new THREE.Vector3(targetX, targetY, targetZ);
 
-    let xyz_list = [];
+    xyz_list = [];
     for(let line of lines) {
 
         let xyz = [];
@@ -64,16 +71,9 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     orbitControl.update();
     orbitControl.addEventListener("change", () => renderer.render(scene, camera));
 
-    const groundPlane = new THREE.GridHelper( 2 * Math.max(extentX, extentY, extentZ), 16 );
+    const groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, appleCrayonColor('silver'), appleCrayonColor('silver'));
     groundPlane.position.set(targetX, targetY, targetZ);
-
     scene.add( groundPlane );
-
-    let ambient = new THREE.AmbientLight(rgb2hex(255, 255, 255), 0.5);
-    scene.add(ambient);
-
-    let pointLight = new THREE.PointLight(rgb2hex(255, 255, 255), 0.5);
-    scene.add(pointLight);
 
     // spheres
     for (let position of xyz_list) {
@@ -85,20 +85,18 @@ let setup = async (scene, renderer, camera, orbitControl) => {
         makeCylinderWithEndPoints(xyz_list[ i ], xyz_list[ j ], scene);
     }
 
-    let onWindowResize = () => {
-
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-
-        renderer.setSize( window.innerWidth, window.innerHeight );
-        renderer.render( scene, camera );
-
-    };
-
     window.addEventListener( 'resize', onWindowResize, false );
 
     renderer.render( scene, camera );
 
+};
+
+let onWindowResize = () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.render( scene, camera );
 };
 
 let makeSphereWithCenter = (center, radius, scene) => {
@@ -108,8 +106,22 @@ let makeSphereWithCenter = (center, radius, scene) => {
         return;
     }
 
-    const material = new THREE.MeshNormalMaterial();
-    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16), material);
+
+    const flatColor = new THREE.MeshBasicMaterial();
+    let index = xyz_list.indexOf(center);
+
+    // advance past dark crayon color names.
+    index += 24;
+
+    // modulo
+    index %= appleCrayonNames.length;
+
+    const name = appleCrayonNames[ index ];
+    flatColor.color = new THREE.Color( appleCrayonColor(name) );
+
+    const showNormals = new THREE.MeshNormalMaterial();
+
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16), flatColor);
     sphere.position.set(x, y, z);
 
     scene.add(sphere);
@@ -124,9 +136,15 @@ let makeCylinderWithEndPoints = (a, b, scene) => {
     }
 
     const path = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-    const material = new THREE.MeshNormalMaterial();
 
-    scene.add(new THREE.Mesh(new THREE.TubeGeometry(path, 4, 12, 16, false), material));
+
+    const flatColor = new THREE.MeshBasicMaterial();
+    flatColor.color = new THREE.Color( appleCrayonColor('silver') );
+
+    const showNormals = new THREE.MeshNormalMaterial();
+
+    const radius = 4;
+    scene.add(new THREE.Mesh(new THREE.TubeGeometry(path, 4, radius, 16, false), flatColor));
 };
 
 export { main };
