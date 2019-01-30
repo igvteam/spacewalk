@@ -99,7 +99,7 @@ let makeSphereWithCenter = (center, radius, scene) => {
     }
 
     const material = new THREE.MeshNormalMaterial();
-    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 64, 64), material);
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16), material);
     sphere.position.set(x, y, z);
 
     scene.add(sphere);
@@ -116,7 +116,7 @@ let makeCylinderWithEndPoints = (a, b, scene) => {
     const path = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
     const material = new THREE.MeshNormalMaterial();
 
-    scene.add(new THREE.Mesh(new THREE.TubeGeometry(path, 20, 12, 8, false), material));
+    scene.add(new THREE.Mesh(new THREE.TubeGeometry(path, 4, 12, 16, false), material));
 };
 
 export { main };
