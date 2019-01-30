@@ -77,12 +77,18 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     // spheres
     for (let position of xyz_list) {
-        makeSphereWithCenter(position, 24, scene);
+        sphereWithCenter(position, 24, scene);
     }
 
     // cylinders
     for (let i = 0, j = 1; j < xyz_list.length; ++i, ++j) {
-        makeCylinderWithEndPoints(xyz_list[ i ], xyz_list[ j ], scene);
+        cylinderWithEndPoints(xyz_list[i], xyz_list[j], scene);
+        // lineWithLerpedColorBetweenEndPoints(
+        //     xyz_list[i],
+        //     xyz_list[j],
+        //     new THREE.Color( appleCrayonColor('lime') ),
+        //     new THREE.Color( appleCrayonColor('strawberry') ),
+        //     scene);
     }
 
     window.addEventListener( 'resize', onWindowResize, false );
@@ -99,7 +105,7 @@ let onWindowResize = () => {
     renderer.render( scene, camera );
 };
 
-let makeSphereWithCenter = (center, radius, scene) => {
+let sphereWithCenter = (center, radius, scene) => {
 
     const [ x, y, z ] = center;
     if (isNaN(x)) {
@@ -126,7 +132,38 @@ let makeSphereWithCenter = (center, radius, scene) => {
     scene.add(sphere);
 };
 
-let makeCylinderWithEndPoints = (a, b, scene) => {
+/*
+let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {
+
+    const [ x0, y0, z0 ] = a;
+    const [ x1, y1, z1 ] = b;
+    if (isNaN(x0) || isNaN(x1)) {
+        return;
+    }
+
+    let positions = [];
+    positions.push( a[0], a[1], a[2] );
+    positions.push( b[0], b[1], b[2] );
+
+    let colors = [];
+    colors.push( aColor.r, aColor.g, aColor.b );
+    colors.push( bColor.r, bColor.g, bColor.b );
+
+    var lineGeometry = new THREE.LineGeometry();
+    lineGeometry.setPositions( positions );
+    lineGeometry.setColors( colors );
+
+    const lineMaterial = new THREE.LineMaterial( { color: appleCrayonColor('snow'), linewidth: 5, vertexColors: THREE.VertexColors, dashed: false } );
+
+    let line = new THREE.Line2( lineGeometry, lineMaterial );
+    line.computeLineDistances();
+    line.scale.set( 1, 1, 1 );
+    scene.add( line );
+
+};
+*/
+
+let cylinderWithEndPoints = (a, b, scene) => {
 
     const [ x0, y0, z0 ] = a;
     const [ x1, y1, z1 ] = b;
@@ -135,7 +172,6 @@ let makeCylinderWithEndPoints = (a, b, scene) => {
     }
 
     const path = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-
 
     const flatColor = new THREE.MeshBasicMaterial();
     flatColor.color = new THREE.Color( appleCrayonColor('silver') );
