@@ -9,7 +9,7 @@ let main = (threejs_canvas) => {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    const [ near, far, fov ] = [ 1e-1, 1e4, 35 ];
+    const [ near, far, fov ] = [ 1e-1, 1e5, 35 ];
     let camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
     let orbitControl = new OrbitControls(camera, renderer.domElement);
     let scene = new THREE.Scene();
@@ -32,10 +32,10 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     bbox.shift(); // discard 'bbox' keyword
 
     const [ minX, minY, minZ, maxX, maxY, maxZ ] = bbox.map((string) => { return parseFloat(string)});
-    const [ centerX, centerY, centerZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
+    const [ targetX, targetY, targetZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
     const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
 
-    const target = new THREE.Vector3(centerX, centerY, centerZ);
+    const target = new THREE.Vector3(targetX, targetY, targetZ);
 
     let xyz_list = [];
     for(let line of lines) {
@@ -50,12 +50,11 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     }
 
-    let dimen = 0.5 * Math.max(extentX, extentY, extentZ);
-    dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
+    // let dimen = 0.5 * Math.max(extentX, extentY, extentZ);
+    // dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
 
-    dimen /= .75;
-
-    camera.position.set(dimen, dimen, dimen);
+    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ targetX - extentX, targetY + extentY, targetZ - extentZ ];
+    camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
     camera.lookAt( target );
 
     orbitControl.screenSpacePanning = false;
@@ -63,7 +62,10 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     orbitControl.update();
     orbitControl.addEventListener("change", () => renderer.render(scene, camera));
 
-    scene.add( new THREE.GridHelper( 2 * Math.max(extentX, extentY, extentZ), 16 ) );
+    const groundPlane = new THREE.GridHelper( 2 * Math.max(extentX, extentY, extentZ), 16 );
+    groundPlane.position.set(targetX, targetY, targetZ);
+
+    scene.add( groundPlane );
 
     let ambient = new THREE.AmbientLight(rgb2hex(255, 255, 255), 0.5);
     scene.add(ambient);

@@ -128,24 +128,16 @@ for my $filename (@filenames) {
                 my $max_y = max grep(!/nan/, @wye);
                 my $max_z = max grep(!/nan/, @zee);
 
-                my ($center_x, $center_y, $center_z) = (0.5 * ($min_x + $max_x), 0.5 * ($min_y + $max_y), 0.5 * ($min_z + $max_z));
-
                 # bbox centered at 0,0,0
-                my ( $a,  $b,  $c) = ($min_x - $center_x, $min_y - $center_y, $min_z - $center_z);
-                my ($aa, $bb, $cc) = ($max_x - $center_x, $max_y - $center_y, $max_z - $center_z);
+                my ( $a,  $b,  $c) = ($min_x, $min_y, $min_z);
+                my ($aa, $bb, $cc) = ($max_x, $max_y, $max_z);
 
                 print     "bbox $a $b $c $aa $bb $cc\n";
                 print $FH "bbox $a $b $c $aa $bb $cc\n";
 
                 for (my $index = 0; $index <= $#exe; $index++) {
-
-                    # molecule centered at 0,0,0. ignore nan
-                    my $xx = "nan" eq $exe[ $index ] ? "nan" : $exe[ $index ] - $center_x;
-                    my $yy = "nan" eq $wye[ $index ] ? "nan" : $wye[ $index ] - $center_y;
-                    my $zz = "nan" eq $zee[ $index ] ? "nan" : $zee[ $index ] - $center_z;
-    
-                    print     "$xx $yy $zz\n";                
-                    print $FH "$xx $yy $zz\n";
+                    print     "$exe[ $index ] $wye[ $index ] $zee[ $index ]\n";                
+                    print $FH "$exe[ $index ] $wye[ $index ] $zee[ $index ]\n";
                 }
 
                 close $FH;
