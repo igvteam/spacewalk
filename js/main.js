@@ -50,12 +50,14 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     }
 
-    // let dimen = 0.5 * Math.max(extentX, extentY, extentZ);
-    // dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
-
     const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ targetX - extentX, targetY + extentY, targetZ - extentZ ];
     camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
     camera.lookAt( target );
+
+    let dimen = 0.5 * Math.max(extentX, extentY, extentZ);
+    dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
+    camera.near = 0.05 * dimen;
+    camera.far  = 4.00 * dimen;
 
     orbitControl.screenSpacePanning = false;
     orbitControl.target = target;
