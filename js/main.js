@@ -19,7 +19,7 @@ let main = (threejs_canvas) => {
 
 let setup = async (scene, renderer, camera, orbitControl, target) => {
 
-    const response = await fetch('data/chr21/IMR90OneMolecule/000001.txt');
+    const response = await fetch('data/chr21/IMR90/000072.txt');
     const text = await response.text();
 
     const lines = text.split(/\r?\n/);
