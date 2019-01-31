@@ -1,5 +1,11 @@
 import * as THREE from './three.module.js';
+
 import OrbitControls from './orbit-controls-es6.js';
+
+import LineGeometry from './lines_es6/LineGeometry.js';
+import LineMaterial from './lines_es6/LineMaterial.js';
+import Line2        from './lines_es6/Line2.js';
+
 import { appleCrayonNames, appleCrayonColor } from './ei_color.js';
 import SequenceManager from './sequenceManager.js';
 
@@ -180,13 +186,15 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     // cylinders
     for (let i = 0, j = 1; j < xyz_list.length; ++i, ++j) {
-        cylinderWithEndPoints(xyz_list[i], xyz_list[j], scene);
-        // lineWithLerpedColorBetweenEndPoints(
-        //     xyz_list[i],
-        //     xyz_list[j],
-        //     new THREE.Color( appleCrayonColor('lime') ),
-        //     new THREE.Color( appleCrayonColor('strawberry') ),
-        //     scene);
+
+        // cylinderWithEndPoints(xyz_list[i], xyz_list[j], scene);
+
+        lineWithLerpedColorBetweenEndPoints(
+            xyz_list[i],
+            xyz_list[j],
+            new THREE.Color( appleCrayonColor('lime') ),
+            new THREE.Color( appleCrayonColor('strawberry') ),
+            scene);
     }
 
     window.addEventListener( 'resize', onWindowResize, false );
@@ -238,7 +246,6 @@ let sphereWithCenter = (center, radius, scene, idx) => {
     scene.add(sphere);
 };
 
-/*
 let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {
 
     const [ x0, y0, z0 ] = a;
@@ -255,19 +262,18 @@ let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {
     colors.push( aColor.r, aColor.g, aColor.b );
     colors.push( bColor.r, bColor.g, bColor.b );
 
-    var lineGeometry = new THREE.LineGeometry();
+    var lineGeometry = new LineGeometry();
     lineGeometry.setPositions( positions );
     lineGeometry.setColors( colors );
 
-    const lineMaterial = new THREE.LineMaterial( { color: appleCrayonColor('snow'), linewidth: 5, vertexColors: THREE.VertexColors, dashed: false } );
+    const lineMaterial = new LineMaterial( { color: appleCrayonColor('snow'), linewidth: 5, vertexColors: THREE.VertexColors, dashed: false } );
 
-    let line = new THREE.Line2( lineGeometry, lineMaterial );
+    let line = new Line2( lineGeometry, lineMaterial );
     line.computeLineDistances();
     line.scale.set( 1, 1, 1 );
     scene.add( line );
 
 };
-*/
 
 let cylinderWithEndPoints = (a, b, scene) => {
 
