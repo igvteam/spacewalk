@@ -35,31 +35,19 @@
 
 		<script src="../js/threejs/three.js"></script>
 		<script src="../js/threejs/OrbitControls.js"></script>
-
+		<script src='../js/threejs/LineSegmentsGeometry.js'></script>
+		<script src='../js/threejs/LineGeometry.js'></script>
+		<script src='../js/threejs/WireframeGeometry2.js'></script>
+		<script src='../js/threejs/LineMaterial.js'></script>
+		<script src='../js/threejs/LineSegments2.js'></script>
+		<script src='../js/threejs/Line2.js'></script>
+		<script src='../js/threejs/Wireframe.js'></script>
 		<script src="../js/threejs/hilbert3D.js"></script>
-
-		<script src="../js/threejs/WebGL.js"></script>
 
 		<script src="../js/threejs/stats.min.js"></script>
 		<script src='../js/threejs/dat.gui.min.js'></script>
 
-		<script src='../js/threejs/LineSegmentsGeometry.js'></script>
-		<script src='../js/threejs/LineGeometry.js'></script>
-		<script src='../js/threejs/WireframeGeometry2.js'></script>
-
-		<script src='../js/threejs/LineMaterial.js'></script>
-
-		<script src='../js/threejs/LineSegments2.js'></script>
-		<script src='../js/threejs/Line2.js'></script>
-		<script src='../js/threejs/Wireframe.js'></script>
-
 		<script>
-
-			if ( WEBGL.isWebGLAvailable() === false ) {
-
-				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
-
-			}
 
 			var line, renderer, scene, camera, camera2, controls;
 			var line1;

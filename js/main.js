@@ -1,10 +1,10 @@
-import * as THREE from './three.module.js';
+import * as THREE from './threejs_es6/three.module.js';
 
-import OrbitControls from './orbit-controls-es6.js';
+import LineGeometry from './threejs_es6/LineGeometry.js';
+import LineMaterial from './threejs_es6/LineMaterial.js';
+import Line2        from './threejs_es6/Line2.js';
 
-import LineGeometry from './lines_es6/LineGeometry.js';
-import LineMaterial from './lines_es6/LineMaterial.js';
-import Line2        from './lines_es6/Line2.js';
+import OrbitControls from './threejs_es6/orbit-controls-es6.js';
 
 import { appleCrayonNames, appleCrayonColor } from './ei_color.js';
 import SequenceManager from './sequenceManager.js';
@@ -187,14 +187,14 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     // cylinders
     for (let i = 0, j = 1; j < xyz_list.length; ++i, ++j) {
 
-        // cylinderWithEndPoints(xyz_list[i], xyz_list[j], scene);
+        cylinderWithEndPoints(xyz_list[i], xyz_list[j], scene);
 
-        lineWithLerpedColorBetweenEndPoints(
-            xyz_list[i],
-            xyz_list[j],
-            new THREE.Color( appleCrayonColor('lime') ),
-            new THREE.Color( appleCrayonColor('strawberry') ),
-            scene);
+        // lineWithLerpedColorBetweenEndPoints(
+        //     xyz_list[i],
+        //     xyz_list[j],
+        //     new THREE.Color( appleCrayonColor('lime') ),
+        //     new THREE.Color( appleCrayonColor('strawberry') ),
+        //     scene);
     }
 
     window.addEventListener( 'resize', onWindowResize, false );

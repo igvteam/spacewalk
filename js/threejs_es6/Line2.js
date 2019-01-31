@@ -1,4 +1,4 @@
-import * as THREE from '../three.module.js';
+import * as THREE from './three.module.js';
 import LineGeometry from './LineGeometry.js';
 import LineSegments2 from './LineSegments2.js';
 
