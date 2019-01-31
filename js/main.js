@@ -25,11 +25,63 @@ let main = (threejs_canvas) => {
 let setup = async (scene, renderer, camera, orbitControl) => {
 
     // const path = 'data/chr21/IMR90OneMolecule/hacked.txt';
-    const path = 'data/chr21/IMR90OneMolecule/000001.txt';
+    // const path = 'data/chr21/IMR90OneMolecule/000001.txt';
+    const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     const response = await fetch(path);
     const text = await response.text();
 
     const lines = text.split(/\r?\n/);
+
+    // discard blurb
+    lines.shift();
+
+    // discard column titles
+    lines.shift();
+
+    // chr index | segment index | Z | X | y
+    let [ chr_index_current, chr_index ] = [ undefined, undefined ];
+    let segments = {};
+
+    // const reversed = lines.reverse();
+    for (let line of lines) {
+
+        if ("" === line) {
+            // do nothing
+            console.log('ignore blank line');
+        } else {
+
+            let parts = line.split(',');
+
+            let index = parseInt(parts[ 0 ], 10) - 1;
+
+            chr_index = index.toString();
+
+            if (undefined === chr_index_current || chr_index_current !== chr_index) {
+                chr_index_current = chr_index;
+
+                segments[ chr_index_current ] = [];
+            }
+
+            // discard chr index
+            parts.shift();
+
+            // discard segment index
+            parts.shift();
+
+            let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
+            segments[ chr_index_current ].push([ x, y, z ]);
+
+        }
+
+    }
+
+    // let keys = Object.keys(segments);
+    // let [ first_key, last_key ] = [ keys[ 0 ],             keys[ (keys.length - 1) ]];
+    // let [ first,     last     ] = [ segments[ first_key ], segments[ last_key ]];
+
+    return;
+
+
 
     let dev_null;
 
