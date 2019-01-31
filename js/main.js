@@ -59,7 +59,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
             if (undefined === chr_index_current || chr_index_current !== chr_index) {
                 chr_index_current = chr_index;
 
-                segments[ chr_index_current ] = [];
+                segments[ chr_index_current ] = { xyz:[], bbox:[] };
             }
 
             // discard chr index
@@ -69,15 +69,33 @@ let setup = async (scene, renderer, camera, orbitControl) => {
             parts.shift();
 
             let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
-            segments[ chr_index_current ].push([ x, y, z ]);
+            segments[ chr_index_current ].xyz.push([ x, y, z ]);
 
         }
 
     }
 
-    // let keys = Object.keys(segments);
+
+    let keys = Object.keys(segments);
+
+    // diagnostics
     // let [ first_key, last_key ] = [ keys[ 0 ],             keys[ (keys.length - 1) ]];
     // let [ first,     last     ] = [ segments[ first_key ], segments[ last_key ]];
+
+    for (let key of keys) {
+
+        const list = segments[ key ].xyz;
+
+        let dev_null;
+
+        // min
+        dev_null = list
+            .filter(( xyz ) => { return !isNaN(xyz[ 0 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
+            .map((xyz) => { return xyz[ 0 ] });
+        const minX = Math.min(...dev_null);
+
+        segments[ key ].bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
+    }
 
     return;
 
@@ -90,11 +108,11 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     const bbox = dev_null.split(' ');
     bbox.shift(); // discard 'bbox' keyword
 
-    const [ minX, minY, minZ, maxX, maxY, maxZ ] = bbox.map((string) => { return parseFloat(string)});
-    const [ targetX, targetY, targetZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
-    const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
-
-    const target = new THREE.Vector3(targetX, targetY, targetZ);
+    // const [ minX, minY, minZ, maxX, maxY, maxZ ] = bbox.map((string) => { return parseFloat(string)});
+    // const [ targetX, targetY, targetZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
+    // const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
+    //
+    // const target = new THREE.Vector3(targetX, targetY, targetZ);
 
     xyz_list = [];
     for(let line of lines) {
