@@ -1,6 +1,7 @@
 import * as THREE from './three.module.js';
 import OrbitControls from './orbit-controls-es6.js';
 import { appleCrayonNames, appleCrayonColor } from './ei_color.js';
+import SequenceManager from './sequenceManager.js';
 
 let scene;
 let renderer;
@@ -24,8 +25,6 @@ let main = (threejs_canvas) => {
 
 let setup = async (scene, renderer, camera, orbitControl) => {
 
-    // const path = 'data/chr21/IMR90OneMolecule/hacked.txt';
-    // const path = 'data/chr21/IMR90OneMolecule/000001.txt';
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     const response = await fetch(path);
     const text = await response.text();
@@ -59,7 +58,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
             if (undefined === chr_index_current || chr_index_current !== chr_index) {
                 chr_index_current = chr_index;
 
-                segments[ chr_index_current ] = { xyz:[], bbox:[] };
+                segments[ chr_index_current ] = { xyz:[] };
             }
 
             // discard chr index
@@ -75,6 +74,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     }
 
+    let dev_null;
 
     let keys = Object.keys(segments);
 
@@ -82,52 +82,76 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     // let [ first_key, last_key ] = [ keys[ 0 ],             keys[ (keys.length - 1) ]];
     // let [ first,     last     ] = [ segments[ first_key ], segments[ last_key ]];
 
+
     for (let key of keys) {
 
         const list = segments[ key ].xyz;
 
-        let dev_null;
 
-        // min
+        // min x
         dev_null = list
             .filter(( xyz ) => { return !isNaN(xyz[ 0 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
             .map((xyz) => { return xyz[ 0 ] });
         const minX = Math.min(...dev_null);
 
-        segments[ key ].bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
+
+        // min y
+        dev_null = list
+            .filter(( xyz ) => { return !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
+            .map((xyz) => { return xyz[ 1 ] });
+        const minY = Math.min(...dev_null);
+
+
+        // min z
+        dev_null = list
+            .filter(( xyz ) => { return !isNaN(xyz[ 2 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
+            .map((xyz) => { return xyz[ 2 ] });
+        const minZ = Math.min(...dev_null);
+
+        // max x
+        dev_null = list
+            .filter(( xyz ) => { return !isNaN(xyz[ 0 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
+            .map((xyz) => { return xyz[ 0 ] });
+        const maxX = Math.max(...dev_null);
+
+
+        // max y
+        dev_null = list
+            .filter(( xyz ) => { return !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
+            .map((xyz) => { return xyz[ 1 ] });
+        const maxY = Math.max(...dev_null);
+
+
+        // max z
+        dev_null = list
+            .filter(( xyz ) => { return !isNaN(xyz[ 2 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
+            .map((xyz) => { return xyz[ 2 ] });
+        const maxZ = Math.max(...dev_null);
+
+        // bbox
+        segments[ key ].bbox   = [ minX, maxX, minY, maxY, minZ, maxZ ];
+
+        // target - centroid of molecule. where will will aim the camera
+        const [ targetX, targetY, targetZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
+        segments[ key ].target = [ targetX, targetY, targetZ ];
+
+        // size of bounding cube
+        const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
+        segments[ key ].extent = [ extentX, extentY, extentZ ];
+
+        // where to position the camera. the camera with look at the target
+        segments[ key ].cameraPosition = [ targetX - extentX, targetY + extentY, targetZ - extentZ ];
+
     }
 
-    return;
+    const currentKey = '2489';
+    const [ targetX, targetY, targetZ ] = segments[ currentKey ].target;
+    const target = new THREE.Vector3(targetX, targetY, targetZ);
 
+    const [ extentX, extentY, extentZ ] = segments[ currentKey ].extent;
 
+    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = segments[ currentKey ].cameraPosition;
 
-    let dev_null;
-
-    // line 0 - bbox
-    dev_null = lines.shift();
-    const bbox = dev_null.split(' ');
-    bbox.shift(); // discard 'bbox' keyword
-
-    // const [ minX, minY, minZ, maxX, maxY, maxZ ] = bbox.map((string) => { return parseFloat(string)});
-    // const [ targetX, targetY, targetZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
-    // const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
-    //
-    // const target = new THREE.Vector3(targetX, targetY, targetZ);
-
-    xyz_list = [];
-    for(let line of lines) {
-
-        let xyz = [];
-        if ("" === line) {
-            // ignore
-        } else {
-            xyz = line.split(' ').map((string) => { return 'nan' === string ? NaN : parseFloat(string); });
-            xyz_list.push(xyz);
-        }
-
-    }
-
-    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ targetX - extentX, targetY + extentY, targetZ - extentZ ];
     camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
     camera.lookAt( target );
 
@@ -144,6 +168,8 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     const groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, appleCrayonColor('silver'), appleCrayonColor('silver'));
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
+
+    xyz_list = segments[ currentKey ].xyz;
 
     // spheres
     for (let position of xyz_list) {
