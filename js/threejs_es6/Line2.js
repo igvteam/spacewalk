@@ -1,13 +1,13 @@
-import * as THREE from './three.module.js';
-import LineGeometry from './LineGeometry.js';
 import LineSegments2 from './LineSegments2.js';
+import LineGeometry from './LineGeometry.js';
+import LineMaterial from './LineMaterial.js';
 
 /**
  * @author WestLangley / http://github.com/WestLangley
  *
  */
 
-export default function Line2 ( geometry, material ) {
+export default function Line2( geometry, material ) {
 
 	LineSegments2.call( this );
 

@@ -1,4 +1,3 @@
-import * as THREE from './three.module.js';
 import LineSegmentsGeometry from './LineSegmentsGeometry.js';
 
 /**
@@ -6,7 +5,7 @@ import LineSegmentsGeometry from './LineSegmentsGeometry.js';
  *
  */
 
-export default function LineGeometry () {
+export default function LineGeometry() {
 
 	LineSegmentsGeometry.call( this );
 

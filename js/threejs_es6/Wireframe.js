@@ -7,22 +7,22 @@ import LineMaterial from './LineMaterial.js';
  *
  */
 
-export default function LineSegments2( geometry, material ) {
+export default function Wireframe ( geometry, material ) {
 
 	THREE.Mesh.call( this );
 
-	this.type = 'LineSegments2';
+	this.type = 'Wireframe';
 
 	this.geometry = geometry !== undefined ? geometry : new LineSegmentsGeometry();
 	this.material = material !== undefined ? material : new LineMaterial( { color: Math.random() * 0xffffff } );
 
 };
 
-LineSegments2.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
+Wireframe.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
 
-	constructor: LineSegments2,
+	constructor: Wireframe,
 
-	isLineSegments2: true,
+	isWireframe: true,
 
 	computeLineDistances: ( function () { // for backwards-compatability, but could be a method of LineSegmentsGeometry...
 
