@@ -3,6 +3,12 @@ import OrbitControls from '../../js/threejs_es6/orbit-controls-es6.js';
 
 import { appleCrayonNames, appleCrayonColor } from '../../js/ei_color.js';
 
+import LineGeometry from '../../js/threejs_es6/LineGeometry.js';
+import LineMaterial from '../../js/threejs_es6/LineMaterial.js';
+import Line2        from '../../js/threejs_es6/Line2.js';
+
+
+
 let scene;
 let renderer;
 let camera;
