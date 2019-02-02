@@ -6,7 +6,7 @@ import Line2        from './threejs_es6/Line2.js';
 
 import OrbitControls from './threejs_es6/orbit-controls-es6.js';
 
-import { appleCrayonNames, appleCrayonColor, appleCrayonThreeJSColor } from './ei_color.js';
+import { appleCrayonNames, appleCrayonColorHexValue, appleCrayonColorThreeJS } from './ei_color.js';
 import SequenceManager from './sequenceManager.js';
 
 let scene;
@@ -17,7 +17,7 @@ let xyz_list;
 let main = (threejs_canvas) => {
 
     renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
-    renderer.setClearColor(appleCrayonColor('iron'));
+    renderer.setClearColor(appleCrayonColorHexValue('iron'));
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -26,7 +26,7 @@ let main = (threejs_canvas) => {
     orbitControl = new OrbitControls(camera, renderer.domElement);
 
     scene = new THREE.Scene();
-    scene.background = appleCrayonThreeJSColor('iron');
+    scene.background = appleCrayonColorThreeJS('iron');
 
     setup(scene, renderer, camera, orbitControl);
 };
@@ -173,7 +173,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     orbitControl.update();
     orbitControl.addEventListener("change", () => renderer.render(scene, camera));
 
-    const groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, appleCrayonColor('steel'), appleCrayonColor('steel'));
+    const groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('steel'));
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
 
@@ -268,7 +268,7 @@ let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {
     lineGeometry.setPositions( positions );
     lineGeometry.setColors( colors );
 
-    const lineMaterial = new LineMaterial( { color: appleCrayonColor('snow'), linewidth: 5, vertexColors: THREE.VertexColors, dashed: false } );
+    const lineMaterial = new LineMaterial( { color: appleCrayonColorHexValue('snow'), linewidth: 5, vertexColors: THREE.VertexColors, dashed: false } );
 
     let line = new Line2( lineGeometry, lineMaterial );
     line.computeLineDistances();
@@ -288,7 +288,7 @@ let cylinderWithEndPoints = (a, b, scene) => {
     const path = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
 
     const flatColor = new THREE.MeshBasicMaterial();
-    flatColor.color = new THREE.Color( appleCrayonColor('aluminum') );
+    flatColor.color = appleCrayonColorThreeJS('aluminum');
 
     const showNormals = new THREE.MeshNormalMaterial();
 
