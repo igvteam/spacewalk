@@ -172,8 +172,10 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     xyz_list = segments[ currentKey ].xyz;
 
     // spheres
+    let idx = 0
     for (let position of xyz_list) {
-        sphereWithCenter(position, 24, scene);
+        sphereWithCenter(position, 24, scene, idx);
+        idx++
     }
 
     // cylinders
@@ -201,7 +203,7 @@ let onWindowResize = () => {
     renderer.render( scene, camera );
 };
 
-let sphereWithCenter = (center, radius, scene) => {
+let sphereWithCenter = (center, radius, scene, idx) => {
 
     const [ x, y, z ] = center;
     if (isNaN(x)) {
@@ -218,7 +220,15 @@ let sphereWithCenter = (center, radius, scene) => {
     index %= appleCrayonNames.length;
 
     const name = appleCrayonNames[ index ];
-    flatColor.color = new THREE.Color( appleCrayonColor(name) );
+    //flatColor.color = new THREE.Color( appleCrayonColor(name) );
+
+    // Transition from blue -> red over 60 steps
+    const step = idx / 60
+    const blue = Math.floor(Math.min(255, step * 255))
+    const green = 0
+    const red = 255 - blue
+
+    flatColor.color = new THREE.Color(`rgb(${red},${green},${blue})`)
 
     const showNormals = new THREE.MeshNormalMaterial();
 
