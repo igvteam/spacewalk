@@ -62,7 +62,7 @@ let appleCrayonPaletteDictionary =
 let appleCrayonNames = Object.keys(appleCrayonPaletteDictionary);
 console.log('crayon names ' + appleCrayonNames.length);
 
-let appleCrayonColor = (name) => {
+let appleCrayonColorHexValue = name => {
         let string = appleCrayonPaletteDictionary[ name ];
         let tokens = string.split('');
         tokens.shift();
@@ -70,14 +70,9 @@ let appleCrayonColor = (name) => {
         return parseInt(hexString, 16);
 };
 
-let appleCrayonThreeJSColor = (name) => {
-        let string = appleCrayonPaletteDictionary[ name ];
-        let tokens = string.split('');
-        tokens.shift();
-        let hexString = tokens.join('');
-        let result = parseInt(hexString, 16);
-        return new THREE.Color(result);
+let appleCrayonColorThreeJS = name => {
+        return new THREE.Color(appleCrayonColorHexValue(name));
 };
 
-export { appleCrayonNames, appleCrayonColor, appleCrayonThreeJSColor };
+export { appleCrayonNames, appleCrayonColorHexValue, appleCrayonColorThreeJS };
 

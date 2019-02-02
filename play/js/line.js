@@ -1,7 +1,7 @@
 import * as THREE from '../../js/threejs_es6/three.module.js';
 import OrbitControls from '../../js/threejs_es6/orbit-controls-es6.js';
 
-import { appleCrayonNames, appleCrayonColor } from '../../js/ei_color.js';
+import { appleCrayonNames, appleCrayonColorHexValue } from '../../js/ei_color.js';
 
 let scene;
 let renderer;
@@ -11,7 +11,7 @@ let orbitControl;
 let main = (threejs_canvas) => {
 
     renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
-    renderer.setClearColor(appleCrayonColor('snow'));
+    renderer.setClearColor(appleCrayonColorHexValue('snow'));
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -54,9 +54,9 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     colors =
         [
-            new THREE.Color( appleCrayonColor('maraschino') ),
-            new THREE.Color( appleCrayonColor('lime') ),
-            new THREE.Color( appleCrayonColor('blueberry') )
+            new THREE.Color( appleCrayonColorHexValue('maraschino') ),
+            new THREE.Color( appleCrayonColorHexValue('lime') ),
+            new THREE.Color( appleCrayonColorHexValue('blueberry') )
         ];
     geometry = new THREE.Geometry();
     geometry.vertices = vertices;
@@ -73,9 +73,9 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     colors =
         [
-            new THREE.Color( appleCrayonColor('maraschino') ),
-            new THREE.Color( appleCrayonColor('lime') ),
-            new THREE.Color( appleCrayonColor('blueberry') )
+            new THREE.Color( appleCrayonColorHexValue('maraschino') ),
+            new THREE.Color( appleCrayonColorHexValue('lime') ),
+            new THREE.Color( appleCrayonColorHexValue('blueberry') )
         ];
     geometry = new THREE.Geometry();
     geometry.vertices = vertices;

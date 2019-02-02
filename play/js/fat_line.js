@@ -1,7 +1,7 @@
 import * as THREE from '../../js/threejs_es6/three.module.js';
 import OrbitControls from '../../js/threejs_es6/orbit-controls-es6.js';
 
-import { appleCrayonNames, appleCrayonColor } from '../../js/ei_color.js';
+import { appleCrayonNames, appleCrayonColorHexValue } from '../../js/ei_color.js';
 
 import LineGeometry from '../../js/threejs_es6/LineGeometry.js';
 import LineMaterial from '../../js/threejs_es6/LineMaterial.js';
@@ -17,7 +17,7 @@ let orbitControl;
 let main = (threejs_canvas) => {
 
     renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
-    renderer.setClearColor(appleCrayonColor('snow'));
+    renderer.setClearColor(appleCrayonColorHexValue('snow'));
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
