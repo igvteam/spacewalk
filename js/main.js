@@ -6,7 +6,7 @@ import Line2        from './threejs_es6/Line2.js';
 
 import OrbitControls from './threejs_es6/orbit-controls-es6.js';
 
-import { appleCrayonNames, appleCrayonColor } from './ei_color.js';
+import { appleCrayonNames, appleCrayonColor, appleCrayonThreeJSColor } from './ei_color.js';
 import SequenceManager from './sequenceManager.js';
 
 let scene;
@@ -17,14 +17,16 @@ let xyz_list;
 let main = (threejs_canvas) => {
 
     renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
-    renderer.setClearColor(appleCrayonColor('snow'));
+    renderer.setClearColor(appleCrayonColor('iron'));
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     const [ near, far, fov ] = [ 1e-1, 1e5, 35 ];
     camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
     orbitControl = new OrbitControls(camera, renderer.domElement);
+
     scene = new THREE.Scene();
+    scene.background = appleCrayonThreeJSColor('iron');
 
     setup(scene, renderer, camera, orbitControl);
 };
@@ -171,7 +173,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     orbitControl.update();
     orbitControl.addEventListener("change", () => renderer.render(scene, camera));
 
-    const groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, appleCrayonColor('silver'), appleCrayonColor('silver'));
+    const groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, appleCrayonColor('steel'), appleCrayonColor('steel'));
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
 
@@ -286,7 +288,7 @@ let cylinderWithEndPoints = (a, b, scene) => {
     const path = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
 
     const flatColor = new THREE.MeshBasicMaterial();
-    flatColor.color = new THREE.Color( appleCrayonColor('silver') );
+    flatColor.color = new THREE.Color( appleCrayonColor('aluminum') );
 
     const showNormals = new THREE.MeshNormalMaterial();
 

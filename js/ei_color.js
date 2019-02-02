@@ -1,3 +1,5 @@
+import * as THREE from "./threejs_es6/three.module.js";
+
 let rgb2hex = (r255, g255, b255) => {
     return ((r255&0x0ff)<<16)|((g255&0x0ff)<<8)|(b255&0x0ff);
 };
@@ -61,13 +63,21 @@ let appleCrayonNames = Object.keys(appleCrayonPaletteDictionary);
 console.log('crayon names ' + appleCrayonNames.length);
 
 let appleCrayonColor = (name) => {
-    let string = appleCrayonPaletteDictionary[ name ];
-    let tokens = string.split('');
-    tokens.shift();
-    let hexString = tokens.join('');
-    let result = parseInt(hexString, 16);
-    return result;
+        let string = appleCrayonPaletteDictionary[ name ];
+        let tokens = string.split('');
+        tokens.shift();
+        let hexString = tokens.join('');
+        return parseInt(hexString, 16);
 };
 
-export { rgb2hex, appleCrayonNames, appleCrayonColor };
+let appleCrayonThreeJSColor = (name) => {
+        let string = appleCrayonPaletteDictionary[ name ];
+        let tokens = string.split('');
+        tokens.shift();
+        let hexString = tokens.join('');
+        let result = parseInt(hexString, 16);
+        return new THREE.Color(result);
+};
+
+export { appleCrayonNames, appleCrayonColor, appleCrayonThreeJSColor };
 
