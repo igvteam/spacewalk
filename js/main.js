@@ -15,11 +15,26 @@ let scene;
 let renderer;
 let camera;
 let orbitControl;
-const rad21Track = new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed')
-const ctcfTrack = new BedTrack('data/tracks/IMR-90_CTCF_27-31.bed')
+
 const genomicChr = "chr21"
-const genomicStart = 28000000
+const genomicStart = 28000071
 const genomicStep = 30000
+
+// Compute the segment indexes containing a feature.  Quick hack, this is not the right place to do this but
+// I don't know how to change sphere color after its placed in scene
+let featureSegmentIndexes = new Set()
+let initDemoTrack = async (path) => {
+    const bedTrack = new BedTrack(path)
+    const bedFeatures = await bedTrack.getFeatures(genomicChr)
+    for (let feature of bedFeatures) {
+        // Segment index (first sgement is 1)
+        const idx = Math.floor((feature.start - genomicStart) / genomicStep) + 1
+        if(idx >= 0) {
+            console.log(idx + "  " + (genomicStart + (idx-1)*( genomicStep)) + "-" + (genomicStart + idx*genomicStep))
+            featureSegmentIndexes.add(idx)
+        }
+    }
+}
 
 let main = (threejs_canvas) => {
 
@@ -41,6 +56,9 @@ let main = (threejs_canvas) => {
 let setup = async (scene, renderer, camera, orbitControl) => {
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
+
+    //initDemoTrack('data/tracks/IMR-90_CTCF_27-31.bed')
+    initDemoTrack('data/tracks/IMR-90_RAD21_27-31.bed')
 
 
     const response = await fetch(path);
@@ -195,16 +213,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
 
-    // Overlay track -- this is not the right place to do this but I don't know how to change sphere color after its placed in scene
-     const bedFeatures = await rad21Track.getFeatures(genomicChr)
-    //const bedFeatures = await ctcfTrack.getFeatures(genomicChr)
-    for(let feature of bedFeatures) {
-        // Segment index (0 based
-        const idx = Math.floor((feature.start - genomicStart) / genomicStep)
-        if(idx >= 0 && idx < currentSegments.length - 1) {
-            currentSegments[idx].featureHit = true
-        }
-    }
 
     for(let seg of currentSegments) {
         sphereForSegment(seg, 24, scene);
@@ -260,11 +268,11 @@ let sphereForSegment = (segment, radius, scene) => {
 
     // Transition from blue -> red over 60 steps
     const step = index / 60
-    const blue = Math.floor(Math.min(255, step * 255))
+    const red = Math.floor(Math.min(255, step * 255))
     const green = 0
-    const red = 255 - blue
+    const blue = 255 - red
 
-    flatColor.color = new THREE.Color(segment.featureHit ? 'rgb(0, 255, 0)': `rgb(${red},${green},${blue})`)
+    flatColor.color = new THREE.Color(featureSegmentIndexes.has(segment.segmentIndex) ? 'rgb(0, 255, 0)': `rgb(${red},${green},${blue})`)
 
     const showNormals = new THREE.MeshNormalMaterial();
 
