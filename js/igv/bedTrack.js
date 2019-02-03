@@ -1,15 +1,15 @@
 
 
-class BedTrack {
+export default class BedTrack {
 
     constructor(path) {
         this.path = path
         this.features = undefined
     }
 
-    getFeatures(chr) {
+    async getFeatures(chr) {
         if(!this.features) {
-            loadFeatures()
+            await this.loadFeatures()
         }
         return this.features[chr]
     }
