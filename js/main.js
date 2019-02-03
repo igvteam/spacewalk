@@ -46,7 +46,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     lines.shift();
 
     // chr index | segment index | Z | X | y
-    let [ chr_index_current, chr_index ] = [ undefined, undefined ];
+    let [ chrIndexCurrent, molIndex ] = [ undefined, undefined ];
     let segments = {};
 
     // const reversed = lines.reverse();
@@ -61,13 +61,15 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
             let index = parseInt(parts[ 0 ], 10) - 1;
 
-            chr_index = index.toString();
+            molIndex = index.toString();
 
-            if (undefined === chr_index_current || chr_index_current !== chr_index) {
-                chr_index_current = chr_index;
+            if (undefined === chrIndexCurrent || chrIndexCurrent !== molIndex) {
+                chrIndexCurrent = molIndex;
 
-                segments[ chr_index_current ] = { xyz:[] };
+                segments[ chrIndexCurrent ] = [];
             }
+
+
 
             // discard chr index
             parts.shift();
@@ -76,7 +78,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
             parts.shift();
 
             let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
-            segments[ chr_index_current ].xyz.push([ x, y, z ]);
+            segments[ chrIndexCurrent ].push({xyz: [ x, y, z ]});
 
         }
 
@@ -93,7 +95,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     for (let key of keys) {
 
-        const list = segments[ key ].xyz;
+        const list = segments[ key ].map(seg => seg.xyz);
 
 
         // min x
@@ -177,7 +179,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
 
-    xyz_list = segments[ currentKey ].xyz;
+    xyz_list = segments[ currentKey ].map(seg => seg.xyz);
 
     // spheres
     let idx = 0
