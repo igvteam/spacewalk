@@ -15,6 +15,7 @@ let scene;
 let renderer;
 let camera;
 let orbitControl;
+let sequenceManager;
 
 const genomicChr = "chr21"
 const genomicStart = 28000071
@@ -56,145 +57,21 @@ let main = (threejs_canvas) => {
 let setup = async (scene, renderer, camera, orbitControl) => {
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
+    sequenceManager = new SequenceManager();
+    await sequenceManager.loadSequence({ path });
 
     //initDemoTrack('data/tracks/IMR-90_CTCF_27-31.bed')
     initDemoTrack('data/tracks/IMR-90_RAD21_27-31.bed')
 
-
-    const response = await fetch(path);
-    const text = await response.text();
-
-
-    const lines = text.split(/\r?\n/);
-
-    // discard blurb
-    lines.shift();
-
-    // discard column titles
-    lines.shift();
-
-    // chr index | segment index | Z | X | y
-    let [ chrIndexCurrent, molIndex ] = [ undefined, undefined ];
-    let segments = {};
-
-    // const reversed = lines.reverse();
-    for (let line of lines) {
-
-        if ("" === line) {
-            // do nothing
-            console.log('ignore blank line');
-        } else {
-
-            const parts = line.split(',');
-
-            const index = parseInt(parts[ 0 ], 10) - 1;
-
-            molIndex = index.toString();
-
-            if (undefined === chrIndexCurrent || chrIndexCurrent !== molIndex) {
-                chrIndexCurrent = molIndex;
-
-                segments[ chrIndexCurrent ] = [];
-            }
-
-            const segIndex = parseInt(parts[1])
-
-
-            // discard chr index
-            parts.shift();
-
-            // discard segment index
-            parts.shift();
-
-            let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
-            segments[ chrIndexCurrent ].push({
-                molIndex: molIndex,
-                segmentIndex: segIndex,
-                xyz: [ x, y, z ]
-            });
-
-        }
-
-    }
-
-    let dev_null;
-
-    let keys = Object.keys(segments);
-
-    // diagnostics
-    // let [ first_key, last_key ] = [ keys[ 0 ],             keys[ (keys.length - 1) ]];
-    // let [ first,     last     ] = [ segments[ first_key ], segments[ last_key ]];
-
-
-    for (let key of keys) {
-
-        const list = segments[ key ].map(seg => seg.xyz);
-
-
-        // min x
-        dev_null = list
-            .filter(( xyz ) => { return !isNaN(xyz[ 0 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-            .map((xyz) => { return xyz[ 0 ] });
-        const minX = Math.min(...dev_null);
-
-
-        // min y
-        dev_null = list
-            .filter(( xyz ) => { return !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-            .map((xyz) => { return xyz[ 1 ] });
-        const minY = Math.min(...dev_null);
-
-
-        // min z
-        dev_null = list
-            .filter(( xyz ) => { return !isNaN(xyz[ 2 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-            .map((xyz) => { return xyz[ 2 ] });
-        const minZ = Math.min(...dev_null);
-
-        // max x
-        dev_null = list
-            .filter(( xyz ) => { return !isNaN(xyz[ 0 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-            .map((xyz) => { return xyz[ 0 ] });
-        const maxX = Math.max(...dev_null);
-
-
-        // max y
-        dev_null = list
-            .filter(( xyz ) => { return !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-            .map((xyz) => { return xyz[ 1 ] });
-        const maxY = Math.max(...dev_null);
-
-
-        // max z
-        dev_null = list
-            .filter(( xyz ) => { return !isNaN(xyz[ 2 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-            .map((xyz) => { return xyz[ 2 ] });
-        const maxZ = Math.max(...dev_null);
-
-        // bbox
-        segments[ key ].bbox   = [ minX, maxX, minY, maxY, minZ, maxZ ];
-
-        // target - centroid of molecule. where will will aim the camera
-        const [ targetX, targetY, targetZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
-        segments[ key ].target = [ targetX, targetY, targetZ ];
-
-        // size of bounding cube
-        const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
-        segments[ key ].extent = [ extentX, extentY, extentZ ];
-
-        // where to position the camera. the camera with look at the target
-        segments[ key ].cameraPosition = [ targetX - extentX, targetY + extentY, targetZ - extentZ ];
-
-    }
-
     const currentKey = '2489';
-    let currentSegments = segments[currentKey]
-    const [ targetX, targetY, targetZ ] = currentSegments.target;
+    let currentSegment = sequenceManager.segmentWithName(currentKey)
+
+    const [ targetX, targetY, targetZ ] = currentSegment.target;
     const target = new THREE.Vector3(targetX, targetY, targetZ);
 
-    const [ extentX, extentY, extentZ ] = currentSegments.extent;
+    const [ extentX, extentY, extentZ ] = currentSegment.extent;
 
-    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = currentSegments.cameraPosition;
+    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = currentSegment.cameraPosition;
 
     camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
     camera.lookAt( target );
@@ -214,15 +91,15 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     scene.add( groundPlane );
 
 
-    for(let seg of currentSegments) {
+    for(let seg of currentSegment) {
         sphereForSegment(seg, 24, scene);
     }
 
     // cylinders
     //for (let i = 0, j = 1; j < xyz_list.length; ++i, ++j) {
-    for (let i = 0, j = 1; j < currentSegments.length; ++i, ++j) {
+    for (let i = 0, j = 1; j < currentSegment.length; ++i, ++j) {
 
-        cylinderWithEndPoints(currentSegments[i].xyz, currentSegments[j].xyz, scene);
+        cylinderWithEndPoints(currentSegment[i].xyz, currentSegment[j].xyz, scene);
 
         // lineWithLerpedColorBetweenEndPoints(
         //     currentSetments[i].xyz,
