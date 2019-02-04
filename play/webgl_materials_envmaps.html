@@ -11,7 +11,7 @@
 				padding:0;
 				margin:0;
 				overflow:hidden;
-				font-family:georgia;
+				font-family:sans-serif;
 				text-align:center;
 			}
 			a { color:skyblue; text-decoration:none }
@@ -40,8 +40,8 @@
 
 			var controls, camera, scene, renderer;
 			var cameraCube, sceneCube;
-			var textureEquirec, textureSphere;
-			var sphereMesh;
+			var textureEquirec, cubeTexture, textureSphere;
+			var cubeMesh, sphereMesh;
 			var sphereMaterial;
 
 			init();
@@ -59,21 +59,60 @@
 				controls.minDistance = 500;
 				controls.maxDistance = 2500;
 
-				// SCENE
-
 				scene = new THREE.Scene();
 				sceneCube = new THREE.Scene();
-
-				// Lights
 
 				var ambient = new THREE.AmbientLight( 0xffffff );
 				scene.add( ambient );
 
-				// Textures
+
+				// cubic texture
+				const posneg = [ 'pos', 'neg' ];
+				const axes = [ 'x', 'y', 'z' ];
+
+				let names = [];
+				axes.forEach((axis) => { names.push((posneg[ 0 ] + axis)); names.push(posneg[ 1 ] + axis); });
+
+				const [ root, suffix ] = [ 'textures/cube/Bridge2/', '.jpg' ];
+				const paths = names.map((name) => { return root + name + suffix });
+
+				cubeTexture = new THREE.CubeTextureLoader().load( paths );
+				cubeTexture.format = THREE.RGBFormat;
+				cubeTexture.mapping = THREE.CubeReflectionMapping;
+				cubeTexture.encoding = THREE.sRGBEncoding;
+
+				const cubeTextureMaterialConfig =
+						{
+							uniforms: THREE.ShaderLib[ "cube" ].uniforms,
+							fragmentShader: THREE.ShaderLib[ "cube" ].fragmentShader,
+							vertexShader: THREE.ShaderLib[ "cube" ].vertexShader,
+
+							depthWrite: false,
+							side: THREE.BackSide
+						};
+
+				let cubeTextureMaterial = new THREE.ShaderMaterial( cubeTextureMaterialConfig );
+				cubeTextureMaterial.uniforms[ "tCube" ].value = cubeTexture;
+
+				// enable code injection for non-built-in material
+				Object.defineProperty( cubeTextureMaterial, 'map', { get: function () { return this.uniforms.tCube.value; } } );
+
+
+				// Skybox
+				cubeMesh = new THREE.Mesh( new THREE.BoxBufferGeometry( 100, 100, 100 ), cubeTextureMaterial );
+				sceneCube.add( cubeMesh );
+
+				// Sphere
+				sphereMaterial = new THREE.MeshLambertMaterial( { envMap: cubeTexture } );
+				sphereMesh = new THREE.Mesh( new THREE.SphereBufferGeometry( 400.0, 48, 24 ), sphereMaterial );
+				scene.add( sphereMesh );
+
+
+
+
 
 
 				var textureLoader = new THREE.TextureLoader();
-
 				textureEquirec = textureLoader.load( "textures/2294472375_24a3b8ef46_o.jpg" );
 				textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
 				textureEquirec.magFilter = THREE.LinearFilter;
@@ -84,10 +123,7 @@
 				textureSphere.mapping = THREE.SphericalReflectionMapping;
 				textureSphere.encoding = THREE.sRGBEncoding;
 
-				// Materials
-
 				var equirectShader = THREE.ShaderLib[ "equirect" ];
-
 				var equirectMaterial = new THREE.ShaderMaterial( {
 					fragmentShader: equirectShader.fragmentShader,
 					vertexShader: equirectShader.vertexShader,
@@ -97,62 +133,16 @@
 				} );
 
 				equirectMaterial.uniforms[ "tEquirect" ].value = textureEquirec;
+
 				// enable code injection for non-built-in material
-				Object.defineProperty( equirectMaterial, 'map', {
+				Object.defineProperty( equirectMaterial, 'map', { get: function () { return this.uniforms.tEquirect.value; } } );
 
-					get: function () {
 
-						return this.uniforms.tEquirect.value;
 
-					}
-
-				} );
-
-				// let root = "textures/cube/Bridge2/";
-				// let paths = [ root + "posx.jpg", root + "negx.jpg", root + "posy.jpg", root + "negy.jpg", root + "posz.jpg", root + "negz.jpg" ];
-
-				let root = "textures/cube/Park3Med/";
-				let paths = [ root + "px.jpg", root + "nx.jpg", root + "py.jpg", root + "ny.jpg", root + "pz.jpg", root + "nz.jpg" ];
-
-				let textureCube = new THREE.CubeTextureLoader().load( paths );
-				textureCube.format = THREE.RGBFormat;
-				textureCube.mapping = THREE.CubeReflectionMapping;
-				textureCube.encoding = THREE.sRGBEncoding;
-
-				let cubeMaterialConfig =
-						{
-							fragmentShader: THREE.ShaderLib[ "cube" ].fragmentShader,
-							vertexShader: THREE.ShaderLib[ "cube" ].vertexShader,
-							uniforms: THREE.ShaderLib[ "cube" ].uniforms,
-							depthWrite: false,
-							side: THREE.BackSide
-						};
-				var cubeMaterial = new THREE.ShaderMaterial( cubeMaterialConfig );
-
-				cubeMaterial.uniforms[ "tCube" ].value = textureCube;
-
-				Object.defineProperty( cubeMaterial, 'map', {
-
-					get: function () {
-
-						return this.uniforms.tCube.value;
-
-					}
-
-				} );
-
-				// Skybox
-
-				let cubeMesh = new THREE.Mesh( new THREE.BoxBufferGeometry( 100, 100, 100 ), cubeMaterial );
-				sceneCube.add( cubeMesh );
 
 				//
 
-				var geometry = new THREE.SphereBufferGeometry( 400.0, 48, 24 );
-				sphereMaterial = new THREE.MeshLambertMaterial( { envMap: textureCube } );
-				sphereMesh = new THREE.Mesh( geometry, sphereMaterial );
 
-				scene.add( sphereMesh );
 
 				//
 
@@ -169,9 +159,9 @@
 				var params = {
 					Cube: function () {
 
-						cubeMesh.material = cubeMaterial;
+						cubeMesh.material = cubeTextureMaterial;
 						cubeMesh.visible = true;
-						sphereMaterial.envMap = textureCube;
+						sphereMaterial.envMap = cubeTexture;
 						sphereMaterial.needsUpdate = true;
 
 					},
@@ -202,12 +192,12 @@
 					if ( value ) {
 
 						textureEquirec.mapping = THREE.EquirectangularRefractionMapping;
-						textureCube.mapping = THREE.CubeRefractionMapping;
+						cubeTexture.mapping = THREE.CubeRefractionMapping;
 
 					} else {
 
 						textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
-						textureCube.mapping = THREE.CubeReflectionMapping;
+						cubeTexture.mapping = THREE.CubeReflectionMapping;
 
 					}
 
@@ -245,10 +235,11 @@
 			function render() {
 
 				camera.lookAt( scene.position );
+				cameraCube.rotation.copy( camera.rotation );
+
+				renderer.render( sceneCube, cameraCube );
 				renderer.render( scene, camera );
 
-				cameraCube.rotation.copy( camera.rotation );
-				renderer.render( sceneCube, cameraCube );
 			}
 
 		</script>
