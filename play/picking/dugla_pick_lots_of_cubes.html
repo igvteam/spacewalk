@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Pick Lots of Cubes</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: sans-serif;
+				background-color: #f0f0f0;
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+
+	<script src="../../js/threejs/three.js"></script>
+	<script src="../../js/threejs/OrbitControls.js"></script>
+
+		<script>
+
+			let container, camera, orbitControl, scene, raycaster, mouse, renderer;
+			let intersectedObject;
+			var theta = 0;
+			var radius = 100;
+
+			init();
+
+			// animate();
+
+			function init() {
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+				container.appendChild( renderer.domElement );
+
+				mouse = new THREE.Vector2();
+				raycaster = new THREE.Raycaster();
+
+				const [ targetX, targetY, targetZ ] = [ 0, 0, 0 ];
+				const target = new THREE.Vector3(targetX, targetY, targetZ);
+
+				const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ 0, 0, 64 ];
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
+				camera.lookAt( target );
+
+				orbitControl = new THREE.OrbitControls(camera, renderer.domElement);
+				orbitControl.screenSpacePanning = false;
+				orbitControl.target = target;
+				orbitControl.update();
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xf0f0f0 );
+
+				var light = new THREE.DirectionalLight( 0xffffff, 1 );
+				light.position.set( 1, 1, 1 ).normalize();
+				scene.add( light );
+
+				var geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
+
+				for ( var i = 0; i < 2000; i ++ ) {
+
+					var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+
+					object.position.x = Math.random() * 800 - 400;
+					object.position.y = Math.random() * 800 - 400;
+					object.position.z = Math.random() * 800 - 400;
+
+					object.rotation.x = Math.random() * 2 * Math.PI;
+					object.rotation.y = Math.random() * 2 * Math.PI;
+					object.rotation.z = Math.random() * 2 * Math.PI;
+
+					object.scale.x = Math.random() + 0.5;
+					object.scale.y = Math.random() + 0.5;
+					object.scale.z = Math.random() + 0.5;
+
+					scene.add( object );
+
+				}
+
+				orbitControl.addEventListener("change", () => render());
+
+				window.addEventListener( 'mousemove', onWindowMouseMove, false );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				renderer.render(scene, camera);
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				render();
+			}
+
+			function onWindowMouseMove(event) {
+
+				event.preventDefault();
+
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+				render();
+			}
+
+			function render() {
+
+				camera.updateMatrixWorld();
+
+				raycaster.setFromCamera( mouse, camera );
+
+				// intersect scene
+				intersectScene();
+
+				renderer.render( scene, camera );
+			}
+
+			function intersectScene() {
+
+				var intersectionList = raycaster.intersectObjects( scene.children );
+
+				if ( intersectionList.length > 0 ) {
+
+					if ( intersectedObject !== intersectionList[ 0 ].object ) {
+
+						if ( intersectedObject ) {
+							intersectedObject.material.emissive.setHex( intersectedObject.currentHex );
+						}
+
+						intersectedObject = intersectionList[ 0 ].object;
+						intersectedObject.currentHex = intersectedObject.material.emissive.getHex();
+						intersectedObject.material.emissive.setHex( 0xff0000 );
+
+					}
+
+				} else {
+
+					if ( intersectedObject ) {
+						intersectedObject.material.emissive.setHex( intersectedObject.currentHex );
+					}
+
+					intersectedObject = null;
+
+				}
+
+			}
+
+			function depricated_render() {
+
+				theta += 0.1;
+
+				camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
+				camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
+				camera.position.z = radius * Math.cos( THREE.Math.degToRad( theta ) );
+				camera.lookAt( scene.position );
+
+				camera.updateMatrixWorld();
+
+				// find intersections
+
+				raycaster.setFromCamera( mouse, camera );
+
+				var intersects = raycaster.intersectObjects( scene.children );
+
+				if ( intersects.length > 0 ) {
+
+					if ( intersectedObject !== intersects[ 0 ].object ) {
+
+						if ( intersectedObject ) {
+							intersectedObject.material.emissive.setHex( intersectedObject.currentHex );
+						}
+
+						intersectedObject = intersects[ 0 ].object;
+						intersectedObject.currentHex = intersectedObject.material.emissive.getHex();
+						intersectedObject.material.emissive.setHex( 0xff0000 );
+
+					}
+
+				} else {
+
+					if ( intersectedObject ) {
+						intersectedObject.material.emissive.setHex( intersectedObject.currentHex );
+					}
+
+					intersectedObject = null;
+
+				}
+
+				renderer.render( scene, camera );
+
+			}
+
+			function animate() {
+				requestAnimationFrame( animate );
+				render();
+			}
+
+
+		</script>
+
+	</body>
+</html>

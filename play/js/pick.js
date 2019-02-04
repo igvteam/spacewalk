@@ -7,6 +7,8 @@ let scene;
 let renderer;
 let camera;
 let orbitControl;
+let raycaster;
+let mouse;
 
 let main = (threejs_canvas) => {
 
@@ -18,6 +20,10 @@ let main = (threejs_canvas) => {
     const [ near, far, fov ] = [ 1e-1, 1e4, 40 ];
     camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
     orbitControl = new OrbitControls(camera, renderer.domElement);
+
+    mouse = new THREE.Vector2();
+    raycaster = new THREE.Raycaster();
+
     scene = new THREE.Scene();
 
     setup(scene, renderer, camera, orbitControl);
@@ -57,10 +63,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     renderer.render( scene, camera );
 
 };
-let renderScene = () => {
-    camera.updateMatrixWorld();
-    renderer.render(scene, camera)
-};
 
 let onWindowResize = () => {
 
@@ -69,6 +71,27 @@ let onWindowResize = () => {
 
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderScene();
+};
+
+let onWindowMouseMove = (event) => {
+
+    event.preventDefault();
+
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    renderScene();
+};
+
+let renderScene = () => {
+
+    camera.updateMatrixWorld();
+
+    raycaster.setFromCamera( mouse, camera );
+
+    // intersect scene
+
+    renderer.render(scene, camera)
 };
 
 export { main };
