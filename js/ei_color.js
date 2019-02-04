@@ -60,7 +60,7 @@ let appleCrayonPaletteDictionary =
     };
 
 let appleCrayonNames = Object.keys(appleCrayonPaletteDictionary);
-console.log('crayon names ' + appleCrayonNames.length);
+// console.log('crayon names ' + appleCrayonNames.length);
 
 let appleCrayonColorHexValue = name => {
         let string = appleCrayonPaletteDictionary[ name ];
