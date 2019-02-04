@@ -9,11 +9,33 @@ import OrbitControls from './threejs_es6/orbit-controls-es6.js';
 import { appleCrayonNames, appleCrayonColorHexValue, appleCrayonColorThreeJS } from './ei_color.js';
 import SequenceManager from './sequenceManager.js';
 
+import BedTrack from './igv/bedTrack.js'
+
 let scene;
 let renderer;
 let camera;
 let orbitControl;
-let xyz_list;
+
+const genomicChr = "chr21"
+const genomicStart = 28000071
+const genomicStep = 30000
+
+// Compute the segment indexes containing a feature.  Quick hack, this is not the right place to do this but
+// I don't know how to change sphere color after its placed in scene
+let featureSegmentIndexes = new Set()
+let initDemoTrack = async (path) => {
+    const bedTrack = new BedTrack(path)
+    const bedFeatures = await bedTrack.getFeatures(genomicChr)
+    for (let feature of bedFeatures) {
+        // Segment index (first sgement is 1)
+        const idx = Math.floor((feature.start - genomicStart) / genomicStep) + 1
+        if(idx >= 0) {
+            console.log(idx + "  " + (genomicStart + (idx-1)*( genomicStep)) + "-" + (genomicStart + idx*genomicStep))
+            featureSegmentIndexes.add(idx)
+        }
+    }
+}
+
 let main = (threejs_canvas) => {
 
     renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
@@ -34,8 +56,14 @@ let main = (threejs_canvas) => {
 let setup = async (scene, renderer, camera, orbitControl) => {
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
+
+    //initDemoTrack('data/tracks/IMR-90_CTCF_27-31.bed')
+    initDemoTrack('data/tracks/IMR-90_RAD21_27-31.bed')
+
+
     const response = await fetch(path);
     const text = await response.text();
+
 
     const lines = text.split(/\r?\n/);
 
@@ -46,7 +74,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     lines.shift();
 
     // chr index | segment index | Z | X | y
-    let [ chr_index_current, chr_index ] = [ undefined, undefined ];
+    let [ chrIndexCurrent, molIndex ] = [ undefined, undefined ];
     let segments = {};
 
     // const reversed = lines.reverse();
@@ -57,17 +85,20 @@ let setup = async (scene, renderer, camera, orbitControl) => {
             console.log('ignore blank line');
         } else {
 
-            let parts = line.split(',');
+            const parts = line.split(',');
 
-            let index = parseInt(parts[ 0 ], 10) - 1;
+            const index = parseInt(parts[ 0 ], 10) - 1;
 
-            chr_index = index.toString();
+            molIndex = index.toString();
 
-            if (undefined === chr_index_current || chr_index_current !== chr_index) {
-                chr_index_current = chr_index;
+            if (undefined === chrIndexCurrent || chrIndexCurrent !== molIndex) {
+                chrIndexCurrent = molIndex;
 
-                segments[ chr_index_current ] = { xyz:[] };
+                segments[ chrIndexCurrent ] = [];
             }
+
+            const segIndex = parseInt(parts[1])
+
 
             // discard chr index
             parts.shift();
@@ -76,7 +107,11 @@ let setup = async (scene, renderer, camera, orbitControl) => {
             parts.shift();
 
             let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
-            segments[ chr_index_current ].xyz.push([ x, y, z ]);
+            segments[ chrIndexCurrent ].push({
+                molIndex: molIndex,
+                segmentIndex: segIndex,
+                xyz: [ x, y, z ]
+            });
 
         }
 
@@ -93,7 +128,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     for (let key of keys) {
 
-        const list = segments[ key ].xyz;
+        const list = segments[ key ].map(seg => seg.xyz);
 
 
         // min x
@@ -153,12 +188,13 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     }
 
     const currentKey = '2489';
-    const [ targetX, targetY, targetZ ] = segments[ currentKey ].target;
+    let currentSegments = segments[currentKey]
+    const [ targetX, targetY, targetZ ] = currentSegments.target;
     const target = new THREE.Vector3(targetX, targetY, targetZ);
 
-    const [ extentX, extentY, extentZ ] = segments[ currentKey ].extent;
+    const [ extentX, extentY, extentZ ] = currentSegments.extent;
 
-    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = segments[ currentKey ].cameraPosition;
+    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = currentSegments.cameraPosition;
 
     camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
     camera.lookAt( target );
@@ -177,23 +213,20 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
 
-    xyz_list = segments[ currentKey ].xyz;
 
-    // spheres
-    let idx = 0
-    for (let position of xyz_list) {
-        sphereWithCenter(position, 24, scene, idx);
-        idx++
+    for(let seg of currentSegments) {
+        sphereForSegment(seg, 24, scene);
     }
 
     // cylinders
-    for (let i = 0, j = 1; j < xyz_list.length; ++i, ++j) {
+    //for (let i = 0, j = 1; j < xyz_list.length; ++i, ++j) {
+    for (let i = 0, j = 1; j < currentSegments.length; ++i, ++j) {
 
-        cylinderWithEndPoints(xyz_list[i], xyz_list[j], scene);
+        cylinderWithEndPoints(currentSegments[i].xyz, currentSegments[j].xyz, scene);
 
         // lineWithLerpedColorBetweenEndPoints(
-        //     xyz_list[i],
-        //     xyz_list[j],
+        //     currentSetments[i].xyz,
+        //     currentSetments[j].xyz,
         //     new THREE.Color( appleCrayonColor('lime') ),
         //     new THREE.Color( appleCrayonColor('strawberry') ),
         //     scene);
@@ -213,32 +246,33 @@ let onWindowResize = () => {
     renderer.render( scene, camera );
 };
 
-let sphereWithCenter = (center, radius, scene, idx) => {
+let sphereForSegment = (segment, radius, scene) => {
 
-    const [ x, y, z ] = center;
+    const [x, y, z] = segment.xyz
+
     if (isNaN(x)) {
         return;
     }
 
     const flatColor = new THREE.MeshBasicMaterial();
-    let index = xyz_list.indexOf(center);
+    const index = segment.segmentIndex
 
     // advance past dark crayon color names.
-    index += 24;
+    //index += 24;
 
     // modulo
-    index %= appleCrayonNames.length;
+    //index %= appleCrayonNames.length;
 
-    const name = appleCrayonNames[ index ];
+   // const name = appleCrayonNames[ index ];
     //flatColor.color = new THREE.Color( appleCrayonColor(name) );
 
     // Transition from blue -> red over 60 steps
-    const step = idx / 60
-    const blue = Math.floor(Math.min(255, step * 255))
+    const step = index / 60
+    const red = Math.floor(Math.min(255, step * 255))
     const green = 0
-    const red = 255 - blue
+    const blue = 255 - red
 
-    flatColor.color = new THREE.Color(`rgb(${red},${green},${blue})`)
+    flatColor.color = new THREE.Color(featureSegmentIndexes.has(segment.segmentIndex) ? 'rgb(0, 255, 0)': `rgb(${red},${green},${blue})`)
 
     const showNormals = new THREE.MeshNormalMaterial();
 
