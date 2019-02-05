@@ -17,6 +17,9 @@ let renderer;
 let camera;
 let orbitControl;
 let sequenceManager;
+let cubicMapManager;
+
+const showNormalsMaterial = new THREE.MeshNormalMaterial();
 
 const genomicChr = "chr21"
 const genomicStart = 28000071
@@ -51,6 +54,16 @@ let main = (threejs_canvas) => {
 
     scene = new THREE.Scene();
     scene.background = appleCrayonColorThreeJS('iron');
+
+    const cubicMapMaterialConfig =
+        {
+            textureRoot: 'texture/cubic/diffuse/aerodynamics_workshop_diffuse/',
+            suffix: '.png',
+            vertexShaderName: 'diffuse_cube_vert',
+            fragmentShaderName: 'diffuse_cube_frag'
+        };
+
+    cubicMapManager = new CubicMapManager(cubicMapMaterialConfig);
 
     setup(scene, renderer, camera, orbitControl);
 };
@@ -132,7 +145,7 @@ let sphereForSegment = (segment, radius, scene) => {
         return;
     }
 
-    const flatColor = new THREE.MeshBasicMaterial();
+    const flatColorMaterial = new THREE.MeshBasicMaterial();
     const index = segment.segmentIndex
 
     // advance past dark crayon color names.
@@ -142,7 +155,7 @@ let sphereForSegment = (segment, radius, scene) => {
     //index %= appleCrayonNames.length;
 
    // const name = appleCrayonNames[ index ];
-    //flatColor.color = new THREE.Color( appleCrayonColor(name) );
+    //flatColorMaterial.color = new THREE.Color( appleCrayonColor(name) );
 
     // Transition from blue -> red over 60 steps
     const step = index / 60
@@ -150,23 +163,9 @@ let sphereForSegment = (segment, radius, scene) => {
     const green = 0
     const blue = 255 - red
 
-    flatColor.color = new THREE.Color(featureSegmentIndexes.has(segment.segmentIndex) ? 'rgb(0, 255, 0)': `rgb(${red},${green},${blue})`)
+    flatColorMaterial.color = new THREE.Color(featureSegmentIndexes.has(segment.segmentIndex) ? 'rgb(0, 255, 0)': `rgb(${red},${green},${blue})`)
 
-    const showNormals = new THREE.MeshNormalMaterial();
-
-    const cubicMapMaterialConfig =
-        {
-            textureRoot: 'texture/cubic/openexr_to_threejs_format/',
-            suffix: '.png',
-            vertexShaderName: 'diffuse_cube_vert',
-            fragmentShaderName: 'diffuse_cube_frag'
-        };
-
-    const cubicMapManager = new CubicMapManager(cubicMapMaterialConfig);
-
-
-
-    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16), /*flatColor*/cubicMapManager.material);
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16), cubicMapManager.material);
     sphere.position.set(x, y, z);
 
     scene.add(sphere);
@@ -211,13 +210,11 @@ let cylinderWithEndPoints = (a, b, scene) => {
 
     const path = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
 
-    const flatColor = new THREE.MeshBasicMaterial();
-    flatColor.color = appleCrayonColorThreeJS('aluminum');
-
-    const showNormals = new THREE.MeshNormalMaterial();
+    const flatColorMaterial = new THREE.MeshBasicMaterial();
+    flatColorMaterial.color = appleCrayonColorThreeJS('aluminum');
 
     const radius = 4;
-    scene.add(new THREE.Mesh(new THREE.TubeGeometry(path, 4, radius, 16, false), flatColor));
+    scene.add(new THREE.Mesh(new THREE.TubeGeometry(path, 4, radius, 16, false), cubicMapManager.material));
 };
 
 export { main };
