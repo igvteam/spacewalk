@@ -1,6 +1,6 @@
 import * as THREE from '../../js/threejs_es6/three.module.js';
 import OrbitControls from '../../js/threejs_es6/orbit-controls-es6.js';
-
+import CubicMapManager from '../../js/cubicMapManager.js';
 import { appleCrayonNames, appleCrayonColorHexValue } from '../../js/ei_color.js';
 
 let scene;
@@ -43,28 +43,19 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
 
-    let [ rX, rY, rZ ] = [ new THREE.Matrix4(), new THREE.Matrix4(), new THREE.Matrix4() ];
-
-    const thetaX = Math.PI/4;
-    rX.makeRotationX( thetaX );
-
-    const thetaY = Math.PI/6;
-    rY.makeRotationY( thetaY );
-
-    const thetaZ = Math.PI/6;
-    rZ.makeRotationZ( thetaZ );
-
     let geometry;
 
     // sphere geometry
-    // geometry = new THREE.SphereBufferGeometry( dimen / 2, 32, 16 );
-    // geometry = geometry.toNonIndexed();
-
-    // box geometry
-    geometry = new THREE.BoxBufferGeometry(dimen, dimen, dimen);
+    geometry = new THREE.SphereBufferGeometry( dimen / 2, 32, 16 );
     geometry = geometry.toNonIndexed();
 
-    // material - custom shader
+    // box geometry
+    // geometry = new THREE.BoxBufferGeometry(dimen, dimen, dimen);
+    // geometry = geometry.toNonIndexed();
+
+    let material;
+
+    // material
     const materialConfig =
         {
             uniforms: {},
@@ -72,14 +63,35 @@ let setup = async (scene, renderer, camera, orbitControl) => {
             fragmentShader: document.getElementById( 'show_normal_frag' ).textContent,
         };
 
-    let material = new THREE.ShaderMaterial( materialConfig );
-    material.extensions.derivatives = true;
+    // material = new THREE.ShaderMaterial( materialConfig );
 
-    const mesh = new THREE.Mesh(geometry, material);
+    const cubicMapMaterialConfig =
+        {
+            textureRoot: '../../texture/cubic/Bridge/',
+            suffix: '.jpg',
+            vertexShaderName: 'diffuse_cube_vert',
+            fragmentShaderName: 'diffuse_cube_frag'
+        };
+
+    const cubicMapManager = new CubicMapManager(cubicMapMaterialConfig);
+
+    const mesh = new THREE.Mesh(geometry, cubicMapManager.material);
+
+    let [ rX, rY, rZ ] = [ new THREE.Matrix4(), new THREE.Matrix4(), new THREE.Matrix4() ];
+
+    const thetaX = Math.PI/2;
+    rX.makeRotationX( thetaX );
+
+    const thetaY = Math.PI/6;
+    rY.makeRotationY( thetaY );
+
+    const thetaZ = Math.PI/3;
+    rZ.makeRotationZ( thetaZ );
+
     let m4x4;
 
     m4x4 = mesh.matrixWorld;
-    mesh.geometry.applyMatrix( rX );
+    mesh.geometry.applyMatrix( rZ );
     m4x4 = mesh.matrixWorld;
 
 

@@ -82,7 +82,7 @@
 				cubeTexture.mapping = THREE.CubeReflectionMapping;
 				cubeTexture.encoding = THREE.sRGBEncoding;
 
-				const cubeTextureMaterialConfig =
+				const skyboxMaterialConfig =
 						{
 							uniforms: THREE.ShaderLib[ "cube" ].uniforms,
 							fragmentShader: THREE.ShaderLib[ "cube" ].fragmentShader,
@@ -92,17 +92,19 @@
 							side: THREE.BackSide
 						};
 
-				let cubeTextureMaterial = new THREE.ShaderMaterial( cubeTextureMaterialConfig );
-				cubeTextureMaterial.uniforms[ "tCube" ].value = cubeTexture;
+				let skyboxMaterial = new THREE.ShaderMaterial( skyboxMaterialConfig );
+				skyboxMaterial.uniforms[ "tCube" ].value = cubeTexture;
 
 				// enable code injection for non-built-in material
-				Object.defineProperty( cubeTextureMaterial, 'map', { get: function () { return this.uniforms.tCube.value; } } );
+				Object.defineProperty( skyboxMaterial, 'map', { get: function () { return this.uniforms.tCube.value; } } );
 
 
 				// Skybox
 				skyboxGeometry = new THREE.BoxBufferGeometry( 100, 100, 100, 32, 32, 32 );
-				skyboxMesh = new THREE.Mesh( skyboxGeometry, cubeTextureMaterial );
+				skyboxMesh = new THREE.Mesh( skyboxGeometry, skyboxMaterial );
 				sceneCube.add( skyboxMesh );
+
+
 
 				const dimen = 400;
 				// box geometry
@@ -176,7 +178,7 @@
 				var params = {
 					Cube: function () {
 
-						skyboxMesh.material = cubeTextureMaterial;
+						skyboxMesh.material = skyboxMaterial;
 						skyboxMesh.visible = true;
 						heroMaterial.envMap = cubeTexture;
 						heroMaterial.needsUpdate = true;
