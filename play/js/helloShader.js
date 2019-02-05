@@ -29,7 +29,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     const target = new THREE.Vector3(targetX, targetY, targetZ);
 
     const dimen = 16;
-    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ dimen, dimen, 2*dimen ];
+    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ 1.5*dimen, 3*dimen, 3*dimen ];
 
     camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
     camera.lookAt( target );
@@ -38,6 +38,21 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     orbitControl.target = target;
     orbitControl.update();
     orbitControl.addEventListener("change", () => renderer.render(scene, camera));
+
+    const groundPlane = new THREE.GridHelper(4 * dimen, 4 * dimen, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('steel'));
+    groundPlane.position.set(targetX, targetY, targetZ);
+    scene.add( groundPlane );
+
+    let [ rX, rY, rZ ] = [ new THREE.Matrix4(), new THREE.Matrix4(), new THREE.Matrix4() ];
+
+    const thetaX = Math.PI/4;
+    rX.makeRotationX( thetaX );
+
+    const thetaY = Math.PI/6;
+    rY.makeRotationY( thetaY );
+
+    const thetaZ = Math.PI/6;
+    rZ.makeRotationZ( thetaZ );
 
     let geometry;
 
@@ -60,7 +75,13 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     let material = new THREE.ShaderMaterial( materialConfig );
     material.extensions.derivatives = true;
 
-    let mesh = new THREE.Mesh(geometry, material);
+    const mesh = new THREE.Mesh(geometry, material);
+    let m4x4;
+
+    m4x4 = mesh.matrixWorld;
+    mesh.geometry.applyMatrix( rX );
+    m4x4 = mesh.matrixWorld;
+
 
     scene.add( mesh );
 
