@@ -67,8 +67,8 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     const cubicMapMaterialConfig =
         {
-            textureRoot: '../../texture/cubic/Bridge/',
-            suffix: '.jpg',
+            textureRoot: '../../texture/cubic/openexr_to_threejs_format/',
+            suffix: '.png',
             vertexShaderName: 'diffuse_cube_vert',
             fragmentShaderName: 'diffuse_cube_frag'
         };

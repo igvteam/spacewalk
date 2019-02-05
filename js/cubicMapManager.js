@@ -3,13 +3,8 @@ class CubicMapManager {
 
     constructor ({ textureRoot, suffix, vertexShaderName, fragmentShaderName }) {
 
-        const posneg = [ 'pos', 'neg' ];
-        const axes = [ 'x', 'y', 'z' ];
-
-        let names = [];
-        axes.forEach((axis) => { names.push((posneg[ 0 ] + axis)); names.push(posneg[ 1 ] + axis); });
-
-        const paths = names.map((name) => { return textureRoot + name + suffix });
+        // const paths = pathsPosNegStyleWithRoot(textureRoot, suffix);
+        const paths = pathsOpenEXRStyleWithRoot(textureRoot, suffix);
 
         let cubeTexture = new THREE.CubeTextureLoader().load( paths );
         cubeTexture.format   = THREE.RGBFormat;
@@ -34,6 +29,39 @@ class CubicMapManager {
         this.material = new THREE.ShaderMaterial( materialConfig );
 
     }
+
+}
+
+function pathsPosNegStyleWithRoot(root, suffix) {
+
+    const posneg = [ 'pos', 'neg' ];
+    const axes = [ 'x', 'y', 'z' ];
+
+    let names = [];
+    axes.forEach((axis) => { names.push((posneg[ 0 ] + axis)); names.push(posneg[ 1 ] + axis); });
+
+    const paths = names.map((name) => { return root + name + suffix });
+
+    return paths;
+
+}
+
+function pathsOpenEXRStyleWithRoot(root, suffix) {
+
+    let pieces = root.split('/').filter((piece) => { return "" !== piece && '..' !== piece });
+    let prefix = pieces.pop();
+    if ('' === prefix) {
+        prefix = pieces.pop();
+    }
+    const posneg = [ '+', '-' ];
+    const axes = [ 'X', 'Y', 'Z' ];
+
+    let names = [];
+    axes.forEach((axis) => { names.push((prefix + posneg[ 0 ] + axis)); names.push(prefix + posneg[ 1 ] + axis); });
+
+    const paths = names.map((name) => { return root + name + suffix });
+
+    return paths;
 
 }
 
