@@ -39,12 +39,17 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     orbitControl.update();
     orbitControl.addEventListener("change", () => renderer.render(scene, camera));
 
+    let geometry;
+
+    // sphere geometry
+    // geometry = new THREE.SphereBufferGeometry( dimen / 2, 32, 16 );
+    // geometry = geometry.toNonIndexed();
 
     // box geometry
-    let geometry = new THREE.BoxBufferGeometry(dimen, dimen, dimen);
+    geometry = new THREE.BoxBufferGeometry(dimen, dimen, dimen);
     geometry = geometry.toNonIndexed();
 
-    // box material - custom shader
+    // material - custom shader
     const materialConfig =
         {
             uniforms: {},
