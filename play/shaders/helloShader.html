@@ -21,11 +21,32 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
+    <script type="x-shader/x-vertex" id="show_normal_vert">
+            varying vec3 vNormalWorldSpace;
+			varying vec3 vNormalEyeSpace;
+			void main() {
+				vNormalWorldSpace = normal;
+				vNormalEyeSpace = normalMatrix * vec4(normal, 1.0).xyz;
+				gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+			}
+    </script>
+
+    <script type="x-shader/x-fragment" id="show_normal_frag">
+            varying vec3 vNormalWorldSpace;
+			varying vec3 vNormalEyeSpace;
+			void main() {
+			    vec3 n_ws = normalize(vNormalWorldSpace);
+			    vec3 n_es = normalize(vNormalEyeSpace);
+				gl_FragColor.rgb = (n_ws + 1.0)/2.0;
+				gl_FragColor.a = 1.0;
+			}
+    </script>
+
     <script type="x-shader/x-vertex" id="show_st_vert">
 			varying vec2 vST;
 			void main() {
 				vST = uv;
-				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+				gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
 			}
     </script>
 

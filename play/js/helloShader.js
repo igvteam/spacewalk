@@ -53,8 +53,8 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     const materialConfig =
         {
             uniforms: {},
-              vertexShader: document.getElementById( 'show_st_vert' ).textContent,
-            fragmentShader: document.getElementById( 'show_st_frag' ).textContent,
+              vertexShader: document.getElementById( 'show_normal_vert' ).textContent,
+            fragmentShader: document.getElementById( 'show_normal_frag' ).textContent,
         };
 
     let material = new THREE.ShaderMaterial( materialConfig );
