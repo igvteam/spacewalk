@@ -10,6 +10,7 @@ import { appleCrayonNames, appleCrayonColorHexValue, appleCrayonColorThreeJS } f
 import SequenceManager from './sequenceManager.js';
 
 import BedTrack from './igv/bedTrack.js'
+import CubicMapManager from "./cubicMapManager.js";
 
 let scene;
 let renderer;
@@ -153,7 +154,19 @@ let sphereForSegment = (segment, radius, scene) => {
 
     const showNormals = new THREE.MeshNormalMaterial();
 
-    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16), flatColor);
+    const cubicMapMaterialConfig =
+        {
+            textureRoot: 'texture/cubic/openexr_to_threejs_format/',
+            suffix: '.png',
+            vertexShaderName: 'diffuse_cube_vert',
+            fragmentShaderName: 'diffuse_cube_frag'
+        };
+
+    const cubicMapManager = new CubicMapManager(cubicMapMaterialConfig);
+
+
+
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16), /*flatColor*/cubicMapManager.material);
     sphere.position.set(x, y, z);
 
     scene.add(sphere);
