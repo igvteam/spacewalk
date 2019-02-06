@@ -17,7 +17,7 @@ let renderer;
 let camera;
 let orbitControl;
 let sequenceManager;
-let cubicMapManager;
+let diffuseCubicMapManager;
 
 let sphereGeometry;
 let showNormalsMaterial;
@@ -55,17 +55,30 @@ let main = (threejs_canvas) => {
     orbitControl = new OrbitControls(camera, renderer.domElement);
 
     scene = new THREE.Scene();
-    scene.background = appleCrayonColorThreeJS('iron');
 
-    const cubicMapMaterialConfig =
+
+    const specularCubicMapMaterialConfig =
         {
-            textureRoot: 'texture/cubic/diffuse/aerodynamics_workshop_diffuse/',
+            textureRoot: 'texture/cubic/specular/rocky_ridge/',
             suffix: '.png',
-            vertexShaderName: 'diffuse_cube_vert',
-            fragmentShaderName: 'diffuse_cube_frag'
+            isSpecularMap: true
         };
 
-    cubicMapManager = new CubicMapManager(cubicMapMaterialConfig);
+    const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
+
+    scene.background = specularCubicMapManager.cubicTexture;
+    // scene.background = appleCrayonColorThreeJS('iron');
+
+    const diffuseCubicMapMaterialConfig =
+        {
+            textureRoot: 'texture/cubic/diffuse/rocky_ridge/',
+            suffix: '.png',
+            vertexShaderName: 'diffuse_cube_vert',
+            fragmentShaderName: 'diffuse_cube_frag',
+            isSpecularMap: false
+        };
+
+    diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
 
     showNormalsMaterial = new THREE.MeshNormalMaterial();
 
@@ -127,7 +140,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
         if (!doSkip) {
             // sphereForSegment(seg, sphereGeometry, showSTMaterial, x, y, z, scene);
-            sphereForSegment(seg, sphereGeometry, cubicMapManager.material, x, y, z, scene);
+            sphereForSegment(seg, sphereGeometry, diffuseCubicMapManager.material, x, y, z, scene);
         }
 
     }
@@ -146,7 +159,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
             const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/4, 16, false);
             // scene.add(new THREE.Mesh(geometry, showSTMaterial));
-            scene.add(new THREE.Mesh(geometry, cubicMapManager.material));
+            scene.add(new THREE.Mesh(geometry, diffuseCubicMapManager.material));
         }
 
     }

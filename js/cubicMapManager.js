@@ -1,7 +1,7 @@
 import * as THREE from './threejs_es6/three.module.js';
 class CubicMapManager {
 
-    constructor ({ textureRoot, suffix, vertexShaderName, fragmentShaderName }) {
+    constructor ({ textureRoot, suffix, vertexShaderName, fragmentShaderName, isSpecularMap }) {
 
         // const paths = pathsPosNegStyleWithRoot(textureRoot, suffix);
         const paths = pathsOpenEXRStyleWithRoot(textureRoot, suffix);
@@ -11,26 +11,51 @@ class CubicMapManager {
         cubeTexture.mapping  = THREE.CubeReflectionMapping;
         cubeTexture.encoding = THREE.sRGBEncoding;
 
-        const materialConfig =
-            {
-                uniforms:
-                    {
-                        cubicMap:
-                            {
-                                value: cubeTexture
-                            }
-                    },
+        this.cubicTexture = cubeTexture;
 
-                vertexShader: document.getElementById( vertexShaderName   ).textContent,
-
-                fragmentShader: document.getElementById( fragmentShaderName ).textContent
-            };
-
-        this.material = new THREE.ShaderMaterial( materialConfig );
-        this.material.side = THREE.DoubleSide;
-
+        this.material = isSpecularMap ? specularMaterial(cubeTexture) : diffuseMaterial(cubeTexture, vertexShaderName, fragmentShaderName);
     }
 
+}
+
+function diffuseMaterial (cubicTexture, vert, frag) {
+
+    const config =
+        {
+            uniforms:
+                {
+                    cubicMap:
+                        {
+                            value: cubicTexture
+                        }
+                },
+
+              vertexShader: document.getElementById( vert ).textContent,
+            fragmentShader: document.getElementById( frag ).textContent
+        };
+
+    return new THREE.ShaderMaterial( config );
+
+}
+
+function specularMaterial (cubicTexture) {
+
+    const config =
+        {
+            uniforms: THREE.ShaderLib[ "cube" ].uniforms,
+
+              vertexShader: THREE.ShaderLib[ "cube" ].vertexShader,
+            fragmentShader: THREE.ShaderLib[ "cube" ].fragmentShader,
+
+            depthWrite: false,
+
+            side: THREE.BackSide
+        };
+
+    let material = new THREE.ShaderMaterial( config );
+    material.uniforms[ "tCube" ].value = cubicTexture;
+
+    return material;
 }
 
 function pathsPosNegStyleWithRoot(root, suffix) {
