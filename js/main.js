@@ -21,7 +21,8 @@ let cubicMapManager;
 
 let sphereGeometry;
 let cylinderGeometry;
-const showNormalsMaterial = new THREE.MeshNormalMaterial();
+let showNormalsMaterial;
+let showSTMaterial;
 
 const genomicChr = "chr21"
 const genomicStart = 28000071
@@ -66,6 +67,19 @@ let main = (threejs_canvas) => {
         };
 
     cubicMapManager = new CubicMapManager(cubicMapMaterialConfig);
+
+    showNormalsMaterial = new THREE.MeshNormalMaterial();
+
+    const showSTMaterialConfig =
+        {
+            uniforms: {},
+            vertexShader: document.getElementById( 'show_st_vert' ).textContent,
+            fragmentShader: document.getElementById( 'show_st_frag' ).textContent,
+            depthTest: true
+        };
+
+    showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
+    // showSTMaterial = new THREE.ShaderMaterial();
 
     setup(scene, renderer, camera, orbitControl);
 };
@@ -173,7 +187,7 @@ let sphereForSegment = (segment, x, y, z, scene) => {
     const blue = 255 - red
     flatColorMaterial.color = new THREE.Color(featureSegmentIndexes.has(segment.segmentIndex) ? 'rgb(0, 255, 0)': `rgb(${red},${green},${blue})`)
 
-    let sphereMesh = new THREE.Mesh(sphereGeometry, cubicMapManager.material/*flatColorMaterial*/);
+    let sphereMesh = new THREE.Mesh(sphereGeometry, showSTMaterial/*flatColorMaterial*/);
     sphereMesh.position.set(x, y, z);
 
     scene.add(sphereMesh);
