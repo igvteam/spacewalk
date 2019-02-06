@@ -20,7 +20,6 @@ let sequenceManager;
 let cubicMapManager;
 
 let sphereGeometry;
-let cylinderGeometry;
 let showNormalsMaterial;
 let showSTMaterial;
 
@@ -51,7 +50,7 @@ let main = (threejs_canvas) => {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    const [ near, far, fov ] = [ 1e-1, 1e5, 35 ];
+    const [ near, far, fov ] = [ 5e1, 1e4, 35 ];
     camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
     orbitControl = new OrbitControls(camera, renderer.domElement);
 
@@ -60,7 +59,7 @@ let main = (threejs_canvas) => {
 
     const cubicMapMaterialConfig =
         {
-            textureRoot: 'texture/cubic/diffuse/cap_hill/',
+            textureRoot: 'texture/cubic/diffuse/aerodynamics_workshop_diffuse/',
             suffix: '.png',
             vertexShaderName: 'diffuse_cube_vert',
             fragmentShaderName: 'diffuse_cube_frag'
@@ -74,12 +73,10 @@ let main = (threejs_canvas) => {
         {
             uniforms: {},
             vertexShader: document.getElementById( 'show_st_vert' ).textContent,
-            fragmentShader: document.getElementById( 'show_st_frag' ).textContent,
-            depthTest: true
+            fragmentShader: document.getElementById( 'show_st_frag' ).textContent
         };
 
     showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
-    // showSTMaterial = new THREE.ShaderMaterial();
 
     setup(scene, renderer, camera, orbitControl);
 };
@@ -129,7 +126,8 @@ let setup = async (scene, renderer, camera, orbitControl) => {
         const doSkip = isNaN(x) || isNaN(y) || isNaN(z);
 
         if (!doSkip) {
-            sphereForSegment(seg, x, y, z, scene);
+            // sphereForSegment(seg, sphereGeometry, showSTMaterial, x, y, z, scene);
+            sphereForSegment(seg, sphereGeometry, cubicMapManager.material, x, y, z, scene);
         }
 
     }
@@ -138,7 +136,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     const flatColorMaterial = new THREE.MeshBasicMaterial();
     flatColorMaterial.color = appleCrayonColorThreeJS('aluminum');
 
-    const cylinderRadius = 8;
     for (let i = 0, j = 1; j < currentSegment.length; ++i, ++j) {
 
         const [ x0, y0, z0 ] = currentSegment[i].xyz;
@@ -146,9 +143,10 @@ let setup = async (scene, renderer, camera, orbitControl) => {
         const doSkip = isNaN(x0) || isNaN(x1);
 
         if (!doSkip) {
-            const cylinderAxis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-            cylinderGeometry = new THREE.TubeGeometry(cylinderAxis, 4, cylinderRadius, 16, false);
-            cylinderWithScene(cylinderGeometry, flatColorMaterial, scene);
+            const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
+            const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/4, 16, false);
+            // scene.add(new THREE.Mesh(geometry, showSTMaterial));
+            scene.add(new THREE.Mesh(geometry, cubicMapManager.material));
         }
 
     }
@@ -167,7 +165,7 @@ let onWindowResize = () => {
     renderer.render( scene, camera );
 };
 
-let sphereForSegment = (segment, x, y, z, scene) => {
+let sphereForSegment = (segment, geometry, material, x, y, z, scene) => {
 
     const flatColorMaterial = new THREE.MeshBasicMaterial();
 
@@ -185,12 +183,11 @@ let sphereForSegment = (segment, x, y, z, scene) => {
     const red = Math.floor(Math.min(255, step * 255))
     const green = 0
     const blue = 255 - red
-    flatColorMaterial.color = new THREE.Color(featureSegmentIndexes.has(segment.segmentIndex) ? 'rgb(0, 255, 0)': `rgb(${red},${green},${blue})`)
+    flatColorMaterial.color = new THREE.Color(featureSegmentIndexes.has(segment.segmentIndex) ? 'rgb(0, 255, 0)': `rgb(${red},${green},${blue})`);
 
-    let sphereMesh = new THREE.Mesh(sphereGeometry, showSTMaterial/*flatColorMaterial*/);
-    sphereMesh.position.set(x, y, z);
-
-    scene.add(sphereMesh);
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(x, y, z);
+    scene.add(mesh);
 };
 
 let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {
@@ -220,10 +217,6 @@ let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {
     line.scale.set( 1, 1, 1 );
     scene.add( line );
 
-};
-
-let cylinderWithScene = (geometry, material, scene) => {
-    scene.add(new THREE.Mesh(geometry, material));
 };
 
 export { main };

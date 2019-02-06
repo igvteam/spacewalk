@@ -43,27 +43,27 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
 
-    let geometry;
 
-    // sphere geometry
-    geometry = new THREE.SphereBufferGeometry( dimen / 2, 32, 16 );
-    geometry = geometry.toNonIndexed();
 
-    // box geometry
-    // geometry = new THREE.BoxBufferGeometry(dimen, dimen, dimen);
-    // geometry = geometry.toNonIndexed();
 
-    let material;
 
-    // material
-    const materialConfig =
+
+
+
+
+
+    let showSTMaterial;
+
+    const showSTConfig =
         {
             uniforms: {},
-              vertexShader: document.getElementById( 'show_normal_vert' ).textContent,
-            fragmentShader: document.getElementById( 'show_normal_frag' ).textContent,
+              vertexShader: document.getElementById( 'show_st_vert' ).textContent,
+            fragmentShader: document.getElementById( 'show_st_frag' ).textContent
         };
 
-    // material = new THREE.ShaderMaterial( materialConfig );
+    // showSTMaterial = new THREE.ShaderMaterial( showSTConfig );
+    showSTMaterial = new THREE.ShaderMaterial(  );
+    showSTMaterial.side = THREE.DoubleSide;
 
     const cubicMapMaterialConfig =
         {
@@ -76,8 +76,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     const cubicMapManager = new CubicMapManager(cubicMapMaterialConfig);
 
-    const mesh = new THREE.Mesh(geometry, cubicMapManager.material);
-
     let [ rX, rY, rZ ] = [ new THREE.Matrix4(), new THREE.Matrix4(), new THREE.Matrix4() ];
 
     const thetaX = Math.PI/2;
@@ -89,19 +87,56 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     const thetaZ = Math.PI/3;
     rZ.makeRotationZ( thetaZ );
 
+
+    let geometry;
+
+    // sphere geometry
+    geometry = new THREE.SphereBufferGeometry( dimen/2, 32, 16 );
+    geometry = geometry.toNonIndexed();
+
+    // box geometry
+    // geometry = new THREE.BoxBufferGeometry(dimen, dimen, dimen);
+    // geometry = geometry.toNonIndexed();
+
+
+    let meshA = new THREE.Mesh(geometry, cubicMapManager.material);
+    meshA.position.set(dimen, 0, 0);
+
+    let meshB = new THREE.Mesh(geometry, cubicMapManager.material);
+    meshB.position.set(-dimen, 0, 0);
+
+    // const mesh = new THREE.Mesh(geometry, cubicMapManager.material);
+
+    cylinderWithScene(cubicMapManager.material, 2*dimen, dimen/8, scene);
+
+
     let m4x4;
 
-    m4x4 = mesh.matrixWorld;
-    mesh.geometry.applyMatrix( rZ );
-    m4x4 = mesh.matrixWorld;
+    // m4x4 = mesh.matrixWorld;
+    // mesh.geometry.applyMatrix( rZ );
+    // m4x4 = mesh.matrixWorld;
 
 
-    scene.add( mesh );
+    scene.add( meshA );
+    scene.add( meshB );
 
     window.addEventListener( 'resize', onWindowResize, false );
 
     renderer.render( scene, camera );
 
+};
+
+
+let cylinderWithScene = (material, halfLength, radius, scene) => {
+
+    const [ x0, y0, z0 ] = [ -halfLength, 0, 0 ];
+    const [ x1, y1, z1 ] = [  halfLength, 0, 0 ];
+
+    const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
+
+    const geometry = new THREE.TubeGeometry(axis, 4, radius, 16, false);
+
+    scene.add(new THREE.Mesh(geometry, material));
 };
 
 let onWindowResize = () => {

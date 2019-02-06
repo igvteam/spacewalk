@@ -27,6 +27,7 @@ class CubicMapManager {
             };
 
         this.material = new THREE.ShaderMaterial( materialConfig );
+        this.material.side = THREE.DoubleSide;
 
     }
 
