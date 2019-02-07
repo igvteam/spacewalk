@@ -10,12 +10,18 @@ import { appleCrayonNames, appleCrayonColorHexValue, appleCrayonColorThreeJS } f
 import SequenceManager from './sequenceManager.js';
 
 import BedTrack from './igv/bedTrack.js'
+import CubicMapManager from "./cubicMapManager.js";
 
 let scene;
 let renderer;
 let camera;
 let orbitControl;
 let sequenceManager;
+let diffuseCubicMapManager;
+
+let sphereGeometry;
+let showNormalsMaterial;
+let showSTMaterial;
 
 const genomicChr = "chr21"
 const genomicStart = 28000071
@@ -44,12 +50,48 @@ let main = (threejs_canvas) => {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    const [ near, far, fov ] = [ 1e-1, 1e5, 35 ];
+    const [ near, far, fov ] = [ 5e1, 1e4, 35 ];
     camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
     orbitControl = new OrbitControls(camera, renderer.domElement);
 
     scene = new THREE.Scene();
-    scene.background = appleCrayonColorThreeJS('iron');
+
+
+    const specularCubicMapMaterialConfig =
+        {
+            // textureRoot: 'texture/cubic/specular/blouberg_sunrise/',
+            textureRoot: 'texture/cubic/diagnostic/threejs_format/',
+            suffix: '.png',
+            isSpecularMap: true
+        };
+
+    const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
+
+    // scene.background = specularCubicMapManager.cubicTexture;
+    scene.background = appleCrayonColorThreeJS('mercury');
+
+    const diffuseCubicMapMaterialConfig =
+        {
+            // textureRoot: 'texture/cubic/diffuse/blouberg_sunrise/',
+            textureRoot: 'texture/cubic/diagnostic/threejs_format/',
+            suffix: '.png',
+            vertexShaderName: 'diffuse_cube_vert',
+            fragmentShaderName: 'diffuse_cube_frag',
+            isSpecularMap: false
+        };
+
+    diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
+
+    showNormalsMaterial = new THREE.MeshNormalMaterial();
+
+    const showSTMaterialConfig =
+        {
+            uniforms: {},
+            vertexShader: document.getElementById( 'show_st_vert' ).textContent,
+            fragmentShader: document.getElementById( 'show_st_frag' ).textContent
+        };
+
+    showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
 
     setup(scene, renderer, camera, orbitControl);
 };
@@ -91,22 +133,35 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     scene.add( groundPlane );
 
 
+    const sphereRadius = 24;
+    sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
     for(let seg of currentSegment) {
-        sphereForSegment(seg, 24, scene);
+
+        const [x, y, z] = seg.xyz;
+        const doSkip = isNaN(x) || isNaN(y) || isNaN(z);
+
+        if (!doSkip) {
+            sphereForSegment(seg, sphereGeometry, diffuseCubicMapManager.material, x, y, z, scene);
+        }
+
     }
 
     // cylinders
-    //for (let i = 0, j = 1; j < xyz_list.length; ++i, ++j) {
+    const flatColorMaterial = new THREE.MeshBasicMaterial();
+    flatColorMaterial.color = appleCrayonColorThreeJS('nickel');
+
     for (let i = 0, j = 1; j < currentSegment.length; ++i, ++j) {
 
-        cylinderWithEndPoints(currentSegment[i].xyz, currentSegment[j].xyz, scene);
+        const [ x0, y0, z0 ] = currentSegment[i].xyz;
+        const [ x1, y1, z1 ] = currentSegment[j].xyz;
+        const doSkip = isNaN(x0) || isNaN(x1);
 
-        // lineWithLerpedColorBetweenEndPoints(
-        //     currentSetments[i].xyz,
-        //     currentSetments[j].xyz,
-        //     new THREE.Color( appleCrayonColor('lime') ),
-        //     new THREE.Color( appleCrayonColor('strawberry') ),
-        //     scene);
+        if (!doSkip) {
+            const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
+            const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/4, 16, false);
+            scene.add(new THREE.Mesh(geometry, flatColorMaterial/*diffuseCubicMapManager.material*/));
+        }
+
     }
 
     window.addEventListener( 'resize', onWindowResize, false );
@@ -123,40 +178,29 @@ let onWindowResize = () => {
     renderer.render( scene, camera );
 };
 
-let sphereForSegment = (segment, radius, scene) => {
+let sphereForSegment = (segment, geometry, material, x, y, z, scene) => {
 
-    const [x, y, z] = segment.xyz
+    const flatColorMaterial = new THREE.MeshBasicMaterial();
 
-    if (isNaN(x)) {
-        return;
-    }
-
-    const flatColor = new THREE.MeshBasicMaterial();
-    const index = segment.segmentIndex
+    let index
 
     // advance past dark crayon color names.
-    //index += 24;
-
-    // modulo
-    //index %= appleCrayonNames.length;
-
-   // const name = appleCrayonNames[ index ];
-    //flatColor.color = new THREE.Color( appleCrayonColor(name) );
+    // index += 24;
+    // index %= appleCrayonNames.length;
+    // const name = appleCrayonNames[ index ];
+    // flatColorMaterial.color = new THREE.Color( appleCrayonColor(name) );
 
     // Transition from blue -> red over 60 steps
+    index = segment.segmentIndex;
     const step = index / 60
     const red = Math.floor(Math.min(255, step * 255))
     const green = 0
     const blue = 255 - red
+    flatColorMaterial.color = new THREE.Color(featureSegmentIndexes.has(segment.segmentIndex) ? 'rgb(0, 255, 0)': `rgb(${red},${green},${blue})`);
 
-    flatColor.color = new THREE.Color(featureSegmentIndexes.has(segment.segmentIndex) ? 'rgb(0, 255, 0)': `rgb(${red},${green},${blue})`)
-
-    const showNormals = new THREE.MeshNormalMaterial();
-
-    const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16), flatColor);
-    sphere.position.set(x, y, z);
-
-    scene.add(sphere);
+    const mesh = new THREE.Mesh(geometry, flatColorMaterial/*material*/);
+    mesh.position.set(x, y, z);
+    scene.add(mesh);
 };
 
 let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {
@@ -186,25 +230,6 @@ let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {
     line.scale.set( 1, 1, 1 );
     scene.add( line );
 
-};
-
-let cylinderWithEndPoints = (a, b, scene) => {
-
-    const [ x0, y0, z0 ] = a;
-    const [ x1, y1, z1 ] = b;
-    if (isNaN(x0) || isNaN(x1)) {
-        return;
-    }
-
-    const path = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-
-    const flatColor = new THREE.MeshBasicMaterial();
-    flatColor.color = appleCrayonColorThreeJS('aluminum');
-
-    const showNormals = new THREE.MeshNormalMaterial();
-
-    const radius = 4;
-    scene.add(new THREE.Mesh(new THREE.TubeGeometry(path, 4, radius, 16, false), flatColor));
 };
 
 export { main };
