@@ -66,51 +66,31 @@ class SegmentManager {
 
         for (let key of keys) {
 
-            const list = this.segments[ key ].map(seg => seg.xyz);
+            const [ minX, minY, minZ, maxX, maxY, maxZ ] = this.segments[ key ].map(seg => seg.xyz).reduce((accumulator, xyz) => {
 
+                const doSkip = isNaN(xyz[ 0 ])|| isNaN(xyz[ 1 ]) || isNaN(xyz[ 2 ]);
 
-            // min x
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 0 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 0 ] });
-            const minX = Math.min(...dev_null);
+                if (!doSkip) {
+                    accumulator =
+                        [
+                            // min
+                            Math.min(accumulator[ 0 ], xyz[ 0 ]),
+                            Math.min(accumulator[ 1 ], xyz[ 1 ]),
+                            Math.min(accumulator[ 2 ], xyz[ 2 ]),
 
+                            // max
+                            Math.max(accumulator[ 3 ], xyz[ 0 ]),
+                            Math.max(accumulator[ 4 ], xyz[ 1 ]),
+                            Math.max(accumulator[ 5 ], xyz[ 2 ]),
+                        ];
+                }
 
-            // min y
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 1 ] });
-            const minY = Math.min(...dev_null);
+                return accumulator;
 
-
-            // min z
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 2 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 2 ] });
-            const minZ = Math.min(...dev_null);
-
-            // max x
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 0 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 0 ] });
-            const maxX = Math.max(...dev_null);
-
-
-            // max y
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 1 ] });
-            const maxY = Math.max(...dev_null);
-
-
-            // max z
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 2 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 2 ] });
-            const maxZ = Math.max(...dev_null);
+            }, [ Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE ]);
 
             // bbox
-            this.segments[ key ].bbox   = [ minX, maxX, minY, maxY, minZ, maxZ ];
+            this.segments[ key ].bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
 
             // target - centroid of molecule. where will will aim the camera
             const [ targetX, targetY, targetZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
