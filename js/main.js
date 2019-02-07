@@ -6,7 +6,7 @@ import Line2        from './threejs_es6/Line2.js';
 
 import OrbitControls from './threejs_es6/orbit-controls-es6.js';
 
-import { appleCrayonNames, appleCrayonColorHexValue, appleCrayonColorThreeJS } from './ei_color.js';
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from './ei_color.js';
 import SequenceManager from './sequenceManager.js';
 import CubicMapManager from "./cubicMapManager.js";
 
@@ -122,10 +122,12 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
         if (!doSkip) {
 
-            const material = sequenceManager.materialForFeatureSegmentIndexes(seg.segmentIndex);
-            // const material = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('strawberry') });
+            seg.material = sequenceManager.materialForFeatureSegmentIndex(seg.segmentIndex);
+            seg.mesh = new THREE.Mesh(sphereGeometry, seg.material);
+            seg.mesh.position.set(x, y, z);
 
-            sphereForSegment(sphereGeometry, material, x, y, z, scene);
+            scene.add(seg.mesh);
+
         }
 
     }
@@ -156,14 +158,6 @@ let onWindowResize = () => {
 
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.render( scene, camera );
-};
-
-let sphereForSegment = (geometry, material, x, y, z, scene) => {
-
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(x, y, z);
-
-    scene.add(mesh);
 };
 
 let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {

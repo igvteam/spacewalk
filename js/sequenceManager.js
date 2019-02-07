@@ -151,7 +151,8 @@ class SequenceManager {
 
     }
 
-    materialForFeatureSegmentIndexes(index) {
+    materialForFeatureSegmentIndex(index) {
+
 
         const step = index / 60
         const ramp = Math.floor(Math.min(255, step * 255));
