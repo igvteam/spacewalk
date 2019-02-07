@@ -1,5 +1,6 @@
 import BedTrack from "./igv/bedTrack.js";
 import * as THREE from "./threejs_es6/three.module.js";
+import { globalEventBus } from './main.js';
 
 class SegmentManager {
 
@@ -65,51 +66,31 @@ class SegmentManager {
 
         for (let key of keys) {
 
-            const list = this.segments[ key ].map(seg => seg.xyz);
+            const [ minX, minY, minZ, maxX, maxY, maxZ ] = this.segments[ key ].map(seg => seg.xyz).reduce((accumulator, xyz) => {
 
+                const doSkip = isNaN(xyz[ 0 ])|| isNaN(xyz[ 1 ]) || isNaN(xyz[ 2 ]);
 
-            // min x
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 0 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 0 ] });
-            const minX = Math.min(...dev_null);
+                if (!doSkip) {
+                    accumulator =
+                        [
+                            // min
+                            Math.min(accumulator[ 0 ], xyz[ 0 ]),
+                            Math.min(accumulator[ 1 ], xyz[ 1 ]),
+                            Math.min(accumulator[ 2 ], xyz[ 2 ]),
 
+                            // max
+                            Math.max(accumulator[ 3 ], xyz[ 0 ]),
+                            Math.max(accumulator[ 4 ], xyz[ 1 ]),
+                            Math.max(accumulator[ 5 ], xyz[ 2 ]),
+                        ];
+                }
 
-            // min y
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 1 ] });
-            const minY = Math.min(...dev_null);
+                return accumulator;
 
-
-            // min z
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 2 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 2 ] });
-            const minZ = Math.min(...dev_null);
-
-            // max x
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 0 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 0 ] });
-            const maxX = Math.max(...dev_null);
-
-
-            // max y
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 1 ] });
-            const maxY = Math.max(...dev_null);
-
-
-            // max z
-            dev_null = list
-                .filter(( xyz ) => { return !isNaN(xyz[ 2 ]) && !isNaN(xyz[ 1 ]) && !isNaN(xyz[ 2 ]); })
-                .map((xyz) => { return xyz[ 2 ] });
-            const maxZ = Math.max(...dev_null);
+            }, [ Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE ]);
 
             // bbox
-            this.segments[ key ].bbox   = [ minX, maxX, minY, maxY, minZ, maxZ ];
+            this.segments[ key ].bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
 
             // target - centroid of molecule. where will will aim the camera
             const [ targetX, targetY, targetZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
@@ -124,6 +105,7 @@ class SegmentManager {
 
         }
 
+        globalEventBus.post({type: "DidLoadSequence", data: path });
     }
 
     // Compute the segment indexes containing a feature.  Quick hack, this is not the right place to do this but
@@ -132,7 +114,8 @@ class SegmentManager {
 
         const [ genomicChr, genomicStart, genomicStep ] = [ "chr21", 28000071, 30000 ]
 
-        this.featureSegmentIndexes = new Set()
+        this.featureSegmentIndices = new Set()
+        this.segmentGenomicLocationDictionary = {};
 
         this.bedTrack = new BedTrack(path)
 
@@ -144,22 +127,27 @@ class SegmentManager {
             const idx = Math.floor((feature.start - genomicStart) / genomicStep) + 1
 
             if(idx >= 0) {
-                // console.log(idx + "  " + (genomicStart + (idx-1)*( genomicStep)) + "-" + (genomicStart + idx*genomicStep))
-                this.featureSegmentIndexes.add(idx)
+
+                this.featureSegmentIndices.add(idx);
+
+                const key = idx.toString();
+                this.segmentGenomicLocationDictionary[ key ] = { genomicLocation: feature.start };
+            } else {
+                console.log('NO segment index for genomic location ' + feature.start);
             }
         }
 
+        globalEventBus.post({type: "DidLoadDemoTrack", data: path });
     }
 
     materialForFeatureSegmentIndex(index) {
-
 
         const step = index / 60
         const ramp = Math.floor(Math.min(255, step * 255));
 
         const [ red, green, blue ] = [ ramp, 0, 255 - ramp ];
 
-        return new THREE.MeshBasicMaterial({ color: new THREE.Color( this.featureSegmentIndexes.has(index) ? 'rgb(0, 255, 0)' : `rgb(${red},${green},${blue})` ) });
+        return new THREE.MeshBasicMaterial({ color: new THREE.Color( this.featureSegmentIndices.has(index) ? 'rgb(0, 255, 0)' : `rgb(${red},${green},${blue})` ) });
     }
 
     segmentWithName(name) {
