@@ -25,7 +25,7 @@ class SequenceManager {
 
             if ("" === line) {
                 // do nothing
-                console.log('ignore blank line');
+                // console.log('ignore blank line');
             } else {
 
                 const parts = line.split(',');
@@ -50,11 +50,7 @@ class SequenceManager {
                 parts.shift();
 
                 let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
-                this.segments[ chrIndexCurrent ].push({
-                    molIndex: molIndex,
-                    segmentIndex: segIndex,
-                    xyz: [ x, y, z ]
-                });
+                this.segments[ chrIndexCurrent ].push({ molIndex: molIndex, segmentIndex: segIndex, xyz: [ x, y, z ] });
 
             }
 

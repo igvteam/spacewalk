@@ -23,6 +23,8 @@ let sphereGeometry;
 let showNormalsMaterial;
 let showSTMaterial;
 
+const cylinderMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('nickel') });
+
 const genomicChr = "chr21"
 const genomicStart = 28000071
 const genomicStep = 30000
@@ -146,10 +148,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     }
 
-    // cylinders
-    const flatColorMaterial = new THREE.MeshBasicMaterial();
-    flatColorMaterial.color = appleCrayonColorThreeJS('nickel');
-
     for (let i = 0, j = 1; j < currentSegment.length; ++i, ++j) {
 
         const [ x0, y0, z0 ] = currentSegment[i].xyz;
@@ -159,7 +157,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
         if (!doSkip) {
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
             const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/4, 16, false);
-            scene.add(new THREE.Mesh(geometry, flatColorMaterial/*diffuseCubicMapManager.material*/));
+            scene.add(new THREE.Mesh(geometry, cylinderMaterial/*diffuseCubicMapManager.material*/));
         }
 
     }
