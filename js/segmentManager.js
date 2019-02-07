@@ -1,7 +1,7 @@
 import BedTrack from "./igv/bedTrack.js";
 import * as THREE from "./threejs_es6/three.module.js";
 
-class SequenceManager {
+class SegmentManager {
 
     constructor () {
         // do constructor things
@@ -167,4 +167,4 @@ class SequenceManager {
     }
 }
 
-export default SequenceManager;
+export default SegmentManager;

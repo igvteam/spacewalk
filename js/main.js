@@ -7,14 +7,14 @@ import Line2        from './threejs_es6/Line2.js';
 import OrbitControls from './threejs_es6/orbit-controls-es6.js';
 
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from './ei_color.js';
-import SequenceManager from './sequenceManager.js';
+import SegmentManager from './segmentManager.js';
 import CubicMapManager from "./cubicMapManager.js";
 
 let scene;
 let renderer;
 let camera;
 let orbitControl;
-let sequenceManager;
+let segmentManager;
 let diffuseCubicMapManager;
 
 let sphereGeometry;
@@ -79,14 +79,14 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
 
-    sequenceManager = new SequenceManager();
-    await sequenceManager.loadSequence({ path });
+    segmentManager = new SegmentManager();
+    await segmentManager.loadSequence({ path: path });
 
-    // sequenceManager.loadDemoTrack({ path: 'data/tracks/IMR-90_CTCF_27-31.bed' });
-    sequenceManager.loadDemoTrack({ path: 'data/tracks/IMR-90_RAD21_27-31.bed' });
+    // segmentManager.loadDemoTrack({ path: 'data/tracks/IMR-90_CTCF_27-31.bed' });
+    segmentManager.loadDemoTrack({ path: 'data/tracks/IMR-90_RAD21_27-31.bed' });
 
     const currentKey = '2489';
-    let currentSegment = sequenceManager.segmentWithName(currentKey)
+    let currentSegment = segmentManager.segmentWithName(currentKey)
 
     const [ targetX, targetY, targetZ ] = currentSegment.target;
     const target = new THREE.Vector3(targetX, targetY, targetZ);
@@ -122,7 +122,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
         if (!doSkip) {
 
-            seg.material = sequenceManager.materialForFeatureSegmentIndex(seg.segmentIndex);
+            seg.material = segmentManager.materialForFeatureSegmentIndex(seg.segmentIndex);
             seg.mesh = new THREE.Mesh(sphereGeometry, seg.material);
             seg.mesh.position.set(x, y, z);
 
