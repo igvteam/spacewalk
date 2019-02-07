@@ -59,7 +59,8 @@ let main = (threejs_canvas) => {
 
     const specularCubicMapMaterialConfig =
         {
-            textureRoot: 'texture/cubic/specular/rocky_ridge/',
+            // textureRoot: 'texture/cubic/specular/blouberg_sunrise/',
+            textureRoot: 'texture/cubic/openexr_to_threejs_format/',
             suffix: '.png',
             isSpecularMap: true
         };
@@ -71,7 +72,8 @@ let main = (threejs_canvas) => {
 
     const diffuseCubicMapMaterialConfig =
         {
-            textureRoot: 'texture/cubic/diffuse/rocky_ridge/',
+            // textureRoot: 'texture/cubic/diffuse/blouberg_sunrise/',
+            textureRoot: 'texture/cubic/openexr_to_threejs_format/',
             suffix: '.png',
             vertexShaderName: 'diffuse_cube_vert',
             fragmentShaderName: 'diffuse_cube_frag',
