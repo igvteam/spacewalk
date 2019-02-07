@@ -9,6 +9,8 @@ import OrbitControls from './threejs_es6/orbit-controls-es6.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from './ei_color.js';
 import SegmentManager from './segmentManager.js';
 import CubicMapManager from "./cubicMapManager.js";
+import EventBus from './eventBus.js';
+import SceneManager from './sceneManager.js';
 
 let scene;
 let renderer;
@@ -23,7 +25,11 @@ let showSTMaterial;
 
 const cylinderMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('nickel') });
 
+let globalEventBus = new EventBus();
+let sceneManager;
 let main = (threejs_canvas) => {
+
+    sceneManager = new SceneManager();
 
     renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
     renderer.setClearColor(appleCrayonColorHexValue('iron'));
@@ -189,4 +195,4 @@ let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {
 
 };
 
-export { main };
+export { main, globalEventBus };

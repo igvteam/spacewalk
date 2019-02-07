@@ -1,5 +1,6 @@
 import BedTrack from "./igv/bedTrack.js";
 import * as THREE from "./threejs_es6/three.module.js";
+import { globalEventBus } from './main.js';
 
 class SegmentManager {
 
@@ -124,6 +125,7 @@ class SegmentManager {
 
         }
 
+        globalEventBus.post({type: "DidLoadSequence", data: path });
     }
 
     // Compute the segment indexes containing a feature.  Quick hack, this is not the right place to do this but
@@ -155,6 +157,7 @@ class SegmentManager {
             }
         }
 
+        globalEventBus.post({type: "DidLoadDemoTrack", data: path });
     }
 
     materialForFeatureSegmentIndex(index) {
