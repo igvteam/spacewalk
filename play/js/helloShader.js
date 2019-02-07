@@ -7,6 +7,7 @@ let scene;
 let renderer;
 let camera;
 let orbitControl;
+let diffuseCubicMapManager;
 
 let main = (threejs_canvas) => {
 
@@ -19,6 +20,20 @@ let main = (threejs_canvas) => {
     camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
     orbitControl = new OrbitControls(camera, renderer.domElement);
     scene = new THREE.Scene();
+
+
+    const specularCubicMapMaterialConfig =
+        {
+            textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
+            suffix: '.png',
+            isSpecularMap: true
+        };
+
+    const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
+
+    scene.background = specularCubicMapManager.cubicTexture;
+    // scene.background = appleCrayonColorThreeJS('iron');
+
 
     setup(scene, renderer, camera, orbitControl);
 };
@@ -44,14 +59,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     scene.add( groundPlane );
 
 
-
-
-
-
-
-
-
-
     let showSTMaterial;
 
     const showSTConfig =
@@ -61,20 +68,19 @@ let setup = async (scene, renderer, camera, orbitControl) => {
             fragmentShader: document.getElementById( 'show_st_frag' ).textContent
         };
 
-    // showSTMaterial = new THREE.ShaderMaterial( showSTConfig );
-    showSTMaterial = new THREE.ShaderMaterial(  );
+    showSTMaterial = new THREE.ShaderMaterial( showSTConfig );
     showSTMaterial.side = THREE.DoubleSide;
 
-    const cubicMapMaterialConfig =
+    const diffuseCubicMapMaterialConfig =
         {
-            // textureRoot: '../../texture/cubic/openexr_to_threejs_format/',
-            textureRoot: '../../texture/cubic/diffuse/aerodynamics_workshop_diffuse/',
+            textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
             suffix: '.png',
             vertexShaderName: 'diffuse_cube_vert',
-            fragmentShaderName: 'diffuse_cube_frag'
+            fragmentShaderName: 'diffuse_cube_frag',
+            isSpecularMap: false
         };
 
-    const cubicMapManager = new CubicMapManager(cubicMapMaterialConfig);
+    diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
 
     let [ rX, rY, rZ ] = [ new THREE.Matrix4(), new THREE.Matrix4(), new THREE.Matrix4() ];
 
@@ -99,15 +105,15 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     // geometry = geometry.toNonIndexed();
 
 
-    let meshA = new THREE.Mesh(geometry, cubicMapManager.material);
+    let meshA = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
     meshA.position.set(dimen, 0, 0);
 
-    let meshB = new THREE.Mesh(geometry, cubicMapManager.material);
+    let meshB = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
     meshB.position.set(-dimen, 0, 0);
 
     // const mesh = new THREE.Mesh(geometry, cubicMapManager.material);
 
-    cylinderWithScene(cubicMapManager.material, 2*dimen, dimen/8, scene);
+    cylinderWithScene(diffuseCubicMapManager.material, 2*dimen, dimen/8, scene);
 
 
     let m4x4;
