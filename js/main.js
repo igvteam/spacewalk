@@ -67,8 +67,8 @@ let main = (threejs_canvas) => {
 
     const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
-    scene.background = specularCubicMapManager.cubicTexture;
-    // scene.background = appleCrayonColorThreeJS('iron');
+    // scene.background = specularCubicMapManager.cubicTexture;
+    scene.background = appleCrayonColorThreeJS('mercury');
 
     const diffuseCubicMapMaterialConfig =
         {
@@ -141,7 +141,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
         const doSkip = isNaN(x) || isNaN(y) || isNaN(z);
 
         if (!doSkip) {
-            // sphereForSegment(seg, sphereGeometry, showSTMaterial, x, y, z, scene);
             sphereForSegment(seg, sphereGeometry, diffuseCubicMapManager.material, x, y, z, scene);
         }
 
@@ -149,7 +148,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     // cylinders
     const flatColorMaterial = new THREE.MeshBasicMaterial();
-    flatColorMaterial.color = appleCrayonColorThreeJS('aluminum');
+    flatColorMaterial.color = appleCrayonColorThreeJS('nickel');
 
     for (let i = 0, j = 1; j < currentSegment.length; ++i, ++j) {
 
@@ -160,8 +159,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
         if (!doSkip) {
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
             const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/4, 16, false);
-            // scene.add(new THREE.Mesh(geometry, showSTMaterial));
-            scene.add(new THREE.Mesh(geometry, diffuseCubicMapManager.material));
+            scene.add(new THREE.Mesh(geometry, flatColorMaterial/*diffuseCubicMapManager.material*/));
         }
 
     }
@@ -200,7 +198,7 @@ let sphereForSegment = (segment, geometry, material, x, y, z, scene) => {
     const blue = 255 - red
     flatColorMaterial.color = new THREE.Color(featureSegmentIndexes.has(segment.segmentIndex) ? 'rgb(0, 255, 0)': `rgb(${red},${green},${blue})`);
 
-    const mesh = new THREE.Mesh(geometry, material);
+    const mesh = new THREE.Mesh(geometry, flatColorMaterial/*material*/);
     mesh.position.set(x, y, z);
     scene.add(mesh);
 };
