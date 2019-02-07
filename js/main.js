@@ -122,11 +122,11 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
         if (!doSkip) {
 
-            seg.material = segmentManager.materialForFeatureSegmentIndex(seg.segmentIndex);
-            seg.mesh = new THREE.Mesh(sphereGeometry, seg.material);
-            seg.mesh.position.set(x, y, z);
+            const material = segmentManager.materialForFeatureSegmentIndex(seg.segmentIndex);
+            const mesh = new THREE.Mesh(sphereGeometry, material);
+            mesh.position.set(x, y, z);
 
-            scene.add(seg.mesh);
+            scene.add(mesh);
 
         }
 

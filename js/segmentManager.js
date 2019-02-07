@@ -132,7 +132,8 @@ class SegmentManager {
 
         const [ genomicChr, genomicStart, genomicStep ] = [ "chr21", 28000071, 30000 ]
 
-        this.featureSegmentIndexes = new Set()
+        this.featureSegmentIndices = new Set()
+        this.segmentGenomicLocationDictionary = {};
 
         this.bedTrack = new BedTrack(path)
 
@@ -144,8 +145,13 @@ class SegmentManager {
             const idx = Math.floor((feature.start - genomicStart) / genomicStep) + 1
 
             if(idx >= 0) {
-                // console.log(idx + "  " + (genomicStart + (idx-1)*( genomicStep)) + "-" + (genomicStart + idx*genomicStep))
-                this.featureSegmentIndexes.add(idx)
+
+                this.featureSegmentIndices.add(idx);
+
+                const key = idx.toString();
+                this.segmentGenomicLocationDictionary[ key ] = { genomicLocation: feature.start };
+            } else {
+                console.log('NO segment index for genomic location ' + feature.start);
             }
         }
 
@@ -153,13 +159,12 @@ class SegmentManager {
 
     materialForFeatureSegmentIndex(index) {
 
-
         const step = index / 60
         const ramp = Math.floor(Math.min(255, step * 255));
 
         const [ red, green, blue ] = [ ramp, 0, 255 - ramp ];
 
-        return new THREE.MeshBasicMaterial({ color: new THREE.Color( this.featureSegmentIndexes.has(index) ? 'rgb(0, 255, 0)' : `rgb(${red},${green},${blue})` ) });
+        return new THREE.MeshBasicMaterial({ color: new THREE.Color( this.featureSegmentIndices.has(index) ? 'rgb(0, 255, 0)' : `rgb(${red},${green},${blue})` ) });
     }
 
     segmentWithName(name) {
