@@ -1,3 +1,6 @@
+import BedTrack from "./igv/bedTrack.js";
+import * as THREE from "./threejs_es6/three.module.js";
+
 class SequenceManager {
 
     constructor () {
@@ -25,7 +28,7 @@ class SequenceManager {
 
             if ("" === line) {
                 // do nothing
-                console.log('ignore blank line');
+                // console.log('ignore blank line');
             } else {
 
                 const parts = line.split(',');
@@ -50,11 +53,7 @@ class SequenceManager {
                 parts.shift();
 
                 let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
-                this.segments[ chrIndexCurrent ].push({
-                    molIndex: molIndex,
-                    segmentIndex: segIndex,
-                    xyz: [ x, y, z ]
-                });
+                this.segments[ chrIndexCurrent ].push({ molIndex: molIndex, segmentIndex: segIndex, xyz: [ x, y, z ] });
 
             }
 
@@ -125,6 +124,42 @@ class SequenceManager {
 
         }
 
+    }
+
+    // Compute the segment indexes containing a feature.  Quick hack, this is not the right place to do this but
+    // I don't know how to change sphere color after its placed in scene
+    async loadDemoTrack({ path }) {
+
+        const [ genomicChr, genomicStart, genomicStep ] = [ "chr21", 28000071, 30000 ]
+
+        this.featureSegmentIndexes = new Set()
+
+        this.bedTrack = new BedTrack(path)
+
+        const bedFeatures = await this.bedTrack.getFeatures(genomicChr)
+
+        for (let feature of bedFeatures) {
+
+            // Segment index (first sgement is 1)
+            const idx = Math.floor((feature.start - genomicStart) / genomicStep) + 1
+
+            if(idx >= 0) {
+                // console.log(idx + "  " + (genomicStart + (idx-1)*( genomicStep)) + "-" + (genomicStart + idx*genomicStep))
+                this.featureSegmentIndexes.add(idx)
+            }
+        }
+
+    }
+
+    materialForFeatureSegmentIndex(index) {
+
+
+        const step = index / 60
+        const ramp = Math.floor(Math.min(255, step * 255));
+
+        const [ red, green, blue ] = [ ramp, 0, 255 - ramp ];
+
+        return new THREE.MeshBasicMaterial({ color: new THREE.Color( this.featureSegmentIndexes.has(index) ? 'rgb(0, 255, 0)' : `rgb(${red},${green},${blue})` ) });
     }
 
     segmentWithName(name) {
