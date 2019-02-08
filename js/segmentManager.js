@@ -60,8 +60,6 @@ class SegmentManager {
 
         }
 
-        let dev_null;
-
         let keys = Object.keys(this.segments);
 
         for (let key of keys) {
