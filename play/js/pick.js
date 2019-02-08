@@ -1,7 +1,7 @@
 import * as THREE from '../../js/threejs_es6/three.module.js';
 import OrbitControls from '../../js/threejs_es6/orbit-controls-es6.js';
-
-import { appleCrayonNames, appleCrayonColorHexValue, appleCrayonRandomColorHexValue } from '../../js/ei_color.js';
+import { throttle } from '../../js/utils.js';
+import { appleCrayonColorHexValue, appleCrayonRandomColorHexValue } from '../../js/ei_color.js';
 
 let scene;
 let renderer;
@@ -79,7 +79,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     window.addEventListener( 'resize', onWindowResize, false );
 
-    window.addEventListener( 'mousemove', onWindowMouseMove, false );
+    window.addEventListener( 'mousemove', throttle(onWindowMouseMove, 20), false );
 
     renderScene();
 
@@ -105,13 +105,7 @@ let onWindowMouseMove = (event) => {
 };
 
 let renderScene = () => {
-
-    // camera.updateMatrixWorld();
-
-
-    // intersect scene
     intersectScene();
-
     renderer.render(scene, camera)
 };
 
