@@ -4,18 +4,16 @@ import LineGeometry from './threejs_es6/LineGeometry.js';
 import LineMaterial from './threejs_es6/LineMaterial.js';
 import Line2        from './threejs_es6/Line2.js';
 
-import OrbitControls from './threejs_es6/orbit-controls-es6.js';
-
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from './ei_color.js';
 import SegmentManager from './segmentManager.js';
 import CubicMapManager from "./cubicMapManager.js";
 import EventBus from './eventBus.js';
 import SceneManager from './sceneManager.js';
+import OrbitalCamera from "./orbitalCamera.js";
 
 let scene;
 let renderer;
-let camera;
-let orbitControl;
+let orbitalCamera;
 let segmentManager;
 let diffuseCubicMapManager;
 
@@ -37,8 +35,9 @@ let main = (threejs_canvas) => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     const [ near, far, fov ] = [ 5e1, 1e4, 35 ];
-    camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
-    orbitControl = new OrbitControls(camera, renderer.domElement);
+    const aspectRatio = window.innerWidth / window.innerHeight;
+    const domElement = renderer.domElement;
+    orbitalCamera = new OrbitalCamera({ fov, near, far, aspectRatio, domElement });
 
     scene = new THREE.Scene();
 
@@ -78,10 +77,10 @@ let main = (threejs_canvas) => {
 
     showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
 
-    setup(scene, renderer, camera, orbitControl);
+    setup(scene, renderer);
 };
 
-let setup = async (scene, renderer, camera, orbitControl) => {
+let setup = async (scene, renderer) => {
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
 
@@ -92,27 +91,20 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     segmentManager.loadDemoTrack({ path: 'data/tracks/IMR-90_RAD21_27-31.bed' });
 
     const currentKey = '2489';
-    let currentSegment = segmentManager.segmentWithName(currentKey)
+    let currentSegment = segmentManager.segmentWithName(currentKey);
 
     const [ targetX, targetY, targetZ ] = currentSegment.target;
-    const target = new THREE.Vector3(targetX, targetY, targetZ);
-
     const [ extentX, extentY, extentZ ] = currentSegment.extent;
 
-    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = currentSegment.cameraPosition;
-
-    camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
-    camera.lookAt( target );
+    orbitalCamera.setPosition(currentSegment.cameraPosition);
+    orbitalCamera.setLookAt(new THREE.Vector3(targetX, targetY, targetZ));
 
     let dimen = 0.5 * Math.max(extentX, extentY, extentZ);
     dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
-    camera.near = 0.05 * dimen;
-    camera.far  = 4.00 * dimen;
 
-    orbitControl.screenSpacePanning = false;
-    orbitControl.target = target;
-    orbitControl.update();
-    orbitControl.addEventListener("change", () => renderer.render(scene, camera));
+    orbitalCamera.setNearFar([ 0.05 * dimen, 4.00 * dimen ]);
+
+    orbitalCamera.orbitControl.addEventListener("change", () => renderer.render(scene, orbitalCamera.camera));
 
     const groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('steel'));
     groundPlane.position.set(targetX, targetY, targetZ);
@@ -154,16 +146,16 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     window.addEventListener( 'resize', onWindowResize, false );
 
-    renderer.render( scene, camera );
+    renderer.render( scene, orbitalCamera.camera );
 
 };
 
 let onWindowResize = () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+    orbitalCamera.camera.aspect = window.innerWidth / window.innerHeight;
+    orbitalCamera.camera.updateProjectionMatrix();
 
     renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.render( scene, camera );
+    renderer.render( scene, orbitalCamera.camera );
 };
 
 let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {
