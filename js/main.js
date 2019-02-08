@@ -16,6 +16,7 @@ let renderer;
 let orbitalCamera;
 let segmentManager;
 let diffuseCubicMapManager;
+let specularCubicMapManager;
 
 let sphereGeometry;
 let showNormalsMaterial;
@@ -49,7 +50,7 @@ let main = (threejs_canvas) => {
             isSpecularMap: true
         };
 
-    const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
+    specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
     // scene.background = specularCubicMapManager.cubicTexture;
     scene.background = appleCrayonColorThreeJS('mercury');
