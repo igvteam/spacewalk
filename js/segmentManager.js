@@ -60,13 +60,9 @@ class SegmentManager {
 
         }
 
-        let dev_null;
+        Object.values(this.segments).forEach(segment => {
 
-        let keys = Object.keys(this.segments);
-
-        for (let key of keys) {
-
-            const [ minX, minY, minZ, maxX, maxY, maxZ ] = this.segments[ key ].map(seg => seg.xyz).reduce((accumulator, xyz) => {
+            const [ minX, minY, minZ, maxX, maxY, maxZ ] = segment.map(seg => seg.xyz).reduce((accumulator, xyz) => {
 
                 const doSkip = isNaN(xyz[ 0 ])|| isNaN(xyz[ 1 ]) || isNaN(xyz[ 2 ]);
 
@@ -90,20 +86,25 @@ class SegmentManager {
             }, [ Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE ]);
 
             // bbox
-            this.segments[ key ].bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
+            segment.bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
 
-            // target - centroid of molecule. where will will aim the camera
-            const [ targetX, targetY, targetZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
-            this.segments[ key ].target = [ targetX, targetY, targetZ ];
-
-            // size of bounding cube
+            // size of bounding hyper-rectangle
             const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
-            this.segments[ key ].extent = [ extentX, extentY, extentZ ];
+            segment.extent = [ extentX, extentY, extentZ ];
 
-            // where to position the camera. the camera with look at the target
-            this.segments[ key ].cameraPosition = [ targetX - extentX, targetY + extentY, targetZ - extentZ ];
+            const maxExtent = Math.max([ extentX, extentY, extentZ ]);
+            segment.boundingCube = [ maxExtent, maxExtent, maxExtent ];
+            segment.boundingSphere = Math.sqrt(3) * maxExtent;
 
-        }
+            // Centroid of molecule. where will will aim the camera
+            const [ centroidX, centroidY, centroidZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
+            segment.centroid = [ centroidX, centroidY, centroidZ ];
+
+            // where to position the camera. the camera with look at the centroid
+            segment.cameraPosition = [ centroidX - extentX, centroidY + extentY, centroidZ - extentZ ];
+
+
+        });
 
         globalEventBus.post({type: "DidLoadSequence", data: path });
     }
