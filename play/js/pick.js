@@ -21,6 +21,7 @@ let main = (threejs_canvas) => {
     const [ near, far, fov ] = [ 1e-1, 1e4, 70 ];
     camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
     orbitControl = new OrbitControls(camera, renderer.domElement);
+    orbitControl.zoomSpeed /= 4.0;
 
     mouse = new THREE.Vector2();
     raycaster = new THREE.Raycaster();
@@ -105,7 +106,7 @@ let onWindowMouseMove = (event) => {
 
 let renderScene = () => {
 
-    camera.updateMatrixWorld();
+    // camera.updateMatrixWorld();
 
 
     // intersect scene
