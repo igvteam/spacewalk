@@ -1,36 +1,44 @@
 import * as THREE from '../../js/threejs_es6/three.module.js';
 import OrbitControls from '../../js/threejs_es6/orbit-controls-es6.js';
 
-import { appleCrayonNames, appleCrayonColorHexValue, appleCrayonRandomColorHexValue } from '../../js/ei_color.js';
+import Picker from '../../js/picker.js';
+import { throttle } from '../../js/utils.js';
+import { appleCrayonColorHexValue, appleCrayonRandomColorHexValue } from '../../js/ei_color.js';
 
 let scene;
 let renderer;
 let camera;
 let orbitControl;
-let raycaster;
-let mouse;
-let intersectedObject;
+let picker;
 
-let main = (threejs_canvas) => {
+let main = (threejs_canvas_container) => {
 
-    renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
-    renderer.setClearColor(appleCrayonColorHexValue('steel'));
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
+
+    renderer.setClearColor(appleCrayonColorHexValue('steel'));
+
+    // TODO: This is new !!!
+    threejs_canvas_container.appendChild( renderer.domElement );
 
     const [ near, far, fov ] = [ 1e-1, 1e4, 70 ];
     camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
     orbitControl = new OrbitControls(camera, renderer.domElement);
+    orbitControl.zoomSpeed /= 4.0;
 
-    mouse = new THREE.Vector2();
-    raycaster = new THREE.Raycaster();
+    const raycaster = new THREE.Raycaster();
+    picker = new Picker({ raycaster });
 
     scene = new THREE.Scene();
 
-    setup(scene, renderer, camera, orbitControl);
+    setup(threejs_canvas_container, scene, renderer, camera, orbitControl);
+
+    animate();
+
 };
 
-let setup = async (scene, renderer, camera, orbitControl) => {
+let setup = (container, scene, renderer, camera, orbitControl) => {
 
     const [ targetX, targetY, targetZ ] = [ 0, 0, 0 ];
     const target = new THREE.Vector3(targetX, targetY, targetZ);
@@ -44,8 +52,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     orbitControl.screenSpacePanning = false;
     orbitControl.target = target;
     orbitControl.update();
-    orbitControl.addEventListener("change", renderScene);
-
 
     let hemisphereLight = new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('cantaloupe'), .25 );
     scene.add( hemisphereLight );
@@ -76,73 +82,31 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     }
 
-    window.addEventListener( 'resize', onWindowResize, false );
+    window.addEventListener('resize', onWindowResize, false );
 
-    window.addEventListener( 'mousemove', onWindowMouseMove, false );
-
-    renderScene();
+    container.addEventListener('mousemove', throttle(onWindowMouseMove, 20));
 
 };
 
 let onWindowResize = () => {
-
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
     renderer.setSize( window.innerWidth, window.innerHeight );
-    renderScene();
 };
 
 let onWindowMouseMove = (event) => {
 
     event.preventDefault();
 
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-    renderScene();
+    const x =  ( event.clientX / renderer.domElement.clientWidth  ) * 2 - 1;
+    const y = -( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+    picker.intersect({ x, y, scene, camera });
 };
 
-let renderScene = () => {
-
-    camera.updateMatrixWorld();
-
-
-    // intersect scene
-    intersectScene();
-
+let animate = () => {
+    requestAnimationFrame( animate );
     renderer.render(scene, camera)
 };
-
-let intersectScene = () => {
-
-    raycaster.setFromCamera( mouse, camera );
-
-    let intersectionList = raycaster.intersectObjects( scene.children );
-
-    if ( intersectionList.length > 0 ) {
-
-        if ( intersectedObject !== intersectionList[ 0 ].object ) {
-
-            if ( intersectedObject ) {
-                intersectedObject.material.emissive.setHex( intersectedObject.currentHex );
-            }
-
-            intersectedObject = intersectionList[ 0 ].object;
-            intersectedObject.currentHex = intersectedObject.material.emissive.getHex();
-            intersectedObject.material.emissive.setHex( appleCrayonColorHexValue('strawberry') );
-
-        }
-
-    } else {
-
-        if ( intersectedObject ) {
-            intersectedObject.material.emissive.setHex( intersectedObject.currentHex );
-        }
-        intersectedObject = null;
-    }
-
-};
-
 
 export { main };
