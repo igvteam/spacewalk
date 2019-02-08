@@ -43,21 +43,21 @@ let main = (threejs_canvas) => {
 
     const specularCubicMapMaterialConfig =
         {
-            textureRoot: 'texture/cubic/specular/aerodynamics_workshop/',
-            // textureRoot: 'texture/cubic/diagnostic/threejs_format/',
+            // textureRoot: 'texture/cubic/specular/aerodynamics_workshop/',
+            textureRoot: 'texture/cubic/diagnostic/threejs_format/',
             suffix: '.png',
             isSpecularMap: true
         };
 
     const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
-    scene.background = specularCubicMapManager.cubicTexture;
-    // scene.background = appleCrayonColorThreeJS('mercury');
+    // scene.background = specularCubicMapManager.cubicTexture;
+    scene.background = appleCrayonColorThreeJS('mercury');
 
     const diffuseCubicMapMaterialConfig =
         {
-            textureRoot: 'texture/cubic/diffuse/aerodynamics_workshop/',
-            // textureRoot: 'texture/cubic/diagnostic/threejs_format/',
+            // textureRoot: 'texture/cubic/diffuse/aerodynamics_workshop/',
+            textureRoot: 'texture/cubic/diagnostic/threejs_format/',
             suffix: '.png',
             vertexShaderName: 'diffuse_cube_vert',
             fragmentShaderName: 'diffuse_cube_frag',
@@ -93,7 +93,7 @@ let setup = async (scene, renderer) => {
     const currentKey = '2489';
     let currentSegment = segmentManager.segmentWithName(currentKey);
 
-    const [ targetX, targetY, targetZ ] = currentSegment.target;
+    const [ targetX, targetY, targetZ ] = currentSegment.centroid;
     const [ extentX, extentY, extentZ ] = currentSegment.extent;
 
     orbitalCamera.setPosition(currentSegment.cameraPosition);
@@ -121,7 +121,7 @@ let setup = async (scene, renderer) => {
         if (!doSkip) {
 
             const material = segmentManager.materialForFeatureSegmentIndex(seg.segmentIndex);
-            const mesh = new THREE.Mesh(sphereGeometry, /*material*/diffuseCubicMapManager.material);
+            const mesh = new THREE.Mesh(sphereGeometry, material/*diffuseCubicMapManager.material*/);
             mesh.position.set(x, y, z);
 
             scene.add(mesh);
@@ -139,7 +139,7 @@ let setup = async (scene, renderer) => {
         if (!doSkip) {
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
             const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/4, 16, false);
-            scene.add(new THREE.Mesh(geometry, /*cylinderMaterial*/diffuseCubicMapManager.material));
+            scene.add(new THREE.Mesh(geometry, cylinderMaterial/*diffuseCubicMapManager.material*/));
         }
 
     }
