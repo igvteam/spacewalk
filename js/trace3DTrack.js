@@ -16,11 +16,13 @@ class Trace3DTrack {
 
         for (let feature of features) {
 
-
             const index = Math.floor((feature.start - start) / step);
 
             const one_based = 1 + index;
             if(index >= 0) {
+
+                console.log('index(' + index  + ') segmentIndex(' + one_based + ')' + ' featureStartDelta ' + numberFormatter(feature.start - start) + ' window(' + numberFormatter(index * step) + ' - ' + numberFormatter((1 + index) * step) + ')') ;
+
                 // console.log(' IN - index ' + one_based + ' feature ' + numberFormatter(feature.start));
                 segmentIndices.add(one_based);
             } else {
