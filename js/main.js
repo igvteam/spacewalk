@@ -95,7 +95,7 @@ let setup = async (scene, renderer) => {
     // trace3DTrack = new Trace3DTrack({ bedTrack: new BedTrack('data/tracks/IMR-90_CTCF_27-31.bed') });
     trace3DTrack = new Trace3DTrack({ bedTrack: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed') });
 
-    segmentManager.featureSegmentIndices = await trace3DTrack.getFeatureSegmentIndices({chr: "chr21", start: 28000071, step: 30000});
+    await trace3DTrack.buildFeatureSegmentIndices({chr: "chr21", start: 28000071, step: 30000});
 
     const currentKey = '1';
     let currentSegment = segmentManager.segmentWithName(currentKey);
@@ -127,8 +127,10 @@ let setup = async (scene, renderer) => {
 
         if (!doSkip) {
 
-            const material = new THREE.MeshBasicMaterial({ color: new THREE.Color( segmentManager.rgbStringForFeatureSegmentIndex(seg.segmentIndex) ) });
-            const mesh = new THREE.Mesh(sphereGeometry, material/*diffuseCubicMapManager.material*/);
+            const material = new THREE.MeshBasicMaterial({ color: trace3DTrack.colorForFeatureSegmentIndex(seg.segmentIndex) });
+            // const material = diffuseCubicMapManager.material;
+
+            const mesh = new THREE.Mesh(sphereGeometry, material);
             mesh.position.set(x, y, z);
 
             scene.add(mesh);
