@@ -1,11 +1,10 @@
-import BedTrack from "./igv/bedTrack.js";
-import * as THREE from "./threejs_es6/three.module.js";
+
 import { globalEventBus } from './main.js';
 
 class SegmentManager {
 
     constructor () {
-        // do constructor things
+        this.featureSegmentIndices = new Set();
     }
 
     async loadSequence({ path }) {
@@ -109,46 +108,15 @@ class SegmentManager {
         globalEventBus.post({type: "DidLoadSequence", data: path });
     }
 
-    // Compute the segment indexes containing a feature.  Quick hack, this is not the right place to do this but
-    // I don't know how to change sphere color after its placed in scene
-    async loadDemoTrack({ path }) {
-
-        const [ genomicChr, genomicStart, genomicStep ] = [ "chr21", 28000071, 30000 ]
-
-        this.featureSegmentIndices = new Set()
-        this.segmentGenomicLocationDictionary = {};
-
-        this.bedTrack = new BedTrack(path)
-
-        const bedFeatures = await this.bedTrack.getFeatures(genomicChr)
-
-        for (let feature of bedFeatures) {
-
-            // Segment index (first sgement is 1)
-            const idx = Math.floor((feature.start - genomicStart) / genomicStep) + 1
-
-            if(idx >= 0) {
-
-                this.featureSegmentIndices.add(idx);
-
-                const key = idx.toString();
-                this.segmentGenomicLocationDictionary[ key ] = { genomicLocation: feature.start };
-            } else {
-                console.log('NO segment index for genomic location ' + feature.start);
-            }
-        }
-
-        globalEventBus.post({type: "DidLoadDemoTrack", data: path });
-    }
-
-    materialForFeatureSegmentIndex(index) {
+    rgbStringForFeatureSegmentIndex(index) {
 
         const step = index / 60
         const ramp = Math.floor(Math.min(255, step * 255));
 
         const [ red, green, blue ] = [ ramp, 0, 255 - ramp ];
 
-        return new THREE.MeshBasicMaterial({ color: new THREE.Color( this.featureSegmentIndices.has(index) ? 'rgb(0, 255, 0)' : `rgb(${red},${green},${blue})` ) });
+        return this.featureSegmentIndices.has(index) ? 'rgb(0, 255, 0)' : `rgb(${red},${green},${blue})`;
+
     }
 
     segmentWithName(name) {
