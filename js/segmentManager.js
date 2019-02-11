@@ -1,11 +1,10 @@
 
-import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from './main.js';
 
 class SegmentManager {
 
     constructor () {
-        // do constructor things
+        this.featureSegmentIndices = new Set();
     }
 
     async loadSequence({ path }) {
@@ -109,14 +108,15 @@ class SegmentManager {
         globalEventBus.post({type: "DidLoadSequence", data: path });
     }
 
-    materialForFeatureSegmentIndex(index) {
+    rgbStringForFeatureSegmentIndex(index) {
 
         const step = index / 60
         const ramp = Math.floor(Math.min(255, step * 255));
 
         const [ red, green, blue ] = [ ramp, 0, 255 - ramp ];
 
-        return new THREE.MeshBasicMaterial({ color: new THREE.Color( this.featureSegmentIndices.has(index) ? 'rgb(0, 255, 0)' : `rgb(${red},${green},${blue})` ) });
+        return this.featureSegmentIndices.has(index) ? 'rgb(0, 255, 0)' : `rgb(${red},${green},${blue})`;
+
     }
 
     segmentWithName(name) {

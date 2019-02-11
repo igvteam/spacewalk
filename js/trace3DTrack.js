@@ -1,3 +1,4 @@
+import { numberFormatter } from './utils.js';
 
 class Trace3DTrack {
 
@@ -15,13 +16,15 @@ class Trace3DTrack {
 
         for (let feature of features) {
 
-            // Segment index (first sgement is 1)
-            const index = 1 + Math.floor((feature.start - start) / step);
 
+            const index = Math.floor((feature.start - start) / step);
+
+            const one_based = 1 + index;
             if(index >= 0) {
-                segmentIndices.add(index);
+                // console.log(' IN - index ' + one_based + ' feature ' + numberFormatter(feature.start));
+                segmentIndices.add(one_based);
             } else {
-                console.log('NO segment index for genomic location ' + feature.start);
+                // console.log('OUT - index ' + one_based + ' feature ' + numberFormatter(feature.start));
             }
         }
 

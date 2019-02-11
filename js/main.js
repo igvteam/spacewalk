@@ -87,19 +87,17 @@ let main = (threejs_canvas) => {
 
 let setup = async (scene, renderer) => {
 
-    const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
-
     segmentManager = new SegmentManager();
+
+    const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSequence({ path: path });
 
-    // segmentManager.loadDemoTrack({ path: 'data/tracks/IMR-90_CTCF_27-31.bed' });
-    // segmentManager.loadDemoTrack({ path: 'data/tracks/IMR-90_RAD21_27-31.bed' });
-
+    // trace3DTrack = new Trace3DTrack({ bedTrack: new BedTrack('data/tracks/IMR-90_CTCF_27-31.bed') });
     trace3DTrack = new Trace3DTrack({ bedTrack: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed') });
 
     segmentManager.featureSegmentIndices = await trace3DTrack.getFeatureSegmentIndices({chr: "chr21", start: 28000071, step: 30000});
 
-    const currentKey = '2489';
+    const currentKey = '1';
     let currentSegment = segmentManager.segmentWithName(currentKey);
 
     const [ targetX, targetY, targetZ ] = currentSegment.centroid;
@@ -129,7 +127,7 @@ let setup = async (scene, renderer) => {
 
         if (!doSkip) {
 
-            const material = segmentManager.materialForFeatureSegmentIndex(seg.segmentIndex);
+            const material = new THREE.MeshBasicMaterial({ color: new THREE.Color( segmentManager.rgbStringForFeatureSegmentIndex(seg.segmentIndex) ) });
             const mesh = new THREE.Mesh(sphereGeometry, material/*diffuseCubicMapManager.material*/);
             mesh.position.set(x, y, z);
 
