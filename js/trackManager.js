@@ -23,7 +23,7 @@ class TrackManager {
             const one_based = 1 + index;
             if(index >= 0) {
 
-                console.log('segmentIndex(' + one_based + ')' + ' featureStartDelta ' + numberFormatter(feature.start - start) + ' indexBucket(' + numberFormatter(index * step) + ' - ' + numberFormatter((1 + index) * step) + ')') ;
+                console.log('segmentIndex(' + one_based + ')' + ' indexBucket(' + numberFormatter(index * step) + ' - ' + numberFormatter((1 + index) * step) + ') featureStartDelta(' + numberFormatter(feature.start - start) + ')');
 
                 // console.log(' IN - index ' + one_based + ' feature ' + numberFormatter(feature.start));
                 this.featureSegmentIndices.add(one_based);
@@ -34,9 +34,9 @@ class TrackManager {
 
     }
 
-    colorForFeatureSegmentIndex(index) {
+    colorForFeatureSegmentIndex({ index, listLength }) {
 
-        const step = index / 60;
+        const step = index / (listLength - 1);
         const ramp = Math.floor(Math.min(255, step * 255));
 
         const [ red, green, blue ] = [ ramp, 0, 255 - ramp ];

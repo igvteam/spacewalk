@@ -116,6 +116,7 @@ let setup = async (scene, renderer) => {
     scene.add( groundPlane );
 
 
+    // ball
     const sphereRadius = 24;
     sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
     for(let seg of currentSegment) {
@@ -125,7 +126,7 @@ let setup = async (scene, renderer) => {
 
         if (!doSkip) {
 
-            const material = new THREE.MeshBasicMaterial({ color: trackManager.colorForFeatureSegmentIndex(seg.segmentIndex) });
+            const material = new THREE.MeshBasicMaterial({ color: trackManager.colorForFeatureSegmentIndex({ index: seg.segmentIndex, listLength: currentSegment.length }) });
             // const material = diffuseCubicMapManager.material;
 
             const mesh = new THREE.Mesh(sphereGeometry, material);
@@ -137,6 +138,7 @@ let setup = async (scene, renderer) => {
 
     }
 
+    // stick
     for (let i = 0, j = 1; j < currentSegment.length; ++i, ++j) {
 
         const [ x0, y0, z0 ] = currentSegment[i].xyz;
