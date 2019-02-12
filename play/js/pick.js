@@ -3,7 +3,7 @@ import OrbitControls from '../../js/threejs_es6/orbit-controls-es6.js';
 
 import Picker from '../../js/picker.js';
 import { throttle } from '../../js/utils.js';
-import { appleCrayonColorHexValue, appleCrayonRandomColorHexValue } from '../../js/ei_color.js';
+import { appleCrayonColorHexValue, appleCrayonRandomColorHexValue } from '../../js/color.js';
 
 let scene;
 let renderer;
@@ -19,7 +19,6 @@ let main = (threejs_canvas_container) => {
 
     renderer.setClearColor(appleCrayonColorHexValue('steel'));
 
-    // TODO: This is new !!!
     threejs_canvas_container.appendChild( renderer.domElement );
 
     const [ near, far, fov ] = [ 1e-1, 1e4, 70 ];

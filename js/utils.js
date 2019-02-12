@@ -1,3 +1,11 @@
+let getMouseXY = (domElement, event) => {
+
+    const rect = domElement.getBoundingClientRect();
+
+    return { x: event.clientX - rect.left,  y: event.clientY - rect.top };
+
+};
+
 let throttle = (fn, threshhold, scope) => {
 
     threshhold || (threshhold = 200);
@@ -34,4 +42,4 @@ let numberFormatter = (rawNumber) => {
 };
 
 
-export { throttle, numberFormatter };
+export { getMouseXY, throttle, numberFormatter };

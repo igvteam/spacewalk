@@ -1,6 +1,7 @@
 import * as THREE from './threejs_es6/three.module.js';
 
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from './ei_color.js';
+import { throttle } from './utils.js';
+import { appleCrayonColorThreeJS } from './color.js';
 import SegmentManager from './segmentManager.js';
 import CubicMapManager from "./cubicMapManager.js";
 import EventBus from './eventBus.js';
@@ -8,6 +9,7 @@ import SceneManager from './sceneManager.js';
 
 import BedTrack from './igv/bedTrack.js';
 import TrackManager from './trackManager.js';
+import Picker from './picker.js';
 
 let segmentManager;
 let trackManager;
@@ -18,13 +20,19 @@ let sphereGeometry;
 let showNormalsMaterial;
 let showSTMaterial;
 
-let cylinderMaterial;
-
 let globalEventBus = new EventBus();
 let sceneManager;
 let main = (threejs_canvas_container) => {
 
-    sceneManager = new SceneManager({ container: threejs_canvas_container, scene: new THREE.Scene(), renderer: new THREE.WebGLRenderer({ antialias: true }) });
+    const sceneManagerConfig =
+        {
+            container: threejs_canvas_container,
+            scene: new THREE.Scene(),
+            renderer: new THREE.WebGLRenderer({ antialias: true }),
+            picker: new Picker( { raycaster: new THREE.Raycaster() } )
+        };
+
+    sceneManager = new SceneManager(sceneManagerConfig);
 
     const diffuseCubicMapMaterialConfig =
         {
@@ -48,8 +56,6 @@ let main = (threejs_canvas_container) => {
         };
 
     showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
-
-    cylinderMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('nickel') });
 
     segmentManager = new SegmentManager();
 
@@ -84,6 +90,7 @@ let setup = async ({ sceneManager }) => {
 
         if (!doSkip) {
 
+            // const material = new THREE.MeshLambertMaterial({ color: trackManager.colorForFeatureSegmentIndex({ index: seg.segmentIndex, listLength: segment.length }) });
             const material = new THREE.MeshBasicMaterial({ color: trackManager.colorForFeatureSegmentIndex({ index: seg.segmentIndex, listLength: segment.length }) });
             // const material = diffuseCubicMapManager.material;
 
@@ -106,7 +113,11 @@ let setup = async ({ sceneManager }) => {
         if (!doSkip) {
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
             const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/4, 16, false);
-            sceneManager.scene.add(new THREE.Mesh(geometry, cylinderMaterial/*diffuseCubicMapManager.material*/));
+
+            // const material = new THREE.MeshLambertMaterial({ color: appleCrayonColorThreeJS('nickel') });
+            const material = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
+            // const material = diffuseCubicMapManager.material;
+            sceneManager.scene.add(new THREE.Mesh(geometry, material));
         }
 
     }
