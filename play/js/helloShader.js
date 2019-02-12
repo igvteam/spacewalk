@@ -1,7 +1,7 @@
 import * as THREE from '../../js/threejs_es6/three.module.js';
 import OrbitControls from '../../js/threejs_es6/orbit-controls-es6.js';
 import CubicMapManager from '../../js/cubicMapManager.js';
-import { appleCrayonNames, appleCrayonColorHexValue } from '../../js/ei_color.js';
+import { appleCrayonNames, appleCrayonColorHexValue } from '../../js/color.js';
 
 let scene;
 let renderer;

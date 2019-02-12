@@ -2,12 +2,13 @@ import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./main.js";
 
 import CubicMapManager from "./cubicMapManager.js";
-import {appleCrayonColorHexValue, appleCrayonColorThreeJS} from "./ei_color.js";
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import OrbitalCamera from "./orbitalCamera.js";
+import { getMouseXY } from "./utils.js";
 
 class SceneManager {
 
-    constructor({ container, scene, renderer }) {
+    constructor({ container, scene, renderer, picker }) {
 
 
         // scene
@@ -37,16 +38,23 @@ class SceneManager {
         // insert rendering canvas in DOM
         container.appendChild( this.renderer.domElement );
 
+        this.picker = picker;
+
         $(window).on('resize.threejs', () => { this.onWindowResize() });
+
+        $(container).on('mousemove.threejs.picker', (event) => { this.onContainerMouseMove(event) });
 
         globalEventBus.subscribe("DidLoadSegments", this);
         globalEventBus.subscribe("DidLoadTrack", this);
+        globalEventBus.subscribe("DidPickerHit", this);
     }
 
     receiveEvent(event) {
 
-        if ("DidLoadSegments" === event.type) {
-            console.log("Neat! " + event.type);
+        if ("DidPickerHit" === event.type) {
+            console.log("Yo! " + event.type);
+        } else if ("DidLoadTrack" === event.type) {
+            console.log("Very cool! " + event.type);
         } else if ("DidLoadTrack" === event.type) {
             console.log("Very cool! " + event.type);
         }
@@ -94,6 +102,7 @@ class SceneManager {
 
         const [ targetX, targetY, targetZ ] = target;
         groundPlane.position.set(targetX, targetY, targetZ);
+        groundPlane.name = 'groundplane';
 
         this.scene.add( groundPlane );
 
@@ -104,6 +113,19 @@ class SceneManager {
         this.orbitalCamera.camera.updateProjectionMatrix();
         this.renderer.setSize( window.innerWidth, window.innerHeight );
     };
+
+    onContainerMouseMove(event){
+
+        const xy = getMouseXY(this.renderer.domElement, event);
+
+        const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
+        const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
+
+        // console.log('clientXY(' + event.clientX + ', ' + event.clientY + ') xy(' + x + ', ' + y + ')');
+
+        this.picker.intersect({ x, y, scene: this.scene, camera: this.orbitalCamera.camera });
+    };
+
 
 }
 

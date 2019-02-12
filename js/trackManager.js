@@ -1,6 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./main.js";
 import { numberFormatter } from './utils.js';
+import {appleCrayonColorThreeJS} from "./color.js";
 
 class TrackManager {
 
@@ -44,7 +45,11 @@ class TrackManager {
 
         const [ red, green, blue ] = [ ramp, 0, 255 - ramp ];
 
-        return new THREE.Color( this.featureSegmentIndices.has(index) ? 'rgb(0, 255, 0)' : `rgb(${red},${green},${blue})` )
+        if ( this.featureSegmentIndices.has(index) ) {
+            return new THREE.Color( `rgb(${red},${green},${blue})` )
+        } else {
+            return appleCrayonColorThreeJS('steel');
+        }
     }
 
 }

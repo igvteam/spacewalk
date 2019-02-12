@@ -1,7 +1,9 @@
-import { appleCrayonColorHexValue } from './ei_color.js';
+import {globalEventBus} from "./main.js";
+import { appleCrayonColorThreeJS } from "./color.js";
 
 let hit = undefined;
-
+let currentColor = undefined;
+let highlightColor = appleCrayonColorThreeJS('tangerine');
 class Picker {
 
     constructor({ raycaster }) {
@@ -12,39 +14,30 @@ class Picker {
 
         this.raycaster.setFromCamera({ x, y }, camera);
 
-        let hitList = this.raycaster.intersectObjects(scene.children);
+        let hitList = this.raycaster.intersectObjects(scene.children).filter((item) => { return 'groundplane' !== item.object.name });
 
         if (hitList.length > 0) {
 
             if (hit !== hitList[ 0 ].object) {
 
                 if (hit) {
-
-                    // TODO: post an event for consumption by subscribers to hits
-                    // indicate nolonger hit
-                    hit.material.emissive.setHex(hit.currentHex);
+                    hit.material.color = currentColor;
                 }
 
-                // update hit
                 hit = hitList[ 0 ].object;
 
+                currentColor = hit.material.color;
 
-                // TODO: post an event for consumption by subscribers to hits
+                hit.material.color = highlightColor;
 
-                // record default emmisive color
-                hit.currentHex = hit.material.emissive.getHex();
+                globalEventBus.post({type: "DidPickerHit", data: hit });
 
-                // indicate current hit object
-                hit.material.emissive.setHex( appleCrayonColorHexValue('strawberry') );
             }
 
         } else {
 
             if (hit) {
-
-                // TODO: post an event for consumption by subscribers to hits
-                // indicate nolonger hit
-                hit.material.emissive.setHex(hit.currentHex);
+                hit.material.color = currentColor;
             }
 
             hit = undefined;
