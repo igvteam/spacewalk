@@ -65,9 +65,9 @@ let main = (threejs_canvas_container) => {
 let setup = async ({ sceneManager }) => {
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
-    await segmentManager.loadSequence({ path });
+    await segmentManager.loadSegments({path});
 
-    await trackManager.buildFeatureSegmentIndices({ chr: "chr21", start: 28000071, step: 30000 });
+    await trackManager.buildFeatureSegmentIndices({ chr: 'chr21', start: 28000071, step: 30000 });
 
     const key = '1';
     let segment = segmentManager.segmentWithName(key);
@@ -110,8 +110,6 @@ let setup = async ({ sceneManager }) => {
         }
 
     }
-
-    $(window).on('resize.threejs', () => { sceneManager.onWindowResize() });
 
 };
 
