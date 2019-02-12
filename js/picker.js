@@ -14,7 +14,7 @@ class Picker {
 
         this.raycaster.setFromCamera({ x, y }, camera);
 
-        let hitList = this.raycaster.intersectObjects(scene.children);
+        let hitList = this.raycaster.intersectObjects(scene.children).filter((item) => { return 'groundplane' !== item.object.name });
 
         if (hitList.length > 0) {
 

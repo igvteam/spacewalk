@@ -99,6 +99,7 @@ class SceneManager {
 
         const [ targetX, targetY, targetZ ] = target;
         groundPlane.position.set(targetX, targetY, targetZ);
+        groundPlane.name = 'groundplane';
 
         this.scene.add( groundPlane );
 
