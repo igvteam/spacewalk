@@ -1,5 +1,6 @@
-import { numberFormatter } from './utils.js';
 import * as THREE from "./threejs_es6/three.module.js";
+import { globalEventBus } from "./main.js";
+import { numberFormatter } from './utils.js';
 
 class TrackManager {
 
@@ -31,6 +32,8 @@ class TrackManager {
                 // console.log('OUT - index ' + one_based + ' feature ' + numberFormatter(feature.start));
             }
         }
+
+        globalEventBus.post({type: "DidLoadTrack", data: this.featureSegmentIndices });
 
     }
 

@@ -7,7 +7,7 @@ class SegmentManager {
         this.featureSegmentIndices = new Set();
     }
 
-    async loadSequence({ path }) {
+    async loadSegments({path}) {
 
         this.path = path;
         this.segments = {};
@@ -105,7 +105,7 @@ class SegmentManager {
 
         });
 
-        globalEventBus.post({type: "DidLoadSequence", data: path });
+        globalEventBus.post({type: "DidLoadSegments", data: path });
     }
 
     segmentWithName(name) {

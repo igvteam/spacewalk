@@ -6,7 +6,9 @@ import {appleCrayonColorHexValue, appleCrayonColorThreeJS} from "./ei_color.js";
 import OrbitalCamera from "./orbitalCamera.js";
 
 class SceneManager {
+
     constructor({ container, scene, renderer }) {
+
 
         // scene
         this.scene = scene;
@@ -35,16 +37,17 @@ class SceneManager {
         // insert rendering canvas in DOM
         container.appendChild( this.renderer.domElement );
 
+        $(window).on('resize.threejs', () => { this.onWindowResize() });
 
-        globalEventBus.subscribe("DidLoadSequence", this);
-        globalEventBus.subscribe("DidLoadDemoTrack", this);
+        globalEventBus.subscribe("DidLoadSegments", this);
+        globalEventBus.subscribe("DidLoadTrack", this);
     }
 
     receiveEvent(event) {
 
-        if ("DidLoadSequence" === event.type) {
+        if ("DidLoadSegments" === event.type) {
             console.log("Neat! " + event.type);
-        } else if ("DidLoadDemoTrack" === event.type) {
+        } else if ("DidLoadTrack" === event.type) {
             console.log("Very cool! " + event.type);
         }
 
