@@ -3,11 +3,14 @@ import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
 
 class OrbitalCamera {
 
-    constructor({ fov, near, far, aspectRatio, domElement }) {
+    constructor({ scene, renderer, fov, near, far, aspectRatio, domElement }) {
         this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
 
         this.orbitControl = new OrbitControls(this.camera, domElement);
         this.orbitControl.screenSpacePanning = false;
+
+        this.orbitControl.addEventListener("change", () => renderer.render(scene, this.camera));
+
     }
 
     setNearFar(nearFar) {
