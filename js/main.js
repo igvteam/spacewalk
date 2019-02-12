@@ -12,13 +12,13 @@ import SceneManager from './sceneManager.js';
 import OrbitalCamera from "./orbitalCamera.js";
 
 import BedTrack from './igv/bedTrack.js';
-import Trace3DTrack from './trace3DTrack.js';
+import TrackManager from './trackManager.js';
 
 let scene;
 let renderer;
 let orbitalCamera;
 let segmentManager;
-let trace3DTrack;
+let trackManager;
 let diffuseCubicMapManager;
 let specularCubicMapManager;
 
@@ -92,10 +92,10 @@ let setup = async (scene, renderer) => {
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSequence({ path });
 
-    // trace3DTrack = new Trace3DTrack({ bedTrack: new BedTrack('data/tracks/IMR-90_CTCF_27-31.bed') });
-    trace3DTrack = new Trace3DTrack({ track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed') });
+    // trackManager = new TrackManager({ bedTrack: new BedTrack('data/tracks/IMR-90_CTCF_27-31.bed') });
+    trackManager = new TrackManager({ track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed') });
 
-    await trace3DTrack.buildFeatureSegmentIndices({chr: "chr21", start: 28000071, step: 30000});
+    await trackManager.buildFeatureSegmentIndices({chr: "chr21", start: 28000071, step: 30000});
 
     const currentKey = '1';
     let currentSegment = segmentManager.segmentWithName(currentKey);
@@ -111,8 +111,6 @@ let setup = async (scene, renderer) => {
 
     orbitalCamera.setNearFar([ 1e-1 * dimen, 32 * dimen ]);
 
-    orbitalCamera.orbitControl.addEventListener("change", () => renderer.render(scene, orbitalCamera.camera));
-
     const groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('steel'));
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
@@ -127,7 +125,7 @@ let setup = async (scene, renderer) => {
 
         if (!doSkip) {
 
-            const material = new THREE.MeshBasicMaterial({ color: trace3DTrack.colorForFeatureSegmentIndex(seg.segmentIndex) });
+            const material = new THREE.MeshBasicMaterial({ color: trackManager.colorForFeatureSegmentIndex(seg.segmentIndex) });
             // const material = diffuseCubicMapManager.material;
 
             const mesh = new THREE.Mesh(sphereGeometry, material);
@@ -155,45 +153,19 @@ let setup = async (scene, renderer) => {
 
     window.addEventListener( 'resize', onWindowResize, false );
 
-    renderer.render( scene, orbitalCamera.camera );
+    animate();
 
+};
+
+let animate = () => {
+    requestAnimationFrame( animate );
+    renderer.render(scene, orbitalCamera.camera)
 };
 
 let onWindowResize = () => {
     orbitalCamera.camera.aspect = window.innerWidth / window.innerHeight;
     orbitalCamera.camera.updateProjectionMatrix();
-
     renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.render( scene, orbitalCamera.camera );
-};
-
-let lineWithLerpedColorBetweenEndPoints = (a, b, aColor, bColor, scene) => {
-
-    const [ x0, y0, z0 ] = a;
-    const [ x1, y1, z1 ] = b;
-    if (isNaN(x0) || isNaN(x1)) {
-        return;
-    }
-
-    let positions = [];
-    positions.push( a[0], a[1], a[2] );
-    positions.push( b[0], b[1], b[2] );
-
-    let colors = [];
-    colors.push( aColor.r, aColor.g, aColor.b );
-    colors.push( bColor.r, bColor.g, bColor.b );
-
-    var lineGeometry = new LineGeometry();
-    lineGeometry.setPositions( positions );
-    lineGeometry.setColors( colors );
-
-    const lineMaterial = new LineMaterial( { color: appleCrayonColorHexValue('snow'), linewidth: 5, vertexColors: THREE.VertexColors, dashed: false } );
-
-    let line = new Line2( lineGeometry, lineMaterial );
-    line.computeLineDistances();
-    line.scale.set( 1, 1, 1 );
-    scene.add( line );
-
 };
 
 export { main, globalEventBus };

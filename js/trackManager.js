@@ -1,7 +1,7 @@
 import { numberFormatter } from './utils.js';
 import * as THREE from "./threejs_es6/three.module.js";
 
-class Trace3DTrack {
+class TrackManager {
 
     constructor ({ track }) {
         this.track = track;
@@ -46,4 +46,4 @@ class Trace3DTrack {
 
 }
 
-export default Trace3DTrack;
+export default TrackManager;
