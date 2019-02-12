@@ -46,12 +46,15 @@ class SceneManager {
 
         globalEventBus.subscribe("DidLoadSegments", this);
         globalEventBus.subscribe("DidLoadTrack", this);
+        globalEventBus.subscribe("DidPickerHit", this);
     }
 
     receiveEvent(event) {
 
-        if ("DidLoadSegments" === event.type) {
-            console.log("Neat! " + event.type);
+        if ("DidPickerHit" === event.type) {
+            console.log("Yo! " + event.type);
+        } else if ("DidLoadTrack" === event.type) {
+            console.log("Very cool! " + event.type);
         } else if ("DidLoadTrack" === event.type) {
             console.log("Very cool! " + event.type);
         }

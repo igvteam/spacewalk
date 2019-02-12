@@ -1,5 +1,5 @@
-
-import {appleCrayonColorThreeJS} from "./color.js";
+import {globalEventBus} from "./main.js";
+import { appleCrayonColorThreeJS } from "./color.js";
 
 let hit = undefined;
 let currentColor = undefined;
@@ -21,38 +21,22 @@ class Picker {
             if (hit !== hitList[ 0 ].object) {
 
                 if (hit) {
-
-                    // TODO: post an event for consumption by subscribers to hits
-                    // indicate nolonger hit
-
-                    // hit.material.emissive.setHex(hit.currentHex);
                     hit.material.color = currentColor;
                 }
 
-                // update hit
                 hit = hitList[ 0 ].object;
 
-                // TODO: post an event for consumption by subscribers to hits
-
-                // record default emmisive color
-
-                // hit.currentHex = hit.material.emissive.getHex();
                 currentColor = hit.material.color;
 
-                // indicate current hit object
-
-                // hit.material.emissive.setHex( appleCrayonColorHexValue('strawberry') );
                 hit.material.color = highlightColor;
+
+                globalEventBus.post({type: "DidPickerHit", data: hit });
+
             }
 
         } else {
 
             if (hit) {
-
-                // TODO: post an event for consumption by subscribers to hits
-                // indicate nolonger hit
-
-                // hit.material.emissive.setHex(hit.currentHex);
                 hit.material.color = currentColor;
             }
 
