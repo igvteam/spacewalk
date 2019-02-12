@@ -39,12 +39,12 @@ let main = (threejs_canvas) => {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
+    scene = new THREE.Scene();
+
     const [ near, far, fov ] = [ 5e1, 1e4, 35 ];
     const aspectRatio = window.innerWidth / window.innerHeight;
     const domElement = renderer.domElement;
-    orbitalCamera = new OrbitalCamera({ fov, near, far, aspectRatio, domElement });
-
-    scene = new THREE.Scene();
+    orbitalCamera = new OrbitalCamera({ scene, renderer, fov, near, far, aspectRatio, domElement });
 
     const specularCubicMapMaterialConfig =
         {
@@ -90,10 +90,10 @@ let setup = async (scene, renderer) => {
     segmentManager = new SegmentManager();
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
-    await segmentManager.loadSequence({ path: path });
+    await segmentManager.loadSequence({ path });
 
     // trace3DTrack = new Trace3DTrack({ bedTrack: new BedTrack('data/tracks/IMR-90_CTCF_27-31.bed') });
-    trace3DTrack = new Trace3DTrack({ bedTrack: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed') });
+    trace3DTrack = new Trace3DTrack({ track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed') });
 
     await trace3DTrack.buildFeatureSegmentIndices({chr: "chr21", start: 28000071, step: 30000});
 

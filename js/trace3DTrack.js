@@ -3,8 +3,8 @@ import * as THREE from "./threejs_es6/three.module.js";
 
 class Trace3DTrack {
 
-    constructor ({ bedTrack }) {
-        this.bedTrack = bedTrack;
+    constructor ({ track }) {
+        this.track = track;
     }
 
     // Compute the segment indexes containing a feature.  Quick hack, this is not the right place to do this but
@@ -14,7 +14,7 @@ class Trace3DTrack {
 
         this.featureSegmentIndices = new Set();
 
-        const features = await this.bedTrack.getFeatures(chr);
+        const features = await this.track.getFeatures(chr);
 
         for (let feature of features) {
 
@@ -23,7 +23,7 @@ class Trace3DTrack {
             const one_based = 1 + index;
             if(index >= 0) {
 
-                console.log('index(' + index  + ') segmentIndex(' + one_based + ')' + ' featureStartDelta ' + numberFormatter(feature.start - start) + ' window(' + numberFormatter(index * step) + ' - ' + numberFormatter((1 + index) * step) + ')') ;
+                console.log('segmentIndex(' + one_based + ')' + ' featureStartDelta ' + numberFormatter(feature.start - start) + ' indexBucket(' + numberFormatter(index * step) + ' - ' + numberFormatter((1 + index) * step) + ')') ;
 
                 // console.log(' IN - index ' + one_based + ' feature ' + numberFormatter(feature.start));
                 this.featureSegmentIndices.add(one_based);
