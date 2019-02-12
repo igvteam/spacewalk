@@ -30,21 +30,13 @@ const cylinderMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorTh
 
 let globalEventBus = new EventBus();
 let sceneManager;
-let main = (threejs_canvas) => {
+let main = (threejs_canvas_container) => {
 
     sceneManager = new SceneManager();
 
-    renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
-    renderer.setClearColor(appleCrayonColorHexValue('iron'));
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
 
+    // scene
     scene = new THREE.Scene();
-
-    const [ near, far, fov ] = [ 5e1, 1e4, 35 ];
-    const aspectRatio = window.innerWidth / window.innerHeight;
-    const domElement = renderer.domElement;
-    orbitalCamera = new OrbitalCamera({ scene, renderer, fov, near, far, aspectRatio, domElement });
 
     const specularCubicMapMaterialConfig =
         {
@@ -59,6 +51,27 @@ let main = (threejs_canvas) => {
     // scene.background = specularCubicMapManager.cubicTexture;
     scene.background = appleCrayonColorThreeJS('mercury');
 
+
+    // renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    renderer.setClearColor(appleCrayonColorHexValue('iron'));
+
+    // insert rendering canvas in DOM
+    threejs_canvas_container.appendChild( renderer.domElement );
+
+
+
+    // orbital camera
+    const [ near, far, fov ] = [ 5e1, 1e4, 35 ];
+    const aspectRatio = window.innerWidth / window.innerHeight;
+    const domElement = renderer.domElement;
+    orbitalCamera = new OrbitalCamera({ scene, renderer, fov, near, far, aspectRatio, domElement });
+
+
+
     const diffuseCubicMapMaterialConfig =
         {
             // textureRoot: 'texture/cubic/diffuse/aerodynamics_workshop/',
@@ -71,7 +84,9 @@ let main = (threejs_canvas) => {
 
     diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
 
+
     showNormalsMaterial = new THREE.MeshNormalMaterial();
+
 
     const showSTMaterialConfig =
         {
@@ -81,6 +96,7 @@ let main = (threejs_canvas) => {
         };
 
     showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
+
 
     setup(scene, renderer);
 };
