@@ -1,1 +1,25 @@
-$app_red_color: '#ff0000';
+
+$trace3d_grey: #7f7f7f;
+$trace3d_dark_grey: #3f3f3f;
+
+#trace3d_canvas_container {
+  position: relative;
+
+  #trace3d_tool_palette {
+
+    position: absolute;
+    width: 256px;
+    height: 640px;
+
+    z-index: 512;
+
+    background-color: #0080ff;
+
+    border-style: solid;
+    //border-width: thin;
+    border-width: 2px;
+    border-color: $trace3d_dark_grey;
+    border-radius: 8px;
+  }
+
+}

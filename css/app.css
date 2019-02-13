@@ -1,3 +1,14 @@
-
+#trace3d_canvas_container {
+  position: relative; }
+  #trace3d_canvas_container #trace3d_tool_palette {
+    position: absolute;
+    width: 256px;
+    height: 640px;
+    z-index: 512;
+    background-color: #0080ff;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #3f3f3f;
+    border-radius: 8px; }
 
 /*# sourceMappingURL=app.css.map */

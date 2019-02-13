@@ -2,8 +2,10 @@ import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./main.js";
 
 import CubicMapManager from "./cubicMapManager.js";
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
+import ToolPalette from "./toolPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
+
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import { getMouseXY } from "./utils.js";
 
 class SceneManager {
@@ -39,6 +41,10 @@ class SceneManager {
 
         // insert rendering canvas in DOM
         container.appendChild( this.renderer.domElement );
+
+        // attach tool palette
+        this.toolPalette = new ToolPalette(container);
+
 
         this.picker = picker;
 

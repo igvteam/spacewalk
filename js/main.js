@@ -21,11 +21,11 @@ let showSTMaterial;
 
 let globalEventBus = new EventBus();
 let sceneManager;
-let main = (threejs_canvas_container) => {
+let main = container => {
 
     const sceneManagerConfig =
         {
-            container: threejs_canvas_container,
+            container: container,
             scene: new THREE.Scene(),
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster() } )
