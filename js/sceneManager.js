@@ -24,8 +24,10 @@ class SceneManager {
 
         const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
+        const colorName = 'mercury';
+
         // this.scene.background = specularCubicMapManager.cubicTexture;
-        this.scene.background = appleCrayonColorThreeJS('mercury');
+        this.scene.background = appleCrayonColorThreeJS(colorName);
 
 
         // renderer
@@ -33,7 +35,7 @@ class SceneManager {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-        this.renderer.setClearColor(appleCrayonColorHexValue('iron'));
+        this.renderer.setClearColor(appleCrayonColorHexValue(colorName));
 
         // insert rendering canvas in DOM
         container.appendChild( this.renderer.domElement );
