@@ -1,14 +1,41 @@
 #trace3d_canvas_container {
   position: relative; }
-  #trace3d_canvas_container #trace3d_tool_palette {
-    position: absolute;
-    width: 256px;
-    height: 640px;
-    z-index: 512;
-    background-color: #0080ff;
+
+#trace3d_tool_palette {
+  position: absolute;
+  width: 256px;
+  height: 640px;
+  z-index: 512;
+  background-color: #ffffff;
+  border-style: solid;
+  border-width: thin;
+  border-color: #a09fa0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  align-items: center; }
+  #trace3d_tool_palette div {
+    width: 16%;
+    height: 90%;
     border-style: solid;
+    border-width: thin;
+    border-color: #a09fa0;
+    border-radius: 4px;
+    background-color: #e8e8e8; }
+  #trace3d_tool_palette div:first-child {
+    margin-left: 4%; }
+  #trace3d_tool_palette div:last-child {
+    margin-right: 4%; }
+  #trace3d_tool_palette div:hover {
+    cursor: pointer;
     border-width: 2px;
-    border-color: #3f3f3f;
-    border-radius: 8px; }
+    border-color: #6e6e6e; }
+
+#trace3d_tool_palette:hover {
+  cursor: move;
+  border-width: 2px;
+  border-color: #6e6e6e; }
 
 /*# sourceMappingURL=app.css.map */

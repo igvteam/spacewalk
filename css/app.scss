@@ -1,25 +1,77 @@
 
-$trace3d_grey: #7f7f7f;
-$trace3d_dark_grey: #3f3f3f;
+$trace3d_licorice: #000000;
+$trace3d_lead: #1e1e1e;
+$trace3d_tungsten: #3a3a3a;
+$trace3d_iron: #545453;
+$trace3d_steel: #6e6e6e;
+$trace3d_tin: #878687;
+$trace3d_nickel: #888787;
+$trace3d_aluminum: #a09fa0;
+$trace3d_magnesium: #b8b8b8;
+$trace3d_silver: #d0d0d0;
+$trace3d_mercury: #e8e8e8;
+$trace3d_snow: #ffffff;
 
 #trace3d_canvas_container {
   position: relative;
 
-  #trace3d_tool_palette {
+}
 
-    position: absolute;
-    width: 256px;
-    height: 640px;
+#trace3d_tool_palette {
 
-    z-index: 512;
+  position: absolute;
+  width: 256px;
+  height: 640px;
 
-    background-color: #0080ff;
+  z-index: 512;
+
+  //background-color: rgba(255, 255, 255, 0.65);
+  background-color: $trace3d_snow;
+
+  border-style: solid;
+  border-width: thin;
+  border-color: $trace3d_aluminum;
+  border-radius: 8px;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  align-items: center;
+
+  div {
+    width: 16%;
+    height: 90%;
 
     border-style: solid;
-    //border-width: thin;
-    border-width: 2px;
-    border-color: $trace3d_dark_grey;
-    border-radius: 8px;
+    border-width: thin;
+    border-color: $trace3d_aluminum;
+    border-radius: 4px;
+
+    background-color: $trace3d_mercury;
+
   }
 
+  div:first-child {
+    margin-left: 4%;
+  }
+
+  div:last-child {
+    margin-right: 4%;
+  }
+
+  div:hover {
+    cursor: pointer;
+    border-width: 2px;
+    border-color: $trace3d_steel;
+  }
+
+
+}
+
+#trace3d_tool_palette:hover {
+  cursor: move;
+  border-width: 2px;
+  border-color: $trace3d_steel;
+  //background-color: $trace3d_snow;
 }

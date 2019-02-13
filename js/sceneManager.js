@@ -48,9 +48,9 @@ class SceneManager {
 
         this.picker = picker;
 
-        $(window).on('resize.threejs', () => { this.onWindowResize() });
+        $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 
-        $(container).on('mousemove.threejs.picker', (event) => { this.onContainerMouseMove(event) });
+        $(container).on('mousemove.trace3d.picker', (event) => { this.onContainerMouseMove(event) });
 
         globalEventBus.subscribe("DidLoadSegments", this);
         globalEventBus.subscribe("DidLoadTrack", this);

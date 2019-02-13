@@ -9,8 +9,7 @@ class TrackManager {
         this.track = track;
     }
 
-    // Compute the segment indexes containing a feature.  Quick hack, this is not the right place to do this but
-    // I don't know how to change sphere color after its placed in scene
+    // Quick hack to compute segment indices containing a feature.
     async buildFeatureSegmentIndices({chr, start, step}) {
 
 
@@ -33,6 +32,11 @@ class TrackManager {
                 // console.log('OUT - index ' + one_based + ' feature ' + numberFormatter(feature.start));
             }
         }
+
+        [ this.minIndex, this.maxIndex ] = [...this.featureSegmentIndices].reduce((accumulator, index) => {
+            accumulator = [ Math.min(accumulator[ 0 ], index), Math.max(accumulator[ 1 ], index), ];
+            return accumulator;
+        }, [ Number.MAX_VALUE, -Number.MAX_VALUE ]);
 
         globalEventBus.post({type: "DidLoadTrack", data: this.featureSegmentIndices });
 
