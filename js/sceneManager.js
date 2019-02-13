@@ -24,8 +24,10 @@ class SceneManager {
 
         const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
+        const colorName = 'mercury';
+
         // this.scene.background = specularCubicMapManager.cubicTexture;
-        this.scene.background = appleCrayonColorThreeJS('mercury');
+        this.scene.background = appleCrayonColorThreeJS(colorName);
 
 
         // renderer
@@ -33,7 +35,7 @@ class SceneManager {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-        this.renderer.setClearColor(appleCrayonColorHexValue('iron'));
+        this.renderer.setClearColor(appleCrayonColorHexValue(colorName));
 
         // insert rendering canvas in DOM
         container.appendChild( this.renderer.domElement );
@@ -116,14 +118,18 @@ class SceneManager {
 
     onContainerMouseMove(event){
 
-        const xy = getMouseXY(this.renderer.domElement, event);
+        if (this.orbitalCamera && this.orbitalCamera.camera) {
 
-        const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
-        const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
+            const xy = getMouseXY(this.renderer.domElement, event);
 
-        // console.log('clientXY(' + event.clientX + ', ' + event.clientY + ') xy(' + x + ', ' + y + ')');
+            const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
+            const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
 
-        this.picker.intersect({ x, y, scene: this.scene, camera: this.orbitalCamera.camera });
+            // console.log('clientXY(' + event.clientX + ', ' + event.clientY + ') xy(' + x + ', ' + y + ')');
+
+            this.picker.intersect({ x, y, scene: this.scene, camera: this.orbitalCamera.camera });
+
+        }
     };
 
 

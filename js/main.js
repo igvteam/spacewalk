@@ -1,6 +1,5 @@
 import * as THREE from './threejs_es6/three.module.js';
 
-import { throttle } from './utils.js';
 import { appleCrayonColorThreeJS } from './color.js';
 import SegmentManager from './segmentManager.js';
 import CubicMapManager from "./cubicMapManager.js";
