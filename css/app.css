@@ -24,16 +24,17 @@
     border-color: #a09fa0;
     background-color: #e8e8e8; }
   #trace3d_tool_palette div:first-child {
-    margin-left: 4%; }
+    cursor: pointer;
+    margin-left: 4%;
+    border: unset; }
   #trace3d_tool_palette div:last-child {
     margin-right: 4%; }
-  #trace3d_tool_palette div:hover {
+  #trace3d_tool_palette div:not(:first-child):hover {
     cursor: pointer;
     border-width: 2px;
     border-color: #6e6e6e; }
 
 #trace3d_tool_palette:hover {
-  cursor: move;
   border-width: 2px;
   border-color: #6e6e6e; }
 

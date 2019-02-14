@@ -1,6 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./main.js";
-import { numberFormatter, lerp } from './utils.js';
+import { numberFormatter } from './utils.js';
+import { lerp } from './math.js';
 import {appleCrayonColorThreeJS} from "./color.js";
 
 class TrackManager {
@@ -52,27 +53,16 @@ class TrackManager {
         }
 
     }
-
-    DEPRICATED_colorForFeatureSegmentIndex({ index, listLength }) {
-
-        const step = index / (listLength - 1);
-        const ramp = Math.floor(Math.min(255, step * 255));
-
-        const [ red, green, blue ] = [ ramp, 0, 255 - ramp ];
-
-        if ( this.featureSegmentIndices.has(index) ) {
-            return new THREE.Color( `rgb(${red},${green},${blue})` )
-        } else {
-            return appleCrayonColorThreeJS('steel');
-        }
-    }
-
 }
 
-export let featureColorForInterpolant = x => {
+export let featureColorStringForInterpolant = x => {
     const value = Math.floor(lerp(0, 255, x));
     const [ red, green, blue ] = [ value, 0, 255 - value ];
-    return new THREE.Color( `rgb(${red},${green},${blue})` )
+    return `rgb(${red},${green},${blue})`;
+};
+
+export let featureColorForInterpolant = x => {
+    return new THREE.Color( featureColorStringForInterpolant(x) );
 };
 
 export default TrackManager;

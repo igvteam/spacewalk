@@ -52,14 +52,16 @@ $trace3d_snow: #ffffff;
   }
 
   div:first-child {
+    cursor: pointer;
     margin-left: 4%;
+    border: unset;
   }
 
   div:last-child {
     margin-right: 4%;
   }
 
-  div:hover {
+  div:not(:first-child):hover {
     cursor: pointer;
     border-width: 2px;
     border-color: $trace3d_steel;
@@ -69,7 +71,7 @@ $trace3d_snow: #ffffff;
 }
 
 #trace3d_tool_palette:hover {
-  cursor: move;
+  //cursor: move;
   border-width: 2px;
   border-color: $trace3d_steel;
   //background-color: $trace3d_snow;

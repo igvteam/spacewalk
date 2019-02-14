@@ -1,4 +1,7 @@
 import { makeDraggable } from "./draggable.js";
+import { fillCanvasContextRect, gradientCanvasContextRect } from './utils.js';
+import { getMouseXY } from "./utils.js";
+import { clamp } from './math.js';
 
 class ToolPalette {
     constructor(container) {
@@ -7,7 +10,7 @@ class ToolPalette {
         element.setAttribute('id', 'trace3d_tool_palette');
         container.appendChild( element );
 
-        [ this.featureRampContext, this.segmentBallRampContext, this.rampContext ] = [ 0, 1, 2 ].map((ignore) => {
+        [ this.featureRampContext, this.segmentBallRampContext, this.rampContext ] = [ 0, 1, 2 ].map((index) => {
 
             const childElement = document.createElement('div');
             element.appendChild( childElement );
@@ -17,26 +20,17 @@ class ToolPalette {
 
             fitToContainer(canvas);
 
+            const namespace = 'mousemove.trace3d.toolpalette.' + index;
+            $(canvas).on(namespace, (event) => { onCanvasMouseMove(canvas, event) });
+
+
             return canvas.getContext('2d');
         });
 
 
-
-
-
-        this.featureRampContext.fillStyle = 'green';
-        this.featureRampContext.fillRect(0, 0, this.featureRampContext.canvas.offsetWidth, this.featureRampContext.canvas.offsetHeight);
-
-        this.segmentBallRampContext.fillStyle = 'purple';
-        this.segmentBallRampContext.fillRect(0, 0, this.segmentBallRampContext.canvas.offsetWidth, this.segmentBallRampContext.canvas.offsetHeight);
-
-        this.rampContext.fillStyle = 'cyan';
-        this.rampContext.fillRect(0, 0, this.rampContext.canvas.offsetWidth, this.rampContext.canvas.offsetHeight);
-
-
-
-
-
+        gradientCanvasContextRect(this.featureRampContext, [ 'blue', 'red' ]);
+        fillCanvasContextRect(this.segmentBallRampContext, 'white');
+        fillCanvasContextRect(this.rampContext, 'white');
 
 
         this.layout(container, element);
@@ -77,6 +71,18 @@ let fitToContainer = (canvas) => {
     // ...then set the internal size to match
     canvas.width  = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
+};
+
+let onCanvasMouseMove = (canvas, event) => {
+
+    let { y } = getMouseXY(canvas, event);
+    y = clamp(y, 0, canvas.offsetHeight - 1);
+
+    let interpolant = y / (canvas.offsetHeight - 1);
+    interpolant = 1 - interpolant;
+
+    console.log('interpolant ' + interpolant);
+
 };
 
 export default ToolPalette;

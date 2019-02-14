@@ -1,7 +1,20 @@
 
-let lerp = (a, b, x) => {
+let gradientCanvasContextRect = (ctx, colorStringList) => {
 
-    return a * (1.0 - x) + b * x;
+    let gradient = ctx.createLinearGradient(0, 0, 0,ctx.canvas.offsetHeight);
+
+    colorStringList.forEach((colorString, i, array) => {
+        const interpolant = i / (array.length - 1);
+        gradient.addColorStop(interpolant, colorString);
+    });
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
+};
+
+let fillCanvasContextRect = (ctx, colorString) => {
+    ctx.fillStyle = colorString;
+    ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
 };
 
 let getMouseXY = (domElement, event) => {
@@ -47,5 +60,4 @@ let numberFormatter = (rawNumber) => {
         .join('') + (dec[1] ? decsep + dec[1] : '');
 };
 
-
-export { getMouseXY, throttle, numberFormatter, lerp };
+export { getMouseXY, throttle, numberFormatter, fillCanvasContextRect, gradientCanvasContextRect };
