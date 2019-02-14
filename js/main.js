@@ -90,7 +90,7 @@ let setup = async ({ sceneManager }) => {
         if (!doSkip) {
 
             // const material = new THREE.MeshLambertMaterial({ color: trackManager.colorForFeatureSegmentIndex({ index: seg.segmentIndex, listLength: segment.length }) });
-            const material = new THREE.MeshBasicMaterial({ color: trackManager.colorForFeatureSegmentIndex({ index: seg.segmentIndex, listLength: segment.length }) });
+            const material = new THREE.MeshBasicMaterial({ color: trackManager.colorForSegmentIndex({ index: seg.segmentIndex, firstIndex: 1, lastIndex: segment[segment.length - 1].segmentIndex }) });
             // const material = diffuseCubicMapManager.material;
 
             const mesh = new THREE.Mesh(sphereGeometry, material);

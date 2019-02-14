@@ -1,3 +1,9 @@
+
+let lerp = (a, b, x) => {
+
+    return a * (1.0 - x) + b * x;
+};
+
 let getMouseXY = (domElement, event) => {
 
     const rect = domElement.getBoundingClientRect();
@@ -42,4 +48,4 @@ let numberFormatter = (rawNumber) => {
 };
 
 
-export { getMouseXY, throttle, numberFormatter };
+export { getMouseXY, throttle, numberFormatter, lerp };
