@@ -1,4 +1,71 @@
 import * as THREE from "./threejs_es6/three.module.js";
+import { clamp, random } from './math.js';
+
+export let rgbaColor255 = (r, g, b, a) => {
+
+    r = clamp(r, 0, 255);
+    g = clamp(g, 0, 255);
+    b = clamp(b, 0, 255);
+    a = clamp(a, 0.0, 1.0);
+
+    return { r, g, b, a }
+    // return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+};
+
+export let rgbColor255 = (r, g, b) => {
+
+    r = clamp(r, 0, 255);
+    g = clamp(g, 0, 255);
+    b = clamp(b, 0, 255);
+
+    return { r, g, b }
+    // return "rgb(" + r + "," + g + "," + b + ")";
+};
+
+export let greyScale255 = (value) => {
+
+    const grey = clamp(value, 0, 255);
+
+    return { r:grey, g:grey, b: grey }
+    // return "rgb(" + grey + "," + grey + "," + grey + ")";
+};
+
+export let randomGrey255 = (min, max) => {
+
+    min = clamp(min, 0, 255);
+    max = clamp(max, 0, 255);
+
+    const grey = Math.round(random(min, max));
+
+    return { r:grey, g:grey, b: grey }
+    // return "rgb(" + grey + "," + grey + "," + grey + ")";
+};
+
+export let randomRGB = (min, max) => {
+
+    min = clamp(min, 0, 255);
+    max = clamp(max, 0, 255);
+
+    const r = Math.round(random(min, max));
+    const g = Math.round(random(min, max));
+    const b = Math.round(random(min, max));
+
+    return { r, g, b }
+    // return "rgb(" + r + "," + g + "," + b + ")";
+};
+
+export let randomRGB255ConstantAlpha = (min, max, alpha) => {
+
+    min = clamp(min, 0, 255);
+    max = clamp(max, 0, 255);
+
+    const r = Math.round(random(min, max));
+    const g = Math.round(random(min, max));
+    const b = Math.round(random(min, max));
+
+    return { r, g, b, a:alpha };
+    // return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
+};
 
 let rgb2hex = (r255, g255, b255) => {
         return ((r255&0x0ff)<<16)|((g255&0x0ff)<<8)|(b255&0x0ff);

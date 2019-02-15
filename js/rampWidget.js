@@ -1,4 +1,4 @@
-import { getMouseXY, gradientCanvasContextRect, numberFormatter } from "./utils.js";
+import { getMouseXY, numberFormatter, gradientCanvasContextRect, quantizedGradientCanvasContextRect } from "./utils.js";
 
 class RampWidget {
 
@@ -29,9 +29,9 @@ class RampWidget {
 
         fitToContainer(canvas);
 
-        const str = 'mousemove.trace3d.toolpalette.' + namespace;
+        const str = 'mousemove.trace3d.' + namespace;
         $(canvas).on(str, (event) => {
-            onCanvasMouseMove(canvas, event)
+            this.onCanvasMouseMove(canvas, event)
         });
 
         // footer
@@ -47,8 +47,20 @@ class RampWidget {
 
     }
 
+    onCanvasMouseMove(canvas, event) {
+
+        let { yNormalized } = getMouseXY(canvas, event);
+
+        // flip direction
+        yNormalized = 1.0 - yNormalized;
+
+        console.log('interpolant ' + yNormalized);
+
+    };
+
     paintColorRamp(colors) {
-        gradientCanvasContextRect(this.context, colors);
+        // gradientCanvasContextRect(this.context, colors);
+        quantizedGradientCanvasContextRect(this.context);
     }
 
     configure({ chr, genomicStart, genomicEnd }) {
@@ -69,15 +81,5 @@ let fitToContainer = (canvas) => {
     canvas.height = canvas.offsetHeight;
 };
 
-let onCanvasMouseMove = (canvas, event) => {
-
-    let { yNormalized } = getMouseXY(canvas, event);
-
-    // flip direction
-    yNormalized = 1.0 - yNormalized;
-
-    console.log('interpolant ' + yNormalized);
-
-};
 
 export default RampWidget;

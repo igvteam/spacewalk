@@ -1,4 +1,13 @@
 
+let quantize = (x, frequency) => {
+    const tile = Math.floor(x * frequency);
+    return tile / frequency;
+};
+
+let whichTile = (x, frequency) => {
+    return Math.floor(x * frequency);
+};
+
 // interpolate between a and b. x varies from 0 to 1.
 let lerp = (a, b, x) => {
 
@@ -9,4 +18,11 @@ let lerp = (a, b, x) => {
 let clamp = (value, min, max) => {
     return Math.min(Math.max(value, min), max);
 };
-export { lerp, clamp };
+
+
+// Returns a random number between min (inclusive) and max (exclusive)
+let random = (min, max) => {
+    return Math.random() * (max - min) + min;
+};
+
+export { lerp, clamp, whichTile, quantize, random };
