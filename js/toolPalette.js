@@ -2,7 +2,6 @@ import { globalEventBus } from "./main.js";
 import { makeDraggable } from "./draggable.js";
 import { fillCanvasContextRect, gradientCanvasContextRect } from './utils.js';
 import { getMouseXY } from "./utils.js";
-import { clamp } from './math.js';
 
 class ToolPalette {
     constructor(container) {
@@ -122,13 +121,12 @@ let fitToContainer = (canvas) => {
 
 let onCanvasMouseMove = (canvas, event) => {
 
-    let { y } = getMouseXY(canvas, event);
-    y = clamp(y, 0, canvas.offsetHeight - 1);
+    let { yNormalized } = getMouseXY(canvas, event);
 
-    let interpolant = y / (canvas.offsetHeight - 1);
-    interpolant = 1 - interpolant;
+    // flip direction
+    yNormalized = 1.0 - yNormalized;
 
-    console.log('interpolant ' + interpolant);
+    console.log('interpolant ' + yNormalized);
 
 };
 

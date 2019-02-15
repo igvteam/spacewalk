@@ -17,11 +17,12 @@ let fillCanvasContextRect = (ctx, colorString) => {
     ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
 };
 
-let getMouseXY = (domElement, event) => {
+let getMouseXY = (domElement, { clientX, clientY }) => {
 
-    const { left, top } = domElement.getBoundingClientRect();
+    // a DOMRect object with eight properties: left, top, right, bottom, x, y, width, height
+    const { left, top, width, height } = domElement.getBoundingClientRect();
 
-    return { x: event.clientX - left,  y: event.clientY - top };
+    return { x: clientX - left,  y: clientY - top, xNormalized: (clientX - left)/width, yNormalized: (clientY - top)/height };
 
 };
 
