@@ -1,8 +1,28 @@
-let getMouseXY = (domElement, event) => {
 
-    const rect = domElement.getBoundingClientRect();
+let gradientCanvasContextRect = (ctx, colorStringList) => {
 
-    return { x: event.clientX - rect.left,  y: event.clientY - rect.top };
+    let gradient = ctx.createLinearGradient(0, 0, 0,ctx.canvas.offsetHeight);
+
+    colorStringList.forEach((colorString, i, array) => {
+        const interpolant = i / (array.length - 1);
+        gradient.addColorStop(interpolant, colorString);
+    });
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
+};
+
+let fillCanvasContextRect = (ctx, colorString) => {
+    ctx.fillStyle = colorString;
+    ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
+};
+
+let getMouseXY = (domElement, { clientX, clientY }) => {
+
+    // a DOMRect object with eight properties: left, top, right, bottom, x, y, width, height
+    const { left, top, width, height } = domElement.getBoundingClientRect();
+
+    return { x: clientX - left,  y: clientY - top, xNormalized: (clientX - left)/width, yNormalized: (clientY - top)/height };
 
 };
 
@@ -41,5 +61,4 @@ let numberFormatter = (rawNumber) => {
         .join('') + (dec[1] ? decsep + dec[1] : '');
 };
 
-
-export { getMouseXY, throttle, numberFormatter };
+export { getMouseXY, throttle, numberFormatter, fillCanvasContextRect, gradientCanvasContextRect };

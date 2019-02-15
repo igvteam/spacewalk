@@ -1,0 +1,152 @@
+//::::::::::::::::::::::::::: dot_deluxe_shader.dsl ::::::::::::::::::::::::::
+include(../CoolColors.dsl);
+
+float frame_count = (<Frame>) + 1;
+float percent_done = frame_count / 600;
+
+float orbitAngle = percent_done * 360;
+
+float res = 512;
+
+rayscene(
+
+echo(8)
+recursion(2) 
+eyeRayEpsilon(1/100) 
+threshold(1/256)
+
+resolution(res, res)
+crop(xrange(0, res-1) yrange(0, res-1))
+
+pixel(1/1)
+
+voxelization( disabled )
+
+ior(air)
+
+ambient( white )
+
+background( slate_grey_dark )
+)
+
+float cameraDistance	= 5.0;
+float orbitRadius		= 1.5;
+
+Matrix3x2 trans;
+trans.Trans(orbitRadius, 0);
+
+Matrix3x2 rote;
+rote.Rote( radians(orbitAngle) );
+
+Point2D a;
+Point2D b;
+Point2D c;
+Point2D d;
+Point2D target2D;
+Point2D camera2D;
+
+// target
+a.Set(0, 0);
+
+// camera
+b.Set(0, -cameraDistance);
+
+c = b * trans;
+d = c * rote;
+camera2D = d;
+
+b = a * trans;
+c = b * rote;
+target2D = c;
+
+float tx = target2D.x;
+float ty = target2D.y;
+
+float cx = camera2D.x;
+float cy = camera2D.y;
+
+float halfScreen = 1;
+
+camera(
+    fovy(2*degrees(atan2(halfScreen, cameraDistance)))
+    near_far(.001, 1000)
+    imageplane(cameraDistance)
+    location(cx, cy, 0)
+    up(0, 0, 1)
+    target(tx, ty, 0)
+)
+
+float unused = SeedRandom(173);
+
+Shader show_s  	= UserShader( name(ShowThatShader) Show("S") );
+Shader show_t	= UserShader( name(ShowThatShader) Show("T") );
+
+float _sfreq 	= 8;
+float _tfreq 	= 8;
+
+float _radius	= 1/(12);
+//float _radius	= 1/(4 * _sfreq);
+
+Scalar _noise	= Noise3D(scale(4));
+Scalar _pnoise	= (_noise + 1.) / 2.;
+
+Scalar _soffset	= UserScalar( name(QuantizedScalar) sfreq(_sfreq) tfreq(_tfreq) scalar(_noise/8) xoffset(17) yoffset(-31) zoffset(11));
+Scalar _toffset	= UserScalar( name(QuantizedScalar) sfreq(_sfreq) tfreq(_tfreq) scalar(_noise/8) xoffset(23) yoffset(-13) zoffset(31));
+
+// kid color pallete
+Shader _pink	= ConstantShader(254, 78,142)/255;
+Shader _blue	= ConstantShader( 72,175,254)/255;
+Shader _orange	= ConstantShader(255,119,  1)/255;
+Shader _green	= ConstantShader( 96,214,  0)/255;
+
+
+Shader dotDeluxeShader = 
+UserShader(
+
+name(DotDeluxeShader)
+
+color(_green) color(_pink) color(_blue) color(_orange)
+
+sOffset(_soffset) 
+
+tOffset(_toffset)
+
+opacity(3/4) 
+
+background(white) 
+
+sfreq(_sfreq) 
+tfreq(_tfreq)
+
+radius(_radius) 
+fuzz(_radius/20)
+
+);
+
+//Shader sh = show_s + show_t;
+Shader sh = dotDeluxeShader;
+
+Group thing = Group( shader(sh) tesselation(2, 2) draw(yes) clip(no) shadow(cast(no) receive(no)) );
+
+Matrix4x3 rx;
+Matrix4x3 ry;
+Matrix4x3 rz;
+Matrix4x3 tr;
+
+// Increment rectangle along circle of orbit. The rectangle will march along this circle and be rendered at each location.
+rz.RotZ(radians(orbitAngle));
+
+// Translate rectangle to location on circle of orbit.
+tr.Trans(orbitRadius, 0, 0);
+
+// Orient rectangle out of default attitude (laying in x-y plane) to lay in the xz plane.
+rx.RotX(radians(90));
+
+PushTransformation(rz);
+PushTransformation(tr);
+PushTransformation(rx);
+RManRectangle( group(thing) west(-halfScreen) east(halfScreen) south(-halfScreen) north(halfScreen) height(0) )
+PopTransformation();
+PopTransformation();
+PopTransformation();
+

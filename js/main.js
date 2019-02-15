@@ -21,11 +21,12 @@ let showSTMaterial;
 
 let globalEventBus = new EventBus();
 let sceneManager;
-let main = (threejs_canvas_container) => {
+
+let main = container => {
 
     const sceneManagerConfig =
         {
-            container: threejs_canvas_container,
+            container: container,
             scene: new THREE.Scene(),
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster() } )
@@ -61,18 +62,19 @@ let main = (threejs_canvas_container) => {
     // trackManager = new TrackManager({ bedTrack: new BedTrack('data/tracks/IMR-90_CTCF_27-31.bed') });
     trackManager = new TrackManager({ track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed') });
 
-    setup({ sceneManager })
+    setup({ sceneManager, segmentManager, trackManager })
         .then(() => {
             renderLoop();
         });
 };
 
-let setup = async ({ sceneManager }) => {
+let setup = async ({ sceneManager, segmentManager, trackManager }) => {
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSegments({path});
 
-    await trackManager.buildFeatureSegmentIndices({ chr: 'chr21', start: 28000071, step: 30000 });
+    await trackManager.buildFeatureSegmentIndices({ chr: 'chr21', start: 28000000, step: 30000 });
+
 
     const key = '1';
     let segment = segmentManager.segmentWithName(key);
@@ -82,25 +84,37 @@ let setup = async ({ sceneManager }) => {
     // ball
     const sphereRadius = 24;
     sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
+
+    sceneManager.meshDictionary = {};
     for(let seg of segment) {
 
-        const [x, y, z] = seg.xyz;
+        const [ x, y, z ] = seg.xyz;
         const doSkip = isNaN(x) || isNaN(y) || isNaN(z);
 
         if (!doSkip) {
 
             // const material = new THREE.MeshLambertMaterial({ color: trackManager.colorForFeatureSegmentIndex({ index: seg.segmentIndex, listLength: segment.length }) });
-            const material = new THREE.MeshBasicMaterial({ color: trackManager.colorForFeatureSegmentIndex({ index: seg.segmentIndex, listLength: segment.length }) });
+            const material = new THREE.MeshBasicMaterial({ color: trackManager.colorForSegmentIndex({ index: seg.segmentIndex, firstIndex: 1, lastIndex: segment[segment.length - 1].segmentIndex }) });
             // const material = diffuseCubicMapManager.material;
 
             const mesh = new THREE.Mesh(sphereGeometry, material);
             mesh.position.set(x, y, z);
+
+            const key = mesh.uuid;
+            sceneManager.meshDictionary[ key ] =
+                {
+                    'mesh' : mesh,
+                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4,
+                    'segmentIndex' : seg.segmentIndex
+                };
 
             sceneManager.scene.add(mesh);
 
         }
 
     }
+
+    // console.log('total in ' + _in + ' out ' + _out);
 
     // stick
     for (let i = 0, j = 1; j < segment.length; ++i, ++j) {
@@ -128,4 +142,4 @@ let renderLoop = () => {
     sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera)
 };
 
-export { main, globalEventBus };
+export { main, globalEventBus, sceneManager };

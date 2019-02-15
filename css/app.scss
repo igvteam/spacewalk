@@ -1,1 +1,100 @@
-$app_red_color: '#ff0000';
+
+$trace3d_licorice: #000000;
+$trace3d_lead: #1e1e1e;
+$trace3d_tungsten: #3a3a3a;
+$trace3d_iron: #545453;
+$trace3d_steel: #6e6e6e;
+$trace3d_tin: #878687;
+$trace3d_nickel: #888787;
+$trace3d_aluminum: #a09fa0;
+$trace3d_magnesium: #b8b8b8;
+$trace3d_silver: #d0d0d0;
+$trace3d_mercury: #e8e8e8;
+$trace3d_snow: #ffffff;
+$trace3d_text_box_height: 32px;
+
+#trace3d_canvas_container {
+  position: relative;
+
+}
+
+#trace3d_tool_palette {
+
+  position: absolute;
+  width: 256px;
+  height: 640px;
+
+  z-index: 512;
+
+  //background-color: rgba(255, 255, 255, 0.65);
+  background-color: $trace3d_snow;
+
+  border-style: solid;
+  border-width: thin;
+  border-color: $trace3d_aluminum;
+  border-radius: 8px;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  align-items: center;
+
+  // ramp container
+  .tool_palette_ramp_container {
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 50%;
+    height: 95%;
+
+    //border-style: solid;
+    //border-width: thin;
+    //border-color: $trace3d_aluminum;
+
+    background-color: transparent;
+
+    font-size: 12px;
+
+    // header text
+    .tool_palette_ramp_header {
+      width: 100%;
+      height: $trace3d_text_box_height;
+
+      line-height: $trace3d_text_box_height;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    // ramp
+    .tool_palette_ramp {
+      width: 36px;
+      height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
+
+      background-color: transparent;
+    }
+
+    // footer text
+    .tool_palette_ramp_footer {
+      width: 100%;
+      height: $trace3d_text_box_height;
+
+      line-height: $trace3d_text_box_height;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+  }
+
+}
+
+#trace3d_tool_palette:hover {
+  //cursor: move;
+  border-width: 2px;
+  border-color: $trace3d_steel;
+  //background-color: $trace3d_snow;
+}

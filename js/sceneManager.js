@@ -2,8 +2,10 @@ import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./main.js";
 
 import CubicMapManager from "./cubicMapManager.js";
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
+import ToolPalette from "./toolPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
+
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import { getMouseXY } from "./utils.js";
 
 class SceneManager {
@@ -40,25 +42,29 @@ class SceneManager {
         // insert rendering canvas in DOM
         container.appendChild( this.renderer.domElement );
 
+        // attach tool palette
+        this.toolPalette = new ToolPalette(container);
+
+
         this.picker = picker;
 
-        $(window).on('resize.threejs', () => { this.onWindowResize() });
+        $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 
-        $(container).on('mousemove.threejs.picker', (event) => { this.onContainerMouseMove(event) });
+        $(container).on('mousemove.trace3d.picker', (event) => { this.onContainerMouseMove(event) });
 
         globalEventBus.subscribe("DidLoadSegments", this);
         globalEventBus.subscribe("DidLoadTrack", this);
         globalEventBus.subscribe("DidPickerHit", this);
     }
 
-    receiveEvent(event) {
+    receiveEvent({ type, data }) {
 
-        if ("DidPickerHit" === event.type) {
-            console.log("Yo! " + event.type);
-        } else if ("DidLoadTrack" === event.type) {
-            console.log("Very cool! " + event.type);
-        } else if ("DidLoadTrack" === event.type) {
-            console.log("Very cool! " + event.type);
+        if ("DidPickerHit" === type) {
+            console.log("SceneManager " + type + ' uuid ' + data);
+        } else if ("DidLoadTrack" === type) {
+            console.log("SceneManager " + type);
+        } else if ("DidLoadTrack" === type) {
+            console.log("SceneManager " + type);
         }
 
     }
@@ -118,7 +124,7 @@ class SceneManager {
 
     onContainerMouseMove(event){
 
-        if (this.orbitalCamera && this.orbitalCamera.camera) {
+        if (this.orbitalCamera && this.orbitalCamera.camera && this.picker.isEnabled) {
 
             const xy = getMouseXY(this.renderer.domElement, event);
 
