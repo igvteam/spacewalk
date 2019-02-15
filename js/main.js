@@ -75,8 +75,7 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
 
     await trackManager.buildFeatureSegmentIndices({ chr: 'chr21', start: 28000000, step: 30000 });
 
-
-    const key = '1';
+    const key = '105';
     let segment = segmentManager.segmentWithName(key);
 
     sceneManager.configureWithSegment({ segment });
@@ -104,7 +103,7 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
             sceneManager.meshDictionary[ key ] =
                 {
                     'mesh' : mesh,
-                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4,
+                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + segmentManager.genomicStart,
                     'segmentIndex' : seg.segmentIndex
                 };
 
@@ -113,8 +112,6 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
         }
 
     }
-
-    // console.log('total in ' + _in + ' out ' + _out);
 
     // stick
     for (let i = 0, j = 1; j < segment.length; ++i, ++j) {

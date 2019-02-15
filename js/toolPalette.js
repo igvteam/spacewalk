@@ -9,7 +9,7 @@ class ToolPalette {
         palette.setAttribute('id', 'trace3d_tool_palette');
         container.appendChild( palette );
 
-        this.genomicRampWidget = new RampWidget(palette, 'genomicRampWidget');
+        this.genomicRampWidget = new RampWidget( { container: palette, namespace: 'genomicRampWidget', colors: [ 'blue', 'red' ] } );
 
         this.layout(container, palette);
 

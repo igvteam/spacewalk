@@ -2,7 +2,7 @@ import { getMouseXY, gradientCanvasContextRect } from "./utils.js";
 
 class RampWidget {
 
-    constructor(container, namespace) {
+    constructor({ container, namespace, colors }) {
 
         let rampContainer;
         let header;
@@ -45,8 +45,12 @@ class RampWidget {
         this.context = canvas.getContext('2d');
         this.canvas = canvas;
 
-        gradientCanvasContextRect(this.context, [ 'blue', 'red' ]);
+       this.paintColorRamp(colors);
 
+    }
+
+    paintColorRamp(colors) {
+        gradientCanvasContextRect(this.context, colors);
     }
 
 }

@@ -4,12 +4,14 @@ import { globalEventBus } from './main.js';
 class SegmentManager {
 
     constructor () {
-        this.featureSegmentIndices = new Set();
+        [ this.chr, this.genomicStart, this.genomicEnd ] = [ undefined, undefined, undefined ];
     }
 
     async loadSegments({path}) {
 
         this.path = path;
+        [ this.chr, this.genomicStart, this.genomicEnd ] = parsePathEncodedGenomicLocation(path);
+
         this.segments = {};
         const response = await fetch(path);
         const text = await response.text();
@@ -112,5 +114,19 @@ class SegmentManager {
         return this.segments[ name ] || undefined;
     }
 }
+
+let parsePathEncodedGenomicLocation = path => {
+
+    let locus = path.split('_').pop().split('.').shift();
+
+    let [ chr, start, end ] = locus.split('-');
+
+    let dev_null = end.split(''); // 3 0 M b
+    dev_null.pop(); // 3 0 M
+    dev_null.pop(); // 3 0
+    end = dev_null.join(''); // 30
+
+    return [ chr, parseInt(start) * 1e6, parseInt(end) * 1e6 ];
+};
 
 export default SegmentManager;
