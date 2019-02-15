@@ -21,6 +21,7 @@ let showSTMaterial;
 
 let globalEventBus = new EventBus();
 let sceneManager;
+
 let main = container => {
 
     const sceneManagerConfig =
@@ -61,13 +62,13 @@ let main = container => {
     // trackManager = new TrackManager({ bedTrack: new BedTrack('data/tracks/IMR-90_CTCF_27-31.bed') });
     trackManager = new TrackManager({ track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed') });
 
-    setup({ sceneManager })
+    setup({ sceneManager, segmentManager, trackManager })
         .then(() => {
             renderLoop();
         });
 };
 
-let setup = async ({ sceneManager }) => {
+let setup = async ({ sceneManager, segmentManager, trackManager }) => {
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSegments({path});
@@ -83,19 +84,11 @@ let setup = async ({ sceneManager }) => {
     // ball
     const sphereRadius = 24;
     sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
-    let [_in, _out ] = [ 0, 0 ];
+
+    sceneManager.meshDictionary = {};
     for(let seg of segment) {
 
-        if (trackManager.featureSegmentIndices.has(seg.segmentIndex)) {
-            ++_in;
-        } else {
-            ++_out;
-        }
-
-        const str = trackManager.featureSegmentIndices.has(seg.segmentIndex) ? '+' : '-' ;
-        console.log('segment index ' + seg.segmentIndex + '(' + str + ')');
-
-        const [x, y, z] = seg.xyz;
+        const [ x, y, z ] = seg.xyz;
         const doSkip = isNaN(x) || isNaN(y) || isNaN(z);
 
         if (!doSkip) {
@@ -107,13 +100,21 @@ let setup = async ({ sceneManager }) => {
             const mesh = new THREE.Mesh(sphereGeometry, material);
             mesh.position.set(x, y, z);
 
+            const key = mesh.uuid;
+            sceneManager.meshDictionary[ key ] =
+                {
+                    'mesh' : mesh,
+                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4,
+                    'segmentIndex' : seg.segmentIndex
+                };
+
             sceneManager.scene.add(mesh);
 
         }
 
     }
 
-    console.log('total in ' + _in + ' out ' + _out);
+    // console.log('total in ' + _in + ' out ' + _out);
 
     // stick
     for (let i = 0, j = 1; j < segment.length; ++i, ++j) {
@@ -141,4 +142,4 @@ let renderLoop = () => {
     sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera)
 };
 
-export { main, globalEventBus };
+export { main, globalEventBus, sceneManager };

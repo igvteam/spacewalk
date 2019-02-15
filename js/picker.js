@@ -55,7 +55,7 @@ class Picker {
 
                 hit.material.color = highlightColor;
 
-                globalEventBus.post({type: "DidPickerHit", data: hit });
+                globalEventBus.post({ type: "DidPickerHit", data: hit.uuid });
 
             }
 

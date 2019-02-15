@@ -57,14 +57,14 @@ class SceneManager {
         globalEventBus.subscribe("DidPickerHit", this);
     }
 
-    receiveEvent(event) {
+    receiveEvent({ type, data }) {
 
-        if ("DidPickerHit" === event.type) {
-            console.log("Yo! " + event.type);
-        } else if ("DidLoadTrack" === event.type) {
-            console.log("Very cool! " + event.type);
-        } else if ("DidLoadTrack" === event.type) {
-            console.log("Very cool! " + event.type);
+        if ("DidPickerHit" === type) {
+            console.log("SceneManager " + type + ' uuid ' + data);
+        } else if ("DidLoadTrack" === type) {
+            console.log("SceneManager " + type);
+        } else if ("DidLoadTrack" === type) {
+            console.log("SceneManager " + type);
         }
 
     }

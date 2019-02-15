@@ -46,6 +46,7 @@ class ToolPalette {
 
         $(this.palette).on('mouseleave.trace3d.toolpalette', (event) => { globalEventBus.post({type: "DidLeaveToolPalette", data: this }); });
 
+        globalEventBus.subscribe("DidPickerHit", this);
     }
 
     layout(container, element) {
@@ -62,6 +63,14 @@ class ToolPalette {
     onWindowResize() {
         this.layout(this.container, this.element);
     };
+
+    receiveEvent({ type, data }) {
+
+        if ("DidPickerHit" === type) {
+            console.log("ToolPalette " + type + ' uuid ' + data);
+        }
+
+    }
 
 }
 
