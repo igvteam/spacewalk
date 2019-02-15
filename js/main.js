@@ -73,7 +73,7 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSegments({path});
 
-    await trackManager.buildFeatureSegmentIndices({ chr: 'chr21', start: 28000000, step: 30000 });
+    await trackManager.buildFeatureSegmentIndices({ chr: 'chr21', start: segmentManager.genomicStart, step: segmentManager.stepSize });
 
     const key = '105';
     let segment = segmentManager.segmentWithName(key);

@@ -13,7 +13,6 @@ class TrackManager {
     // Quick hack to compute segment indices containing a feature.
     async buildFeatureSegmentIndices({chr, start, step}) {
 
-
         this.featureSegmentIndices = new Set();
 
         const features = await this.track.getFeatures(chr);

@@ -52,14 +52,13 @@ class SceneManager {
 
         $(container).on('mousemove.trace3d.picker', (event) => { this.onContainerMouseMove(event) });
 
-        globalEventBus.subscribe("DidLoadSegments", this);
         globalEventBus.subscribe("DidLoadTrack", this);
-        globalEventBus.subscribe("DidPickerHit", this);
+        globalEventBus.subscribe("PickerDidHitObject", this);
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidPickerHit" === type) {
+        if ("PickerDidHitObject" === type) {
             console.log("SceneManager " + type + ' uuid ' + data);
         } else if ("DidLoadTrack" === type) {
             console.log("SceneManager " + type);

@@ -1,13 +1,11 @@
-import { getMouseXY, gradientCanvasContextRect } from "./utils.js";
+import { getMouseXY, gradientCanvasContextRect, numberFormatter } from "./utils.js";
 
 class RampWidget {
 
     constructor({ container, namespace, colors }) {
 
         let rampContainer;
-        let header;
         let ramp;
-        let footer;
 
         // ramp container
         rampContainer = document.createElement('div');
@@ -15,10 +13,10 @@ class RampWidget {
         rampContainer.className = 'tool_palette_ramp_container';
 
         // header
-        header = document.createElement('div');
-        rampContainer.appendChild( header );
-        header.className = 'tool_palette_ramp_header';
-        header.innerText = 'header';
+        this.header = document.createElement('div');
+        rampContainer.appendChild( this.header );
+        this.header.className = 'tool_palette_ramp_header';
+        this.header.innerText = '';
 
         // ramp
         ramp = document.createElement('div');
@@ -37,10 +35,10 @@ class RampWidget {
         });
 
         // footer
-        footer = document.createElement('div');
-        rampContainer.appendChild( footer );
-        footer.className = 'tool_palette_ramp_footer';
-        footer.innerText = 'footer';
+        this.footer = document.createElement('div');
+        rampContainer.appendChild( this.footer );
+        this.footer.className = 'tool_palette_ramp_footer';
+        this.footer.innerText = '';
 
         this.context = canvas.getContext('2d');
         this.canvas = canvas;
@@ -51,6 +49,11 @@ class RampWidget {
 
     paintColorRamp(colors) {
         gradientCanvasContextRect(this.context, colors);
+    }
+
+    configure({ chr, genomicStart, genomicEnd }) {
+        this.footer.innerText = numberFormatter(genomicStart);
+        this.header.innerText = numberFormatter(genomicEnd);
     }
 
 }

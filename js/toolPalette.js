@@ -24,7 +24,9 @@ class ToolPalette {
 
         $(this.palette).on('mouseleave.trace3d.toolpalette', (event) => { globalEventBus.post({type: "DidLeaveToolPalette", data: this }); });
 
-        globalEventBus.subscribe("DidPickerHit", this);
+        globalEventBus.subscribe("PickerDidHitObject", this);
+        globalEventBus.subscribe("DidLoadSegments", this);
+
     }
 
     layout(container, element) {
@@ -44,8 +46,11 @@ class ToolPalette {
 
     receiveEvent({ type, data }) {
 
-        if ("DidPickerHit" === type) {
+        if ("PickerDidHitObject" === type) {
             console.log("ToolPalette " + type + ' uuid ' + data);
+        } else if ("DidLoadSegments" === type) {
+            let [ chr, genomicStart, genomicEnd ] = data;
+            this.genomicRampWidget.configure({ chr, genomicStart, genomicEnd });
         }
 
     }

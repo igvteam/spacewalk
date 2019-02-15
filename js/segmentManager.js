@@ -12,6 +12,8 @@ class SegmentManager {
         this.path = path;
         [ this.chr, this.genomicStart, this.genomicEnd ] = parsePathEncodedGenomicLocation(path);
 
+        this.stepSize = 3e4;
+
         this.segments = {};
         const response = await fetch(path);
         const text = await response.text();
@@ -107,7 +109,7 @@ class SegmentManager {
 
         });
 
-        globalEventBus.post({type: "DidLoadSegments", data: path });
+        globalEventBus.post({type: "DidLoadSegments", data: [ this.chr, this.genomicStart, this.genomicEnd ] });
     }
 
     segmentWithName(name) {
