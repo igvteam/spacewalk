@@ -7,47 +7,45 @@ import { clamp } from './math.js';
 class ToolPalette {
     constructor(container) {
 
-        const element = document.createElement('div');
-        element.setAttribute('id', 'trace3d_tool_palette');
-        container.appendChild( element );
+        const palette = document.createElement('div');
+        palette.setAttribute('id', 'trace3d_tool_palette');
+        container.appendChild( palette );
 
-        [ this.featureRampContext, this.segmentBallRampContext, this.rampContext ] = [ 0, 1, 2 ].map((index) => {
+        // [ this.featureRampContext, this.segmentBallRampContext, this.rampContext ] = [ 0, 1, 2 ].map((index) => {
+        //
+        //     const childElement = document.createElement('div');
+        //     palette.appendChild( childElement );
+        //
+        //     const canvas = document.createElement('canvas');
+        //     childElement.appendChild( canvas );
+        //
+        //     fitToContainer(canvas);
+        //
+        //     const namespace = 'mousemove.trace3d.toolpalette.' + index;
+        //     $(canvas).on(namespace, (event) => { onCanvasMouseMove(canvas, event) });
+        //
+        //
+        //     return canvas.getContext('2d');
+        // });
 
-            const childElement = document.createElement('div');
-            element.appendChild( childElement );
-
-            const canvas = document.createElement('canvas');
-            childElement.appendChild( canvas );
-
-            fitToContainer(canvas);
-
-            const namespace = 'mousemove.trace3d.toolpalette.' + index;
-            $(canvas).on(namespace, (event) => { onCanvasMouseMove(canvas, event) });
-
-
-            return canvas.getContext('2d');
-        });
-
-
+        this.featureRampContext = addWidget(palette, 'featureRamp');
         gradientCanvasContextRect(this.featureRampContext, [ 'blue', 'red' ]);
-        fillCanvasContextRect(this.segmentBallRampContext, 'white');
-        fillCanvasContextRect(this.rampContext, 'white');
 
+        // fillCanvasContextRect(this.segmentBallRampContext, 'white');
+        // fillCanvasContextRect(this.rampContext, 'white');
 
-        this.layout(container, element);
+        this.layout(container, palette);
 
         this.container = container;
-        this.palette = element;
+        this.palette = palette;
 
-        makeDraggable(element, element);
+        makeDraggable(palette, palette);
 
         $(window).on('resize.trace3d.toolpalette', () => { this.onWindowResize() });
 
         $(this.palette).on('mouseenter.trace3d.toolpalette', (event) => { globalEventBus.post({type: "DidEnterToolPalette", data: this }); });
 
         $(this.palette).on('mouseleave.trace3d.toolpalette', (event) => { globalEventBus.post({type: "DidLeaveToolPalette", data: this }); });
-
-
 
     }
 
@@ -67,6 +65,49 @@ class ToolPalette {
     };
 
 }
+
+let addWidget = (parent, namespace) => {
+
+    let rampContainer;
+    let header;
+    let ramp;
+    let footer;
+
+    // ramp container
+    rampContainer = document.createElement('div');
+    parent.appendChild( rampContainer );
+    rampContainer.className = 'tool_palette_ramp_container';
+
+    // header
+    header = document.createElement('div');
+    rampContainer.appendChild( header );
+    header.className = 'tool_palette_ramp_header';
+    header.innerText = 'header';
+
+    // ramp
+    ramp = document.createElement('div');
+    rampContainer.appendChild( ramp );
+    ramp.className = 'tool_palette_ramp';
+
+    // ramp canvas
+    const canvas = document.createElement('canvas');
+    ramp.appendChild( canvas );
+
+    fitToContainer(canvas);
+
+    const str = 'mousemove.trace3d.toolpalette.' + namespace;
+    $(canvas).on(str, (event) => {
+        onCanvasMouseMove(canvas, event)
+    });
+
+    // footer
+    footer = document.createElement('div');
+    rampContainer.appendChild( footer );
+    footer.className = 'tool_palette_ramp_footer';
+    footer.innerText = 'footer';
+
+    return canvas.getContext('2d');
+};
 
 let fitToContainer = (canvas) => {
 

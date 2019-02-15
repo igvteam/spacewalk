@@ -11,6 +11,7 @@ $trace3d_magnesium: #b8b8b8;
 $trace3d_silver: #d0d0d0;
 $trace3d_mercury: #e8e8e8;
 $trace3d_snow: #ffffff;
+$trace3d_text_box_height: 32px;
 
 #trace3d_canvas_container {
   position: relative;
@@ -39,34 +40,55 @@ $trace3d_snow: #ffffff;
   justify-content: space-around;
   align-items: center;
 
-  div {
-    width: 16%;
-    height: 90%;
+  // ramp container
+  .tool_palette_ramp_container {
 
-    border-style: solid;
-    border-width: thin;
-    border-color: $trace3d_aluminum;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
 
-    background-color: $trace3d_mercury;
+    width: 50%;
+    height: 95%;
+
+    //border-style: solid;
+    //border-width: thin;
+    //border-color: $trace3d_aluminum;
+
+    background-color: transparent;
+
+    font-size: 12px;
+
+    // header text
+    .tool_palette_ramp_header {
+      width: 100%;
+      height: $trace3d_text_box_height;
+
+      line-height: $trace3d_text_box_height;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    // ramp
+    .tool_palette_ramp {
+      width: 36px;
+      height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
+
+      background-color: transparent;
+    }
+
+    // footer text
+    .tool_palette_ramp_footer {
+      width: 100%;
+      height: $trace3d_text_box_height;
+
+      line-height: $trace3d_text_box_height;
+      vertical-align: middle;
+      text-align: center;
+    }
 
   }
-
-  div:first-child {
-    cursor: pointer;
-    margin-left: 4%;
-    border: unset;
-  }
-
-  div:last-child {
-    margin-right: 4%;
-  }
-
-  div:not(:first-child):hover {
-    cursor: pointer;
-    border-width: 2px;
-    border-color: $trace3d_steel;
-  }
-
 
 }
 
