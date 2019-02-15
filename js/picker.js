@@ -7,7 +7,32 @@ let highlightColor = appleCrayonColorThreeJS('tangerine');
 class Picker {
 
     constructor({ raycaster }) {
+
         this.raycaster = raycaster;
+        this.isEnabled = true;
+
+        globalEventBus.subscribe("DidEnterToolPalette", this);
+        globalEventBus.subscribe("DidLeaveToolPalette", this);
+    }
+
+    receiveEvent(event) {
+
+        if ("DidEnterToolPalette" === event.type) {
+
+            if (hit) {
+                hit.material.color = currentColor;
+                hit = undefined;
+                currentColor = undefined;
+            }
+
+            this.isEnabled = false;
+
+        } else if ("DidLeaveToolPalette" === event.type) {
+
+            this.isEnabled = true;
+
+        }
+
     }
 
     intersect({ x ,y, camera, scene }) {
@@ -38,9 +63,10 @@ class Picker {
 
             if (hit) {
                 hit.material.color = currentColor;
+                hit = undefined;
+                currentColor = undefined;
             }
 
-            hit = undefined;
         }
 
     }

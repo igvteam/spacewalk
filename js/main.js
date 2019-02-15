@@ -72,7 +72,8 @@ let setup = async ({ sceneManager }) => {
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSegments({path});
 
-    await trackManager.buildFeatureSegmentIndices({ chr: 'chr21', start: 28000071, step: 30000 });
+    await trackManager.buildFeatureSegmentIndices({ chr: 'chr21', start: 28000000, step: 30000 });
+
 
     const key = '1';
     let segment = segmentManager.segmentWithName(key);
@@ -82,7 +83,17 @@ let setup = async ({ sceneManager }) => {
     // ball
     const sphereRadius = 24;
     sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
+    let [_in, _out ] = [ 0, 0 ];
     for(let seg of segment) {
+
+        if (trackManager.featureSegmentIndices.has(seg.segmentIndex)) {
+            ++_in;
+        } else {
+            ++_out;
+        }
+
+        const str = trackManager.featureSegmentIndices.has(seg.segmentIndex) ? '+' : '-' ;
+        console.log('segment index ' + seg.segmentIndex + '(' + str + ')');
 
         const [x, y, z] = seg.xyz;
         const doSkip = isNaN(x) || isNaN(y) || isNaN(z);
@@ -101,6 +112,8 @@ let setup = async ({ sceneManager }) => {
         }
 
     }
+
+    console.log('total in ' + _in + ' out ' + _out);
 
     // stick
     for (let i = 0, j = 1; j < segment.length; ++i, ++j) {

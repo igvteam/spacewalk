@@ -1,3 +1,4 @@
+import { globalEventBus } from "./main.js";
 import { makeDraggable } from "./draggable.js";
 import { fillCanvasContextRect, gradientCanvasContextRect } from './utils.js';
 import { getMouseXY } from "./utils.js";
@@ -36,11 +37,16 @@ class ToolPalette {
         this.layout(container, element);
 
         this.container = container;
-        this.element = element;
+        this.palette = element;
 
         makeDraggable(element, element);
 
         $(window).on('resize.trace3d.toolpalette', () => { this.onWindowResize() });
+
+        $(this.palette).on('mouseenter.trace3d.toolpalette', (event) => { globalEventBus.post({type: "DidEnterToolPalette", data: this }); });
+
+        $(this.palette).on('mouseleave.trace3d.toolpalette', (event) => { globalEventBus.post({type: "DidLeaveToolPalette", data: this }); });
+
 
 
     }

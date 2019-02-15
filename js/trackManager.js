@@ -24,13 +24,8 @@ class TrackManager {
 
             const one_based = 1 + index;
             if(index >= 0) {
-
-                console.log('segmentIndex(' + one_based + ')' + ' indexBucket(' + numberFormatter(index * step) + ' - ' + numberFormatter((1 + index) * step) + ') featureStartDelta(' + numberFormatter(feature.start - start) + ')');
-
-                // console.log(' IN - index ' + one_based + ' feature ' + numberFormatter(feature.start));
+                // console.log('segmentIndex(' + one_based + ')' + ' indexBucket(' + numberFormatter(index * step) + ' - ' + numberFormatter((1 + index) * step) + ') featureStartDelta(' + numberFormatter(feature.start - start) + ')');
                 this.featureSegmentIndices.add(one_based);
-            } else {
-                // console.log('OUT - index ' + one_based + ' feature ' + numberFormatter(feature.start));
             }
         }
 

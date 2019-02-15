@@ -124,7 +124,7 @@ class SceneManager {
 
     onContainerMouseMove(event){
 
-        if (this.orbitalCamera && this.orbitalCamera.camera) {
+        if (this.orbitalCamera && this.orbitalCamera.camera && this.picker.isEnabled) {
 
             const xy = getMouseXY(this.renderer.domElement, event);
 
