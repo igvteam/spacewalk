@@ -11,4 +11,4 @@
 /.idea/
 /build
 
-*.scssc
+.sass-cache
