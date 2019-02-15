@@ -19,9 +19,9 @@ let fillCanvasContextRect = (ctx, colorString) => {
 
 let getMouseXY = (domElement, event) => {
 
-    const rect = domElement.getBoundingClientRect();
+    const { left, top } = domElement.getBoundingClientRect();
 
-    return { x: event.clientX - rect.left,  y: event.clientY - rect.top };
+    return { x: event.clientX - left,  y: event.clientY - top };
 
 };
 
