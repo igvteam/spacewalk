@@ -1,4 +1,6 @@
-import { getMouseXY, numberFormatter, gradientCanvasContextRect, quantizedGradientCanvasContextRect } from "./utils.js";
+import { getMouseXY, numberFormatter, fillCanvasContextRect } from "./utils.js";
+import {quantize} from "./math.js";
+import {greyScale255, rgbString} from "./color.js";
 
 class RampWidget {
 
@@ -43,7 +45,8 @@ class RampWidget {
         this.context = canvas.getContext('2d');
         this.canvas = canvas;
 
-       this.paintColorRamp(colors);
+        this.colors = colors;
+
 
     }
 
@@ -59,16 +62,50 @@ class RampWidget {
     };
 
     paintColorRamp(colors) {
-        // gradientCanvasContextRect(this.context, colors);
-        quantizedGradientCanvasContextRect(this.context);
+        gradientCanvasContextRect(this.context, colors);
     }
 
-    configure({ chr, genomicStart, genomicEnd }) {
+    paintQuantizedRamp(steps) {
+        quantizedGradientCanvasContextRect(this.context, steps);
+    }
+
+    configure({ chr, genomicStart, genomicEnd, segment }) {
         this.footer.innerText = numberFormatter(genomicStart);
         this.header.innerText = numberFormatter(genomicEnd);
+        this.paintQuantizedRamp(segment.length)
     }
 
 }
+
+let quantizedGradientCanvasContextRect = (ctx, steps) => {
+
+    const yIndices = new Array(ctx.canvas.offsetHeight);
+
+    for (let y = 0;  y < yIndices.length; y++) {
+
+        let value = y / yIndices.length;
+        value = quantize(value, steps);
+        value = 1.0 - value;
+
+        const { r, g, b } = greyScale255(255 * value);
+        ctx.fillStyle = rgbString({ r, g, b });
+        ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);
+    }
+
+};
+
+let gradientCanvasContextRect = (ctx, colorStringList) => {
+
+    let gradient = ctx.createLinearGradient(0, 0, 0,ctx.canvas.offsetHeight);
+
+    colorStringList.forEach((colorString, i, array) => {
+        const interpolant = i / (array.length - 1);
+        gradient.addColorStop(interpolant, colorString);
+    });
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
+};
 
 let fitToContainer = (canvas) => {
 
@@ -80,6 +117,5 @@ let fitToContainer = (canvas) => {
     canvas.width  = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 };
-
 
 export default RampWidget;

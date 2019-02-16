@@ -25,7 +25,6 @@ class ToolPalette {
         $(this.palette).on('mouseleave.trace3d.toolpalette', (event) => { globalEventBus.post({type: "DidLeaveToolPalette", data: this }); });
 
         globalEventBus.subscribe("PickerDidHitObject", this);
-        globalEventBus.subscribe("DidLoadSegments", this);
 
     }
 
@@ -40,6 +39,10 @@ class ToolPalette {
 
     }
 
+    configure({ chr, genomicStart, genomicEnd, segment }) {
+        this.genomicRampWidget.configure({ chr, genomicStart, genomicEnd, segment });
+    }
+
     onWindowResize() {
         this.layout(this.container, this.element);
     };
@@ -48,9 +51,6 @@ class ToolPalette {
 
         if ("PickerDidHitObject" === type) {
             console.log("ToolPalette " + type + ' uuid ' + data);
-        } else if ("DidLoadSegments" === type) {
-            let [ chr, genomicStart, genomicEnd ] = data;
-            this.genomicRampWidget.configure({ chr, genomicStart, genomicEnd });
         }
 
     }

@@ -4,7 +4,7 @@
 #trace3d_tool_palette {
   position: absolute;
   width: 256px;
-  height: 768px;
+  height: 640px;
   z-index: 512;
   background-color: #ffffff;
   border-style: solid;

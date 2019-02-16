@@ -52,7 +52,6 @@ class SceneManager {
 
         $(container).on('mousemove.trace3d.picker', (event) => { this.onContainerMouseMove(event) });
 
-        globalEventBus.subscribe("DidLoadTrack", this);
         globalEventBus.subscribe("PickerDidHitObject", this);
     }
 
@@ -60,15 +59,13 @@ class SceneManager {
 
         if ("PickerDidHitObject" === type) {
             console.log("SceneManager " + type + ' uuid ' + data);
-        } else if ("DidLoadTrack" === type) {
-            console.log("SceneManager " + type);
-        } else if ("DidLoadTrack" === type) {
-            console.log("SceneManager " + type);
         }
 
     }
 
-    configureWithSegment({ segment }) {
+    configure({ chr, genomicStart, genomicEnd, segment }) {
+
+        this.toolPalette.configure({ chr, genomicStart, genomicEnd, segment });
 
         const [ extentX, extentY, extentZ ] = segment.extent;
 

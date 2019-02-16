@@ -75,10 +75,10 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
 
     await trackManager.buildFeatureSegmentIndices({ chr: 'chr21', start: segmentManager.genomicStart, step: segmentManager.stepSize });
 
-    const key = '105';
+    const key = '1937';
     let segment = segmentManager.segmentWithName(key);
 
-    sceneManager.configureWithSegment({ segment });
+    sceneManager.configure({ chr: segmentManager.chr, genomicStart: segmentManager.genomicStart, genomicEnd: segmentManager.genomicEnd, segment });
 
     // ball
     const sphereRadius = 24;

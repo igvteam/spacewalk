@@ -1,38 +1,5 @@
-import { quantize } from './math.js';
-import { greyScale255 } from './color.js';
 
-export let quantizedGradientCanvasContextRect = (ctx, a, b) => {
-
-    const yIndices = new Array(ctx.canvas.offsetHeight);
-
-    for (let y = 0;  y < yIndices.length; y++) {
-
-        let value = y / yIndices.length;
-        value = quantize(value, 65);
-        value = 1.0 - value;
-
-
-        const { r, g, b } = greyScale255(255 * value);
-        ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-        ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);
-    }
-
-};
-
-export let gradientCanvasContextRect = (ctx, colorStringList) => {
-
-    let gradient = ctx.createLinearGradient(0, 0, 0,ctx.canvas.offsetHeight);
-
-    colorStringList.forEach((colorString, i, array) => {
-        const interpolant = i / (array.length - 1);
-        gradient.addColorStop(interpolant, colorString);
-    });
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
-};
-
-export let fillCanvasContextRect = (ctx, colorString) => {
+let fillCanvasContextRect = (ctx, colorString) => {
     ctx.fillStyle = colorString;
     ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
 };
@@ -81,4 +48,4 @@ let numberFormatter = (rawNumber) => {
         .join('') + (dec[1] ? decsep + dec[1] : '');
 };
 
-export { getMouseXY, throttle, numberFormatter };
+export { getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
