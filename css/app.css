@@ -6,15 +6,15 @@
   width: 256px;
   height: 640px;
   z-index: 512;
-  background-color: #e8e8e8;
+  background-color: #ffffff;
   border-style: solid;
   border-width: thin;
   border-color: #a09fa0;
   border-radius: 8px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: nowrap;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center; }
   #trace3d_tool_palette .tool_palette_ramp_container {
     display: flex;

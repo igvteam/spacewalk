@@ -1,5 +1,5 @@
 import * as THREE from "./threejs_es6/three.module.js";
-import { clamp, random } from './math.js';
+import { lerp, clamp, random } from './math.js';
 
 export let rgbString = ({r, g, b }) => {
     return `rgb(${r},${g},${b})`;
@@ -9,7 +9,7 @@ export let rgbaString = ({r, g, b, a }) => {
     return `rgba(${r},${g},${b},${a})`;
 };
 
-export let rgbaColor255 = (r, g, b, a) => {
+export let rgba255 = (r, g, b, a) => {
 
     r = clamp(r, 0, 255);
     g = clamp(g, 0, 255);
@@ -20,7 +20,7 @@ export let rgbaColor255 = (r, g, b, a) => {
     // return "rgba(" + r + "," + g + "," + b + "," + a + ")";
 };
 
-export let rgbColor255 = (r, g, b) => {
+export let rgb255 = (r, g, b) => {
 
     r = clamp(r, 0, 255);
     g = clamp(g, 0, 255);
@@ -38,6 +38,16 @@ export let greyScale255 = (value) => {
     // return "rgb(" + grey + "," + grey + "," + grey + ")";
 };
 
+export let rgb255Lerp = (colorA, colorB, x) => {
+
+    const  red = lerp(colorA.r, colorB.r, x);
+    const  green = lerp(colorA.g, colorB.g, x);
+    const  blue = lerp(colorA.b, colorB.b, x);
+
+    return { r: Math.round(red), g: Math.round(green), b: Math.round(blue) }
+
+};
+
 export let randomGrey255 = (min, max) => {
 
     min = clamp(min, 0, 255);
@@ -49,7 +59,7 @@ export let randomGrey255 = (min, max) => {
     // return "rgb(" + grey + "," + grey + "," + grey + ")";
 };
 
-export let randomRGB = (min, max) => {
+export let randomRGB255 = (min, max) => {
 
     min = clamp(min, 0, 255);
     max = clamp(max, 0, 255);
@@ -77,6 +87,17 @@ export let randomRGB255ConstantAlpha = (min, max, alpha) => {
 
 let rgb2hex = (r255, g255, b255) => {
     return ((r255&0x0ff)<<16)|((g255&0x0ff)<<8)|(b255&0x0ff);
+};
+
+let hex2RGB255 = (hex) => {
+
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+
+    hex = hex.replace(shorthandRegex, (m, r, g, b) => { return r + r + g + g + b + b; });
+
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {  r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : undefined;
 };
 
 let appleCrayonPaletteDictionary =
@@ -202,5 +223,12 @@ let appleCrayonColorThreeJS = name => {
     return new THREE.Color(appleCrayonColorHexValue(name));
 };
 
-export { appleCrayonNames, appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomColorHexValue };
+let appleCrayonColorRGB255 = name => {
+
+    const hex = appleCrayonPaletteDictionary[ name ];
+    const rgb255 = hex2RGB255(hex);
+    return rgb255;
+};
+
+export { appleCrayonNames, appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomColorHexValue, appleCrayonColorRGB255 };
 

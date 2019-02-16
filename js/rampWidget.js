@@ -1,10 +1,15 @@
-import { getMouseXY, numberFormatter, fillCanvasContextRect } from "./utils.js";
-import {quantize} from "./math.js";
-import {greyScale255, rgbString} from "./color.js";
+import * as THREE from "./threejs_es6/three.module.js";
+import { globalEventBus } from "./main.js";
+
+import { getMouseXY } from "./utils.js";
+import { lerp, quantize } from "./math.js";
+import { rgb255Lerp, rgbString } from "./color.js";
 
 class RampWidget {
 
     constructor({ container, namespace, colors }) {
+
+        this.colors = colors;
 
         let rampContainer;
         let ramp;
@@ -14,11 +19,13 @@ class RampWidget {
         container.appendChild( rampContainer );
         rampContainer.className = 'tool_palette_ramp_container';
 
+
         // header
         this.header = document.createElement('div');
         rampContainer.appendChild( this.header );
         this.header.className = 'tool_palette_ramp_header';
         this.header.innerText = '';
+
 
         // ramp
         ramp = document.createElement('div');
@@ -31,9 +38,19 @@ class RampWidget {
 
         fitToContainer(canvas);
 
-        const str = 'mousemove.trace3d.' + namespace;
-        $(canvas).on(str, (event) => {
+        $(canvas).on(('mousemove.trace3d.' + namespace), (event) => {
+            event.stopPropagation();
             this.onCanvasMouseMove(canvas, event)
+        });
+
+        $(canvas).on(('mouseenter.trace3d.' + namespace), (event) => {
+            event.stopPropagation();
+            this.currentSegmentIndex = undefined;
+        });
+
+        $(canvas).on(('mouseleave.trace3d.' + namespace), (event) => {
+            event.stopPropagation();
+            this.currentSegmentIndex = undefined;
         });
 
         // footer
@@ -41,6 +58,8 @@ class RampWidget {
         rampContainer.appendChild( this.footer );
         this.footer.className = 'tool_palette_ramp_footer';
         this.footer.innerText = '';
+
+        this.rampContainer = rampContainer;
 
         this.context = canvas.getContext('2d');
         this.canvas = canvas;
@@ -56,29 +75,45 @@ class RampWidget {
 
         // flip direction
         yNormalized = 1.0 - yNormalized;
+        const quantized = quantize(yNormalized, this.segmentLength);
+        const one_based = lerp(1, this.segmentLength, quantized);
 
-        console.log('interpolant ' + yNormalized);
+        const segmentIndex = Math.ceil(one_based);
+
+        if (this.currentSegmentIndex !== segmentIndex) {
+            this.currentSegmentIndex = segmentIndex;
+            console.log('time(' + Date.now() + ') interpolant ' + quantized + ' segment-index ' + segmentIndex);
+            // globalEventBus.post({type: "RampWidgetDidSelectSegmentIndex", data: segmentIndex });
+        }
 
     };
 
-    paintColorRamp(colors) {
-        gradientCanvasContextRect(this.context, colors);
-    }
-
     paintQuantizedRamp(steps) {
-        quantizedGradientCanvasContextRect(this.context, steps);
+        quantizedGradientCanvasContextRect(this.context, this.colors, steps);
     }
 
     configure({ chr, genomicStart, genomicEnd, segmentLength }) {
+
+        this.segmentLength = segmentLength;
+
         const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
         this.footer.innerText = ss + 'Mb';
         this.header.innerText = ee + 'Mb';
         this.paintQuantizedRamp(segmentLength)
     }
 
+    colorForSegmentIndex(index) {
+
+        const interpolant = index / this.segmentLength;
+        const { r, g, b } = rgb255Lerp(this.colors[ 0 ], this.colors[ 1 ], interpolant);
+        const str = `rgb(${r},${g},${b})`;
+
+        return new THREE.Color( str );
+    }
+
 }
 
-let quantizedGradientCanvasContextRect = (ctx, steps) => {
+let quantizedGradientCanvasContextRect = (ctx, colors, steps) => {
 
     const yIndices = new Array(ctx.canvas.offsetHeight);
 
@@ -88,24 +123,11 @@ let quantizedGradientCanvasContextRect = (ctx, steps) => {
         value = quantize(value, steps);
         value = 1.0 - value;
 
-        const { r, g, b } = greyScale255(255 * value);
+        const { r, g, b } = rgb255Lerp(colors[ 0 ], colors[ 1 ], value);
         ctx.fillStyle = rgbString({ r, g, b });
         ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);
     }
 
-};
-
-let gradientCanvasContextRect = (ctx, colorStringList) => {
-
-    let gradient = ctx.createLinearGradient(0, 0, 0,ctx.canvas.offsetHeight);
-
-    colorStringList.forEach((colorString, i, array) => {
-        const interpolant = i / (array.length - 1);
-        gradient.addColorStop(interpolant, colorString);
-    });
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
 };
 
 let fitToContainer = (canvas) => {
