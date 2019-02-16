@@ -65,7 +65,7 @@ class SceneManager {
 
     configure({ chr, genomicStart, genomicEnd, segment }) {
 
-        this.toolPalette.configure({ chr, genomicStart, genomicEnd, segment });
+        this.toolPalette.configure({ chr, genomicStart, genomicEnd, segmentLength:segment.length });
 
         const [ extentX, extentY, extentZ ] = segment.extent;
 

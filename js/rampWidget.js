@@ -69,10 +69,11 @@ class RampWidget {
         quantizedGradientCanvasContextRect(this.context, steps);
     }
 
-    configure({ chr, genomicStart, genomicEnd, segment }) {
-        this.footer.innerText = numberFormatter(genomicStart);
-        this.header.innerText = numberFormatter(genomicEnd);
-        this.paintQuantizedRamp(segment.length)
+    configure({ chr, genomicStart, genomicEnd, segmentLength }) {
+        const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
+        this.footer.innerText = ss + 'Mb';
+        this.header.innerText = ee + 'Mb';
+        this.paintQuantizedRamp(segmentLength)
     }
 
 }

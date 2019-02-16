@@ -39,8 +39,8 @@ class ToolPalette {
 
     }
 
-    configure({ chr, genomicStart, genomicEnd, segment }) {
-        this.genomicRampWidget.configure({ chr, genomicStart, genomicEnd, segment });
+    configure({ chr, genomicStart, genomicEnd, segmentLength }) {
+        this.genomicRampWidget.configure({ chr, genomicStart, genomicEnd, segmentLength });
     }
 
     onWindowResize() {
