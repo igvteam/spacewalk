@@ -11,8 +11,7 @@ class TrackManager {
     }
 
     // Quick hack to compute segment indices containing a feature.
-    async buildFeatureSegmentIndices({chr, start, step}) {
-
+    async buildFeatureSegmentIndices({chr, start, stepSize}) {
 
         this.featureSegmentIndices = new Set();
 
@@ -20,11 +19,11 @@ class TrackManager {
 
         for (let feature of features) {
 
-            const index = Math.floor((feature.start - start) / step);
+            const index = Math.floor((feature.start - start) / stepSize);
 
             const one_based = 1 + index;
             if(index >= 0) {
-                // console.log('segmentIndex(' + one_based + ')' + ' indexBucket(' + numberFormatter(index * step) + ' - ' + numberFormatter((1 + index) * step) + ') featureStartDelta(' + numberFormatter(feature.start - start) + ')');
+                // console.log('segmentIndex(' + one_based + ')' + ' indexBucket(' + numberFormatter(index * stepSize) + ' - ' + numberFormatter((1 + index) * stepSize) + ') featureStartDelta(' + numberFormatter(feature.start - start) + ')');
                 this.featureSegmentIndices.add(one_based);
             }
         }

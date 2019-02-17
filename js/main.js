@@ -73,19 +73,18 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSegments({path});
 
-    await trackManager.buildFeatureSegmentIndices({ chr: 'chr21', start: 28000000, step: 30000 });
+    await trackManager.buildFeatureSegmentIndices({ chr: segmentManager.chr, start: segmentManager.genomicStart, stepSize: segmentManager.stepSize });
 
-
-    const key = '1';
+    const key = '1937';
     let segment = segmentManager.segmentWithName(key);
 
-    sceneManager.configureWithSegment({ segment });
+    sceneManager.configure({ chr: segmentManager.chr, genomicStart: segmentManager.genomicStart, genomicEnd: segmentManager.genomicEnd, segment });
 
     // ball
     const sphereRadius = 24;
     sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
 
-    sceneManager.meshDictionary = {};
+    segmentManager.objects = [];
     for(let seg of segment) {
 
         const [ x, y, z ] = seg.xyz;
@@ -94,18 +93,17 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
         if (!doSkip) {
 
             // const material = new THREE.MeshLambertMaterial({ color: trackManager.colorForFeatureSegmentIndex({ index: seg.segmentIndex, listLength: segment.length }) });
-            const material = new THREE.MeshBasicMaterial({ color: trackManager.colorForSegmentIndex({ index: seg.segmentIndex, firstIndex: 1, lastIndex: segment[segment.length - 1].segmentIndex }) });
+            const material = new THREE.MeshBasicMaterial({ color: sceneManager.toolPalette.genomicRampWidget.colorForSegmentIndex(seg.segmentIndex) });
             // const material = diffuseCubicMapManager.material;
 
             const mesh = new THREE.Mesh(sphereGeometry, material);
             mesh.position.set(x, y, z);
 
             const key = mesh.uuid;
-            sceneManager.meshDictionary[ key ] =
+            segmentManager.objects[ seg.segmentIndex ] =
                 {
                     'mesh' : mesh,
-                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4,
-                    'segmentIndex' : seg.segmentIndex
+                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + segmentManager.genomicStart,
                 };
 
             sceneManager.scene.add(mesh);
@@ -113,8 +111,6 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
         }
 
     }
-
-    // console.log('total in ' + _in + ' out ' + _out);
 
     // stick
     for (let i = 0, j = 1; j < segment.length; ++i, ++j) {

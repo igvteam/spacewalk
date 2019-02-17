@@ -5,7 +5,7 @@ import CubicMapManager from "./cubicMapManager.js";
 import ToolPalette from "./toolPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
 
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonColorRGB255 } from "./color.js";
 import { getMouseXY } from "./utils.js";
 
 class SceneManager {
@@ -43,33 +43,34 @@ class SceneManager {
         container.appendChild( this.renderer.domElement );
 
         // attach tool palette
-        this.toolPalette = new ToolPalette(container);
-
+        const colors = [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ];
+        this.toolPalette = new ToolPalette({ container, colors });
 
         this.picker = picker;
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 
-        $(container).on('mousemove.trace3d.picker', (event) => { this.onContainerMouseMove(event) });
+        $(container).on('mousemove.trace3d.picker', (event) => {
+            this.onContainerMouseMove(event)
+        });
 
-        globalEventBus.subscribe("DidLoadSegments", this);
-        globalEventBus.subscribe("DidLoadTrack", this);
-        globalEventBus.subscribe("DidPickerHit", this);
+        globalEventBus.subscribe("PickerDidHitObject", this);
+        globalEventBus.subscribe("RampWidgetDidSelectSegmentIndex", this);
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidPickerHit" === type) {
+        if ("PickerDidHitObject" === type) {
             console.log("SceneManager " + type + ' uuid ' + data);
-        } else if ("DidLoadTrack" === type) {
-            console.log("SceneManager " + type);
-        } else if ("DidLoadTrack" === type) {
-            console.log("SceneManager " + type);
+        } else if ("RampWidgetDidSelectSegmentIndex" === type) {
+            console.log("SceneManager " + type + ' segment index ' + data);
         }
 
     }
 
-    configureWithSegment({ segment }) {
+    configure({ chr, genomicStart, genomicEnd, segment }) {
+
+        this.toolPalette.configure({ chr, genomicStart, genomicEnd, segmentLength:segment.length });
 
         const [ extentX, extentY, extentZ ] = segment.extent;
 
