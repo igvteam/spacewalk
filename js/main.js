@@ -5,7 +5,7 @@ import SegmentManager from './segmentManager.js';
 import CubicMapManager from "./cubicMapManager.js";
 import EventBus from './eventBus.js';
 import SceneManager from './sceneManager.js';
-
+import PickHighlighter from './pickHighlighter.js';
 import BedTrack from './igv/bedTrack.js';
 import TrackManager from './trackManager.js';
 import Picker from './picker.js';
@@ -29,7 +29,7 @@ let main = container => {
             container: container,
             scene: new THREE.Scene(),
             renderer: new THREE.WebGLRenderer({ antialias: true }),
-            picker: new Picker( { raycaster: new THREE.Raycaster() } )
+            picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('tangerine')) } )
         };
 
     sceneManager = new SceneManager(sceneManagerConfig);
@@ -84,7 +84,8 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
     const sphereRadius = 24;
     sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
 
-    segmentManager.objects = [];
+    sceneManager.objectUUID2SegmentIndex = {};
+    sceneManager.segmentIndex2Object = [];
     for(let seg of segment) {
 
         const [ x, y, z ] = seg.xyz;
@@ -99,10 +100,15 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
             const mesh = new THREE.Mesh(sphereGeometry, material);
             mesh.position.set(x, y, z);
 
-            const key = mesh.uuid;
-            segmentManager.objects[ seg.segmentIndex ] =
+            sceneManager.objectUUID2SegmentIndex[ mesh.uuid ] =
                 {
-                    'mesh' : mesh,
+                    'segmentIndex' : seg.segmentIndex,
+                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + segmentManager.genomicStart,
+                };
+
+            sceneManager.segmentIndex2Object[ seg.segmentIndex ] =
+                {
+                    'object' : mesh,
                     'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + segmentManager.genomicStart,
                 };
 

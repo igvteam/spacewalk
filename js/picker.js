@@ -1,14 +1,11 @@
 import {globalEventBus} from "./main.js";
-import { appleCrayonColorThreeJS } from "./color.js";
 
-let hit = undefined;
-let currentColor = undefined;
-let highlightColor = appleCrayonColorThreeJS('tangerine');
 class Picker {
 
-    constructor({ raycaster }) {
+    constructor({ raycaster, pickHighlighter }) {
 
         this.raycaster = raycaster;
+        this.pickHighlighter = pickHighlighter;
         this.isEnabled = true;
 
         globalEventBus.subscribe("DidEnterToolPalette", this);
@@ -18,19 +15,10 @@ class Picker {
     receiveEvent(event) {
 
         if ("DidEnterToolPalette" === event.type) {
-
-            if (hit) {
-                hit.material.color = currentColor;
-                hit = undefined;
-                currentColor = undefined;
-            }
-
+            this.pickHighlighter.unhighlight();
             this.isEnabled = false;
-
         } else if ("DidLeaveToolPalette" === event.type) {
-
             this.isEnabled = true;
-
         }
 
     }
@@ -43,30 +31,13 @@ class Picker {
 
         if (hitList.length > 0) {
 
-            if (hit !== hitList[ 0 ].object) {
-
-                if (hit) {
-                    hit.material.color = currentColor;
-                }
-
-                hit = hitList[ 0 ].object;
-
-                currentColor = hit.material.color;
-
-                hit.material.color = highlightColor;
-
-                globalEventBus.post({ type: "PickerDidHitObject", data: hit.uuid });
-
+            if (false === this.pickHighlighter.isCurrentObject(hitList[ 0 ].object)) {
+                this.pickHighlighter.configure(hitList[ 0 ].object);
+                globalEventBus.post({ type: "PickerDidHitObject", data: this.pickHighlighter.object.uuid });
             }
 
         } else {
-
-            if (hit) {
-                hit.material.color = currentColor;
-                hit = undefined;
-                currentColor = undefined;
-            }
-
+            this.pickHighlighter.unhighlight();
         }
 
     }
