@@ -26,7 +26,8 @@ class SceneManager {
 
         const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
-        const colorName = 'mercury';
+        // const colorName = 'mercury';
+        const colorName = 'cantaloupe';
 
         // this.scene.background = specularCubicMapManager.cubicTexture;
         this.scene.background = appleCrayonColorThreeJS(colorName);
@@ -43,6 +44,7 @@ class SceneManager {
         container.appendChild( this.renderer.domElement );
 
         // attach tool palette
+
         const colors = [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ];
         this.toolPalette = new ToolPalette({ container, colors });
 
