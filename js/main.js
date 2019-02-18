@@ -1,14 +1,14 @@
 import * as THREE from './threejs_es6/three.module.js';
-
-import { appleCrayonColorThreeJS } from './color.js';
-import SegmentManager from './segmentManager.js';
-import CubicMapManager from "./cubicMapManager.js";
 import EventBus from './eventBus.js';
 import SceneManager from './sceneManager.js';
-import PickHighlighter from './pickHighlighter.js';
-import BedTrack from './igv/bedTrack.js';
-import TrackManager from './trackManager.js';
+import SegmentManager from './segmentManager.js';
+import CubicMapManager from "./cubicMapManager.js";
 import Picker from './picker.js';
+import PickHighlighter from './pickHighlighter.js';
+import TrackManager from './trackManager.js';
+import BedTrack from './igv/bedTrack.js';
+
+import { appleCrayonColorThreeJS } from './color.js';
 
 let segmentManager;
 let trackManager;
@@ -23,13 +23,13 @@ let globalEventBus = new EventBus();
 let sceneManager;
 
 let main = container => {
-
+    // 165, 1, 1
     const sceneManagerConfig =
         {
             container: container,
             scene: new THREE.Scene(),
             renderer: new THREE.WebGLRenderer({ antialias: true }),
-            picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('tangerine')) } )
+            picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('maraschino')) } )
         };
 
     sceneManager = new SceneManager(sceneManagerConfig);
@@ -75,7 +75,7 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
 
     await trackManager.buildFeatureSegmentIndices({ chr: segmentManager.chr, start: segmentManager.genomicStart, stepSize: segmentManager.stepSize });
 
-    const key = '1937';
+    const key = '1234';
     let segment = segmentManager.segmentWithName(key);
 
     sceneManager.configure({ chr: segmentManager.chr, genomicStart: segmentManager.genomicStart, genomicEnd: segmentManager.genomicEnd, segment });

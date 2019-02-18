@@ -1,16 +1,5 @@
+@import "color";
 
-$trace3d_licorice: #000000;
-$trace3d_lead: #1e1e1e;
-$trace3d_tungsten: #3a3a3a;
-$trace3d_iron: #545453;
-$trace3d_steel: #6e6e6e;
-$trace3d_tin: #878687;
-$trace3d_nickel: #888787;
-$trace3d_aluminum: #a09fa0;
-$trace3d_magnesium: #b8b8b8;
-$trace3d_silver: #d0d0d0;
-$trace3d_mercury: #e8e8e8;
-$trace3d_snow: #ffffff;
 $trace3d_text_box_height: 32px;
 
 #trace3d_canvas_container {
@@ -72,6 +61,7 @@ $trace3d_text_box_height: 32px;
 
     // ramp
     .tool_palette_ramp {
+      cursor: pointer;
       width: 36px;
       height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
 

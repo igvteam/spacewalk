@@ -3,13 +3,15 @@ import { globalEventBus } from "./main.js";
 
 import { getMouseXY } from "./utils.js";
 import { lerp, quantize } from "./math.js";
-import { rgb255Lerp, rgbString } from "./color.js";
+import { rgb255, rgb255Lerp, rgbString } from "./color.js";
 
 class RampWidget {
 
-    constructor({ container, namespace, colors }) {
+    constructor({ container, namespace, colors, highlightColor }) {
 
         this.colors = colors;
+        let { r, g, b } = highlightColor;
+        this.highlightColor = rgb255(r*255, g*255, b*255);
 
         let rampContainer;
         let ramp;
@@ -88,10 +90,6 @@ class RampWidget {
 
     };
 
-    paintQuantizedRamp(steps) {
-        quantizedGradientCanvasContextRect(this.context, this.colors, steps);
-    }
-
     configure({ chr, genomicStart, genomicEnd, segmentLength }) {
 
         this.segmentLength = segmentLength;
@@ -99,7 +97,42 @@ class RampWidget {
         const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
         this.footer.innerText = ss + 'Mb';
         this.header.innerText = ee + 'Mb';
-        this.paintQuantizedRamp(segmentLength)
+        this.paintQuantizedRamp(this.context, this.colors, this.segmentLength, undefined);
+    }
+
+    repaint () {
+        this.paintQuantizedRamp(this.context, this.colors, this.segmentLength, undefined);
+    }
+
+    highlight (segmentIndex) {
+        this.paintQuantizedRamp(this.context, this.colors, this.segmentLength, segmentIndex)
+    }
+
+    paintQuantizedRamp(ctx, colors, segmentLength, highlightedSegmentIndex){
+
+        const yIndices = new Array(ctx.canvas.offsetHeight);
+
+        for (let y = 0;  y < yIndices.length; y++) {
+
+            let quantized = y / yIndices.length;
+            quantized = quantize(quantized, segmentLength);
+            quantized = 1.0 - quantized;
+
+            const segmentIndex = Math.round(quantized * segmentLength);
+
+            // const now = Date.now();
+            // console.log('time(' + now + ')' + ' x ' + quantized + ' segment index ' + segmentIndex);
+
+            if (highlightedSegmentIndex && highlightedSegmentIndex === segmentIndex) {
+                ctx.fillStyle = rgbString(this.highlightColor);
+            } else {
+                const { r, g, b } = rgb255Lerp(colors[ 0 ], colors[ 1 ], quantized);
+                ctx.fillStyle = rgbString({ r, g, b });
+            }
+
+            ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);
+        }
+
     }
 
     colorForSegmentIndex(index) {
@@ -112,23 +145,6 @@ class RampWidget {
     }
 
 }
-
-let quantizedGradientCanvasContextRect = (ctx, colors, steps) => {
-
-    const yIndices = new Array(ctx.canvas.offsetHeight);
-
-    for (let y = 0;  y < yIndices.length; y++) {
-
-        let value = y / yIndices.length;
-        value = quantize(value, steps);
-        value = 1.0 - value;
-
-        const { r, g, b } = rgb255Lerp(colors[ 0 ], colors[ 1 ], value);
-        ctx.fillStyle = rgbString({ r, g, b });
-        ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);
-    }
-
-};
 
 let fitToContainer = (canvas) => {
 

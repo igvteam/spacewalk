@@ -33,6 +33,7 @@
       vertical-align: middle;
       text-align: center; }
     #trace3d_tool_palette .tool_palette_ramp_container .tool_palette_ramp {
+      cursor: pointer;
       width: 36px;
       height: calc(100% - 32px - 32px);
       background-color: transparent; }
