@@ -84,7 +84,8 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
     const sphereRadius = 24;
     sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
 
-    segmentManager.objects = [];
+    segmentManager.objectUUID2SegmentIndex = {};
+    segmentManager.segmentIndex2Object = [];
     for(let seg of segment) {
 
         const [ x, y, z ] = seg.xyz;
@@ -99,10 +100,15 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
             const mesh = new THREE.Mesh(sphereGeometry, material);
             mesh.position.set(x, y, z);
 
-            const key = mesh.uuid;
-            segmentManager.objects[ seg.segmentIndex ] =
+            segmentManager.objectUUID2SegmentIndex[ mesh.uuid ] =
                 {
-                    'mesh' : mesh,
+                    'segmentIndex' : seg.segmentIndex,
+                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + segmentManager.genomicStart,
+                };
+
+            segmentManager.segmentIndex2Object[ seg.segmentIndex ] =
+                {
+                    'object' : mesh,
                     'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + segmentManager.genomicStart,
                 };
 

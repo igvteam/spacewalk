@@ -82,8 +82,8 @@ class RampWidget {
 
         if (this.currentSegmentIndex !== segmentIndex) {
             this.currentSegmentIndex = segmentIndex;
-            console.log('time(' + Date.now() + ') interpolant ' + quantized + ' segment-index ' + segmentIndex);
-            // globalEventBus.post({type: "RampWidgetDidSelectSegmentIndex", data: segmentIndex });
+            // console.log('time(' + Date.now() + ') interpolant ' + quantized + ' segment-index ' + segmentIndex);
+            globalEventBus.post({type: "RampWidgetDidSelectSegmentIndex", data: segmentIndex });
         }
 
     };

@@ -30,8 +30,6 @@ class ToolPalette {
             globalEventBus.post({type: "DidLeaveToolPalette", data: this });
         });
 
-        globalEventBus.subscribe("PickerDidHitObject", this);
-
     }
 
     configure({ chr, genomicStart, genomicEnd, segmentLength }) {
@@ -41,14 +39,6 @@ class ToolPalette {
     onWindowResize() {
         layout(this.container, this.palette);
     };
-
-    receiveEvent({ type, data }) {
-
-        if ("PickerDidHitObject" === type) {
-            console.log("ToolPalette " + type + ' uuid ' + data);
-        }
-
-    }
 
 }
 
