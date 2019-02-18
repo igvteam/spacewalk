@@ -1,4 +1,5 @@
 import {globalEventBus} from "./main.js";
+
 import { appleCrayonColorThreeJS } from "./color.js";
 
 let hit = undefined;
@@ -6,9 +7,10 @@ let currentColor = undefined;
 let highlightColor = appleCrayonColorThreeJS('tangerine');
 class Picker {
 
-    constructor({ raycaster }) {
+    constructor({ raycaster, pickHighlighter }) {
 
         this.raycaster = raycaster;
+        this.pickHighlighter = pickHighlighter;
         this.isEnabled = true;
 
         globalEventBus.subscribe("DidEnterToolPalette", this);

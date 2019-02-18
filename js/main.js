@@ -5,7 +5,7 @@ import SegmentManager from './segmentManager.js';
 import CubicMapManager from "./cubicMapManager.js";
 import EventBus from './eventBus.js';
 import SceneManager from './sceneManager.js';
-
+import PickHighlighter from './pickHighlighter.js';
 import BedTrack from './igv/bedTrack.js';
 import TrackManager from './trackManager.js';
 import Picker from './picker.js';
@@ -29,7 +29,7 @@ let main = container => {
             container: container,
             scene: new THREE.Scene(),
             renderer: new THREE.WebGLRenderer({ antialias: true }),
-            picker: new Picker( { raycaster: new THREE.Raycaster() } )
+            picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('tangerine')) } )
         };
 
     sceneManager = new SceneManager(sceneManagerConfig);
