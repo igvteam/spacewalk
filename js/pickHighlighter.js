@@ -2,20 +2,38 @@
 class PickHighlighter {
     constructor (highlightColor) {
         this.highlightColor = highlightColor;
-        this.object = undefined;
+        this.object = this.currentColor = undefined;
+    }
+
+    hasObject() {
+        return !(this.object === undefined);
+    }
+
+    isCurrentObject(candidate) {
+        return this.object === candidate;
     }
 
     configure (object) {
+
+        this.unhighlight();
+
         this.object = object;
+        this.currentColor = object.material.color;
+
+        this.highlight();
     }
 
     highlight() {
-        this.currentColor = object.material.color;
-        object.material.color = this.highlightColor;
+        this.object.material.color = this.highlightColor;
     }
 
     unhighlight() {
-        object.material.color = this.currentColor;
+
+        if (this.hasObject()) {
+            this.object.material.color = this.currentColor;
+            this.object = this.currentColor = undefined;
+        }
+
     }
 }
 

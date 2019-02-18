@@ -59,11 +59,17 @@ class SceneManager {
     }
 
     receiveEvent({ type, data }) {
-
+        const now = Date.now();
         if ("PickerDidHitObject" === type) {
-            console.log("SceneManager " + type + ' uuid ' + data);
+            console.log("SceneManager time " + now + ' ' + type + ' uuid ' + data);
         } else if ("RampWidgetDidSelectSegmentIndex" === type) {
-            console.log("SceneManager " + type + ' segment index ' + data);
+
+            // console.log("SceneManager time " + now + ' ' + type + ' segment index ' + data);
+
+            if (this.segmentIndex2Object[ data ]) {
+                this.picker.pickHighlighter.configure(this.segmentIndex2Object[ data ].object);
+            }
+
         }
 
     }
