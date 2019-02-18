@@ -46,7 +46,7 @@ class SceneManager {
         // attach tool palette
 
         const colors = [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ];
-        this.toolPalette = new ToolPalette({ container, colors });
+        this.toolPalette = new ToolPalette({ container, colors, highlightColor: picker.pickHighlighter.highlightColor });
 
         this.picker = picker;
 
@@ -57,16 +57,24 @@ class SceneManager {
         });
 
         globalEventBus.subscribe("PickerDidHitObject", this);
+        globalEventBus.subscribe("PickerDidLeaveObject", this);
         globalEventBus.subscribe("RampWidgetDidSelectSegmentIndex", this);
     }
 
     receiveEvent({ type, data }) {
         const now = Date.now();
         if ("PickerDidHitObject" === type) {
-            console.log("SceneManager time " + now + ' ' + type + ' uuid ' + data);
-        } else if ("RampWidgetDidSelectSegmentIndex" === type) {
 
-            // console.log("SceneManager time " + now + ' ' + type + ' segment index ' + data);
+            if (this.objectUUID2SegmentIndex[ data ]) {
+                const segmentIndex = this.objectUUID2SegmentIndex[ data ].segmentIndex;
+                this.toolPalette.genomicRampWidget.highlight(segmentIndex)
+            }
+
+        } else if ("PickerDidLeaveObject" === type) {
+
+            this.toolPalette.genomicRampWidget.repaint();
+
+        } else if ("RampWidgetDidSelectSegmentIndex" === type) {
 
             if (this.segmentIndex2Object[ data ]) {
                 this.picker.pickHighlighter.configure(this.segmentIndex2Object[ data ].object);

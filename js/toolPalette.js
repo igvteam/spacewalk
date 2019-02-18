@@ -3,13 +3,13 @@ import { makeDraggable } from "./draggable.js";
 import RampWidget from "./rampWidget.js";
 
 class ToolPalette {
-    constructor({ container, colors }) {
+    constructor({ container, colors, highlightColor }) {
 
         const palette = document.createElement('div');
         palette.setAttribute('id', 'trace3d_tool_palette');
         container.appendChild( palette );
 
-        this.genomicRampWidget = new RampWidget( { container: palette, namespace: 'genomicRampWidget', colors } );
+        this.genomicRampWidget = new RampWidget( { container: palette, namespace: 'genomicRampWidget', colors, highlightColor } );
 
         layout(container, palette);
 
@@ -22,11 +22,13 @@ class ToolPalette {
 
         $(this.palette).on('mouseenter.trace3d.toolpalette', (event) => {
             event.stopPropagation();
+            this.genomicRampWidget.repaint();
             globalEventBus.post({type: "DidEnterToolPalette", data: this });
         });
 
         $(this.palette).on('mouseleave.trace3d.toolpalette', (event) => {
             event.stopPropagation();
+
             globalEventBus.post({type: "DidLeaveToolPalette", data: this });
         });
 

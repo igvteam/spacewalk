@@ -61,6 +61,7 @@ $trace3d_text_box_height: 32px;
 
     // ramp
     .tool_palette_ramp {
+      cursor: pointer;
       width: 36px;
       height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
 

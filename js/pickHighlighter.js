@@ -1,3 +1,4 @@
+import { globalEventBus } from "./main.js";
 
 class PickHighlighter {
     constructor (highlightColor) {
@@ -31,7 +32,11 @@ class PickHighlighter {
 
         if (this.hasObject()) {
             this.object.material.color = this.currentColor;
+
+            globalEventBus.post({ type: "PickerDidLeaveObject", data: this.object.uuid });
+
             this.object = this.currentColor = undefined;
+
         }
 
     }
