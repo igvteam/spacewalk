@@ -5,15 +5,13 @@ import CubicMapManager from "./cubicMapManager.js";
 import ToolPalette from "./toolPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
 
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255ToThreeJSColor } from "./color.js";
+import { appleCrayonColorHexValue } from "./color.js";
 import { getMouseXY } from "./utils.js";
 
 class SceneManager {
 
-    constructor({ container, scene, renderer, picker }) {
+    constructor({ container, scene, backgroundColor, toolPaletteColors, renderer, picker }) {
 
-
-        // scene
         this.scene = scene;
 
         const specularCubicMapMaterialConfig =
@@ -26,29 +24,26 @@ class SceneManager {
 
         const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
-        // const colorName = 'mercury';
-        const colorName = 'cantaloupe';
-
         // this.scene.background = specularCubicMapManager.cubicTexture;
-        // this.scene.background = appleCrayonColorThreeJS(colorName);
-        this.scene.background = rgb255ToThreeJSColor(163, 237, 237);
+        this.scene.background = backgroundColor;
 
         // renderer
         this.renderer = renderer;
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-        this.renderer.setClearColor(appleCrayonColorHexValue(colorName));
-
         // insert rendering canvas in DOM
         container.appendChild( this.renderer.domElement );
 
-        // attach tool palette
-
-        const colors = [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ];
-        this.toolPalette = new ToolPalette({ container, colors, highlightColor: picker.pickHighlighter.highlightColor });
+        this.toolPalette = new ToolPalette({ container, colors: toolPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
 
         this.picker = picker;
+
+        // Dictionay of segment indices. Key is UUID of 3D object
+        this.objectUUID2SegmentIndex = {};
+
+        // Array of 3D objects. Index is segment index.
+        this.segmentIndex2Object = [];
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 

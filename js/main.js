@@ -7,8 +7,7 @@ import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
 import TrackManager from './trackManager.js';
 import BedTrack from './igv/bedTrack.js';
-
-import { appleCrayonColorThreeJS } from './color.js';
+import { appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 
 let segmentManager;
 let trackManager;
@@ -26,15 +25,17 @@ let startTime;
 let endTime;
 let main = container => {
 
-    const sceneManagerConfig =
+    const sceneManagerSettings =
         {
             container: container,
             scene: new THREE.Scene(),
+            backgroundColor: rgb255ToThreeJSColor(163, 237, 237),
+            toolPaletteColors: [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ],
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('maraschino')) } )
         };
 
-    sceneManager = new SceneManager(sceneManagerConfig);
+    sceneManager = new SceneManager(sceneManagerSettings);
 
     const diffuseCubicMapMaterialConfig =
         {
@@ -61,8 +62,7 @@ let main = container => {
 
     segmentManager = new SegmentManager();
 
-    // trackManager = new TrackManager({ bedTrack: new BedTrack('data/tracks/IMR-90_CTCF_27-31.bed') });
-    trackManager = new TrackManager({ track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed') });
+    trackManager = new TrackManager();
 
     setup({ sceneManager, segmentManager, trackManager })
         .then(() => {
@@ -75,13 +75,20 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
     startTime = Date.now();
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
-    await segmentManager.loadSegments({path});
+    await segmentManager.loadSegments({ path });
 
     endTime = Date.now();
     console.log('segmentManager.loadSegments - done ' + (endTime - startTime));
 
     startTime = endTime;
-    await trackManager.buildFeatureSegmentIndices({ chr: segmentManager.chr, start: segmentManager.genomicStart, stepSize: segmentManager.stepSize });
+    const trackManagerConfig =
+        {
+            track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed'),
+            chr: segmentManager.chr,
+            start: segmentManager.genomicStart,
+            stepSize: segmentManager.stepSize
+        };
+    await trackManager.buildFeatureSegmentIndices(trackManagerConfig);
 
     endTime = Date.now();
     console.log('trackManager.buildFeatureSegmentIndices - done ' + (endTime - startTime));
@@ -90,7 +97,15 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
     let segment = segmentManager.segmentWithName(key);
 
     startTime = endTime;
-    sceneManager.configure({ chr: segmentManager.chr, genomicStart: segmentManager.genomicStart, genomicEnd: segmentManager.genomicEnd, segment });
+    const sceneManagerConfig =
+        {
+            chr: segmentManager.chr,
+            genomicStart: segmentManager.genomicStart,
+            genomicEnd: segmentManager.genomicEnd,
+            segment
+        };
+
+    sceneManager.configure(sceneManagerConfig);
 
     endTime = Date.now();
     console.log('sceneManager.configure - done ' + (endTime - startTime));
@@ -100,8 +115,12 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
     const sphereRadius = 24;
     sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
 
+    // Dictionay of segment indices. Key is UUID of 3D object
     sceneManager.objectUUID2SegmentIndex = {};
+
+    // Array of 3D objects. Index is segment index.
     sceneManager.segmentIndex2Object = [];
+
     for(let seg of segment) {
 
         const [ x, y, z ] = seg.xyz;
