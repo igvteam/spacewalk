@@ -3,7 +3,7 @@ import { globalEventBus } from "./main.js";
 
 import { getMouseXY } from "./utils.js";
 import { lerp, quantize } from "./math.js";
-import { rgb255, rgb255Lerp, rgbString } from "./color.js";
+import { rgb255, rgb255Lerp, rgb255String } from "./color.js";
 
 class RampWidget {
 
@@ -124,10 +124,10 @@ class RampWidget {
             // console.log('time(' + now + ')' + ' x ' + quantized + ' segment index ' + segmentIndex);
 
             if (highlightedSegmentIndex && highlightedSegmentIndex === segmentIndex) {
-                ctx.fillStyle = rgbString(this.highlightColor);
+                ctx.fillStyle = rgb255String(this.highlightColor);
             } else {
                 const { r, g, b } = rgb255Lerp(colors[ 0 ], colors[ 1 ], quantized);
-                ctx.fillStyle = rgbString({ r, g, b });
+                ctx.fillStyle = rgb255String({r, g, b});
             }
 
             ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);

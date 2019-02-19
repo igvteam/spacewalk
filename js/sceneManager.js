@@ -5,7 +5,7 @@ import CubicMapManager from "./cubicMapManager.js";
 import ToolPalette from "./toolPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
 
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonColorRGB255 } from "./color.js";
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255ToThreeJSColor } from "./color.js";
 import { getMouseXY } from "./utils.js";
 
 class SceneManager {
@@ -30,8 +30,8 @@ class SceneManager {
         const colorName = 'cantaloupe';
 
         // this.scene.background = specularCubicMapManager.cubicTexture;
-        this.scene.background = appleCrayonColorThreeJS(colorName);
-
+        // this.scene.background = appleCrayonColorThreeJS(colorName);
+        this.scene.background = rgb255ToThreeJSColor(163, 237, 237);
 
         // renderer
         this.renderer = renderer;
