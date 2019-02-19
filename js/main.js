@@ -23,7 +23,7 @@ let sceneManager;
 
 let startTime;
 let endTime;
-let main = container => {
+let main = async container => {
 
     const sceneManagerSettings =
         {
@@ -65,14 +65,6 @@ let main = container => {
 
     trackManager = new TrackManager();
 
-    setup({ sceneManager, segmentManager, trackManager })
-        .then(() => {
-            renderLoop();
-        });
-};
-
-let setup = async ({ sceneManager, segmentManager, trackManager }) => {
-
     startTime = Date.now();
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
@@ -82,6 +74,7 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
     console.log('segmentManager.loadSegments - done ' + (endTime - startTime));
 
     startTime = endTime;
+
     const trackManagerConfig =
         {
             track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed'),
@@ -95,14 +88,31 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
     console.log('trackManager.buildFeatureSegmentIndices - done ' + (endTime - startTime));
 
     const key = '1234';
-    let segment = segmentManager.segmentWithName(key);
 
-    startTime = endTime;
-    const sceneManagerConfig =
+    const setupConfig =
         {
+            sceneManager: sceneManager,
             chr: segmentManager.chr,
             genomicStart: segmentManager.genomicStart,
             genomicEnd: segmentManager.genomicEnd,
+            segment: segmentManager.segmentWithName(key),
+
+        };
+    await setup(setupConfig);
+
+    renderLoop();
+
+};
+
+let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
+
+    startTime = endTime;
+
+    const sceneManagerConfig =
+        {
+            chr: chr,
+            genomicStart: genomicStart,
+            genomicEnd: genomicEnd,
             segmentLength: segment.length,
             segmentExtent: segment.extent,
             cameraPosition: segment.cameraPosition,
@@ -143,13 +153,13 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
             sceneManager.objectUUID2SegmentIndex[ mesh.uuid ] =
                 {
                     'segmentIndex' : seg.segmentIndex,
-                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + segmentManager.genomicStart,
+                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + genomicStart,
                 };
 
             sceneManager.segmentIndex2Object[ seg.segmentIndex ] =
                 {
                     'object' : mesh,
-                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + segmentManager.genomicStart,
+                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + genomicStart,
                 };
 
             sceneManager.scene.add(mesh);

@@ -1,11 +1,8 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./main.js";
-
 import CubicMapManager from "./cubicMapManager.js";
 import ToolPalette from "./toolPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
-
-import { appleCrayonColorHexValue } from "./color.js";
 import { getMouseXY } from "./utils.js";
 
 class SceneManager {
