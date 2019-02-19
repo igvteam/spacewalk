@@ -7,7 +7,7 @@ import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
 import TrackManager from './trackManager.js';
 import BedTrack from './igv/bedTrack.js';
-import { appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 
 let segmentManager;
 let trackManager;
@@ -30,6 +30,7 @@ let main = container => {
             container: container,
             scene: new THREE.Scene(),
             backgroundColor: rgb255ToThreeJSColor(163, 237, 237),
+            groundPlaneColor: appleCrayonColorHexValue('steel'),
             toolPaletteColors: [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ],
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('maraschino')) } )
@@ -102,7 +103,10 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
             chr: segmentManager.chr,
             genomicStart: segmentManager.genomicStart,
             genomicEnd: segmentManager.genomicEnd,
-            segment
+            segmentLength: segment.length,
+            segmentExtent: segment.extent,
+            cameraPosition: segment.cameraPosition,
+            centroid: segment.centroid
         };
 
     sceneManager.configure(sceneManagerConfig);

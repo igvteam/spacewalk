@@ -10,7 +10,7 @@ import { getMouseXY } from "./utils.js";
 
 class SceneManager {
 
-    constructor({ container, scene, backgroundColor, toolPaletteColors, renderer, picker }) {
+    constructor({ container, scene, backgroundColor, groundPlaneColor, toolPaletteColors, renderer, picker }) {
 
         this.scene = scene;
 
@@ -26,6 +26,8 @@ class SceneManager {
 
         // this.scene.background = specularCubicMapManager.cubicTexture;
         this.scene.background = backgroundColor;
+
+        this.groundPlaneColor = groundPlaneColor;
 
         // renderer
         this.renderer = renderer;
@@ -79,11 +81,11 @@ class SceneManager {
 
     }
 
-    configure({ chr, genomicStart, genomicEnd, segment }) {
+    configure({ chr, genomicStart, genomicEnd, segmentLength, segmentExtent, cameraPosition, centroid }) {
 
-        this.toolPalette.configure({ chr, genomicStart, genomicEnd, segmentLength:segment.length });
+        this.toolPalette.configure({ chr, genomicStart, genomicEnd, segmentLength: segmentLength });
 
-        const [ extentX, extentY, extentZ ] = segment.extent;
+        const [ extentX, extentY, extentZ ] = segmentExtent;
 
         let dimen = 0.5 * Math.max(extentX, extentY, extentZ);
         dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
@@ -91,9 +93,9 @@ class SceneManager {
         const [ near, far, fov ] = [ 1e-1 * dimen, 32 * dimen, 35 ];
         this.configureOrbitalCamera({ fov, near, far });
 
-        this.poseOrbitalCamera({ position: segment.cameraPosition, lookAt: segment.centroid });
+        this.poseOrbitalCamera({ position: cameraPosition, lookAt: centroid });
 
-        this.configureGroundPlane({ target: segment.centroid, size: 2 * Math.max(extentX, extentY, extentZ), color: appleCrayonColorHexValue('steel') });
+        this.configureGroundPlane({ target: centroid, size: 2 * Math.max(extentX, extentY, extentZ), color: this.groundPlaneColor });
 
     }
 
