@@ -22,8 +22,10 @@ let showSTMaterial;
 let globalEventBus = new EventBus();
 let sceneManager;
 
+let startTime;
+let endTime;
 let main = container => {
-    // 165, 1, 1
+
     const sceneManagerConfig =
         {
             container: container,
@@ -70,17 +72,31 @@ let main = container => {
 
 let setup = async ({ sceneManager, segmentManager, trackManager }) => {
 
+    startTime = Date.now();
+
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSegments({path});
 
+    endTime = Date.now();
+    console.log('segmentManager.loadSegments - done ' + (endTime - startTime));
+
+    startTime = endTime;
     await trackManager.buildFeatureSegmentIndices({ chr: segmentManager.chr, start: segmentManager.genomicStart, stepSize: segmentManager.stepSize });
+
+    endTime = Date.now();
+    console.log('trackManager.buildFeatureSegmentIndices - done ' + (endTime - startTime));
 
     const key = '1234';
     let segment = segmentManager.segmentWithName(key);
 
+    startTime = endTime;
     sceneManager.configure({ chr: segmentManager.chr, genomicStart: segmentManager.genomicStart, genomicEnd: segmentManager.genomicEnd, segment });
 
+    endTime = Date.now();
+    console.log('sceneManager.configure - done ' + (endTime - startTime));
+
     // ball
+    startTime = endTime;
     const sphereRadius = 24;
     sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
 
@@ -118,7 +134,11 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
 
     }
 
+    endTime = Date.now();
+    console.log('balls - done ' + (endTime - startTime));
+
     // stick
+    startTime = endTime;
     for (let i = 0, j = 1; j < segment.length; ++i, ++j) {
 
         const [ x0, y0, z0 ] = segment[i].xyz;
@@ -136,6 +156,9 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
         }
 
     }
+
+    endTime = Date.now();
+    console.log('sticks - done ' + (endTime - startTime));
 
 };
 
