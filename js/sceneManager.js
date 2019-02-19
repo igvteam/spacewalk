@@ -2,6 +2,7 @@ import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./main.js";
 import CubicMapManager from "./cubicMapManager.js";
 import ToolPalette from "./toolPalette.js";
+import SegmentSelectWidget from "./segmentSelectWidget.js";
 import OrbitalCamera from "./orbitalCamera.js";
 import { getMouseXY } from "./utils.js";
 
@@ -35,6 +36,8 @@ class SceneManager {
         container.appendChild( this.renderer.domElement );
 
         this.toolPalette = new ToolPalette({ container, colors: toolPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
+
+        this.segmentSelectWidget = new SegmentSelectWidget({ container });
 
         this.picker = picker;
 
