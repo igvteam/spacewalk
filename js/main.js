@@ -105,6 +105,7 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
     for(let seg of segment) {
 
         const [ x, y, z ] = seg.xyz;
+
         const doSkip = isNaN(x) || isNaN(y) || isNaN(z);
 
         if (!doSkip) {
@@ -143,15 +144,20 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
 
         const [ x0, y0, z0 ] = segment[i].xyz;
         const [ x1, y1, z1 ] = segment[j].xyz;
+
         const doSkip = isNaN(x0) || isNaN(x1);
 
         if (!doSkip) {
+
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-            const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/4, 16, false);
+            const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/8, 16, false);
 
             // const material = new THREE.MeshLambertMaterial({ color: appleCrayonColorThreeJS('nickel') });
+
             const material = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
+
             // const material = diffuseCubicMapManager.material;
+
             sceneManager.scene.add(new THREE.Mesh(geometry, material));
         }
 
