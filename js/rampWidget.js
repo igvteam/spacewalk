@@ -19,20 +19,20 @@ class RampWidget {
         // ramp container
         rampContainer = document.createElement('div');
         container.appendChild( rampContainer );
-        rampContainer.className = 'tool_palette_ramp_container';
+        rampContainer.className = 'trace3d_tool_palette_ramp_container';
 
 
         // header
         this.header = document.createElement('div');
         rampContainer.appendChild( this.header );
-        this.header.className = 'tool_palette_ramp_header';
+        this.header.className = 'trace3d_tool_palette_ramp_header';
         this.header.innerText = '';
 
 
         // ramp
         ramp = document.createElement('div');
         rampContainer.appendChild( ramp );
-        ramp.className = 'tool_palette_ramp';
+        ramp.className = 'trace3d_tool_palette_ramp';
 
         // ramp canvas
         const canvas = document.createElement('canvas');
@@ -58,7 +58,7 @@ class RampWidget {
         // footer
         this.footer = document.createElement('div');
         rampContainer.appendChild( this.footer );
-        this.footer.className = 'tool_palette_ramp_footer';
+        this.footer.className = 'trace3d_tool_palette_ramp_footer';
         this.footer.innerText = '';
 
         this.rampContainer = rampContainer;

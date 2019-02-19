@@ -7,7 +7,7 @@ $trace3d_text_box_height: 32px;
 
 }
 
-#trace3d_tool_palette {
+.trace3d_tool_palette {
 
   position: absolute;
   width: 200px;
@@ -29,62 +29,60 @@ $trace3d_text_box_height: 32px;
   justify-content: center;
   align-items: center;
 
-  // ramp container
-  .tool_palette_ramp_container {
-
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
-
-    width: 50%;
-    height: 95%;
-
-    //border-style: solid;
-    //border-width: thin;
-    //border-color: $trace3d_aluminum;
-
-    background-color: transparent;
-
-    font-size: 16px;
-
-    // header text
-    .tool_palette_ramp_header {
-      width: 100%;
-      height: $trace3d_text_box_height;
-
-      line-height: $trace3d_text_box_height;
-      vertical-align: middle;
-      text-align: center;
-    }
-
-    // ramp
-    .tool_palette_ramp {
-      cursor: pointer;
-      width: 36px;
-      height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
-
-      background-color: transparent;
-    }
-
-    // footer text
-    .tool_palette_ramp_footer {
-      width: 100%;
-      height: $trace3d_text_box_height;
-
-      line-height: $trace3d_text_box_height;
-      vertical-align: middle;
-      text-align: center;
-    }
-
-  }
-
 }
 
-#trace3d_tool_palette:hover {
-  //cursor: move;
+.trace3d_tool_palette:hover {
   border-width: 2px;
   border-color: $trace3d_steel;
-  //background-color: $trace3d_snow;
+}
+
+// ramp container
+.trace3d_tool_palette_ramp_container {
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 50%;
+  height: 95%;
+
+  //border-style: solid;
+  //border-width: thin;
+  //border-color: $trace3d_aluminum;
+
+  background-color: transparent;
+
+  font-size: 16px;
+
+  // header text
+  .trace3d_tool_palette_ramp_header {
+    width: 100%;
+    height: $trace3d_text_box_height;
+
+    line-height: $trace3d_text_box_height;
+    vertical-align: middle;
+    text-align: center;
+  }
+
+  // ramp
+  .trace3d_tool_palette_ramp {
+    cursor: pointer;
+    width: 36px;
+    height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
+
+    background-color: transparent;
+  }
+
+  // footer text
+  .trace3d_tool_palette_ramp_footer {
+    width: 100%;
+    height: $trace3d_text_box_height;
+
+    line-height: $trace3d_text_box_height;
+    vertical-align: middle;
+    text-align: center;
+  }
+
 }

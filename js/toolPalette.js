@@ -6,7 +6,8 @@ class ToolPalette {
     constructor({ container, colors, highlightColor }) {
 
         const palette = document.createElement('div');
-        palette.setAttribute('id', 'trace3d_tool_palette');
+        palette.className = 'trace3d_tool_palette';
+        // palette.setAttribute('id', 'trace3d_tool_palette');
         container.appendChild( palette );
 
         this.genomicRampWidget = new RampWidget( { container: palette, namespace: 'genomicRampWidget', colors, highlightColor } );
