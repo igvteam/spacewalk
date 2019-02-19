@@ -87,7 +87,7 @@ let main = async container => {
     endTime = Date.now();
     console.log('trackManager.buildFeatureSegmentIndices - done ' + (endTime - startTime));
 
-    const key = '1234';
+    const key = '248';
 
     const setupConfig =
         {
