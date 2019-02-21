@@ -16,7 +16,7 @@ $trace3d_text_box_height: 32px;
   z-index: 512;
 
   background-color: rgba(255, 255, 255, 0.65);
-  //background-color: $trace3d_snow;
+
 
   border-style: solid;
   border-width: thin;
@@ -34,6 +34,7 @@ $trace3d_text_box_height: 32px;
 .trace3d_tool_palette:hover {
   border-width: 2px;
   border-color: $trace3d_steel;
+  background-color: $trace3d_snow;
 }
 
 // ramp container

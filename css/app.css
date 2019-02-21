@@ -19,7 +19,8 @@
 
 .trace3d_tool_palette:hover {
   border-width: 2px;
-  border-color: #6e6e6e; }
+  border-color: #6e6e6e;
+  background-color: #ffffff; }
 
 .trace3d_tool_palette_ramp_container {
   display: flex;

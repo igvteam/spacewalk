@@ -45,7 +45,7 @@ let layout = (container, element) => {
     const { width, height } = container.getBoundingClientRect();
     const domRect = element.getBoundingClientRect();
 
-    const multiple = 5/4;
+    const multiple = 1/4;
     $(element).offset( { left: (multiple * domRect.width), top: ((height - domRect.height)/2) } );
 
 };
