@@ -6,8 +6,9 @@ class SegmentSelectWidget {
 
         const selectContainer = document.createElement('div');
         selectContainer.className = 'trace3d_tool_palette';
-
         container.appendChild( selectContainer );
+
+        appendSelectWidget(selectContainer);
 
         layout(container, selectContainer);
 
@@ -38,6 +39,23 @@ class SegmentSelectWidget {
     };
 
 }
+
+let appendSelectWidget = container => {
+
+    const select = document.createElement('select');
+    select.className = 'selectpicker';
+
+    container.appendChild( select );
+
+    [ 'Mustard', 'Ketchup', 'Relish' ].forEach((string) => {
+
+        const option = document.createElement('option');
+        select.appendChild( option );
+        
+        option.textContent = string;
+    });
+
+};
 
 let layout = (container, element) => {
 
