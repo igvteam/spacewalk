@@ -8,16 +8,16 @@ class Picker {
         this.pickHighlighter = pickHighlighter;
         this.isEnabled = true;
 
-        globalEventBus.subscribe("DidEnterToolPalette", this);
-        globalEventBus.subscribe("DidLeaveToolPalette", this);
+        globalEventBus.subscribe("DidEnterGUI", this);
+        globalEventBus.subscribe("DidLeaveGUI", this);
     }
 
     receiveEvent(event) {
 
-        if ("DidEnterToolPalette" === event.type) {
+        if ("DidEnterGUI" === event.type) {
             this.pickHighlighter.unhighlight();
             this.isEnabled = false;
-        } else if ("DidLeaveToolPalette" === event.type) {
+        } else if ("DidLeaveGUI" === event.type) {
             this.isEnabled = true;
         }
 

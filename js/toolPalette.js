@@ -24,13 +24,12 @@ class ToolPalette {
         $(this.palette).on('mouseenter.trace3d.toolpalette', (event) => {
             event.stopPropagation();
             this.genomicRampWidget.repaint();
-            globalEventBus.post({type: "DidEnterToolPalette", data: this });
+            globalEventBus.post({type: "DidEnterGUI", data: this });
         });
 
         $(this.palette).on('mouseleave.trace3d.toolpalette', (event) => {
             event.stopPropagation();
-
-            globalEventBus.post({type: "DidLeaveToolPalette", data: this });
+            globalEventBus.post({type: "DidLeaveGUI", data: this });
         });
 
     }

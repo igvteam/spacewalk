@@ -20,14 +20,12 @@ class SegmentSelectWidget {
 
         $(this.selectContainer).on('mouseenter.trace3d.segment_select_widget', (event) => {
             event.stopPropagation();
-
-            globalEventBus.post({ type: "DidEnterSegmentSelectWidget", data: this });
+            globalEventBus.post({ type: "DidEnterGUI", data: this });
         });
 
         $(this.selectContainer).on('mouseleave.trace3d.segment_select_widget', (event) => {
             event.stopPropagation();
-
-            globalEventBus.post({ type: "DidLeaveSegmentSelectWidget", data: this });
+            globalEventBus.post({ type: "DidLeaveGUI", data: this });
         });
 
     }
