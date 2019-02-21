@@ -6,16 +6,14 @@ import {appleCrayonColorThreeJS} from "./color.js";
 
 class TrackManager {
 
-    constructor ({ track }) {
-        this.track = track;
-    }
+    constructor () {}
 
     // Quick hack to compute segment indices containing a feature.
-    async buildFeatureSegmentIndices({chr, start, stepSize}) {
+    async buildFeatureSegmentIndices({ track, chr, start, stepSize }) {
 
         this.featureSegmentIndices = new Set();
 
-        const features = await this.track.getFeatures(chr);
+        const features = await track.getFeatures(chr);
 
         for (let feature of features) {
 

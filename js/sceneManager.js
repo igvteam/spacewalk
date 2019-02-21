@@ -1,19 +1,15 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./main.js";
-
 import CubicMapManager from "./cubicMapManager.js";
 import ToolPalette from "./toolPalette.js";
+import SegmentSelectWidget from "./segmentSelectWidget.js";
 import OrbitalCamera from "./orbitalCamera.js";
-
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255ToThreeJSColor } from "./color.js";
 import { getMouseXY } from "./utils.js";
 
 class SceneManager {
 
-    constructor({ container, scene, renderer, picker }) {
+    constructor({ container, scene, backgroundColor, groundPlaneColor, toolPaletteColors, renderer, picker }) {
 
-
-        // scene
         this.scene = scene;
 
         const specularCubicMapMaterialConfig =
@@ -26,29 +22,30 @@ class SceneManager {
 
         const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
-        // const colorName = 'mercury';
-        const colorName = 'cantaloupe';
-
         // this.scene.background = specularCubicMapManager.cubicTexture;
-        // this.scene.background = appleCrayonColorThreeJS(colorName);
-        this.scene.background = rgb255ToThreeJSColor(163, 237, 237);
+        this.scene.background = backgroundColor;
+
+        this.groundPlaneColor = groundPlaneColor;
 
         // renderer
         this.renderer = renderer;
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-        this.renderer.setClearColor(appleCrayonColorHexValue(colorName));
-
         // insert rendering canvas in DOM
         container.appendChild( this.renderer.domElement );
 
-        // attach tool palette
+        this.toolPalette = new ToolPalette({ container, colors: toolPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
 
-        const colors = [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ];
-        this.toolPalette = new ToolPalette({ container, colors, highlightColor: picker.pickHighlighter.highlightColor });
+        this.segmentSelectWidget = new SegmentSelectWidget({ container });
 
         this.picker = picker;
+
+        // Dictionay of segment indices. Key is UUID of 3D object
+        this.objectUUID2SegmentIndex = {};
+
+        // Array of 3D objects. Index is segment index.
+        this.segmentIndex2Object = [];
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 
@@ -84,11 +81,11 @@ class SceneManager {
 
     }
 
-    configure({ chr, genomicStart, genomicEnd, segment }) {
+    configure({ chr, genomicStart, genomicEnd, segmentLength, segmentExtent, cameraPosition, centroid }) {
 
-        this.toolPalette.configure({ chr, genomicStart, genomicEnd, segmentLength:segment.length });
+        this.toolPalette.configure({ chr, genomicStart, genomicEnd, segmentLength: segmentLength });
 
-        const [ extentX, extentY, extentZ ] = segment.extent;
+        const [ extentX, extentY, extentZ ] = segmentExtent;
 
         let dimen = 0.5 * Math.max(extentX, extentY, extentZ);
         dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
@@ -96,9 +93,9 @@ class SceneManager {
         const [ near, far, fov ] = [ 1e-1 * dimen, 32 * dimen, 35 ];
         this.configureOrbitalCamera({ fov, near, far });
 
-        this.poseOrbitalCamera({ position: segment.cameraPosition, lookAt: segment.centroid });
+        this.poseOrbitalCamera({ position: cameraPosition, lookAt: centroid });
 
-        this.configureGroundPlane({ target: segment.centroid, size: 2 * Math.max(extentX, extentY, extentZ), color: appleCrayonColorHexValue('steel') });
+        this.configureGroundPlane({ target: centroid, size: 2 * Math.max(extentX, extentY, extentZ), color: this.groundPlaneColor });
 
     }
 

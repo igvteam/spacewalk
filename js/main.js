@@ -7,8 +7,7 @@ import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
 import TrackManager from './trackManager.js';
 import BedTrack from './igv/bedTrack.js';
-
-import { appleCrayonColorThreeJS } from './color.js';
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 
 let segmentManager;
 let trackManager;
@@ -22,17 +21,22 @@ let showSTMaterial;
 let globalEventBus = new EventBus();
 let sceneManager;
 
-let main = container => {
-    // 165, 1, 1
-    const sceneManagerConfig =
+let startTime;
+let endTime;
+let main = async container => {
+
+    const sceneManagerSettings =
         {
             container: container,
             scene: new THREE.Scene(),
+            backgroundColor: rgb255ToThreeJSColor(163, 237, 237),
+            groundPlaneColor: appleCrayonColorHexValue('steel'),
+            toolPaletteColors: [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ],
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('maraschino')) } )
         };
 
-    sceneManager = new SceneManager(sceneManagerConfig);
+    sceneManager = new SceneManager(sceneManagerSettings);
 
     const diffuseCubicMapMaterialConfig =
         {
@@ -59,36 +63,82 @@ let main = container => {
 
     segmentManager = new SegmentManager();
 
-    // trackManager = new TrackManager({ bedTrack: new BedTrack('data/tracks/IMR-90_CTCF_27-31.bed') });
-    trackManager = new TrackManager({ track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed') });
+    trackManager = new TrackManager();
 
-    setup({ sceneManager, segmentManager, trackManager })
-        .then(() => {
-            renderLoop();
-        });
-};
-
-let setup = async ({ sceneManager, segmentManager, trackManager }) => {
+    startTime = Date.now();
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
-    await segmentManager.loadSegments({path});
+    await segmentManager.loadSegments({ path });
 
-    await trackManager.buildFeatureSegmentIndices({ chr: segmentManager.chr, start: segmentManager.genomicStart, stepSize: segmentManager.stepSize });
+    endTime = Date.now();
+    console.log('segmentManager.loadSegments - done ' + (endTime - startTime));
 
-    const key = '1234';
-    let segment = segmentManager.segmentWithName(key);
+    startTime = endTime;
 
-    sceneManager.configure({ chr: segmentManager.chr, genomicStart: segmentManager.genomicStart, genomicEnd: segmentManager.genomicEnd, segment });
+    const trackManagerConfig =
+        {
+            track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed'),
+            chr: segmentManager.chr,
+            start: segmentManager.genomicStart,
+            stepSize: segmentManager.stepSize
+        };
+    await trackManager.buildFeatureSegmentIndices(trackManagerConfig);
+
+    endTime = Date.now();
+    console.log('trackManager.buildFeatureSegmentIndices - done ' + (endTime - startTime));
+
+    const key = '248';
+
+    const setupConfig =
+        {
+            sceneManager: sceneManager,
+            chr: segmentManager.chr,
+            genomicStart: segmentManager.genomicStart,
+            genomicEnd: segmentManager.genomicEnd,
+            segment: segmentManager.segmentWithName(key),
+
+        };
+    await setup(setupConfig);
+
+    renderLoop();
+
+};
+
+let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
+
+    startTime = endTime;
+
+    const sceneManagerConfig =
+        {
+            chr: chr,
+            genomicStart: genomicStart,
+            genomicEnd: genomicEnd,
+            segmentLength: segment.length,
+            segmentExtent: segment.extent,
+            cameraPosition: segment.cameraPosition,
+            centroid: segment.centroid
+        };
+
+    sceneManager.configure(sceneManagerConfig);
+
+    endTime = Date.now();
+    console.log('sceneManager.configure - done ' + (endTime - startTime));
 
     // ball
+    startTime = endTime;
     const sphereRadius = 24;
     sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
 
+    // Dictionay of segment indices. Key is UUID of 3D object
     sceneManager.objectUUID2SegmentIndex = {};
+
+    // Array of 3D objects. Index is segment index.
     sceneManager.segmentIndex2Object = [];
+
     for(let seg of segment) {
 
         const [ x, y, z ] = seg.xyz;
+
         const doSkip = isNaN(x) || isNaN(y) || isNaN(z);
 
         if (!doSkip) {
@@ -103,13 +153,13 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
             sceneManager.objectUUID2SegmentIndex[ mesh.uuid ] =
                 {
                     'segmentIndex' : seg.segmentIndex,
-                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + segmentManager.genomicStart,
+                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + genomicStart,
                 };
 
             sceneManager.segmentIndex2Object[ seg.segmentIndex ] =
                 {
                     'object' : mesh,
-                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + segmentManager.genomicStart,
+                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + genomicStart,
                 };
 
             sceneManager.scene.add(mesh);
@@ -118,24 +168,36 @@ let setup = async ({ sceneManager, segmentManager, trackManager }) => {
 
     }
 
+    endTime = Date.now();
+    console.log('balls - done ' + (endTime - startTime));
+
     // stick
+    startTime = endTime;
     for (let i = 0, j = 1; j < segment.length; ++i, ++j) {
 
         const [ x0, y0, z0 ] = segment[i].xyz;
         const [ x1, y1, z1 ] = segment[j].xyz;
+
         const doSkip = isNaN(x0) || isNaN(x1);
 
         if (!doSkip) {
+
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-            const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/4, 16, false);
+            const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/8, 16, false);
 
             // const material = new THREE.MeshLambertMaterial({ color: appleCrayonColorThreeJS('nickel') });
+
             const material = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
+
             // const material = diffuseCubicMapManager.material;
+
             sceneManager.scene.add(new THREE.Mesh(geometry, material));
         }
 
     }
+
+    endTime = Date.now();
+    console.log('sticks - done ' + (endTime - startTime));
 
 };
 

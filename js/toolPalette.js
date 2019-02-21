@@ -6,7 +6,8 @@ class ToolPalette {
     constructor({ container, colors, highlightColor }) {
 
         const palette = document.createElement('div');
-        palette.setAttribute('id', 'trace3d_tool_palette');
+        palette.className = 'trace3d_tool_palette';
+        // palette.setAttribute('id', 'trace3d_tool_palette');
         container.appendChild( palette );
 
         this.genomicRampWidget = new RampWidget( { container: palette, namespace: 'genomicRampWidget', colors, highlightColor } );
@@ -23,13 +24,12 @@ class ToolPalette {
         $(this.palette).on('mouseenter.trace3d.toolpalette', (event) => {
             event.stopPropagation();
             this.genomicRampWidget.repaint();
-            globalEventBus.post({type: "DidEnterToolPalette", data: this });
+            globalEventBus.post({type: "DidEnterGUI", data: this });
         });
 
         $(this.palette).on('mouseleave.trace3d.toolpalette', (event) => {
             event.stopPropagation();
-
-            globalEventBus.post({type: "DidLeaveToolPalette", data: this });
+            globalEventBus.post({type: "DidLeaveGUI", data: this });
         });
 
     }
