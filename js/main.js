@@ -8,6 +8,7 @@ import PickHighlighter from './pickHighlighter.js';
 import TrackManager from './trackManager.js';
 import BedTrack from './igv/bedTrack.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
+import SegmentSelectWidget from "./segmentSelectWidget.js";
 
 let segmentManager;
 let trackManager;
@@ -61,7 +62,7 @@ let main = async container => {
 
     showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
 
-    segmentManager = new SegmentManager();
+    segmentManager = new SegmentManager({ segmentSelectWidget: new SegmentSelectWidget({ container })});
 
     trackManager = new TrackManager();
 
@@ -69,6 +70,8 @@ let main = async container => {
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSegments({ path });
+
+
 
     endTime = Date.now();
     console.log('segmentManager.loadSegments - done ' + (endTime - startTime));

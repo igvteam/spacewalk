@@ -3,7 +3,10 @@ import { globalEventBus } from './main.js';
 
 class SegmentManager {
 
-    constructor () {
+    constructor ({ segmentSelectWidget }) {
+
+        this.segmentSelectWidget = segmentSelectWidget;
+
         [ this.chr, this.genomicStart, this.genomicEnd ] = [ undefined, undefined, undefined ];
     }
 
@@ -108,6 +111,8 @@ class SegmentManager {
 
 
         });
+
+        this.segmentSelectWidget.configure({ segments: this.segments });
 
         globalEventBus.post({type: "DidLoadSegments", data: [ this.chr, this.genomicStart, this.genomicEnd ] });
     }

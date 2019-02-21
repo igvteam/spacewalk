@@ -22,6 +22,27 @@ class SegmentSelectWidget {
 
         makeDraggable(selectContainer, selectContainer);
 
+
+
+        // let option;
+        // let index = 0;
+        //
+        // option = document.createElement('option');
+        // option.textContent = index++;
+        // this.select.appendChild( option );
+        //
+        // option = document.createElement('option');
+        // option.textContent = index++;
+        // this.select.appendChild( option );
+        //
+        // option = document.createElement('option');
+        // option.textContent = index++;
+        // this.select.appendChild( option );
+
+
+
+
+
         $(window).on('resize.trace3d.segment_select_widget', () => { this.onWindowResize() });
 
         $(this.selectContainer).on('mouseenter.trace3d.segment_select_widget', (event) => {
@@ -36,19 +57,40 @@ class SegmentSelectWidget {
 
     }
 
-    configure({ segment }) {
+    configure({ segments }) {
 
-        console.log('segment select widget - ' + segment.length);
+        let option;
+        let index = 0;
+
+        option = document.createElement('option');
+        option.textContent = index++;
+        this.select.appendChild( option );
+
+        option = document.createElement('option');
+        option.textContent = index++;
+        this.select.appendChild( option );
+
+        option = document.createElement('option');
+        option.textContent = index++;
+        this.select.appendChild( option );
+
+        return;
+
+        console.log('segment select widget - whole lotta segments ' + Object.values(segments).length);
+
+        populateSelectWidget(this.select, Object.values(segments));
+
 
         $(this.select).empty();
 
-        segment.forEach((seg) => {
-
-            const option = document.createElement('option');
-            select.appendChild( option );
-
-            option.textContent = string;
-        });
+        // Object.values(segments).forEach((segment, index) => {
+        //
+        //     if (index < 16) {
+        //         const option = document.createElement('option');
+        //         option.textContent = 'segment ' + index;
+        //         this.select.appendChild( option );
+        //     }
+        // });
 
     }
 
@@ -57,6 +99,32 @@ class SegmentSelectWidget {
     };
 
 }
+
+let populateSelectWidget = (select, list) => {
+
+    let option;
+    let index = 0;
+
+    option = document.createElement('option');
+    option.textContent = index++;
+    select.appendChild( option );
+
+    option = document.createElement('option');
+    option.textContent = index++;
+    select.appendChild( option );
+
+    option = document.createElement('option');
+    option.textContent = index++;
+    select.appendChild( option );
+
+
+    // for (let segment of list) {
+    //     const option = document.createElement('option');
+    //     option.textContent = Date.now();
+    //     select.appendChild( option );
+    // }
+
+};
 
 let createSelectWidget = container => {
 
