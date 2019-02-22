@@ -22,7 +22,9 @@ class SceneManager {
         const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
         // this.scene.background = specularCubicMapManager.cubicTexture;
-        this.scene.background = backgroundColor;
+        this.backgroundColor = backgroundColor;
+
+        this.scene.background = this.backgroundColor;
 
         this.groundPlaneColor = groundPlaneColor;
 
@@ -149,6 +151,18 @@ class SceneManager {
         }
     };
 
+    dispose() {
+
+        this.scene.dispose();
+        this.scene = undefined;
+
+        this.orbitalCamera.dispose();
+        this.orbitalCamera = undefined;
+
+        this.scene = new THREE.Scene();
+        this.scene.background = this.backgroundColor;
+
+    }
 
 }
 

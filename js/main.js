@@ -103,7 +103,7 @@ let main = async container => {
             receiveEvent: async ({ type, data }) => {
                 if ("DidSelectSegment" === type) {
 
-                    sceneManager.scene.dispose();
+                    sceneManager.dispose();
 
                     setupConfig =
                         {
@@ -113,7 +113,6 @@ let main = async container => {
                             genomicEnd: segmentManager.genomicEnd,
                             segment: data,
                         };
-
 
                     await setup(setupConfig);
 

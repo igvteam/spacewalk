@@ -42,6 +42,12 @@ $trace3d_tool_palette_width: 200px;
   padding-top: 16px;
   justify-content: flex-start;
   height: 2 * $trace3d_tool_palette_width;
+
+  select.form-control {
+    &[size], &[multiple] {
+      height: 1.5 * $trace3d_tool_palette_width;
+    }
+  }
 }
 
 // ramp container

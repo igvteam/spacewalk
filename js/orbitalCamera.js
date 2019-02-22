@@ -5,10 +5,8 @@ class OrbitalCamera {
 
     constructor({ scene, renderer, fov, near, far, aspectRatio, domElement }) {
         this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
-
         this.orbitControl = new OrbitControls(this.camera, domElement);
         this.orbitControl.screenSpacePanning = false;
-
     }
 
     setNearFar(nearFar) {
@@ -27,6 +25,10 @@ class OrbitalCamera {
         this.orbitControl.update();
     }
 
+    dispose() {
+        this.camera = undefined;
+        this.orbitControl = undefined;
+    }
 }
 
 export default OrbitalCamera;
