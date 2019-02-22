@@ -72,9 +72,7 @@ let main = async container => {
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSegments({ path });
 
-    segmentSelectWidget = new SegmentSelectWidget({ container });
-
-    segmentSelectWidget.configure({ segments: segmentManager.segments });
+    segmentSelectWidget = new SegmentSelectWidget({ container, segmentManager });
 
     endTime = Date.now();
     // console.log('segmentManager.loadSegments - done ' + (endTime - startTime));

@@ -10,8 +10,6 @@ class SegmentManager {
 
     async loadSegments({path}) {
 
-        console.log('SegmentManager.loadSegments - begin');
-
         this.path = path;
         [ this.chr, this.genomicStart, this.genomicEnd ] = parsePathEncodedGenomicLocation(path);
 
@@ -112,9 +110,6 @@ class SegmentManager {
 
         });
 
-        globalEventBus.post({type: "DidLoadSegments", data: [ this.chr, this.genomicStart, this.genomicEnd ] });
-
-        console.log('SegmentManager.loadSegments - end');
     }
 
     segmentWithName(name) {

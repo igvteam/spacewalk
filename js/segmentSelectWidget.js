@@ -2,9 +2,8 @@ import { globalEventBus } from "./main.js";
 import { makeDraggable } from "./draggable.js";
 
 class SegmentSelectWidget {
-    constructor({ container }) {
 
-        console.log('SegmentSelectWidget.new - begin');
+    constructor({ container, segmentManager }) {
 
         // palette
         const palette = document.createElement('div');
@@ -12,53 +11,48 @@ class SegmentSelectWidget {
         palette.className = 'trace3d_tool_palette';
         container.appendChild( palette );
 
-        this.select = createSelectWidget(palette);
+        const select = createSelectWidget(palette, segmentManager);
+
+        configureSelectWidget(select, segmentManager.segments);
 
         layout(container, palette);
 
-        this.container = container;
-        this.palette = palette;
+        makeDraggable(palette, palette);
 
-        // makeDraggable(palette, palette);
+        $(window).on('resize.trace3d.segment_select_widget', () => { this.onWindowResize(container, palette) });
 
-        $(window).on('resize.trace3d.segment_select_widget', () => { this.onWindowResize() });
-
-        $(this.palette).on('mouseenter.trace3d.segment_select_widget', (event) => {
+        $(palette).on('mouseenter.trace3d.segment_select_widget', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidEnterGUI", data: this });
         });
 
-        $(this.palette).on('mouseleave.trace3d.segment_select_widget', (event) => {
+        $(palette).on('mouseleave.trace3d.segment_select_widget', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI", data: this });
         });
 
-        console.log('SegmentSelectWidget.new - end');
-
     }
 
-    configure({ segments }) {
-
-        $(this.select).empty();
-
-        Object.values(segments).forEach((segment, index) => {
-
-            const option = document.createElement('option');
-            option.textContent = 'segment ' + index;
-            option.setAttribute("value", index);
-            this.select.appendChild( option );
-
-        });
-
-    }
-
-    onWindowResize() {
-        layout(this.container, this.palette);
+    onWindowResize(container, palette) {
+        layout(container, palette);
     };
 
 }
 
-let createSelectWidget = palette => {
+let configureSelectWidget = (select, segments) => {
+
+    $(select).empty();
+
+    Object.keys(segments).forEach((key) => {
+        const option = document.createElement('option');
+        option.textContent = 'segment ' + key;
+        option.setAttribute("value", key);
+        select.appendChild( option );
+    });
+
+};
+
+let createSelectWidget = (palette, segmentManager) => {
 
     // form
     const form = document.createElement('form');
@@ -77,14 +71,23 @@ let createSelectWidget = palette => {
     select.setAttribute('id', 'trace3d_segment_select');
     form.appendChild( select );
 
-    // button
-    const button = document.createElement('button');
-    button.classList.add('btn', 'dropdown-toggle', 'bs-placeholder');
-    button.setAttribute('data-toggle', 'dropdown');
-    button.setAttribute('title', 'Select a number');
+    $(select).on('change.trace3d_segment_select', (e) => {
+        const key = $(select).val();
+        const segment = segmentManager.segments[ key ];
+        globalEventBus.post({ type: "DidSelectSegment", data: segment });
+    });
+
+    let eventSink = e => { e.stopPropagation(); };
+
+    $(select).on('mousedown.trace3d.segment_select', eventSink);
+
+    $(select).on('mouseup.trace3d.segment_select', eventSink);
+
+    $(select).on('mouseover.trace3d.segment_select', eventSink);
+
+    $(select).on('click.trace3d.segment_select', eventSink);
 
     return select;
-
 };
 
 let layout = (container, element) => {
