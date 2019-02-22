@@ -74,7 +74,7 @@ let main = async container => {
 
     segmentSelectWidget = new SegmentSelectWidget({ container });
 
-    // segmentSelectWidget.configure({ segmentManager: this.segments });
+    segmentSelectWidget.configure({ segments: segmentManager.segments });
 
     endTime = Date.now();
     // console.log('segmentManager.loadSegments - done ' + (endTime - startTime));

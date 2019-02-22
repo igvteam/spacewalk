@@ -21,9 +21,11 @@
   border-width: 2px;
   border-color: #6e6e6e; }
 
-#segment_select_widget.trace3d_tool_palette {
-  padding-top: 8px;
+#trace3d_segment_select_palette.trace3d_tool_palette {
+  padding-top: 16px;
   justify-content: flex-start; }
+  #trace3d_segment_select_palette.trace3d_tool_palette > div {
+    width: 100px; }
 
 .trace3d_tool_palette_ramp_container {
   display: flex;

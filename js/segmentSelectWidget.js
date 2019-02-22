@@ -8,50 +8,11 @@ class SegmentSelectWidget {
 
         // palette
         const palette = document.createElement('div');
-        palette.setAttribute("id", "segment_select_widget");
+        palette.setAttribute("id", "trace3d_segment_select_palette");
         palette.className = 'trace3d_tool_palette';
         container.appendChild( palette );
 
-        // dropdown
-        const dropdown = document.createElement('div');
-        dropdown.classList.add("dropdown", "bootstrap-select", "form-control");
-        palette.appendChild( dropdown );
-
-        // select
-        const select = document.createElement('select');
-        select.classList.add('selectpicker', 'form-control');
-
-        select.setAttribute('data-width', '180px');
-        select.setAttribute('title', 'Choose segment...');
-
-        dropdown.appendChild( select );
-
-        [ 'Mustard', 'Ketchup', 'Relish' ].forEach((string) => {
-            const option = document.createElement('option');
-            option.textContent = string;
-            option.setAttribute('value', string);
-
-            select.appendChild( option );
-        });
-
-        // button
-        const button = document.createElement('button');
-        button.classList.add('btn', 'dropdown-toggle', 'bs-placeholder');
-        button.setAttribute('data-toggle', 'dropdown');
-        button.setAttribute('title', 'Select a number');
-
-
-
-
-
-
-
-
-        // this.select = createSelectWidget(palette);
-
-        // $(this.select).on('changed.bs.select', (e, clickedIndex, isSelected, previousValue) => {
-        //     console.log('selected ' + Date.now() + ' ' + this.select.value + ' ' + clickedIndex + ' ' + isSelected);
-        // });
+        this.select = createSelectWidget(palette);
 
         layout(container, palette);
 
@@ -59,27 +20,6 @@ class SegmentSelectWidget {
         this.palette = palette;
 
         // makeDraggable(palette, palette);
-
-
-
-        // let option;
-        // let index = 0;
-        //
-        // option = document.createElement('option');
-        // option.textContent = index++;
-        // this.select.appendChild( option );
-        //
-        // option = document.createElement('option');
-        // option.textContent = index++;
-        // this.select.appendChild( option );
-        //
-        // option = document.createElement('option');
-        // option.textContent = index++;
-        // this.select.appendChild( option );
-
-
-
-
 
         $(window).on('resize.trace3d.segment_select_widget', () => { this.onWindowResize() });
 
@@ -99,38 +39,16 @@ class SegmentSelectWidget {
 
     configure({ segments }) {
 
-        let option;
-        let index = 0;
-
-        option = document.createElement('option');
-        option.textContent = index++;
-        this.select.appendChild( option );
-
-        option = document.createElement('option');
-        option.textContent = index++;
-        this.select.appendChild( option );
-
-        option = document.createElement('option');
-        option.textContent = index++;
-        this.select.appendChild( option );
-
-        return;
-
-        console.log('segment select widget - whole lotta segments ' + Object.values(segments).length);
-
-        populateSelectWidget(this.select, Object.values(segments));
-
-
         $(this.select).empty();
 
-        // Object.values(segments).forEach((segment, index) => {
-        //
-        //     if (index < 16) {
-        //         const option = document.createElement('option');
-        //         option.textContent = 'segment ' + index;
-        //         this.select.appendChild( option );
-        //     }
-        // });
+        Object.values(segments).forEach((segment, index) => {
+
+            const option = document.createElement('option');
+            option.textContent = 'segment ' + index;
+            option.setAttribute("value", index);
+            this.select.appendChild( option );
+
+        });
 
     }
 
@@ -140,50 +58,33 @@ class SegmentSelectWidget {
 
 }
 
-let populateSelectWidget = (select, list) => {
+let createSelectWidget = palette => {
 
-    let option;
-    let index = 0;
+    // form
+    const form = document.createElement('form');
+    palette.appendChild( form );
 
-    option = document.createElement('option');
-    option.textContent = index++;
-    select.appendChild( option );
+    // label
+    const label = document.createElement('label');
+    label.setAttribute("for", "trace3d_segment_select");
+    label.textContent = 'Choose a segment...';
 
-    option = document.createElement('option');
-    option.textContent = index++;
-    select.appendChild( option );
+    form.appendChild( label );
 
-    option = document.createElement('option');
-    option.textContent = index++;
-    select.appendChild( option );
-
-
-    // for (let segment of list) {
-    //     const option = document.createElement('option');
-    //     option.textContent = Date.now();
-    //     select.appendChild( option );
-    // }
-
-};
-
-let createSelectWidget = container => {
-
+    // select
     const select = document.createElement('select');
-    select.className = 'selectpicker';
-    // select.setAttribute('data-width', '180px');
-    // select.setAttribute('title', 'Choose segment...');
+    select.className = 'form-control';
+    select.setAttribute('id', 'trace3d_segment_select');
+    form.appendChild( select );
 
-    container.appendChild( select );
-
-    [ 'Mustard', 'Ketchup', 'Relish' ].forEach((string) => {
-
-        const option = document.createElement('option');
-        select.appendChild( option );
-
-        option.textContent = string;
-    });
+    // button
+    const button = document.createElement('button');
+    button.classList.add('btn', 'dropdown-toggle', 'bs-placeholder');
+    button.setAttribute('data-toggle', 'dropdown');
+    button.setAttribute('title', 'Select a number');
 
     return select;
+
 };
 
 let layout = (container, element) => {
