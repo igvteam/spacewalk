@@ -22,9 +22,12 @@ let showSTMaterial;
 
 let globalEventBus = new EventBus();
 let sceneManager;
-
+let segmentSelectionListener;
 let startTime;
 let endTime;
+
+let setupConfig;
+
 let main = async container => {
 
     const sceneManagerSettings =
@@ -67,17 +70,10 @@ let main = async container => {
 
     trackManager = new TrackManager();
 
-    startTime = Date.now();
-
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSegments({ path });
 
     segmentSelectWidget = new SegmentSelectWidget({ container, segmentManager });
-
-    endTime = Date.now();
-    // console.log('segmentManager.loadSegments - done ' + (endTime - startTime));
-
-    startTime = endTime;
 
     const trackManagerConfig =
         {
@@ -88,12 +84,9 @@ let main = async container => {
         };
     await trackManager.buildFeatureSegmentIndices(trackManagerConfig);
 
-    endTime = Date.now();
-    // console.log('trackManager.buildFeatureSegmentIndices - done ' + (endTime - startTime));
-
     const key = '248';
 
-    const setupConfig =
+    setupConfig =
         {
             sceneManager: sceneManager,
             chr: segmentManager.chr,
@@ -102,15 +95,40 @@ let main = async container => {
             segment: segmentManager.segmentWithName(key),
 
         };
+
     await setup(setupConfig);
 
     renderLoop();
 
+    segmentSelectionListener =
+        {
+            receiveEvent: async ({ type, data }) => {
+                if ("DidSelectSegment" === type) {
+
+                    sceneManager.scene.dispose();
+
+                    setupConfig =
+                        {
+                            sceneManager: sceneManager,
+                            chr: segmentManager.chr,
+                            genomicStart: segmentManager.genomicStart,
+                            genomicEnd: segmentManager.genomicEnd,
+                            segment: data,
+                        };
+
+
+                    await setup(setupConfig);
+
+                }
+            }
+
+        };
+
+    globalEventBus.subscribe("DidSelectSegment", segmentSelectionListener);
+
 };
 
 let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
-
-    startTime = endTime;
 
     const sceneManagerConfig =
         {
@@ -125,11 +143,7 @@ let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => 
 
     sceneManager.configure(sceneManagerConfig);
 
-    endTime = Date.now();
-    // console.log('sceneManager.configure - done ' + (endTime - startTime));
-
     // ball
-    startTime = endTime;
     const sphereRadius = 24;
     sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
 
@@ -172,11 +186,7 @@ let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => 
 
     }
 
-    endTime = Date.now();
-    // console.log('balls - done ' + (endTime - startTime));
-
     // stick
-    startTime = endTime;
     for (let i = 0, j = 1; j < segment.length; ++i, ++j) {
 
         const [ x0, y0, z0 ] = segment[i].xyz;
@@ -201,7 +211,6 @@ let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => 
     }
 
     endTime = Date.now();
-    // console.log('sticks - done ' + (endTime - startTime));
 
 };
 

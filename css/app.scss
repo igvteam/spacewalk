@@ -41,10 +41,7 @@ $trace3d_tool_palette_width: 200px;
 #trace3d_segment_select_palette.trace3d_tool_palette {
   padding-top: 16px;
   justify-content: flex-start;
-
-  > div {
-    width: 100px;
-  }
+  height: 2 * $trace3d_tool_palette_width;
 }
 
 // ramp container

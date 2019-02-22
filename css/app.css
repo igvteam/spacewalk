@@ -23,9 +23,8 @@
 
 #trace3d_segment_select_palette.trace3d_tool_palette {
   padding-top: 16px;
-  justify-content: flex-start; }
-  #trace3d_segment_select_palette.trace3d_tool_palette > div {
-    width: 100px; }
+  justify-content: flex-start;
+  height: 400px; }
 
 .trace3d_tool_palette_ramp_container {
   display: flex;

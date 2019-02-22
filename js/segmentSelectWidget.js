@@ -73,7 +73,7 @@ let createSelectWidget = (palette, segmentManager) => {
 
     $(select).on('change.trace3d_segment_select', (e) => {
         const key = $(select).val();
-        const segment = segmentManager.segments[ key ];
+        const segment = segmentManager.segmentWithName( key );
         globalEventBus.post({ type: "DidSelectSegment", data: segment });
     });
 
