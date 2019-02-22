@@ -2,42 +2,93 @@ import { globalEventBus } from "./main.js";
 import { makeDraggable } from "./draggable.js";
 
 class SegmentSelectWidget {
-    constructor({ container }) {
 
-        const selectContainer = document.createElement('div');
-        selectContainer.className = 'trace3d_tool_palette';
+    constructor({ container, segmentManager }) {
 
-        container.appendChild( selectContainer );
+        // palette
+        const palette = document.createElement('div');
+        palette.setAttribute("id", "trace3d_segment_select_palette");
+        palette.className = 'trace3d_tool_palette';
+        container.appendChild( palette );
 
-        layout(container, selectContainer);
+        const select = createSelectWidget(palette, segmentManager);
 
-        this.container = container;
-        this.selectContainer = selectContainer;
+        configureSelectWidget(select, segmentManager.segments);
 
-        makeDraggable(selectContainer, selectContainer);
+        layout(container, palette);
 
-        $(window).on('resize.trace3d.segment_select_widget', () => { this.onWindowResize() });
+        makeDraggable(palette, palette);
 
-        $(this.selectContainer).on('mouseenter.trace3d.segment_select_widget', (event) => {
+        $(window).on('resize.trace3d.segment_select_widget', () => { this.onWindowResize(container, palette) });
+
+        $(palette).on('mouseenter.trace3d.segment_select_widget', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidEnterGUI", data: this });
         });
 
-        $(this.selectContainer).on('mouseleave.trace3d.segment_select_widget', (event) => {
+        $(palette).on('mouseleave.trace3d.segment_select_widget', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI", data: this });
         });
 
     }
 
-    configure({ }) {
-    }
-
-    onWindowResize() {
-        layout(this.container, this.selectContainer);
+    onWindowResize(container, palette) {
+        layout(container, palette);
     };
 
 }
+
+let configureSelectWidget = (select, segments) => {
+
+    $(select).empty();
+
+    Object.keys(segments).forEach((key) => {
+        const option = document.createElement('option');
+        option.textContent = 'segment ' + key;
+        option.setAttribute("value", key);
+        select.appendChild( option );
+    });
+
+};
+
+let createSelectWidget = (palette, segmentManager) => {
+
+    // form
+    const form = document.createElement('form');
+    palette.appendChild( form );
+
+    // label
+    const label = document.createElement('label');
+    label.setAttribute("for", "trace3d_segment_select");
+    label.textContent = 'Choose a segment...';
+
+    form.appendChild( label );
+
+    // select
+    const select = document.createElement('select');
+    select.className = 'form-control';
+    select.setAttribute('id', 'trace3d_segment_select');
+    form.appendChild( select );
+
+    $(select).on('change.trace3d_segment_select', (e) => {
+        const key = $(select).val();
+        const segment = segmentManager.segmentWithName( key );
+        globalEventBus.post({ type: "DidSelectSegment", data: segment });
+    });
+
+    let eventSink = e => { e.stopPropagation(); };
+
+    $(select).on('mousedown.trace3d.segment_select', eventSink);
+
+    $(select).on('mouseup.trace3d.segment_select', eventSink);
+
+    $(select).on('mouseover.trace3d.segment_select', eventSink);
+
+    $(select).on('click.trace3d.segment_select', eventSink);
+
+    return select;
+};
 
 let layout = (container, element) => {
 

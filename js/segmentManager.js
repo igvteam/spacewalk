@@ -4,6 +4,7 @@ import { globalEventBus } from './main.js';
 class SegmentManager {
 
     constructor () {
+
         [ this.chr, this.genomicStart, this.genomicEnd ] = [ undefined, undefined, undefined ];
     }
 
@@ -109,7 +110,6 @@ class SegmentManager {
 
         });
 
-        globalEventBus.post({type: "DidLoadSegments", data: [ this.chr, this.genomicStart, this.genomicEnd ] });
     }
 
     segmentWithName(name) {

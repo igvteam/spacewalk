@@ -1,6 +1,7 @@
 @import "color";
 
 $trace3d_text_box_height: 32px;
+$trace3d_tool_palette_width: 200px;
 
 #trace3d_canvas_container {
   position: relative;
@@ -10,7 +11,7 @@ $trace3d_text_box_height: 32px;
 .trace3d_tool_palette {
 
   position: absolute;
-  width: 200px;
+  width: $trace3d_tool_palette_width;
   height: 640px;
 
   z-index: 512;
@@ -34,7 +35,13 @@ $trace3d_text_box_height: 32px;
 .trace3d_tool_palette:hover {
   border-width: 2px;
   border-color: $trace3d_steel;
-  background-color: $trace3d_snow;
+  //background-color: $trace3d_snow;
+}
+
+#trace3d_segment_select_palette.trace3d_tool_palette {
+  padding-top: 16px;
+  justify-content: flex-start;
+  height: 2 * $trace3d_tool_palette_width;
 }
 
 // ramp container

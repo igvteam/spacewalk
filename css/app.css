@@ -19,8 +19,12 @@
 
 .trace3d_tool_palette:hover {
   border-width: 2px;
-  border-color: #6e6e6e;
-  background-color: #ffffff; }
+  border-color: #6e6e6e; }
+
+#trace3d_segment_select_palette.trace3d_tool_palette {
+  padding-top: 16px;
+  justify-content: flex-start;
+  height: 400px; }
 
 .trace3d_tool_palette_ramp_container {
   display: flex;
