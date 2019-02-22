@@ -1,7 +1,7 @@
 import { globalEventBus } from "./main.js";
 import { makeDraggable } from "./draggable.js";
 
-class SegmentSelectWidget {
+class SegmentSelectPalette {
 
     constructor({ container, segmentManager }) {
 
@@ -69,6 +69,7 @@ let createSelectWidget = (palette, segmentManager) => {
     const select = document.createElement('select');
     select.className = 'form-control';
     select.setAttribute('id', 'trace3d_segment_select');
+    select.setAttribute('size', 32);
     form.appendChild( select );
 
     $(select).on('change.trace3d_segment_select', (e) => {
@@ -101,4 +102,4 @@ let layout = (container, element) => {
 
 };
 
-export default SegmentSelectWidget;
+export default SegmentSelectPalette;

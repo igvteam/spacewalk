@@ -5,7 +5,7 @@ import { getMouseXY } from "./utils.js";
 import { lerp, quantize } from "./math.js";
 import { rgb255, rgb255Lerp, rgb255String } from "./color.js";
 
-class RampWidget {
+class ColorRampWidget {
 
     constructor({ container, namespace, colors, highlightColor }) {
 
@@ -54,6 +54,12 @@ class RampWidget {
             event.stopPropagation();
             this.currentSegmentIndex = undefined;
         });
+
+        // soak up misc events
+        let eventSink = e => { e.stopPropagation(); };
+        $(canvas).on(('mouseup.trace3d.' + namespace), eventSink);
+        $(canvas).on(('mousedown.trace3d.' + namespace), eventSink);
+        $(canvas).on(('click.trace3d.' + namespace), eventSink);
 
         // footer
         this.footer = document.createElement('div');
@@ -157,4 +163,4 @@ let fitToContainer = (canvas) => {
     canvas.height = canvas.offsetHeight;
 };
 
-export default RampWidget;
+export default ColorRampWidget;

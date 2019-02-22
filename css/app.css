@@ -25,6 +25,8 @@
   padding-top: 16px;
   justify-content: flex-start;
   height: 400px; }
+  #trace3d_segment_select_palette.trace3d_tool_palette select.form-control[size], #trace3d_segment_select_palette.trace3d_tool_palette select.form-control[multiple] {
+    height: 300px; }
 
 .trace3d_tool_palette_ramp_container {
   display: flex;
