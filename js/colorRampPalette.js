@@ -1,8 +1,8 @@
 import { globalEventBus } from "./main.js";
 import { makeDraggable } from "./draggable.js";
-import RampWidget from "./rampWidget.js";
+import ColorRampWidget from "./colorRampWidget.js";
 
-class ToolPalette {
+class ColorRampPalette {
     constructor({ container, colors, highlightColor }) {
 
         const palette = document.createElement('div');
@@ -10,7 +10,7 @@ class ToolPalette {
         // palette.setAttribute('id', 'trace3d_tool_palette');
         container.appendChild( palette );
 
-        this.genomicRampWidget = new RampWidget( { container: palette, namespace: 'genomicRampWidget', colors, highlightColor } );
+        this.genomicRampWidget = new ColorRampWidget( { container: palette, namespace: 'genomicRampWidget', colors, highlightColor } );
 
         layout(container, palette);
 
@@ -55,4 +55,4 @@ let layout = (container, element) => {
 
 };
 
-export default ToolPalette;
+export default ColorRampPalette;

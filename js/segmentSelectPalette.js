@@ -1,7 +1,7 @@
 import { globalEventBus } from "./main.js";
 import { makeDraggable } from "./draggable.js";
 
-class SegmentSelectWidget {
+class SegmentSelectPalette {
 
     constructor({ container, segmentManager }) {
 
@@ -101,4 +101,4 @@ let layout = (container, element) => {
 
 };
 
-export default SegmentSelectWidget;
+export default SegmentSelectPalette;

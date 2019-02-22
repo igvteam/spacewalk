@@ -8,10 +8,10 @@ import PickHighlighter from './pickHighlighter.js';
 import TrackManager from './trackManager.js';
 import BedTrack from './igv/bedTrack.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
-import SegmentSelectWidget from "./segmentSelectWidget.js";
+import SegmentSelectPalette from "./segmentSelectPalette.js";
 
 let segmentManager;
-let segmentSelectWidget;
+let segmentSelectPalette;
 let trackManager;
 let diffuseCubicMapManager;
 
@@ -23,8 +23,6 @@ let showSTMaterial;
 let globalEventBus = new EventBus();
 let sceneManager;
 let segmentSelectionListener;
-let startTime;
-let endTime;
 
 let setupConfig;
 
@@ -73,7 +71,7 @@ let main = async container => {
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSegments({ path });
 
-    segmentSelectWidget = new SegmentSelectWidget({ container, segmentManager });
+    segmentSelectPalette = new SegmentSelectPalette({ container, segmentManager });
 
     const trackManagerConfig =
         {
@@ -209,8 +207,6 @@ let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => 
         }
 
     }
-
-    endTime = Date.now();
 
 };
 
