@@ -4,23 +4,61 @@ import { makeDraggable } from "./draggable.js";
 class SegmentSelectWidget {
     constructor({ container }) {
 
-        const selectContainer = document.createElement('div');
-        selectContainer.setAttribute("id", "segment_select_widget");
-        selectContainer.className = 'trace3d_tool_palette';
-        container.appendChild( selectContainer );
+        console.log('SegmentSelectWidget.new - begin');
 
-        this.select = createSelectWidget(selectContainer);
+        // palette
+        const palette = document.createElement('div');
+        palette.setAttribute("id", "segment_select_widget");
+        palette.className = 'trace3d_tool_palette';
+        container.appendChild( palette );
 
-        $(this.select).on('changed.bs.select', (e, clickedIndex, isSelected, previousValue) => {
-            console.log('selected ' + Date.now() + ' ' + this.select.value + ' ' + clickedIndex + ' ' + isSelected);
+        // dropdown
+        const dropdown = document.createElement('div');
+        dropdown.classList.add("dropdown", "bootstrap-select", "form-control");
+        palette.appendChild( dropdown );
+
+        // select
+        const select = document.createElement('select');
+        select.classList.add('selectpicker', 'form-control');
+
+        select.setAttribute('data-width', '180px');
+        select.setAttribute('title', 'Choose segment...');
+
+        dropdown.appendChild( select );
+
+        [ 'Mustard', 'Ketchup', 'Relish' ].forEach((string) => {
+            const option = document.createElement('option');
+            option.textContent = string;
+            option.setAttribute('value', string);
+
+            select.appendChild( option );
         });
 
-        layout(container, selectContainer);
+        // button
+        const button = document.createElement('button');
+        button.classList.add('btn', 'dropdown-toggle', 'bs-placeholder');
+        button.setAttribute('data-toggle', 'dropdown');
+        button.setAttribute('title', 'Select a number');
+
+
+
+
+
+
+
+
+        // this.select = createSelectWidget(palette);
+
+        // $(this.select).on('changed.bs.select', (e, clickedIndex, isSelected, previousValue) => {
+        //     console.log('selected ' + Date.now() + ' ' + this.select.value + ' ' + clickedIndex + ' ' + isSelected);
+        // });
+
+        layout(container, palette);
 
         this.container = container;
-        this.selectContainer = selectContainer;
+        this.palette = palette;
 
-        makeDraggable(selectContainer, selectContainer);
+        // makeDraggable(palette, palette);
 
 
 
@@ -45,15 +83,17 @@ class SegmentSelectWidget {
 
         $(window).on('resize.trace3d.segment_select_widget', () => { this.onWindowResize() });
 
-        $(this.selectContainer).on('mouseenter.trace3d.segment_select_widget', (event) => {
+        $(this.palette).on('mouseenter.trace3d.segment_select_widget', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidEnterGUI", data: this });
         });
 
-        $(this.selectContainer).on('mouseleave.trace3d.segment_select_widget', (event) => {
+        $(this.palette).on('mouseleave.trace3d.segment_select_widget', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI", data: this });
         });
+
+        console.log('SegmentSelectWidget.new - end');
 
     }
 
@@ -95,7 +135,7 @@ class SegmentSelectWidget {
     }
 
     onWindowResize() {
-        layout(this.container, this.selectContainer);
+        layout(this.container, this.palette);
     };
 
 }
@@ -130,18 +170,18 @@ let createSelectWidget = container => {
 
     const select = document.createElement('select');
     select.className = 'selectpicker';
-    select.setAttribute('data-width', '180px');
-    select.setAttribute('title', 'Choose segment...');
+    // select.setAttribute('data-width', '180px');
+    // select.setAttribute('title', 'Choose segment...');
 
     container.appendChild( select );
 
-    // [ 'Mustard', 'Ketchup', 'Relish' ].forEach((string) => {
-    //
-    //     const option = document.createElement('option');
-    //     select.appendChild( option );
-    //
-    //     option.textContent = string;
-    // });
+    [ 'Mustard', 'Ketchup', 'Relish' ].forEach((string) => {
+
+        const option = document.createElement('option');
+        select.appendChild( option );
+
+        option.textContent = string;
+    });
 
     return select;
 };

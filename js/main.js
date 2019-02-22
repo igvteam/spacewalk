@@ -11,6 +11,7 @@ import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor
 import SegmentSelectWidget from "./segmentSelectWidget.js";
 
 let segmentManager;
+let segmentSelectWidget;
 let trackManager;
 let diffuseCubicMapManager;
 
@@ -62,7 +63,7 @@ let main = async container => {
 
     showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
 
-    segmentManager = new SegmentManager({ segmentSelectWidget: new SegmentSelectWidget({ container })});
+    segmentManager = new SegmentManager();
 
     trackManager = new TrackManager();
 
@@ -71,10 +72,12 @@ let main = async container => {
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
     await segmentManager.loadSegments({ path });
 
+    segmentSelectWidget = new SegmentSelectWidget({ container });
 
+    // segmentSelectWidget.configure({ segmentManager: this.segments });
 
     endTime = Date.now();
-    console.log('segmentManager.loadSegments - done ' + (endTime - startTime));
+    // console.log('segmentManager.loadSegments - done ' + (endTime - startTime));
 
     startTime = endTime;
 
@@ -88,7 +91,7 @@ let main = async container => {
     await trackManager.buildFeatureSegmentIndices(trackManagerConfig);
 
     endTime = Date.now();
-    console.log('trackManager.buildFeatureSegmentIndices - done ' + (endTime - startTime));
+    // console.log('trackManager.buildFeatureSegmentIndices - done ' + (endTime - startTime));
 
     const key = '248';
 
@@ -125,7 +128,7 @@ let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => 
     sceneManager.configure(sceneManagerConfig);
 
     endTime = Date.now();
-    console.log('sceneManager.configure - done ' + (endTime - startTime));
+    // console.log('sceneManager.configure - done ' + (endTime - startTime));
 
     // ball
     startTime = endTime;
@@ -172,7 +175,7 @@ let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => 
     }
 
     endTime = Date.now();
-    console.log('balls - done ' + (endTime - startTime));
+    // console.log('balls - done ' + (endTime - startTime));
 
     // stick
     startTime = endTime;
@@ -200,7 +203,7 @@ let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => 
     }
 
     endTime = Date.now();
-    console.log('sticks - done ' + (endTime - startTime));
+    // console.log('sticks - done ' + (endTime - startTime));
 
 };
 

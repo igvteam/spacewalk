@@ -3,14 +3,14 @@ import { globalEventBus } from './main.js';
 
 class SegmentManager {
 
-    constructor ({ segmentSelectWidget }) {
-
-        this.segmentSelectWidget = segmentSelectWidget;
+    constructor () {
 
         [ this.chr, this.genomicStart, this.genomicEnd ] = [ undefined, undefined, undefined ];
     }
 
     async loadSegments({path}) {
+
+        console.log('SegmentManager.loadSegments - begin');
 
         this.path = path;
         [ this.chr, this.genomicStart, this.genomicEnd ] = parsePathEncodedGenomicLocation(path);
@@ -112,9 +112,9 @@ class SegmentManager {
 
         });
 
-        this.segmentSelectWidget.configure({ segments: this.segments });
-
         globalEventBus.post({type: "DidLoadSegments", data: [ this.chr, this.genomicStart, this.genomicEnd ] });
+
+        console.log('SegmentManager.loadSegments - end');
     }
 
     segmentWithName(name) {
