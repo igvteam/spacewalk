@@ -3,9 +3,73 @@
 $trace3d_text_box_height: 32px;
 $trace3d_tool_palette_width: 200px;
 
+$trace3d_segment_grid_select_border_width: 1px;
+$trace3d_segment_grid_select_palette_size: 512px / 0.90;
+$trace3d_segment_grid_select_box_size: 512px;
+$trace3d_segment_grid_select_cell_count: 32;
+$trace3d_segment_grid_select_cell_size: $trace3d_segment_grid_select_box_size / $trace3d_segment_grid_select_cell_count;
+
 #trace3d_canvas_container {
   position: relative;
 
+}
+
+.trace3d_segment_grid_select_palette {
+
+  position: absolute;
+  width: $trace3d_segment_grid_select_palette_size;
+  height: $trace3d_segment_grid_select_palette_size;
+
+  z-index: 512;
+
+  background-color: rgba(255, 255, 255, 0.51);
+
+  border-style: solid;
+  border-width: $trace3d_segment_grid_select_border_width;
+  border-color: $trace3d_aluminum;
+  border-radius: 8px;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+
+  // inner box
+  div {
+     width: $trace3d_segment_grid_select_box_size + 2 * $trace3d_segment_grid_select_border_width;
+    height: $trace3d_segment_grid_select_box_size + 2 * $trace3d_segment_grid_select_border_width;
+
+    border-style: solid;
+    border-width: $trace3d_segment_grid_select_border_width;
+    border-color: $trace3d_aluminum;
+
+    //background-color: $trace3d_steel;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+
+    overflow: auto;
+
+    // cell
+    div {
+      border: unset;
+      width: $trace3d_segment_grid_select_cell_size;
+      height: $trace3d_segment_grid_select_cell_size;
+      background-color: transparent;
+    }
+
+  }
+
+}
+
+.trace3d_segment_grid_select_palette:hover {
+  border-width: 2px;
+  border-color: $trace3d_steel;
+  //background-color: $trace3d_snow;
 }
 
 .trace3d_tool_palette {
@@ -35,7 +99,7 @@ $trace3d_tool_palette_width: 200px;
 .trace3d_tool_palette:hover {
   border-width: 2px;
   border-color: $trace3d_steel;
-  //background-color: $trace3d_snow;
+  background-color: $trace3d_snow;
 }
 
 #trace3d_segment_select_palette.trace3d_tool_palette {

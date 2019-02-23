@@ -10,9 +10,11 @@ import TrackManager from './trackManager.js';
 import BedTrack from './igv/bedTrack.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 import SegmentSelectPalette from "./segmentSelectPalette.js";
+import SegmentGridSelectPalette from "./segmentGridSelectPalette.js";
 
 let segmentManager;
 let segmentSelectPalette;
+let segmentGridSelectPalette;
 let trackManager;
 let diffuseCubicMapManager;
 
@@ -75,6 +77,8 @@ let main = async container => {
     await segmentManager.loadSegments({ path });
 
     segmentSelectPalette = new SegmentSelectPalette({ container, segmentManager });
+
+    segmentGridSelectPalette = new SegmentGridSelectPalette({ container, segmentManager });
 
     await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
 
