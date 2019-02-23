@@ -31,7 +31,6 @@ let main = async container => {
     const sceneManagerSettings =
         {
             container: container,
-            scene: new THREE.Scene(),
             backgroundColor: rgb255ToThreeJSColor(163, 237, 237),
             groundPlaneColor: appleCrayonColorHexValue('steel'),
             toolPaletteColors: [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ],
