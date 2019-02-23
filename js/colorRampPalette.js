@@ -14,20 +14,19 @@ class ColorRampPalette {
 
         layout(container, palette);
 
-        this.container = container;
-        this.palette = palette;
-
         makeDraggable(palette, palette);
 
-        $(window).on('resize.trace3d.toolpalette', () => { this.onWindowResize() });
+        $(window).on('resize.trace3d.toolpalette', () => {
+            this.onWindowResize(container, palette)
+        });
 
-        $(this.palette).on('mouseenter.trace3d.toolpalette', (event) => {
+        $(palette).on('mouseenter.trace3d.toolpalette', (event) => {
             event.stopPropagation();
             this.genomicRampWidget.repaint();
             globalEventBus.post({type: "DidEnterGUI", data: this });
         });
 
-        $(this.palette).on('mouseleave.trace3d.toolpalette', (event) => {
+        $(palette).on('mouseleave.trace3d.toolpalette', (event) => {
             event.stopPropagation();
             globalEventBus.post({type: "DidLeaveGUI", data: this });
         });
@@ -38,8 +37,8 @@ class ColorRampPalette {
         this.genomicRampWidget.configure({ chr, genomicStart, genomicEnd, segmentLength });
     }
 
-    onWindowResize() {
-        layout(this.container, this.palette);
+    onWindowResize(container, palette) {
+        layout(container, palette);
     };
 
 }

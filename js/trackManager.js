@@ -9,7 +9,7 @@ class TrackManager {
     constructor () {}
 
     // Quick hack to compute segment indices containing a feature.
-    async buildFeatureSegmentIndices({ track, chr, start, stepSize }) {
+    async buildFeatureSegmentIndices({ track, chr, genomicStart, stepSize }) {
 
         this.featureSegmentIndices = new Set();
 
@@ -17,11 +17,10 @@ class TrackManager {
 
         for (let feature of features) {
 
-            const index = Math.floor((feature.start - start) / stepSize);
+            const index = Math.floor((feature.start - genomicStart) / stepSize);
 
             const one_based = 1 + index;
             if(index >= 0) {
-                // console.log('segmentIndex(' + one_based + ')' + ' indexBucket(' + numberFormatter(index * stepSize) + ' - ' + numberFormatter((1 + index) * stepSize) + ') featureStartDelta(' + numberFormatter(feature.start - start) + ')');
                 this.featureSegmentIndices.add(one_based);
             }
         }

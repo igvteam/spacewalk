@@ -67,13 +67,10 @@ class ColorRampWidget {
         this.footer.className = 'trace3d_tool_palette_ramp_footer';
         this.footer.innerText = '';
 
-        this.rampContainer = rampContainer;
-
         this.context = canvas.getContext('2d');
         this.canvas = canvas;
 
         this.colors = colors;
-
 
     }
 
@@ -90,7 +87,6 @@ class ColorRampWidget {
 
         if (this.currentSegmentIndex !== segmentIndex) {
             this.currentSegmentIndex = segmentIndex;
-            // console.log('time(' + Date.now() + ') interpolant ' + quantized + ' segment-index ' + segmentIndex);
             globalEventBus.post({type: "RampWidgetDidSelectSegmentIndex", data: segmentIndex });
         }
 

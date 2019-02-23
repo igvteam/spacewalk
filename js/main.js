@@ -2,6 +2,7 @@ import * as THREE from './threejs_es6/three.module.js';
 import EventBus from './eventBus.js';
 import SceneManager from './sceneManager.js';
 import SegmentManager from './segmentManager.js';
+import { parsePathEncodedGenomicLocation } from './segmentManager.js';
 import CubicMapManager from "./cubicMapManager.js";
 import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
@@ -25,7 +26,7 @@ let sceneManager;
 let segmentSelectionListener;
 
 let setupConfig;
-
+let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 let main = async container => {
 
     const sceneManagerSettings =
@@ -68,32 +69,17 @@ let main = async container => {
     trackManager = new TrackManager();
 
     const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
+
+    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(path);
+
     await segmentManager.loadSegments({ path });
 
     segmentSelectPalette = new SegmentSelectPalette({ container, segmentManager });
 
-    const trackManagerConfig =
-        {
-            track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed'),
-            chr: segmentManager.chr,
-            start: segmentManager.genomicStart,
-            stepSize: segmentManager.stepSize
-        };
-    await trackManager.buildFeatureSegmentIndices(trackManagerConfig);
+    await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
 
     const key = '248';
-
-    setupConfig =
-        {
-            sceneManager: sceneManager,
-            chr: segmentManager.chr,
-            genomicStart: segmentManager.genomicStart,
-            genomicEnd: segmentManager.genomicEnd,
-            segment: segmentManager.segmentWithName(key),
-
-        };
-
-    await setup(setupConfig);
+    await setup({ sceneManager, chr, genomicStart, genomicEnd, segment: segmentManager.segmentWithName(key) });
 
     renderLoop();
 
@@ -101,23 +87,10 @@ let main = async container => {
         {
             receiveEvent: async ({ type, data }) => {
                 if ("DidSelectSegment" === type) {
-
                     sceneManager.dispose();
-
-                    setupConfig =
-                        {
-                            sceneManager: sceneManager,
-                            chr: segmentManager.chr,
-                            genomicStart: segmentManager.genomicStart,
-                            genomicEnd: segmentManager.genomicEnd,
-                            segment: data,
-                        };
-
-                    await setup(setupConfig);
-
+                    await setup({ sceneManager, chr, genomicStart, genomicEnd, segment: data });
                 }
             }
-
         };
 
     globalEventBus.subscribe("DidSelectSegment", segmentSelectionListener);
@@ -126,18 +99,8 @@ let main = async container => {
 
 let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
 
-    const sceneManagerConfig =
-        {
-            chr: chr,
-            genomicStart: genomicStart,
-            genomicEnd: genomicEnd,
-            segmentLength: segment.length,
-            segmentExtent: segment.extent,
-            cameraPosition: segment.cameraPosition,
-            centroid: segment.centroid
-        };
-
-    sceneManager.configure(sceneManagerConfig);
+    let [ segmentLength, segmentExtent, cameraPosition, centroid ] = [ segment.length, segment.extent, segment.cameraPosition, segment.centroid ];
+    sceneManager.configure({ chr, genomicStart, genomicEnd, segmentLength, segmentExtent, cameraPosition, centroid });
 
     // ball
     const sphereRadius = 24;
