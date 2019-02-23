@@ -3,7 +3,7 @@ import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
 
 class OrbitalCamera {
 
-    constructor({ scene, renderer, fov, near, far, aspectRatio, domElement }) {
+    constructor({ fov, near, far, aspectRatio, domElement }) {
         this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
         this.orbitControl = new OrbitControls(this.camera, domElement);
         this.orbitControl.screenSpacePanning = false;
@@ -26,8 +26,12 @@ class OrbitalCamera {
     }
 
     dispose() {
-        this.camera = undefined;
-        this.orbitControl = undefined;
+        //
+        delete this.camera;
+
+        //
+        this.orbitControl.dispose();
+        delete this.orbitControl;
     }
 }
 

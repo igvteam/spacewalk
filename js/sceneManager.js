@@ -7,9 +7,7 @@ import { getMouseXY } from "./utils.js";
 
 class SceneManager {
 
-    constructor({ container, scene, backgroundColor, groundPlaneColor, toolPaletteColors, renderer, picker }) {
-
-        this.scene = scene;
+    constructor({ container, backgroundColor, groundPlaneColor, toolPaletteColors, renderer, picker }) {
 
         const specularCubicMapMaterialConfig =
             {
@@ -21,10 +19,8 @@ class SceneManager {
 
         const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
-        // this.scene.background = specularCubicMapManager.cubicTexture;
-        this.backgroundColor = backgroundColor;
-
-        this.scene.background = this.backgroundColor;
+        // this.background = specularCubicMapManager.cubicTexture;
+        this.background = backgroundColor;
 
         this.groundPlaneColor = groundPlaneColor;
 
@@ -82,6 +78,9 @@ class SceneManager {
 
     configure({ chr, genomicStart, genomicEnd, segmentLength, segmentExtent, cameraPosition, centroid }) {
 
+        this.scene = new THREE.Scene();
+        this.scene.background = this.background;
+
         this.toolPalette.configure({ chr, genomicStart, genomicEnd, segmentLength });
 
         const [ extentX, extentY, extentZ ] = segmentExtent;
@@ -94,18 +93,14 @@ class SceneManager {
 
         this.poseOrbitalCamera({ position: cameraPosition, lookAt: centroid });
 
-        this.configureGroundPlane({ target: centroid, size: 2 * Math.max(extentX, extentY, extentZ), color: this.groundPlaneColor });
+        this.configureGroundPlane({ scene: this.scene, target: centroid, size: 2 * Math.max(extentX, extentY, extentZ), color: this.groundPlaneColor });
 
     }
 
     configureOrbitalCamera({ fov, near, far }) {
-
-        const scene = this.scene;
-        const renderer = this.renderer;
         const aspectRatio = window.innerWidth / window.innerHeight;
         const domElement = this.renderer.domElement;
-        this.orbitalCamera = new OrbitalCamera({ scene, renderer, fov, near, far, aspectRatio, domElement });
-
+        this.orbitalCamera = new OrbitalCamera({ fov, near, far, aspectRatio, domElement });
     }
 
     poseOrbitalCamera( { position, lookAt }) {
@@ -117,7 +112,7 @@ class SceneManager {
 
     }
 
-    configureGroundPlane({ target, size, color }) {
+    configureGroundPlane({ scene, target, size, color }) {
 
         const groundPlane = new THREE.GridHelper(size, 16, color, color);
 
@@ -125,7 +120,7 @@ class SceneManager {
         groundPlane.position.set(targetX, targetY, targetZ);
         groundPlane.name = 'groundplane';
 
-        this.scene.add( groundPlane );
+        scene.add( groundPlane );
 
     }
 
@@ -152,16 +147,11 @@ class SceneManager {
     };
 
     dispose() {
-
         this.scene.dispose();
-        this.scene = undefined;
+        delete this.scene;
 
         this.orbitalCamera.dispose();
-        this.orbitalCamera = undefined;
-
-        this.scene = new THREE.Scene();
-        this.scene.background = this.backgroundColor;
-
+        delete this.orbitalCamera;
     }
 
 }
