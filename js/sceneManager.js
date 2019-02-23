@@ -99,13 +99,9 @@ class SceneManager {
     }
 
     configureOrbitalCamera({ fov, near, far }) {
-
-        const scene = this.scene;
-        const renderer = this.renderer;
         const aspectRatio = window.innerWidth / window.innerHeight;
         const domElement = this.renderer.domElement;
-        this.orbitalCamera = new OrbitalCamera({ scene, renderer, fov, near, far, aspectRatio, domElement });
-
+        this.orbitalCamera = new OrbitalCamera({ fov, near, far, aspectRatio, domElement });
     }
 
     poseOrbitalCamera( { position, lookAt }) {
@@ -154,14 +150,13 @@ class SceneManager {
     dispose() {
 
         this.scene.dispose();
-        this.scene = undefined;
+        delete this.scene;
 
         this.orbitalCamera.dispose();
-        this.orbitalCamera = undefined;
+        delete this.orbitalCamera;
 
         this.scene = new THREE.Scene();
         this.scene.background = this.backgroundColor;
-
     }
 
 }
