@@ -4,14 +4,9 @@ import { globalEventBus } from './main.js';
 class SegmentManager {
 
     constructor () {
-
-        [ this.chr, this.genomicStart, this.genomicEnd ] = [ undefined, undefined, undefined ];
     }
 
-    async loadSegments({path}) {
-
-        this.path = path;
-        [ this.chr, this.genomicStart, this.genomicEnd ] = parsePathEncodedGenomicLocation(path);
+    async loadSegments({ path}) {
 
         this.stepSize = 3e4;
 
@@ -117,7 +112,7 @@ class SegmentManager {
     }
 }
 
-let parsePathEncodedGenomicLocation = path => {
+export let parsePathEncodedGenomicLocation = path => {
 
     let locus = path.split('_').pop().split('.').shift();
 
