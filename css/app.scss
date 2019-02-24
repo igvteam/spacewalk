@@ -4,10 +4,18 @@ $trace3d_text_box_height: 32px;
 $trace3d_tool_palette_width: 200px;
 
 $trace3d_segment_grid_select_border_width: 1px;
-$trace3d_segment_grid_select_palette_size: 512px / 0.90;
+
 $trace3d_segment_grid_select_box_size: 512px;
+
+$trace3d_segment_grid_select_box_width: 256px;
+$trace3d_segment_grid_select_box_height: 512px;
+
 $trace3d_segment_grid_select_cell_count: 32;
 $trace3d_segment_grid_select_cell_size: $trace3d_segment_grid_select_box_size / $trace3d_segment_grid_select_cell_count;
+
+$trace3d_segment_grid_select_palette_width: $trace3d_segment_grid_select_box_width / 0.90;
+$trace3d_segment_grid_select_palette_height: $trace3d_segment_grid_select_box_height / 0.90;
+
 
 #trace3d_canvas_container {
   position: relative;
@@ -17,8 +25,8 @@ $trace3d_segment_grid_select_cell_size: $trace3d_segment_grid_select_box_size / 
 .trace3d_segment_grid_select_palette {
 
   position: absolute;
-  width: $trace3d_segment_grid_select_palette_size;
-  height: $trace3d_segment_grid_select_palette_size;
+  width: $trace3d_segment_grid_select_palette_width;
+  height: $trace3d_segment_grid_select_palette_height;
 
   z-index: 512;
 
@@ -37,8 +45,8 @@ $trace3d_segment_grid_select_cell_size: $trace3d_segment_grid_select_box_size / 
 
   // inner box
   div {
-     width: $trace3d_segment_grid_select_box_size + 2 * $trace3d_segment_grid_select_border_width;
-    height: $trace3d_segment_grid_select_box_size + 2 * $trace3d_segment_grid_select_border_width;
+     width: $trace3d_segment_grid_select_box_width + 2 * $trace3d_segment_grid_select_border_width;
+    height: $trace3d_segment_grid_select_box_height + 2 * $trace3d_segment_grid_select_border_width;
 
     border-style: solid;
     border-width: $trace3d_segment_grid_select_border_width;

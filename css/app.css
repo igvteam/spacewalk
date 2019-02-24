@@ -3,7 +3,7 @@
 
 .trace3d_segment_grid_select_palette {
   position: absolute;
-  width: 568.8888888889px;
+  width: 284.4444444444px;
   height: 568.8888888889px;
   z-index: 512;
   background-color: rgba(255, 255, 255, 0.51);
@@ -17,7 +17,7 @@
   justify-content: center;
   align-items: center; }
   .trace3d_segment_grid_select_palette div {
-    width: 514px;
+    width: 258px;
     height: 514px;
     border-style: solid;
     border-width: 1px;
