@@ -1,6 +1,7 @@
 import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./main.js";
 import { randomRGB255, rgb255String } from "./color.js";
+import {numberFormatter} from "./utils.js";
 
 let clickedElement = undefined;
 
@@ -122,7 +123,7 @@ let mouseEnterHandler = (event, element, key, header, segmentManager) => {
     if (clickedElement) {
         // ignore
     } else {
-        header.textContent = 'Segment ' + key;
+        header.textContent = 'Segment ' + numberFormatter(key);
         globalEventBus.post({ type: "DidSelectSegment", data: segmentManager.segmentWithName( key ) });
     }
 
@@ -136,7 +137,7 @@ let clickHander = (event, element, key, header, segmentManager) => {
         $(clickedElement).addClass('trace3d_segment_grid_cell_unclicked');
     }
 
-    header.textContent = 'Segment ' + key;
+    header.textContent = 'Segment ' + numberFormatter(key);
 
     if (clickedElement === element) {
         clickedElement = undefined;
