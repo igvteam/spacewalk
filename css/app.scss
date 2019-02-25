@@ -52,7 +52,7 @@ $trace3d_segment_grid_select_palette_height: $trace3d_segment_grid_select_box_he
     border-width: $trace3d_segment_grid_select_border_width;
     border-color: $trace3d_aluminum;
 
-    //background-color: $trace3d_steel;
+    background-color: white;
 
     display: flex;
     flex-direction: row;
@@ -67,9 +67,15 @@ $trace3d_segment_grid_select_palette_height: $trace3d_segment_grid_select_box_he
       border: unset;
       width: $trace3d_segment_grid_select_cell_size;
       height: $trace3d_segment_grid_select_cell_size;
-      background-color: transparent;
+      //background-color: transparent;
+      background-size: $trace3d_segment_grid_select_cell_size $trace3d_segment_grid_select_cell_size;
+      background-image: url(../img/dot_empty_ring.svg);
     }
 
+    div:hover {
+      cursor: pointer;
+      background-image: url(../img/dot_solid_disk.svg);
+    }
   }
 
 }

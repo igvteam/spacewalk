@@ -57,7 +57,7 @@ let buildPalette = (parent, segmentKeys) => {
     for(let i = 0; i < segmentKeys.length; i++) {
         const cell = document.createElement('div');
         cell.setAttribute('id', ('segment#' + i));
-        cell.style.backgroundColor = rgb255String(randomRGB255(64, 255));
+        // cell.style.backgroundColor = rgb255String(randomRGB255(64, 255));
         box.appendChild( cell );
     }
 
