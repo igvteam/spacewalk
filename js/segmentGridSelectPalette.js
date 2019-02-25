@@ -11,7 +11,7 @@ class SegmentGridSelectPalette {
         palette.className = 'trace3d_segment_grid_select_palette';
         container.appendChild( palette );
 
-        buildPalette(palette, Object.keys(segmentManager.segments));
+        buildPalette(palette, segmentManager);
 
         layout(container, palette);
 
@@ -39,7 +39,9 @@ class SegmentGridSelectPalette {
 
 }
 
-let buildPalette = (parent, segmentKeys) => {
+let buildPalette = (parent, segmentManager) => {
+
+    const segmentKeys = Object.keys(segmentManager.segments);
 
     // box
     const box = document.createElement('div');
@@ -54,11 +56,20 @@ let buildPalette = (parent, segmentKeys) => {
 
 
     // cells
-    for(let i = 0; i < segmentKeys.length; i++) {
+    for(let key = 0; key < segmentKeys.length; key++) {
         const cell = document.createElement('div');
-        cell.setAttribute('id', ('segment#' + i));
+        cell.setAttribute('id', ('segment#' + key));
+
         // cell.style.backgroundColor = rgb255String(randomRGB255(64, 255));
+
         box.appendChild( cell );
+
+        $(cell).on('mouseenter.trace3d.segment_grid_select_cell', (event) => {
+            event.stopPropagation();
+
+            const segment = segmentManager.segmentWithName( key );
+            globalEventBus.post({ type: "DidSelectSegment", data: segment });
+        });
     }
 
 };

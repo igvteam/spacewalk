@@ -76,7 +76,7 @@ let main = async container => {
 
     await segmentManager.loadSegments({ path });
 
-    segmentSelectPalette = new SegmentSelectPalette({ container, segmentManager });
+    // segmentSelectPalette = new SegmentSelectPalette({ container, segmentManager });
 
     segmentGridSelectPalette = new SegmentGridSelectPalette({ container, segmentManager });
 
