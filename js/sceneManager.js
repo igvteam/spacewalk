@@ -50,7 +50,7 @@ class SceneManager {
 
         globalEventBus.subscribe("PickerDidHitObject", this);
         globalEventBus.subscribe("PickerDidLeaveObject", this);
-        globalEventBus.subscribe("RampWidgetDidSelectSegmentIndex", this);
+        globalEventBus.subscribe("DidSelectSegmentIndex", this);
     }
 
     receiveEvent({ type, data }) {
@@ -66,7 +66,7 @@ class SceneManager {
 
             this.toolPalette.genomicRampWidget.repaint();
 
-        } else if ("RampWidgetDidSelectSegmentIndex" === type) {
+        } else if ("DidSelectSegmentIndex" === type) {
 
             if (this.segmentIndex2Object[ data ]) {
                 this.picker.pickHighlighter.configure(this.segmentIndex2Object[ data ].object);

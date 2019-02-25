@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="555px" height="555px" viewBox="0 0 555 555" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
+    <title>dot</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group">
+            <rect id="box" fill="#FFFFFF" x="0" y="0" width="555" height="555"></rect>
+            <circle id="solid-disk" stroke="#4A4A4A" stroke-width="4" fill="#4A4A4A" cx="278" cy="278" r="156"></circle>
+        </g>
+    </g>
+</svg>

@@ -48,4 +48,5 @@ let numberFormatter = (rawNumber) => {
         .join('') + (dec[1] ? decsep + dec[1] : '');
 };
 
+
 export { getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
