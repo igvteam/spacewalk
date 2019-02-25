@@ -63,7 +63,7 @@ $trace3d_segment_grid_select_palette_height: $trace3d_segment_grid_select_box_he
     overflow: auto;
 
     // cell
-    div {
+    > div.trace3d_segment_grid_cell {
       border: unset;
       width: $trace3d_segment_grid_select_cell_size;
       height: $trace3d_segment_grid_select_cell_size;
@@ -72,10 +72,19 @@ $trace3d_segment_grid_select_palette_height: $trace3d_segment_grid_select_box_he
       background-image: url(../img/dot_empty_ring.svg);
     }
 
-    div:hover {
-      cursor: pointer;
+    > div.trace3d_segment_grid_cell_clicked {
       background-image: url(../img/dot_solid_disk.svg);
     }
+
+    > div.trace3d_segment_grid_cell_unclicked {
+      background-image: url(../img/dot_empty_ring.svg);
+    }
+
+
+    //div:hover {
+    //  cursor: pointer;
+    //  background-image: url(../img/dot_solid_disk.svg);
+    //}
   }
 
 }

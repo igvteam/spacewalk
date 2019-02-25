@@ -29,15 +29,16 @@
     justify-content: flex-start;
     align-items: center;
     overflow: auto; }
-    .trace3d_segment_grid_select_palette div div {
+    .trace3d_segment_grid_select_palette div > div.trace3d_segment_grid_cell {
       border: unset;
       width: 16px;
       height: 16px;
       background-size: 16px 16px;
       background-image: url(../img/dot_empty_ring.svg); }
-    .trace3d_segment_grid_select_palette div div:hover {
-      cursor: pointer;
+    .trace3d_segment_grid_select_palette div > div.trace3d_segment_grid_cell_clicked {
       background-image: url(../img/dot_solid_disk.svg); }
+    .trace3d_segment_grid_select_palette div > div.trace3d_segment_grid_cell_unclicked {
+      background-image: url(../img/dot_empty_ring.svg); }
 
 .trace3d_segment_grid_select_palette:hover {
   border-width: 2px;
