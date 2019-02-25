@@ -53,7 +53,7 @@ let buildPalette = (parent, segmentManager) => {
     // header
     const header = document.createElement('div');
     header.setAttribute("id", "trace3d_segment_grid_select_header");
-    header.textContent = 'Segment XXXX';
+    // header.textContent = 'Segment XXXX';
     parent.appendChild( header );
 
     // box
@@ -81,7 +81,7 @@ let buildPalette = (parent, segmentManager) => {
         // cell.style.backgroundColor = rgb255String(randomRGB255(64, 255));
 
         $(cell).on('mouseenter.trace3d.segment_grid_select_cell', (event) => {
-            mouseEnterHandler(event, cell, key, segmentManager);
+            mouseEnterHandler(event, cell, key, header, segmentManager);
         });
 
         $(cell).on('mouseleave.trace3d.segment_grid_select_cell', (event) => {
@@ -89,7 +89,7 @@ let buildPalette = (parent, segmentManager) => {
         });
 
         $(cell).on('click.trace3d.segment_grid_select_cell', (event) => {
-            clickHander(event, cell, key, segmentManager);
+            clickHander(event, cell, key, header, segmentManager);
         });
     }
 
@@ -108,7 +108,7 @@ let mouseLeaveHander = (event, element) => {
 
 };
 
-let mouseEnterHandler = (event, element, key, segmentManager) => {
+let mouseEnterHandler = (event, element, key, header, segmentManager) => {
 
     event.stopPropagation();
 
@@ -122,12 +122,13 @@ let mouseEnterHandler = (event, element, key, segmentManager) => {
     if (clickedElement) {
         // ignore
     } else {
+        header.textContent = 'Segment ' + key;
         globalEventBus.post({ type: "DidSelectSegment", data: segmentManager.segmentWithName( key ) });
     }
 
 };
 
-let clickHander = (event, element, key, segmentManager) => {
+let clickHander = (event, element, key, header, segmentManager) => {
     event.stopPropagation();
 
     if (clickedElement) {
@@ -135,12 +136,16 @@ let clickHander = (event, element, key, segmentManager) => {
         $(clickedElement).addClass('trace3d_segment_grid_cell_unclicked');
     }
 
-    clickedElement = element;
+    header.textContent = 'Segment ' + key;
 
-    $(clickedElement).removeClass('trace3d_segment_grid_cell_unclicked');
-    $(clickedElement).addClass('trace3d_segment_grid_cell_clicked');
-
-    globalEventBus.post({ type: "DidSelectSegment", data: segmentManager.segmentWithName( key ) });
+    if (clickedElement === element) {
+        clickedElement = undefined;
+    } else {
+        clickedElement = element;
+        $(clickedElement).removeClass('trace3d_segment_grid_cell_unclicked');
+        $(clickedElement).addClass('trace3d_segment_grid_cell_clicked');
+        globalEventBus.post({ type: "DidSelectSegment", data: segmentManager.segmentWithName( key ) });
+    }
 };
 
 let layout = (container, element) => {
