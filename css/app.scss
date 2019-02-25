@@ -13,7 +13,8 @@ $trace3d_segment_grid_select_box_height: 512px;
 $trace3d_segment_grid_select_cell_count: 32;
 $trace3d_segment_grid_select_cell_size: $trace3d_segment_grid_select_box_size / $trace3d_segment_grid_select_cell_count;
 
-$trace3d_segment_grid_select_palette_width: $trace3d_segment_grid_select_box_width / 0.90;
+//$trace3d_segment_grid_select_palette_width: $trace3d_segment_grid_select_box_width / 0.90;
+$trace3d_segment_grid_select_palette_width: 300px;
 $trace3d_segment_grid_select_palette_height: $trace3d_segment_grid_select_box_height / 0.90;
 
 
@@ -52,7 +53,9 @@ $trace3d_segment_grid_select_palette_height: $trace3d_segment_grid_select_box_he
     border-width: $trace3d_segment_grid_select_border_width;
     border-color: $trace3d_aluminum;
 
-    background-color: white;
+    padding: 8px;
+
+    //background-color: white;
 
     display: flex;
     flex-direction: row;
@@ -92,7 +95,7 @@ $trace3d_segment_grid_select_palette_height: $trace3d_segment_grid_select_box_he
 .trace3d_segment_grid_select_palette:hover {
   border-width: 2px;
   border-color: $trace3d_steel;
-  //background-color: $trace3d_snow;
+  background-color: $trace3d_snow;
 }
 
 .trace3d_tool_palette {
