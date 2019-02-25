@@ -2,7 +2,6 @@ import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./main.js";
 import { randomRGB255, rgb255String } from "./color.js";
 
-let didClick = undefined;
 let clickedElement = undefined;
 
 class SegmentGridSelectPalette {
@@ -27,10 +26,10 @@ class SegmentGridSelectPalette {
         $(palette).on('mouseenter.trace3d.segment_grid_select_palette', (event) => {
             event.stopPropagation();
 
-            if (true === didClick) {
+            if (clickedElement) {
                 $(clickedElement).removeClass('trace3d_segment_grid_cell_clicked');
                 $(clickedElement).addClass('trace3d_segment_grid_cell_unclicked');
-                didClick = clickedElement = undefined;
+                clickedElement = undefined;
             }
 
             globalEventBus.post({ type: "DidEnterGUI", data: this });
@@ -113,7 +112,7 @@ let mouseEnterHandler = (event, element, key, segmentManager) => {
     $(element).removeClass('trace3d_segment_grid_cell_unclicked');
     $(element).addClass('trace3d_segment_grid_cell_clicked');
 
-    if (true === didClick) {
+    if (clickedElement) {
         // ignore
     } else {
         globalEventBus.post({ type: "DidSelectSegment", data: segmentManager.segmentWithName( key ) });
@@ -124,13 +123,13 @@ let mouseEnterHandler = (event, element, key, segmentManager) => {
 let clickHander = (event, element, key, segmentManager) => {
     event.stopPropagation();
 
-    didClick = true;
-
     if (clickedElement) {
         $(clickedElement).removeClass('trace3d_segment_grid_cell_clicked');
         $(clickedElement).addClass('trace3d_segment_grid_cell_unclicked');
     }
+
     clickedElement = element;
+
     $(clickedElement).removeClass('trace3d_segment_grid_cell_unclicked');
     $(clickedElement).addClass('trace3d_segment_grid_cell_clicked');
 
