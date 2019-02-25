@@ -50,12 +50,17 @@ class SegmentGridSelectPalette {
 
 let buildPalette = (parent, segmentManager) => {
 
-    const segmentKeys = Object.keys(segmentManager.segments);
+    // header
+    const header = document.createElement('div');
+    header.setAttribute("id", "trace3d_segment_grid_select_header");
+    header.textContent = 'Segment XXXX';
+    parent.appendChild( header );
 
     // box
     const box = document.createElement('div');
-    parent.appendChild( box );
+    box.setAttribute("id", "trace3d_segment_grid_select_box");
 
+    parent.appendChild( box );
 
     // soak up misc events
     let eventSink = e => { e.stopPropagation(); };
@@ -63,7 +68,9 @@ let buildPalette = (parent, segmentManager) => {
     $(box).on('mousedown.trace3d.segment_grid_select_box', eventSink);
     $(box).on('click.trace3d.segment_grid_select_box', eventSink);
 
+
     // cells
+    const segmentKeys = Object.keys(segmentManager.segments);
     for(let key = 0; key < segmentKeys.length; key++) {
 
         const cell = document.createElement('div');
