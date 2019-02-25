@@ -28,12 +28,9 @@ class SegmentGridSelectPalette {
             event.stopPropagation();
 
             if (true === didClick) {
-
                 $(clickedElement).removeClass('trace3d_segment_grid_cell_clicked');
                 $(clickedElement).addClass('trace3d_segment_grid_cell_unclicked');
-
                 didClick = clickedElement = undefined;
-
             }
 
             globalEventBus.post({ type: "DidEnterGUI", data: this });
