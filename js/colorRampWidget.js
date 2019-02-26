@@ -99,7 +99,7 @@ class ColorRampWidget {
         const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
         this.footer.innerText = ss + 'Mb';
         this.header.innerText = ee + 'Mb';
-        this.paintQuantizedRamp(this.context, this.colors, this.segmentLength, undefined);
+        this.paintQuantizedRamp(this.context, this.colors, segmentLength, undefined);
     }
 
     repaint () {

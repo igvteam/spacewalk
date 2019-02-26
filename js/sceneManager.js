@@ -7,7 +7,7 @@ import { getMouseXY } from "./utils.js";
 
 class SceneManager {
 
-    constructor({ container, backgroundColor, groundPlaneColor, toolPaletteColors, renderer, picker }) {
+    constructor({ container, backgroundColor, groundPlaneColor, colorRampPaletteColors, renderer, picker }) {
 
         const specularCubicMapMaterialConfig =
             {
@@ -32,7 +32,7 @@ class SceneManager {
         // insert rendering canvas in DOM
         container.appendChild( this.renderer.domElement );
 
-        this.toolPalette = new ColorRampPalette({ container, colors: toolPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
+        this.colorRampPalette = new ColorRampPalette({ container, colors: colorRampPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
 
         this.picker = picker;
 
@@ -59,12 +59,12 @@ class SceneManager {
 
             if (this.objectUUID2SegmentIndex[ data ]) {
                 const segmentIndex = this.objectUUID2SegmentIndex[ data ].segmentIndex;
-                this.toolPalette.genomicRampWidget.highlight(segmentIndex)
+                this.colorRampPalette.genomicRampWidget.highlight(segmentIndex)
             }
 
         } else if ("PickerDidLeaveObject" === type) {
 
-            this.toolPalette.genomicRampWidget.repaint();
+            this.colorRampPalette.genomicRampWidget.repaint();
 
         } else if ("DidSelectSegmentIndex" === type) {
 
@@ -81,7 +81,7 @@ class SceneManager {
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
 
-        this.toolPalette.configure({ chr, genomicStart, genomicEnd, segmentLength });
+        this.colorRampPalette.configure({ chr, genomicStart, genomicEnd, segmentLength });
 
         const [ extentX, extentY, extentZ ] = segmentExtent;
 

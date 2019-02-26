@@ -36,7 +36,7 @@ let main = async container => {
             container: container,
             backgroundColor: rgb255ToThreeJSColor(163, 237, 237),
             groundPlaneColor: appleCrayonColorHexValue('steel'),
-            toolPaletteColors: [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ],
+            colorRampPaletteColors: [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ],
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('maraschino')) } )
         };
@@ -103,7 +103,7 @@ let main = async container => {
 
 let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
 
-    let [ segmentLength, segmentExtent, cameraPosition, centroid ] = [ segment.length, segment.extent, segment.cameraPosition, segment.centroid ];
+    let [ segmentLength, segmentExtent, cameraPosition, centroid ] = [ segment.array.length, segment.extent, segment.cameraPosition, segment.centroid ];
     sceneManager.configure({ chr, genomicStart, genomicEnd, segmentLength, segmentExtent, cameraPosition, centroid });
 
     // ball
@@ -116,16 +116,16 @@ let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => 
     // Array of 3D objects. Index is segment index.
     sceneManager.segmentIndex2Object = [];
 
-    for(let seg of segment) {
+    for(let item of segment.array) {
 
-        const [ x, y, z ] = seg.xyz;
+        const [ x, y, z ] = item.xyz;
 
         const doSkip = isNaN(x) || isNaN(y) || isNaN(z);
 
         if (!doSkip) {
 
-            // const material = new THREE.MeshLambertMaterial({ color: trackManager.colorForFeatureSegmentIndex({ index: seg.segmentIndex, listLength: segment.length }) });
-            const material = new THREE.MeshBasicMaterial({ color: sceneManager.toolPalette.genomicRampWidget.colorForSegmentIndex(seg.segmentIndex) });
+            // const material = new THREE.MeshLambertMaterial({ color: trackManager.colorForFeatureSegmentIndex({ index: item.segmentIndex, listLength: segment.length }) });
+            const material = new THREE.MeshBasicMaterial({ color: sceneManager.colorRampPalette.genomicRampWidget.colorForSegmentIndex(item.segmentIndex) });
             // const material = diffuseCubicMapManager.material;
 
             const mesh = new THREE.Mesh(sphereGeometry, material);
@@ -133,14 +133,14 @@ let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => 
 
             sceneManager.objectUUID2SegmentIndex[ mesh.uuid ] =
                 {
-                    'segmentIndex' : seg.segmentIndex,
-                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + genomicStart,
+                    'segmentIndex' : item.segmentIndex,
+                    'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
                 };
 
-            sceneManager.segmentIndex2Object[ seg.segmentIndex ] =
+            sceneManager.segmentIndex2Object[ item.segmentIndex ] =
                 {
                     'object' : mesh,
-                    'genomicLocation' : (seg.segmentIndex - 1) * 3e4 + genomicStart,
+                    'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
                 };
 
             sceneManager.scene.add(mesh);
@@ -150,10 +150,10 @@ let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => 
     }
 
     // stick
-    for (let i = 0, j = 1; j < segment.length; ++i, ++j) {
+    for (let i = 0, j = 1; j < segment.array.length; ++i, ++j) {
 
-        const [ x0, y0, z0 ] = segment[i].xyz;
-        const [ x1, y1, z1 ] = segment[j].xyz;
+        const [ x0, y0, z0 ] = segment.array[i].xyz;
+        const [ x1, y1, z1 ] = segment.array[j].xyz;
 
         const doSkip = isNaN(x0) || isNaN(x1);
 
