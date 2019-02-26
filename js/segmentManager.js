@@ -88,16 +88,23 @@ class SegmentManager {
             // bbox
             segment.bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
 
-            // size of bounding hyper-rectangle
+            // bounding hyper-rectangle
             const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
             segment.extent = [ extentX, extentY, extentZ ];
+
+            // longest edge
+            let edgeLength = Math.max(...segment.extent);
+
+            // radius of bounding sphere
+            segment.boundingRadius = Math.sqrt(3 * edgeLength * edgeLength);
 
             // Centroid of molecule. where will will aim the camera
             const [ centroidX, centroidY, centroidZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
             segment.centroid = [ centroidX, centroidY, centroidZ ];
 
             // where to position the camera. the camera with look at the centroid
-            segment.cameraPosition = [ centroidX - extentX, centroidY + extentY, centroidZ - extentZ ];
+            segment.cameraPosition = [ centroidX + segment.boundingRadius, centroidY + segment.boundingRadius, centroidZ + segment.boundingRadius ];
+
 
         });
 
