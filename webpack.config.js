@@ -1,19 +1,24 @@
-var path = require('path');
-var webpack = require('webpack');
+const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports =
     {
-        entry: './js/app.js',
+        mode: 'none',
+        entry:
+            [
+                '@babel/polyfill',
+                './js/app.js'
+            ],
         output:
             {
                 path: path.resolve(__dirname, 'build'),
-                filename: 'main.bundle.js'
+                filename: 'bundle.js'
             },
         module: {
             rules:
                 [
                     {
-                        test: /\.m?js$/,
+                        test: /\.js$/,
                         exclude: /(node_modules|bower_components)/,
                         use:
                             {
@@ -29,10 +34,16 @@ module.exports =
                     }
                 ]
         },
-        stats:
-            {
-                colors: true
-            },
-        devtool: 'source-map'
+        plugins:
+            [
+                new CopyPlugin([
+                    { from:'css/app.css', to:'css' },
+                    { from:'img/*'        },
+                    { from:'texture/**/*'  },
+                    { from:'resource/**/*' },
+                    { from:'favicon.ico'  }
+                ])
+
+            ]
     };
 
