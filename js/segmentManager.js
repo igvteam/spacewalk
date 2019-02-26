@@ -40,10 +40,10 @@ class SegmentManager {
                 if (undefined === chrIndexCurrent || chrIndexCurrent !== molIndex) {
                     chrIndexCurrent = molIndex;
 
-                    this.segments[ chrIndexCurrent ] = [];
+                    this.segments[ chrIndexCurrent ] = { bbox: [], extent: [], centroid: [], cameraPosition: [], array: [] };
                 }
 
-                const segIndex = parseInt(parts[1])
+                const segIndex = parseInt(parts[1]);
 
 
                 // discard chr index
@@ -53,7 +53,8 @@ class SegmentManager {
                 parts.shift();
 
                 let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
-                this.segments[ chrIndexCurrent ].push({ molIndex: molIndex, segmentIndex: segIndex, xyz: [ x, y, z ] });
+                // this.segments[ chrIndexCurrent ].push({ molIndex: molIndex, segmentIndex: segIndex, xyz: [ x, y, z ] });
+                this.segments[ chrIndexCurrent ].array.push({ molIndex: molIndex, segmentIndex: segIndex, xyz: [ x, y, z ] });
 
             }
 
@@ -61,7 +62,7 @@ class SegmentManager {
 
         Object.values(this.segments).forEach(segment => {
 
-            const [ minX, minY, minZ, maxX, maxY, maxZ ] = segment.map(seg => seg.xyz).reduce((accumulator, xyz) => {
+            const [ minX, minY, minZ, maxX, maxY, maxZ ] = segment.array.map(items => items.xyz).reduce((accumulator, xyz) => {
 
                 const doSkip = isNaN(xyz[ 0 ])|| isNaN(xyz[ 1 ]) || isNaN(xyz[ 2 ]);
 
@@ -91,17 +92,12 @@ class SegmentManager {
             const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
             segment.extent = [ extentX, extentY, extentZ ];
 
-            const maxExtent = Math.max([ extentX, extentY, extentZ ]);
-            segment.boundingCube = [ maxExtent, maxExtent, maxExtent ];
-            segment.boundingSphere = Math.sqrt(3) * maxExtent;
-
             // Centroid of molecule. where will will aim the camera
             const [ centroidX, centroidY, centroidZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
             segment.centroid = [ centroidX, centroidY, centroidZ ];
 
             // where to position the camera. the camera with look at the centroid
             segment.cameraPosition = [ centroidX - extentX, centroidY + extentY, centroidZ - extentZ ];
-
 
         });
 
