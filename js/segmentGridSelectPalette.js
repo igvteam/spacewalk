@@ -33,12 +33,12 @@ class SegmentGridSelectPalette {
                 clickedElement = undefined;
             }
 
-            globalEventBus.post({ type: "DidEnterGUI", data: this });
+            globalEventBus.post({ type: "DidEnterGUI" });
         });
 
         $(palette).on('mouseleave.trace3d.segment_grid_select_palette', (event) => {
             event.stopPropagation();
-            globalEventBus.post({ type: "DidLeaveGUI", data: this });
+            globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
     }

@@ -12,12 +12,13 @@ class Picker {
         globalEventBus.subscribe("DidLeaveGUI", this);
     }
 
-    receiveEvent(event) {
+    receiveEvent({ type }) {
 
-        if ("DidEnterGUI" === event.type) {
+        if ("DidEnterGUI" === type) {
             this.pickHighlighter.unhighlight();
             this.isEnabled = false;
-        } else if ("DidLeaveGUI" === event.type) {
+        } else if ("DidLeaveGUI" === type) {
+            console.log(Date.now() + ' picker - receive event ' + type);
             this.isEnabled = true;
         }
 

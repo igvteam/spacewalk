@@ -70,7 +70,7 @@ let main = async container => {
 
     trackManager = new TrackManager();
 
-    const path = 'data/csv/IMR90_chr21-28-30Mb.csv';
+    const path = 'resource/csv/IMR90_chr21-28-30Mb.csv';
 
     [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(path);
 
@@ -80,7 +80,7 @@ let main = async container => {
 
     segmentGridSelectPalette = new SegmentGridSelectPalette({ container, segmentManager });
 
-    await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('data/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
+    await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
 
     const key = '248';
     await setup({ sceneManager, chr, genomicStart, genomicEnd, segment: segmentManager.segmentWithName(key) });

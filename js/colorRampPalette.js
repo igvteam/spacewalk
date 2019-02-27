@@ -23,12 +23,12 @@ class ColorRampPalette {
         $(palette).on('mouseenter.trace3d.toolpalette', (event) => {
             event.stopPropagation();
             this.genomicRampWidget.repaint();
-            globalEventBus.post({type: "DidEnterGUI", data: this });
+            globalEventBus.post({type: "DidEnterGUI" });
         });
 
         $(palette).on('mouseleave.trace3d.toolpalette', (event) => {
             event.stopPropagation();
-            globalEventBus.post({type: "DidLeaveGUI", data: this });
+            globalEventBus.post({type: "DidLeaveGUI" });
         });
 
     }
