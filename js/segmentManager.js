@@ -117,11 +117,14 @@ class SegmentManager {
 
 export let parsePathEncodedGenomicLocation = path => {
 
-    let locus = path.split('_').pop().split('.').shift();
+    let dev_null;
+    let parts = path.split('_');
+    dev_null = parts.shift();
+    let locus = parts[ 0 ];
 
     let [ chr, start, end ] = locus.split('-');
 
-    let dev_null = end.split(''); // 3 0 M b
+    dev_null = end.split(''); // 3 0 M b
     dev_null.pop(); // 3 0 M
     dev_null.pop(); // 3 0
     end = dev_null.join(''); // 30

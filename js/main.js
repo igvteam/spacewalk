@@ -70,7 +70,9 @@ let main = async container => {
 
     trackManager = new TrackManager();
 
-    const path = 'resource/csv/IMR90_chr21-28-30Mb.csv';
+    // const path = 'resource/csv/IMR90_chr21-28-30Mb.csv';
+    // const path = 'resource/csv/HCT116_chr21-34-37Mb_6h_auxin.csv';
+    const path = 'resource/csv/HCT116_chr21-34-37Mb_untreated.csv';
 
     [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(path);
 
@@ -83,7 +85,7 @@ let main = async container => {
     await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
 
     const key = '248';
-    await setup({ sceneManager, chr, genomicStart, genomicEnd, segment: segmentManager.segmentWithName(key) });
+    setup({ sceneManager, chr, genomicStart, genomicEnd, segment: segmentManager.segmentWithName(key) });
 
     renderLoop();
 
@@ -92,7 +94,7 @@ let main = async container => {
             receiveEvent: async ({ type, data }) => {
                 if ("DidSelectSegment" === type) {
                     sceneManager.dispose();
-                    await setup({ sceneManager, chr, genomicStart, genomicEnd, segment: data });
+                    setup({ sceneManager, chr, genomicStart, genomicEnd, segment: data });
                 }
             }
         };
@@ -101,7 +103,7 @@ let main = async container => {
 
 };
 
-let setup = async ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
+let setup = ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
 
     let [ segmentLength, segmentExtent, cameraPosition, centroid ] = [ segment.array.length, segment.extent, segment.cameraPosition, segment.centroid ];
     sceneManager.configure({ chr, genomicStart, genomicEnd, segmentLength, segmentExtent, cameraPosition, centroid });

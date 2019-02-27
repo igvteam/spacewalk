@@ -18,7 +18,7 @@ class Picker {
             this.pickHighlighter.unhighlight();
             this.isEnabled = false;
         } else if ("DidLeaveGUI" === type) {
-            console.log(Date.now() + ' picker - receive event ' + type);
+            // console.log(Date.now() + ' picker - receive event ' + type);
             this.isEnabled = true;
         }
 
