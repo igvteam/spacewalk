@@ -25,6 +25,7 @@ class SegmentGridSelectPalette {
         });
 
         $(palette).on('mouseenter.trace3d.segment_grid_select_palette', (event) => {
+            
             event.stopPropagation();
 
             if (clickedElement) {
@@ -125,6 +126,7 @@ let mouseEnterHandler = (event, element, key, header, segmentManager) => {
     } else {
         header.textContent = 'Segment ' + numberFormatter(key);
         globalEventBus.post({ type: "DidSelectSegment", data: segmentManager.segmentWithName( key ) });
+        globalEventBus.post({ type: "DidLeaveGUI" });
     }
 
 };
@@ -146,6 +148,7 @@ let clickHander = (event, element, key, header, segmentManager) => {
         $(clickedElement).removeClass('trace3d_segment_grid_cell_unclicked');
         $(clickedElement).addClass('trace3d_segment_grid_cell_clicked');
         globalEventBus.post({ type: "DidSelectSegment", data: segmentManager.segmentWithName( key ) });
+        globalEventBus.post({ type: "DidLeaveGUI" });
     }
 };
 
