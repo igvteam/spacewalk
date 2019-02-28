@@ -76,17 +76,11 @@
 
 		spotLight.shadow.bias = - 0.005;
 
-		var material = new THREE.MeshPhongMaterial( {
-			color: 0x552811,
-			specular: 0x222222,
-			shininess: 0/*25*/,
-		} );
+		var material = new THREE.MeshPhongMaterial( { color: 0x552811, specular: 0x222222, shininess: 0/*25*/ } );
 
 		loader = new THREE.GLTFLoader();
 		loader.load( "../models/LeePerrySmith/LeePerrySmith.glb", function ( gltf ) {
-
 			createScene( gltf.scene.children[ 0 ].geometry, 100, material );
-
 		} );
 
 		renderer = new THREE.WebGLRenderer();

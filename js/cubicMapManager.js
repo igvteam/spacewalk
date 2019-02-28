@@ -14,6 +14,7 @@ class CubicMapManager {
         this.cubicTexture = cubeTexture;
 
         this.material = isSpecularMap ? specularMaterial(cubeTexture) : diffuseMaterial(cubeTexture, vertexShaderName, fragmentShaderName);
+        this.material.side = THREE.DoubleSide;
     }
 
 }
