@@ -11,6 +11,8 @@ class SegmentSelectPalette {
         palette.className = 'trace3d_tool_palette';
         container.appendChild( palette );
 
+        this.select = createSelectWidget(palette);
+
         layout(container, palette);
 
         makeDraggable(palette, palette);
@@ -27,15 +29,19 @@ class SegmentSelectPalette {
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
-        this.palette = palette;
-
     }
 
-    configure (segmentManager) {
+    configure (segments) {
 
-        const select = createSelectWidget(this.palette, segmentManager);
+        $(this.select).empty();
 
-        configureSelectWidget(select, segmentManager.segments);
+        const keys = Object.keys(segments);
+        for (let key of keys) {
+            const option = document.createElement('option');
+            option.textContent = 'segment ' + key;
+            option.setAttribute("value", key);
+            this.select.appendChild( option );
+        }
 
     }
 
@@ -45,9 +51,7 @@ class SegmentSelectPalette {
 
 }
 
-let createSelectWidget = (palette, segmentManager) => {
-
-    $(palette).empty();
+let createSelectWidget = (palette) => {
 
     // form
     const form = document.createElement('form');
@@ -69,8 +73,7 @@ let createSelectWidget = (palette, segmentManager) => {
 
     $(select).on('change.trace3d_segment_select', (e) => {
         const key = $(select).val();
-        const segment = segmentManager.segmentWithName( key );
-        globalEventBus.post({ type: "DidSelectSegment", data: segment });
+        globalEventBus.post({ type: "DidSelectSegment", data: key });
     });
 
     let eventSink = e => { e.stopPropagation(); };
@@ -84,19 +87,6 @@ let createSelectWidget = (palette, segmentManager) => {
     $(select).on('click.trace3d.segment_select', eventSink);
 
     return select;
-};
-
-let configureSelectWidget = (select, segments) => {
-
-    $(select).empty();
-
-    Object.keys(segments).forEach((key) => {
-        const option = document.createElement('option');
-        option.textContent = 'segment ' + key;
-        option.setAttribute("value", key);
-        select.appendChild( option );
-    });
-
 };
 
 let layout = (container, element) => {

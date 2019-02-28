@@ -68,9 +68,9 @@ let main = async container => {
 
     trackManager = new TrackManager();
 
-    segmentSelectPalette = new SegmentSelectPalette(container);
+    // segmentSelectPalette = new SegmentSelectPalette(container);
 
-    // segmentGridSelectPalette = new SegmentGridSelectPalette(container);
+    segmentGridSelectPalette = new SegmentGridSelectPalette(container);
 
     // const path = 'resource/csv/IMR90_chr21-28-30Mb.csv';
     // const path = 'resource/csv/HCT116_chr21-34-37Mb_6h_auxin.csv';
@@ -82,9 +82,9 @@ let main = async container => {
 
     await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
 
-    segmentSelectPalette.configure(segmentManager);
+    // segmentSelectPalette.configure(segmentManager.segments);
 
-    // segmentGridSelectPalette.configure(segmentManager);
+    segmentGridSelectPalette.configure(segmentManager.segments);
 
     const key = '248';
     setup({ sceneManager, chr, genomicStart, genomicEnd, segment: segmentManager.segmentWithName(key) });
@@ -95,8 +95,11 @@ let main = async container => {
         {
             receiveEvent: async ({ type, data }) => {
                 if ("DidSelectSegment" === type) {
+
                     sceneManager.dispose();
-                    setup({ sceneManager, chr, genomicStart, genomicEnd, segment: data });
+
+                    const segment = segmentManager.segmentWithName( data );
+                    setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
                 }
             }
         };
