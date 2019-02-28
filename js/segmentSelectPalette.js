@@ -3,17 +3,13 @@ import { makeDraggable } from "./draggable.js";
 
 class SegmentSelectPalette {
 
-    constructor({ container, segmentManager }) {
+    constructor(container) {
 
         // palette
         const palette = document.createElement('div');
         palette.setAttribute("id", "trace3d_segment_select_palette");
         palette.className = 'trace3d_tool_palette';
         container.appendChild( palette );
-
-        const select = createSelectWidget(palette, segmentManager);
-
-        configureSelectWidget(select, segmentManager.segments);
 
         layout(container, palette);
 
@@ -31,6 +27,16 @@ class SegmentSelectPalette {
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
+        this.palette = palette;
+
+    }
+
+    configure (segmentManager) {
+
+        const select = createSelectWidget(this.palette, segmentManager);
+
+        configureSelectWidget(select, segmentManager.segments);
+
     }
 
     onWindowResize(container, palette) {
@@ -39,20 +45,9 @@ class SegmentSelectPalette {
 
 }
 
-let configureSelectWidget = (select, segments) => {
-
-    $(select).empty();
-
-    Object.keys(segments).forEach((key) => {
-        const option = document.createElement('option');
-        option.textContent = 'segment ' + key;
-        option.setAttribute("value", key);
-        select.appendChild( option );
-    });
-
-};
-
 let createSelectWidget = (palette, segmentManager) => {
+
+    $(palette).empty();
 
     // form
     const form = document.createElement('form');
@@ -89,6 +84,19 @@ let createSelectWidget = (palette, segmentManager) => {
     $(select).on('click.trace3d.segment_select', eventSink);
 
     return select;
+};
+
+let configureSelectWidget = (select, segments) => {
+
+    $(select).empty();
+
+    Object.keys(segments).forEach((key) => {
+        const option = document.createElement('option');
+        option.textContent = 'segment ' + key;
+        option.setAttribute("value", key);
+        select.appendChild( option );
+    });
+
 };
 
 let layout = (container, element) => {

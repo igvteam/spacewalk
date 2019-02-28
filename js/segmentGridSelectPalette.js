@@ -7,14 +7,12 @@ let clickedElement = undefined;
 
 class SegmentGridSelectPalette {
 
-    constructor({ container, segmentManager }) {
+    constructor(container) {
 
         // palette
         const palette = document.createElement('div');
         palette.className = 'trace3d_segment_grid_select_palette';
         container.appendChild( palette );
-
-        buildPalette(palette, segmentManager);
 
         layout(container, palette);
 
@@ -25,7 +23,7 @@ class SegmentGridSelectPalette {
         });
 
         $(palette).on('mouseenter.trace3d.segment_grid_select_palette', (event) => {
-            
+
             event.stopPropagation();
 
             if (clickedElement) {
@@ -42,6 +40,12 @@ class SegmentGridSelectPalette {
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
+        this.palette = palette;
+    }
+
+    configure(segmentManager) {
+
+        buildPalette(this.palette, segmentManager);
     }
 
     onWindowResize(container, palette) {
@@ -50,19 +54,21 @@ class SegmentGridSelectPalette {
 
 }
 
-let buildPalette = (parent, segmentManager) => {
+let buildPalette = (palette, segmentManager) => {
+
+    $(palette).empty();
 
     // header
     const header = document.createElement('div');
     header.setAttribute("id", "trace3d_segment_grid_select_header");
     // header.textContent = 'Segment XXXX';
-    parent.appendChild( header );
+    palette.appendChild( header );
 
     // box
     const box = document.createElement('div');
     box.setAttribute("id", "trace3d_segment_grid_select_box");
 
-    parent.appendChild( box );
+    palette.appendChild( box );
 
     // soak up misc events
     let eventSink = e => { e.stopPropagation(); };
