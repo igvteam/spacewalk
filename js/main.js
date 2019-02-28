@@ -86,25 +86,28 @@ let main = async container => {
 
     segmentGridSelectPalette.configure(segmentManager.segments);
 
-    const key = '248';
-    setup({ sceneManager, chr, genomicStart, genomicEnd, segment: segmentManager.segmentWithName(key) });
+    // const key = '248';
+    // setup({ sceneManager, chr, genomicStart, genomicEnd, segment: segmentManager.segmentWithName(key) });
 
     renderLoop();
 
     segmentSelectionListener =
         {
             receiveEvent: async ({ type, data }) => {
+
                 if ("DidSelectSegment" === type) {
 
                     sceneManager.dispose();
-
                     const segment = segmentManager.segmentWithName( data );
                     setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
+
                 }
             }
         };
 
     globalEventBus.subscribe("DidSelectSegment", segmentSelectionListener);
+
+    globalEventBus.post({ type: "DidSelectSegment", data: '321' });
 
 };
 
@@ -183,8 +186,13 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
 };
 
 let renderLoop = () => {
+
     requestAnimationFrame( renderLoop );
-    sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera)
+
+    if (sceneManager.scene && sceneManager.orbitalCamera) {
+        sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera);
+    }
+
 };
 
 export { main, globalEventBus, sceneManager };
