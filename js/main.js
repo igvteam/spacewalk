@@ -26,8 +26,6 @@ let showSTMaterial;
 let globalEventBus = new EventBus();
 let sceneManager;
 let segmentSelectionListener;
-
-let setupConfig;
 let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 let main = async container => {
 
@@ -70,6 +68,10 @@ let main = async container => {
 
     trackManager = new TrackManager();
 
+    // segmentSelectPalette = new SegmentSelectPalette(container);
+
+    segmentGridSelectPalette = new SegmentGridSelectPalette(container);
+
     // const path = 'resource/csv/IMR90_chr21-28-30Mb.csv';
     // const path = 'resource/csv/HCT116_chr21-34-37Mb_6h_auxin.csv';
     const path = 'resource/csv/HCT116_chr21-34-37Mb_untreated.csv';
@@ -78,28 +80,34 @@ let main = async container => {
 
     await segmentManager.loadSegments({ path });
 
-    // segmentSelectPalette = new SegmentSelectPalette({ container, segmentManager });
-
-    segmentGridSelectPalette = new SegmentGridSelectPalette({ container, segmentManager });
-
     await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
 
-    const key = '248';
-    setup({ sceneManager, chr, genomicStart, genomicEnd, segment: segmentManager.segmentWithName(key) });
+    // segmentSelectPalette.configure(segmentManager.segments);
+
+    segmentGridSelectPalette.configure(segmentManager.segments);
+
+    // const key = '248';
+    // setup({ sceneManager, chr, genomicStart, genomicEnd, segment: segmentManager.segmentWithName(key) });
 
     renderLoop();
 
     segmentSelectionListener =
         {
             receiveEvent: async ({ type, data }) => {
+
                 if ("DidSelectSegment" === type) {
+
                     sceneManager.dispose();
-                    setup({ sceneManager, chr, genomicStart, genomicEnd, segment: data });
+                    const segment = segmentManager.segmentWithName( data );
+                    setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
+
                 }
             }
         };
 
     globalEventBus.subscribe("DidSelectSegment", segmentSelectionListener);
+
+    globalEventBus.post({ type: "DidSelectSegment", data: '321' });
 
 };
 
@@ -178,8 +186,13 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
 };
 
 let renderLoop = () => {
+
     requestAnimationFrame( renderLoop );
-    sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera)
+
+    if (sceneManager.scene && sceneManager.orbitalCamera) {
+        sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera);
+    }
+
 };
 
 export { main, globalEventBus, sceneManager };

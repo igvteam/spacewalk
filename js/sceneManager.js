@@ -147,11 +147,16 @@ class SceneManager {
     };
 
     dispose() {
-        this.scene.dispose();
-        delete this.scene;
 
-        this.orbitalCamera.dispose();
-        delete this.orbitalCamera;
+        if (this.scene) {
+            this.scene.dispose();
+            delete this.scene;
+        }
+
+        if (this.orbitalCamera) {
+            this.orbitalCamera.dispose();
+            delete this.orbitalCamera;
+        }
     }
 
 }

@@ -7,14 +7,12 @@ let clickedElement = undefined;
 
 class SegmentGridSelectPalette {
 
-    constructor({ container, segmentManager }) {
+    constructor(container) {
 
         // palette
         const palette = document.createElement('div');
         palette.className = 'trace3d_segment_grid_select_palette';
         container.appendChild( palette );
-
-        buildPalette(palette, segmentManager);
 
         layout(container, palette);
 
@@ -25,7 +23,7 @@ class SegmentGridSelectPalette {
         });
 
         $(palette).on('mouseenter.trace3d.segment_grid_select_palette', (event) => {
-            
+
             event.stopPropagation();
 
             if (clickedElement) {
@@ -42,6 +40,12 @@ class SegmentGridSelectPalette {
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
+        this.palette = palette;
+    }
+
+    configure(segments) {
+
+        buildPalette(this.palette, segments);
     }
 
     onWindowResize(container, palette) {
@@ -50,19 +54,21 @@ class SegmentGridSelectPalette {
 
 }
 
-let buildPalette = (parent, segmentManager) => {
+let buildPalette = (palette, segments) => {
+
+    $(palette).empty();
 
     // header
     const header = document.createElement('div');
     header.setAttribute("id", "trace3d_segment_grid_select_header");
     // header.textContent = 'Segment XXXX';
-    parent.appendChild( header );
+    palette.appendChild( header );
 
     // box
     const box = document.createElement('div');
     box.setAttribute("id", "trace3d_segment_grid_select_box");
 
-    parent.appendChild( box );
+    palette.appendChild( box );
 
     // soak up misc events
     let eventSink = e => { e.stopPropagation(); };
@@ -72,8 +78,8 @@ let buildPalette = (parent, segmentManager) => {
 
 
     // cells
-    const segmentKeys = Object.keys(segmentManager.segments);
-    for(let key = 0; key < segmentKeys.length; key++) {
+    const keys = Object.keys(segments);
+    for (let key of keys) {
 
         const cell = document.createElement('div');
         cell.className = 'trace3d_segment_grid_cell';
@@ -83,7 +89,7 @@ let buildPalette = (parent, segmentManager) => {
         // cell.style.backgroundColor = rgb255String(randomRGB255(64, 255));
 
         $(cell).on('mouseenter.trace3d.segment_grid_select_cell', (event) => {
-            mouseEnterHandler(event, cell, key, header, segmentManager);
+            mouseEnterHandler(event, cell, key, header);
         });
 
         $(cell).on('mouseleave.trace3d.segment_grid_select_cell', (event) => {
@@ -91,8 +97,9 @@ let buildPalette = (parent, segmentManager) => {
         });
 
         $(cell).on('click.trace3d.segment_grid_select_cell', (event) => {
-            clickHander(event, cell, key, header, segmentManager);
+            clickHander(event, cell, key, header);
         });
+
     }
 
 };
@@ -110,7 +117,7 @@ let mouseLeaveHander = (event, element) => {
 
 };
 
-let mouseEnterHandler = (event, element, key, header, segmentManager) => {
+let mouseEnterHandler = (event, element, key, header) => {
 
     event.stopPropagation();
 
@@ -125,13 +132,13 @@ let mouseEnterHandler = (event, element, key, header, segmentManager) => {
         // ignore
     } else {
         header.textContent = 'Segment ' + numberFormatter(key);
-        globalEventBus.post({ type: "DidSelectSegment", data: segmentManager.segmentWithName( key ) });
+        globalEventBus.post({ type: "DidSelectSegment", data: key });
         globalEventBus.post({ type: "DidLeaveGUI" });
     }
 
 };
 
-let clickHander = (event, element, key, header, segmentManager) => {
+let clickHander = (event, element, key, header) => {
     event.stopPropagation();
 
     if (clickedElement) {
@@ -147,7 +154,7 @@ let clickHander = (event, element, key, header, segmentManager) => {
         clickedElement = element;
         $(clickedElement).removeClass('trace3d_segment_grid_cell_unclicked');
         $(clickedElement).addClass('trace3d_segment_grid_cell_clicked');
-        globalEventBus.post({ type: "DidSelectSegment", data: segmentManager.segmentWithName( key ) });
+        globalEventBus.post({ type: "DidSelectSegment", data: key });
         globalEventBus.post({ type: "DidLeaveGUI" });
     }
 };

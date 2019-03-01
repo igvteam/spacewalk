@@ -3,7 +3,7 @@ import { makeDraggable } from "./draggable.js";
 
 class SegmentSelectPalette {
 
-    constructor({ container, segmentManager }) {
+    constructor(container) {
 
         // palette
         const palette = document.createElement('div');
@@ -11,9 +11,7 @@ class SegmentSelectPalette {
         palette.className = 'trace3d_tool_palette';
         container.appendChild( palette );
 
-        const select = createSelectWidget(palette, segmentManager);
-
-        configureSelectWidget(select, segmentManager.segments);
+        this.select = createSelectWidget(palette);
 
         layout(container, palette);
 
@@ -33,26 +31,27 @@ class SegmentSelectPalette {
 
     }
 
+    configure (segments) {
+
+        $(this.select).empty();
+
+        const keys = Object.keys(segments);
+        for (let key of keys) {
+            const option = document.createElement('option');
+            option.textContent = 'segment ' + key;
+            option.setAttribute("value", key);
+            this.select.appendChild( option );
+        }
+
+    }
+
     onWindowResize(container, palette) {
         layout(container, palette);
     };
 
 }
 
-let configureSelectWidget = (select, segments) => {
-
-    $(select).empty();
-
-    Object.keys(segments).forEach((key) => {
-        const option = document.createElement('option');
-        option.textContent = 'segment ' + key;
-        option.setAttribute("value", key);
-        select.appendChild( option );
-    });
-
-};
-
-let createSelectWidget = (palette, segmentManager) => {
+let createSelectWidget = (palette) => {
 
     // form
     const form = document.createElement('form');
@@ -74,8 +73,7 @@ let createSelectWidget = (palette, segmentManager) => {
 
     $(select).on('change.trace3d_segment_select', (e) => {
         const key = $(select).val();
-        const segment = segmentManager.segmentWithName( key );
-        globalEventBus.post({ type: "DidSelectSegment", data: segment });
+        globalEventBus.post({ type: "DidSelectSegment", data: key });
     });
 
     let eventSink = e => { e.stopPropagation(); };
