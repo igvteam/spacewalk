@@ -74,7 +74,6 @@ let main = async container => {
     dataFileLoader = new DataFileLoader({ container, palette: $('#trace3d_data_file_load_palette').get(0) });
 
     // segmentSelectPalette = new SegmentSelectPalette(container);
-
     segmentGridSelectPalette = new SegmentGridSelectPalette(container);
 
     // const path = 'resource/csv/IMR90_chr21-28-30Mb.csv';
@@ -88,12 +87,8 @@ let main = async container => {
     await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
 
     // segmentSelectPalette.configure(segmentManager.segments);
-
     segmentGridSelectPalette.configure(segmentManager.segments);
-
-    // const key = '248';
-    // setup({ sceneManager, chr, genomicStart, genomicEnd, segment: segmentManager.segmentWithName(key) });
-
+    
     renderLoop();
 
     segmentSelectionListener =
@@ -106,13 +101,24 @@ let main = async container => {
                     const segment = segmentManager.segmentWithName( data );
                     setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
 
+                } else if ("DidLoadCSVFile" === type) {
+
+                    segmentManager.ingest(data);
+
+                    // segmentSelectPalette.configure(segmentManager.segments);
+                    segmentGridSelectPalette.configure(segmentManager.segments);
+
+                    globalEventBus.post({ type: "DidSelectSegment", data: '1' });
+
                 }
+
             }
         };
 
     globalEventBus.subscribe("DidSelectSegment", segmentSelectionListener);
+    globalEventBus.subscribe("DidLoadCSVFile", segmentSelectionListener);
 
-    globalEventBus.post({ type: "DidSelectSegment", data: '321' });
+    globalEventBus.post({ type: "DidSelectSegment", data: '1' });
 
 };
 

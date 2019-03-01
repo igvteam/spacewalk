@@ -3,23 +3,23 @@
 $trace3d_border_radius: 8px;
 
 $trace3d_text_box_height: 32px;
+$trace3d_tool_palette_height: 640px;
 $trace3d_tool_palette_width: 200px;
 
 $trace3d_segment_grid_select_border_width: 1px;
 
 $trace3d_segment_grid_select_header_height: 32px;
 
+$trace3d_segment_grid_select_palette_width: 300px;
+$trace3d_segment_grid_select_palette_height: $trace3d_tool_palette_height;
+
 $trace3d_segment_grid_select_box_size: 512px;
 
 $trace3d_segment_grid_select_box_width: 256px;
-$trace3d_segment_grid_select_box_height: 512px;
+$trace3d_segment_grid_select_box_height: 0.85 * $trace3d_segment_grid_select_palette_height;
 
 $trace3d_segment_grid_select_cell_count: 32;
 $trace3d_segment_grid_select_cell_size: $trace3d_segment_grid_select_box_size / $trace3d_segment_grid_select_cell_count;
-
-//$trace3d_segment_grid_select_palette_width: $trace3d_segment_grid_select_box_width / 0.90;
-$trace3d_segment_grid_select_palette_width: 300px;
-$trace3d_segment_grid_select_palette_height: $trace3d_segment_grid_select_header_height + $trace3d_segment_grid_select_box_height / 0.90;
 
 $trace3d_data_file_load_palette_width: 4 * 128px;
 $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 4;
@@ -118,7 +118,7 @@ $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 
 
   position: absolute;
   width: $trace3d_tool_palette_width;
-  height: 640px;
+  height: $trace3d_tool_palette_height;
 
   z-index: 512;
 

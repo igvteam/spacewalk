@@ -1,6 +1,8 @@
 import {makeDraggable} from "./draggable.js";
 import { globalEventBus } from "./main.js";
 
+let currentFile = undefined;
+
 class DataFileLoader {
 
     constructor({ container, palette }) {
@@ -38,13 +40,15 @@ class DataFileLoader {
 
         // Local file
         const $local_file_input = $('#trace3d_data_file_load_local_file_input');
+        const $local_file_button = $('#trace3d_data_file_load_local_button');
 
         $local_file_input.on('change.trace3d_data_file_load_local_file_input', (event) => {
             event.stopPropagation();
-            const input = $local_file_input.get(0);
-            const filename = input.files[ 0 ].name;
-            $('#trace3d_data_file_load_local_file_label').text(filename);
+            currentFile = event.target.files[0];
+            $('#trace3d_data_file_load_local_file_label').text(currentFile.name);
         });
+
+        $local_file_button.on('click.trace3d_data_file_load_local_button', handleUpload);
 
     }
 
@@ -64,6 +68,36 @@ let layout = (container, element) => {
     const top = 0.25 * elementRect.height;
     $(element).offset( { left, top } );
 
+};
+
+const handleUpload = async (event) => {
+
+    const _e = event;
+
+    try {
+        const fileContents = await readFileAsText(currentFile);
+        globalEventBus.post({ type: "DidLoadCSVFile", data: fileContents });
+    } catch (e) {
+        console.warn(e.message)
+    }
+};
+
+const readFileAsText = file => {
+
+    const fileReader = new FileReader();
+
+    return new Promise((resolve, reject) => {
+        fileReader.onerror = () => {
+            fileReader.abort();
+            reject(new DOMException("Problem parsing input file."));
+        };
+
+        fileReader.onload = () => {
+            resolve(fileReader.result);
+        };
+
+        fileReader.readAsText(file);
+    });
 };
 
 export default DataFileLoader;
