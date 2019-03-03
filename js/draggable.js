@@ -8,7 +8,7 @@ let makeDraggable = (targetElement, handleElement) => {
 function dragStart(event) {
 
     event.stopPropagation();
-    event.preventDefault();
+    // event.preventDefault();
 
     const styleX = Math.round(parseFloat(this.style.left.replace("px", "")));
     const styleY = Math.round(parseFloat(this.style.top.replace("px", "")));
@@ -38,7 +38,7 @@ function drag(event) {
     }
 
     event.stopPropagation();
-    event.preventDefault();
+    // event.preventDefault();
 
     const styleX = dragData.dx + event.screenX;
     const styleY = dragData.dy + event.screenY;
@@ -56,7 +56,7 @@ function dragEnd(event) {
     }
 
     event.stopPropagation();
-    event.preventDefault();
+    // event.preventDefault();
 
     const styleX = dragData.dx + event.screenX;
     const styleY = dragData.dy + event.screenY;

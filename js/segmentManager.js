@@ -1,19 +1,18 @@
 
-import { globalEventBus } from './main.js';
-
 class SegmentManager {
 
-    constructor () {
-    }
+    constructor () {}
 
     async loadSegments({ path}) {
-
-        this.stepSize = 3e4;
-
-        this.segments = {};
         const response = await fetch(path);
         const text = await response.text();
-        const lines = text.split(/\r?\n/);
+        this.ingest(text);
+    }
+
+    ingest(string) {
+        this.stepSize = 3e4;
+        this.segments = {};
+        const lines = string.split(/\r?\n/);
 
         // discard blurb
         lines.shift();
@@ -104,7 +103,6 @@ class SegmentManager {
 
             // where to position the camera. the camera with look at the centroid
             segment.cameraPosition = [ centroidX + segment.boundingRadius, centroidY + segment.boundingRadius, centroidZ + segment.boundingRadius ];
-
 
         });
 
