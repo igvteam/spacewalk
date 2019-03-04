@@ -1,5 +1,5 @@
 import * as THREE from './threejs_es6/three.module.js';
-import EventBus from './eventBus.js';
+import { globalEventBus } from './eventBus.js';
 import SceneManager from './sceneManager.js';
 import SegmentManager from './segmentManager.js';
 import CubicMapManager from "./cubicMapManager.js";
@@ -26,7 +26,6 @@ let sphereGeometry;
 let showNormalsMaterial;
 let showSTMaterial;
 
-let globalEventBus = new EventBus();
 let sceneManager;
 let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 
@@ -209,4 +208,4 @@ let renderLoop = () => {
 
 };
 
-export { main, globalEventBus, sceneManager };
+export { main, sceneManager };

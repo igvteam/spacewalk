@@ -1,4 +1,4 @@
-import {globalEventBus} from "./main.js";
+import {globalEventBus} from "./eventBus.js";
 
 class Picker {
 

@@ -1,4 +1,4 @@
-import { globalEventBus } from "./main.js";
+import { globalEventBus } from "./eventBus.js";
 import { makeDraggable } from "./draggable.js";
 import ColorRampWidget from "./colorRampWidget.js";
 
