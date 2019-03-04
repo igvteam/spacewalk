@@ -44,6 +44,7 @@ module.exports =
                     { from:'img/*'         },
                     { from:'texture/**/*'  },
                     { from:'resource/**/*' },
+                    { from:'vendor/**/*'   },
                     { from:'favicon.ico'   },
                     {
                         from: 'index.html',
