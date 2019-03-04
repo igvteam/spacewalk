@@ -14,7 +14,6 @@ import BedTrack from './igv/bedTrack.js';
 import SegmentSelectPalette from "./segmentSelectPalette.js";
 import { parsePathEncodedGenomicLocation } from './segmentManager.js';
 
-
 let segmentManager;
 let dataFileLoader;
 let segmentSelectPalette;
@@ -89,23 +88,26 @@ let main = async container => {
             receiveEvent: ({ type, data }) => {
                 let segment;
 
-                sceneManager.dispose();
-
                 if ("DidSelectSegment" === type) {
 
                     segment = segmentManager.segmentWithName( data );
 
+                    sceneManager.dispose();
+                    setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
+
                 } else if ("DidLoadCSVFile" === type) {
 
                     segmentManager.ingest(data);
+                    segment = segmentManager.segmentWithName( '1' );
 
                     // segmentSelectPalette.configure(segmentManager.segments);
                     segmentGridSelectPalette.configure(segmentManager.segments);
 
-                    segment = segmentManager.segmentWithName( '1' );
+                    sceneManager.dispose();
+                    setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
+
                 }
 
-                setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
 
             }
         };
