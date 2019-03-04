@@ -38,19 +38,26 @@ class DataFileLoader {
             event.stopPropagation();
             $url_input.trigger('change.trace3d_data_file_load_url_input');
             loadURL(currentURL);
+            $url_input.val('');
+            currentURL = undefined;
         });
 
         // Local file
         const $local_file_input = $('#trace3d_data_file_load_local_file_input');
-        const $local_file_button = $('#trace3d_data_file_load_local_button');
+        const $local_file_label = $('#trace3d_data_file_load_local_file_label');
 
         $local_file_input.on('change.trace3d_data_file_load_local_file_input', (event) => {
             event.stopPropagation();
+            $local_file_label.text(event.target.files[0].name);
             currentFile = event.target.files[0];
-            $('#trace3d_data_file_load_local_file_label').text(currentFile.name);
         });
 
-        $local_file_button.on('click.trace3d_data_file_load_local_button', handleUpload);
+        $('#trace3d_data_file_load_local_button').on('click.trace3d_data_file_load_local_button', (event) => {
+            event.stopPropagation();
+            loadFile(currentFile);
+            $local_file_label.text('Choose CSV File');
+            currentFile = undefined;
+        });
 
     }
 
@@ -60,10 +67,10 @@ class DataFileLoader {
 
 }
 
-const loadURL = async (path) => {
+const loadURL = async url => {
 
     try {
-        const urlContents = await igv.xhr.load(path);
+        const urlContents = await igv.xhr.load(url);
         globalEventBus.post({ type: "DidLoadCSVFile", data: urlContents });
     } catch (error) {
         console.warn(error.message)
@@ -71,12 +78,10 @@ const loadURL = async (path) => {
 
 };
 
-const handleUpload = async (event) => {
-
-    event.stopPropagation();
+const loadFile = async file => {
 
     try {
-        const fileContents = await readFileAsText(currentFile);
+        const fileContents = await readFileAsText(file);
         globalEventBus.post({ type: "DidLoadCSVFile", data: fileContents });
     } catch (e) {
         console.warn(e.message)
