@@ -1,6 +1,6 @@
 
 
-export default class BedTrack {
+export default class MinimalBedTrack {
 
     constructor(path) {
         this.path = path

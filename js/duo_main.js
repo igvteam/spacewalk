@@ -10,12 +10,14 @@ import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor
 import SegmentGridSelectPalette from "./segmentGridSelectPalette.js";
 import DataFileLoader from "./dataFileLoader.js";
 
-import BedTrack from './igv/bedTrack.js';
+import MinimalBedTrack from './igv/minimalBedTrack.js';
 import SegmentSelectPalette from "./segmentSelectPalette.js";
 import { parsePathEncodedGenomicLocation } from './segmentManager.js';
+import IGVPalette from "./igvPalette.js";
 
 let segmentManager;
 let dataFileLoader;
+let igvPalette;
 let segmentSelectPalette;
 let segmentGridSelectPalette;
 let trackManager;
@@ -30,8 +32,6 @@ let sceneManager;
 let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 
 let main = async container => {
-
-    console.log('hello form duo_main');
 
     const sceneManagerSettings =
         {
@@ -74,11 +74,13 @@ let main = async container => {
 
     dataFileLoader = new DataFileLoader({ container, palette: $('#trace3d_data_file_load_palette').get(0) });
 
+    igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
+
     // segmentSelectPalette = new SegmentSelectPalette(container);
     segmentGridSelectPalette = new SegmentGridSelectPalette(container);
 
     // TODO: Decide how to handle track loading
-    // await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
+    // await trackManager.buildFeatureSegmentIndices({ track: new MinimalBedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
 
     sceneManager.defaultConfiguration();
 

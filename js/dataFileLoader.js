@@ -10,7 +10,6 @@ class DataFileLoader {
 
         layout(container, palette);
 
-        // makeDraggable(palette, $('#trace3d_last_div').get(0));
         makeDraggable(palette, palette);
 
         $(window).on('resize.trace3d.data_file_load_widget', () => { this.onWindowResize(container, palette) });

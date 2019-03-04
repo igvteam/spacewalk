@@ -24,94 +24,13 @@ $trace3d_segment_grid_select_cell_size: $trace3d_segment_grid_select_box_size / 
 $trace3d_data_file_load_palette_width: 4 * 128px;
 $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 4;
 
+$trace3d_igv_palette_dimension: 120px;
+$trace3d_igv_palette_width: 5 * $trace3d_igv_palette_dimension;
+$trace3d_igv_palette_height: 2 * $trace3d_igv_palette_dimension;
+
 #trace3d_canvas_container {
   position: relative;
 
-}
-
-.trace3d_segment_grid_select_palette {
-
-  position: absolute;
-  width: $trace3d_segment_grid_select_palette_width;
-  height: $trace3d_segment_grid_select_palette_height;
-
-  z-index: 512;
-
-  background-color: rgba(255, 255, 255, 0.51);
-
-  border-style: solid;
-  border-width: $trace3d_segment_grid_select_border_width;
-  border-color: $trace3d_aluminum;
-  border-radius: $trace3d_border_radius;
-
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  align-items: center;
-
-  // header
-  #trace3d_segment_grid_select_header {
-    width: 100%;
-    height: $trace3d_segment_grid_select_header_height;
-    line-height: $trace3d_segment_grid_select_header_height;
-    text-align: center;
-    //background-color: red;
-    margin: 8px;
-  }
-
-  // box
-  #trace3d_segment_grid_select_box {
-     width: $trace3d_segment_grid_select_box_width + 2 * $trace3d_segment_grid_select_border_width;
-    height: $trace3d_segment_grid_select_box_height + 2 * $trace3d_segment_grid_select_border_width;
-
-    border-style: solid;
-    border-width: $trace3d_segment_grid_select_border_width;
-    border-color: $trace3d_aluminum;
-
-    padding: 8px;
-
-    //background-color: white;
-
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: center;
-
-    overflow: auto;
-
-    // cell
-    > div.trace3d_segment_grid_cell {
-      border: unset;
-      width: $trace3d_segment_grid_select_cell_size;
-      height: $trace3d_segment_grid_select_cell_size;
-      //background-color: transparent;
-      background-size: $trace3d_segment_grid_select_cell_size $trace3d_segment_grid_select_cell_size;
-      background-image: url(../img/dot_empty_ring.svg);
-    }
-
-    > div.trace3d_segment_grid_cell_clicked {
-      background-image: url(../img/dot_solid_disk.svg);
-    }
-
-    > div.trace3d_segment_grid_cell_unclicked {
-      background-image: url(../img/dot_empty_ring.svg);
-    }
-
-
-    //div:hover {
-    //  cursor: pointer;
-    //  background-image: url(../img/dot_solid_disk.svg);
-    //}
-  }
-
-}
-
-.trace3d_segment_grid_select_palette:hover {
-  border-width: 2px;
-  border-color: $trace3d_steel;
-  background-color: $trace3d_snow;
 }
 
 .trace3d_tool_palette {
@@ -127,7 +46,7 @@ $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 
   border-style: solid;
   border-width: thin;
   border-color: $trace3d_aluminum;
-  border-radius: 8px;
+  border-radius: $trace3d_border_radius;
 
   display: flex;
   flex-direction: column;
@@ -141,6 +60,36 @@ $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 
   border-width: 2px;
   border-color: $trace3d_steel;
   background-color: $trace3d_snow;
+}
+
+#trace3d_igv_palette.trace3d_tool_palette {
+
+  top: 32px;
+  left: 64px;
+
+  width: $trace3d_igv_palette_width;
+  height: $trace3d_igv_palette_height;
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  align-items: center;
+
+  > div {
+    width: 100%;
+    height: calc(100% - (2 * #{$trace3d_border_radius}));
+
+    border-top-style: solid;
+    border-top-width: thin;
+    border-top-color: $trace3d_aluminum;
+
+    border-bottom-style: solid;
+    border-bottom-width: thin;
+    border-bottom-color: $trace3d_aluminum;
+
+  }
+
 }
 
 #trace3d_data_file_load_palette.trace3d_tool_palette {
@@ -203,7 +152,6 @@ $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 
   }
 }
 
-// ramp container
 .trace3d_tool_palette_ramp_container {
 
   display: flex;
@@ -252,4 +200,89 @@ $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 
     text-align: center;
   }
 
+}
+
+.trace3d_segment_grid_select_palette {
+
+  position: absolute;
+  width: $trace3d_segment_grid_select_palette_width;
+  height: $trace3d_segment_grid_select_palette_height;
+
+  z-index: 512;
+
+  background-color: rgba(255, 255, 255, 0.51);
+
+  border-style: solid;
+  border-width: $trace3d_segment_grid_select_border_width;
+  border-color: $trace3d_aluminum;
+  border-radius: $trace3d_border_radius;
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+
+  // header
+  #trace3d_segment_grid_select_header {
+    width: 100%;
+    height: $trace3d_segment_grid_select_header_height;
+    line-height: $trace3d_segment_grid_select_header_height;
+    text-align: center;
+    //background-color: red;
+    margin: 8px;
+  }
+
+  // box
+  #trace3d_segment_grid_select_box {
+    width: $trace3d_segment_grid_select_box_width + 2 * $trace3d_segment_grid_select_border_width;
+    height: $trace3d_segment_grid_select_box_height + 2 * $trace3d_segment_grid_select_border_width;
+
+    border-style: solid;
+    border-width: $trace3d_segment_grid_select_border_width;
+    border-color: $trace3d_aluminum;
+
+    padding: 8px;
+
+    //background-color: white;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+
+    overflow: auto;
+
+    // cell
+    > div.trace3d_segment_grid_cell {
+      border: unset;
+      width: $trace3d_segment_grid_select_cell_size;
+      height: $trace3d_segment_grid_select_cell_size;
+      //background-color: transparent;
+      background-size: $trace3d_segment_grid_select_cell_size $trace3d_segment_grid_select_cell_size;
+      background-image: url(../img/dot_empty_ring.svg);
+    }
+
+    > div.trace3d_segment_grid_cell_clicked {
+      background-image: url(../img/dot_solid_disk.svg);
+    }
+
+    > div.trace3d_segment_grid_cell_unclicked {
+      background-image: url(../img/dot_empty_ring.svg);
+    }
+
+
+    //div:hover {
+    //  cursor: pointer;
+    //  background-image: url(../img/dot_solid_disk.svg);
+    //}
+  }
+
+}
+
+.trace3d_segment_grid_select_palette:hover {
+  border-width: 2px;
+  border-color: $trace3d_steel;
+  background-color: $trace3d_snow;
 }
