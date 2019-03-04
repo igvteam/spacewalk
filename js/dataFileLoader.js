@@ -1,8 +1,9 @@
+import igv from '../vendor/igv.esm.js'
 import {makeDraggable} from "./draggable.js";
 import { globalEventBus } from "./main.js";
 
 let currentFile = undefined;
-
+let currentURL = undefined;
 class DataFileLoader {
 
     constructor({ container, palette }) {
@@ -29,13 +30,14 @@ class DataFileLoader {
 
         $url_input.on('change.trace3d_data_file_load_url_input', (event) => {
             event.stopPropagation();
-            // console.log('on change - value ' + $url_input.val());
+            console.log('url on change - value ' + event.target.value);
+            currentURL = event.target.value;
         });
 
-        $('#trace3d_data_file_load_url_button').on('click.trace3d_data_file_load_url_button', () => {
+        $('#trace3d_data_file_load_url_button').on('click.trace3d_data_file_load_url_button', (event) => {
             event.stopPropagation();
-            console.log('button click - value ' + $url_input.val());
-            $url_input.val('');
+            $url_input.trigger('change.trace3d_data_file_load_url_input');
+            loadURL(currentURL);
         });
 
         // Local file
@@ -58,15 +60,14 @@ class DataFileLoader {
 
 }
 
-let layout = (container, element) => {
+const loadURL = async (path) => {
 
-    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    const elementRect = element.getBoundingClientRect();
-
-    const left = (containerRect.width - elementRect.width)/2;
-    const top = 0.25 * elementRect.height;
-    $(element).offset( { left, top } );
+    try {
+        const urlContents = await igv.xhr.load(path);
+        globalEventBus.post({ type: "DidLoadCSVFile", data: urlContents });
+    } catch (error) {
+        console.warn(error.message)
+    }
 
 };
 
@@ -98,6 +99,18 @@ const readFileAsText = file => {
 
         fileReader.readAsText(file);
     });
+};
+
+let layout = (container, element) => {
+
+    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const elementRect = element.getBoundingClientRect();
+
+    const left = (containerRect.width - elementRect.width)/2;
+    const top = 0.25 * elementRect.height;
+    $(element).offset( { left, top } );
+
 };
 
 export default DataFileLoader;
