@@ -1,5 +1,5 @@
 import { makeDraggable } from "./draggable.js";
-import { globalEventBus } from "./main.js";
+import { globalEventBus } from "./eventBus.js";
 import { randomRGB255, rgb255String } from "./color.js";
 import {numberFormatter} from "./utils.js";
 

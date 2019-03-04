@@ -1,6 +1,6 @@
 import igv from '../vendor/igv.esm.js'
 import {makeDraggable} from "./draggable.js";
-import { globalEventBus } from "./main.js";
+import { globalEventBus } from "./eventBus.js";
 
 let currentFile = undefined;
 let currentURL = undefined;

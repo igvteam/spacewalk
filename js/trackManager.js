@@ -1,5 +1,5 @@
 import * as THREE from "./threejs_es6/three.module.js";
-import { globalEventBus } from "./main.js";
+import { globalEventBus } from "./eventBus.js";
 import { numberFormatter } from './utils.js';
 import { lerp } from './math.js';
 import {appleCrayonColorThreeJS} from "./color.js";
