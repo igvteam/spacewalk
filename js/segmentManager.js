@@ -1,9 +1,14 @@
 
 class SegmentManager {
 
-    constructor () {}
+    constructor () {
+        this.path = undefined;
+    }
 
     async loadSegments({ path}) {
+
+        this.path = path;
+
         const response = await fetch(path);
         const text = await response.text();
         this.ingest(text);

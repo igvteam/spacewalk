@@ -93,17 +93,25 @@ let main = async container => {
                     segment = segmentManager.segmentWithName( data );
 
                     sceneManager.dispose();
+                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
+
                     setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
 
                 } else if ("DidLoadCSVFile" === type) {
 
-                    segmentManager.ingest(data);
+                    let { name, payload } = data;
+
+                    segmentManager.path = name;
+                    segmentManager.ingest(payload);
+
                     segment = segmentManager.segmentWithName( '1' );
 
                     // segmentSelectPalette.configure(segmentManager.segments);
                     segmentGridSelectPalette.configure(segmentManager.segments);
 
                     sceneManager.dispose();
+                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
+
                     setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
 
                 }
@@ -114,7 +122,6 @@ let main = async container => {
 
     globalEventBus.subscribe("DidSelectSegment", eventListener);
     globalEventBus.subscribe("DidLoadCSVFile", eventListener);
-
 
 };
 

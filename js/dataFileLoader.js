@@ -70,8 +70,9 @@ class DataFileLoader {
 const loadURL = async url => {
 
     try {
+        const { file } = igv.parseUri(url);
         const urlContents = await igv.xhr.load(url);
-        globalEventBus.post({ type: "DidLoadCSVFile", data: urlContents });
+        globalEventBus.post({ type: "DidLoadCSVFile", data: { name: file, payload: urlContents } });
     } catch (error) {
         console.warn(error.message)
     }
@@ -82,7 +83,7 @@ const loadFile = async file => {
 
     try {
         const fileContents = await readFileAsText(file);
-        globalEventBus.post({ type: "DidLoadCSVFile", data: fileContents });
+        globalEventBus.post({ type: "DidLoadCSVFile", data: { name: file.name, payload: fileContents } });
     } catch (e) {
         console.warn(e.message)
     }
