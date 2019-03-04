@@ -2,16 +2,17 @@ import * as THREE from './threejs_es6/three.module.js';
 import EventBus from './eventBus.js';
 import SceneManager from './sceneManager.js';
 import SegmentManager from './segmentManager.js';
-import { parsePathEncodedGenomicLocation } from './segmentManager.js';
 import CubicMapManager from "./cubicMapManager.js";
 import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
 import TrackManager from './trackManager.js';
-import BedTrack from './igv/bedTrack.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
-import SegmentSelectPalette from "./segmentSelectPalette.js";
 import SegmentGridSelectPalette from "./segmentGridSelectPalette.js";
 import DataFileLoader from "./dataFileLoader.js";
+
+import BedTrack from './igv/bedTrack.js';
+import SegmentSelectPalette from "./segmentSelectPalette.js";
+import { parsePathEncodedGenomicLocation } from './segmentManager.js';
 
 let segmentManager;
 let dataFileLoader;
@@ -27,7 +28,6 @@ let showSTMaterial;
 
 let globalEventBus = new EventBus();
 let sceneManager;
-let segmentSelectionListener;
 let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 
 let main = async container => {
@@ -76,49 +76,52 @@ let main = async container => {
     // segmentSelectPalette = new SegmentSelectPalette(container);
     segmentGridSelectPalette = new SegmentGridSelectPalette(container);
 
-    // const path = 'resource/csv/IMR90_chr21-28-30Mb.csv';
-    // const path = 'resource/csv/HCT116_chr21-34-37Mb_6h_auxin.csv';
-    const path = 'resource/csv/HCT116_chr21-34-37Mb_untreated.csv';
+    // TODO: Decide how to handle track loading
+    // await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
 
-    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(path);
+    sceneManager.defaultConfiguration();
 
-    await segmentManager.loadSegments({ path });
-
-    await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
-
-    // segmentSelectPalette.configure(segmentManager.segments);
-    segmentGridSelectPalette.configure(segmentManager.segments);
-    
     renderLoop();
 
-    segmentSelectionListener =
+    const eventListener =
         {
-            receiveEvent: async ({ type, data }) => {
+            receiveEvent: ({ type, data }) => {
+                let segment;
 
                 if ("DidSelectSegment" === type) {
 
+                    segment = segmentManager.segmentWithName( data );
+
                     sceneManager.dispose();
-                    const segment = segmentManager.segmentWithName( data );
+                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
+
                     setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
 
                 } else if ("DidLoadCSVFile" === type) {
 
-                    segmentManager.ingest(data);
+                    let { name, payload } = data;
+
+                    segmentManager.path = name;
+                    segmentManager.ingest(payload);
+
+                    segment = segmentManager.segmentWithName( '1' );
 
                     // segmentSelectPalette.configure(segmentManager.segments);
                     segmentGridSelectPalette.configure(segmentManager.segments);
 
-                    globalEventBus.post({ type: "DidSelectSegment", data: '1' });
+                    sceneManager.dispose();
+                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
+
+                    setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
 
                 }
+
 
             }
         };
 
-    globalEventBus.subscribe("DidSelectSegment", segmentSelectionListener);
-    globalEventBus.subscribe("DidLoadCSVFile", segmentSelectionListener);
-
-    globalEventBus.post({ type: "DidSelectSegment", data: '1' });
+    globalEventBus.subscribe("DidSelectSegment", eventListener);
+    globalEventBus.subscribe("DidLoadCSVFile", eventListener);
 
 };
 
