@@ -76,6 +76,27 @@ class SceneManager {
 
     }
 
+    defaultConfiguration() {
+
+        this.scene = new THREE.Scene();
+        this.scene.background = this.background;
+
+        const [ near, far, fov ] = [ 71, 22900, 35 ];
+
+        this.configureOrbitalCamera({ fov, near, far });
+
+        const cameraPosition = [ 134820, 55968, 5715 ];
+
+        const centroid = [ 133394, 54542, 4288 ];
+
+        this.poseOrbitalCamera({ position: cameraPosition, lookAt: centroid });
+
+        const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
+
+        this.configureGroundPlane({ scene: this.scene, target: centroid, size: 2 * Math.max(extentX, extentY, extentZ), color: this.groundPlaneColor });
+
+    }
+
     configure({ chr, genomicStart, genomicEnd, segmentLength, segmentExtent, cameraPosition, centroid }) {
 
         this.scene = new THREE.Scene();

@@ -2,16 +2,18 @@ import * as THREE from './threejs_es6/three.module.js';
 import EventBus from './eventBus.js';
 import SceneManager from './sceneManager.js';
 import SegmentManager from './segmentManager.js';
-import { parsePathEncodedGenomicLocation } from './segmentManager.js';
 import CubicMapManager from "./cubicMapManager.js";
 import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
 import TrackManager from './trackManager.js';
-import BedTrack from './igv/bedTrack.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
-import SegmentSelectPalette from "./segmentSelectPalette.js";
 import SegmentGridSelectPalette from "./segmentGridSelectPalette.js";
 import DataFileLoader from "./dataFileLoader.js";
+
+import BedTrack from './igv/bedTrack.js';
+import SegmentSelectPalette from "./segmentSelectPalette.js";
+import { parsePathEncodedGenomicLocation } from './segmentManager.js';
+
 
 let segmentManager;
 let dataFileLoader;
@@ -75,18 +77,10 @@ let main = async container => {
     // segmentSelectPalette = new SegmentSelectPalette(container);
     segmentGridSelectPalette = new SegmentGridSelectPalette(container);
 
-    // const path = 'resource/csv/IMR90_chr21-28-30Mb.csv';
-    // const path = 'resource/csv/HCT116_chr21-34-37Mb_6h_auxin.csv';
-    const path = 'resource/csv/HCT116_chr21-34-37Mb_untreated.csv';
+    // TODO: Decide how to handle track loading
+    // await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
 
-    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(path);
-
-    await segmentManager.loadSegments({ path });
-
-    await trackManager.buildFeatureSegmentIndices({ track: new BedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
-
-    // segmentSelectPalette.configure(segmentManager.segments);
-    segmentGridSelectPalette.configure(segmentManager.segments);
+    sceneManager.defaultConfiguration();
 
     renderLoop();
 
@@ -119,7 +113,6 @@ let main = async container => {
     globalEventBus.subscribe("DidSelectSegment", eventListener);
     globalEventBus.subscribe("DidLoadCSVFile", eventListener);
 
-    globalEventBus.post({ type: "DidSelectSegment", data: '1' });
 
 };
 
