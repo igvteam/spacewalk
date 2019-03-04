@@ -72,7 +72,7 @@ let layout = (container, element) => {
 
 const handleUpload = async (event) => {
 
-    const _e = event;
+    event.stopPropagation();
 
     try {
         const fileContents = await readFileAsText(currentFile);

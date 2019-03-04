@@ -27,7 +27,6 @@ let showSTMaterial;
 
 let globalEventBus = new EventBus();
 let sceneManager;
-let segmentSelectionListener;
 let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 
 let main = async container => {
@@ -88,18 +87,19 @@ let main = async container => {
 
     // segmentSelectPalette.configure(segmentManager.segments);
     segmentGridSelectPalette.configure(segmentManager.segments);
-    
+
     renderLoop();
 
-    segmentSelectionListener =
+    const eventListener =
         {
-            receiveEvent: async ({ type, data }) => {
+            receiveEvent: ({ type, data }) => {
+                let segment;
+
+                sceneManager.dispose();
 
                 if ("DidSelectSegment" === type) {
 
-                    sceneManager.dispose();
-                    const segment = segmentManager.segmentWithName( data );
-                    setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
+                    segment = segmentManager.segmentWithName( data );
 
                 } else if ("DidLoadCSVFile" === type) {
 
@@ -108,15 +108,16 @@ let main = async container => {
                     // segmentSelectPalette.configure(segmentManager.segments);
                     segmentGridSelectPalette.configure(segmentManager.segments);
 
-                    globalEventBus.post({ type: "DidSelectSegment", data: '1' });
-
+                    segment = segmentManager.segmentWithName( '1' );
                 }
+
+                setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
 
             }
         };
 
-    globalEventBus.subscribe("DidSelectSegment", segmentSelectionListener);
-    globalEventBus.subscribe("DidLoadCSVFile", segmentSelectionListener);
+    globalEventBus.subscribe("DidSelectSegment", eventListener);
+    globalEventBus.subscribe("DidLoadCSVFile", eventListener);
 
     globalEventBus.post({ type: "DidSelectSegment", data: '1' });
 
