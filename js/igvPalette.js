@@ -26,12 +26,15 @@ class IGVPalette {
                 genome: 'hg19',
                 locus: 'egfr',
                 showIdeogram: false,
-                showControls: false,
                 showNavigation: false
             };
         igv
             .createBrowser($('#trace3d_igv_container'), config);
 
+    }
+
+    configure({ chr, start, end }) {
+        igv.browser.goto(chr, start, end);
     }
 
     onWindowResize(container, palette) {

@@ -107,13 +107,16 @@ let main = async container => {
                     segmentManager.path = name;
                     segmentManager.ingest(payload);
 
+                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
+
+                    igvPalette.configure({ chr, start: genomicStart, end: genomicEnd });
+
                     segment = segmentManager.segmentWithName( '1' );
 
                     // segmentSelectPalette.configure(segmentManager.segments);
                     segmentGridSelectPalette.configure(segmentManager.segments);
 
                     sceneManager.dispose();
-                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
 
                     setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
 
