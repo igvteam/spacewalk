@@ -1,7 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 
-import { getMouseXY } from "./utils.js";
+import { fitToContainer, getMouseXY } from "./utils.js";
 import { lerp, quantize } from "./math.js";
 import { rgb255, rgb255Lerp, rgb255String } from "./color.js";
 
@@ -147,16 +147,5 @@ class ColorRampWidget {
     }
 
 }
-
-let fitToContainer = (canvas) => {
-
-    // Make it visually fill the positioned parent
-    canvas.style.width ='100%';
-    canvas.style.height ='100%';
-
-    // ...then set the internal size to match
-    canvas.width  = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-};
 
 export default ColorRampWidget;

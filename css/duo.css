@@ -26,7 +26,7 @@
   top: 32px;
   left: 64px;
   width: 600px;
-  height: 240px;
+  height: 120px;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -42,7 +42,15 @@
     border-bottom-style: solid;
     border-bottom-width: thin;
     border-bottom-color: #a09fa0;
-    overflow: auto; }
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: center; }
+    #trace3d_igv_palette.trace3d_tool_palette > div > div {
+      width: 100%;
+      height: 32px;
+      background-color: #ffffff; }
 
 #trace3d_data_file_load_palette.trace3d_tool_palette {
   width: 512px;
