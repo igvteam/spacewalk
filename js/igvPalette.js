@@ -43,9 +43,29 @@ class IGVPalette {
             });
     }
 
-    loadTrack(url) {
-        igv.browser.loadTrack({ url });
+    async loadTrack(url) {
+        return igv.browser.loadTrack({ url });
     }
+
+    // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
+    async buildFeatureSegmentIndices({ track, chr, genomicStart, stepSize }) {
+
+        this.featureSegmentIndices = new Set();
+
+        const features = await track.getFeatures(chr);
+
+        for (let feature of features) {
+
+            const index = Math.floor((feature.start - genomicStart) / stepSize);
+
+            const one_based = 1 + index;
+            if(index >= 0) {
+                this.featureSegmentIndices.add(one_based);
+            }
+        }
+
+    }
+
 
     configure({ chr, start, end }) {
         igv.browser.goto(chr, start, end);

@@ -10,7 +10,7 @@ import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor
 import SegmentGridSelectPalette from "./segmentGridSelectPalette.js";
 import DataFileLoader from "./dataFileLoader.js";
 
-import MinimalBedTrack from './igv/minimalBedTrack.js';
+import MinimalBedTrack from './minimalBedTrack.js';
 import SegmentSelectPalette from "./segmentSelectPalette.js";
 import { parsePathEncodedGenomicLocation } from './segmentManager.js';
 import IGVPalette from "./igvPalette.js";
@@ -78,7 +78,7 @@ let main = async container => {
 
     const igvBrowser = await igvPalette.createBrowser($('#trace3d_igv_container'));
 
-    igvPalette.loadTrack('https://www.dropbox.com/s/rt13nc8tkbscusm/IMR-90_CTCF_27-31.bed?dl=0');
+    const track = await igvPalette.loadTrack('https://www.dropbox.com/s/rt13nc8tkbscusm/IMR-90_CTCF_27-31.bed?dl=0');
 
     // segmentSelectPalette = new SegmentSelectPalette(container);
     segmentGridSelectPalette = new SegmentGridSelectPalette(container);
