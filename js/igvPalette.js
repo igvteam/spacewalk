@@ -21,16 +21,24 @@ class IGVPalette {
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
+    }
+
+    async createBrowser($container) {
+
         const config =
             {
                 genome: 'hg19',
-                locus: 'egfr',
+                locus: 'all',
+                showTrackLabels: false,
                 showIdeogram: false,
                 showNavigation: false
             };
-        igv
-            .createBrowser($('#trace3d_igv_container'), config);
 
+        return igv.createBrowser($container, config);
+    }
+
+    loadTrack(url) {
+        igv.browser.loadTrack({ url });
     }
 
     configure({ chr, start, end }) {

@@ -40,7 +40,8 @@
     border-top-color: #a09fa0;
     border-bottom-style: solid;
     border-bottom-width: thin;
-    border-bottom-color: #a09fa0; }
+    border-bottom-color: #a09fa0;
+    overflow: auto; }
 
 #trace3d_data_file_load_palette.trace3d_tool_palette {
   width: 512px;
