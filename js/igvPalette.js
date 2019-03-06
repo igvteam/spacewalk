@@ -84,7 +84,7 @@ let layout = (container, element) => {
     const elementRect = element.getBoundingClientRect();
 
     const left = (containerRect.width - elementRect.width)/2;
-    const top = containerRect.height - (1.5 * elementRect.height);
+    const top = containerRect.height - (1.25 * elementRect.height);
     $(element).offset( { left, top } );
 
 };

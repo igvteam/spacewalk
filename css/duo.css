@@ -31,7 +31,8 @@
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: space-around;
-  align-items: center; }
+  align-items: center;
+  background-color: #ffffff; }
   #trace3d_igv_palette.trace3d_tool_palette > div {
     width: 100%;
     height: calc(100% - (2 * 8px));
@@ -53,6 +54,10 @@
   align-items: center; }
   #trace3d_data_file_load_palette.trace3d_tool_palette .form-group {
     margin: 8px; }
+  #trace3d_data_file_load_palette.trace3d_tool_palette .spinner-border {
+    margin-left: 8px;
+    margin-right: 8px;
+    color: #6e6e6e; }
   #trace3d_data_file_load_palette.trace3d_tool_palette > div {
     height: 100%;
     width: 100%; }

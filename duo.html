@@ -101,12 +101,15 @@
                 <div id="trace3d_data_file_load_palette" class="trace3d_tool_palette">
 
                     <!-- first child -->
-                    <div id="trace3d_first_div">
+                    <div id="trace3d_data_file_load_url_container">
 
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <button id="trace3d_data_file_load_url_button" class="btn btn-outline-secondary" type="button">Load URL</button>
+                                </div>
+                                <div class="spinner-border" style="display: none;">
+                                    <!-- spinner -->
                                 </div>
                                 <input id="trace3d_data_file_load_url_input" class="form-control" type="text" placeholder="Enter CSV URL">
                             </div>
@@ -115,12 +118,12 @@
                     </div>
 
                     <!-- second child -->
-                    <div id="trace3d_last_div">
+                    <div id="trace3d_data_file_load_local_file_container">
 
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <button id="trace3d_data_file_load_local_button" class="btn btn-outline-secondary" type="button">Load File</button>
+                                    <button id="trace3d_data_file_load_local_file_button" class="btn btn-outline-secondary" type="button">Load File</button>
                                 </div>
                                 <div class="custom-file">
                                     <input class="custom-file-input" id="trace3d_data_file_load_local_file_input" type="file">

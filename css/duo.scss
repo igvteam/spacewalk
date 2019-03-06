@@ -76,6 +76,8 @@ $trace3d_igv_palette_height: 2 * $trace3d_igv_palette_dimension;
   justify-content: space-around;
   align-items: center;
 
+  background-color: $trace3d_snow;
+
   > div {
     width: 100%;
     height: calc(100% - (2 * #{$trace3d_border_radius}));
@@ -106,6 +108,12 @@ $trace3d_igv_palette_height: 2 * $trace3d_igv_palette_dimension;
 
   .form-group {
     margin: 8px;
+  }
+
+  .spinner-border {
+    margin-left: 8px;
+    margin-right: 8px;
+    color: $trace3d_steel;
   }
 
   > div {
