@@ -44,19 +44,24 @@ class IGVPalette {
     }
 
     async loadTrack(url) {
-        return igv.browser.loadTrack({ url });
+        this.track = await igv.browser.loadTrack({ url });
+    }
+
+    configure({ chr, start, end }) {
+        igv.browser.goto(chr, start, end);
     }
 
     // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
-    async buildFeatureSegmentIndices({ track, chr, genomicStart, stepSize }) {
+    async buildFeatureSegmentIndices({ chr, start, end, stepSize }) {
 
         this.featureSegmentIndices = new Set();
 
-        const features = await track.getFeatures(chr);
+        const bpp = igv.browser.genomicStateList[ 0 ].referenceFrame.bpPerPixel;
+        const features = await this.track.getFeatures(chr, start, end, bpp);
 
         for (let feature of features) {
 
-            const index = Math.floor((feature.start - genomicStart) / stepSize);
+            const index = Math.floor((feature.start - start) / stepSize);
 
             const one_based = 1 + index;
             if(index >= 0) {
@@ -64,11 +69,6 @@ class IGVPalette {
             }
         }
 
-    }
-
-
-    configure({ chr, start, end }) {
-        igv.browser.goto(chr, start, end);
     }
 
     onWindowResize(container, palette) {

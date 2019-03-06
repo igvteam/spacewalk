@@ -83,16 +83,13 @@ let main = async container => {
     // segmentSelectPalette = new SegmentSelectPalette(container);
     segmentGridSelectPalette = new SegmentGridSelectPalette(container);
 
-    // TODO: Decide how to handle track loading
-    // await trackManager.buildFeatureSegmentIndices({ track: new MinimalBedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
-
     sceneManager.defaultConfiguration();
 
     renderLoop();
 
     const eventListener =
         {
-            receiveEvent: ({ type, data }) => {
+            receiveEvent: async ({ type, data }) => {
                 let segment;
 
                 if ("DidSelectSegment" === type) {
@@ -114,6 +111,8 @@ let main = async container => {
                     [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
 
                     igvPalette.configure({ chr, start: genomicStart, end: genomicEnd });
+
+                    await igvPalette.buildFeatureSegmentIndices({ chr, start: genomicStart, end: genomicEnd, stepSize: segmentManager.stepSize });
 
                     segment = segmentManager.segmentWithName( '1' );
 
