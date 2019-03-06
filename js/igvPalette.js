@@ -7,7 +7,7 @@ class IGVPalette {
 
         layout(container, palette);
 
-        // makeDraggable(palette, palette);
+        makeDraggable(palette, palette);
 
         $(window).on('resize.trace3d.trace3d_igv_palette', () => { this.onWindowResize(container, palette) });
 
@@ -34,7 +34,13 @@ class IGVPalette {
                 showNavigation: false
             };
 
-        return igv.createBrowser($container, config);
+        return igv
+            .createBrowser($container, config)
+            .then((browser) => {
+                $(browser.trackContainerDiv).off();
+                const noop = () => {};
+                browser.cancelTrackPan = browser.startTrackDrag = browser.updateTrackDrag = browser.endTrackDrag = noop;
+            });
     }
 
     loadTrack(url) {
