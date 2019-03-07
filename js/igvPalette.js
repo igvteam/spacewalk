@@ -63,18 +63,19 @@ class IGVPalette {
 
     }
 
-    async loadTrackViaTrackFactory({genomeID, url}) {
+    async loadLowLevelTrack({ genomeID, url }) {
 
         if (undefined === this.genome) {
             this.genome = await this.createGenome(genomeID);
         }
 
-        let config = { url };
+        let config = { url, height: this.ctx.canvas.offsetHeight };
 
         // NOTE: config is edited in place!
         igv.inferTrackTypes(config);
 
-        this.track = igv.trackFactory["feature"](config, { genome: this.genome, genomicStateList: [ {} ]});
+        this.track = igv.createLowLevelTrack(config, { genome: this.genome, genomicStateList: [ {} ]});
+
         return this.track;
     }
 
@@ -101,7 +102,7 @@ class IGVPalette {
 
     render({ track, features, start, end }) {
 
-        // this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('honeydew'));
+        track.dataRange = igv.doAutoscale(features);
 
         const config =
             {
@@ -119,6 +120,8 @@ class IGVPalette {
         track.draw(config);
 
         /*
+        this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('honeydew'));
+
         this.ctx.fillRect(0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight);
 
         for (let feature of features) {
@@ -140,7 +143,7 @@ class IGVPalette {
 
     }
 
-    goto({chr, start, end}) {
+    goto({ chr, start, end }) {
 
         this.bpp = (end - start) / this.ctx.canvas.offsetWidth;
         this.referenceFrame = new igv.ReferenceFrame(this.genome, chr, start, end, this.bpp);
@@ -210,7 +213,7 @@ class IGVPalette {
 
         if ('' !== url) {
             $spinner.show();
-            const track = await this.loadTrackViaTrackFactory({ genomeID: 'hg38', url });
+            const track = await this.loadLowLevelTrack({genomeID: 'hg38', url});
             $spinner.hide();
         }
 
