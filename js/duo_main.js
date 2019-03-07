@@ -77,9 +77,9 @@ let main = async container => {
     igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
 
     // const igvBrowser = await igvPalette.createBrowser($('#trace3d_igv_container'));
-
     // const track = await igvPalette.loadTrack('https://www.dropbox.com/s/rt13nc8tkbscusm/IMR-90_CTCF_27-31.bed?dl=0');
-    const track = await igvPalette.loadNakedTrack('https://www.dropbox.com/s/rt13nc8tkbscusm/IMR-90_CTCF_27-31.bed?dl=0');
+
+    const track = await igvPalette.loadLowLevelTrack('https://www.dropbox.com/s/rt13nc8tkbscusm/IMR-90_CTCF_27-31.bed?dl=0');
 
     // segmentSelectPalette = new SegmentSelectPalette(container);
     segmentGridSelectPalette = new SegmentGridSelectPalette(container);

@@ -35,12 +35,26 @@ class IGVPalette {
 
     }
 
-    async loadNakedTrack(url) {
+    async loadLowLevelTrack(url) {
+
+        if (undefined === this.genome) {
+            this.genome = await this.createGenome('hg19');
+        }
 
         let config = { url };
         igv.inferTrackTypes(config);
-        this.track = igv.trackFactory["feature"](config, { genome: 'hg19' });
+        this.track = igv.trackFactory["feature"](config, this.genome);
         return this.track;
+    }
+
+    async createGenome(genomeID) {
+
+        // TODO: This is necessary otherwise igv.GenomeUtils.genomeList is undefined if browser is not created.
+        igv.GenomeUtils.genomeList = "https://s3.amazonaws.com/igv.org.genomes/genomes.json";
+
+        const config = await igv.GenomeUtils.expandReference(genomeID);
+        const genome = await igv.GenomeUtils.loadGenome(config);
+        return genome;
     }
 
     // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
