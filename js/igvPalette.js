@@ -5,6 +5,8 @@ import { fitToContainer, getMouseXY } from "./utils.js";
 import { clamp } from "./math.js";
 import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 
+let currentURL = undefined;
+
 class IGVPalette {
 
     constructor ({ container, palette }) {
@@ -20,7 +22,6 @@ class IGVPalette {
             onCanvasMouseMove(canvas, event)
         });
 
-
         $(window).on('resize.trace3d.trace3d_igv_palette', () => { this.onWindowResize(container, palette) });
 
         $(palette).on('mouseenter.trace3d.trace3d_igv_palette', (event) => {
@@ -33,13 +34,36 @@ class IGVPalette {
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
+
+        // URL
+        const $url_input = $('#trace3d_igv_palette_url_input');
+        $url_input.val('');
+
+        const $url_button = $('#trace3d_igv_palette_url_button');
+
+        $url_input.on('change.trace3d_igv_palette_url_input', (event) => {
+            event.stopPropagation();
+            // console.log('url on change - value ' + event.target.value);
+            currentURL = event.target.value;
+        });
+
+        const $url_container = $('#trace3d_igv_container');
+
+        $url_button.on('click.trace3d_igv_palette_url_button', (event) => {
+            event.stopPropagation();
+            $url_input.trigger('change.trace3d_igv_palette_url_input');
+            this.loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border')});
+            $url_input.val('');
+            currentURL = undefined;
+        });
+
         layout(container, palette);
 
         makeDraggable(palette, palette);
 
     }
 
-    async loadLowLevelTrack({ genomeID, url }) {
+    async loadTrackViaTrackFactory({genomeID, url}) {
 
         if (undefined === this.genome) {
             this.genome = await this.createGenome(genomeID);
@@ -179,6 +203,19 @@ class IGVPalette {
         });
 
     }
+
+    async loadURL({ url, $spinner }){
+
+        url = url || '';
+
+        if ('' !== url) {
+            $spinner.show();
+            const track = await this.loadTrackViaTrackFactory({ genomeID: 'hg38', url });
+            $spinner.hide();
+        }
+
+    };
+
 
     onWindowResize(container, palette) {
         layout(container, palette);

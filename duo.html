@@ -93,11 +93,25 @@
                     <!-- igvjs container -->
                     <div id="trace3d_igv_container">
 
+                        <!-- url loader -->
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <button id="trace3d_igv_palette_url_button" class="btn btn-outline-secondary" type="button">Load URL</button>
+                                </div>
+                                <div class="spinner-border" style="display: none;">
+                                    <!-- spinner -->
+                                </div>
+                                <input id="trace3d_igv_palette_url_input" class="form-control" type="text" placeholder="Enter Track URL">
+                            </div>
+                        </div>
+
                         <!-- track container -->
                         <div id="trace3d_igv_track_container">
 
                             <!-- track canvas -->
                             <canvas></canvas>
+
                         </div>
 
                     </div>

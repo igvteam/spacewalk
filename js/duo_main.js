@@ -80,7 +80,7 @@ let main = async container => {
     // const url = 'https://www.encodeproject.org/files/ENCFF722EUH/@@download/ENCFF722EUH.bigWig';
     // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
     // const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
-    const track = await igvPalette.loadLowLevelTrack({ genomeID: 'hg38', url });
+    const track = await igvPalette.loadTrackViaTrackFactory({genomeID: 'hg38', url});
 
     // segmentSelectPalette = new SegmentSelectPalette(container);
     segmentGridSelectPalette = new SegmentGridSelectPalette(container);
