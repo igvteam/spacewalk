@@ -14,7 +14,7 @@ class IGVPalette {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
 
-        this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('salmon'));
+        this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('honeydew'));
         this.ctx.fillRect(0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight);
 
         $(window).on('resize.trace3d.trace3d_igv_palette', () => { this.onWindowResize(container, palette) });
@@ -32,54 +32,6 @@ class IGVPalette {
         layout(container, palette);
 
         makeDraggable(palette, palette);
-
-    }
-
-    async loadLowLevelTrack(url) {
-
-        if (undefined === this.genome) {
-            this.genome = await this.createGenome('hg19');
-        }
-
-        let config = { url };
-        igv.inferTrackTypes(config);
-        this.track = igv.trackFactory["feature"](config, this.genome);
-        return this.track;
-    }
-
-    async createGenome(genomeID) {
-
-        // TODO: This is necessary otherwise igv.GenomeUtils.genomeList is undefined if browser is not created.
-        igv.GenomeUtils.genomeList = "https://s3.amazonaws.com/igv.org.genomes/genomes.json";
-
-        const config = await igv.GenomeUtils.expandReference(genomeID);
-        const genome = await igv.GenomeUtils.loadGenome(config);
-        return genome;
-    }
-
-    // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
-    async buildFeatureSegmentIndices({ chr, start, end, stepSize }) {
-
-        this.featureSegmentIndices = new Set();
-
-        const bpp = (end - start) / this.ctx.canvas.offsetWidth;
-        const features = await this.track.getFeatures(chr, start, end, bpp);
-
-        for (let feature of features) {
-
-            const index = Math.floor((feature.start - start) / stepSize);
-
-            const one_based = 1 + index;
-            if(index >= 0) {
-                this.featureSegmentIndices.add(one_based);
-            }
-        }
-
-    }
-
-    configure({ chr, start, end }) {
-
-        igv.browser.goto(chr, start, end);
 
     }
 
@@ -125,6 +77,83 @@ class IGVPalette {
         $(canvas).on('mousemove.trace3d.igvpalette.track', (event) => {
             this.onContainerMouseMove(event)
         });
+
+    }
+
+    async loadLowLevelTrack(url) {
+
+        if (undefined === this.genome) {
+            this.genome = await this.createGenome('hg19');
+        }
+
+        let config = { url };
+        igv.inferTrackTypes(config);
+        this.track = igv.trackFactory["feature"](config, this.genome);
+        return this.track;
+    }
+
+    async createGenome(genomeID) {
+
+        // TODO: This is necessary otherwise igv.GenomeUtils.genomeList is undefined if browser is not created.
+        igv.GenomeUtils.genomeList = "https://s3.amazonaws.com/igv.org.genomes/genomes.json";
+
+        const config = await igv.GenomeUtils.expandReference(genomeID);
+        const genome = await igv.GenomeUtils.loadGenome(config);
+        return genome;
+    }
+
+    // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
+    async buildFeatureSegmentIndices({ chr, start, end, stepSize }) {
+
+        this.featureSegmentIndices = new Set();
+
+        const features = await this.track.getFeatures(chr, start, end, this.bpp);
+
+        for (let feature of features) {
+
+            const index = Math.floor((feature.start - start) / stepSize);
+
+            const one_based = 1 + index;
+            if(index >= 0) {
+                this.featureSegmentIndices.add(one_based);
+            }
+        }
+
+        this.render({ features, start, end });
+
+    }
+
+    render({ features, start, end }) {
+
+        this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('honeydew'));
+        this.ctx.fillRect(0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight);
+
+        for (let feature of features) {
+
+            if (feature.end < start || feature.start > end) {
+                // do nothing
+            } else {
+
+                const xs = Math.round(this.referenceFrame.toPixels(feature.start - start));
+                const xe = Math.round(this.referenceFrame.toPixels(feature.end - start));
+                const width = Math.max(1, (xe - xs));
+
+                this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('salmon'));
+                this.ctx.fillRect(xs, 0, width, this.ctx.canvas.offsetHeight);
+            }
+
+        }
+
+    }
+
+    goto({chr, start, end}) {
+
+        this.bpp = (end - start) / this.ctx.canvas.offsetWidth;
+        this.referenceFrame = new igv.ReferenceFrame(this.genome, chr, start, end, this.bpp);
+
+        if (igv.browser) {
+            igv.browser.goto(chr, start, end);
+        }
 
     }
 

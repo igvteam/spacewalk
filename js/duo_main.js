@@ -79,7 +79,8 @@ let main = async container => {
     // const igvBrowser = await igvPalette.createBrowser($('#trace3d_igv_container'));
     // const track = await igvPalette.loadTrack('https://www.dropbox.com/s/rt13nc8tkbscusm/IMR-90_CTCF_27-31.bed?dl=0');
 
-    const track = await igvPalette.loadLowLevelTrack('https://www.dropbox.com/s/rt13nc8tkbscusm/IMR-90_CTCF_27-31.bed?dl=0');
+    const track = await igvPalette.loadLowLevelTrack('https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig');
+    // const track = await igvPalette.loadLowLevelTrack('https://www.dropbox.com/s/rt13nc8tkbscusm/IMR-90_CTCF_27-31.bed?dl=0');
 
     // segmentSelectPalette = new SegmentSelectPalette(container);
     segmentGridSelectPalette = new SegmentGridSelectPalette(container);
@@ -111,7 +112,7 @@ let main = async container => {
 
                     [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
 
-                    // igvPalette.configure({ chr, start: genomicStart, end: genomicEnd });
+                    igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
 
                     await igvPalette.buildFeatureSegmentIndices({ chr, start: genomicStart, end: genomicEnd, stepSize: segmentManager.stepSize });
 
