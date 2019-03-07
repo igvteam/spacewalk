@@ -14,8 +14,8 @@ class IGVPalette {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
 
-        this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('honeydew'));
-        this.ctx.fillRect(0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight);
+        // this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('honeydew'));
+        // this.ctx.fillRect(0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight);
 
         $(window).on('resize.trace3d.trace3d_igv_palette', () => { this.onWindowResize(container, palette) });
 
@@ -91,7 +91,7 @@ class IGVPalette {
         // NOTE: config is edited in place!
         igv.inferTrackTypes(config);
 
-        this.track = igv.trackFactory["feature"](config, this.genome);
+        this.track = igv.trackFactory["feature"](config, { genome: this.genome, genomicStateList: [ {} ]});
         return this.track;
     }
 
@@ -122,13 +122,30 @@ class IGVPalette {
             }
         }
 
-        this.render({ features, start, end });
+        this.render({ track: this.track, features, start, end });
 
     }
 
-    render({ features, start, end }) {
+    render({ track, features, start, end }) {
 
-        this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('honeydew'));
+        // this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('honeydew'));
+
+        const config =
+            {
+                features: features,
+                context: this.ctx,
+                bpPerPixel: this.bpp,
+                bpStart: start,
+                pixelWidth: this.ctx.canvas.offsetWidth,
+                pixelHeight: this.ctx.canvas.offsetHeight,
+                viewportContainerX: 0,
+                viewportContainerWidth: this.ctx.canvas.offsetWidth,
+                genomicState: {}
+            };
+
+        track.draw(config);
+
+        /*
         this.ctx.fillRect(0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight);
 
         for (let feature of features) {
@@ -146,6 +163,7 @@ class IGVPalette {
             }
 
         }
+        */
 
     }
 
