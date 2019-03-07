@@ -2,9 +2,11 @@ import igv from '../vendor/igv.esm.js'
 import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./eventBus.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
+import { clamp } from "./math.js";
 import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 
 class IGVPalette {
+
     constructor ({ container, palette }) {
 
         const canvas = $('#trace3d_igv_track_container').find('canvas').get(0);
@@ -14,8 +16,10 @@ class IGVPalette {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
 
-        // this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('honeydew'));
-        // this.ctx.fillRect(0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight);
+        $(container).on('mousemove.trace3d.trace3d_igv_track_canvas', (event) => {
+            onCanvasMouseMove(canvas, event)
+        });
+
 
         $(window).on('resize.trace3d.trace3d_igv_palette', () => { this.onWindowResize(container, palette) });
 
@@ -35,51 +39,6 @@ class IGVPalette {
 
     }
 
-    async createBrowser($container) {
-
-        const config =
-            {
-                genome: 'hg19',
-                locus: 'all',
-                showTrackLabels: false,
-                showIdeogram: false,
-                showNavigation: false
-            };
-
-        return igv
-            .createBrowser($container, config)
-            .then((browser) => {
-                // $(browser.trackContainerDiv).off();
-                // const noop = () => {};
-                // browser.cancelTrackPan = browser.startTrackDrag = browser.updateTrackDrag = browser.endTrackDrag = noop;
-            });
-    }
-
-    async loadTrack(url) {
-
-        this.track = await igv.browser.loadTrack({ url });
-
-        igv.browser.$root.off();
-
-        $(igv.browser.trackContainerDiv).off();
-
-        for (let trackView of igv.browser.trackViews) {
-            for (let viewport of trackView.viewports) {
-                viewport.$viewport.off();
-            }
-        }
-
-        // discard canvas mouse handlers
-        const canvas = this.track.trackView.viewports[ 0 ].canvas;
-        $(canvas).off();
-
-        // add canvas mouse handler
-        $(canvas).on('mousemove.trace3d.igvpalette.track', (event) => {
-            this.onContainerMouseMove(event)
-        });
-
-    }
-
     async loadLowLevelTrack({ genomeID, url }) {
 
         if (undefined === this.genome) {
@@ -93,16 +52,6 @@ class IGVPalette {
 
         this.track = igv.trackFactory["feature"](config, { genome: this.genome, genomicStateList: [ {} ]});
         return this.track;
-    }
-
-    async createGenome(genomeID) {
-
-        // TODO: This is necessary otherwise igv.GenomeUtils.genomeList is undefined if browser is not created.
-        igv.GenomeUtils.genomeList = "https://s3.amazonaws.com/igv.org.genomes/genomes.json";
-
-        const config = await igv.GenomeUtils.expandReference(genomeID);
-        const genome = await igv.GenomeUtils.loadGenome(config);
-        return genome;
     }
 
     // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
@@ -178,16 +127,75 @@ class IGVPalette {
 
     }
 
+    async createGenome(genomeID) {
+
+        // TODO: This is necessary otherwise igv.GenomeUtils.genomeList is undefined if browser is not created.
+        igv.GenomeUtils.genomeList = "https://s3.amazonaws.com/igv.org.genomes/genomes.json";
+
+        const config = await igv.GenomeUtils.expandReference(genomeID);
+        const genome = await igv.GenomeUtils.loadGenome(config);
+        return genome;
+    }
+
+    async createBrowser($container) {
+
+        const config =
+            {
+                genome: 'hg19',
+                locus: 'all',
+                showTrackLabels: false,
+                showIdeogram: false,
+                showNavigation: false
+            };
+
+        return igv
+            .createBrowser($container, config)
+            .then((browser) => {
+                console.log('browser good to go')
+            });
+    }
+
+    async loadTrack(url) {
+
+        this.track = await igv.browser.loadTrack({ url });
+
+        igv.browser.$root.off();
+
+        $(igv.browser.trackContainerDiv).off();
+
+        for (let trackView of igv.browser.trackViews) {
+            for (let viewport of trackView.viewports) {
+                viewport.$viewport.off();
+            }
+        }
+
+        // discard canvas mouse handlers
+        const canvas = this.track.trackView.viewports[ 0 ].canvas;
+        $(canvas).off();
+
+        // add canvas mouse handler
+        $(canvas).on('mousemove.trace3d.igvpalette.track', (event) => {
+            this.onCanvasMouseMove(undefined, event)
+        });
+
+    }
+
     onWindowResize(container, palette) {
         layout(container, palette);
     };
 
-    onContainerMouseMove(event){
-        const { x, y } = getMouseXY(this.renderer.domElement, event);
-        console.log('canvas x ' + x + ' y ' + y);
-    };
-
 }
+
+let onCanvasMouseMove = (canvas, event) => {
+
+    let { x, y } = getMouseXY(canvas, event);
+
+    if (y < 0 || y > canvas.offsetHeight) {
+        // do nothing
+    } else {
+        console.log(Date.now() + ' canvas x ' + x + ' y ' + y);
+    }
+};
 
 let layout = (container, element) => {
 

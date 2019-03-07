@@ -32,12 +32,12 @@ class DataFileLoader {
 
         $url_input.on('change.trace3d_data_file_load_url_input', (event) => {
             event.stopPropagation();
-            console.log('url on change - value ' + event.target.value);
+            // console.log('url on change - value ' + event.target.value);
             currentURL = event.target.value;
         });
 
         const $url_container = $('#trace3d_data_file_load_url_container');
-        
+
         $url_button.on('click.trace3d_data_file_load_url_button', (event) => {
             event.stopPropagation();
             $url_input.trigger('change.trace3d_data_file_load_url_input');
@@ -58,7 +58,7 @@ class DataFileLoader {
 
         $file_input.on('change.trace3d_data_file_load_local_file_input', (event) => {
             event.stopPropagation();
-            console.log('file on change - value ' + event.target.value);
+            // console.log('file on change - value ' + event.target.value);
             $file_label.text(event.target.files[0].name);
             currentFile = event.target.files[0];
             $file_button.prop('disabled', false);
@@ -87,15 +87,15 @@ const loadURL = async ({ url, $spinner }) => {
     if ('' !== url) {
 
         try {
-            
+
             const { file } = igv.parseUri(url);
 
             $spinner.show();
             const urlContents = await igv.xhr.load(url);
             $spinner.hide();
-            
+
             globalEventBus.post({ type: "DidLoadCSVFile", data: { name: file, payload: urlContents } });
-            
+
         } catch (error) {
             console.warn(error.message)
         }

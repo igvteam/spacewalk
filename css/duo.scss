@@ -101,7 +101,22 @@ $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
     > div {
       width: 100%;
       height: 32px;
+
+      border-top-style: solid;
+      border-top-width: thin;
+      border-top-color: $trace3d_aluminum;
+
+      border-bottom-style: solid;
+      border-bottom-width: thin;
+      border-bottom-color: $trace3d_aluminum;
+
       background-color: $trace3d_snow;
+
+      // track canvas
+      > canvas {
+        cursor: pointer;
+      }
+
     }
   }
 
