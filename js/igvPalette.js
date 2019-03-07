@@ -80,14 +80,17 @@ class IGVPalette {
 
     }
 
-    async loadLowLevelTrack(url) {
+    async loadLowLevelTrack({ genomeID, url }) {
 
         if (undefined === this.genome) {
-            this.genome = await this.createGenome('hg19');
+            this.genome = await this.createGenome(genomeID);
         }
 
         let config = { url };
+
+        // NOTE: config is edited in place!
         igv.inferTrackTypes(config);
+
         this.track = igv.trackFactory["feature"](config, this.genome);
         return this.track;
     }
