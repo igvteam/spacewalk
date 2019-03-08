@@ -49,10 +49,10 @@ class IGVPalette {
 
         const $url_container = $('#trace3d_igv_container');
 
-        $url_button.on('click.trace3d_igv_palette_url_button', (event) => {
+        $url_button.on('click.trace3d_igv_palette_url_button', async (event) => {
             event.stopPropagation();
             $url_input.trigger('change.trace3d_igv_palette_url_input');
-            this.loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border')});
+            await this.loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border')});
             $url_input.val('');
             currentURL = undefined;
         });
@@ -79,25 +79,20 @@ class IGVPalette {
         return this.track;
     }
 
-    // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
-    async buildFeatureSegmentIndices({ chr, start, end, stepSize }) {
+    async gotoDefaultLocus() {
+        await this.goto({ chr:'chr21', start:28e6, end:30e6 });
+    }
 
-        this.featureSegmentIndices = new Set();
+    async goto({ chr, start, end }) {
+
+        this.locus = { chr, start, end };
+
+        this.bpp = (end - start) / this.ctx.canvas.offsetWidth;
+        this.referenceFrame = new igv.ReferenceFrame(this.genome, chr, start, end, this.bpp);
 
         const features = await this.track.getFeatures(chr, start, end, this.bpp);
 
-        for (let feature of features) {
-
-            const index = Math.floor((feature.start - start) / stepSize);
-
-            const one_based = 1 + index;
-            if(index >= 0) {
-                this.featureSegmentIndices.add(one_based);
-            }
-        }
-
         this.render({ track: this.track, features, start, end });
-
     }
 
     render({ track, features, start, end }) {
@@ -117,40 +112,33 @@ class IGVPalette {
                 genomicState: {}
             };
 
-        this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('snow'));
+        igv.graphics.fillRect(this.ctx, 0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight, { fillStyle: rgb255String(appleCrayonColorRGB255('snow')) });
+
         track.draw(config);
-
-        /*
-        this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('honeydew'));
-
-        this.ctx.fillRect(0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight);
-
-        for (let feature of features) {
-
-            if (feature.end < start || feature.start > end) {
-                // do nothing
-            } else {
-
-                const xs = Math.round(this.referenceFrame.toPixels(feature.start - start));
-                const xe = Math.round(this.referenceFrame.toPixels(feature.end - start));
-                const width = Math.max(1, (xe - xs));
-
-                this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('salmon'));
-                this.ctx.fillRect(xs, 0, width, this.ctx.canvas.offsetHeight);
-            }
-
-        }
-        */
 
     }
 
-    goto({ chr, start, end }) {
+    async repaint() {
+        const { chr, start, end } = this.locus;
+        const features = await this.track.getFeatures(chr, start, end, this.bpp);
+        this.render({ track: this.track, features, start, end });
+    }
 
-        this.bpp = (end - start) / this.ctx.canvas.offsetWidth;
-        this.referenceFrame = new igv.ReferenceFrame(this.genome, chr, start, end, this.bpp);
+    // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
+    async buildFeatureSegmentIndices({ chr, start, end, stepSize }) {
 
-        if (igv.browser) {
-            igv.browser.goto(chr, start, end);
+        this.featureSegmentIndices = new Set();
+
+        const features = await this.track.getFeatures(chr, start, end, this.bpp);
+
+        for (let feature of features) {
+
+            const index = Math.floor((feature.start - start) / stepSize);
+
+            const one_based = 1 + index;
+            if(index >= 0) {
+                this.featureSegmentIndices.add(one_based);
+            }
         }
 
     }
@@ -183,7 +171,24 @@ class IGVPalette {
             });
     }
 
-    async loadTrack(url) {
+    async loadURL({ url, $spinner }){
+
+        url = url || '';
+
+        if ('' !== url) {
+            $spinner.show();
+            await this.loadLowLevelTrack({genomeID: 'hg38', url});
+            await this.repaint();
+            $spinner.hide();
+        }
+
+    };
+
+    onWindowResize(container, palette) {
+        layout(container, palette);
+    };
+
+    async DEPRICATED_loadTrack(url) {
 
         this.track = await igv.browser.loadTrack({ url });
 
@@ -207,22 +212,6 @@ class IGVPalette {
         });
 
     }
-
-    async loadURL({ url, $spinner }){
-
-        url = url || '';
-
-        if ('' !== url) {
-            $spinner.show();
-            const track = await this.loadLowLevelTrack({genomeID: 'hg38', url});
-            $spinner.hide();
-        }
-
-    };
-
-    onWindowResize(container, palette) {
-        layout(container, palette);
-    };
 
 }
 

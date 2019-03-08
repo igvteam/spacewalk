@@ -45,6 +45,10 @@
       width: 95%;
       margin-top: 8px;
       margin-bottom: 8px; }
+    #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container .spinner-border {
+      margin-left: 8px;
+      margin-right: 8px;
+      color: #6e6e6e; }
     #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container > div#trace3d_igv_track_container {
       width: 95%;
       height: 36px;

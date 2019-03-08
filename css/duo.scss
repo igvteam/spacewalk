@@ -102,6 +102,12 @@ $trace3d_color_ramp_width: 36px;
       margin-bottom: 8px;
     }
 
+    .spinner-border {
+      margin-left: 8px;
+      margin-right: 8px;
+      color: $trace3d_steel;
+    }
+
     // track container
     > div#trace3d_igv_track_container {
       width: 95%;
