@@ -69,12 +69,18 @@ class IGVPalette {
             this.genome = await this.createGenome(genomeID);
         }
 
-        let config = { url, height: this.ctx.canvas.offsetHeight };
+        let config =
+            {
+                url,
+                height: this.ctx.canvas.offsetHeight,
+                color: rgb255String(appleCrayonColorRGB255('aqua'))
+            };
 
         // NOTE: config is edited in place!
         igv.inferTrackTypes(config);
 
         this.track = igv.createLowLevelTrack(config, { genome: this.genome, genomicStateList: [ {} ]});
+        // this.track.color = rgb255String(appleCrayonColorRGB255('salmon'));
 
         return this.track;
     }
