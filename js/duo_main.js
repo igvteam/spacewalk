@@ -10,7 +10,6 @@ import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor
 import SegmentGridSelectPalette from "./segmentGridSelectPalette.js";
 import DataFileLoader from "./dataFileLoader.js";
 
-import MinimalBedTrack from './minimalBedTrack.js';
 import SegmentSelectPalette from "./segmentSelectPalette.js";
 import { parsePathEncodedGenomicLocation } from './segmentManager.js';
 import IGVPalette from "./igvPalette.js";
