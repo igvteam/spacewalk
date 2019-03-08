@@ -73,7 +73,9 @@ class IGVPalette {
             {
                 url,
                 height: this.ctx.canvas.offsetHeight,
-                color: rgb255String(appleCrayonColorRGB255('aqua'))
+                featureHeight: this.ctx.canvas.offsetHeight,
+                margin: 0,
+                color: rgb255String(appleCrayonColorRGB255('midnight'))
             };
 
         // NOTE: config is edited in place!
