@@ -80,7 +80,6 @@ class IGVPalette {
         igv.inferTrackTypes(config);
 
         this.track = igv.createLowLevelTrack(config, { genome: this.genome, genomicStateList: [ {} ]});
-        // this.track.color = rgb255String(appleCrayonColorRGB255('salmon'));
 
         return this.track;
     }
