@@ -108,6 +108,19 @@ $trace3d_color_ramp_width: 36px;
       color: $trace3d_steel;
     }
 
+    >div#trace3d_igv_track_label {
+
+      width: 95%;
+      height: 16px;
+
+      line-height: 16px;
+      font-size: 12px;
+      vertical-align: middle;
+
+      color: $trace3d_steel;
+      background-color: $trace3d_snow
+    }
+
     // track container
     > div#trace3d_igv_track_container {
       width: 95%;

@@ -18,6 +18,8 @@ class IGVPalette {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
 
+        this.$track_label = $('#trace3d_igv_track_label');
+
         $(container).on('mousemove.trace3d.trace3d_igv_track_canvas', (event) => {
             onCanvasMouseMove(canvas, event)
         });
@@ -53,6 +55,7 @@ class IGVPalette {
             event.stopPropagation();
             $url_input.trigger('change.trace3d_igv_palette_url_input');
             await this.loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border')});
+
             $url_input.val('');
             currentURL = undefined;
         });
@@ -82,6 +85,9 @@ class IGVPalette {
         igv.inferTrackTypes(config);
 
         this.track = igv.createLowLevelTrack(config, { genome: this.genome, genomicStateList: [ {} ]});
+
+        const { file } = igv.parseUri(url);
+        this.$track_label.text(file);
 
         return this.track;
     }
