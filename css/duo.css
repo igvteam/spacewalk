@@ -46,14 +46,11 @@
       margin-top: 8px;
       margin-bottom: 8px; }
     #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container > div#trace3d_igv_track_container {
-      width: 100%;
+      width: 95%;
       height: 32px;
-      border-top-style: solid;
-      border-top-width: thin;
-      border-top-color: #a09fa0;
-      border-bottom-style: solid;
-      border-bottom-width: thin;
-      border-bottom-color: #a09fa0;
+      border-style: solid;
+      border-width: thin;
+      border-color: #a09fa0;
       background-color: #ffffff; }
       #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container > div#trace3d_igv_track_container > canvas {
         cursor: pointer; }
@@ -61,6 +58,7 @@
 #trace3d_data_file_load_palette.trace3d_tool_palette {
   width: 512px;
   height: 128px;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;

@@ -28,11 +28,13 @@ $trace3d_igv_palette_dimension: 128px;
 $trace3d_igv_palette_width: 6 * $trace3d_igv_palette_dimension;
 $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
 
+// root container
 #trace3d_canvas_container {
   position: relative;
 
 }
 
+// palette template
 .trace3d_tool_palette {
 
   position: absolute;
@@ -62,6 +64,7 @@ $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
   background-color: $trace3d_snow;
 }
 
+// IGV palette
 #trace3d_igv_palette.trace3d_tool_palette {
 
   top: 32px;
@@ -80,6 +83,7 @@ $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
 
   // igvjs container
   > div#trace3d_igv_container {
+
     width: 100%;
     height: calc(100% - (2 * #{$trace3d_border_radius}));
 
@@ -98,16 +102,12 @@ $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
 
     // track container
     > div#trace3d_igv_track_container {
-      width: 100%;
+      width: 95%;
       height: 32px;
 
-      border-top-style: solid;
-      border-top-width: thin;
-      border-top-color: $trace3d_aluminum;
-
-      border-bottom-style: solid;
-      border-bottom-width: thin;
-      border-bottom-color: $trace3d_aluminum;
+      border-style: solid;
+      border-width: thin;
+      border-color: $trace3d_aluminum;
 
       background-color: $trace3d_snow;
 
@@ -121,10 +121,13 @@ $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
 
 }
 
+// data file loading (CSV Segment Files) palette
 #trace3d_data_file_load_palette.trace3d_tool_palette {
 
   width: $trace3d_data_file_load_palette_width;
   height: $trace3d_data_file_load_palette_height;
+
+  background-color: $trace3d_snow;
 
   display: flex;
   flex-direction: column;
@@ -175,6 +178,7 @@ $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
 
 }
 
+// select palette
 #trace3d_segment_select_palette.trace3d_tool_palette {
   padding-top: 16px;
   justify-content: flex-start;
@@ -187,6 +191,7 @@ $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
   }
 }
 
+// color ramp palette
 .trace3d_tool_palette_ramp_container {
 
   display: flex;
@@ -237,6 +242,7 @@ $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
 
 }
 
+// segment grid select palette
 .trace3d_segment_grid_select_palette {
 
   position: absolute;

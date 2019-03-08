@@ -117,6 +117,7 @@ class IGVPalette {
                 genomicState: {}
             };
 
+        this.ctx.fillStyle = rgb255String(appleCrayonColorRGB255('snow'));
         track.draw(config);
 
         /*
@@ -218,7 +219,6 @@ class IGVPalette {
         }
 
     };
-
 
     onWindowResize(container, palette) {
         layout(container, palette);
