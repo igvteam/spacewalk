@@ -68,7 +68,7 @@ class IGVPalette {
 
     async loadLowLevelTrack({ genomeID, url }) {
 
-        if (undefined === this.genome) {
+        if (undefined === this.genome || this.genome.id !== genomeID) {
             this.genome = await this.createGenome(genomeID);
         }
 
@@ -166,24 +166,6 @@ class IGVPalette {
         return genome;
     }
 
-    async createBrowser($container) {
-
-        const config =
-            {
-                genome: 'hg19',
-                locus: 'all',
-                showTrackLabels: false,
-                showIdeogram: false,
-                showNavigation: false
-            };
-
-        return igv
-            .createBrowser($container, config)
-            .then((browser) => {
-                console.log('browser good to go')
-            });
-    }
-
     async loadURL({ url, $spinner }){
 
         url = url || '';
@@ -224,6 +206,24 @@ class IGVPalette {
             this.onCanvasMouseMove(undefined, event)
         });
 
+    }
+
+    async DEPRICATED_createBrowser($container) {
+
+        const config =
+            {
+                genome: 'hg19',
+                locus: 'all',
+                showTrackLabels: false,
+                showIdeogram: false,
+                showNavigation: false
+            };
+
+        return igv
+            .createBrowser($container, config)
+            .then((browser) => {
+                console.log('browser good to go')
+            });
     }
 
 }
