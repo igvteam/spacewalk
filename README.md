@@ -36,3 +36,11 @@ npm run start
 ````
 localhost:8080/duo.html
 ````
+
+## Getting Started
+- Using the top palette browse for a csv Segment files (in resource/csv). Click "Load File" to load it into the app
+- Rotate/Zoom the 3D model that loads. Use the
+- See the left hand palette covered with a grid of dots. Each dot corresponds to a different segment section. Mouse across to rapidly move between then. Click a dot to select.
+- See the pallete with the color ramp at right. mouse vertically over the color ramp to select different genomic regions and notice the corresponding 3D segment location highlighted. Alternatively 
+mouse over the spheres to highlight the color ramp. 
+- See the palette at the bottom of the screen. This is an igvjs instance. See the loaded track. Select a different track URL via the input dialog above the track.
