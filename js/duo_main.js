@@ -76,11 +76,13 @@ let main = async container => {
     igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
 
     const url = 'https://www.dropbox.com/s/rt13nc8tkbscusm/IMR-90_CTCF_27-31.bed?dl=0';
+    await igvPalette.loadLowLevelTrack({genomeID: 'hg19', url});
+
     // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
     // const url = 'https://www.encodeproject.org/files/ENCFF722EUH/@@download/ENCFF722EUH.bigWig';
     // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
     // const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
-    const track = await igvPalette.loadLowLevelTrack({genomeID: 'hg38', url});
+    // await igvPalette.loadLowLevelTrack({genomeID: 'hg38', url});
 
     await igvPalette.gotoDefaultLocus();
 
