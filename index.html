@@ -86,6 +86,42 @@
     <div class="row m-0 p-0">
         <div class="col-sm m-0 p-0">
             <div id="trace3d_canvas_container">
+
+                <!-- igv palette -->
+                <div id="trace3d_igv_palette" class="trace3d_tool_palette">
+
+                    <!-- igvjs container -->
+                    <div id="trace3d_igv_container">
+
+                        <!-- url loader -->
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <button id="trace3d_igv_palette_url_button" class="btn btn-outline-secondary" type="button">Load URL</button>
+                                </div>
+                                <div class="spinner-border" style="display: none;">
+                                    <!-- spinner -->
+                                </div>
+                                <input id="trace3d_igv_palette_url_input" class="form-control" type="text" placeholder="Enter Track URL">
+                            </div>
+                        </div>
+
+                        <div id="trace3d_igv_track_label" class="text-left">
+                        </div>
+
+                        <!-- track container -->
+                        <div id="trace3d_igv_track_container">
+
+                            <!-- track canvas -->
+                            <canvas></canvas>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- data file loader palette -->
                 <div id="trace3d_data_file_load_palette" class="trace3d_tool_palette">
 
                     <!-- first child -->
@@ -96,23 +132,26 @@
                                 <div class="input-group-prepend">
                                     <button id="trace3d_data_file_load_url_button" class="btn btn-outline-secondary" type="button">Load URL</button>
                                 </div>
+                                <div class="spinner-border" style="display: none;">
+                                    <!-- spinner -->
+                                </div>
                                 <input id="trace3d_data_file_load_url_input" class="form-control" type="text" placeholder="Enter CSV URL">
                             </div>
                         </div>
 
                     </div>
 
-                    <!-- second child -->
+                    <!-- last child -->
                     <div id="trace3d_data_file_load_local_file_container">
 
                         <div class="form-group">
                             <div class="input-group">
-                                <div class="custom-file">
-                                    <input id="trace3d_data_file_load_local_file_input" class="custom-file-input" type="file">
-                                    <label id="trace3d_data_file_load_local_file_label" for="trace3d_data_file_load_local_file_input" class="custom-file-label">Choose CSV File</label>
-                                </div>
-                                <div class="input-group-append">
+                                <div class="input-group-prepend">
                                     <button id="trace3d_data_file_load_local_file_button" class="btn btn-outline-secondary" type="button">Load File</button>
+                                </div>
+                                <div class="custom-file">
+                                    <input class="custom-file-input" id="trace3d_data_file_load_local_file_input" type="file">
+                                    <label class="custom-file-label" id="trace3d_data_file_load_local_file_label" for="trace3d_data_file_load_local_file_input">Choose CSV File</label>
                                 </div>
                             </div>
                         </div>

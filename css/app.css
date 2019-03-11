@@ -1,56 +1,6 @@
 #trace3d_canvas_container {
   position: relative; }
 
-.trace3d_segment_grid_select_palette {
-  position: absolute;
-  width: 300px;
-  height: 640px;
-  z-index: 512;
-  background-color: rgba(255, 255, 255, 0.51);
-  border-style: solid;
-  border-width: 1px;
-  border-color: #a09fa0;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  align-items: center; }
-  .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_header {
-    width: 100%;
-    height: 32px;
-    line-height: 32px;
-    text-align: center;
-    margin: 8px; }
-  .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box {
-    width: 258px;
-    height: 546px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: #a09fa0;
-    padding: 8px;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: center;
-    overflow: auto; }
-    .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box > div.trace3d_segment_grid_cell {
-      border: unset;
-      width: 16px;
-      height: 16px;
-      background-size: 16px 16px;
-      background-image: url(../img/dot_empty_ring.svg); }
-    .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box > div.trace3d_segment_grid_cell_clicked {
-      background-image: url(../img/dot_solid_disk.svg); }
-    .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box > div.trace3d_segment_grid_cell_unclicked {
-      background-image: url(../img/dot_empty_ring.svg); }
-
-.trace3d_segment_grid_select_palette:hover {
-  border-width: 2px;
-  border-color: #6e6e6e;
-  background-color: #ffffff; }
-
 .trace3d_tool_palette {
   position: absolute;
   width: 200px;
@@ -72,9 +22,55 @@
   border-color: #6e6e6e;
   background-color: #ffffff; }
 
+#trace3d_igv_palette.trace3d_tool_palette {
+  top: 32px;
+  left: 64px;
+  width: 512px;
+  height: 128px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #ffffff; }
+  #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container {
+    width: 100%;
+    height: calc(100% - (2 * 8px));
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: center; }
+    #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container > div.form-group {
+      width: 95%;
+      margin-top: 8px;
+      margin-bottom: 8px; }
+    #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container .spinner-border {
+      margin-left: 8px;
+      margin-right: 8px;
+      color: #6e6e6e; }
+    #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container > div#trace3d_igv_track_label {
+      width: 95%;
+      height: 16px;
+      line-height: 16px;
+      font-size: 12px;
+      vertical-align: middle;
+      color: #6e6e6e;
+      background-color: #ffffff; }
+    #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container > div#trace3d_igv_track_container {
+      width: 95%;
+      height: 36px;
+      border-style: solid;
+      border-width: thin;
+      border-color: #a09fa0;
+      background-color: #ffffff; }
+      #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container > div#trace3d_igv_track_container > canvas {
+        cursor: pointer; }
+
 #trace3d_data_file_load_palette.trace3d_tool_palette {
   width: 512px;
   height: 128px;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -82,6 +78,10 @@
   align-items: center; }
   #trace3d_data_file_load_palette.trace3d_tool_palette .form-group {
     margin: 8px; }
+  #trace3d_data_file_load_palette.trace3d_tool_palette .spinner-border {
+    margin-left: 8px;
+    margin-right: 8px;
+    color: #6e6e6e; }
   #trace3d_data_file_load_palette.trace3d_tool_palette > div {
     height: 100%;
     width: 100%; }
@@ -135,5 +135,55 @@
     line-height: 32px;
     vertical-align: middle;
     text-align: center; }
+
+.trace3d_segment_grid_select_palette {
+  position: absolute;
+  width: 300px;
+  height: 640px;
+  z-index: 512;
+  background-color: rgba(255, 255, 255, 0.51);
+  border-style: solid;
+  border-width: 1px;
+  border-color: #a09fa0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center; }
+  .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_header {
+    width: 100%;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    margin: 8px; }
+  .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box {
+    width: 258px;
+    height: 546px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #a09fa0;
+    padding: 8px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    overflow: auto; }
+    .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box > div.trace3d_segment_grid_cell {
+      border: unset;
+      width: 16px;
+      height: 16px;
+      background-size: 16px 16px;
+      background-image: url(../img/dot_empty_ring.svg); }
+    .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box > div.trace3d_segment_grid_cell_clicked {
+      background-image: url(../img/dot_solid_disk.svg); }
+    .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box > div.trace3d_segment_grid_cell_unclicked {
+      background-image: url(../img/dot_empty_ring.svg); }
+
+.trace3d_segment_grid_select_palette:hover {
+  border-width: 2px;
+  border-color: #6e6e6e;
+  background-color: #ffffff; }
 
 /*# sourceMappingURL=app.css.map */

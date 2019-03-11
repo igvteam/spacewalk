@@ -12,9 +12,11 @@ import DataFileLoader from "./dataFileLoader.js";
 
 import SegmentSelectPalette from "./segmentSelectPalette.js";
 import { parsePathEncodedGenomicLocation } from './segmentManager.js';
+import IGVPalette from "./igvPalette.js";
 
 let segmentManager;
 let dataFileLoader;
+let igvPalette;
 let segmentSelectPalette;
 let segmentGridSelectPalette;
 let trackManager;
@@ -71,11 +73,19 @@ let main = async container => {
 
     dataFileLoader = new DataFileLoader({ container, palette: $('#trace3d_data_file_load_palette').get(0) });
 
+    igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
+
+    // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
+    // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
+
+    const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
+    // const url = 'https://www.encodeproject.org/files/ENCFF722EUH/@@download/ENCFF722EUH.bigWig';
+    await igvPalette.loadLowLevelTrack({genomeID: 'hg38', url});
+
+    await igvPalette.gotoDefaultLocus();
+
     // segmentSelectPalette = new SegmentSelectPalette(container);
     segmentGridSelectPalette = new SegmentGridSelectPalette(container);
-
-    // TODO: Decide how to handle track loading
-    // await trackManager.buildFeatureSegmentIndices({ track: new MinimalBedTrack('resource/tracks/IMR-90_RAD21_27-31.bed'), chr, genomicStart, stepSize: segmentManager.stepSize });
 
     sceneManager.defaultConfiguration();
 
@@ -83,7 +93,7 @@ let main = async container => {
 
     const eventListener =
         {
-            receiveEvent: ({ type, data }) => {
+            receiveEvent: async ({ type, data }) => {
                 let segment;
 
                 if ("DidSelectSegment" === type) {
@@ -102,13 +112,16 @@ let main = async container => {
                     segmentManager.path = name;
                     segmentManager.ingest(payload);
 
+                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
+
+                    igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
+
                     segment = segmentManager.segmentWithName( '1' );
 
                     // segmentSelectPalette.configure(segmentManager.segments);
                     segmentGridSelectPalette.configure(segmentManager.segments);
 
                     sceneManager.dispose();
-                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
 
                     setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
 

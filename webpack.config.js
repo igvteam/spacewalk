@@ -1,8 +1,8 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 
-process.env.INDEX_FILE_SRC = '<script type="module" src="js/duo.js"></script>';
-process.env.INDEX_FILE_DST = '<script src="./duo_bundle.js"></script>';
+process.env.INDEX_FILE_SRC = '<script type="module" src="js/app.js"></script>';
+process.env.INDEX_FILE_DST = '<script src="./bundle.js"></script>';
 
 module.exports =
     {
@@ -10,12 +10,12 @@ module.exports =
         entry:
             [
                 '@babel/polyfill',
-                './js/duo.js'
+                './js/app.js'
             ],
         output:
             {
                 path: path.resolve(__dirname, 'build'),
-                filename: 'duo_bundle.js'
+                filename: 'bundle.js'
             },
         module: {
             rules:
@@ -40,14 +40,14 @@ module.exports =
         plugins:
             [
                 new CopyPlugin([
-                    { from:'css/duo.css', to:'css' },
+                    { from:'css/app.css', to:'css' },
                     { from:'img/*'         },
                     { from:'texture/**/*'  },
                     { from:'resource/**/*' },
                     { from:'vendor/**/*'   },
                     { from:'favicon.ico'   },
                     {
-                        from: 'duo.html',
+                        from: 'index.html',
                         transform: (content) => {
                             return content
                                 .toString()
