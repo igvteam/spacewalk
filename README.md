@@ -16,9 +16,9 @@ Duo require a modern web browser with support for Javascript ECMAScript 2015.
 ````
 git clone git@github.com:igvteam/igv-webapp.git
 ````
-* Change directories to project
+* Checkout the dat_duo branch
 ````
-cd ./tracing3D
+git checkout dat_duo
 ````
 * Install
 ````
