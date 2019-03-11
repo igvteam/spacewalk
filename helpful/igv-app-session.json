@@ -7,7 +7,7 @@
 		"cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/hg38/annotations/cytoBandIdeo.txt.gz"
 	},
 	"locus": [
-		"chr21:27,973,602-30,049,515"
+		"chr21:15,327,137-24,440,334"
 	],
 	"tracks": [
 		{
