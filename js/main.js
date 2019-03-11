@@ -9,12 +9,14 @@ import TrackManager from './trackManager.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 import SegmentGridSelectPalette from "./segmentGridSelectPalette.js";
 import DataFileLoader from "./dataFileLoader.js";
+import ChromosomeSelect from "./chromosomeSelect.js";
 
 import SegmentSelectPalette from "./segmentSelectPalette.js";
 import { parsePathEncodedGenomicLocation } from './segmentManager.js';
 import IGVPalette from "./igvPalette.js";
 
 let segmentManager;
+let chromosomeSelect;
 let dataFileLoader;
 let igvPalette;
 let segmentSelectPalette;
@@ -70,6 +72,8 @@ let main = async container => {
     segmentManager = new SegmentManager();
 
     trackManager = new TrackManager();
+
+    chromosomeSelect = new ChromosomeSelect({ container, palette: $('#trace3d_chromosome_select_palette').get(0) });
 
     dataFileLoader = new DataFileLoader({ container, palette: $('#trace3d_data_file_load_palette').get(0) });
 

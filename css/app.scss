@@ -24,6 +24,10 @@ $trace3d_segment_grid_select_cell_size: $trace3d_segment_grid_select_box_size / 
 $trace3d_data_file_load_palette_width: 4 * 128px;
 $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 4;
 
+$chromosome_select_palette_width: 3 * 128px;
+$chromosome_select_palette_height: 96px;
+$trace3d_chromosome_select_palette_label_height: 16px;
+
 $trace3d_igv_palette_dimension: 128px;
 $trace3d_igv_palette_width: 4 * $trace3d_igv_palette_dimension;
 $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
@@ -64,6 +68,57 @@ $trace3d_color_ramp_width: 36px;
   border-width: 2px;
   border-color: $trace3d_steel;
   background-color: $trace3d_snow;
+}
+
+// chromosome select palette
+#trace3d_chromosome_select_palette.trace3d_tool_palette {
+
+  width: $chromosome_select_palette_width;
+  height: $chromosome_select_palette_height;
+
+  background-color: $trace3d_snow;
+
+  >div:first-child {
+
+    // border top
+    border-top-style: solid;
+    border-top-width: thin;
+    border-top-color: transparent;
+    border-top-left-radius: $trace3d_border_radius;
+    border-top-right-radius: $trace3d_border_radius;
+
+    line-height: $trace3d_chromosome_select_palette_label_height;
+    vertical-align: center;
+    height: $trace3d_chromosome_select_palette_label_height;
+
+    width: 100%;
+    //background-color: $trace3d_honeydew;
+
+  }
+
+  >.form-group {
+    margin: 8px;
+    width: 95%;
+  }
+
+  >div:last-child {
+
+    // border top
+    border-bottom-style: solid;
+    border-bottom-width: thin;
+    border-bottom-color: transparent;
+    border-bottom-left-radius: $trace3d_border_radius;
+    border-bottom-right-radius: $trace3d_border_radius;
+
+    line-height: $trace3d_chromosome_select_palette_label_height;
+    vertical-align: center;
+    height: $trace3d_chromosome_select_palette_label_height;
+
+    width: 100%;
+    //background-color: $trace3d_salmon;
+  }
+
+
 }
 
 // IGV palette

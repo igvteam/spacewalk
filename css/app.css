@@ -22,6 +22,34 @@
   border-color: #6e6e6e;
   background-color: #ffffff; }
 
+#trace3d_chromosome_select_palette.trace3d_tool_palette {
+  width: 384px;
+  height: 96px;
+  background-color: #ffffff; }
+  #trace3d_chromosome_select_palette.trace3d_tool_palette > div:first-child {
+    border-top-style: solid;
+    border-top-width: thin;
+    border-top-color: transparent;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    line-height: 16px;
+    vertical-align: center;
+    height: 16px;
+    width: 100%; }
+  #trace3d_chromosome_select_palette.trace3d_tool_palette > .form-group {
+    margin: 8px;
+    width: 95%; }
+  #trace3d_chromosome_select_palette.trace3d_tool_palette > div:last-child {
+    border-bottom-style: solid;
+    border-bottom-width: thin;
+    border-bottom-color: transparent;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    line-height: 16px;
+    vertical-align: center;
+    height: 16px;
+    width: 100%; }
+
 #trace3d_igv_palette.trace3d_tool_palette {
   top: 32px;
   left: 64px;
