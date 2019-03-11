@@ -1,7 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 
-import { getMouseXY } from "./utils.js";
+import { fitToContainer, getMouseXY } from "./utils.js";
 import { lerp, quantize } from "./math.js";
 import { rgb255, rgb255Lerp, rgb255String } from "./color.js";
 
@@ -19,20 +19,20 @@ class ColorRampWidget {
         // ramp container
         rampContainer = document.createElement('div');
         container.appendChild( rampContainer );
-        rampContainer.className = 'trace3d_tool_palette_ramp_container';
+        rampContainer.className = 'trace3d_color_ramp_widget_container';
 
 
         // header
         this.header = document.createElement('div');
         rampContainer.appendChild( this.header );
-        this.header.className = 'trace3d_tool_palette_ramp_header';
+        this.header.className = 'trace3d_color_ramp_header';
         this.header.innerText = '';
 
 
         // ramp
         ramp = document.createElement('div');
         rampContainer.appendChild( ramp );
-        ramp.className = 'trace3d_tool_palette_ramp';
+        ramp.className = 'trace3d_color_ramp';
 
         // ramp canvas
         const canvas = document.createElement('canvas');
@@ -64,7 +64,7 @@ class ColorRampWidget {
         // footer
         this.footer = document.createElement('div');
         rampContainer.appendChild( this.footer );
-        this.footer.className = 'trace3d_tool_palette_ramp_footer';
+        this.footer.className = 'trace3d_color_ramp_footer';
         this.footer.innerText = '';
 
         this.context = canvas.getContext('2d');
@@ -147,16 +147,5 @@ class ColorRampWidget {
     }
 
 }
-
-let fitToContainer = (canvas) => {
-
-    // Make it visually fill the positioned parent
-    canvas.style.width ='100%';
-    canvas.style.height ='100%';
-
-    // ...then set the internal size to match
-    canvas.width  = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-};
 
 export default ColorRampWidget;

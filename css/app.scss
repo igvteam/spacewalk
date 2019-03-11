@@ -127,7 +127,7 @@ $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 
   border-style: solid;
   border-width: thin;
   border-color: $trace3d_aluminum;
-  border-radius: 8px;
+  border-radius: $trace3d_border_radius;
 
   display: flex;
   flex-direction: column;
@@ -204,7 +204,7 @@ $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 
 }
 
 // ramp container
-.trace3d_tool_palette_ramp_container {
+.trace3d_color_ramp_widget_container {
 
   display: flex;
   flex-direction: column;
@@ -224,7 +224,7 @@ $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 
   font-size: 16px;
 
   // header text
-  .trace3d_tool_palette_ramp_header {
+  .trace3d_color_ramp_header {
     width: 100%;
     height: $trace3d_text_box_height;
 
@@ -234,7 +234,7 @@ $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 
   }
 
   // ramp
-  .trace3d_tool_palette_ramp {
+  .trace3d_color_ramp {
     cursor: pointer;
     width: 36px;
     height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
@@ -243,7 +243,7 @@ $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 
   }
 
   // footer text
-  .trace3d_tool_palette_ramp_footer {
+  .trace3d_color_ramp_footer {
     width: 100%;
     height: $trace3d_text_box_height;
 

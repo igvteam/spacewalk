@@ -1,0 +1,189 @@
+#trace3d_canvas_container {
+  position: relative; }
+
+.trace3d_tool_palette {
+  position: absolute;
+  width: 200px;
+  height: 640px;
+  z-index: 512;
+  background-color: rgba(255, 255, 255, 0.65);
+  border-style: solid;
+  border-width: thin;
+  border-color: #a09fa0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center; }
+
+.trace3d_tool_palette:hover {
+  border-width: 2px;
+  border-color: #6e6e6e;
+  background-color: #ffffff; }
+
+#trace3d_igv_palette.trace3d_tool_palette {
+  top: 32px;
+  left: 64px;
+  width: 512px;
+  height: 128px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #ffffff; }
+  #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container {
+    width: 100%;
+    height: calc(100% - (2 * 8px));
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: center; }
+    #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container > div.form-group {
+      width: 95%;
+      margin-top: 8px;
+      margin-bottom: 8px; }
+    #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container .spinner-border {
+      margin-left: 8px;
+      margin-right: 8px;
+      color: #6e6e6e; }
+    #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container > div#trace3d_igv_track_label {
+      width: 95%;
+      height: 16px;
+      line-height: 16px;
+      font-size: 12px;
+      vertical-align: middle;
+      color: #6e6e6e;
+      background-color: #ffffff; }
+    #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container > div#trace3d_igv_track_container {
+      width: 95%;
+      height: 36px;
+      border-style: solid;
+      border-width: thin;
+      border-color: #a09fa0;
+      background-color: #ffffff; }
+      #trace3d_igv_palette.trace3d_tool_palette > div#trace3d_igv_container > div#trace3d_igv_track_container > canvas {
+        cursor: pointer; }
+
+#trace3d_data_file_load_palette.trace3d_tool_palette {
+  width: 512px;
+  height: 128px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  align-items: center; }
+  #trace3d_data_file_load_palette.trace3d_tool_palette .form-group {
+    margin: 8px; }
+  #trace3d_data_file_load_palette.trace3d_tool_palette .spinner-border {
+    margin-left: 8px;
+    margin-right: 8px;
+    color: #6e6e6e; }
+  #trace3d_data_file_load_palette.trace3d_tool_palette > div {
+    height: 100%;
+    width: 100%; }
+  #trace3d_data_file_load_palette.trace3d_tool_palette > div:first-child {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-top-style: solid;
+    border-top-width: 0;
+    border-top-color: transparent; }
+  #trace3d_data_file_load_palette.trace3d_tool_palette > div:last-child {
+    border-top-style: solid;
+    border-top-width: thin;
+    border-top-color: #a09fa0;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-style: solid;
+    border-bottom-width: 0;
+    border-bottom-color: transparent; }
+
+#trace3d_segment_select_palette.trace3d_tool_palette {
+  padding-top: 16px;
+  justify-content: flex-start;
+  height: 400px; }
+  #trace3d_segment_select_palette.trace3d_tool_palette select.form-control[size], #trace3d_segment_select_palette.trace3d_tool_palette select.form-control[multiple] {
+    height: 300px; }
+
+.trace3d_color_ramp_widget_container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 50%;
+  height: 95%;
+  background-color: transparent;
+  font-size: 16px; }
+  .trace3d_color_ramp_widget_container .trace3d_color_ramp_header {
+    width: 100%;
+    height: 32px;
+    line-height: 32px;
+    vertical-align: middle;
+    text-align: center; }
+  .trace3d_color_ramp_widget_container .trace3d_color_ramp {
+    cursor: pointer;
+    width: 36px;
+    height: calc(100% - 32px - 32px);
+    background-color: transparent; }
+  .trace3d_color_ramp_widget_container .trace3d_color_ramp_footer {
+    width: 100%;
+    height: 32px;
+    line-height: 32px;
+    vertical-align: middle;
+    text-align: center; }
+
+.trace3d_segment_grid_select_palette {
+  position: absolute;
+  width: 300px;
+  height: 640px;
+  z-index: 512;
+  background-color: rgba(255, 255, 255, 0.51);
+  border-style: solid;
+  border-width: 1px;
+  border-color: #a09fa0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center; }
+  .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_header {
+    width: 100%;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    margin: 8px; }
+  .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box {
+    width: 258px;
+    height: 546px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #a09fa0;
+    padding: 8px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    overflow: auto; }
+    .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box > div.trace3d_segment_grid_cell {
+      border: unset;
+      width: 16px;
+      height: 16px;
+      background-size: 16px 16px;
+      background-image: url(../img/dot_empty_ring.svg); }
+    .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box > div.trace3d_segment_grid_cell_clicked {
+      background-image: url(../img/dot_solid_disk.svg); }
+    .trace3d_segment_grid_select_palette #trace3d_segment_grid_select_box > div.trace3d_segment_grid_cell_unclicked {
+      background-image: url(../img/dot_empty_ring.svg); }
+
+.trace3d_segment_grid_select_palette:hover {
+  border-width: 2px;
+  border-color: #6e6e6e;
+  background-color: #ffffff; }
+
+/*# sourceMappingURL=duo.css.map */

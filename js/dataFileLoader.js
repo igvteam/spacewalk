@@ -10,7 +10,6 @@ class DataFileLoader {
 
         layout(container, palette);
 
-        // makeDraggable(palette, $('#trace3d_last_div').get(0));
         makeDraggable(palette, palette);
 
         $(window).on('resize.trace3d.data_file_load_widget', () => { this.onWindowResize(container, palette) });
@@ -27,36 +26,50 @@ class DataFileLoader {
 
         // URL
         const $url_input = $('#trace3d_data_file_load_url_input');
+        $url_input.val('');
+
+        const $url_button = $('#trace3d_data_file_load_url_button');
 
         $url_input.on('change.trace3d_data_file_load_url_input', (event) => {
             event.stopPropagation();
-            console.log('url on change - value ' + event.target.value);
+            // console.log('url on change - value ' + event.target.value);
             currentURL = event.target.value;
         });
 
-        $('#trace3d_data_file_load_url_button').on('click.trace3d_data_file_load_url_button', (event) => {
+        const $url_container = $('#trace3d_data_file_load_url_container');
+
+        $url_button.on('click.trace3d_data_file_load_url_button', (event) => {
             event.stopPropagation();
             $url_input.trigger('change.trace3d_data_file_load_url_input');
-            loadURL(currentURL);
+            loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border')});
             $url_input.val('');
             currentURL = undefined;
         });
 
         // Local file
-        const $local_file_input = $('#trace3d_data_file_load_local_file_input');
-        const $local_file_label = $('#trace3d_data_file_load_local_file_label');
+        const $file_input = $('#trace3d_data_file_load_local_file_input');
+        $file_input.val('');
 
-        $local_file_input.on('change.trace3d_data_file_load_local_file_input', (event) => {
+        const $file_label = $('#trace3d_data_file_load_local_file_label');
+        $file_label.text('Choose CSV File');
+
+        const $file_button = $('#trace3d_data_file_load_local_file_button');
+        $file_button.prop('disabled', true);
+
+        $file_input.on('change.trace3d_data_file_load_local_file_input', (event) => {
             event.stopPropagation();
-            $local_file_label.text(event.target.files[0].name);
+            // console.log('file on change - value ' + event.target.value);
+            $file_label.text(event.target.files[0].name);
             currentFile = event.target.files[0];
+            $file_button.prop('disabled', false);
         });
 
-        $('#trace3d_data_file_load_local_button').on('click.trace3d_data_file_load_local_button', (event) => {
+        $file_button.on('click.trace3d_data_file_load_local_file_button', (event) => {
             event.stopPropagation();
             loadFile(currentFile);
-            $local_file_label.text('Choose CSV File');
+            $file_label.text('Choose CSV File');
             currentFile = undefined;
+            $file_button.prop('disabled', true);
         });
 
     }
@@ -67,15 +80,28 @@ class DataFileLoader {
 
 }
 
-const loadURL = async url => {
+const loadURL = async ({ url, $spinner }) => {
 
-    try {
-        const { file } = igv.parseUri(url);
-        const urlContents = await igv.xhr.load(url);
-        globalEventBus.post({ type: "DidLoadCSVFile", data: { name: file, payload: urlContents } });
-    } catch (error) {
-        console.warn(error.message)
+    url = url || '';
+
+    if ('' !== url) {
+
+        try {
+
+            const { file } = igv.parseUri(url);
+
+            $spinner.show();
+            const urlContents = await igv.xhr.load(url);
+            $spinner.hide();
+
+            globalEventBus.post({ type: "DidLoadCSVFile", data: { name: file, payload: urlContents } });
+
+        } catch (error) {
+            console.warn(error.message)
+        }
+
     }
+
 
 };
 

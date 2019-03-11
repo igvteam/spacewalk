@@ -131,7 +131,7 @@ let mouseEnterHandler = (event, element, key, header) => {
     if (clickedElement) {
         // ignore
     } else {
-        header.textContent = 'Segment ' + numberFormatter(key);
+        header.textContent = 'Chr ' + numberFormatter(key);
         globalEventBus.post({ type: "DidSelectSegment", data: key });
         globalEventBus.post({ type: "DidLeaveGUI" });
     }
@@ -146,7 +146,7 @@ let clickHander = (event, element, key, header) => {
         $(clickedElement).addClass('trace3d_segment_grid_cell_unclicked');
     }
 
-    header.textContent = 'Segment ' + numberFormatter(key);
+    header.textContent = 'Chr ' + numberFormatter(key);
 
     if (clickedElement === element) {
         clickedElement = undefined;

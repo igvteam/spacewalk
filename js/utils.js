@@ -1,4 +1,15 @@
 
+let fitToContainer = (canvas) => {
+
+    // Make it visually fill the positioned parent
+    canvas.style.width ='100%';
+    canvas.style.height ='100%';
+
+    // ...then set the internal size to match
+    canvas.width  = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+};
+
 let fillCanvasContextRect = (ctx, colorString) => {
     ctx.fillStyle = colorString;
     ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
@@ -49,4 +60,4 @@ let numberFormatter = (rawNumber) => {
 };
 
 
-export { getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
+export { fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };

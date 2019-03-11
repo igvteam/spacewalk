@@ -9,7 +9,39 @@ let camera;
 let orbitControl;
 let diffuseCubicMapManager;
 
-let main = (threejs_canvas) => {
+let showScreenCoordinatesMaterial;
+
+let showSTMaterial;
+
+let main = async(threejs_canvas) => {
+
+    const showSTConfig =
+        {
+            uniforms: {},
+            vertexShader: document.getElementById( 'show_st_vert' ).textContent,
+            fragmentShader: document.getElementById( 'show_st_frag' ).textContent,
+            side: THREE.DoubleSide
+        };
+
+    showSTMaterial = new THREE.ShaderMaterial( showSTConfig );
+
+    let showScreenCoordinatesUniforms =
+        {
+            uXYPixel: new THREE.Uniform(new THREE.Vector2())
+        };
+
+    showScreenCoordinatesUniforms.uXYPixel.value.x = window.innerWidth;
+    showScreenCoordinatesUniforms.uXYPixel.value.y = window.innerHeight;
+
+    let showScreenCoordinatesConfig =
+        {
+            uniforms: showScreenCoordinatesUniforms,
+            vertexShader:   document.getElementById( 'show_screen_coordinates_vert' ).textContent,
+            fragmentShader: document.getElementById( 'show_screen_coordinates_frag' ).textContent,
+            side: THREE.DoubleSide
+        };
+
+    showScreenCoordinatesMaterial = new THREE.ShaderMaterial(showScreenCoordinatesConfig);
 
     renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
     renderer.setClearColor(appleCrayonColorHexValue('snow'));
@@ -31,11 +63,14 @@ let main = (threejs_canvas) => {
 
     const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
-    scene.background = specularCubicMapManager.cubicTexture;
+    scene.background = new THREE.TextureLoader().load( "../../texture/uv.png" );
+    // scene.background = specularCubicMapManager.cubicTexture;
     // scene.background = appleCrayonColorThreeJS('iron');
 
+    await setup(scene, renderer, camera, orbitControl);
 
-    setup(scene, renderer, camera, orbitControl);
+    renderer.render( scene, camera );
+
 };
 
 let setup = async (scene, renderer, camera, orbitControl) => {
@@ -57,19 +92,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     const groundPlane = new THREE.GridHelper(4 * dimen, 4 * dimen, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('steel'));
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
-
-
-    let showSTMaterial;
-
-    const showSTConfig =
-        {
-            uniforms: {},
-              vertexShader: document.getElementById( 'show_st_vert' ).textContent,
-            fragmentShader: document.getElementById( 'show_st_frag' ).textContent
-        };
-
-    showSTMaterial = new THREE.ShaderMaterial( showSTConfig );
-    showSTMaterial.side = THREE.DoubleSide;
 
     const diffuseCubicMapMaterialConfig =
         {
@@ -105,15 +127,18 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     // geometry = geometry.toNonIndexed();
 
 
-    let meshA = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
+    // let meshA = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
+    let meshA = new THREE.Mesh(geometry, showSTMaterial);
     meshA.position.set(dimen, 0, 0);
 
-    let meshB = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
+    // let meshB = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
+    let meshB = new THREE.Mesh(geometry, showSTMaterial);
     meshB.position.set(-dimen, 0, 0);
 
     // const mesh = new THREE.Mesh(geometry, cubicMapManager.material);
 
-    cylinderWithScene(diffuseCubicMapManager.material, 2*dimen, dimen/8, scene);
+    // cylinderWithScene(diffuseCubicMapManager.material, 2*dimen, dimen/8, scene);
+    cylinderWithScene(showSTMaterial, 2*dimen, dimen/8, scene);
 
 
     let m4x4;
@@ -128,10 +153,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     window.addEventListener( 'resize', onWindowResize, false );
 
-    renderer.render( scene, camera );
-
 };
-
 
 let cylinderWithScene = (material, halfLength, radius, scene) => {
 
@@ -146,11 +168,16 @@ let cylinderWithScene = (material, halfLength, radius, scene) => {
 };
 
 let onWindowResize = () => {
+
+    showScreenCoordinatesUniforms.uXYPixel.value.x = window.innerWidth;
+    showScreenCoordinatesUniforms.uXYPixel.value.y = window.innerHeight;
+
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.render( scene, camera );
+
 };
 
 export { main };

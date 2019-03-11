@@ -1,1 +1,0 @@
-Files and classes in this directory will be replaced by "igv-core"

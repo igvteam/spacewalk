@@ -2,7 +2,6 @@
   "name": "trace_3d",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
   "scripts": {
     "start": "http-server build",
     "build": "webpack"

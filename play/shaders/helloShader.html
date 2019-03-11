@@ -92,19 +92,34 @@
     </script>
 
     <script type="x-shader/x-vertex" id="show_st_vert">
-			varying vec2 vST;
-			void main() {
-				vST = uv;
-				gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
-			}
+        varying vec2 vST;
+        void main() {
+            vST = uv;
+            gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+        }
     </script>
 
     <script type="x-shader/x-fragment" id="show_st_frag">
-			varying vec2 vST;
-			void main() {
-				gl_FragColor.rgb = vec3(vST.s, vST.t, 0);
-				gl_FragColor.a = 1.0;
-			}
+        varying vec2 vST;
+        void main() {
+            gl_FragColor = vec4(vST.st, 0.0, 1.0);
+        }
+    </script>
+
+    <script type="x-shader/x-vertex" id="show_screen_coordinates_vert">
+        varying vec2 vST;
+        void main() {
+            vST = uv;
+            gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+        }
+    </script>
+
+    <script type="x-shader/x-fragment" id="show_screen_coordinates_frag">
+        uniform vec2 uXYPixel;
+        void main() {
+            vec2 xy = gl_FragCoord.xy/uXYPixel;
+            gl_FragColor = vec4(xy.x, xy.y, 0.0, 1.0);
+        }
     </script>
 
     <script type="module" src="../js/helloShader_app.js"></script>
