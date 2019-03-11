@@ -12,7 +12,7 @@ Duo (duo.html) is an app that presents super-resolution chromatin tracing data i
 Duo require a modern web browser with support for Javascript ECMAScript 2015.
 
 ## Installation
-* Clone this repository and select the dat_duo branch.
+* Clone this repository.
 ````
 git clone git@github.com:igvteam/igv-webapp.git
 ````
