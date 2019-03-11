@@ -102,8 +102,7 @@
     <script type="x-shader/x-fragment" id="show_st_frag">
         varying vec2 vST;
         void main() {
-            gl_FragColor.rgb = vec3(vST.s, vST.t, 0);
-            gl_FragColor.a = 1.0;
+            gl_FragColor = vec4(vST.st, 0.0, 1.0);
         }
     </script>
 

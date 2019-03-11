@@ -9,13 +9,23 @@ let camera;
 let orbitControl;
 let diffuseCubicMapManager;
 
-let showScreenCoordinatesUniforms;
-let showScreenCoordinatesConfig;
 let showScreenCoordinatesMaterial;
+
+let showSTMaterial;
 
 let main = async(threejs_canvas) => {
 
-    showScreenCoordinatesUniforms =
+    const showSTConfig =
+        {
+            uniforms: {},
+            vertexShader: document.getElementById( 'show_st_vert' ).textContent,
+            fragmentShader: document.getElementById( 'show_st_frag' ).textContent,
+            side: THREE.DoubleSide
+        };
+
+    showSTMaterial = new THREE.ShaderMaterial( showSTConfig );
+
+    let showScreenCoordinatesUniforms =
         {
             uXYPixel: new THREE.Uniform(new THREE.Vector2())
         };
@@ -23,7 +33,7 @@ let main = async(threejs_canvas) => {
     showScreenCoordinatesUniforms.uXYPixel.value.x = window.innerWidth;
     showScreenCoordinatesUniforms.uXYPixel.value.y = window.innerHeight;
 
-    showScreenCoordinatesConfig =
+    let showScreenCoordinatesConfig =
         {
             uniforms: showScreenCoordinatesUniforms,
             vertexShader:   document.getElementById( 'show_screen_coordinates_vert' ).textContent,
@@ -83,19 +93,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
 
-
-    let showSTMaterial;
-
-    const showSTConfig =
-        {
-            uniforms: {},
-            vertexShader: document.getElementById( 'show_st_vert' ).textContent,
-            fragmentShader: document.getElementById( 'show_st_frag' ).textContent
-        };
-
-    showSTMaterial = new THREE.ShaderMaterial( showSTConfig );
-    showSTMaterial.side = THREE.DoubleSide;
-
     const diffuseCubicMapMaterialConfig =
         {
             textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
@@ -131,17 +128,17 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
 
     // let meshA = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
-    let meshA = new THREE.Mesh(geometry, showScreenCoordinatesMaterial);
+    let meshA = new THREE.Mesh(geometry, showSTMaterial);
     meshA.position.set(dimen, 0, 0);
 
     // let meshB = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
-    let meshB = new THREE.Mesh(geometry, showScreenCoordinatesMaterial);
+    let meshB = new THREE.Mesh(geometry, showSTMaterial);
     meshB.position.set(-dimen, 0, 0);
 
     // const mesh = new THREE.Mesh(geometry, cubicMapManager.material);
 
     // cylinderWithScene(diffuseCubicMapManager.material, 2*dimen, dimen/8, scene);
-    cylinderWithScene(showScreenCoordinatesMaterial, 2*dimen, dimen/8, scene);
+    cylinderWithScene(showSTMaterial, 2*dimen, dimen/8, scene);
 
 
     let m4x4;
@@ -183,4 +180,4 @@ let onWindowResize = () => {
 
 };
 
-export { main, showScreenCoordinatesMaterial };
+export { main };
