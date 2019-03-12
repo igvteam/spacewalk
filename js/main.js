@@ -3,7 +3,6 @@ import SceneManager from './sceneManager.js';
 import CubicMapManager from './cubicMapManager.js';
 import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
-import TrackManager from './trackManager.js';
 import DataFileLoader from './dataFileLoader.js';
 import MoleculeSelect from './moleculeSelect.js';
 import SegmentManager from './segmentManager.js';
@@ -20,8 +19,6 @@ let chromosomeSelect;
 let dataFileLoader;
 
 let igvPalette;
-
-let trackManager;
 
 let diffuseCubicMapManager;
 
@@ -73,8 +70,6 @@ let main = async container => {
     showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
 
     segmentManager = new SegmentManager();
-
-    trackManager = new TrackManager();
 
     chromosomeSelect = new MoleculeSelect({ container, palette: $('#trace3d_molecule_select_palette').get(0) });
 
@@ -163,7 +158,6 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
 
         if (!doSkip) {
 
-            // const material = new THREE.MeshLambertMaterial({ color: trackManager.colorForFeatureSegmentIndex({ index: item.segmentIndex, listLength: segment.length }) });
             const material = new THREE.MeshBasicMaterial({ color: sceneManager.colorRampPalette.genomicRampWidget.colorForSegmentIndex(item.segmentIndex) });
             // const material = diffuseCubicMapManager.material;
 

@@ -26,7 +26,7 @@ class SegmentManager {
         lines.shift();
 
         // chr index | segment index | Z | X | y
-        let [ chrIndexCurrent, moleculeIndex ] = [ undefined, undefined ];
+        let [ currentMoleculeKey, moleculeKey ] = [ undefined, undefined ];
 
         for (let line of lines) {
 
@@ -39,12 +39,12 @@ class SegmentManager {
 
                 const number = parseInt(parts[ 0 ], 10) - 1;
 
-                moleculeIndex = number.toString();
+                moleculeKey = number.toString();
 
-                if (undefined === chrIndexCurrent || chrIndexCurrent !== moleculeIndex) {
-                    chrIndexCurrent = moleculeIndex;
+                if (undefined === currentMoleculeKey || currentMoleculeKey !== moleculeKey) {
+                    currentMoleculeKey = moleculeKey;
 
-                    this.segments[ chrIndexCurrent ] = { bbox: [], extent: [], centroid: [], cameraPosition: [], array: [] };
+                    this.segments[ currentMoleculeKey ] = { bbox: [], extent: [], centroid: [], cameraPosition: [], array: [] };
                 }
 
                 const segmentIndex = parseInt(parts[1]);
@@ -57,7 +57,7 @@ class SegmentManager {
                 parts.shift();
 
                 let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
-                this.segments[ chrIndexCurrent ].array.push({ molIndex: moleculeIndex, segmentIndex: segmentIndex, xyz: [ x, y, z ] });
+                this.segments[ currentMoleculeKey ].array.push({ moleculeKey: moleculeKey, segmentIndex: segmentIndex, xyz: [ x, y, z ] });
 
             }
 
