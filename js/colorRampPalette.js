@@ -33,8 +33,8 @@ class ColorRampPalette {
 
     }
 
-    configure({ chr, genomicStart, genomicEnd, segmentLength }) {
-        this.genomicRampWidget.configure({ chr, genomicStart, genomicEnd, segmentLength });
+    configure({ chr, genomicStart, genomicEnd, moleculeLength }) {
+        this.genomicRampWidget.configure({ chr, genomicStart, genomicEnd, moleculeLength });
     }
 
     onWindowResize(container, palette) {

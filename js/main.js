@@ -5,14 +5,14 @@ import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
 import DataFileLoader from './dataFileLoader.js';
 import MoleculeSelect from './moleculeSelect.js';
-import SegmentManager from './segmentManager.js';
+import MoleculeManager from './moleculeManager.js';
 import IGVPalette from './igvPalette.js';
 
-import { parsePathEncodedGenomicLocation } from './segmentManager.js';
+import { parsePathEncodedGenomicLocation } from './moleculeManager.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 import { globalEventBus } from './eventBus.js';
 
-let segmentManager;
+let moleculeManager;
 
 let chromosomeSelect;
 
@@ -69,7 +69,7 @@ let main = async container => {
 
     showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
 
-    segmentManager = new SegmentManager();
+    moleculeManager = new MoleculeManager();
 
     chromosomeSelect = new MoleculeSelect({ container, palette: $('#trace3d_molecule_select_palette').get(0) });
 
@@ -93,36 +93,36 @@ let main = async container => {
     const eventListener =
         {
             receiveEvent: async ({ type, data }) => {
-                let segment;
+                let molecule;
 
-                if ('DidSelectSegment' === type) {
+                if ('DidSelectMolecule' === type) {
 
-                    segment = segmentManager.segmentWithName( data );
+                    molecule = moleculeManager.moleculeWithName( data );
 
                     sceneManager.dispose();
-                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
+                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(moleculeManager.path);
 
-                    setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
+                    setup({ sceneManager, chr, genomicStart, genomicEnd, molecule });
 
                 } else if ('DidLoadCSVFile' === type) {
 
                     let { name, payload } = data;
 
-                    segmentManager.path = name;
-                    segmentManager.ingest(payload);
+                    moleculeManager.path = name;
+                    moleculeManager.ingest(payload);
 
-                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(segmentManager.path);
+                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(moleculeManager.path);
 
                     igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
 
                     const initialMoleculeKey = '0';
-                    segment = segmentManager.segmentWithName( initialMoleculeKey );
+                    molecule = moleculeManager.moleculeWithName( initialMoleculeKey );
 
-                    chromosomeSelect.configure({ segments: segmentManager.segments, initialMoleculeKey });
+                    chromosomeSelect.configure({ molecules: moleculeManager.molecules, initialMoleculeKey });
 
                     sceneManager.dispose();
 
-                    setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
+                    setup({ sceneManager, chr, genomicStart, genomicEnd, molecule });
 
                 }
 
@@ -130,15 +130,15 @@ let main = async container => {
             }
         };
 
-    globalEventBus.subscribe('DidSelectSegment', eventListener);
+    globalEventBus.subscribe('DidSelectMolecule', eventListener);
     globalEventBus.subscribe('DidLoadCSVFile', eventListener);
 
 };
 
-let setup = ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
+let setup = ({ sceneManager, chr, genomicStart, genomicEnd, molecule }) => {
 
-    let [ segmentLength, segmentExtent, cameraPosition, centroid ] = [ segment.array.length, segment.extent, segment.cameraPosition, segment.centroid ];
-    sceneManager.configure({ chr, genomicStart, genomicEnd, segmentLength, segmentExtent, cameraPosition, centroid });
+    let [ moleculeLength, moleculeExtent, cameraPosition, centroid ] = [ molecule.array.length, molecule.extent, molecule.cameraPosition, molecule.centroid ];
+    sceneManager.configure({ chr, genomicStart, genomicEnd, moleculeLength, moleculeExtent, cameraPosition, centroid });
 
     // ball
     const sphereRadius = 24;
@@ -150,7 +150,7 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
     // Array of 3D objects. Index is segment index.
     sceneManager.segmentIndex2Object = [];
 
-    for(let item of segment.array) {
+    for(let item of molecule.array) {
 
         const [ x, y, z ] = item.xyz;
 
@@ -183,10 +183,10 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, segment }) => {
     }
 
     // stick
-    for (let i = 0, j = 1; j < segment.array.length; ++i, ++j) {
+    for (let i = 0, j = 1; j < molecule.array.length; ++i, ++j) {
 
-        const [ x0, y0, z0 ] = segment.array[i].xyz;
-        const [ x1, y1, z1 ] = segment.array[j].xyz;
+        const [ x0, y0, z0 ] = molecule.array[i].xyz;
+        const [ x1, y1, z1 ] = molecule.array[j].xyz;
 
         const doSkip = isNaN(x0) || isNaN(x1);
 

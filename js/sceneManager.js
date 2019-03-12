@@ -97,14 +97,14 @@ class SceneManager {
 
     }
 
-    configure({ chr, genomicStart, genomicEnd, segmentLength, segmentExtent, cameraPosition, centroid }) {
+    configure({ chr, genomicStart, genomicEnd, moleculeLength, moleculeExtent, cameraPosition, centroid }) {
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
 
-        this.colorRampPalette.configure({ chr, genomicStart, genomicEnd, segmentLength });
+        this.colorRampPalette.configure({ chr, genomicStart, genomicEnd, moleculeLength });
 
-        const [ extentX, extentY, extentZ ] = segmentExtent;
+        const [ extentX, extentY, extentZ ] = moleculeExtent;
 
         let dimen = 0.5 * Math.max(extentX, extentY, extentZ);
         dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
