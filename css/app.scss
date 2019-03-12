@@ -34,6 +34,10 @@ $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
 
 $trace3d_color_ramp_width: 36px;
 
+.navbar {
+  background-color: $trace3d_iron;
+}
+
 // root container
 #trace3d_canvas_container {
   position: relative;
