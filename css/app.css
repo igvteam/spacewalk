@@ -23,7 +23,7 @@
   background-color: #ffffff; }
 
 #trace3d_chromosome_select_palette.trace3d_tool_palette {
-  width: 384px;
+  width: 256px;
   height: 96px;
   background-color: #ffffff; }
   #trace3d_chromosome_select_palette.trace3d_tool_palette > div:first-child {
