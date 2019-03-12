@@ -9,12 +9,14 @@ import TrackManager from './trackManager.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 import SegmentGridSelectPalette from "./segmentGridSelectPalette.js";
 import DataFileLoader from "./dataFileLoader.js";
+import MoleculeSelect from "./moleculeSelect.js";
 
 import SegmentSelectPalette from "./segmentSelectPalette.js";
 import { parsePathEncodedGenomicLocation } from './segmentManager.js';
 import IGVPalette from "./igvPalette.js";
 
 let segmentManager;
+let chromosomeSelect;
 let dataFileLoader;
 let igvPalette;
 let segmentSelectPalette;
@@ -71,6 +73,8 @@ let main = async container => {
 
     trackManager = new TrackManager();
 
+    chromosomeSelect = new MoleculeSelect({ container, palette: $('#trace3d_molecule_select_palette').get(0) });
+
     dataFileLoader = new DataFileLoader({ container, palette: $('#trace3d_data_file_load_palette').get(0) });
 
     igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
@@ -85,7 +89,7 @@ let main = async container => {
     await igvPalette.gotoDefaultLocus();
 
     // segmentSelectPalette = new SegmentSelectPalette(container);
-    segmentGridSelectPalette = new SegmentGridSelectPalette(container);
+    // segmentGridSelectPalette = new SegmentGridSelectPalette(container);
 
     sceneManager.defaultConfiguration();
 
@@ -116,10 +120,12 @@ let main = async container => {
 
                     igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
 
-                    segment = segmentManager.segmentWithName( '1' );
+                    const initialMoleculeKey = '0';
+                    segment = segmentManager.segmentWithName( initialMoleculeKey );
 
                     // segmentSelectPalette.configure(segmentManager.segments);
-                    segmentGridSelectPalette.configure(segmentManager.segments);
+                    // segmentGridSelectPalette.configure(segmentManager.segments);
+                    chromosomeSelect.configure({ segments: segmentManager.segments, initialMoleculeKey });
 
                     sceneManager.dispose();
 
