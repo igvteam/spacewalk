@@ -70,7 +70,7 @@ $trace3d_color_ramp_width: 36px;
   background-color: $trace3d_snow;
 }
 
-// chromosome select palette
+// molecule select palette
 #trace3d_molecule_select_palette.trace3d_tool_palette {
 
   width: $trace3d_molecule_select_palette_width;
@@ -263,19 +263,6 @@ $trace3d_color_ramp_width: 36px;
 
 }
 
-// select palette
-#trace3d_segment_select_palette.trace3d_tool_palette {
-  padding-top: 16px;
-  justify-content: flex-start;
-  height: 2 * $trace3d_tool_palette_width;
-
-  select.form-control {
-    &[size], &[multiple] {
-      height: 1.5 * $trace3d_tool_palette_width;
-    }
-  }
-}
-
 // color ramp palette
 .trace3d_color_ramp_widget_container {
 
@@ -325,90 +312,4 @@ $trace3d_color_ramp_width: 36px;
     text-align: center;
   }
 
-}
-
-// segment grid select palette
-.trace3d_segment_grid_select_palette {
-
-  position: absolute;
-  width: $trace3d_segment_grid_select_palette_width;
-  height: $trace3d_segment_grid_select_palette_height;
-
-  z-index: 512;
-
-  background-color: rgba(255, 255, 255, 0.51);
-
-  border-style: solid;
-  border-width: $trace3d_segment_grid_select_border_width;
-  border-color: $trace3d_aluminum;
-  border-radius: $trace3d_border_radius;
-
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  align-items: center;
-
-  // header
-  #trace3d_segment_grid_select_header {
-    width: 100%;
-    height: $trace3d_segment_grid_select_header_height;
-    line-height: $trace3d_segment_grid_select_header_height;
-    text-align: center;
-    //background-color: red;
-    margin: 8px;
-  }
-
-  // box
-  #trace3d_segment_grid_select_box {
-    width: $trace3d_segment_grid_select_box_width + 2 * $trace3d_segment_grid_select_border_width;
-    height: $trace3d_segment_grid_select_box_height + 2 * $trace3d_segment_grid_select_border_width;
-
-    border-style: solid;
-    border-width: $trace3d_segment_grid_select_border_width;
-    border-color: $trace3d_aluminum;
-
-    padding: 8px;
-
-    //background-color: white;
-
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: center;
-
-    overflow: auto;
-
-    // cell
-    > div.trace3d_segment_grid_cell {
-      border: unset;
-      width: $trace3d_segment_grid_select_cell_size;
-      height: $trace3d_segment_grid_select_cell_size;
-      //background-color: transparent;
-      background-size: $trace3d_segment_grid_select_cell_size $trace3d_segment_grid_select_cell_size;
-      background-image: url(../img/dot_empty_ring.svg);
-    }
-
-    > div.trace3d_segment_grid_cell_clicked {
-      background-image: url(../img/dot_solid_disk.svg);
-    }
-
-    > div.trace3d_segment_grid_cell_unclicked {
-      background-image: url(../img/dot_empty_ring.svg);
-    }
-
-
-    //div:hover {
-    //  cursor: pointer;
-    //  background-image: url(../img/dot_solid_disk.svg);
-    //}
-  }
-
-}
-
-.trace3d_segment_grid_select_palette:hover {
-  border-width: 2px;
-  border-color: $trace3d_steel;
-  background-color: $trace3d_snow;
 }

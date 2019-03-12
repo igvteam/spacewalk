@@ -1,35 +1,38 @@
 import * as THREE from './threejs_es6/three.module.js';
-import { globalEventBus } from './eventBus.js';
 import SceneManager from './sceneManager.js';
-import SegmentManager from './segmentManager.js';
-import CubicMapManager from "./cubicMapManager.js";
+import CubicMapManager from './cubicMapManager.js';
 import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
 import TrackManager from './trackManager.js';
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
-import SegmentGridSelectPalette from "./segmentGridSelectPalette.js";
-import DataFileLoader from "./dataFileLoader.js";
-import MoleculeSelect from "./moleculeSelect.js";
+import DataFileLoader from './dataFileLoader.js';
+import MoleculeSelect from './moleculeSelect.js';
+import SegmentManager from './segmentManager.js';
+import IGVPalette from './igvPalette.js';
 
-import SegmentSelectPalette from "./segmentSelectPalette.js";
 import { parsePathEncodedGenomicLocation } from './segmentManager.js';
-import IGVPalette from "./igvPalette.js";
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
+import { globalEventBus } from './eventBus.js';
 
 let segmentManager;
+
 let chromosomeSelect;
+
 let dataFileLoader;
+
 let igvPalette;
-let segmentSelectPalette;
-let segmentGridSelectPalette;
+
 let trackManager;
+
 let diffuseCubicMapManager;
 
 let sphereGeometry;
 
 let showNormalsMaterial;
+
 let showSTMaterial;
 
 let sceneManager;
+
 let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 
 let main = async container => {
@@ -88,9 +91,6 @@ let main = async container => {
 
     await igvPalette.gotoDefaultLocus();
 
-    // segmentSelectPalette = new SegmentSelectPalette(container);
-    // segmentGridSelectPalette = new SegmentGridSelectPalette(container);
-
     sceneManager.defaultConfiguration();
 
     renderLoop();
@@ -100,7 +100,7 @@ let main = async container => {
             receiveEvent: async ({ type, data }) => {
                 let segment;
 
-                if ("DidSelectSegment" === type) {
+                if ('DidSelectSegment' === type) {
 
                     segment = segmentManager.segmentWithName( data );
 
@@ -109,7 +109,7 @@ let main = async container => {
 
                     setup({ sceneManager, chr, genomicStart, genomicEnd, segment });
 
-                } else if ("DidLoadCSVFile" === type) {
+                } else if ('DidLoadCSVFile' === type) {
 
                     let { name, payload } = data;
 
@@ -123,8 +123,6 @@ let main = async container => {
                     const initialMoleculeKey = '0';
                     segment = segmentManager.segmentWithName( initialMoleculeKey );
 
-                    // segmentSelectPalette.configure(segmentManager.segments);
-                    // segmentGridSelectPalette.configure(segmentManager.segments);
                     chromosomeSelect.configure({ segments: segmentManager.segments, initialMoleculeKey });
 
                     sceneManager.dispose();
@@ -137,8 +135,8 @@ let main = async container => {
             }
         };
 
-    globalEventBus.subscribe("DidSelectSegment", eventListener);
-    globalEventBus.subscribe("DidLoadCSVFile", eventListener);
+    globalEventBus.subscribe('DidSelectSegment', eventListener);
+    globalEventBus.subscribe('DidLoadCSVFile', eventListener);
 
 };
 
