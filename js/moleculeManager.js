@@ -1,5 +1,5 @@
 
-class SegmentManager {
+class MoleculeManager {
 
     constructor () {
         this.path = undefined;
@@ -16,7 +16,7 @@ class SegmentManager {
 
     ingest(string) {
         this.stepSize = 3e4;
-        this.segments = {};
+        this.molecules = {};
         const lines = string.split(/\r?\n/);
 
         // discard blurb
@@ -26,7 +26,7 @@ class SegmentManager {
         lines.shift();
 
         // chr index | segment index | Z | X | y
-        let [ chrIndexCurrent, moleculeIndex ] = [ undefined, undefined ];
+        let [ currentMoleculeKey, moleculeKey ] = [ undefined, undefined ];
 
         for (let line of lines) {
 
@@ -39,12 +39,12 @@ class SegmentManager {
 
                 const number = parseInt(parts[ 0 ], 10) - 1;
 
-                moleculeIndex = number.toString();
+                moleculeKey = number.toString();
 
-                if (undefined === chrIndexCurrent || chrIndexCurrent !== moleculeIndex) {
-                    chrIndexCurrent = moleculeIndex;
+                if (undefined === currentMoleculeKey || currentMoleculeKey !== moleculeKey) {
+                    currentMoleculeKey = moleculeKey;
 
-                    this.segments[ chrIndexCurrent ] = { bbox: [], extent: [], centroid: [], cameraPosition: [], array: [] };
+                    this.molecules[ currentMoleculeKey ] = { bbox: [], extent: [], centroid: [], cameraPosition: [], array: [] };
                 }
 
                 const segmentIndex = parseInt(parts[1]);
@@ -57,15 +57,15 @@ class SegmentManager {
                 parts.shift();
 
                 let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
-                this.segments[ chrIndexCurrent ].array.push({ molIndex: moleculeIndex, segmentIndex: segmentIndex, xyz: [ x, y, z ] });
+                this.molecules[ currentMoleculeKey ].array.push({ moleculeKey: moleculeKey, segmentIndex: segmentIndex, xyz: [ x, y, z ] });
 
             }
 
         }
 
-        Object.values(this.segments).forEach(segment => {
+        Object.values(this.molecules).forEach(molecule => {
 
-            const [ minX, minY, minZ, maxX, maxY, maxZ ] = segment.array.map(items => items.xyz).reduce((accumulator, xyz) => {
+            const [ minX, minY, minZ, maxX, maxY, maxZ ] = molecule.array.map(items => items.xyz).reduce((accumulator, xyz) => {
 
                 const doSkip = isNaN(xyz[ 0 ])|| isNaN(xyz[ 1 ]) || isNaN(xyz[ 2 ]);
 
@@ -89,31 +89,31 @@ class SegmentManager {
             }, [ Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE ]);
 
             // bbox
-            segment.bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
+            molecule.bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
 
             // bounding hyper-rectangle
             const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
-            segment.extent = [ extentX, extentY, extentZ ];
+            molecule.extent = [ extentX, extentY, extentZ ];
 
             // longest edge
-            let edgeLength = Math.max(...segment.extent);
+            let edgeLength = Math.max(...molecule.extent);
 
             // radius of bounding sphere
-            segment.boundingRadius = Math.sqrt(3 * edgeLength * edgeLength);
+            molecule.boundingRadius = Math.sqrt(3 * edgeLength * edgeLength);
 
             // Centroid of molecule. where will will aim the camera
             const [ centroidX, centroidY, centroidZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
-            segment.centroid = [ centroidX, centroidY, centroidZ ];
+            molecule.centroid = [ centroidX, centroidY, centroidZ ];
 
             // where to position the camera. the camera with look at the centroid
-            segment.cameraPosition = [ centroidX + segment.boundingRadius, centroidY + segment.boundingRadius, centroidZ + segment.boundingRadius ];
+            molecule.cameraPosition = [ centroidX + molecule.boundingRadius, centroidY + molecule.boundingRadius, centroidZ + molecule.boundingRadius ];
 
         });
 
     }
 
-    segmentWithName(name) {
-        return this.segments[ name ] || undefined;
+    moleculeWithName(name) {
+        return this.molecules[ name ] || undefined;
     }
 }
 
@@ -134,4 +134,4 @@ export let parsePathEncodedGenomicLocation = path => {
     return [ chr, parseInt(start) * 1e6, parseInt(end) * 1e6 ];
 };
 
-export default SegmentManager;
+export default MoleculeManager;

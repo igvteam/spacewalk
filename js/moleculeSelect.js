@@ -40,7 +40,7 @@ class MoleculeSelect {
 
             this.$input.val(currentMoleculeKey);
 
-            globalEventBus.post({ type: "DidSelectSegment", data: currentMoleculeKey });
+            globalEventBus.post({ type: "DidSelectMolecule", data: currentMoleculeKey });
         });
 
         this.$button_plus.on('click.trace3d_molecule_select_button_plus', (e) => {
@@ -51,7 +51,7 @@ class MoleculeSelect {
 
             this.$input.val(currentMoleculeKey);
 
-            globalEventBus.post({ type: "DidSelectSegment", data: currentMoleculeKey });
+            globalEventBus.post({ type: "DidSelectMolecule", data: currentMoleculeKey });
         });
 
         this.$input.on('keyup.trace3d_molecule_select_input', (e) => {
@@ -65,7 +65,7 @@ class MoleculeSelect {
                 currentMoleculeKey = number.toString();
                 this.$input.val(currentMoleculeKey);
 
-                globalEventBus.post({ type: "DidSelectSegment", data: currentMoleculeKey });
+                globalEventBus.post({ type: "DidSelectMolecule", data: currentMoleculeKey });
             }
 
         });
@@ -74,9 +74,9 @@ class MoleculeSelect {
 
     }
 
-    configure({ segments, initialMoleculeKey }) {
+    configure({ molecules, initialMoleculeKey }) {
 
-        this.keys = Object.keys(segments);
+        this.keys = Object.keys(molecules);
         this.$header.text(this.keys.length + ' molecules');
 
         currentMoleculeKey = initialMoleculeKey;
