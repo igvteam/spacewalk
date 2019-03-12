@@ -24,7 +24,7 @@
 
 #trace3d_chromosome_select_palette.trace3d_tool_palette {
   width: 256px;
-  height: 96px;
+  height: 128px;
   background-color: #ffffff; }
   #trace3d_chromosome_select_palette.trace3d_tool_palette > div:first-child {
     border-top-style: solid;
@@ -45,9 +45,11 @@
     border-bottom-color: transparent;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
-    line-height: 16px;
-    vertical-align: center;
-    height: 16px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: center;
     width: 100%; }
 
 #trace3d_igv_palette.trace3d_tool_palette {
