@@ -6,7 +6,7 @@ let currentFile = undefined;
 let currentURL = undefined;
 class DataFileLoader {
 
-    constructor({ container, palette }) {
+    constructor({ container, palette, presentationButton }) {
 
         layout(container, palette);
 
@@ -44,6 +44,8 @@ class DataFileLoader {
             loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border')});
             $url_input.val('');
             currentURL = undefined;
+
+            $(palette).hide();
         });
 
         // Local file
@@ -70,7 +72,15 @@ class DataFileLoader {
             $file_label.text('Choose CSV File');
             currentFile = undefined;
             $file_button.prop('disabled', true);
+
+            $(palette).hide();
         });
+
+        $(presentationButton).on('click.trace3d_present_data_file_load_palette', (e) => {
+            $(palette).toggle();
+        });
+
+        $(palette).hide();
 
     }
 
