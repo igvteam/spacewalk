@@ -24,15 +24,19 @@ $trace3d_segment_grid_select_cell_size: $trace3d_segment_grid_select_box_size / 
 $trace3d_data_file_load_palette_width: 4 * 128px;
 $trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 4;
 
-$trace3d_molecule_select_palette_width: 256px;
-$trace3d_molecule_select_palette_height: 108px;
-$trace3d_molecule_select_palette_label_height: 16px;
+$trace3d_structure_select_palette_width: 256px;
+$trace3d_structure_select_palette_height: 108px;
+$trace3d_structure_select_palette_label_height: 16px;
 
 $trace3d_igv_palette_dimension: 128px;
 $trace3d_igv_palette_width: 4 * $trace3d_igv_palette_dimension;
 $trace3d_igv_palette_height: $trace3d_igv_palette_dimension;
 
 $trace3d_color_ramp_width: 36px;
+
+.navbar {
+  background-color: $trace3d_iron;
+}
 
 // root container
 #trace3d_canvas_container {
@@ -70,11 +74,11 @@ $trace3d_color_ramp_width: 36px;
   background-color: $trace3d_snow;
 }
 
-// molecule select palette
-#trace3d_molecule_select_palette.trace3d_tool_palette {
+// structure select palette
+#trace3d_structure_select_palette.trace3d_tool_palette {
 
-  width: $trace3d_molecule_select_palette_width;
-  height: $trace3d_molecule_select_palette_height;
+  width: $trace3d_structure_select_palette_width;
+  height: $trace3d_structure_select_palette_height;
 
   background-color: $trace3d_snow;
 
@@ -89,9 +93,9 @@ $trace3d_color_ramp_width: 36px;
     border-top-left-radius: $trace3d_border_radius;
     border-top-right-radius: $trace3d_border_radius;
 
-    line-height: $trace3d_molecule_select_palette_label_height;
+    line-height: $trace3d_structure_select_palette_label_height;
     vertical-align: center;
-    height: $trace3d_molecule_select_palette_label_height;
+    height: $trace3d_structure_select_palette_label_height;
 
     width: 100%;
     //background-color: $trace3d_honeydew;
@@ -102,7 +106,7 @@ $trace3d_color_ramp_width: 36px;
     margin: 8px;
     width: 95%;
 
-    input#trace3d_molecule_select_input {
+    input#trace3d_structure_select_input {
       font-size: 18px;
     }
   }
@@ -118,9 +122,9 @@ $trace3d_color_ramp_width: 36px;
     border-bottom-left-radius: $trace3d_border_radius;
     border-bottom-right-radius: $trace3d_border_radius;
 
-    line-height: $trace3d_molecule_select_palette_label_height;
+    line-height: $trace3d_structure_select_palette_label_height;
     vertical-align: center;
-    height: $trace3d_molecule_select_palette_label_height;
+    height: $trace3d_structure_select_palette_label_height;
 
     width: 100%;
   }

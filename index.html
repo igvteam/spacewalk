@@ -16,9 +16,6 @@
     <!-- Bootstrap 4 CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <!-- Bootstrap Select CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/css/bootstrap-select.min.css">
-
     <!-- APP CSS -->
     <link rel="stylesheet" href="css/app.css">
 
@@ -27,61 +24,104 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <!-- Bootstrap Select JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/bootstrap-select.min.js"></script>
-
     <script type="x-shader/x-vertex" id="diffuse_cube_vert">
 
-            vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
-                return normalize( ( vec4( dir, 0.0 ) * matrix ).xyz );
-            }
+        vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
+            return normalize( ( vec4( dir, 0.0 ) * matrix ).xyz );
+        }
 
-            // vNormalWorldSpace - world space
-            varying vec3 vNormalWorldSpace;
+        // vNormalWorldSpace - world space
+        varying vec3 vNormalWorldSpace;
 
-            // vNormalEyeSpace - the eye space normal
-			varying vec3 vNormalEyeSpace;
-			void main() {
+        // vNormalEyeSpace - the eye space normal
+        varying vec3 vNormalEyeSpace;
+        void main() {
 
-				// Use the normalMatrix to convert the world space normal eye space
-				// normalMatrix = transpose( inverse( modelViewMatrix ) )
-				vNormalEyeSpace = normalMatrix * vec4(normal, 1.0).xyz;
+            // Use the normalMatrix to convert the world space normal eye space
+            // normalMatrix = transpose( inverse( modelViewMatrix ) )
+            vNormalEyeSpace = normalMatrix * vec4(normal, 1.0).xyz;
 
-	            vNormalWorldSpace = inverseTransformDirection(vNormalEyeSpace, viewMatrix);
+            vNormalWorldSpace = inverseTransformDirection(vNormalEyeSpace, viewMatrix);
 
-				gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
-			}
+            gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+        }
     </script>
 
     <script type="x-shader/x-fragment" id="diffuse_cube_frag">
-            uniform samplerCube cubicMap;
-            varying vec3 vNormalWorldSpace;
-			varying vec3 vNormalEyeSpace;
-			void main() {
-			    vec3 index = vec3(-vNormalWorldSpace.x, vNormalWorldSpace.y, vNormalWorldSpace.z);
-				vec3 rgb = textureCube(cubicMap, index).rgb;
-	            gl_FragColor = vec4(rgb, 1.0);
-			}
+        uniform samplerCube cubicMap;
+        varying vec3 vNormalWorldSpace;
+        varying vec3 vNormalEyeSpace;
+        void main() {
+            vec3 index = vec3(-vNormalWorldSpace.x, vNormalWorldSpace.y, vNormalWorldSpace.z);
+            vec3 rgb = textureCube(cubicMap, index).rgb;
+            gl_FragColor = vec4(rgb, 1.0);
+        }
     </script>
 
     <script type="x-shader/x-vertex" id="show_st_vert">
-			varying vec2 vST;
-			void main() {
-				vST = uv;
-				gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
-			}
+        varying vec2 vST;
+        void main() {
+            vST = uv;
+            gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+        }
     </script>
 
     <script type="x-shader/x-fragment" id="show_st_frag">
-			varying vec2 vST;
-			void main() {
-				gl_FragColor = vec4(vST.s, vST.t, 0.0, 1.0);
-			}
+        varying vec2 vST;
+        void main() {
+            gl_FragColor = vec4(vST.s, vST.t, 0.0, 1.0);
+        }
     </script>
 
     <script type="module" src="js/app.js"></script>
 
 </head>
+
+<!--<nav class="navbar navbar-dark navbar-expand-md">-->
+
+    <!--<span class="navbar-brand">Tracing3D</span>-->
+
+    <!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#trace3d_navbar_collapse">-->
+        <!--<span class="navbar-toggler-icon"></span>-->
+    <!--</button>-->
+
+    <!--<div id="trace3d_navbar_collapse" class="collapse navbar-collapse">-->
+        <!--<ul class="navbar-nav ml-5">-->
+
+            <!--&lt;!&ndash; Load CSV &ndash;&gt;-->
+            <!--<li class="nav-item dropdown mr-4">-->
+
+                <!--<a id="trace3d_load_csv_dropdown_toggle" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">-->
+                    <!--Load CSV File-->
+                <!--</a>-->
+                <!--<div class="dropdown-menu">-->
+                    <!--<a class="dropdown-item" href="#">Action</a>-->
+                    <!--<a class="dropdown-item" href="#">Another action</a>-->
+                    <!--<div class="dropdown-divider"></div>-->
+                    <!--<a class="dropdown-item" href="#">Something else here</a>-->
+                <!--</div>-->
+
+            <!--</li>-->
+
+            <!--&lt;!&ndash; Load Track &ndash;&gt;-->
+            <!--<li class="nav-item dropdown ml-4">-->
+
+                <!--<a id="trace3d_load_track_dropdown_toggle" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">-->
+                    <!--Load Track-->
+                <!--</a>-->
+                <!--<div class="dropdown-menu">-->
+                    <!--<a class="dropdown-item" href="#">Action</a>-->
+                    <!--<a class="dropdown-item" href="#">Another action</a>-->
+                    <!--<div class="dropdown-divider"></div>-->
+                    <!--<a class="dropdown-item" href="#">Something else here</a>-->
+                <!--</div>-->
+
+            <!--</li>-->
+
+        <!--</ul>-->
+    <!--</div>-->
+
+<!--</nav>-->
 
 <body>
 
@@ -90,27 +130,27 @@
         <div class="col-sm m-0 p-0">
             <div id="trace3d_canvas_container">
 
-                <!-- molecule select palette -->
-                <div id="trace3d_molecule_select_palette" class="trace3d_tool_palette">
+                <!-- structure select palette -->
+                <div id="trace3d_structure_select_palette" class="trace3d_tool_palette">
 
                     <!-- header -->
-                    <div id="trace3d_molecule_select_header" class="text-center">
+                    <div id="trace3d_structure_select_header" class="text-center">
 
                     </div>
 
-                    <!-- molecule select widget -->
+                    <!-- structure select widget -->
                     <div class="form-group">
                         <div class="input-group input-group-sm">
-                            <input id="trace3d_molecule_select_input" type="text" class="form-control text-center">
+                            <input id="trace3d_structure_select_input" type="text" class="form-control text-center">
                             <div class="input-group-append">
-                                <button id="trace3d_molecule_select_button_minus" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
-                                <button id="trace3d_molecule_select_button_plus" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+                                <button id="trace3d_structure_select_button_minus" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
+                                <button id="trace3d_structure_select_button_plus" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
                             </div>
                         </div>
                     </div>
 
                     <!-- footer -->
-                    <div id="trace3d_molecule_select_footer" class="text-center">
+                    <div id="trace3d_structure_select_footer" class="text-center">
 
                     </div>
 
@@ -191,7 +231,6 @@
             </div>
         </div>
     </div>
-
 </main>
 
 </body>

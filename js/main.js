@@ -4,17 +4,17 @@ import CubicMapManager from './cubicMapManager.js';
 import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
 import DataFileLoader from './dataFileLoader.js';
-import MoleculeSelect from './moleculeSelect.js';
-import MoleculeManager from './moleculeManager.js';
+import StructureSelect from './structureSelect.js';
+import StructureManager from './structureManager.js';
 import IGVPalette from './igvPalette.js';
 
-import { parsePathEncodedGenomicLocation } from './moleculeManager.js';
+import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 import { globalEventBus } from './eventBus.js';
 
-let moleculeManager;
+let structureManager;
 
-let chromosomeSelect;
+let structureSelect;
 
 let dataFileLoader;
 
@@ -69,9 +69,9 @@ let main = async container => {
 
     showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
 
-    moleculeManager = new MoleculeManager();
+    structureManager = new StructureManager();
 
-    chromosomeSelect = new MoleculeSelect({ container, palette: $('#trace3d_molecule_select_palette').get(0) });
+    structureSelect = new StructureSelect({ container, palette: $('#trace3d_structure_select_palette').get(0) });
 
     dataFileLoader = new DataFileLoader({ container, palette: $('#trace3d_data_file_load_palette').get(0) });
 
@@ -93,36 +93,36 @@ let main = async container => {
     const eventListener =
         {
             receiveEvent: async ({ type, data }) => {
-                let molecule;
+                let structure;
 
-                if ('DidSelectMolecule' === type) {
+                if ('DidSelectStructure' === type) {
 
-                    molecule = moleculeManager.moleculeWithName( data );
+                    structure = structureManager.structureWithName(data);
 
                     sceneManager.dispose();
-                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(moleculeManager.path);
+                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(structureManager.path);
 
-                    setup({ sceneManager, chr, genomicStart, genomicEnd, molecule });
+                    setup({ sceneManager, chr, genomicStart, genomicEnd, structure });
 
                 } else if ('DidLoadCSVFile' === type) {
 
                     let { name, payload } = data;
 
-                    moleculeManager.path = name;
-                    moleculeManager.ingest(payload);
+                    structureManager.path = name;
+                    structureManager.ingest(payload);
 
-                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(moleculeManager.path);
+                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(structureManager.path);
 
                     igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
 
-                    const initialMoleculeKey = '0';
-                    molecule = moleculeManager.moleculeWithName( initialMoleculeKey );
+                    const initialStructureKey = '0';
+                    structure = structureManager.structureWithName(initialStructureKey);
 
-                    chromosomeSelect.configure({ molecules: moleculeManager.molecules, initialMoleculeKey });
+                    structureSelect.configure({ structures: structureManager.structures, initialStructureKey });
 
                     sceneManager.dispose();
 
-                    setup({ sceneManager, chr, genomicStart, genomicEnd, molecule });
+                    setup({ sceneManager, chr, genomicStart, genomicEnd, structure });
 
                 }
 
@@ -130,15 +130,15 @@ let main = async container => {
             }
         };
 
-    globalEventBus.subscribe('DidSelectMolecule', eventListener);
+    globalEventBus.subscribe('DidSelectStructure', eventListener);
     globalEventBus.subscribe('DidLoadCSVFile', eventListener);
 
 };
 
-let setup = ({ sceneManager, chr, genomicStart, genomicEnd, molecule }) => {
+let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
-    let [ moleculeLength, moleculeExtent, cameraPosition, centroid ] = [ molecule.array.length, molecule.extent, molecule.cameraPosition, molecule.centroid ];
-    sceneManager.configure({ chr, genomicStart, genomicEnd, moleculeLength, moleculeExtent, cameraPosition, centroid });
+    let [ structureLength, structureExtent, cameraPosition, centroid ] = [ structure.array.length, structure.extent, structure.cameraPosition, structure.centroid ];
+    sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, centroid });
 
     // ball
     const sphereRadius = 24;
@@ -150,7 +150,7 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, molecule }) => {
     // Array of 3D objects. Index is segment index.
     sceneManager.segmentIndex2Object = [];
 
-    for(let item of molecule.array) {
+    for(let item of structure.array) {
 
         const [ x, y, z ] = item.xyz;
 
@@ -183,10 +183,10 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, molecule }) => {
     }
 
     // stick
-    for (let i = 0, j = 1; j < molecule.array.length; ++i, ++j) {
+    for (let i = 0, j = 1; j < structure.array.length; ++i, ++j) {
 
-        const [ x0, y0, z0 ] = molecule.array[i].xyz;
-        const [ x1, y1, z1 ] = molecule.array[j].xyz;
+        const [ x0, y0, z0 ] = structure.array[i].xyz;
+        const [ x1, y1, z1 ] = structure.array[j].xyz;
 
         const doSkip = isNaN(x0) || isNaN(x1);
 

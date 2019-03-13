@@ -80,8 +80,8 @@ class ColorRampWidget {
 
         // flip direction
         yNormalized = 1.0 - yNormalized;
-        const quantized = quantize(yNormalized, this.moleculeLength);
-        const one_based = lerp(1, this.moleculeLength, quantized);
+        const quantized = quantize(yNormalized, this.structureLength);
+        const one_based = lerp(1, this.structureLength, quantized);
 
         const segmentIndex = Math.ceil(one_based);
 
@@ -92,35 +92,35 @@ class ColorRampWidget {
 
     };
 
-    configure({ chr, genomicStart, genomicEnd, moleculeLength }) {
+    configure({ chr, genomicStart, genomicEnd, structureLength }) {
 
-        this.moleculeLength = moleculeLength;
+        this.structureLength = structureLength;
 
         const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
         this.footer.innerText = ss + 'Mb';
         this.header.innerText = ee + 'Mb';
-        this.paintQuantizedRamp(this.context, this.colors, moleculeLength, undefined);
+        this.paintQuantizedRamp(this.context, this.colors, structureLength, undefined);
     }
 
     repaint () {
-        this.paintQuantizedRamp(this.context, this.colors, this.moleculeLength, undefined);
+        this.paintQuantizedRamp(this.context, this.colors, this.structureLength, undefined);
     }
 
     highlight (segmentIndex) {
-        this.paintQuantizedRamp(this.context, this.colors, this.moleculeLength, segmentIndex)
+        this.paintQuantizedRamp(this.context, this.colors, this.structureLength, segmentIndex)
     }
 
-    paintQuantizedRamp(ctx, colors, moleculeLength, highlightedSegmentIndex){
+    paintQuantizedRamp(ctx, colors, structureLength, highlightedSegmentIndex){
 
         const yIndices = new Array(ctx.canvas.offsetHeight);
 
         for (let y = 0;  y < yIndices.length; y++) {
 
             let quantized = y / yIndices.length;
-            quantized = quantize(quantized, moleculeLength);
+            quantized = quantize(quantized, structureLength);
             quantized = 1.0 - quantized;
 
-            const segmentIndex = Math.round(quantized * moleculeLength);
+            const segmentIndex = Math.round(quantized * structureLength);
 
             // const now = Date.now();
             // console.log('time(' + now + ')' + ' x ' + quantized + ' segment index ' + segmentIndex);
@@ -139,7 +139,7 @@ class ColorRampWidget {
 
     colorForSegmentIndex(index) {
 
-        const interpolant = index / this.moleculeLength;
+        const interpolant = index / this.structureLength;
         const { r, g, b } = rgb255Lerp(this.colors[ 0 ], this.colors[ 1 ], interpolant);
         const str = `rgb(${r},${g},${b})`;
 

@@ -1,3 +1,6 @@
+.navbar {
+  background-color: #545453; }
+
 #trace3d_canvas_container {
   position: relative; }
 
@@ -22,11 +25,11 @@
   border-color: #6e6e6e;
   background-color: #ffffff; }
 
-#trace3d_molecule_select_palette.trace3d_tool_palette {
+#trace3d_structure_select_palette.trace3d_tool_palette {
   width: 256px;
   height: 108px;
   background-color: #ffffff; }
-  #trace3d_molecule_select_palette.trace3d_tool_palette > div:first-child {
+  #trace3d_structure_select_palette.trace3d_tool_palette > div:first-child {
     cursor: move;
     border-top-style: solid;
     border-top-width: thin;
@@ -37,12 +40,12 @@
     vertical-align: center;
     height: 16px;
     width: 100%; }
-  #trace3d_molecule_select_palette.trace3d_tool_palette > .form-group {
+  #trace3d_structure_select_palette.trace3d_tool_palette > .form-group {
     margin: 8px;
     width: 95%; }
-    #trace3d_molecule_select_palette.trace3d_tool_palette > .form-group input#trace3d_molecule_select_input {
+    #trace3d_structure_select_palette.trace3d_tool_palette > .form-group input#trace3d_structure_select_input {
       font-size: 18px; }
-  #trace3d_molecule_select_palette.trace3d_tool_palette > div:last-child {
+  #trace3d_structure_select_palette.trace3d_tool_palette > div:last-child {
     cursor: default;
     border-bottom-style: solid;
     border-bottom-width: thin;
