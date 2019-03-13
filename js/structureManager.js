@@ -1,5 +1,5 @@
 
-class MoleculeManager {
+class StructureManager {
 
     constructor () {
         this.path = undefined;
@@ -16,7 +16,7 @@ class MoleculeManager {
 
     ingest(string) {
         this.stepSize = 3e4;
-        this.molecules = {};
+        this.structures = {};
         const lines = string.split(/\r?\n/);
 
         // discard blurb
@@ -26,7 +26,7 @@ class MoleculeManager {
         lines.shift();
 
         // chr index | segment index | Z | X | y
-        let [ currentMoleculeKey, moleculeKey ] = [ undefined, undefined ];
+        let [ currentStructureKey, structureKey ] = [ undefined, undefined ];
 
         for (let line of lines) {
 
@@ -39,12 +39,12 @@ class MoleculeManager {
 
                 const number = parseInt(parts[ 0 ], 10) - 1;
 
-                moleculeKey = number.toString();
+                structureKey = number.toString();
 
-                if (undefined === currentMoleculeKey || currentMoleculeKey !== moleculeKey) {
-                    currentMoleculeKey = moleculeKey;
+                if (undefined === currentStructureKey || currentStructureKey !== structureKey) {
+                    currentStructureKey = structureKey;
 
-                    this.molecules[ currentMoleculeKey ] = { bbox: [], extent: [], centroid: [], cameraPosition: [], array: [] };
+                    this.structures[ currentStructureKey ] = { bbox: [], extent: [], centroid: [], cameraPosition: [], array: [] };
                 }
 
                 const segmentIndex = parseInt(parts[1]);
@@ -57,15 +57,15 @@ class MoleculeManager {
                 parts.shift();
 
                 let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
-                this.molecules[ currentMoleculeKey ].array.push({ moleculeKey: moleculeKey, segmentIndex: segmentIndex, xyz: [ x, y, z ] });
+                this.structures[ currentStructureKey ].array.push({ structureKey: structureKey, segmentIndex: segmentIndex, xyz: [ x, y, z ] });
 
             }
 
         }
 
-        Object.values(this.molecules).forEach(molecule => {
+        Object.values(this.structures).forEach(structure => {
 
-            const [ minX, minY, minZ, maxX, maxY, maxZ ] = molecule.array.map(items => items.xyz).reduce((accumulator, xyz) => {
+            const [ minX, minY, minZ, maxX, maxY, maxZ ] = structure.array.map(items => items.xyz).reduce((accumulator, xyz) => {
 
                 const doSkip = isNaN(xyz[ 0 ])|| isNaN(xyz[ 1 ]) || isNaN(xyz[ 2 ]);
 
@@ -89,31 +89,31 @@ class MoleculeManager {
             }, [ Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE ]);
 
             // bbox
-            molecule.bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
+            structure.bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
 
             // bounding hyper-rectangle
             const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
-            molecule.extent = [ extentX, extentY, extentZ ];
+            structure.extent = [ extentX, extentY, extentZ ];
 
             // longest edge
-            let edgeLength = Math.max(...molecule.extent);
+            let edgeLength = Math.max(...structure.extent);
 
             // radius of bounding sphere
-            molecule.boundingRadius = Math.sqrt(3 * edgeLength * edgeLength);
+            structure.boundingRadius = Math.sqrt(3 * edgeLength * edgeLength);
 
-            // Centroid of molecule. where will will aim the camera
+            // Centroid of structure. where will will aim the camera
             const [ centroidX, centroidY, centroidZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
-            molecule.centroid = [ centroidX, centroidY, centroidZ ];
+            structure.centroid = [ centroidX, centroidY, centroidZ ];
 
             // where to position the camera. the camera with look at the centroid
-            molecule.cameraPosition = [ centroidX + molecule.boundingRadius, centroidY + molecule.boundingRadius, centroidZ + molecule.boundingRadius ];
+            structure.cameraPosition = [ centroidX + structure.boundingRadius, centroidY + structure.boundingRadius, centroidZ + structure.boundingRadius ];
 
         });
 
     }
 
-    moleculeWithName(name) {
-        return this.molecules[ name ] || undefined;
+    structureWithName(name) {
+        return this.structures[ name ] || undefined;
     }
 }
 
@@ -134,4 +134,4 @@ export let parsePathEncodedGenomicLocation = path => {
     return [ chr, parseInt(start) * 1e6, parseInt(end) * 1e6 ];
 };
 
-export default MoleculeManager;
+export default StructureManager;
