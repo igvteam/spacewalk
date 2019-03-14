@@ -6,7 +6,7 @@ class ColorRampPalette {
     constructor({ container, colors, highlightColor }) {
 
         const palette = document.createElement('div');
-        palette.className = 'trace3d_tool_palette';
+        palette.className = 'card';
         palette.setAttribute('id', 'trace3d_color_ramp_palette');
         container.appendChild( palette );
 
