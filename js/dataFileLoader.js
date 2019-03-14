@@ -14,12 +14,14 @@ class DataFileLoader {
 
         $(window).on('resize.trace3d.data_file_load_widget', () => { this.onWindowResize(container, palette) });
 
-        $(palette).on('mouseenter.trace3d.data_file_load_widget', (event) => {
+        const $palette = $(palette);
+
+        $palette.on('mouseenter.trace3d.data_file_load_widget', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidEnterGUI" });
         });
 
-        $(palette).on('mouseleave.trace3d.data_file_load_widget', (event) => {
+        $palette.on('mouseleave.trace3d.data_file_load_widget', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
@@ -41,11 +43,9 @@ class DataFileLoader {
         $url_button.on('click.trace3d_data_file_load_url_button', (event) => {
             event.stopPropagation();
             $url_input.trigger('change.trace3d_data_file_load_url_input');
-            loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border')});
+            loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border'), $palette });
             $url_input.val('');
             currentURL = undefined;
-
-            $(palette).hide();
         });
 
         // Local file
@@ -73,14 +73,14 @@ class DataFileLoader {
             currentFile = undefined;
             $file_button.prop('disabled', true);
 
-            $(palette).hide();
+            $palette.hide();
         });
 
         $(presentationButton).on('click.trace3d_present_data_file_load_palette', (e) => {
-            $(palette).toggle();
+            $palette.toggle();
         });
 
-        $(palette).hide();
+        $palette.hide();
 
     }
 
@@ -90,7 +90,7 @@ class DataFileLoader {
 
 }
 
-const loadURL = async ({ url, $spinner }) => {
+const loadURL = async ({ url, $spinner, $palette }) => {
 
     url = url || '';
 
@@ -103,6 +103,8 @@ const loadURL = async ({ url, $spinner }) => {
             $spinner.show();
             const urlContents = await igv.xhr.load(url);
             $spinner.hide();
+
+            $palette.hide();
 
             globalEventBus.post({ type: "DidLoadCSVFile", data: { name: file, payload: urlContents } });
 
