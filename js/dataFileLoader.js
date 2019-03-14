@@ -114,6 +114,7 @@ const loadURL = async ({ url, $spinner, $palette }) => {
 
     }
 
+    globalEventBus.post({ type: "DidLeaveGUI" });
 
 };
 
@@ -125,6 +126,8 @@ const loadFile = async file => {
     } catch (e) {
         console.warn(e.message)
     }
+
+    globalEventBus.post({ type: "DidLeaveGUI" });
 };
 
 const readFileAsText = file => {

@@ -201,7 +201,10 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
             // const material = diffuseCubicMapManager.material;
 
-            sceneManager.scene.add(new THREE.Mesh(geometry, material));
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.name = 'stick';
+
+            sceneManager.scene.add( mesh );
         }
 
     }
