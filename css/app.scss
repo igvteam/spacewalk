@@ -31,50 +31,145 @@ $trace3d_color_ramp_width: 36px;
   background-color: $trace3d_iron;
 }
 
-// palette template
-.trace3d_tool_palette {
+.card {
+  position: absolute;
+  z-index: 512;
 
   width: $trace3d_tool_palette_width;
   height: $trace3d_tool_palette_height;
 
-  z-index: 512;
-
-  background-color: rgba(255, 255, 255, 0.65);
-
-  border-style: solid;
-  border-width: thin;
   border-color: $trace3d_aluminum;
-  border-radius: $trace3d_border_radius;
-
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
+  background-color: rgba(255, 255, 255, 0.65);
 
 }
 
-.trace3d_tool_palette:hover {
+.card:hover {
   border-width: 2px;
   border-color: $trace3d_steel;
   background-color: $trace3d_snow;
 }
 
-// data file loading (CSV Segment Files) palette
-#trace3d_data_file_load_palette.trace3d_tool_palette {
+// color ramp palette
+#trace3d_color_ramp_palette.card {
 
-  position: absolute;
+  width: $trace3d_color_ramp_palette_width;
+  height: $trace3d_color_ramp_palette_height;
+
+  align-items: center;
+  justify-content: center;
+
+  .trace3d_color_ramp_widget_container {
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 100px;
+    height: 95%;
+
+    background-color: transparent;
+
+    font-size: 16px;
+
+    // header text
+    .trace3d_color_ramp_header {
+      width: 100%;
+      height: $trace3d_text_box_height;
+
+      line-height: $trace3d_text_box_height;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    // ramp
+    .trace3d_color_ramp {
+      cursor: pointer;
+      width: 36px;
+      height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
+
+      background-color: transparent;
+    }
+
+    // footer text
+    .trace3d_color_ramp_footer {
+      width: 100%;
+      height: $trace3d_text_box_height;
+
+      line-height: $trace3d_text_box_height;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+  }
+
+}
+
+// structure select palette
+#trace3d_structure_select_palette.card {
+
+  width: $trace3d_structure_select_palette_width;
+  height: auto;
+
+  background-color: $trace3d_snow;
+
+  >div:first-child {
+
+    cursor: move;
+
+    // border top
+    border-top-style: solid;
+    border-top-width: thin;
+    border-top-color: transparent;
+    border-top-left-radius: $trace3d_border_radius;
+    border-top-right-radius: $trace3d_border_radius;
+
+    line-height: $trace3d_structure_select_palette_label_height;
+    vertical-align: center;
+    height: $trace3d_structure_select_palette_label_height;
+
+    width: 100%;
+    //background-color: $trace3d_honeydew;
+
+  }
+
+  >.form-group {
+    width: 95%;
+
+    input#trace3d_structure_select_input {
+      font-size: 18px;
+    }
+  }
+
+  >div:last-child {
+
+    cursor: default;
+
+    // border top
+    border-bottom-style: solid;
+    border-bottom-width: thin;
+    border-bottom-color: transparent;
+    border-bottom-left-radius: $trace3d_border_radius;
+    border-bottom-right-radius: $trace3d_border_radius;
+
+    line-height: $trace3d_structure_select_palette_label_height;
+    vertical-align: center;
+    height: $trace3d_structure_select_palette_label_height;
+
+    width: 100%;
+  }
+
+
+}
+
+// data file loading (CSV Segment Files) palette
+#trace3d_data_file_load_palette.card {
 
   width: $trace3d_data_file_load_palette_width;
   height: auto;
 
   background-color: $trace3d_snow;
-
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: space-evenly;
-  align-items: center;
 
   .form-group {
     margin: 8px;
@@ -126,79 +221,17 @@ $trace3d_color_ramp_width: 36px;
 
 }
 
-// structure select palette
-#trace3d_structure_select_palette.trace3d_tool_palette {
-
-  position: absolute;
-
-  width: $trace3d_structure_select_palette_width;
-  height: $trace3d_structure_select_palette_height;
-
-  background-color: $trace3d_snow;
-
-  >div:first-child {
-
-    cursor: move;
-
-    // border top
-    border-top-style: solid;
-    border-top-width: thin;
-    border-top-color: transparent;
-    border-top-left-radius: $trace3d_border_radius;
-    border-top-right-radius: $trace3d_border_radius;
-
-    line-height: $trace3d_structure_select_palette_label_height;
-    vertical-align: center;
-    height: $trace3d_structure_select_palette_label_height;
-
-    width: 100%;
-    //background-color: $trace3d_honeydew;
-
-  }
-
-  >.form-group {
-    margin: 8px;
-    width: 95%;
-
-    input#trace3d_structure_select_input {
-      font-size: 18px;
-    }
-  }
-
-  >div:last-child {
-
-    cursor: default;
-
-    // border top
-    border-bottom-style: solid;
-    border-bottom-width: thin;
-    border-bottom-color: transparent;
-    border-bottom-left-radius: $trace3d_border_radius;
-    border-bottom-right-radius: $trace3d_border_radius;
-
-    line-height: $trace3d_structure_select_palette_label_height;
-    vertical-align: center;
-    height: $trace3d_structure_select_palette_label_height;
-
-    width: 100%;
-  }
-
-
-}
-
 // IGV palette
-#trace3d_igv_palette.trace3d_tool_palette {
-
-  position: absolute;
+#trace3d_igv_palette.card {
 
   width: $trace3d_igv_palette_width;
   height: $trace3d_igv_palette_height;
 
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: space-around;
-  align-items: center;
+  //display: flex;
+  //flex-direction: column;
+  //flex-wrap: nowrap;
+  //justify-content: space-around;
+  //align-items: center;
 
   background-color: $trace3d_snow;
 
@@ -257,62 +290,6 @@ $trace3d_color_ramp_width: 36px;
       }
 
     }
-  }
-
-}
-
-// color ramp palette
-#trace3d_color_ramp_palette.trace3d_tool_palette {
-
-  position: absolute;
-
-  width: $trace3d_color_ramp_palette_width;
-  height: $trace3d_color_ramp_palette_height;
-
-  .trace3d_color_ramp_widget_container {
-
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
-
-    width: 100px;
-    height: 95%;
-
-    background-color: transparent;
-
-    font-size: 16px;
-
-    // header text
-    .trace3d_color_ramp_header {
-      width: 100%;
-      height: $trace3d_text_box_height;
-
-      line-height: $trace3d_text_box_height;
-      vertical-align: middle;
-      text-align: center;
-    }
-
-    // ramp
-    .trace3d_color_ramp {
-      cursor: pointer;
-      width: 36px;
-      height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
-
-      background-color: transparent;
-    }
-
-    // footer text
-    .trace3d_color_ramp_footer {
-      width: 100%;
-      height: $trace3d_text_box_height;
-
-      line-height: $trace3d_text_box_height;
-      vertical-align: middle;
-      text-align: center;
-    }
-
   }
 
 }
