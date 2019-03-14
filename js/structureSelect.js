@@ -70,8 +70,6 @@ class StructureSelect {
 
         });
 
-        const $footer = $('#trace3d_structure_select_footer');
-
     }
 
     configure({ structures, initialStructureKey }) {

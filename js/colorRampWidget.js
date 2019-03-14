@@ -7,7 +7,7 @@ import { rgb255, rgb255Lerp, rgb255String } from "./color.js";
 
 class ColorRampWidget {
 
-    constructor({ container, namespace, colors, highlightColor }) {
+    constructor({ palette, namespace, colors, highlightColor }) {
 
         this.colors = colors;
         let { r, g, b } = highlightColor;
@@ -16,62 +16,46 @@ class ColorRampWidget {
         let rampContainer;
         let ramp;
 
-        // ramp container
-        rampContainer = document.createElement('div');
-        container.appendChild( rampContainer );
-        rampContainer.className = 'trace3d_color_ramp_widget_container';
-
+        const $palette = $(palette);
 
         // header
-        this.header = document.createElement('div');
-        rampContainer.appendChild( this.header );
-        this.header.className = 'trace3d_color_ramp_header';
-        this.header.innerText = '';
-
-
-        // ramp
-        ramp = document.createElement('div');
-        rampContainer.appendChild( ramp );
-        ramp.className = 'trace3d_color_ramp';
+        this.$header = $palette.find('#trace3d_color_ramp_header');
 
         // ramp canvas
-        const canvas = document.createElement('canvas');
-        ramp.appendChild( canvas );
+        const $canvas = $palette.find('canvas');
+        const canvas = $canvas.get(0);
 
         fitToContainer(canvas);
 
-        $(canvas).on(('mousemove.trace3d.' + namespace), (event) => {
+        $canvas.on(('mousemove.trace3d.' + namespace), (event) => {
             event.stopPropagation();
             this.onCanvasMouseMove(canvas, event)
         });
 
-        $(canvas).on(('mouseenter.trace3d.' + namespace), (event) => {
+        $canvas.on(('mouseenter.trace3d.' + namespace), (event) => {
             event.stopPropagation();
             this.currentSegmentIndex = undefined;
         });
 
-        $(canvas).on(('mouseleave.trace3d.' + namespace), (event) => {
+        $canvas.on(('mouseleave.trace3d.' + namespace), (event) => {
             event.stopPropagation();
             this.currentSegmentIndex = undefined;
         });
 
         // soak up misc events
         let eventSink = e => { e.stopPropagation(); };
-        $(canvas).on(('mouseup.trace3d.' + namespace), eventSink);
-        $(canvas).on(('mousedown.trace3d.' + namespace), eventSink);
-        $(canvas).on(('click.trace3d.' + namespace), eventSink);
+        $canvas.on(('mouseup.trace3d.' + namespace), eventSink);
+        $canvas.on(('mousedown.trace3d.' + namespace), eventSink);
+        $canvas.on(('click.trace3d.' + namespace), eventSink);
 
         // footer
-        this.footer = document.createElement('div');
-        rampContainer.appendChild( this.footer );
-        this.footer.className = 'trace3d_color_ramp_footer';
-        this.footer.innerText = '';
+        this.$footer = $palette.find('#trace3d_color_ramp_footer');
 
         this.context = canvas.getContext('2d');
+
         this.canvas = canvas;
 
         this.colors = colors;
-
     }
 
     onCanvasMouseMove(canvas, event) {
@@ -97,8 +81,8 @@ class ColorRampWidget {
         this.structureLength = structureLength;
 
         const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
-        this.footer.innerText = ss + 'Mb';
-        this.header.innerText = ee + 'Mb';
+        this.$footer.text(ss + 'Mb');
+        this.$header.text(ee + 'Mb');
         this.paintQuantizedRamp(this.context, this.colors, structureLength, undefined);
     }
 

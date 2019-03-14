@@ -39,6 +39,7 @@ let main = async container => {
             container: container,
             backgroundColor: rgb255ToThreeJSColor(163, 237, 237),
             groundPlaneColor: appleCrayonColorHexValue('steel'),
+            colorRampPalette: $('#trace3d_color_ramp_palette').get(0),
             colorRampPaletteColors: [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ],
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('maraschino')) } )
