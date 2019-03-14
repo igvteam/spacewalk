@@ -1,7 +1,8 @@
 import * as THREE from '../../js/threejs_es6/three.module.js';
 import OrbitControls from '../../js/threejs_es6/orbit-controls-es6.js';
 import CubicMapManager from '../../js/cubicMapManager.js';
-import { appleCrayonNames, appleCrayonColorHexValue } from '../../js/color.js';
+import { appleCrayonColorThreeJS, appleCrayonColorHexValue } from '../../js/color.js';
+import { prettyMatrix4Print } from '../../js/math.js';
 
 let scene;
 let renderer;
@@ -63,9 +64,7 @@ let main = async(threejs_canvas) => {
 
     const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
-    scene.background = new THREE.TextureLoader().load( "../../texture/uv.png" );
-    // scene.background = specularCubicMapManager.cubicTexture;
-    // scene.background = appleCrayonColorThreeJS('iron');
+    scene.background = appleCrayonColorThreeJS('magnesium');
 
     await setup(scene, renderer, camera, orbitControl);
 
@@ -79,7 +78,9 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     const target = new THREE.Vector3(targetX, targetY, targetZ);
 
     const dimen = 16;
-    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ 1.5*dimen, 3*dimen, 3*dimen ];
+    // const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ 1.5*dimen, 3*dimen, 3*dimen ];
+    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ 2*dimen, 0, 2*dimen ];
+    // const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ 0, 0, 3*dimen ];
 
     camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
     camera.lookAt( target );
@@ -104,67 +105,15 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
 
-    let [ rX, rY, rZ ] = [ new THREE.Matrix4(), new THREE.Matrix4(), new THREE.Matrix4() ];
+    let sphereGeometry = new THREE.SphereBufferGeometry( dimen/2, 32, 16 );
 
-    const thetaX = Math.PI/2;
-    rX.makeRotationX( thetaX );
+    let planeGeometry = new THREE.PlaneBufferGeometry( dimen, dimen, 8, 8 );
 
-    const thetaY = Math.PI/6;
-    rY.makeRotationY( thetaY );
-
-    const thetaZ = Math.PI/3;
-    rZ.makeRotationZ( thetaZ );
-
-
-    let geometry;
-
-    // sphere geometry
-    geometry = new THREE.SphereBufferGeometry( dimen/2, 32, 16 );
-    geometry = geometry.toNonIndexed();
-
-    // box geometry
-    // geometry = new THREE.BoxBufferGeometry(dimen, dimen, dimen);
-    // geometry = geometry.toNonIndexed();
-
-
-    // let meshA = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
-    let meshA = new THREE.Mesh(geometry, showSTMaterial);
-    meshA.position.set(dimen, 0, 0);
-
-    // let meshB = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
-    let meshB = new THREE.Mesh(geometry, showSTMaterial);
-    meshB.position.set(-dimen, 0, 0);
-
-    // const mesh = new THREE.Mesh(geometry, cubicMapManager.material);
-
-    // cylinderWithScene(diffuseCubicMapManager.material, 2*dimen, dimen/8, scene);
-    cylinderWithScene(showSTMaterial, 2*dimen, dimen/8, scene);
-
-
-    let m4x4;
-
-    // m4x4 = mesh.matrixWorld;
-    // mesh.geometry.applyMatrix( rZ );
-    // m4x4 = mesh.matrixWorld;
-
-
+    let meshA = new THREE.Mesh(planeGeometry, showSTMaterial);
     scene.add( meshA );
-    scene.add( meshB );
 
     window.addEventListener( 'resize', onWindowResize, false );
 
-};
-
-let cylinderWithScene = (material, halfLength, radius, scene) => {
-
-    const [ x0, y0, z0 ] = [ -halfLength, 0, 0 ];
-    const [ x1, y1, z1 ] = [  halfLength, 0, 0 ];
-
-    const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-
-    const geometry = new THREE.TubeGeometry(axis, 4, radius, 16, false);
-
-    scene.add(new THREE.Mesh(geometry, material));
 };
 
 let onWindowResize = () => {
@@ -174,6 +123,8 @@ let onWindowResize = () => {
 
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+
+    prettyMatrix4Print(camera.matrixWorld);
 
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.render( scene, camera );
