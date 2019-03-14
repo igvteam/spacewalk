@@ -7,7 +7,7 @@ import { getMouseXY } from "./utils.js";
 
 class SceneManager {
 
-    constructor({ container, backgroundColor, groundPlaneColor, colorRampPaletteColors, renderer, picker }) {
+    constructor({ container, backgroundColor, groundPlaneColor, colorRampPalette, colorRampPaletteColors, renderer, picker }) {
 
         const specularCubicMapMaterialConfig =
             {
@@ -32,7 +32,7 @@ class SceneManager {
         // insert rendering canvas in DOM
         container.appendChild( this.renderer.domElement );
 
-        this.colorRampPalette = new ColorRampPalette({ container, colors: colorRampPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
+        this.colorRampPalette = new ColorRampPalette({ container, palette: colorRampPalette, colors: colorRampPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
 
         this.picker = picker;
 

@@ -3,14 +3,9 @@ import { makeDraggable } from "./draggable.js";
 import ColorRampWidget from "./colorRampWidget.js";
 
 class ColorRampPalette {
-    constructor({ container, colors, highlightColor }) {
+    constructor({ container, palette, colors, highlightColor }) {
 
-        const palette = document.createElement('div');
-        palette.className = 'card';
-        palette.setAttribute('id', 'trace3d_color_ramp_palette');
-        container.appendChild( palette );
-
-        this.genomicRampWidget = new ColorRampWidget( { container: palette, namespace: 'genomicRampWidget', colors, highlightColor } );
+        this.genomicRampWidget = new ColorRampWidget( { palette, namespace: 'genomicRampWidget', colors, highlightColor } );
 
         layout(container, palette);
 

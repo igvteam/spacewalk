@@ -41,12 +41,82 @@ $trace3d_color_ramp_width: 36px;
   border-color: $trace3d_aluminum;
   background-color: rgba(255, 255, 255, 0.65);
 
+  .card-body {
+    padding: 0.5rem;
+  }
+
 }
 
 .card:hover {
   border-width: 2px;
   border-color: $trace3d_steel;
   background-color: $trace3d_snow;
+}
+
+// igvjs palette
+#trace3d_igv_palette.card {
+
+  width: $trace3d_igv_palette_width;
+  height: $trace3d_igv_palette_height;
+
+  //background-color: $trace3d_snow;
+
+  align-items: center;
+
+  // igvjs container
+  #trace3d_igv_container.card-body {
+
+    width: 100%;
+
+    // url loader
+    .form-group {
+      width: 100%;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+
+    // spinner
+    .spinner-border {
+      margin-left: 8px;
+      margin-right: 8px;
+      color: $trace3d_steel;
+    }
+
+    // track label
+    #trace3d_igv_track_label {
+
+      width: 100%;
+      height: 16px;
+
+      line-height: 16px;
+      font-size: 12px;
+      vertical-align: middle;
+
+      color: $trace3d_steel;
+
+      background-color: transparent;
+
+    }
+
+    // track container
+    #trace3d_igv_track_container {
+      width: 100%;
+      height: $trace3d_color_ramp_width;
+
+      border-style: solid;
+      border-width: thin;
+      border-color: $trace3d_aluminum;
+
+      background-color: $trace3d_snow;
+
+      // track canvas
+      > canvas {
+        cursor: pointer;
+      }
+
+    }
+  }
+
 }
 
 // color ramp palette
@@ -58,7 +128,7 @@ $trace3d_color_ramp_width: 36px;
   align-items: center;
   justify-content: center;
 
-  .trace3d_color_ramp_widget_container {
+  #trace3d_color_ramp_widget_container.card-body {
 
     display: flex;
     flex-direction: column;
@@ -69,12 +139,10 @@ $trace3d_color_ramp_width: 36px;
     width: 100px;
     height: 95%;
 
-    background-color: transparent;
-
     font-size: 16px;
 
     // header text
-    .trace3d_color_ramp_header {
+    #trace3d_color_ramp_header {
       width: 100%;
       height: $trace3d_text_box_height;
 
@@ -84,7 +152,7 @@ $trace3d_color_ramp_width: 36px;
     }
 
     // ramp
-    .trace3d_color_ramp {
+    #trace3d_color_ramp {
       cursor: pointer;
       width: 36px;
       height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
@@ -93,7 +161,7 @@ $trace3d_color_ramp_width: 36px;
     }
 
     // footer text
-    .trace3d_color_ramp_footer {
+    #trace3d_color_ramp_footer {
       width: 100%;
       height: $trace3d_text_box_height;
 
@@ -112,54 +180,30 @@ $trace3d_color_ramp_width: 36px;
   width: $trace3d_structure_select_palette_width;
   height: auto;
 
-  background-color: $trace3d_snow;
+  //background-color: $trace3d_snow;
 
-  >div:first-child {
+  #trace3d_structure_select_header {
 
     cursor: move;
-
-    // border top
-    border-top-style: solid;
-    border-top-width: thin;
-    border-top-color: transparent;
-    border-top-left-radius: $trace3d_border_radius;
-    border-top-right-radius: $trace3d_border_radius;
 
     line-height: $trace3d_structure_select_palette_label_height;
     vertical-align: center;
     height: $trace3d_structure_select_palette_label_height;
 
     width: 100%;
-    //background-color: $trace3d_honeydew;
+
+    background-color: transparent;
 
   }
 
-  >.form-group {
+  .form-group {
     width: 95%;
 
     input#trace3d_structure_select_input {
       font-size: 18px;
     }
+
   }
-
-  >div:last-child {
-
-    cursor: default;
-
-    // border top
-    border-bottom-style: solid;
-    border-bottom-width: thin;
-    border-bottom-color: transparent;
-    border-bottom-left-radius: $trace3d_border_radius;
-    border-bottom-right-radius: $trace3d_border_radius;
-
-    line-height: $trace3d_structure_select_palette_label_height;
-    vertical-align: center;
-    height: $trace3d_structure_select_palette_label_height;
-
-    width: 100%;
-  }
-
 
 }
 
@@ -179,117 +223,6 @@ $trace3d_color_ramp_width: 36px;
     margin-left: 8px;
     margin-right: 8px;
     color: $trace3d_steel;
-  }
-
-  > div {
-    //height: 100%;
-    width: 100%;
-  }
-
-  // url load container
-  > div#trace3d_data_file_load_url_container {
-
-    border-top-left-radius: $trace3d_border_radius;
-    border-top-right-radius: $trace3d_border_radius;
-    border-top-style: solid;
-    border-top-width: 0;
-    border-top-color: transparent;
-
-    //background-color: $trace3d_honeydew;
-  }
-
-  // url list container
-  >div#trace3d_data_file_load_list_container {
-
-  }
-
-  // local file load container
-  > div#trace3d_data_file_load_local_file_container {
-
-    border-top-style: solid;
-    border-top-width: thin;
-    border-top-color: $trace3d_aluminum;
-
-    border-bottom-left-radius: $trace3d_border_radius;
-    border-bottom-right-radius: $trace3d_border_radius;
-    border-bottom-style: solid;
-    border-bottom-width: 0;
-    border-bottom-color: transparent;
-
-    //background-color: $trace3d_aqua;
-  }
-
-}
-
-// IGV palette
-#trace3d_igv_palette.card {
-
-  width: $trace3d_igv_palette_width;
-  height: $trace3d_igv_palette_height;
-
-  //display: flex;
-  //flex-direction: column;
-  //flex-wrap: nowrap;
-  //justify-content: space-around;
-  //align-items: center;
-
-  background-color: $trace3d_snow;
-
-  // igvjs container
-  > div#trace3d_igv_container {
-
-    width: 100%;
-    height: calc(100% - (2 * #{$trace3d_border_radius}));
-
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: space-around;
-    align-items: center;
-
-    // url loader
-    > div.form-group {
-      width: 95%;
-      margin-top: 8px;
-      margin-bottom: 8px;
-    }
-
-    .spinner-border {
-      margin-left: 8px;
-      margin-right: 8px;
-      color: $trace3d_steel;
-    }
-
-    >div#trace3d_igv_track_label {
-
-      width: 95%;
-      height: 16px;
-
-      line-height: 16px;
-      font-size: 12px;
-      vertical-align: middle;
-
-      color: $trace3d_steel;
-      background-color: $trace3d_snow
-    }
-
-    // track container
-    > div#trace3d_igv_track_container {
-      width: 95%;
-      height: $trace3d_color_ramp_width;
-
-      border-style: solid;
-      border-width: thin;
-      border-color: $trace3d_aluminum;
-
-      background-color: $trace3d_snow;
-
-      // track canvas
-      > canvas {
-        cursor: pointer;
-      }
-
-    }
   }
 
 }

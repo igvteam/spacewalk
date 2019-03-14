@@ -92,37 +92,60 @@
     <div class="row m-0 p-0">
         <div class="col-sm m-0 p-0">
 
-            <!-- data file loader palette -->
-            <div id="trace3d_data_file_load_palette" class="card">
+            <!-- color ramp palette -->
+            <div id="trace3d_color_ramp_palette" class="card">
 
-                <div id="trace3d_data_file_load_url_container">
+                <div id="trace3d_color_ramp_widget_container" class="card-body">
 
-                    <div class="form-group">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <button id="trace3d_data_file_load_url_button" class="btn btn-outline-secondary" type="button">Load URL</button>
-                            </div>
-                            <div class="spinner-border" style="display: none;">
-                                <!-- spinner -->
-                            </div>
-                            <input id="trace3d_data_file_load_url_input" class="form-control" type="text" placeholder="Enter CSV URL">
-                        </div>
+                    <div id="trace3d_color_ramp_header">
+                    </div>
+
+                    <div id="trace3d_color_ramp">
+                        <canvas></canvas>
+                    </div>
+
+                    <div id="trace3d_color_ramp_footer">
                     </div>
 
                 </div>
 
-                <div id="trace3d_data_file_load_local_file_container">
+            </div>
 
-                    <div class="form-group">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <button id="trace3d_data_file_load_local_file_button" class="btn btn-outline-secondary" type="button">Load File</button>
-                            </div>
-                            <div class="custom-file">
-                                <input class="custom-file-input" id="trace3d_data_file_load_local_file_input" type="file">
-                                <label class="custom-file-label" id="trace3d_data_file_load_local_file_label" for="trace3d_data_file_load_local_file_input">Choose CSV File</label>
+            <!-- data file loader palette -->
+            <div id="trace3d_data_file_load_palette" class="card">
+
+                <div class="card-body">
+
+                    <div id="trace3d_data_file_load_url_container">
+
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <button id="trace3d_data_file_load_url_button" class="btn btn-outline-secondary" type="button">Load URL</button>
+                                </div>
+                                <div class="spinner-border" style="display: none;">
+                                    <!-- spinner -->
+                                </div>
+                                <input id="trace3d_data_file_load_url_input" class="form-control" type="text" placeholder="Enter CSV URL">
                             </div>
                         </div>
+
+                    </div>
+
+                    <div id="trace3d_data_file_load_local_file_container">
+
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <button id="trace3d_data_file_load_local_file_button" class="btn btn-outline-secondary" type="button">Load File</button>
+                                </div>
+                                <div class="custom-file">
+                                    <input class="custom-file-input" id="trace3d_data_file_load_local_file_input" type="file">
+                                    <label class="custom-file-label" id="trace3d_data_file_load_local_file_label" for="trace3d_data_file_load_local_file_input">Choose CSV File</label>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
@@ -132,24 +155,23 @@
             <!-- structure select palette -->
             <div id="trace3d_structure_select_palette" class="card">
 
-                <!-- header -->
-                <div id="trace3d_structure_select_header" class="mt-2 text-center">
+                <div class="card-body">
 
-                </div>
+                    <!-- header -->
+                    <div id="trace3d_structure_select_header" class="text-center">
 
-                <!-- structure select widget -->
-                <div class="mt-2 mx-2 form-group">
-                    <div class="input-group input-group-sm">
-                        <input id="trace3d_structure_select_input" type="text" class="form-control text-center">
-                        <div class="input-group-append">
-                            <button id="trace3d_structure_select_button_minus" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
-                            <button id="trace3d_structure_select_button_plus" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+                    </div>
+
+                    <!-- structure select widget -->
+                    <div class="mt-2 mx-2 form-group">
+                        <div class="input-group input-group-sm">
+                            <input id="trace3d_structure_select_input" type="text" class="form-control text-center">
+                            <div class="input-group-append">
+                                <button id="trace3d_structure_select_button_minus" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
+                                <button id="trace3d_structure_select_button_plus" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- footer -->
-                <div id="trace3d_structure_select_footer" class="text-center">
 
                 </div>
 
@@ -159,7 +181,7 @@
             <div id="trace3d_igv_palette" class="card">
 
                 <!-- igvjs container -->
-                <div id="trace3d_igv_container">
+                <div id="trace3d_igv_container" class="card-body">
 
                     <!-- url loader -->
                     <div class="form-group">
