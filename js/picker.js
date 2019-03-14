@@ -1,5 +1,7 @@
 import {globalEventBus} from "./eventBus.js";
 
+const exclusionSet = new Set([ 'groundplane', 'stick' ]);
+
 class Picker {
 
     constructor({ raycaster, pickHighlighter }) {
@@ -24,11 +26,12 @@ class Picker {
 
     }
 
+
     intersect({ x ,y, camera, scene }) {
 
         this.raycaster.setFromCamera({ x, y }, camera);
 
-        let hitList = this.raycaster.intersectObjects(scene.children).filter((item) => { return 'groundplane' !== item.object.name });
+        let hitList = this.raycaster.intersectObjects(scene.children).filter((item) => { return !exclusionSet.has(item.object.name) });
 
         if (hitList.length > 0) {
 

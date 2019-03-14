@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -77,51 +78,13 @@
 
 </head>
 
-<!--<nav class="navbar navbar-dark navbar-expand-md">-->
+<nav class="navbar navbar-dark navbar-expand-md">
 
-    <!--<span class="navbar-brand">Tracing3D</span>-->
+    <span class="navbar-brand">Tracing3D</span>
 
-    <!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#trace3d_navbar_collapse">-->
-        <!--<span class="navbar-toggler-icon"></span>-->
-    <!--</button>-->
+    <button id="trace3d_button_present_data_file_load_palette" class="nav-item btn btn-sm btn-outline-light mx-auto" type="button">Load Structures</button>
 
-    <!--<div id="trace3d_navbar_collapse" class="collapse navbar-collapse">-->
-        <!--<ul class="navbar-nav ml-5">-->
-
-            <!--&lt;!&ndash; Load CSV &ndash;&gt;-->
-            <!--<li class="nav-item dropdown mr-4">-->
-
-                <!--<a id="trace3d_load_csv_dropdown_toggle" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">-->
-                    <!--Load CSV File-->
-                <!--</a>-->
-                <!--<div class="dropdown-menu">-->
-                    <!--<a class="dropdown-item" href="#">Action</a>-->
-                    <!--<a class="dropdown-item" href="#">Another action</a>-->
-                    <!--<div class="dropdown-divider"></div>-->
-                    <!--<a class="dropdown-item" href="#">Something else here</a>-->
-                <!--</div>-->
-
-            <!--</li>-->
-
-            <!--&lt;!&ndash; Load Track &ndash;&gt;-->
-            <!--<li class="nav-item dropdown ml-4">-->
-
-                <!--<a id="trace3d_load_track_dropdown_toggle" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">-->
-                    <!--Load Track-->
-                <!--</a>-->
-                <!--<div class="dropdown-menu">-->
-                    <!--<a class="dropdown-item" href="#">Action</a>-->
-                    <!--<a class="dropdown-item" href="#">Another action</a>-->
-                    <!--<div class="dropdown-divider"></div>-->
-                    <!--<a class="dropdown-item" href="#">Something else here</a>-->
-                <!--</div>-->
-
-            <!--</li>-->
-
-        <!--</ul>-->
-    <!--</div>-->
-
-<!--</nav>-->
+</nav>
 
 <body>
 
@@ -129,66 +92,6 @@
     <div class="row m-0 p-0">
         <div class="col-sm m-0 p-0">
             <div id="trace3d_canvas_container">
-
-                <!-- structure select palette -->
-                <div id="trace3d_structure_select_palette" class="trace3d_tool_palette">
-
-                    <!-- header -->
-                    <div id="trace3d_structure_select_header" class="text-center">
-
-                    </div>
-
-                    <!-- structure select widget -->
-                    <div class="form-group">
-                        <div class="input-group input-group-sm">
-                            <input id="trace3d_structure_select_input" type="text" class="form-control text-center">
-                            <div class="input-group-append">
-                                <button id="trace3d_structure_select_button_minus" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
-                                <button id="trace3d_structure_select_button_plus" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- footer -->
-                    <div id="trace3d_structure_select_footer" class="text-center">
-
-                    </div>
-
-                </div>
-
-                <!-- igv palette -->
-                <div id="trace3d_igv_palette" class="trace3d_tool_palette">
-
-                    <!-- igvjs container -->
-                    <div id="trace3d_igv_container">
-
-                        <!-- url loader -->
-                        <div class="form-group">
-                            <div class="input-group input-group-sm">
-                                <div class="input-group-prepend">
-                                    <button id="trace3d_igv_palette_url_button" class="btn btn-outline-secondary" type="button">Load URL</button>
-                                </div>
-                                <div class="spinner-border" style="display: none;">
-                                    <!-- spinner -->
-                                </div>
-                                <input id="trace3d_igv_palette_url_input" class="form-control" type="text" placeholder="Enter Track URL">
-                            </div>
-                        </div>
-
-                        <div id="trace3d_igv_track_label" class="text-left">
-                        </div>
-
-                        <!-- track container -->
-                        <div id="trace3d_igv_track_container">
-
-                            <!-- track canvas -->
-                            <canvas></canvas>
-
-                        </div>
-
-                    </div>
-
-                </div>
 
                 <!-- data file loader palette -->
                 <div id="trace3d_data_file_load_palette" class="trace3d_tool_palette">
@@ -228,10 +131,71 @@
                     </div>
 
                 </div>
+
+                <!-- structure select palette -->
+                <div id="trace3d_structure_select_palette" class="trace3d_tool_palette">
+
+                    <!-- header -->
+                    <div id="trace3d_structure_select_header" class="text-center">
+
+                    </div>
+
+                    <!-- structure select widget -->
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">
+                            <input id="trace3d_structure_select_input" type="text" class="form-control text-center">
+                            <div class="input-group-append">
+                                <button id="trace3d_structure_select_button_minus" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
+                                <button id="trace3d_structure_select_button_plus" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- footer -->
+                    <div id="trace3d_structure_select_footer" class="text-center">
+
+                    </div>
+
+                </div>
+
+                <!-- igvjs palette -->
+                <div id="trace3d_igv_palette" class="trace3d_tool_palette">
+
+                    <!-- igvjs container -->
+                    <div id="trace3d_igv_container">
+
+                        <!-- url loader -->
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <button id="trace3d_igv_palette_url_button" class="btn btn-outline-secondary" type="button">Load URL</button>
+                                </div>
+                                <div class="spinner-border" style="display: none;">
+                                    <!-- spinner -->
+                                </div>
+                                <input id="trace3d_igv_palette_url_input" class="form-control" type="text" placeholder="Enter Track URL">
+                            </div>
+                        </div>
+
+                        <div id="trace3d_igv_track_label" class="text-left">
+                        </div>
+
+                        <!-- track container -->
+                        <div id="trace3d_igv_track_container">
+
+                            <!-- track canvas -->
+                            <canvas></canvas>
+
+                        </div>
+
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
 </main>
 
 </body>
+
 </html>

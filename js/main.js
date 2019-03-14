@@ -73,7 +73,7 @@ let main = async container => {
 
     structureSelect = new StructureSelect({ container, palette: $('#trace3d_structure_select_palette').get(0) });
 
-    dataFileLoader = new DataFileLoader({ container, palette: $('#trace3d_data_file_load_palette').get(0) });
+    dataFileLoader = new DataFileLoader({ container, palette: $('#trace3d_data_file_load_palette').get(0), presentationButton:  $('#trace3d_button_present_data_file_load_palette').get(0) });
 
     igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
 
@@ -201,7 +201,10 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
             // const material = diffuseCubicMapManager.material;
 
-            sceneManager.scene.add(new THREE.Mesh(geometry, material));
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.name = 'stick';
+
+            sceneManager.scene.add( mesh );
         }
 
     }

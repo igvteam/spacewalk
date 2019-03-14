@@ -7,7 +7,7 @@ class ColorRampPalette {
 
         const palette = document.createElement('div');
         palette.className = 'trace3d_tool_palette';
-        // palette.setAttribute('id', 'trace3d_tool_palette');
+        palette.setAttribute('id', 'trace3d_color_ramp_palette');
         container.appendChild( palette );
 
         this.genomicRampWidget = new ColorRampWidget( { container: palette, namespace: 'genomicRampWidget', colors, highlightColor } );
