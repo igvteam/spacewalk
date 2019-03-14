@@ -232,7 +232,7 @@ let onCanvasMouseMove = (canvas, event) => {
 
     let { x, y } = getMouseXY(canvas, event);
 
-    if (y < 0 || y > canvas.offsetHeight) {
+    if (y < 0 || x < 0 || y > canvas.offsetHeight || x > canvas.offsetWidth) {
         // do nothing
     } else {
         console.log(Date.now() + ' canvas x ' + x + ' y ' + y);
