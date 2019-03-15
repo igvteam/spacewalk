@@ -124,7 +124,8 @@ let onWindowResize = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
-    prettyMatrix4Print(camera.matrixWorld);
+    prettyMatrix4Print('camera - matrixWorld', camera.matrixWorld);
+    prettyMatrix4Print('camera - matrixWorldInverse', camera.matrixWorldInverse);
 
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.render( scene, camera );

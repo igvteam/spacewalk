@@ -1,8 +1,8 @@
-let prettyMatrix4Print = ({ elements }) => {
+let prettyMatrix4Print = (blurb, m4x4) => {
 
-    let [ _11, _21, _31, _41, _12, _22, _32, _42, _13, _23, _33, _43, _14, _24, _34, _44, ] = elements.map((e) => { return fudged(e) });
+    let [ _11, _12, _13, _14, _21, _22, _23, _24, _31, _32, _33, _34, _41, _42, _43, _44, ] = m4x4.transpose().elements.map((v) => { return fudged(v) });
 
-    console.log('...');
+    console.log(blurb);
     console.log(_11 + ' ' + _12 + ' ' + _13 + ' ' + _14);
     console.log(_21 + ' ' + _22 + ' ' + _23 + ' ' + _24);
     console.log(_31 + ' ' + _32 + ' ' + _33 + ' ' + _34);
