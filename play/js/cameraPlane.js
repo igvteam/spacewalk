@@ -10,16 +10,9 @@ let camera;
 let orbitControl;
 let diffuseCubicMapManager;
 
-let showScreenCoordinatesMaterial;
-
 let showSTMaterial;
 
-let showScreenCoordinatesUniforms =
-    {
-        uXYPixel: new THREE.Uniform(new THREE.Vector2())
-    };
-
-const [ near, far, fov ] = [ 1e-1, 1e4, 40 ];
+const [ near, far, fov ] = [ 1e-1, 7e2, 40 ];
 
 let main = async(threejs_canvas) => {
 
@@ -32,19 +25,6 @@ let main = async(threejs_canvas) => {
         };
 
     showSTMaterial = new THREE.ShaderMaterial( showSTConfig );
-
-    showScreenCoordinatesUniforms.uXYPixel.value.x = window.innerWidth;
-    showScreenCoordinatesUniforms.uXYPixel.value.y = window.innerHeight;
-
-    let showScreenCoordinatesConfig =
-        {
-            uniforms: showScreenCoordinatesUniforms,
-            vertexShader:   document.getElementById( 'show_screen_coordinates_vert' ).textContent,
-            fragmentShader: document.getElementById( 'show_screen_coordinates_frag' ).textContent,
-            side: THREE.DoubleSide
-        };
-
-    showScreenCoordinatesMaterial = new THREE.ShaderMaterial(showScreenCoordinatesConfig);
 
     renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
     renderer.setClearColor(appleCrayonColorHexValue('snow'));
@@ -72,9 +52,6 @@ let main = async(threejs_canvas) => {
     renderer.render( scene, camera );
 
 };
-
-let location;
-let [ locationX, locationY, locationZ ] = [ 0, 0, 0 ];
 let target;
 let mesh;
 let setup = async (scene, renderer, camera, orbitControl) => {
@@ -83,10 +60,11 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     target = new THREE.Vector3(targetX, targetY, targetZ);
 
     const dimen = 16;
-    [ locationX, locationY, locationZ ] = [ 2*dimen, 0, 2*dimen ];
+
+    let [ locationX, locationY, locationZ ] = [ dimen, dimen, dimen ];
+    // [ locationX, locationY, locationZ ] = [ 2*dimen, 0, 2*dimen ];
     // [ locationX, locationY, locationZ ] = [ 0, 0, 3*dimen ];
     // [ locationX, locationY, locationZ ] = [ 3*dimen, 0, 0 ];
-    location = new THREE.Vector3(locationX, locationY, locationZ);
 
     camera.position.set(locationX, locationY, locationZ);
     camera.lookAt( target );
@@ -94,7 +72,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     orbitControl.screenSpacePanning = false;
     orbitControl.target = target;
     orbitControl.update();
-    orbitControl.addEventListener("change", () => renderer.render(scene, camera));
+    orbitControl.addEventListener("change", doRender);
 
     const groundPlane = new THREE.GridHelper(4 * dimen, 4 * dimen, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('steel'));
     groundPlane.position.set(targetX, targetY, targetZ);
@@ -113,7 +91,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     let sphereGeometry = new THREE.SphereBufferGeometry( dimen/2, 32, 16 );
 
-    let planeGeometry = new THREE.PlaneBufferGeometry( dimen, dimen, 8, 8 );
+    let planeGeometry = new THREE.PlaneBufferGeometry( 2, 2, 8, 8 );
 
     mesh = new THREE.Mesh(planeGeometry, showSTMaterial);
     mesh.matrixAutoUpdate = false;
@@ -124,58 +102,73 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
 };
 
-let matrix4x4Factory = new THREE.Matrix4();
-let vector3factory = new THREE.Vector3();
-let onWindowResize = () => {
+let matrix4Factory = new THREE.Matrix4();
+matrix4Factory.identity();
 
-    showScreenCoordinatesUniforms.uXYPixel.value.x = window.innerWidth;
-    showScreenCoordinatesUniforms.uXYPixel.value.y = window.innerHeight;
+let vector3factory = new THREE.Vector3();
+vector3factory.set(0, 0, 0);
+
+let doRender = () => {
+
+    const distanceFromCamera = 0.9 * far;
+    // const distanceFromCamera = camera.position.length();
+
+    // Scale camera plane to fill viewing frustrum
+    const dimension = distanceFromCamera * Math.tan( THREE.Math.degToRad( camera.fov/2 ) );
+    const scale = matrix4Factory.clone().makeScale(camera.aspect * dimension, dimension, 1);
+    // const scale = matrix4Factory.clone().makeScale(2, 2, 1);
+
+    // 0 - Extract rotation
+    const rotationOnly = matrix4Factory.clone().extractRotation(camera.matrixWorldInverse);
+
+    // // 1 - Transpose
+    let A = rotationOnly.clone().transpose();
+
+    // // 2 - Translate rotated camera plane to camera origin
+    const B = matrix4Factory.clone().makeTranslation(camera.position.x, camera.position.y, camera.position.z);
+
+    // // 3 - Position camera plane by translating the distance "cameraNear" along camera look-at vector.
+    const translation = vector3factory.clone().subVectors(target, camera.position).normalize().multiplyScalar(distanceFromCamera);
+    const C = matrix4Factory.clone().makeTranslation(translation.x, translation.y, translation.z);
+
+    // A * scale
+    const AScale = scale.clone().premultiply(A);
+
+    // B * A * scale
+    const BAScale = AScale.clone().premultiply(B);
+
+    // C * B * A * scale
+    const CBAScale = BAScale.clone().premultiply(C);
+
+    const cameraPlaneTransform = CBAScale.clone();
+
+    // prettyMatrix4Print('scale', scale);
+
+    // prettyMatrix4Print('A', A);
+    // prettyMatrix4Print('B', B);
+    // prettyMatrix4Print('C', C);
+
+    // prettyMatrix4Print('AScale', AScale);
+    // prettyMatrix4Print('BAScale', BAScale);
+    // prettyMatrix4Print('CBAScale', CBAScale);
+    // prettyMatrix4Print('CBAScale', CBAScale);
+
+    // prettyMatrix4Print('camera - matrixWorld', camera.matrixWorld);
+    // prettyMatrix4Print('matrixWorldInverse', camera.matrixWorldInverse);
+
+    mesh.matrix.copy( cameraPlaneTransform );
+
+    renderer.render(scene, camera);
+};
+
+let onWindowResize = () => {
 
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
-    // 0 - Extract rotation
-    matrix4x4Factory.identity();
-    const rotationOnly = matrix4x4Factory.extractRotation(camera.matrixWorldInverse).clone();
-
-    // // 1 - Transpose
-    let A = rotationOnly.clone();
-    A.transpose();
-    prettyMatrix4Print('A', A);
-
-    // // 2 - Translate rotated camera plane to camera origin
-    matrix4x4Factory.identity();
-    const B = matrix4x4Factory.makeTranslation(locationX, locationY, locationZ).clone();
-    prettyMatrix4Print('B', B);
-
-    // // 3 - Position camera plane by translating the distance "cameraNear" along camera look-at vector.
-    const distanceFromCamera = far / 2.0;
-
-    vector3factory.set(0, 0, 0);
-    const translation = vector3factory.subVectors(target, location).normalize().multiplyScalar(distanceFromCamera).clone();
-
-    matrix4x4Factory.identity();
-    const C = matrix4x4Factory.makeTranslation(translation.x, translation.y, translation.z).clone();
-    prettyMatrix4Print('C', C);
-
-    // // 4 - Concatenate
-    const BA = A.premultiply(B).clone();
-    prettyMatrix4Print('BA', BA);
-
-    const CBA = BA.premultiply(C).clone();
-    prettyMatrix4Print('CBA', CBA);
-
-    const cameraPlaneTransform = CBA.clone();
-
-    // prettyMatrix4Print('camera - matrixWorld', camera.matrixWorld);
-    // prettyMatrix4Print('matrixWorldInverse', camera.matrixWorldInverse);
-    // prettyMatrix4Print('rotationOnly(matrixWorldInverse)', rotationOnly);
-
-    mesh.matrix.copy( cameraPlaneTransform );
-
     renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.render( scene, camera );
 
+    doRender();
 };
 
 export { main };
