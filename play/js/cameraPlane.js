@@ -19,6 +19,8 @@ let showScreenCoordinatesUniforms =
         uXYPixel: new THREE.Uniform(new THREE.Vector2())
     };
 
+const [ near, far, fov ] = [ 1e-1, 1e4, 40 ];
+
 let main = async(threejs_canvas) => {
 
     const showSTConfig =
@@ -49,7 +51,6 @@ let main = async(threejs_canvas) => {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    const [ near, far, fov ] = [ 1e-1, 1e4, 40 ];
     camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
     orbitControl = new OrbitControls(camera, renderer.domElement);
     scene = new THREE.Scene();
@@ -72,17 +73,22 @@ let main = async(threejs_canvas) => {
 
 };
 
+let location;
+let [ locationX, locationY, locationZ ] = [ 0, 0, 0 ];
+let target;
+let mesh;
 let setup = async (scene, renderer, camera, orbitControl) => {
 
     const [ targetX, targetY, targetZ ] = [ 0, 0, 0 ];
-    const target = new THREE.Vector3(targetX, targetY, targetZ);
+    target = new THREE.Vector3(targetX, targetY, targetZ);
 
     const dimen = 16;
-    // const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ 1.5*dimen, 3*dimen, 3*dimen ];
-    const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ 2*dimen, 0, 2*dimen ];
-    // const [ cameraPositionX, cameraPositionY, cameraPositionZ ] = [ 0, 0, 3*dimen ];
+    [ locationX, locationY, locationZ ] = [ 2*dimen, 0, 2*dimen ];
+    // [ locationX, locationY, locationZ ] = [ 0, 0, 3*dimen ];
+    // [ locationX, locationY, locationZ ] = [ 3*dimen, 0, 0 ];
+    location = new THREE.Vector3(locationX, locationY, locationZ);
 
-    camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
+    camera.position.set(locationX, locationY, locationZ);
     camera.lookAt( target );
 
     orbitControl.screenSpacePanning = false;
@@ -109,13 +115,17 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     let planeGeometry = new THREE.PlaneBufferGeometry( dimen, dimen, 8, 8 );
 
-    let meshA = new THREE.Mesh(planeGeometry, showSTMaterial);
-    scene.add( meshA );
+    mesh = new THREE.Mesh(planeGeometry, showSTMaterial);
+    mesh.matrixAutoUpdate = false;
+
+    scene.add( mesh );
 
     window.addEventListener( 'resize', onWindowResize, false );
 
 };
 
+let matrix4x4Factory = new THREE.Matrix4();
+let vector3factory = new THREE.Vector3();
 let onWindowResize = () => {
 
     showScreenCoordinatesUniforms.uXYPixel.value.x = window.innerWidth;
@@ -124,8 +134,44 @@ let onWindowResize = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
-    prettyMatrix4Print('camera - matrixWorld', camera.matrixWorld);
-    prettyMatrix4Print('camera - matrixWorldInverse', camera.matrixWorldInverse);
+    // 0 - Extract rotation
+    matrix4x4Factory.identity();
+    const rotationOnly = matrix4x4Factory.extractRotation(camera.matrixWorldInverse).clone();
+
+    // // 1 - Transpose
+    let A = rotationOnly.clone();
+    A.transpose();
+    prettyMatrix4Print('A', A);
+
+    // // 2 - Translate rotated camera plane to camera origin
+    matrix4x4Factory.identity();
+    const B = matrix4x4Factory.makeTranslation(locationX, locationY, locationZ).clone();
+    prettyMatrix4Print('B', B);
+
+    // // 3 - Position camera plane by translating the distance "cameraNear" along camera look-at vector.
+    const distanceFromCamera = far / 2.0;
+
+    vector3factory.set(0, 0, 0);
+    const translation = vector3factory.subVectors(target, location).normalize().multiplyScalar(distanceFromCamera).clone();
+
+    matrix4x4Factory.identity();
+    const C = matrix4x4Factory.makeTranslation(translation.x, translation.y, translation.z).clone();
+    prettyMatrix4Print('C', C);
+
+    // // 4 - Concatenate
+    const BA = A.premultiply(B).clone();
+    prettyMatrix4Print('BA', BA);
+
+    const CBA = BA.premultiply(C).clone();
+    prettyMatrix4Print('CBA', CBA);
+
+    const cameraPlaneTransform = CBA.clone();
+
+    // prettyMatrix4Print('camera - matrixWorld', camera.matrixWorld);
+    // prettyMatrix4Print('matrixWorldInverse', camera.matrixWorldInverse);
+    // prettyMatrix4Print('rotationOnly(matrixWorldInverse)', rotationOnly);
+
+    mesh.matrix.copy( cameraPlaneTransform );
 
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.render( scene, camera );
