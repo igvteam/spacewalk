@@ -72,9 +72,10 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     orbitControl.screenSpacePanning = false;
     orbitControl.target = target;
+    // orbitControl.dampingFactor = 0;
     orbitControl.update();
 
-    const groundPlane = new THREE.GridHelper(4 * dimen, 4 * dimen, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('steel'));
+    const groundPlane = new THREE.GridHelper(4 * dimen, 4 * dimen, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('lead'));
     groundPlane.position.set(targetX, targetY, targetZ);
     scene.add( groundPlane );
 
@@ -89,11 +90,11 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
 
-    const texture = new THREE.TextureLoader().load( '../../texture/uv.png' );
+    const texture = new THREE.TextureLoader().load( '../../texture/uv_white_wash.png' );
     const textureMaterial = new THREE.MeshBasicMaterial( { map: texture } );
 
-    // const sphereMesh = new THREE.Mesh(new THREE.SphereBufferGeometry( dimen/2, 32, 16 ), showSTMaterial);
-    // scene.add( sphereMesh );
+    const sphereMesh = new THREE.Mesh(new THREE.SphereBufferGeometry( dimen/2, 32, 16 ), showSTMaterial);
+    scene.add( sphereMesh );
 
     planeMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry( 2, 2, 8, 8 ), textureMaterial);
     planeMesh.matrixAutoUpdate = false;
