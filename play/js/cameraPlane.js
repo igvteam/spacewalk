@@ -92,8 +92,8 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     const texture = new THREE.TextureLoader().load( '../../texture/uv.png' );
     const textureMaterial = new THREE.MeshBasicMaterial( { map: texture } );
 
-    const sphereMesh = new THREE.Mesh(new THREE.SphereBufferGeometry( dimen/2, 32, 16 ), showSTMaterial);
-    scene.add( sphereMesh );
+    // const sphereMesh = new THREE.Mesh(new THREE.SphereBufferGeometry( dimen/2, 32, 16 ), showSTMaterial);
+    // scene.add( sphereMesh );
 
     planeMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry( 2, 2, 8, 8 ), textureMaterial);
     planeMesh.matrixAutoUpdate = false;
@@ -120,9 +120,8 @@ let renderLoop = () => {
     const dimension = distanceFromCamera * Math.tan( THREE.Math.degToRad( camera.fov/2 ) );
     const A = matrix4Factory.clone().makeScale(camera.aspect * dimension, dimension, 1);
 
-    // B - Extract rotation and invert by transposing
-    const rotation = matrix4Factory.clone().extractRotation(camera.matrixWorldInverse);
-    const B = rotation.clone().transpose();
+    // B - Extract rotation by zeroing out translation. Invert resultant orthonormal matrix by transpose.
+    const B = camera.matrixWorldInverse.clone().setPosition(vector3factory).transpose();
 
     // C - Translate rotated camera plane to camera origin
     const C = matrix4Factory.clone().makeTranslation(camera.position.x, camera.position.y, camera.position.z);
@@ -141,6 +140,7 @@ let renderLoop = () => {
     // const DCBA = CBA.clone().premultiply(D);
 
     const cameraPlaneTransform = A.clone().premultiply(B).premultiply(C).premultiply(D).clone();
+    // const cameraPlaneTransform = A.clone().premultiply(B).clone();
 
     // prettyMatrix4Print('A', A);
     // prettyMatrix4Print('B', B);
