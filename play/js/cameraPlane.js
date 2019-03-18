@@ -72,12 +72,11 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     orbitControl.screenSpacePanning = false;
     orbitControl.target = target;
-    // orbitControl.dampingFactor = 0;
     orbitControl.update();
 
-    const groundPlane = new THREE.GridHelper(4 * dimen, 4 * dimen, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('lead'));
-    groundPlane.position.set(targetX, targetY, targetZ);
-    scene.add( groundPlane );
+    // const groundPlane = new THREE.GridHelper(4 * dimen, 4 * dimen, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('lead'));
+    // groundPlane.position.set(targetX, targetY, targetZ);
+    // scene.add( groundPlane );
 
     const diffuseCubicMapMaterialConfig =
         {
@@ -93,8 +92,12 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     const texture = new THREE.TextureLoader().load( '../../texture/uv_white_wash.png' );
     const textureMaterial = new THREE.MeshBasicMaterial( { map: texture } );
 
-    const sphereMesh = new THREE.Mesh(new THREE.SphereBufferGeometry( dimen/2, 32, 16 ), showSTMaterial);
-    scene.add( sphereMesh );
+
+    const boxMesh = new THREE.Mesh(new THREE.BoxBufferGeometry( dimen, dimen/4, dimen/2, 4, 4, 4 ), showSTMaterial);
+    scene.add( boxMesh );
+
+    // const sphereMesh = new THREE.Mesh(new THREE.SphereBufferGeometry( dimen/2, 32, 16 ), showSTMaterial);
+    // scene.add( sphereMesh );
 
     planeMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry( 2, 2, 8, 8 ), textureMaterial);
     planeMesh.matrixAutoUpdate = false;
@@ -113,6 +116,8 @@ vector3factory.set(0, 0, 0);
 let renderLoop = () => {
 
     requestAnimationFrame( renderLoop );
+
+    orbitControl.update();
 
     const distanceFromCamera = 0.9 * far;
     // const distanceFromCamera = camera.position.length();
