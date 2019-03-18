@@ -13,6 +13,11 @@ let showScreenCoordinatesMaterial;
 
 let showSTMaterial;
 
+let showScreenCoordinatesUniforms =
+    {
+        uXYPixel: new THREE.Uniform(new THREE.Vector2())
+    };
+
 let main = async(threejs_canvas) => {
 
     const showSTConfig =
@@ -24,11 +29,6 @@ let main = async(threejs_canvas) => {
         };
 
     showSTMaterial = new THREE.ShaderMaterial( showSTConfig );
-
-    let showScreenCoordinatesUniforms =
-        {
-            uXYPixel: new THREE.Uniform(new THREE.Vector2())
-        };
 
     showScreenCoordinatesUniforms.uXYPixel.value.x = window.innerWidth;
     showScreenCoordinatesUniforms.uXYPixel.value.y = window.innerHeight;
