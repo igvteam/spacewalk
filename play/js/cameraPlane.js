@@ -107,11 +107,15 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
 };
 
-let matrix4Factory = new THREE.Matrix4();
-matrix4Factory.identity();
+// m4x4
+let A = new THREE.Matrix4();
+let B = new THREE.Matrix4();
+let C = new THREE.Matrix4();
+let D = new THREE.Matrix4();
 
-let vector3factory = new THREE.Vector3();
-vector3factory.set(0, 0, 0);
+// vec3
+let translation = new THREE.Vector3();
+const zero = new THREE.Vector3();
 
 let renderLoop = () => {
 
@@ -125,17 +129,17 @@ let renderLoop = () => {
 
     // A - Scale camera plane to fill viewing frustrum
     const dimension = distanceFromCamera * Math.tan( THREE.Math.degToRad( camera.fov/2 ) );
-    const A = matrix4Factory.clone().makeScale(camera.aspect * dimension, dimension, 1);
+    A.makeScale(camera.aspect * dimension, dimension, 1);
 
     // B - Extract rotation by zeroing out translation. Invert resultant orthonormal matrix by transpose.
-    const B = camera.matrixWorldInverse.clone().setPosition(vector3factory).transpose();
+    B.copy(camera.matrixWorldInverse).setPosition(zero).transpose();
 
     // C - Translate rotated camera plane to camera origin
-    const C = matrix4Factory.clone().makeTranslation(camera.position.x, camera.position.y, camera.position.z);
+    C.makeTranslation(camera.position.x, camera.position.y, camera.position.z);
 
     // D - Position camera plane by translating it along camera look-at vector direction.
-    const translation = vector3factory.clone().subVectors(target, camera.position).normalize().multiplyScalar(distanceFromCamera);
-    const D = matrix4Factory.clone().makeTranslation(translation.x, translation.y, translation.z);
+    translation.subVectors(target, camera.position).normalize().multiplyScalar(distanceFromCamera);
+    D.makeTranslation(translation.x, translation.y, translation.z);
 
     // B * A
     // const BA = A.clone().premultiply(B);
@@ -145,9 +149,6 @@ let renderLoop = () => {
 
     // D * C * B * A
     // const DCBA = CBA.clone().premultiply(D);
-
-    const cameraPlaneTransform = A.clone().premultiply(B).premultiply(C).premultiply(D).clone();
-    // const cameraPlaneTransform = A.clone().premultiply(B).clone();
 
     // prettyMatrix4Print('A', A);
     // prettyMatrix4Print('B', B);
@@ -161,7 +162,7 @@ let renderLoop = () => {
     // prettyMatrix4Print('camera - matrixWorld', camera.matrixWorld);
     // prettyMatrix4Print('matrixWorldInverse', camera.matrixWorldInverse);
 
-    planeMesh.matrix.copy( cameraPlaneTransform );
+    planeMesh.matrix.copy( A.premultiply(B).premultiply(C).premultiply(D) );
 
     renderer.render(scene, camera);
 
