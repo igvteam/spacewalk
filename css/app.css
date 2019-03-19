@@ -9,7 +9,25 @@
   border-color: #a09fa0;
   background-color: rgba(255, 255, 255, 0.65); }
   .card .card-body {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
     padding: 0.5rem; }
+    .card .card-body .trace3d_card_drag_container {
+      cursor: grab;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 16px;
+      background-color: #ff726e; }
+      .card .card-body .trace3d_card_drag_container i.fa-grip-lines {
+        display: block; }
 
 .card:hover {
   border-width: 2px;
@@ -18,49 +36,40 @@
 
 #trace3d_igv_palette.card {
   width: 512px;
-  height: 128px;
+  height: auto;
   align-items: center; }
-  #trace3d_igv_palette.card #trace3d_igv_container.card-body {
-    width: 100%; }
-    #trace3d_igv_palette.card #trace3d_igv_container.card-body .form-group {
-      width: 100%;
-      margin-top: 8px;
-      margin-bottom: 8px; }
-    #trace3d_igv_palette.card #trace3d_igv_container.card-body .spinner-border {
-      margin-left: 8px;
-      margin-right: 8px;
-      color: #6e6e6e; }
-    #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_label {
-      width: 100%;
-      height: 16px;
-      line-height: 16px;
-      font-size: 12px;
-      vertical-align: middle;
-      color: #6e6e6e;
-      background-color: transparent; }
-    #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_container {
-      width: 100%;
-      height: 36px;
-      border-style: solid;
-      border-width: thin;
-      border-color: #a09fa0;
-      background-color: #ffffff; }
-      #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_container > canvas {
-        cursor: pointer; }
+  #trace3d_igv_palette.card #trace3d_igv_container.card-body .form-group {
+    width: 100%;
+    margin-top: 8px;
+    margin-bottom: 8px; }
+  #trace3d_igv_palette.card #trace3d_igv_container.card-body .spinner-border {
+    margin-left: 8px;
+    margin-right: 8px;
+    color: #6e6e6e; }
+  #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_label {
+    width: 100%;
+    height: 16px;
+    line-height: 16px;
+    font-size: 12px;
+    vertical-align: middle;
+    color: #6e6e6e;
+    background-color: transparent; }
+  #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_container {
+    width: 100%;
+    height: 36px;
+    border-style: solid;
+    border-width: thin;
+    border-color: #a09fa0;
+    background-color: #ffffff; }
+    #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_container > canvas {
+      cursor: pointer; }
 
 #trace3d_color_ramp_palette.card {
   width: 128px;
-  height: 640px;
-  align-items: center;
-  justify-content: center; }
+  height: 640px; }
   #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
-    width: 100px;
-    height: 95%;
+    width: 100%;
+    height: auto;
     font-size: 16px; }
     #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_header {
       width: 100%;
@@ -83,16 +92,15 @@
 #trace3d_structure_select_palette.card {
   width: 256px;
   height: auto; }
-  #trace3d_structure_select_palette.card #trace3d_structure_select_header {
-    cursor: move;
+  #trace3d_structure_select_palette.card .card-body #trace3d_structure_select_header {
     line-height: 16px;
     vertical-align: center;
     height: 16px;
     width: 100%;
-    background-color: transparent; }
-  #trace3d_structure_select_palette.card .form-group {
+    background-color: #ff2987; }
+  #trace3d_structure_select_palette.card .card-body .form-group {
     width: 95%; }
-    #trace3d_structure_select_palette.card .form-group input#trace3d_structure_select_input {
+    #trace3d_structure_select_palette.card .card-body .form-group input#trace3d_structure_select_input {
       font-size: 18px; }
 
 #trace3d_data_file_load_palette.card {

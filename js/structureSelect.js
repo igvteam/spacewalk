@@ -18,7 +18,7 @@ class StructureSelect {
 
         layout(container, palette);
 
-        makeDraggable(palette, this.$header.get(0));
+        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
 
         $(window).on('resize.trace3d.structure_select', () => { this.onWindowResize(container, palette) });
 
