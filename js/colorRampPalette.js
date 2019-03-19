@@ -9,7 +9,7 @@ class ColorRampPalette {
 
         layout(container, palette);
 
-        makeDraggable(palette, palette);
+        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
 
         $(window).on('resize.trace3d.toolpalette', () => {
             this.onWindowResize(container, palette)

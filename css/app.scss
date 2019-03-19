@@ -53,6 +53,8 @@ $trace3d_color_ramp_width: 36px;
 
     .trace3d_card_drag_container {
 
+      cursor: grab;
+
       display: flex;
       flex-direction: row;
       flex-wrap: nowrap;
@@ -154,9 +156,6 @@ $trace3d_color_ramp_width: 36px;
     width: 100%;
     height: auto;
 
-    //width: 100px;
-    //height: 95%;
-
     font-size: 16px;
 
     // header text
@@ -201,8 +200,6 @@ $trace3d_color_ramp_width: 36px;
   .card-body {
 
     #trace3d_structure_select_header {
-
-      cursor: move;
 
       line-height: $trace3d_structure_select_palette_label_height;
       vertical-align: center;

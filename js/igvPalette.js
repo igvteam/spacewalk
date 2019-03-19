@@ -62,7 +62,7 @@ class IGVPalette {
 
         layout(container, palette);
 
-        makeDraggable(palette, palette);
+        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
 
     }
 

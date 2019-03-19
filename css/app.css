@@ -17,6 +17,7 @@
     width: 100%;
     padding: 0.5rem; }
     .card .card-body .trace3d_card_drag_container {
+      cursor: grab;
       display: flex;
       flex-direction: row;
       flex-wrap: nowrap;
@@ -92,7 +93,6 @@
   width: 256px;
   height: auto; }
   #trace3d_structure_select_palette.card .card-body #trace3d_structure_select_header {
-    cursor: move;
     line-height: 16px;
     vertical-align: center;
     height: 16px;
