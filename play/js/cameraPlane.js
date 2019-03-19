@@ -89,7 +89,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
 
-    const texture = new THREE.TextureLoader().load( '../../texture/uv_white_wash.png' );
+    const texture = new THREE.TextureLoader().load( '../../texture/swirl.png' );
     const textureMaterial = new THREE.MeshBasicMaterial( { map: texture } );
 
 
