@@ -92,6 +92,74 @@
     <div class="row m-0 p-0">
         <div class="col-sm m-0 p-0">
 
+            <!-- data file loader palette -->
+            <div id="trace3d_data_file_load_palette" class="card">
+
+                <div class="card-body">
+
+                    <div class="trace3d_card_drag_container mb-1">
+                        <i class="fas fa-grip-lines"></i>
+                    </div>
+
+                    <!-- Select -->
+                    <div id="trace3d_data_file_load_select_container">
+                        <div class="form-group">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <button id="trace3d_data_file_load_select_button" class="btn btn-outline-secondary" type="button">Load Selection</button>
+                                </div>
+                                <div class="spinner-border" style="display: none;">
+                                    <!-- spinner -->
+                                </div>
+                                <select id="trace3d_data_file_load_select" class="custom-select">
+                                    <option selected>Choose...</option>
+                                    <option value="https://raw.githubusercontent.com/BogdanBintu/ChromatinImaging/master/Data/A549_chr21-28-30Mb.csv">BogdanBintu - ChromatinImaging - A549 chr21:28-30</option>
+                                    <option value="https://raw.githubusercontent.com/BogdanBintu/ChromatinImaging/master/Data/HCT116_chr21-28-30Mb_untreated.csv">BogdanBintu - ChromatinImaging - HCT116 chr21:28-30</option>
+                                    <option value="https://raw.githubusercontent.com/BogdanBintu/ChromatinImaging/master/Data/HCT116_chr21-34-37Mb_auxin_cellDiv.csv">BogdanBintu - ChromatinImaging (auxin) - HCT116 chr21:34-37</option>
+                                    <option value="https://raw.githubusercontent.com/BogdanBintu/ChromatinImaging/master/Data/HCT116_chr21-34-37Mb_untreated.csv">BogdanBintu - ChromatinImaging (untreated) - HCT116 chr21:34-37</option>
+                                    <option value="https://raw.githubusercontent.com/BogdanBintu/ChromatinImaging/master/Data/IMR90_chr21-18-20Mb.csv">BogdanBintu - ChromatinImaging - IMR90 chr21:18-20</option>
+                                    <option value="https://raw.githubusercontent.com/BogdanBintu/ChromatinImaging/master/Data/K562_chr21-28-30Mb.csv">BogdanBintu - ChromatinImaging - K562 chr21:28-30</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- URL -->
+                    <div id="trace3d_data_file_load_url_container">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <button id="trace3d_data_file_load_url_button" class="btn btn-outline-secondary" type="button">Load URL</button>
+                                </div>
+                                <div class="spinner-border" style="display: none;">
+                                    <!-- spinner -->
+                                </div>
+                                <input id="trace3d_data_file_load_url_input" class="form-control" type="text" placeholder="Enter CSV URL">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Local File -->
+                    <div id="trace3d_data_file_load_local_file_container">
+
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <button id="trace3d_data_file_load_local_file_button" class="btn btn-outline-secondary" type="button">Load File</button>
+                                </div>
+                                <div class="custom-file">
+                                    <input class="custom-file-input" id="trace3d_data_file_load_local_file_input" type="file">
+                                    <label class="custom-file-label" id="trace3d_data_file_load_local_file_label" for="trace3d_data_file_load_local_file_input">Choose CSV File</label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
             <!-- color ramp palette -->
             <div id="trace3d_color_ramp_palette" class="card">
 
@@ -109,51 +177,6 @@
                     </div>
 
                     <div id="trace3d_color_ramp_footer">
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- data file loader palette -->
-            <div id="trace3d_data_file_load_palette" class="card">
-
-                <div class="card-body">
-
-                    <div class="trace3d_card_drag_container mb-1">
-                        <i class="fas fa-grip-lines"></i>
-                    </div>
-
-                    <div id="trace3d_data_file_load_url_container">
-
-                        <div class="form-group">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <button id="trace3d_data_file_load_url_button" class="btn btn-outline-secondary" type="button">Load URL</button>
-                                </div>
-                                <div class="spinner-border" style="display: none;">
-                                    <!-- spinner -->
-                                </div>
-                                <input id="trace3d_data_file_load_url_input" class="form-control" type="text" placeholder="Enter CSV URL">
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div id="trace3d_data_file_load_local_file_container">
-
-                        <div class="form-group">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <button id="trace3d_data_file_load_local_file_button" class="btn btn-outline-secondary" type="button">Load File</button>
-                                </div>
-                                <div class="custom-file">
-                                    <input class="custom-file-input" id="trace3d_data_file_load_local_file_input" type="file">
-                                    <label class="custom-file-label" id="trace3d_data_file_load_local_file_label" for="trace3d_data_file_load_local_file_input">Choose CSV File</label>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
 
                 </div>
