@@ -37,7 +37,8 @@ let main = async container => {
     const sceneManagerSettings =
         {
             container: container,
-            backgroundColor: rgb255ToThreeJSColor(163, 237, 237),
+            // backgroundColor: rgb255ToThreeJSColor(163, 237, 237),
+            backgroundColor: appleCrayonColorThreeJS('mercury'),
             groundPlaneColor: appleCrayonColorHexValue('steel'),
             colorRampPalette: $('#trace3d_color_ramp_palette').get(0),
             colorRampPaletteColors: [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ],
