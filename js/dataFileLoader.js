@@ -26,11 +26,36 @@ class DataFileLoader {
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
+        // Select
+        const $select = $('#trace3d_data_file_load_select');
+
+        const $select_button = $('#trace3d_data_file_load_select_button');
+        $select_button.prop('disabled', true);
+
+        $select.on('change.trace3d_data_file_load_select', (e) => {
+            e.stopPropagation();
+            currentURL = e.target.value;
+            $select_button.prop('disabled', false);
+        });
+
+        const $select_container = $('#trace3d_data_file_load_select_container');
+
+        $select_button.on('click.trace3d_data_file_load_select_button', (e) => {
+            e.stopPropagation();
+            loadURL({ url: currentURL, $spinner: $select_container.find('.spinner-border'), $palette });
+            $select_button.prop('disabled', true);
+            currentURL = undefined;
+
+            const $option = $select.find('option:first');
+            $select.val( $option.val() );
+        });
+
         // URL
         const $url_input = $('#trace3d_data_file_load_url_input');
         $url_input.val('');
 
         const $url_button = $('#trace3d_data_file_load_url_button');
+        $url_button.prop('disabled', true);
 
         $url_input.on('change.trace3d_data_file_load_url_input', (event) => {
             event.stopPropagation();

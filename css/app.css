@@ -34,6 +34,62 @@
   border-color: #6e6e6e;
   background-color: #ffffff; }
 
+#trace3d_data_file_load_palette.card {
+  width: 640px;
+  height: auto;
+  background-color: #ffffff; }
+  #trace3d_data_file_load_palette.card #trace3d_data_file_load_url_container {
+    width: 100%; }
+  #trace3d_data_file_load_palette.card #trace3d_data_file_load_local_file_container {
+    width: 100%; }
+  #trace3d_data_file_load_palette.card #trace3d_data_file_load_select_container {
+    width: 100%; }
+  #trace3d_data_file_load_palette.card .form-group {
+    margin: 8px; }
+  #trace3d_data_file_load_palette.card .spinner-border {
+    margin-left: 8px;
+    margin-right: 8px;
+    color: #6e6e6e; }
+
+#trace3d_structure_select_palette.card {
+  width: 256px;
+  height: auto; }
+  #trace3d_structure_select_palette.card .card-body #trace3d_structure_select_header {
+    line-height: 16px;
+    vertical-align: center;
+    height: 16px;
+    width: 100%;
+    background-color: transparent; }
+  #trace3d_structure_select_palette.card .card-body .form-group {
+    width: 95%; }
+    #trace3d_structure_select_palette.card .card-body .form-group input#trace3d_structure_select_input {
+      font-size: 18px; }
+
+#trace3d_color_ramp_palette.card {
+  width: 128px;
+  height: 640px; }
+  #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body {
+    width: 100%;
+    height: auto;
+    font-size: 16px; }
+    #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_header {
+      width: 100%;
+      height: 32px;
+      line-height: 32px;
+      vertical-align: middle;
+      text-align: center; }
+    #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp {
+      cursor: pointer;
+      width: 36px;
+      height: calc(100% - 32px - 32px);
+      background-color: transparent; }
+    #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_footer {
+      width: 100%;
+      height: 32px;
+      line-height: 32px;
+      vertical-align: middle;
+      text-align: center; }
+
 #trace3d_igv_palette.card {
   width: 512px;
   height: auto;
@@ -63,56 +119,6 @@
     background-color: #ffffff; }
     #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_container > canvas {
       cursor: pointer; }
-
-#trace3d_color_ramp_palette.card {
-  width: 128px;
-  height: 640px; }
-  #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body {
-    width: 100%;
-    height: auto;
-    font-size: 16px; }
-    #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_header {
-      width: 100%;
-      height: 32px;
-      line-height: 32px;
-      vertical-align: middle;
-      text-align: center; }
-    #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp {
-      cursor: pointer;
-      width: 36px;
-      height: calc(100% - 32px - 32px);
-      background-color: transparent; }
-    #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_footer {
-      width: 100%;
-      height: 32px;
-      line-height: 32px;
-      vertical-align: middle;
-      text-align: center; }
-
-#trace3d_structure_select_palette.card {
-  width: 256px;
-  height: auto; }
-  #trace3d_structure_select_palette.card .card-body #trace3d_structure_select_header {
-    line-height: 16px;
-    vertical-align: center;
-    height: 16px;
-    width: 100%;
-    background-color: transparent; }
-  #trace3d_structure_select_palette.card .card-body .form-group {
-    width: 95%; }
-    #trace3d_structure_select_palette.card .card-body .form-group input#trace3d_structure_select_input {
-      font-size: 18px; }
-
-#trace3d_data_file_load_palette.card {
-  width: 512px;
-  height: auto;
-  background-color: #ffffff; }
-  #trace3d_data_file_load_palette.card .form-group {
-    margin: 8px; }
-  #trace3d_data_file_load_palette.card .spinner-border {
-    margin-left: 8px;
-    margin-right: 8px;
-    color: #6e6e6e; }
 
 #trace3d_canvas_container {
   position: relative; }

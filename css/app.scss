@@ -13,8 +13,8 @@ $trace3d_color_ramp_palette_width: 128px;
 $trace3d_color_ramp_palette_height: 640px;
 
 // data file load palette
-$trace3d_data_file_load_palette_width: 4 * 128px;
-$trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 4;
+$trace3d_data_file_load_palette_width: 5 * 128px;
+//$trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 4;
 
 // structure select palette
 $trace3d_structure_select_palette_width: 256px;
@@ -81,6 +81,116 @@ $trace3d_color_ramp_width: 36px;
   background-color: $trace3d_snow;
 }
 
+// data file loading (CSV Segment Files) palette
+#trace3d_data_file_load_palette.card {
+
+  width: $trace3d_data_file_load_palette_width;
+  height: auto;
+
+  #trace3d_data_file_load_url_container {
+    width: 100%;
+  }
+
+  #trace3d_data_file_load_local_file_container {
+    width: 100%;
+  }
+
+  #trace3d_data_file_load_select_container {
+    width: 100%;
+  }
+
+  .form-group {
+    margin: 8px;
+  }
+
+  .spinner-border {
+    margin-left: 8px;
+    margin-right: 8px;
+    color: $trace3d_steel;
+  }
+
+  background-color: $trace3d_snow;
+
+}
+
+// structure select palette
+#trace3d_structure_select_palette.card {
+
+  width: $trace3d_structure_select_palette_width;
+  height: auto;
+
+  .card-body {
+
+    #trace3d_structure_select_header {
+
+      line-height: $trace3d_structure_select_palette_label_height;
+      vertical-align: center;
+      height: $trace3d_structure_select_palette_label_height;
+
+      width: 100%;
+
+      //background-color: transparent;
+      background-color: transparent;
+    }
+
+    .form-group {
+      width: 95%;
+
+      input#trace3d_structure_select_input {
+        font-size: 18px;
+      }
+
+    }
+
+  }
+
+}
+
+// color ramp palette
+#trace3d_color_ramp_palette.card {
+
+  width: $trace3d_color_ramp_palette_width;
+  height: $trace3d_color_ramp_palette_height;
+
+  #trace3d_color_ramp_widget_container.card-body {
+    width: 100%;
+    height: auto;
+
+    font-size: 16px;
+
+    // header text
+    #trace3d_color_ramp_header {
+      width: 100%;
+      height: $trace3d_text_box_height;
+
+      line-height: $trace3d_text_box_height;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    // ramp
+    #trace3d_color_ramp {
+      cursor: pointer;
+      width: 36px;
+      height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
+
+      background-color: transparent;
+    }
+
+    // footer text
+    #trace3d_color_ramp_footer {
+      width: 100%;
+      height: $trace3d_text_box_height;
+
+      line-height: $trace3d_text_box_height;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+  }
+
+}
+
 // igvjs palette
 #trace3d_igv_palette.card {
 
@@ -142,104 +252,6 @@ $trace3d_color_ramp_width: 36px;
       }
 
     }
-  }
-
-}
-
-// color ramp palette
-#trace3d_color_ramp_palette.card {
-
-  width: $trace3d_color_ramp_palette_width;
-  height: $trace3d_color_ramp_palette_height;
-
-  #trace3d_color_ramp_widget_container.card-body {
-    width: 100%;
-    height: auto;
-
-    font-size: 16px;
-
-    // header text
-    #trace3d_color_ramp_header {
-      width: 100%;
-      height: $trace3d_text_box_height;
-
-      line-height: $trace3d_text_box_height;
-      vertical-align: middle;
-      text-align: center;
-    }
-
-    // ramp
-    #trace3d_color_ramp {
-      cursor: pointer;
-      width: 36px;
-      height: calc(100% - #{$trace3d_text_box_height} - #{$trace3d_text_box_height});
-
-      background-color: transparent;
-    }
-
-    // footer text
-    #trace3d_color_ramp_footer {
-      width: 100%;
-      height: $trace3d_text_box_height;
-
-      line-height: $trace3d_text_box_height;
-      vertical-align: middle;
-      text-align: center;
-    }
-
-  }
-
-}
-
-// structure select palette
-#trace3d_structure_select_palette.card {
-
-  width: $trace3d_structure_select_palette_width;
-  height: auto;
-
-  .card-body {
-
-    #trace3d_structure_select_header {
-
-      line-height: $trace3d_structure_select_palette_label_height;
-      vertical-align: center;
-      height: $trace3d_structure_select_palette_label_height;
-
-      width: 100%;
-
-      //background-color: transparent;
-      background-color: transparent;
-    }
-
-    .form-group {
-      width: 95%;
-
-      input#trace3d_structure_select_input {
-        font-size: 18px;
-      }
-
-    }
-
-  }
-
-}
-
-// data file loading (CSV Segment Files) palette
-#trace3d_data_file_load_palette.card {
-
-  width: $trace3d_data_file_load_palette_width;
-  height: auto;
-
-  background-color: $trace3d_snow;
-
-  .form-group {
-    margin: 8px;
-  }
-
-  .spinner-border {
-    margin-left: 8px;
-    margin-right: 8px;
-    color: $trace3d_steel;
   }
 
 }
