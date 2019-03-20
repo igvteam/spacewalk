@@ -75,7 +75,7 @@ let main = async container => {
 
     structureSelect = new StructureSelect({ container, palette: $('#trace3d_structure_select_palette').get(0) });
 
-    dataFileLoader = new DataFileLoader({ container, palette: $('#trace3d_data_file_load_palette').get(0), presentationButton:  $('#trace3d_button_present_data_file_load_palette').get(0) });
+    dataFileLoader = new DataFileLoader({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
 
     igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
 

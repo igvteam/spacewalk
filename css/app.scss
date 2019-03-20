@@ -12,10 +12,6 @@ $trace3d_tool_palette_height: 512px;
 $trace3d_color_ramp_palette_width: 128px;
 $trace3d_color_ramp_palette_height: 640px;
 
-// data file load palette
-$trace3d_data_file_load_palette_width: 5 * 128px;
-//$trace3d_data_file_load_palette_height: $trace3d_data_file_load_palette_width / 4;
-
 // structure select palette
 $trace3d_structure_select_palette_width: 256px;
 $trace3d_structure_select_palette_height: 108px;
@@ -79,38 +75,6 @@ $trace3d_color_ramp_width: 36px;
   border-width: 2px;
   border-color: $trace3d_steel;
   background-color: $trace3d_snow;
-}
-
-// data file loading (CSV Segment Files) palette
-#trace3d_data_file_load_palette.card {
-
-  width: $trace3d_data_file_load_palette_width;
-  height: auto;
-
-  #trace3d_data_file_load_url_container {
-    width: 100%;
-  }
-
-  #trace3d_data_file_load_local_file_container {
-    width: 100%;
-  }
-
-  #trace3d_data_file_load_select_container {
-    width: 100%;
-  }
-
-  .form-group {
-    margin: 8px;
-  }
-
-  .spinner-border {
-    margin-left: 8px;
-    margin-right: 8px;
-    color: $trace3d_steel;
-  }
-
-  background-color: $trace3d_snow;
-
 }
 
 // structure select palette
