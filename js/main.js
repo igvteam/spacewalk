@@ -106,9 +106,11 @@ let main = async container => {
 
                     setup({ sceneManager, chr, genomicStart, genomicEnd, structure });
 
-                } else if ('DidLoadCSVFile' === type) {
+                } else if ('DidLoadFile' === type) {
 
                     let { name, payload } = data;
+
+                    $('.navbar').find('#trace3d-file-name').text(name);
 
                     structureManager.path = name;
                     structureManager.ingest(payload);
@@ -133,7 +135,7 @@ let main = async container => {
         };
 
     globalEventBus.subscribe('DidSelectStructure', eventListener);
-    globalEventBus.subscribe('DidLoadCSVFile', eventListener);
+    globalEventBus.subscribe('DidLoadFile', eventListener);
 
 };
 

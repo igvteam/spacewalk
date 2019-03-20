@@ -77,6 +77,25 @@ $trace3d_color_ramp_width: 36px;
   background-color: $trace3d_snow;
 }
 
+// modals
+#trace3d_data_file_load_select_container {
+
+  .form-control {
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+  }
+
+}
+
+#trace3d_data_file_load_url_container {
+
+  .form-control {
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+  }
+
+}
+
 // structure select palette
 #trace3d_structure_select_palette.card {
 

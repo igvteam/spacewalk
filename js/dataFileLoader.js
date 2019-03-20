@@ -22,26 +22,42 @@ class DataFileLoader {
         // URL
         const $url_container = $('#trace3d_data_file_load_url_container');
         const $url_input = $('#trace3d_data_file_load_url_input');
-        const $url_button = $('#trace3d_data_file_load_url_ok_button');
+        const $url_upper_cancel_button = $('#trace3d_data_file_load_url_upper_cancel_button');
+        const $url_cancel_button = $('#trace3d_data_file_load_url_cancel_button');
+        const $url_ok_button = $('#trace3d_data_file_load_url_ok_button');
 
         $url_input.val('');
-        $url_button.prop('disabled', true);
+        $url_ok_button.prop('disabled', true);
 
         $url_input.on('change.trace3d_data_file_load_url_input', (event) => {
             event.stopPropagation();
             currentURL = event.target.value;
-            $url_button.prop('disabled', false);
+            $url_ok_button.prop('disabled', false);
         });
 
-        $url_button.on('click.trace3d_data_file_load_url_button', async (event) => {
+        $url_ok_button.on('click.trace3d_data_file_load_url_button', async (event) => {
             event.stopPropagation();
             $url_input.trigger('change.trace3d_data_file_load_url_input');
             await loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
+
             $url_input.val('');
             currentURL = undefined;
-            $url_button.prop('disabled', true);
+            $url_ok_button.prop('disabled', true);
         });
 
+        let doCancel = (event) => {
+            event.stopPropagation();
+            $url_input.val('');
+            currentURL = undefined;
+            $url_ok_button.prop('disabled', true);
+            $urlModal.modal('hide');
+        };
+
+        $url_upper_cancel_button.on('click', doCancel);
+
+        $url_cancel_button.on('click', doCancel);
+
+        // local file
         $('#trace3d-file-load-local').on('change.trace3d-file-load-local', (event) => {
             event.stopPropagation();
             loadFile(event.target.files[0]);
@@ -67,7 +83,7 @@ const loadURL = async ({ url, $spinner, $modal }) => {
 
             $modal.modal('hide');
 
-            globalEventBus.post({ type: "DidLoadCSVFile", data: { name: file, payload: urlContents } });
+            globalEventBus.post({ type: "DidLoadFile", data: { name: file, payload: urlContents } });
 
         } catch (error) {
             console.warn(error.message)
@@ -83,7 +99,7 @@ const loadFile = async file => {
 
     try {
         const fileContents = await readFileAsText(file);
-        globalEventBus.post({ type: "DidLoadCSVFile", data: { name: file.name, payload: fileContents } });
+        globalEventBus.post({ type: "DidLoadFile", data: { name: file.name, payload: fileContents } });
     } catch (e) {
         console.warn(e.message)
     }
