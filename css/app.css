@@ -34,23 +34,6 @@
   border-color: #6e6e6e;
   background-color: #ffffff; }
 
-#trace3d_data_file_load_palette.card {
-  width: 640px;
-  height: auto;
-  background-color: #ffffff; }
-  #trace3d_data_file_load_palette.card #trace3d_data_file_load_url_container {
-    width: 100%; }
-  #trace3d_data_file_load_palette.card #trace3d_data_file_load_local_file_container {
-    width: 100%; }
-  #trace3d_data_file_load_palette.card #trace3d_data_file_load_select_container {
-    width: 100%; }
-  #trace3d_data_file_load_palette.card .form-group {
-    margin: 8px; }
-  #trace3d_data_file_load_palette.card .spinner-border {
-    margin-left: 8px;
-    margin-right: 8px;
-    color: #6e6e6e; }
-
 #trace3d_structure_select_palette.card {
   width: 256px;
   height: auto; }
