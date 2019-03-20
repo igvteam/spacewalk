@@ -7,49 +7,39 @@ class DataFileLoader {
     constructor({ $urlModal, $selectModal }) {
 
         // Select
-        const $select = $('#trace3d_data_file_load_select');
+        const $select_container = $selectModal.find('#trace3d_data_file_load_select_container');
+        const $select = $selectModal.find('#trace3d_data_file_load_select');
 
-        const $select_button = $('#trace3d_data_file_load_select_button');
-        $select_button.prop('disabled', true);
-
-        $select.on('change.trace3d_data_file_load_select', (event) => {
+        $select.on('change.trace3d_data_file_load_select', async (event) => {
             event.stopPropagation();
-            currentURL = event.target.value;
-            $select_button.prop('disabled', false);
-        });
-
-        const $select_container = $('#trace3d_data_file_load_select_container');
-
-        $select_button.on('click.trace3d_data_file_load_select_button', (event) => {
-            event.stopPropagation();
-            loadURL({ url: currentURL, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
-            $select_button.prop('disabled', true);
-            currentURL = undefined;
+            await loadURL({ url: event.target.value, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
 
             const $option = $select.find('option:first');
             $select.val( $option.val() );
+
         });
 
         // URL
+        const $url_container = $('#trace3d_data_file_load_url_container');
         const $url_input = $('#trace3d_data_file_load_url_input');
-        $url_input.val('');
+        const $url_button = $('#trace3d_data_file_load_url_ok_button');
 
-        const $url_button = $('#trace3d_data_file_load_url_button');
+        $url_input.val('');
         $url_button.prop('disabled', true);
 
         $url_input.on('change.trace3d_data_file_load_url_input', (event) => {
             event.stopPropagation();
             currentURL = event.target.value;
+            $url_button.prop('disabled', false);
         });
 
-        const $url_container = $('#trace3d_data_file_load_url_container');
-
-        $url_button.on('click.trace3d_data_file_load_url_button', (event) => {
+        $url_button.on('click.trace3d_data_file_load_url_button', async (event) => {
             event.stopPropagation();
             $url_input.trigger('change.trace3d_data_file_load_url_input');
-            loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
+            await loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
             $url_input.val('');
             currentURL = undefined;
+            $url_button.prop('disabled', true);
         });
 
         $('#trace3d-file-load-local').on('change.trace3d-file-load-local', (event) => {
