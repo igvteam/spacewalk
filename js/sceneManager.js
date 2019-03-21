@@ -89,7 +89,7 @@ class SceneManager {
 
         const centroid = [ 133394, 54542, 4288 ];
 
-        this.poseOrbitalCamera({ position: cameraPosition, lookAt: centroid });
+        this.orbitalCamera.pose({ position: cameraPosition, lookAt: centroid });
 
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
 
@@ -112,7 +112,7 @@ class SceneManager {
         const [ near, far, fov ] = [ 1e-1 * dimen, 32 * dimen, 35 ];
         this.configureOrbitalCamera({ fov, near, far });
 
-        this.poseOrbitalCamera({ position: cameraPosition, lookAt: centroid });
+        this.orbitalCamera.pose({ position: cameraPosition, lookAt: centroid });
 
         this.configureGroundPlane({ scene: this.scene, target: centroid, size: 2 * Math.max(extentX, extentY, extentZ), color: this.groundPlaneColor });
 
@@ -122,15 +122,6 @@ class SceneManager {
         const aspectRatio = window.innerWidth / window.innerHeight;
         const domElement = this.renderer.domElement;
         this.orbitalCamera = new OrbitalCamera({ fov, near, far, aspectRatio, domElement });
-    }
-
-    poseOrbitalCamera( { position, lookAt }) {
-
-        this.orbitalCamera.setPosition(position);
-
-        const [ targetX, targetY, targetZ ] = lookAt;
-        this.orbitalCamera.setLookAt(new THREE.Vector3(targetX, targetY, targetZ));
-
     }
 
     configureGroundPlane({ scene, target, size, color }) {

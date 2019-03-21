@@ -1,12 +1,23 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
 
+let currentCameraPosition = undefined;
+let currentCameraTarget = undefined;
+
 class OrbitalCamera {
 
     constructor({ fov, near, far, aspectRatio, domElement }) {
         this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
         this.orbitControl = new OrbitControls(this.camera, domElement);
         this.orbitControl.screenSpacePanning = false;
+    }
+
+    pose({ position, lookAt }) {
+
+        this.setPosition(position);
+
+        const [ targetX, targetY, targetZ ] = lookAt;
+        this.setLookAt(new THREE.Vector3(targetX, targetY, targetZ));
     }
 
     setNearFar(nearFar) {
@@ -17,9 +28,13 @@ class OrbitalCamera {
 
     setPosition(xyz) {
         this.camera.position.set(xyz[ 0 ], xyz[ 1 ], xyz[ 2 ]);
+        currentCameraPosition = new THREE.Vector3(xyz[ 0 ], xyz[ 1 ], xyz[ 2 ]);
     }
 
     setLookAt(target) {
+
+        currentCameraTarget = target.clone();
+
         this.camera.lookAt(target);
         this.orbitControl.target = target;
         this.orbitControl.update();
