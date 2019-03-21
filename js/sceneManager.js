@@ -3,7 +3,7 @@ import { globalEventBus } from "./eventBus.js";
 import CubicMapManager from "./cubicMapManager.js";
 import ColorRampPalette from "./colorRampPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
-import { getMouseXY } from "./utils.js";
+import { numberFormatter, getMouseXY } from "./utils.js";
 
 class SceneManager {
 
@@ -81,23 +81,26 @@ class SceneManager {
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
 
-        const [ near, far, fov ] = [ 71, 22900, 35 ];
-
-        this.configureOrbitalCamera({ fov, near, far });
+        const [ fov, near, far, domElement ] = [ 35, 71, 22900, this.renderer.domElement ];
+        this.orbitalCamera = new OrbitalCamera({ fov, near, far, domElement });
 
         const cameraPosition = [ 134820, 55968, 5715 ];
-
         const centroid = [ 133394, 54542, 4288 ];
-
-        this.orbitalCamera.pose({ position: cameraPosition, lookAt: centroid });
+        this.orbitalCamera.setPose({ position: cameraPosition, target: centroid });
 
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
 
-        this.configureGroundPlane({ scene: this.scene, target: centroid, size: 2 * Math.max(extentX, extentY, extentZ), color: this.groundPlaneColor });
+        this.groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, this.groundPlaneColor, this.groundPlaneColor);
+
+        const [ targetX, targetY, targetZ ] = centroid;
+        this.groundPlane.position.set(targetX, targetY, targetZ);
+        this.groundPlane.name = 'groundplane';
+
+        this.scene.add( this.groundPlane );
 
     }
 
-    configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, centroid }) {
+    configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, centroid, doUpdateCameraPose }) {
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
@@ -108,31 +111,19 @@ class SceneManager {
 
         let dimen = 0.5 * Math.max(extentX, extentY, extentZ);
         dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
-
         const [ near, far, fov ] = [ 1e-1 * dimen, 32 * dimen, 35 ];
-        this.configureOrbitalCamera({ fov, near, far });
 
-        this.orbitalCamera.pose({ position: cameraPosition, lookAt: centroid });
+        if (true === doUpdateCameraPose) {
+            this.orbitalCamera.setPose({ position: cameraPosition, target: centroid });
+        } else {
+            this.orbitalCamera.setTarget({target: centroid});
+        }
 
-        this.configureGroundPlane({ scene: this.scene, target: centroid, size: 2 * Math.max(extentX, extentY, extentZ), color: this.groundPlaneColor });
+        this.orbitalCamera.setProjection({ fov, near, far });
 
-    }
-
-    configureOrbitalCamera({ fov, near, far }) {
-        const aspectRatio = window.innerWidth / window.innerHeight;
-        const domElement = this.renderer.domElement;
-        this.orbitalCamera = new OrbitalCamera({ fov, near, far, aspectRatio, domElement });
-    }
-
-    configureGroundPlane({ scene, target, size, color }) {
-
-        const groundPlane = new THREE.GridHelper(size, 16, color, color);
-
-        const [ targetX, targetY, targetZ ] = target;
-        groundPlane.position.set(targetX, targetY, targetZ);
-        groundPlane.name = 'groundplane';
-
-        scene.add( groundPlane );
+        const [ targetX, targetY, targetZ ] = centroid;
+        this.groundPlane.position.set(targetX, targetY, targetZ);
+        this.scene.add( this.groundPlane );
 
     }
 
@@ -151,23 +142,15 @@ class SceneManager {
             const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
             const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
 
-            // console.log('clientXY(' + event.clientX + ', ' + event.clientY + ') xy(' + x + ', ' + y + ')');
-
             this.picker.intersect({ x, y, scene: this.scene, camera: this.orbitalCamera.camera });
 
         }
     };
 
     dispose() {
-
         if (this.scene) {
             this.scene.dispose();
             delete this.scene;
-        }
-
-        if (this.orbitalCamera) {
-            this.orbitalCamera.dispose();
-            delete this.orbitalCamera;
         }
     }
 

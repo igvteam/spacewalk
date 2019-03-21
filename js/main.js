@@ -10,6 +10,7 @@ import IGVPalette from './igvPalette.js';
 
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
+import { numberFormatter } from './utils.js';
 import { globalEventBus } from './eventBus.js';
 
 let structureManager;
@@ -31,6 +32,8 @@ let showSTMaterial;
 let sceneManager;
 
 let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
+
+let doUpdateCameraPose = true;
 
 let main = async container => {
 
@@ -128,6 +131,8 @@ let main = async container => {
 
                     setup({ sceneManager, chr, genomicStart, genomicEnd, structure });
 
+                    doUpdateCameraPose = false;
+
                 }
 
 
@@ -142,7 +147,7 @@ let main = async container => {
 let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
     let [ structureLength, structureExtent, cameraPosition, centroid ] = [ structure.array.length, structure.extent, structure.cameraPosition, structure.centroid ];
-    sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, centroid });
+    sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, centroid, doUpdateCameraPose });
 
     // ball
     const sphereRadius = 24;

@@ -1,43 +1,68 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
+import { numberFormatter } from "./utils.js";
 
-let currentCameraPosition = undefined;
-let currentCameraTarget = undefined;
+let vector3Factory = new THREE.Vector3(0, 0, 0);
 
 class OrbitalCamera {
 
-    constructor({ fov, near, far, aspectRatio, domElement }) {
+    constructor({ fov, near, far, domElement }) {
+
+        const aspectRatio = window.innerWidth / window.innerHeight;
         this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
+
         this.orbitControl = new OrbitControls(this.camera, domElement);
         this.orbitControl.screenSpacePanning = false;
     }
 
-    pose({ position, lookAt }) {
+    setProjection({ fov, near, far }) {
 
-        this.setPosition(position);
+        this.camera.fov = fov;
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.near = near;
+        this.camera.far = far;
 
-        const [ targetX, targetY, targetZ ] = lookAt;
-        this.setLookAt(new THREE.Vector3(targetX, targetY, targetZ));
-    }
-
-    setNearFar(nearFar) {
-        this.camera.near = nearFar[ 0 ];
-        this.camera.far  = nearFar[ 1 ];
         this.camera.updateProjectionMatrix();
     }
 
-    setPosition(xyz) {
-        this.camera.position.set(xyz[ 0 ], xyz[ 1 ], xyz[ 2 ]);
-        currentCameraPosition = new THREE.Vector3(xyz[ 0 ], xyz[ 1 ], xyz[ 2 ]);
+    setPose({ position, target }) {
+
+        const [ px, py, pz ] = position;
+        const p = new THREE.Vector3(px, py, pz);
+
+        const [ tx, ty, tz ] = target;
+        const t = new THREE.Vector3(tx, ty, tz);
+
+        const translation = p.clone().sub(t);
+
+        this.poseHelper({ translation, target: t })
     }
 
-    setLookAt(target) {
+    setTarget({target}) {
 
-        currentCameraTarget = target.clone();
+        const [ tx, ty, tz ] = target;
+        const t = new THREE.Vector3(tx, ty, tz);
+
+        const translation = this.camera.position.clone().sub(this.orbitControl.target);
+
+        this.poseHelper({ translation, target: t })
+
+    }
+
+    poseHelper({translation, target}) {
 
         this.camera.lookAt(target);
-        this.orbitControl.target = target;
+
+        const calculated = target.clone().add(translation);
+        const { x, y, z } = calculated;
+
+        this.camera.position.set(x, y, z);
+
+        this.camera.updateMatrixWorld();
+
+        this.orbitControl.target = target.clone();
         this.orbitControl.update();
+
     }
 
     dispose() {
