@@ -1,4 +1,4 @@
-
+import { numberFormatter } from './utils.js';
 class StructureManager {
 
     constructor () {
@@ -89,21 +89,23 @@ class StructureManager {
             }, [ Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE ]);
 
             // bbox
-            structure.bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
+            // structure.bbox = [ minX, maxX, minY, maxY, minZ, maxZ ];
 
             // bounding hyper-rectangle
             const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
             structure.extent = [ extentX, extentY, extentZ ];
 
             // longest edge
-            let edgeLength = Math.max(...structure.extent);
+            const edgeLength = Math.max(...structure.extent);
 
             // radius of bounding sphere
             structure.boundingRadius = Math.sqrt(3 * edgeLength * edgeLength);
 
-            // Centroid of structure. where will will aim the camera
+            // Centroid of structure. Where we will aim the camera.
             const [ centroidX, centroidY, centroidZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
             structure.centroid = [ centroidX, centroidY, centroidZ ];
+
+            // console.log('radius ' + numberFormatter(Math.round(structure.boundingRadius)) + ' centroid ' + numberFormatter(Math.round(centroidX)) + ' ' + numberFormatter(Math.round(centroidY)) + ' ' + numberFormatter(Math.round(centroidZ)));
 
             // where to position the camera. the camera with look at the centroid
             structure.cameraPosition = [ centroidX + structure.boundingRadius, centroidY + structure.boundingRadius, centroidZ + structure.boundingRadius ];
