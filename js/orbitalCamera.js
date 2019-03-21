@@ -1,8 +1,5 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
-import { numberFormatter } from "./utils.js";
-
-let vector3Factory = new THREE.Vector3(0, 0, 0);
 
 class OrbitalCamera {
 
@@ -35,33 +32,17 @@ class OrbitalCamera {
 
         const translation = p.clone().sub(t);
 
-        this.poseHelper({ translation, target: t })
+        poseHelper({ translation, target: t, camera: this.camera, orbitControl: this.orbitControl })
     }
 
-    setTarget({target}) {
+    setTarget({ target }) {
 
         const [ tx, ty, tz ] = target;
         const t = new THREE.Vector3(tx, ty, tz);
 
         const translation = this.camera.position.clone().sub(this.orbitControl.target);
 
-        this.poseHelper({ translation, target: t })
-
-    }
-
-    poseHelper({translation, target}) {
-
-        this.camera.lookAt(target);
-
-        const calculated = target.clone().add(translation);
-        const { x, y, z } = calculated;
-
-        this.camera.position.set(x, y, z);
-
-        this.camera.updateMatrixWorld();
-
-        this.orbitControl.target = target.clone();
-        this.orbitControl.update();
+        poseHelper({ translation, target: t, camera: this.camera, orbitControl: this.orbitControl })
 
     }
 
@@ -74,5 +55,22 @@ class OrbitalCamera {
         delete this.orbitControl;
     }
 }
+
+
+let poseHelper = ({ translation, target, camera, orbitControl }) => {
+
+    camera.lookAt(target);
+
+    const calculated = target.clone().add(translation);
+    const { x, y, z } = calculated;
+
+    camera.position.set(x, y, z);
+
+    camera.updateMatrixWorld();
+
+    orbitControl.target = target.clone();
+    orbitControl.update();
+
+};
 
 export default OrbitalCamera;
