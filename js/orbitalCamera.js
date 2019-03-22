@@ -28,11 +28,9 @@ class OrbitalCamera {
         poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this.orbitControl })
     }
 
-    setTarget({ centroid, groundPlanePosition }) {
+    setTarget({ centroid }) {
         const toCamera = this.camera.position.clone().sub(this.orbitControl.target);
-        const delta = this.orbitControl.target.clone().sub(groundPlanePosition);
-        const _centroid = centroid.clone().add(delta);
-        poseHelper({ toCamera, centroid: _centroid, camera: this.camera, orbitControl: this.orbitControl })
+        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this.orbitControl })
     }
 
     dispose() {
