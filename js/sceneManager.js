@@ -84,16 +84,14 @@ class SceneManager {
         const [ fov, near, far, domElement ] = [ 35, 71, 22900, this.renderer.domElement ];
         this.orbitalCamera = new OrbitalCamera({ fov, near, far, domElement });
 
-        const cameraPosition = [ 134820, 55968, 5715 ];
-        const centroid = [ 133394, 54542, 4288 ];
+        const cameraPosition = new THREE.Vector3(134820, 55968, 5715);
+        const centroid = new THREE.Vector3(133394, 54542, 4288);
         this.orbitalCamera.setPose({ position: cameraPosition, target: centroid });
 
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
-
         this.groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, this.groundPlaneColor, this.groundPlaneColor);
 
-        const [ targetX, targetY, targetZ ] = centroid;
-        this.groundPlane.position.set(targetX, targetY, targetZ);
+        this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
         this.groundPlane.name = 'groundplane';
 
         this.scene.add( this.groundPlane );
@@ -107,22 +105,18 @@ class SceneManager {
 
         this.colorRampPalette.configure({ chr, genomicStart, genomicEnd, structureLength });
 
-        const [ extentX, extentY, extentZ ] = structureExtent;
-
-        let dimen = 0.5 * Math.max(extentX, extentY, extentZ);
-        dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
-        const [ near, far, fov ] = [ 1e-1 * dimen, 32 * dimen, 35 ];
-
         if (true === doUpdateCameraPose) {
             this.orbitalCamera.setPose({ position: cameraPosition, target: centroid });
         } else {
             this.orbitalCamera.setTarget({target: centroid});
         }
 
+        let dimen = 0.5 * Math.max(structureExtent.x, structureExtent.y, structureExtent.z);
+        dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
+        const [ fov, near, far ] = [ 35, 1e-1 * dimen, 32 * dimen ];
         this.orbitalCamera.setProjection({ fov, near, far });
 
-        const [ targetX, targetY, targetZ ] = centroid;
-        this.groundPlane.position.set(targetX, targetY, targetZ);
+        this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
         this.scene.add( this.groundPlane );
 
     }

@@ -23,27 +23,13 @@ class OrbitalCamera {
     }
 
     setPose({ position, target }) {
-
-        const [ px, py, pz ] = position;
-        const p = new THREE.Vector3(px, py, pz);
-
-        const [ tx, ty, tz ] = target;
-        const t = new THREE.Vector3(tx, ty, tz);
-
-        const translation = p.clone().sub(t);
-
-        poseHelper({ translation, target: t, camera: this.camera, orbitControl: this.orbitControl })
+        const translation = position.clone().sub(target);
+        poseHelper({ translation, target, camera: this.camera, orbitControl: this.orbitControl })
     }
 
     setTarget({ target }) {
-
-        const [ tx, ty, tz ] = target;
-        const t = new THREE.Vector3(tx, ty, tz);
-
         const translation = this.camera.position.clone().sub(this.orbitControl.target);
-
-        poseHelper({ translation, target: t, camera: this.camera, orbitControl: this.orbitControl })
-
+        poseHelper({ translation, target, camera: this.camera, orbitControl: this.orbitControl })
     }
 
     dispose() {
@@ -61,14 +47,13 @@ let poseHelper = ({ translation, target, camera, orbitControl }) => {
 
     camera.lookAt(target);
 
-    const calculated = target.clone().add(translation);
-    const { x, y, z } = calculated;
-
+    const { x, y, z } = target.clone().add(translation);
     camera.position.set(x, y, z);
 
     camera.updateMatrixWorld();
 
     orbitControl.target = target.clone();
+
     orbitControl.update();
 
 };

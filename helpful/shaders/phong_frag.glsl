@@ -1,33 +1,15 @@
+precision highp float;
+precision highp int;
 #define SHADER_NAME MeshPhongMaterial
 #define GAMMA_FACTOR 2
+uniform mat4 viewMatrix;
+uniform vec3 cameraPosition;
 #define TONE_MAPPING
-#define PI 3.14159265359
-#define PI2 6.28318530718
-#define PI_HALF 1.5707963267949
-#define RECIPROCAL_PI 0.31830988618
-#define RECIPROCAL_PI2 0.15915494
-#define LOG2 1.442695
-#define EPSILON 1e-6
+#ifndef saturate
 #define saturate(a) clamp( a, 0.0, 1.0 )
-#define whiteCompliment(a) ( 1.0 - saturate( a ) )
-
-struct IncidentLight {
-    vec3 color;
-    vec3 direction;
-    bool visible;
-};
-struct ReflectedLight {
-    vec3 directDiffuse;
-    vec3 directSpecular;
-    vec3 indirectDiffuse;
-    vec3 indirectSpecular;
-};
-struct GeometricContext {
-    vec3 position;
-    vec3 normal;
-    vec3 viewDir;
-};
-
+#endif
+uniform float toneMappingExposure;
+uniform float toneMappingWhitePoint;
 vec3 LinearToneMapping( vec3 color ) {
     return toneMappingExposure * color;
 }
@@ -36,7 +18,10 @@ vec3 ReinhardToneMapping( vec3 color ) {
     return saturate( color / ( vec3( 1.0 ) + color ) );
 }
     #define Uncharted2Helper( x ) max( ( ( x * ( 0.15 * x + 0.10 * 0.50 ) + 0.20 * 0.02 ) / ( x * ( 0.15 * x + 0.50 ) + 0.20 * 0.30 ) ) - 0.02 / 0.30, vec3( 0.0 ) )
-
+vec3 Uncharted2ToneMapping( vec3 color ) {
+    color *= toneMappingExposure;
+    return saturate( Uncharted2Helper( color ) / Uncharted2Helper( vec3( toneMappingWhitePoint ) ) );
+}
 vec3 OptimizedCineonToneMapping( vec3 color ) {
     color *= toneMappingExposure;
     color = max( vec3( 0.0 ), color - 0.004 );
@@ -47,6 +32,7 @@ vec3 ACESFilmicToneMapping( vec3 color ) {
     return saturate( ( color * ( 2.51 * color + 0.03 ) ) / ( color * ( 2.43 * color + 0.59 ) + 0.14 ) );
 }
 vec3 toneMapping( vec3 color ) { return LinearToneMapping( color ); }
+
 vec4 LinearToLinear( in vec4 value ) {
     return value;
 }
@@ -116,8 +102,20 @@ vec4 emissiveMapTexelToLinear( vec4 value ) { return LinearToLinear( value ); }
 vec4 linearToOutputTexel( vec4 value ) { return LinearToLinear( value ); }
 
     #define PHONG
-
-
+uniform vec3 diffuse;
+uniform vec3 emissive;
+uniform vec3 specular;
+uniform float shininess;
+uniform float opacity;
+#define PI 3.14159265359
+#define PI2 6.28318530718
+#define PI_HALF 1.5707963267949
+#define RECIPROCAL_PI 0.31830988618
+#define RECIPROCAL_PI2 0.15915494
+#define LOG2 1.442695
+#define EPSILON 1e-6
+#define saturate(a) clamp( a, 0.0, 1.0 )
+#define whiteCompliment(a) ( 1.0 - saturate( a ) )
 float pow2( const in float x ) { return x*x; }
 float pow3( const in float x ) { return x*x*x; }
 float pow4( const in float x ) { float x2 = x*x; return x2*x2; }
@@ -127,6 +125,22 @@ highp float rand( const in vec2 uv ) {
     highp float dt = dot( uv.xy, vec2( a,b ) ), sn = mod( dt, PI );
     return fract(sin(sn) * c);
 }
+struct IncidentLight {
+    vec3 color;
+    vec3 direction;
+    bool visible;
+};
+struct ReflectedLight {
+    vec3 directDiffuse;
+    vec3 directSpecular;
+    vec3 indirectDiffuse;
+    vec3 indirectSpecular;
+};
+struct GeometricContext {
+    vec3 position;
+    vec3 normal;
+    vec3 viewDir;
+};
 vec3 transformDirection( in vec3 dir, in mat4 matrix ) {
     return normalize( ( matrix * vec4( dir, 0.0 ) ).xyz );
 }
@@ -192,20 +206,35 @@ vec3 dithering( vec3 color ) {
 }
     #endif
     #ifdef USE_COLOR
-
-
 varying vec3 vColor;
+#endif
+#if defined( USE_MAP ) || defined( USE_BUMPMAP ) || defined( USE_NORMALMAP ) || defined( USE_SPECULARMAP ) || defined( USE_ALPHAMAP ) || defined( USE_EMISSIVEMAP ) || defined( USE_ROUGHNESSMAP ) || defined( USE_METALNESSMAP )
 varying vec2 vUv;
-
+#endif
+#if defined( USE_LIGHTMAP ) || defined( USE_AOMAP )
+varying vec2 vUv2;
+#endif
 #ifdef USE_MAP
 uniform sampler2D map;
 #endif
-
+#ifdef USE_ALPHAMAP
+uniform sampler2D alphaMap;
+#endif
+#ifdef USE_AOMAP
+uniform sampler2D aoMap;
+uniform float aoMapIntensity;
+#endif
+#ifdef USE_LIGHTMAP
+uniform sampler2D lightMap;
+uniform float lightMapIntensity;
+#endif
+#ifdef USE_EMISSIVEMAP
+uniform sampler2D emissiveMap;
+#endif
 #if defined( USE_ENVMAP ) || defined( PHYSICAL )
 uniform float reflectivity;
 uniform float envMapIntensity;
 #endif
-
 #ifdef USE_ENVMAP
 #if ! defined( PHYSICAL ) && ( defined( USE_BUMPMAP ) || defined( USE_NORMALMAP ) || defined( PHONG ) )
 varying vec3 vWorldPosition;
@@ -703,18 +732,6 @@ varying vec3 vViewPosition;
 #endif
 uniform vec4 clippingPlanes[ 0 ];
 #endif
-
-
-uniform mat4 viewMatrix;
-uniform vec3 cameraPosition;
-uniform float toneMappingExposure;
-uniform float toneMappingWhitePoint;
-uniform vec3 diffuse;
-uniform vec3 emissive;
-uniform vec3 specular;
-uniform float shininess;
-uniform float opacity;
-
 void main() {
     #if 0 > 0
     vec4 plane;
@@ -731,15 +748,21 @@ void main() {
     #if defined( USE_LOGDEPTHBUF ) && defined( USE_LOGDEPTHBUF_EXT )
     gl_FragDepthEXT = log2( vFragDepth ) * logDepthBufFC * 0.5;
     #endif
-
     #ifdef USE_MAP
     vec4 texelColor = texture2D( map, vUv );
     texelColor = mapTexelToLinear( texelColor );
     diffuseColor *= texelColor;
     #endif
-
+    #ifdef USE_COLOR
+    diffuseColor.rgb *= vColor;
+    #endif
+    #ifdef USE_ALPHAMAP
+    diffuseColor.a *= texture2D( alphaMap, vUv ).g;
+    #endif
+    #ifdef ALPHATEST
+    if ( diffuseColor.a < ALPHATEST ) discard;
+    #endif
     float specularStrength;
-
     #ifdef USE_SPECULARMAP
     vec4 texelSpecular = texture2D( specularMap, vUv );
     specularStrength = texelSpecular.r;
@@ -792,47 +815,76 @@ void main() {
     emissiveColor.rgb = emissiveMapTexelToLinear( emissiveColor ).rgb;
     totalEmissiveRadiance *= emissiveColor.rgb;
     #endif
+    BlinnPhongMaterial material;
+    material.diffuseColor = diffuseColor.rgb;
+    material.specularColor = specular;
+    material.specularShininess = shininess;
+    material.specularStrength = specularStrength;
 
     GeometricContext geometry;
     geometry.position = - vViewPosition;
     geometry.normal = normal;
     geometry.viewDir = normalize( vViewPosition );
     IncidentLight directLight;
-
     #if ( 3 > 0 ) && defined( RE_Direct )
     PointLight pointLight;
 
     pointLight = pointLights[ 0 ];
     getPointDirectLightIrradiance( pointLight, geometry, directLight );
-
+    #ifdef USE_SHADOWMAP
+    directLight.color *= all( bvec2( pointLight.shadow, directLight.visible ) ) ? getPointShadow( pointShadowMap[ 0 ], pointLight.shadowMapSize, pointLight.shadowBias, pointLight.shadowRadius, vPointShadowCoord[ 0 ], pointLight.shadowCameraNear, pointLight.shadowCameraFar ) : 1.0;
+    #endif
     RE_Direct( directLight, geometry, material, reflectedLight );
 
     pointLight = pointLights[ 1 ];
     getPointDirectLightIrradiance( pointLight, geometry, directLight );
-
+    #ifdef USE_SHADOWMAP
+    directLight.color *= all( bvec2( pointLight.shadow, directLight.visible ) ) ? getPointShadow( pointShadowMap[ 1 ], pointLight.shadowMapSize, pointLight.shadowBias, pointLight.shadowRadius, vPointShadowCoord[ 1 ], pointLight.shadowCameraNear, pointLight.shadowCameraFar ) : 1.0;
+    #endif
     RE_Direct( directLight, geometry, material, reflectedLight );
 
     pointLight = pointLights[ 2 ];
     getPointDirectLightIrradiance( pointLight, geometry, directLight );
-
+    #ifdef USE_SHADOWMAP
+    directLight.color *= all( bvec2( pointLight.shadow, directLight.visible ) ) ? getPointShadow( pointShadowMap[ 2 ], pointLight.shadowMapSize, pointLight.shadowBias, pointLight.shadowRadius, vPointShadowCoord[ 2 ], pointLight.shadowCameraNear, pointLight.shadowCameraFar ) : 1.0;
+    #endif
     RE_Direct( directLight, geometry, material, reflectedLight );
 
     #endif
+    #if ( 0 > 0 ) && defined( RE_Direct )
+    SpotLight spotLight;
 
+    #endif
+    #if ( 0 > 0 ) && defined( RE_Direct )
+    DirectionalLight directionalLight;
+
+    #endif
+    #if ( 0 > 0 ) && defined( RE_Direct_RectArea )
+    RectAreaLight rectAreaLight;
+
+    #endif
     #if defined( RE_IndirectDiffuse )
     vec3 irradiance = getAmbientLightIrradiance( ambientLightColor );
-    #endif
+    #if ( 0 > 0 )
 
+    #endif
+    #endif
     #if defined( RE_IndirectSpecular )
     vec3 radiance = vec3( 0.0 );
     vec3 clearCoatRadiance = vec3( 0.0 );
     #endif
-
+    #if defined( RE_IndirectDiffuse )
+    #ifdef USE_LIGHTMAP
+    vec3 lightMapIrradiance = texture2D( lightMap, vUv2 ).xyz * lightMapIntensity;
+    #ifndef PHYSICALLY_CORRECT_LIGHTS
+    lightMapIrradiance *= PI;
+    #endif
+    irradiance += lightMapIrradiance;
+    #endif
     #if defined( USE_ENVMAP ) && defined( PHYSICAL ) && defined( ENVMAP_TYPE_CUBE_UV )
     irradiance += getLightProbeIndirectIrradiance( geometry, maxMipLevel );
     #endif
     #endif
-
     #if defined( USE_ENVMAP ) && defined( RE_IndirectSpecular )
     radiance += getLightProbeIndirectRadiance( geometry, Material_BlinnShininessExponent( material ), maxMipLevel );
     #ifndef STANDARD
@@ -903,5 +955,11 @@ float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
 #endif
 gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
 #endif
-
+#ifdef PREMULTIPLIED_ALPHA
+gl_FragColor.rgb *= gl_FragColor.a;
+#endif
+#if defined( DITHERING )
+gl_FragColor.rgb = dithering( gl_FragColor.rgb );
+#endif
 }
+
