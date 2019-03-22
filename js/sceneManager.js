@@ -109,7 +109,9 @@ class SceneManager {
         if (true === doUpdateCameraPose) {
             this.orbitalCamera.setPose({ position: cameraPosition, centroid });
         } else {
-            this.orbitalCamera.setTarget({ centroid, groundPlanePosition: this.groundPlane.position });
+            const delta = this.orbitalCamera.orbitControl.target.clone().sub(this.groundPlane.position);
+            const _centroid = centroid.clone().add(delta);
+            this.orbitalCamera.setTarget({ centroid: _centroid });
         }
 
         let dimen = 0.5 * Math.max(structureExtent.x, structureExtent.y, structureExtent.z);
