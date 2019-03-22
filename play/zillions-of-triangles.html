@@ -43,7 +43,7 @@
 				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 			}
 
-			var container, camera, scene, renderer, orbitControl, mesh;
+			var container, camera, scene, textureCube, renderer, orbitControl, mesh;
 
 			init();
 
@@ -66,8 +66,10 @@
 				camera.position.z = 2750;
 
 				scene = new THREE.Scene();
-				scene.background = new THREE.Color( 0x050505 );
-				scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
+
+				// scene.background = new THREE.Color( 0x050505 );
+
+				// scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
 
 				scene.add( new THREE.AmbientLight( 0x444444 ) );
 
@@ -98,6 +100,7 @@
 				var ab = new THREE.Vector3();
 
 				var triangles = 5e5;
+				// var triangles = 5e2;
 				for ( var i = 0; i < triangles; i ++ ) {
 
 					// positions
@@ -162,17 +165,41 @@
 
 				geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ).onUpload( disposeArray ) );
 				geometry.addAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ).onUpload( disposeArray ) );
-				geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ).onUpload( disposeArray ) );
+				// geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ).onUpload( disposeArray ) );
 
 				geometry.computeBoundingSphere();
 
-				var material = new THREE.MeshPhongMaterial( {
+				let material;
+
+				material = new THREE.MeshPhongMaterial( {
 					color: 0xaaaaaa, specular: 0xffffff, shininess: 250,
 					side: THREE.DoubleSide, vertexColors: THREE.VertexColors
 				} );
 
+				const path = 'textures/cube/hdrihaven/';
+				const urls =
+						[
+							path + "green_point_park+X.png",
+							path + "green_point_park-X.png",
+							path + "green_point_park+Y.png",
+							path + "green_point_park-Y.png",
+							path + "green_point_park+Z.png",
+							path + "green_point_park-Z.png"
+						];
+
+				textureCube = new THREE.CubeTextureLoader().load( urls );
+
+				let materialColor = new THREE.Color();
+				materialColor.setRGB( 1.0, 1.0, 1.0 );
+				material = new THREE.MeshPhongMaterial( { color: materialColor, envMap: textureCube, side: THREE.DoubleSide } );
+
 				mesh = new THREE.Mesh( geometry, material );
+
+				scene.background = textureCube;
+
 				scene.add( mesh );
+
+
 
 				orbitControl = new THREE.OrbitControls(camera, renderer.domElement);
 				orbitControl.screenSpacePanning = false;

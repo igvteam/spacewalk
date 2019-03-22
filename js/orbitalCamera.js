@@ -1,5 +1,6 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
+import { prettyVector3Print } from "./math.js";
 
 class OrbitalCamera {
 
@@ -22,28 +23,16 @@ class OrbitalCamera {
         this.camera.updateProjectionMatrix();
     }
 
-    setPose({ position, target }) {
-
-        const [ px, py, pz ] = position;
-        const p = new THREE.Vector3(px, py, pz);
-
-        const [ tx, ty, tz ] = target;
-        const t = new THREE.Vector3(tx, ty, tz);
-
-        const translation = p.clone().sub(t);
-
-        poseHelper({ translation, target: t, camera: this.camera, orbitControl: this.orbitControl })
+    setPose({ position, centroid }) {
+        const toCamera = position.clone().sub(centroid);
+        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this.orbitControl })
     }
 
-    setTarget({ target }) {
-
-        const [ tx, ty, tz ] = target;
-        const t = new THREE.Vector3(tx, ty, tz);
-
-        const translation = this.camera.position.clone().sub(this.orbitControl.target);
-
-        poseHelper({ translation, target: t, camera: this.camera, orbitControl: this.orbitControl })
-
+    setTarget({ centroid, groundPlanePosition }) {
+        const toCamera = this.camera.position.clone().sub(this.orbitControl.target);
+        const delta = this.orbitControl.target.clone().sub(groundPlanePosition);
+        const _centroid = centroid.clone().add(delta);
+        poseHelper({ toCamera, centroid: _centroid, camera: this.camera, orbitControl: this.orbitControl })
     }
 
     dispose() {
@@ -57,18 +46,20 @@ class OrbitalCamera {
 }
 
 
-let poseHelper = ({ translation, target, camera, orbitControl }) => {
+let poseHelper = ({ toCamera, centroid, camera, orbitControl }) => {
 
-    camera.lookAt(target);
+    let _toCamera = toCamera.clone();
+    let _target = centroid.clone();
 
-    const calculated = target.clone().add(translation);
-    const { x, y, z } = calculated;
+    camera.lookAt(_target);
 
+    const { x, y, z } = _target.clone().add(_toCamera);
     camera.position.set(x, y, z);
 
     camera.updateMatrixWorld();
 
-    orbitControl.target = target.clone();
+    orbitControl.target = _target.clone();
+
     orbitControl.update();
 
 };
