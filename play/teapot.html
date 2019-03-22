@@ -106,12 +106,24 @@
 				textureMap.anisotropy = 16;
 
 				// REFLECTION MAP
-				var path = "textures/cube/skybox/";
-				var urls = [
-					path + "px.jpg", path + "nx.jpg",
-					path + "py.jpg", path + "ny.jpg",
-					path + "pz.jpg", path + "nz.jpg"
-				];
+				// const path = "textures/cube/skybox/";
+				// const urls =
+				// 		[
+				// 	path + "px.jpg", path + "nx.jpg",
+				// 	path + "py.jpg", path + "ny.jpg",
+				// 	path + "pz.jpg", path + "nz.jpg"
+				// ];
+
+				const path = 'textures/cube/hdrihaven/';
+				const urls =
+						[
+							path + "green_point_park+X.png",
+							path + "green_point_park-X.png",
+							path + "green_point_park+Y.png",
+							path + "green_point_park-Y.png",
+							path + "green_point_park+Z.png",
+							path + "green_point_park-Z.png"
+						];
 
 				textureCube = new THREE.CubeTextureLoader().load( urls );
 
