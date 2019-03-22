@@ -3,7 +3,8 @@ import { globalEventBus } from "./eventBus.js";
 import CubicMapManager from "./cubicMapManager.js";
 import ColorRampPalette from "./colorRampPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
-import { numberFormatter, getMouseXY } from "./utils.js";
+import { getMouseXY } from "./utils.js";
+import { prettyVector3Print } from "./math.js";
 
 class SceneManager {
 
@@ -86,7 +87,7 @@ class SceneManager {
 
         const cameraPosition = new THREE.Vector3(134820, 55968, 5715);
         const centroid = new THREE.Vector3(133394, 54542, 4288);
-        this.orbitalCamera.setPose({ position: cameraPosition, target: centroid });
+        this.orbitalCamera.setPose({ position: cameraPosition, centroid });
 
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
         this.groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, this.groundPlaneColor, this.groundPlaneColor);
@@ -106,9 +107,9 @@ class SceneManager {
         this.colorRampPalette.configure({ chr, genomicStart, genomicEnd, structureLength });
 
         if (true === doUpdateCameraPose) {
-            this.orbitalCamera.setPose({ position: cameraPosition, target: centroid });
+            this.orbitalCamera.setPose({ position: cameraPosition, centroid });
         } else {
-            this.orbitalCamera.setTarget({target: centroid});
+            this.orbitalCamera.setTarget({ centroid, groundPlanePosition: this.groundPlane.position });
         }
 
         let dimen = 0.5 * Math.max(structureExtent.x, structureExtent.y, structureExtent.z);

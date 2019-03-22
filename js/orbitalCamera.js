@@ -1,5 +1,6 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
+import { prettyVector3Print } from "./math.js";
 
 class OrbitalCamera {
 
@@ -22,14 +23,15 @@ class OrbitalCamera {
         this.camera.updateProjectionMatrix();
     }
 
-    setPose({ position, target }) {
-        const translation = position.clone().sub(target);
-        poseHelper({ translation, target, camera: this.camera, orbitControl: this.orbitControl })
+    setPose({ position, centroid }) {
+        const toCamera = position.clone().sub(centroid);
+        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this.orbitControl, delta: undefined })
     }
 
-    setTarget({ target }) {
-        const translation = this.camera.position.clone().sub(this.orbitControl.target);
-        poseHelper({ translation, target, camera: this.camera, orbitControl: this.orbitControl })
+    setTarget({ centroid, groundPlanePosition }) {
+        const toCamera = this.camera.position.clone().sub(this.orbitControl.target);
+        const delta = this.orbitControl.target.clone().sub(groundPlanePosition);
+        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this.orbitControl, delta })
     }
 
     dispose() {
@@ -43,16 +45,25 @@ class OrbitalCamera {
 }
 
 
-let poseHelper = ({ translation, target, camera, orbitControl }) => {
+let poseHelper = ({ toCamera, centroid, camera, orbitControl, delta }) => {
 
-    camera.lookAt(target);
+    let _toCamera = toCamera.clone();
+    let _target = centroid.clone();
 
-    const { x, y, z } = target.clone().add(translation);
+    // if (delta) {
+    //     prettyVector3Print('delta ', delta);
+    //     _toCamera.add(delta);
+    //     _target.add(delta);
+    // }
+
+    camera.lookAt(_target);
+
+    const { x, y, z } = _target.clone().add(_toCamera);
     camera.position.set(x, y, z);
 
     camera.updateMatrixWorld();
 
-    orbitControl.target = target.clone();
+    orbitControl.target = _target.clone();
 
     orbitControl.update();
 

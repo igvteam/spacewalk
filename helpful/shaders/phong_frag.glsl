@@ -1,6 +1,3 @@
-precision highp float;
-precision highp int;
-#define SHADER_NAME MeshPhongMaterial
 #define GAMMA_FACTOR 2
 uniform mat4 viewMatrix;
 uniform vec3 cameraPosition;
