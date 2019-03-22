@@ -25,13 +25,14 @@ class OrbitalCamera {
 
     setPose({ position, centroid }) {
         const toCamera = position.clone().sub(centroid);
-        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this.orbitControl, delta: undefined })
+        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this.orbitControl })
     }
 
     setTarget({ centroid, groundPlanePosition }) {
         const toCamera = this.camera.position.clone().sub(this.orbitControl.target);
         const delta = this.orbitControl.target.clone().sub(groundPlanePosition);
-        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this.orbitControl, delta })
+        const _centroid = centroid.clone().add(delta);
+        poseHelper({ toCamera, centroid: _centroid, camera: this.camera, orbitControl: this.orbitControl })
     }
 
     dispose() {
@@ -45,16 +46,10 @@ class OrbitalCamera {
 }
 
 
-let poseHelper = ({ toCamera, centroid, camera, orbitControl, delta }) => {
+let poseHelper = ({ toCamera, centroid, camera, orbitControl }) => {
 
     let _toCamera = toCamera.clone();
     let _target = centroid.clone();
-
-    // if (delta) {
-    //     prettyVector3Print('delta ', delta);
-    //     _toCamera.add(delta);
-    //     _target.add(delta);
-    // }
 
     camera.lookAt(_target);
 
