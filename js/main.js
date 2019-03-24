@@ -23,8 +23,6 @@ let igvPalette;
 
 let diffuseCubicMapManager;
 
-let sphereGeometry;
-
 let showNormalsMaterial;
 
 let showSTMaterial;
@@ -40,7 +38,8 @@ let main = async container => {
     const sceneManagerSettings =
         {
             container: container,
-            // backgroundColor: rgb255ToThreeJSColor(163, 237, 237),
+            ballRadius: 24,
+            stickMaterial: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
             backgroundColor: appleCrayonColorThreeJS('mercury'),
             groundPlaneColor: appleCrayonColorHexValue('steel'),
             colorRampPalette: $('#trace3d_color_ramp_palette').get(0),
@@ -149,16 +148,13 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
     let [ structureLength, structureExtent, cameraPosition, centroid ] = [ structure.array.length, structure.extent, structure.cameraPosition, structure.centroid ];
     sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, centroid, doUpdateCameraPose });
 
-    // ball
-    const sphereRadius = 24;
-    sphereGeometry = new THREE.SphereGeometry(sphereRadius, 32, 16);
-
     // Dictionay of segment indices. Key is UUID of 3D object
     sceneManager.objectUUID2SegmentIndex = {};
 
     // Array of 3D objects. Index is segment index.
     sceneManager.segmentIndex2Object = [];
 
+    // balls
     for(let item of structure.array) {
 
         const [ x, y, z ] = item.xyz;
@@ -167,13 +163,12 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
         if (!doSkip) {
 
-            const material = new THREE.MeshBasicMaterial({ color: sceneManager.colorRampPalette.genomicRampWidget.colorForSegmentIndex(item.segmentIndex) });
-            // const material = diffuseCubicMapManager.material;
+            const ballMaterial = new THREE.MeshBasicMaterial({ color: sceneManager.colorRampPalette.genomicRampWidget.colorForSegmentIndex(item.segmentIndex) });
 
-            const mesh = new THREE.Mesh(sphereGeometry, material);
-            mesh.position.set(x, y, z);
+            const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
+            ballMesh.position.set(x, y, z);
 
-            sceneManager.objectUUID2SegmentIndex[ mesh.uuid ] =
+            sceneManager.objectUUID2SegmentIndex[ ballMesh.uuid ] =
                 {
                     'segmentIndex' : item.segmentIndex,
                     'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
@@ -181,17 +176,17 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
             sceneManager.segmentIndex2Object[ item.segmentIndex ] =
                 {
-                    'object' : mesh,
+                    'object' : ballMesh,
                     'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
                 };
 
-            sceneManager.scene.add(mesh);
+            sceneManager.scene.add(ballMesh);
 
         }
 
     }
 
-    // stick
+    // sticks
     for (let i = 0, j = 1; j < structure.array.length; ++i, ++j) {
 
         const [ x0, y0, z0 ] = structure.array[i].xyz;
@@ -202,18 +197,12 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
         if (!doSkip) {
 
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-            const geometry = new THREE.TubeGeometry(axis, 8, sphereRadius/8, 16, false);
+            const stickGeometry = new THREE.TubeGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
 
-            // const material = new THREE.MeshLambertMaterial({ color: appleCrayonColorThreeJS('nickel') });
+            const stickMesh = new THREE.Mesh(stickGeometry, sceneManager. stickMaterial);
+            stickMesh.name = 'stick';
 
-            const material = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
-
-            // const material = diffuseCubicMapManager.material;
-
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.name = 'stick';
-
-            sceneManager.scene.add( mesh );
+            sceneManager.scene.add( stickMesh );
         }
 
     }
