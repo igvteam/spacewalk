@@ -8,7 +8,12 @@ import { prettyVector3Print } from "./math.js";
 
 class SceneManager {
 
-    constructor({ container, backgroundColor, groundPlaneColor, colorRampPalette, colorRampPaletteColors, renderer, picker }) {
+    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPalette, colorRampPaletteColors, renderer, picker }) {
+
+        this.ballRadius = ballRadius;
+        this.ballGeometry = new THREE.SphereGeometry(ballRadius, 32, 16);
+
+        this.stickMaterial = stickMaterial;
 
         const specularCubicMapMaterialConfig =
             {
