@@ -70,6 +70,9 @@ class StructureSelect {
 
         });
 
+        // $(window).on('keydown.structure_select', keyHandler);
+        // $(window).on('keyup.structure_select', keyHandler);
+        // $(window).on('keypress.structure_select', keyHandler);
     }
 
     configure({ structures, initialStructureKey }) {
@@ -87,6 +90,23 @@ class StructureSelect {
     };
 
 }
+
+let keyHandler = (e) => {
+
+    e.preventDefault();
+
+    // let str =
+    //     e.type + ' key=' + e.key + ' code=' + e.code +
+    //     (e.shiftKey ? ' shiftKey' : '') +
+    //     (e.ctrlKey  ? ' ctrlKey'  : '') +
+    //     (e.altKey   ? ' altKey'   : '') +
+    //     (e.metaKey  ? ' metaKey'  : '') +
+    //     (e.repeat   ? ' (repeat)' : '');
+
+    let str = ' key ' + e.key;
+
+    console.log(Date.now() + str);
+};
 
 let layout = (container, element) => {
 
