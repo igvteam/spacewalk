@@ -8,6 +8,7 @@ let renderer;
 let camera;
 let orbitControl;
 let diffuseCubicMapManager;
+let specularCubicMapManager;
 
 let showScreenCoordinatesMaterial;
 
@@ -53,18 +54,30 @@ let main = async(threejs_canvas) => {
     orbitControl = new OrbitControls(camera, renderer.domElement);
     scene = new THREE.Scene();
 
+    const diffuseCubicMapMaterialConfig =
+        {
+            // textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
+            textureRoot: '../../texture/cubic/specular/aerodynamics_workshop/',
+            suffix: '.png',
+            vertexShaderName: 'diffuse_cube_vert',
+            fragmentShaderName: 'diffuse_cube_frag',
+            isSpecularMap: false
+        };
+
+    diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
 
     const specularCubicMapMaterialConfig =
         {
-            textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
+            // textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
+            textureRoot: '../../texture/cubic/specular/aerodynamics_workshop/',
             suffix: '.png',
             isSpecularMap: true
         };
 
-    const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
+    specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
-    scene.background = new THREE.TextureLoader().load( "../../texture/uv.png" );
-    // scene.background = specularCubicMapManager.cubicTexture;
+    scene.background = specularCubicMapManager.cubicTexture;
+    // scene.background = new THREE.TextureLoader().load( "../../texture/uv.png" );
     // scene.background = appleCrayonColorThreeJS('iron');
 
     await setup(scene, renderer, camera, orbitControl);
@@ -89,20 +102,9 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     orbitControl.update();
     orbitControl.addEventListener("change", () => renderer.render(scene, camera));
 
-    const groundPlane = new THREE.GridHelper(4 * dimen, 4 * dimen, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('steel'));
-    groundPlane.position.set(targetX, targetY, targetZ);
-    scene.add( groundPlane );
-
-    const diffuseCubicMapMaterialConfig =
-        {
-            textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
-            suffix: '.png',
-            vertexShaderName: 'diffuse_cube_vert',
-            fragmentShaderName: 'diffuse_cube_frag',
-            isSpecularMap: false
-        };
-
-    diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
+    // const groundPlane = new THREE.GridHelper(4 * dimen, 4 * dimen, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('steel'));
+    // groundPlane.position.set(targetX, targetY, targetZ);
+    // scene.add( groundPlane );
 
     let [ rX, rY, rZ ] = [ new THREE.Matrix4(), new THREE.Matrix4(), new THREE.Matrix4() ];
 
@@ -127,44 +129,31 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     // geometry = geometry.toNonIndexed();
 
 
-    // let meshA = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
-    let meshA = new THREE.Mesh(geometry, showSTMaterial);
+    let meshA = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
+    // let meshA = new THREE.Mesh(geometry, showSTMaterial);
     meshA.position.set(dimen, 0, 0);
-
-    // let meshB = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
-    let meshB = new THREE.Mesh(geometry, showSTMaterial);
-    meshB.position.set(-dimen, 0, 0);
-
-    // const mesh = new THREE.Mesh(geometry, cubicMapManager.material);
-
-    // cylinderWithScene(diffuseCubicMapManager.material, 2*dimen, dimen/8, scene);
-    cylinderWithScene(showSTMaterial, 2*dimen, dimen/8, scene);
-
-
-    let m4x4;
-
-    // m4x4 = mesh.matrixWorld;
-    // mesh.geometry.applyMatrix( rZ );
-    // m4x4 = mesh.matrixWorld;
-
-
     scene.add( meshA );
+
+    let meshB = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
+    // let meshB = new THREE.Mesh(geometry, showSTMaterial);
+    meshB.position.set(-dimen, 0, 0);
     scene.add( meshB );
+
+    // let cylinderMesh = createCylinderMesh(diffuseCubicMapManager.material, 2 * dimen, dimen / 8);
+    let cylinderMesh = createCylinderMesh(showSTMaterial, 2 * dimen, dimen / 8);
+    scene.add(cylinderMesh);
 
     window.addEventListener( 'resize', onWindowResize, false );
 
 };
 
-let cylinderWithScene = (material, halfLength, radius, scene) => {
+let createCylinderMesh = (material, halfLength, radius) => {
 
     const [ x0, y0, z0 ] = [ -halfLength, 0, 0 ];
     const [ x1, y1, z1 ] = [  halfLength, 0, 0 ];
-
     const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
 
-    const geometry = new THREE.TubeGeometry(axis, 4, radius, 16, false);
-
-    scene.add(new THREE.Mesh(geometry, material));
+    return new THREE.Mesh(new THREE.TubeGeometry(axis, 4, radius, 16, false), material);
 };
 
 let onWindowResize = () => {
