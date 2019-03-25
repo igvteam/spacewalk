@@ -34,6 +34,30 @@
   border-color: #6e6e6e;
   background-color: #ffffff; }
 
+#trace3d_navbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1024;
+  width: 100%;
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: fill-available;
+  height: 64px;
+  background-color: #545453; }
+
+#trace3d_canvas_container {
+  width: 100%;
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: fill-available;
+  height: 100%;
+  height: -moz-available;
+  height: -webkit-fill-available;
+  height: fill-available;
+  overflow: hidden;
+  background-color: #ff2987; }
+
 #trace3d_data_file_load_select_container .form-control {
   border-top-left-radius: .25rem;
   border-bottom-left-radius: .25rem; }
@@ -110,8 +134,5 @@
     background-color: #ffffff; }
     #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_container > canvas {
       cursor: pointer; }
-
-#trace3d_canvas_container {
-  position: relative; }
 
 /*# sourceMappingURL=app.css.map */

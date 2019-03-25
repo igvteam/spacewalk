@@ -4,9 +4,8 @@ import { prettyVector3Print } from "./math.js";
 
 class OrbitalCamera {
 
-    constructor({ fov, near, far, domElement }) {
+    constructor({ fov, near, far, domElement, aspectRatio }) {
 
-        const aspectRatio = window.innerWidth / window.innerHeight;
         this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
 
         this.orbitControl = new OrbitControls(this.camera, domElement);
