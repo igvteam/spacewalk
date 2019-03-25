@@ -1,9 +1,9 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
-import CubicMapManager from "./cubicMapManager.js";
 import ColorRampPalette from "./colorRampPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
 import { getMouseXY } from "./utils.js";
+import { sceneBackgroundCubicTexture } from './materialLibrary.js';
 import { prettyVector3Print } from "./math.js";
 
 class SceneManager {
@@ -15,7 +15,8 @@ class SceneManager {
 
         this.stickMaterial = stickMaterial;
 
-        this.background = backgroundColor;
+        // this.background = backgroundColor;
+        this.background = sceneBackgroundCubicTexture;
 
         this.groundPlaneColor = groundPlaneColor;
 

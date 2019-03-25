@@ -11,6 +11,7 @@ class OrbitalCamera {
 
         this.orbitControl = new OrbitControls(this.camera, domElement);
         this.orbitControl.screenSpacePanning = false;
+        // this.orbitControl.enableKeys = false;
     }
 
     setProjection({ fov, near, far }) {
