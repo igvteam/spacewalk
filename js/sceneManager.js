@@ -2,7 +2,7 @@ import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 import ColorRampPalette from "./colorRampPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
-import { getMouseXY, numberFormatter } from "./utils.js";
+import { getMouseXY } from "./utils.js";
 import { sceneBackgroundCubicTexture } from './materialLibrary.js';
 import { prettyVector3Print } from "./math.js";
 
@@ -21,13 +21,12 @@ class SceneManager {
         this.groundPlaneColor = groundPlaneColor;
 
         // renderer
-        console.log('container width ' + numberFormatter(container.clientWidth) + ' window width ' + numberFormatter(window.innerWidth));
-        container.appendChild(renderer.domElement);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(container.clientWidth, container.clientHeight);
-
-        this.container = container;
         this.renderer = renderer;
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+        // insert rendering canvas in DOM
+        container.appendChild( this.renderer.domElement );
 
         this.colorRampPalette = new ColorRampPalette({ container, palette: colorRampPalette, colors: colorRampPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
 
@@ -79,7 +78,7 @@ class SceneManager {
         this.scene.background = this.background;
 
         const [ fov, near, far, domElement ] = [ 35, 71, 22900, this.renderer.domElement ];
-        this.orbitalCamera = new OrbitalCamera({ fov, near, far, domElement, aspectRatio: (this.container.clientWidth / this.container.clientHeight) });
+        this.orbitalCamera = new OrbitalCamera({ fov, near, far, domElement });
 
         const cameraPosition = new THREE.Vector3(134820, 55968, 5715);
         const centroid = new THREE.Vector3(133394, 54542, 4288);
@@ -123,12 +122,9 @@ class SceneManager {
     }
 
     onWindowResize() {
-
-        this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-
-        this.orbitalCamera.camera.aspect = this.container.clientWidth / this.container.clientHeight;
+        this.orbitalCamera.camera.aspect = window.innerWidth / window.innerHeight;
         this.orbitalCamera.camera.updateProjectionMatrix();
-
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
     };
 
     onContainerMouseMove(event){
