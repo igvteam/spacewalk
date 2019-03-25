@@ -19,7 +19,7 @@ class CubicMapManager {
 
 }
 
-function diffuseMaterial (cubicTexture, vert, frag) {
+function diffuseMaterial (cubicTexture, vertID, fragID) {
 
     const config =
         {
@@ -31,8 +31,8 @@ function diffuseMaterial (cubicTexture, vert, frag) {
                         }
                 },
 
-              vertexShader: document.getElementById( vert ).textContent,
-            fragmentShader: document.getElementById( frag ).textContent
+              vertexShader: document.getElementById( vertID ).textContent,
+            fragmentShader: document.getElementById( fragID ).textContent
         };
 
     return new THREE.ShaderMaterial( config );
@@ -41,22 +41,10 @@ function diffuseMaterial (cubicTexture, vert, frag) {
 
 function specularMaterial (cubicTexture) {
 
-    const config =
-        {
-            uniforms: THREE.ShaderLib[ "cube" ].uniforms,
+    let { uniforms, vertexShader, fragmentShader } = THREE.ShaderLib.cube;
+    uniforms.tCube.value = cubicTexture;
 
-              vertexShader: THREE.ShaderLib[ "cube" ].vertexShader,
-            fragmentShader: THREE.ShaderLib[ "cube" ].fragmentShader,
-
-            depthWrite: false,
-
-            side: THREE.BackSide
-        };
-
-    let material = new THREE.ShaderMaterial( config );
-    material.uniforms[ "tCube" ].value = cubicTexture;
-
-    return material;
+    return new THREE.ShaderMaterial( { uniforms, vertexShader, fragmentShader, depthWrite:false, side:THREE.BackSide } );
 }
 
 function pathsPosNegStyleWithRoot(root, suffix) {

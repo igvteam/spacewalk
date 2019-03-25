@@ -15,17 +15,6 @@ class SceneManager {
 
         this.stickMaterial = stickMaterial;
 
-        const specularCubicMapMaterialConfig =
-            {
-                // textureRoot: 'texture/cubic/specular/aerodynamics_workshop/',
-                textureRoot: 'texture/cubic/diagnostic/threejs_format/',
-                suffix: '.png',
-                isSpecularMap: true
-            };
-
-        const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
-
-        // this.background = specularCubicMapManager.cubicTexture;
         this.background = backgroundColor;
 
         this.groundPlaneColor = groundPlaneColor;
@@ -96,9 +85,11 @@ class SceneManager {
 
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
         this.groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, this.groundPlaneColor, this.groundPlaneColor);
-
         this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
         this.groundPlane.name = 'groundplane';
+
+        // TODO: Support toggling groundplane
+        this.groundPlane.visible = false;
 
         this.scene.add( this.groundPlane );
 
