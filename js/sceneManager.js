@@ -84,6 +84,9 @@ class SceneManager {
         const centroid = new THREE.Vector3(133394, 54542, 4288);
         this.orbitalCamera.setPose({ position, centroid });
 
+        // Add camera to scene. This is need to allow lights to be attached to camera
+        this.scene.add( this.orbitalCamera.camera );
+
         // Nice numbers
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
         this.groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, this.groundPlaneColor, this.groundPlaneColor);
@@ -100,6 +103,7 @@ class SceneManager {
     configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, centroid, doUpdateCameraPose }) {
 
         this.scene = new THREE.Scene();
+
         this.scene.background = this.background;
 
         this.colorRampPalette.configure({ chr, genomicStart, genomicEnd, structureLength });
@@ -116,6 +120,12 @@ class SceneManager {
         dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
         const [ fov, near, far, aspectRatio ] = [ 35, 1e-1 * dimen, 32 * dimen, (window.innerWidth/window.innerHeight) ];
         this.orbitalCamera.setProjection({ fov, near, far, aspectRatio });
+
+        // Add camera to scene. This is need to allow lights to be attached to camera
+        this.scene.add( this.orbitalCamera.camera );
+
+        const thang = this.scene.getObjectByName( this.orbitalCamera.cameraName() );
+        console.log('camera name ' + thang.name);
 
         this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
         this.scene.add( this.groundPlane );
