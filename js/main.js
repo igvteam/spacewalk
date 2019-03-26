@@ -9,7 +9,6 @@ import IGVPalette from './igvPalette.js';
 
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
-import { numberFormatter } from './utils.js';
 import { globalEventBus } from './eventBus.js';
 
 let structureManager;
@@ -31,14 +30,28 @@ let main = async container => {
     const sceneManagerSettings =
         {
             container: container,
+
             ballRadius: 24,
-            stickMaterial: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
-            backgroundColor: appleCrayonColorThreeJS('mercury'),
+
+            // stickMaterial: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
+            stickMaterial: new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
+
+            // backgroundColor: appleCrayonColorThreeJS('mercury'),
+            backgroundColor: rgb255ToThreeJSColor(195, 236, 255),
+
             groundPlaneColor: appleCrayonColorHexValue('steel'),
+
             colorRampPalette: $('#trace3d_color_ramp_palette').get(0),
+
             colorRampPaletteColors: [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ],
+
             renderer: new THREE.WebGLRenderer({ antialias: true }),
-            picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('maraschino')) } )
+
+            picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('maraschino')) } ),
+
+            // skyColor | grundColor | intensity
+            // hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('sky'), appleCrayonColorHexValue('moss'), 1 )
+            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 )
         };
 
     sceneManager = new SceneManager(sceneManagerSettings);
@@ -133,7 +146,9 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
         if (!doSkip) {
 
-            const ballMaterial = new THREE.MeshBasicMaterial({ color: sceneManager.colorRampPalette.genomicRampWidget.colorForSegmentIndex(item.segmentIndex) });
+            const color = sceneManager.colorRampPalette.genomicRampWidget.colorForSegmentIndex(item.segmentIndex);
+            // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
+            const ballMaterial = new THREE.MeshPhongMaterial({ color });
 
             const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
             ballMesh.position.set(x, y, z);

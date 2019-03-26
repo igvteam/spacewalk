@@ -74,17 +74,9 @@
 				cubeTexture.mapping = THREE.CubeReflectionMapping;
 				cubeTexture.encoding = THREE.sRGBEncoding;
 
-				const skyboxMaterialConfig =
-						{
-							uniforms: THREE.ShaderLib[ "cube" ].uniforms,
-							fragmentShader: THREE.ShaderLib[ "cube" ].fragmentShader,
-							vertexShader: THREE.ShaderLib[ "cube" ].vertexShader,
+				const { uniforms, vertexShader, fragmentShader } = THREE.ShaderLib.cube;
 
-							depthWrite: false,
-							side: THREE.BackSide
-						};
-
-				let skyboxMaterial = new THREE.ShaderMaterial( skyboxMaterialConfig );
+				let skyboxMaterial = new THREE.ShaderMaterial( { uniforms, vertexShader, fragmentShader, depthWrite: false, side: THREE.BackSide } );
 				skyboxMaterial.uniforms[ "tCube" ].value = cubeTexture;
 
 				// enable code injection for non-built-in material

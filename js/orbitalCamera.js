@@ -6,9 +6,15 @@ class OrbitalCamera {
 
     constructor({ fov, near, far, domElement, aspectRatio }) {
         this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
+        this.camera.name = 'orbital_camera';
+
         this.orbitControl = new OrbitControls(this.camera, domElement);
         this.orbitControl.screenSpacePanning = false;
         this.orbitControl.enableKeys = false;
+    }
+
+    cameraName () {
+        return this.camera.name;
     }
 
     setProjection({ fov, near, far, aspectRatio }) {

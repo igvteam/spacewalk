@@ -2,12 +2,12 @@ import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 import ColorRampPalette from "./colorRampPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
-import { fitToContainer, getMouseXY } from "./utils.js";
-import { sceneBackgroundCubicTexture } from './materialLibrary.js';
+import { getMouseXY } from "./utils.js";
+import { specularCubicTexture } from './materialLibrary.js';
 
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPalette, colorRampPaletteColors, renderer, picker }) {
+    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPalette, colorRampPaletteColors, renderer, picker, hemisphereLight }) {
 
         this.ballRadius = ballRadius;
         this.ballGeometry = new THREE.SphereGeometry(ballRadius, 32, 16);
@@ -15,7 +15,7 @@ class SceneManager {
         this.stickMaterial = stickMaterial;
 
         this.background = backgroundColor;
-        // this.background = sceneBackgroundCubicTexture;
+        // this.background = specularCubicTexture;
 
         this.groundPlaneColor = groundPlaneColor;
 
@@ -30,6 +30,8 @@ class SceneManager {
         this.colorRampPalette = new ColorRampPalette({ container, palette: colorRampPalette, colors: colorRampPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
 
         this.picker = picker;
+
+        this.hemisphereLight = hemisphereLight;
 
         // Dictionay of segment indices. Key is UUID of 3D object
         this.objectUUID2SegmentIndex = {};
@@ -75,6 +77,7 @@ class SceneManager {
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
+        this.scene.add(this.hemisphereLight);
 
         const [ fov, near, far, domElement, aspectRatio ] = [ 35, 71, 22900, this.renderer.domElement, (window.innerWidth/window.innerHeight) ];
         this.orbitalCamera = new OrbitalCamera({ fov, near, far, domElement, aspectRatio });
@@ -83,6 +86,11 @@ class SceneManager {
         const position = new THREE.Vector3(134820, 55968, 5715);
         const centroid = new THREE.Vector3(133394, 54542, 4288);
         this.orbitalCamera.setPose({ position, centroid });
+
+        // Add camera to scene. This is need to allow lights to be attached to camera
+        this.scene.add( this.orbitalCamera.camera );
+
+
 
         // Nice numbers
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
@@ -101,6 +109,7 @@ class SceneManager {
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
+        this.scene.add(this.hemisphereLight);
 
         this.colorRampPalette.configure({ chr, genomicStart, genomicEnd, structureLength });
 
@@ -116,6 +125,16 @@ class SceneManager {
         dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
         const [ fov, near, far, aspectRatio ] = [ 35, 1e-1 * dimen, 32 * dimen, (window.innerWidth/window.innerHeight) ];
         this.orbitalCamera.setProjection({ fov, near, far, aspectRatio });
+
+        const delta = far - near;
+        this.orbitalCamera.orbitControl.minDistance = near + 1e-2 * delta;
+        this.orbitalCamera.orbitControl.maxDistance =  far - 4e-1 * delta;
+
+        // Add camera to scene. This is need to allow lights to be attached to camera
+        this.scene.add( this.orbitalCamera.camera );
+
+        const thang = this.scene.getObjectByName( this.orbitalCamera.cameraName() );
+        console.log('camera name ' + thang.name);
 
         this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
         this.scene.add( this.groundPlane );
