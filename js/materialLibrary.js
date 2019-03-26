@@ -4,7 +4,8 @@ import * as THREE from "./threejs_es6/three.module.js";
 // const specularTextureRoot = 'texture/cubic/diagnostic/threejs_format/';
 // const specularTextureRoot = 'texture/cubic/specular/aerodynamics_workshop/';
 // const specularTextureRoot = 'texture/cubic/specular/skybox/';
-const specularTextureRoot = 'texture/cubic/diagnostic/tissot/';
+// const specularTextureRoot = 'texture/cubic/diagnostic/tissot/';
+const specularTextureRoot = 'texture/cubic/specular/grid/';
 
 const specularCubicMapManager = new CubicMapManager({ textureRoot: specularTextureRoot, suffix: '.png', isSpecularMap: true });
 const specularCubicTexture = specularCubicMapManager.cubicTexture;
