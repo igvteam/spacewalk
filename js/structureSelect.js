@@ -2,7 +2,9 @@ import { makeDraggable } from "./draggable.js";
 import {globalEventBus} from "./eventBus.js";
 import { clamp } from './math.js'
 
+
 let currentStructureKey = undefined;
+
 class StructureSelect {
 
     constructor({ container, palette }) {
@@ -70,10 +72,36 @@ class StructureSelect {
 
         });
 
-        // $(document).on('keydown.structure_select', keyHandler);
-        $(document).on('keyup.structure_select', keyHandler);
-        // $(document).on('keypress.structure_select', keyHandler);
+        const handleKeyUp = (e) => {
+
+            e.preventDefault();
+
+            const arrowKeyControl =
+                {
+                    'ArrowLeft': () => { this.updateStructureKey(-1) },
+                    'ArrowRight': () => { this.updateStructureKey( 1) },
+                };
+
+            if (arrowKeyControl[ e.key ]) {
+                arrowKeyControl[ e.key ]();
+            }
+        };
+
+        $(document).on('keyup.structure_select', handleKeyUp);
+
     }
+
+    updateStructureKey(value) {
+
+        let number = parseInt(currentStructureKey);
+        number = clamp(number + value, 0, (this.keys.length - 1));
+
+        currentStructureKey = number.toString();
+
+        this.$input.val(currentStructureKey);
+
+        globalEventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+    };
 
     configure({ structures, initialStructureKey }) {
 
@@ -90,44 +118,6 @@ class StructureSelect {
     };
 
 }
-
-const decrement = () => {
-    console.log(Date.now() + ' -');
-};
-
-const increment = () => {
-    console.log(Date.now() + ' +');
-};
-
-const controls =
-    {
-        'ArrowLeft': decrement,
-        'ArrowRight': increment,
-    };
-
-let keyHandler = (e) => {
-
-    e.preventDefault();
-
-    if (controls[ e.key ]) {
-        controls[ e.key ]();
-    }
-
-    return;
-
-    // let str =
-    //     e.type + ' key=' + e.key + ' code=' + e.code +
-    //     (e.shiftKey ? ' shiftKey' : '') +
-    //     (e.ctrlKey  ? ' ctrlKey'  : '') +
-    //     (e.altKey   ? ' altKey'   : '') +
-    //     (e.metaKey  ? ' metaKey'  : '') +
-    //     (e.repeat   ? ' (repeat)' : '');
-
-    // let str = ' key ' + e.key;
-    // console.log(Date.now() + str);
-
-};
-
 
 let layout = (container, element) => {
 
