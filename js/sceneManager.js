@@ -7,15 +7,15 @@ import { sceneBackgroundCubicTexture } from './materialLibrary.js';
 
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPalette, colorRampPaletteColors, renderer, picker }) {
+    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPalette, colorRampPaletteColors, renderer, picker, hemisphereLight }) {
 
         this.ballRadius = ballRadius;
         this.ballGeometry = new THREE.SphereGeometry(ballRadius, 32, 16);
 
         this.stickMaterial = stickMaterial;
 
-        this.background = backgroundColor;
-        // this.background = sceneBackgroundCubicTexture;
+        // this.background = backgroundColor;
+        this.background = sceneBackgroundCubicTexture;
 
         this.groundPlaneColor = groundPlaneColor;
 
@@ -30,6 +30,8 @@ class SceneManager {
         this.colorRampPalette = new ColorRampPalette({ container, palette: colorRampPalette, colors: colorRampPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
 
         this.picker = picker;
+
+        this.hemisphereLight = hemisphereLight;
 
         // Dictionay of segment indices. Key is UUID of 3D object
         this.objectUUID2SegmentIndex = {};
@@ -75,6 +77,7 @@ class SceneManager {
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
+        this.scene.add(this.hemisphereLight);
 
         const [ fov, near, far, domElement, aspectRatio ] = [ 35, 71, 22900, this.renderer.domElement, (window.innerWidth/window.innerHeight) ];
         this.orbitalCamera = new OrbitalCamera({ fov, near, far, domElement, aspectRatio });
@@ -103,8 +106,8 @@ class SceneManager {
     configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, centroid, doUpdateCameraPose }) {
 
         this.scene = new THREE.Scene();
-
         this.scene.background = this.background;
+        this.scene.add(this.hemisphereLight);
 
         this.colorRampPalette.configure({ chr, genomicStart, genomicEnd, structureLength });
 
