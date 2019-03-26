@@ -90,6 +90,8 @@ class SceneManager {
         // Add camera to scene. This is need to allow lights to be attached to camera
         this.scene.add( this.orbitalCamera.camera );
 
+
+
         // Nice numbers
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
         this.groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, this.groundPlaneColor, this.groundPlaneColor);
@@ -123,6 +125,10 @@ class SceneManager {
         dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
         const [ fov, near, far, aspectRatio ] = [ 35, 1e-1 * dimen, 32 * dimen, (window.innerWidth/window.innerHeight) ];
         this.orbitalCamera.setProjection({ fov, near, far, aspectRatio });
+
+        const delta = far - near;
+        this.orbitalCamera.orbitControl.minDistance = near + 1e-2 * delta;
+        this.orbitalCamera.orbitControl.maxDistance =  far - 4e-1 * delta;
 
         // Add camera to scene. This is need to allow lights to be attached to camera
         this.scene.add( this.orbitalCamera.camera );
