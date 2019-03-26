@@ -36,8 +36,8 @@ let main = async container => {
             // stickMaterial: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
             stickMaterial: new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
 
-            // backgroundColor: appleCrayonColorThreeJS('mercury'),
-            backgroundColor: rgb255ToThreeJSColor(195, 236, 255),
+            backgroundColor: appleCrayonColorThreeJS('mercury'),
+            // backgroundColor: rgb255ToThreeJSColor(195, 236, 255),
 
             groundPlaneColor: appleCrayonColorHexValue('steel'),
 
