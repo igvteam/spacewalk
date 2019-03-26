@@ -11,6 +11,7 @@ import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 import { numberFormatter } from './utils.js';
 import { globalEventBus } from './eventBus.js';
+import { specularCubicTexture } from './materialLibrary.js';
 
 let structureManager;
 
@@ -43,7 +44,7 @@ let main = async container => {
 
             // skyColor | grundColor | intensity
             // hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('sky'), appleCrayonColorHexValue('moss'), 1 )
-            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('magnesium'), 1 )
+            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 )
         };
 
     sceneManager = new SceneManager(sceneManagerSettings);
@@ -139,6 +140,7 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
         if (!doSkip) {
 
             const color = sceneManager.colorRampPalette.genomicRampWidget.colorForSegmentIndex(item.segmentIndex);
+            // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
             const ballMaterial = new THREE.MeshPhongMaterial({ color });
 
             const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);

@@ -3,7 +3,7 @@ import { globalEventBus } from "./eventBus.js";
 import ColorRampPalette from "./colorRampPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
-import { sceneBackgroundCubicTexture } from './materialLibrary.js';
+import { specularCubicTexture } from './materialLibrary.js';
 
 class SceneManager {
 
@@ -15,7 +15,7 @@ class SceneManager {
         this.stickMaterial = stickMaterial;
 
         // this.background = backgroundColor;
-        this.background = sceneBackgroundCubicTexture;
+        this.background = specularCubicTexture;
 
         this.groundPlaneColor = groundPlaneColor;
 
