@@ -14,8 +14,8 @@ class SceneManager {
 
         this.stickMaterial = stickMaterial;
 
-        // this.background = backgroundColor;
-        this.background = sceneBackgroundCubicTexture;
+        this.background = backgroundColor;
+        // this.background = sceneBackgroundCubicTexture;
 
         this.groundPlaneColor = groundPlaneColor;
 
