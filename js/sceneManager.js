@@ -19,11 +19,11 @@ class SceneManager {
 
         this.groundPlaneColor = groundPlaneColor;
 
-        // insert rendering canvas in DOM
-        container.appendChild(renderer.domElement);
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
-        fitToContainer(renderer.domElement);
+
+        // insert rendering canvas in DOM
+        container.appendChild(renderer.domElement);
 
         this.renderer = renderer;
 

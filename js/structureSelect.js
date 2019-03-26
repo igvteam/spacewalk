@@ -91,9 +91,29 @@ class StructureSelect {
 
 }
 
+const decrement = () => {
+    console.log(Date.now() + ' -');
+};
+
+const increment = () => {
+    console.log(Date.now() + ' +');
+};
+
+const controls =
+    {
+        'ArrowLeft': decrement,
+        'ArrowRight': increment,
+    };
+
 let keyHandler = (e) => {
 
     e.preventDefault();
+
+    if (controls[ e.key ]) {
+        controls[ e.key ]();
+    }
+
+    return;
 
     // let str =
     //     e.type + ' key=' + e.key + ' code=' + e.code +
@@ -103,10 +123,11 @@ let keyHandler = (e) => {
     //     (e.metaKey  ? ' metaKey'  : '') +
     //     (e.repeat   ? ' (repeat)' : '');
 
-    let str = ' key ' + e.key;
+    // let str = ' key ' + e.key;
+    // console.log(Date.now() + str);
 
-    console.log(Date.now() + str);
 };
+
 
 let layout = (container, element) => {
 
