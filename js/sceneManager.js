@@ -1,10 +1,9 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
-import CubicMapManager from "./cubicMapManager.js";
 import ColorRampPalette from "./colorRampPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
-import { getMouseXY } from "./utils.js";
-import { prettyVector3Print } from "./math.js";
+import { fitToContainer, getMouseXY } from "./utils.js";
+import { sceneBackgroundCubicTexture } from './materialLibrary.js';
 
 class SceneManager {
 
@@ -15,17 +14,18 @@ class SceneManager {
 
         this.stickMaterial = stickMaterial;
 
-        this.background = backgroundColor;
+        // this.background = backgroundColor;
+        this.background = sceneBackgroundCubicTexture;
 
         this.groundPlaneColor = groundPlaneColor;
 
-        // renderer
-        this.renderer = renderer;
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-
         // insert rendering canvas in DOM
-        container.appendChild( this.renderer.domElement );
+        container.appendChild(renderer.domElement);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        fitToContainer(renderer.domElement);
+
+        this.renderer = renderer;
 
         this.colorRampPalette = new ColorRampPalette({ container, palette: colorRampPalette, colors: colorRampPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
 
@@ -76,13 +76,15 @@ class SceneManager {
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
 
-        const [ fov, near, far, domElement ] = [ 35, 71, 22900, this.renderer.domElement ];
-        this.orbitalCamera = new OrbitalCamera({ fov, near, far, domElement });
+        const [ fov, near, far, domElement, aspectRatio ] = [ 35, 71, 22900, this.renderer.domElement, (window.innerWidth/window.innerHeight) ];
+        this.orbitalCamera = new OrbitalCamera({ fov, near, far, domElement, aspectRatio });
 
-        const cameraPosition = new THREE.Vector3(134820, 55968, 5715);
+        // Nice numbers
+        const position = new THREE.Vector3(134820, 55968, 5715);
         const centroid = new THREE.Vector3(133394, 54542, 4288);
-        this.orbitalCamera.setPose({ position: cameraPosition, centroid });
+        this.orbitalCamera.setPose({ position, centroid });
 
+        // Nice numbers
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
         this.groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, this.groundPlaneColor, this.groundPlaneColor);
         this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
@@ -112,8 +114,8 @@ class SceneManager {
 
         let dimen = 0.5 * Math.max(structureExtent.x, structureExtent.y, structureExtent.z);
         dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
-        const [ fov, near, far ] = [ 35, 1e-1 * dimen, 32 * dimen ];
-        this.orbitalCamera.setProjection({ fov, near, far });
+        const [ fov, near, far, aspectRatio ] = [ 35, 1e-1 * dimen, 32 * dimen, (window.innerWidth/window.innerHeight) ];
+        this.orbitalCamera.setProjection({ fov, near, far, aspectRatio });
 
         this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
         this.scene.add( this.groundPlane );
@@ -121,9 +123,11 @@ class SceneManager {
     }
 
     onWindowResize() {
-        this.orbitalCamera.camera.aspect = window.innerWidth / window.innerHeight;
+
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+        this.orbitalCamera.camera.aspect = window.innerWidth/window.innerHeight;
         this.orbitalCamera.camera.updateProjectionMatrix();
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
     };
 
     onContainerMouseMove(event){

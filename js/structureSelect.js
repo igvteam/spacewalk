@@ -70,9 +70,9 @@ class StructureSelect {
 
         });
 
-        // $(window).on('keydown.structure_select', keyHandler);
-        // $(window).on('keyup.structure_select', keyHandler);
-        // $(window).on('keypress.structure_select', keyHandler);
+        // $(document).on('keydown.structure_select', keyHandler);
+        $(document).on('keyup.structure_select', keyHandler);
+        // $(document).on('keypress.structure_select', keyHandler);
     }
 
     configure({ structures, initialStructureKey }) {

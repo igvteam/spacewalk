@@ -1,19 +1,19 @@
 import CubicMapManager from "./cubicMapManager.js";
 import * as THREE from "./threejs_es6/three.module.js";
 
-const diffuseCubicMapMaterialConfig =
+const specularCubicMapMaterialConfig =
     {
-        // textureRoot: 'texture/cubic/diffuse/aerodynamics_workshop/',
-        textureRoot: 'texture/cubic/diagnostic/threejs_format/',
+        // textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
+        // textureRoot: 'texture/cubic/specular/aerodynamics_workshop/',
+        textureRoot: 'texture/cubic/diagnostic/tissot/',
+        // textureRoot: 'texture/cubic/specular/skybox/',
         suffix: '.png',
-        vertexShaderName: 'diffuse_cube_vert',
-        fragmentShaderName: 'diffuse_cube_frag',
-        isSpecularMap: false
+        isSpecularMap: true
     };
 
-const cubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
-const cubicMapMaterial = cubicMapManager.material;
+const specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
+const sceneBackgroundCubicTexture = specularCubicMapManager.cubicTexture;
 
 const showNormalsMaterial = new THREE.MeshNormalMaterial();
 
@@ -26,4 +26,4 @@ const showSTMaterialConfig =
 
 const showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
 
-export { cubicMapMaterial, showNormalsMaterial, showSTMaterial };
+export { sceneBackgroundCubicTexture, showNormalsMaterial, showSTMaterial };
