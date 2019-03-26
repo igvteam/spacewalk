@@ -2,7 +2,7 @@ import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 import ColorRampPalette from "./colorRampPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
-import { fitToContainer, getMouseXY } from "./utils.js";
+import { getMouseXY } from "./utils.js";
 import { specularCubicTexture } from './materialLibrary.js';
 
 class SceneManager {
@@ -14,8 +14,8 @@ class SceneManager {
 
         this.stickMaterial = stickMaterial;
 
-        // this.background = backgroundColor;
-        this.background = specularCubicTexture;
+        this.background = backgroundColor;
+        // this.background = specularCubicTexture;
 
         this.groundPlaneColor = groundPlaneColor;
 

@@ -9,9 +9,7 @@ import IGVPalette from './igvPalette.js';
 
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
-import { numberFormatter } from './utils.js';
 import { globalEventBus } from './eventBus.js';
-import { specularCubicTexture } from './materialLibrary.js';
 
 let structureManager;
 
@@ -32,14 +30,23 @@ let main = async container => {
     const sceneManagerSettings =
         {
             container: container,
+
             ballRadius: 24,
+
             // stickMaterial: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
             stickMaterial: new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
-            backgroundColor: appleCrayonColorThreeJS('mercury'),
+
+            // backgroundColor: appleCrayonColorThreeJS('mercury'),
+            backgroundColor: rgb255ToThreeJSColor(195, 236, 255),
+
             groundPlaneColor: appleCrayonColorHexValue('steel'),
+
             colorRampPalette: $('#trace3d_color_ramp_palette').get(0),
+
             colorRampPaletteColors: [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ],
+
             renderer: new THREE.WebGLRenderer({ antialias: true }),
+
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('maraschino')) } ),
 
             // skyColor | grundColor | intensity
