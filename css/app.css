@@ -135,7 +135,7 @@
       text-align: center; }
 
 #trace3d_igv_palette.card {
-  width: 512px;
+  width: 768px;
   height: auto;
   align-items: center; }
   #trace3d_igv_palette.card #trace3d_igv_container.card-body .form-group {
@@ -154,14 +154,12 @@
     vertical-align: middle;
     color: #6e6e6e;
     background-color: transparent; }
-  #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_container {
+  #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_root_container {
     width: 100%;
-    height: 36px;
+    height: auto;
     border-style: solid;
     border-width: thin;
     border-color: #a09fa0;
     background-color: #ffffff; }
-    #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_container > canvas {
-      cursor: pointer; }
 
 /*# sourceMappingURL=app.css.map */

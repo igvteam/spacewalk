@@ -11,18 +11,13 @@ class IGVPalette {
 
     constructor ({ container, palette }) {
 
-        const canvas = $('#trace3d_igv_track_container').find('canvas').get(0);
+        this.palette = palette;
 
-        fitToContainer(canvas);
+        layout(container, palette);
 
-        this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
+        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
 
         this.$track_label = $('#trace3d_igv_track_label');
-
-        $(container).on('mousemove.trace3d.trace3d_igv_track_canvas', (event) => {
-            onCanvasMouseMove(canvas, event)
-        });
 
         $(window).on('resize.trace3d.trace3d_igv_palette', () => { this.onWindowResize(container, palette) });
 
@@ -35,7 +30,6 @@ class IGVPalette {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
-
 
         // URL
         const $url_input = $('#trace3d_igv_palette_url_input');
@@ -60,9 +54,17 @@ class IGVPalette {
             currentURL = undefined;
         });
 
-        layout(container, palette);
+    }
 
-        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
+    async createBrowser (config) {
+
+        try {
+            let browser = await igv.createBrowser( $(this.palette).find('#trace3d_igv_root_container').get(0), config );
+            return browser;
+        } catch (error) {
+            console.warn(error.message);
+            return undefined;
+        }
 
     }
 
@@ -278,7 +280,7 @@ let layout = (container, element) => {
     const elementRect = element.getBoundingClientRect();
 
     const left = (containerRect.width - elementRect.width)/2;
-    const top = containerRect.height - (1.25 * elementRect.height);
+    const top = containerRect.height - (3 * elementRect.height);
     $(element).offset( { left, top } );
 
 };

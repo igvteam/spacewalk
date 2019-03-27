@@ -18,7 +18,7 @@ $trace3d_structure_select_palette_height: 108px;
 $trace3d_structure_select_palette_label_height: 16px;
 
 // igv palette
-$trace3d_igv_palette_width: 512px;
+$trace3d_igv_palette_width: 768px;
 $trace3d_igv_palette_height: 128px;
 
 $trace3d_color_ramp_width: 36px;
@@ -302,20 +302,15 @@ $trace3d_ui_manager_panel_size: 256px;
     }
 
     // track container
-    #trace3d_igv_track_container {
+    #trace3d_igv_root_container {
       width: 100%;
-      height: $trace3d_color_ramp_width;
+      height: auto;
 
       border-style: solid;
       border-width: thin;
       border-color: $trace3d_aluminum;
 
       background-color: $trace3d_snow;
-
-      // track canvas
-      > canvas {
-        cursor: pointer;
-      }
 
     }
   }

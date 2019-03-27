@@ -64,16 +64,28 @@ let main = async container => {
 
     igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
 
+    const igvBrowserConfig =
+        {
+            genome: 'hg19',
+            locus: 'all',
+            showIdeogram: false,
+            showControls: false,
+            showNavigation: false
+        };
+
+    let igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
+
+
     // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
     // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
     const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
     // const url = 'https://www.encodeproject.org/files/ENCFF722EUH/@@download/ENCFF722EUH.bigWig';
 
-    let track = await igvPalette.createLoadLowLevelTrack({genomeID: 'hg38', url});
+    // let track = await igvPalette.createLoadLowLevelTrack({genomeID: 'hg38', url});
 
-    if (track) {
-        await igvPalette.gotoDefaultLocus();
-    }
+    // if (track) {
+    //     await igvPalette.gotoDefaultLocus();
+    // }
 
     sceneManager.defaultConfiguration();
 
@@ -104,7 +116,7 @@ let main = async container => {
 
                     [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(structureManager.path);
 
-                    igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
+                    // igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
 
                     const initialStructureKey = '0';
                     structure = structureManager.structureWithName(initialStructureKey);
