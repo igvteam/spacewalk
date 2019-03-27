@@ -69,9 +69,11 @@ let main = async container => {
 
     const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
     // const url = 'https://www.encodeproject.org/files/ENCFF722EUH/@@download/ENCFF722EUH.bigWig';
-    await igvPalette.loadLowLevelTrack({ genomeID: 'hg38', url });
+    let track = await igvPalette.createLoadLowLevelTrack({genomeID: 'hg38', url});
 
-    await igvPalette.gotoDefaultLocus();
+    if (track) {
+        await igvPalette.gotoDefaultLocus();
+    }
 
     sceneManager.defaultConfiguration();
 
