@@ -23,6 +23,8 @@ $trace3d_igv_palette_height: 128px;
 
 $trace3d_color_ramp_width: 36px;
 
+$trace3d_ui_manager_panel_size: 256px;
+
 .navbar {
   background-color: $trace3d_iron;
 }
@@ -95,7 +97,6 @@ $trace3d_color_ramp_width: 36px;
   background-color: $trace3d_iron;
 }
 
-
 // three.js canvas container
 #trace3d_canvas_container {
 
@@ -112,6 +113,51 @@ $trace3d_color_ramp_width: 36px;
   overflow: hidden;
 
   //background-color: $trace3d_strawberry;
+}
+
+// ui manager
+#trace3d_ui_manager_button {
+
+  z-index: 2048;
+
+  position: absolute;
+  top: 128px;
+  right: 64px;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+
+  color: $trace3d_aluminum;
+  i {
+    cursor: pointer;
+    display: block;
+  }
+
+}
+
+#trace3d_ui_manager_panel.card {
+
+  z-index: 2048;
+
+  top: 200px;
+  right: 64px;
+
+  width: $trace3d_ui_manager_panel_size;
+  height: auto;
+
+  li {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    input {
+      display: block;
+    }
+  }
 }
 
 // modals
