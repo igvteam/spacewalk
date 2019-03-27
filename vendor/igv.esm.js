@@ -31647,8 +31647,7 @@ var igv = (function (igv) {
             const rows = [];
             featureList.sort(function (a, b) {
                 return a.start - b.start;
-            });
-
+            })
             rows.push(-1000);
 
             let r;
@@ -31667,22 +31666,6 @@ var igv = (function (igv) {
                 rows[ r ] = feature.end;
 
             }
-
-            // featureList.forEach(function (feature) {
-            //
-            //     const len = Math.min(rows.length, maxRows)
-            //     for (r = 0; r < len; r++) {
-            //         if (feature.start > rows[r]) {
-            //             feature.row = r;
-            //             rows[r] = feature.end;
-            //             return;
-            //         }
-            //     }
-            //     feature.row = r;
-            //     rows[r] = feature.end;
-            //
-            //
-            // });
         }
     }
 
