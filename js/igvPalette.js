@@ -111,7 +111,7 @@ class IGVPalette {
         try {
             features = await this.track.getFeatures(chr, start, end, this.bpp);
         } catch(error) {
-            console.log(error);
+            console.warn(error.message);
             return;
         }
 
@@ -178,7 +178,7 @@ class IGVPalette {
             // throw "Let's throw stuff from createGenome(genomeID)";
             config = await igv.GenomeUtils.expandReference(genomeID);
         } catch (error) {
-            console.log(error);
+            console.warn(error.message);
             return undefined;
         }
 
@@ -187,7 +187,7 @@ class IGVPalette {
             genome = await igv.GenomeUtils.loadGenome(config);
             return genome;
         } catch (error) {
-            console.log(error);
+            console.warn(error.message);
             return undefined;
         }
 

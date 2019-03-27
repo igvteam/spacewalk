@@ -69,27 +69,26 @@ class DataFileLoader {
 
 const loadURL = async ({ url, $spinner, $modal }) => {
 
+    $spinner.show();
+
     url = url || '';
 
     if ('' !== url) {
 
         try {
-
+            let urlContents = await igv.xhr.load(url);
             const { file } = igv.parseUri(url);
-
-            $spinner.show();
-            const urlContents = await igv.xhr.load(url);
-            $spinner.hide();
-
-            $modal.modal('hide');
 
             globalEventBus.post({ type: "DidLoadFile", data: { name: file, payload: urlContents } });
 
         } catch (error) {
-            console.warn(error.message)
+            console.warn(error.message);
         }
 
     }
+
+    $spinner.hide();
+    $modal.modal('hide');
 
     globalEventBus.post({ type: "DidLeaveGUI" });
 
