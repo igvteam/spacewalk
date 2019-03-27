@@ -78,43 +78,6 @@ class IGVPalette {
             return undefined;
         }
 
-
-
-
-        return;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        igv.browser.$root.off();
-
-        $(igv.browser.trackContainerDiv).off();
-
-        for (let trackView of igv.browser.trackViews) {
-            for (let viewport of trackView.viewports) {
-                viewport.$viewport.off();
-            }
-        }
-
-        // discard canvas mouse handlers
-        const canvas = this.track.trackView.viewports[ 0 ].canvas;
-        $(canvas).off();
-
-        // add canvas mouse handler
-        $(canvas).on('mousemove.trace3d.igvpalette.track', (event) => {
-            this.onCanvasMouseMove(undefined, event)
-        });
-
     }
 
     async gotoDefaultLocus() {
@@ -149,9 +112,7 @@ class IGVPalette {
     }
 
     async repaint() {
-        const { chr, start, end } = this.locus;
-        const features = await this.track.getFeatures(chr, start, end, this.bpp);
-        this.render({ track: this.track, features, start, end });
+        this.browser.updateViews();
     }
 
     // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
@@ -285,6 +246,12 @@ class IGVPalette {
             return;
         }
 
+        this.render({ track: this.track, features, start, end });
+    }
+
+    async DEPRICATE_repaint() {
+        const { chr, start, end } = this.locus;
+        const features = await this.track.getFeatures(chr, start, end, this.bpp);
         this.render({ track: this.track, features, start, end });
     }
 

@@ -118,7 +118,7 @@ let main = async container => {
 
                     [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(structureManager.path);
 
-                    // igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
+                    igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
 
                     const initialStructureKey = '0';
                     structure = structureManager.structureWithName(initialStructureKey);
