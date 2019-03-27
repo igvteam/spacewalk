@@ -56,9 +56,9 @@ let main = async container => {
 
     sceneManager = new SceneManager(sceneManagerSettings);
 
-    dataFileLoader = new DataFileLoader({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
-
     structureManager = new StructureManager();
+
+    dataFileLoader = new DataFileLoader({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
 
     structureSelect = new StructureSelect({ container, palette: $('#trace3d_structure_select_palette').get(0) });
 
@@ -66,12 +66,14 @@ let main = async container => {
 
     // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
     // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
-
     const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
     // const url = 'https://www.encodeproject.org/files/ENCFF722EUH/@@download/ENCFF722EUH.bigWig';
-    await igvPalette.loadLowLevelTrack({ genomeID: 'hg38', url });
 
-    await igvPalette.gotoDefaultLocus();
+    let track = await igvPalette.createLoadLowLevelTrack({genomeID: 'hg38', url});
+
+    if (track) {
+        await igvPalette.gotoDefaultLocus();
+    }
 
     sceneManager.defaultConfiguration();
 

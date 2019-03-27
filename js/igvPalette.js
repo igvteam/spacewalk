@@ -66,10 +66,13 @@ class IGVPalette {
 
     }
 
-    async loadLowLevelTrack({ genomeID, url }) {
+    async createLoadLowLevelTrack({genomeID, url}) {
 
         if (undefined === this.genome || this.genome.id !== genomeID) {
             this.genome = await this.createGenome(genomeID);
+            if (undefined === this.genome) {
+                return undefined;
+            }
         }
 
         let config =
@@ -103,7 +106,14 @@ class IGVPalette {
         this.bpp = (end - start) / this.ctx.canvas.offsetWidth;
         this.referenceFrame = new igv.ReferenceFrame(this.genome, chr, start, end, this.bpp);
 
-        const features = await this.track.getFeatures(chr, start, end, this.bpp);
+        let features = undefined;
+
+        try {
+            features = await this.track.getFeatures(chr, start, end, this.bpp);
+        } catch(error) {
+            console.warn(error.message);
+            return;
+        }
 
         this.render({ track: this.track, features, start, end });
     }
@@ -158,12 +168,29 @@ class IGVPalette {
 
     async createGenome(genomeID) {
 
+
         // TODO: This is necessary otherwise igv.GenomeUtils.genomeList is undefined if browser is not created.
         igv.GenomeUtils.genomeList = "https://s3.amazonaws.com/igv.org.genomes/genomes.json";
 
-        const config = await igv.GenomeUtils.expandReference(genomeID);
-        const genome = await igv.GenomeUtils.loadGenome(config);
-        return genome;
+        let config;
+        try {
+
+            // throw "Let's throw stuff from createGenome(genomeID)";
+            config = await igv.GenomeUtils.expandReference(genomeID);
+        } catch (error) {
+            console.warn(error.message);
+            return undefined;
+        }
+
+        let genome;
+        try {
+            genome = await igv.GenomeUtils.loadGenome(config);
+            return genome;
+        } catch (error) {
+            console.warn(error.message);
+            return undefined;
+        }
+
     }
 
     async loadURL({ url, $spinner }){
@@ -172,8 +199,13 @@ class IGVPalette {
 
         if ('' !== url) {
             $spinner.show();
-            await this.loadLowLevelTrack({genomeID: 'hg38', url});
-            await this.repaint();
+
+            let track = await this.createLoadLowLevelTrack({genomeID: 'hg38', url});
+
+            if (track) {
+                await this.repaint();
+            }
+
             $spinner.hide();
         }
 

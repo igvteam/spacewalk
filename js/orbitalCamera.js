@@ -13,11 +13,16 @@ class OrbitalCamera {
         this.orbitControl.enableKeys = false;
     }
 
-    cameraName () {
+    get name () {
         return this.camera.name;
     }
 
     setProjection({ fov, near, far, aspectRatio }) {
+
+        // Update camera dolly range
+        const delta = far - near;
+        this.orbitControl.minDistance = near + 1e-2 * delta;
+        this.orbitControl.maxDistance =  far - 4e-1 * delta;
 
         this.camera.fov = fov;
         this.camera.aspect = aspectRatio;
