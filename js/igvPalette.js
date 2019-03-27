@@ -59,42 +59,60 @@ class IGVPalette {
     async createBrowser (config) {
 
         try {
-            let browser = await igv.createBrowser( $(this.palette).find('#trace3d_igv_root_container').get(0), config );
-            return browser;
+            this.browser = await igv.createBrowser( $(this.palette).find('#trace3d_igv_root_container').get(0), config );
+        } catch (error) {
+            console.warn(error.message);
+        }
+
+    }
+
+    async loadTrack(url) {
+
+        try {
+            const track = await igv.browser.loadTrack({ url });
+            return track;
         } catch (error) {
             console.warn(error.message);
             return undefined;
         }
 
-    }
 
-    async createLoadLowLevelTrack({genomeID, url}) {
 
-        if (undefined === this.genome || this.genome.id !== genomeID) {
-            this.genome = await this.createGenome(genomeID);
-            if (undefined === this.genome) {
-                return undefined;
+
+        return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        igv.browser.$root.off();
+
+        $(igv.browser.trackContainerDiv).off();
+
+        for (let trackView of igv.browser.trackViews) {
+            for (let viewport of trackView.viewports) {
+                viewport.$viewport.off();
             }
         }
 
-        let config =
-            {
-                url,
-                height: this.ctx.canvas.offsetHeight,
-                featureHeight: this.ctx.canvas.offsetHeight,
-                margin: 0,
-                color: rgb255String(appleCrayonColorRGB255('midnight'))
-            };
+        // discard canvas mouse handlers
+        const canvas = this.track.trackView.viewports[ 0 ].canvas;
+        $(canvas).off();
 
-        // NOTE: config is edited in place!
-        igv.inferTrackTypes(config);
+        // add canvas mouse handler
+        $(canvas).on('mousemove.trace3d.igvpalette.track', (event) => {
+            this.onCanvasMouseMove(undefined, event)
+        });
 
-        this.track = igv.createLowLevelTrack(config, { genome: this.genome, genomicStateList: [ {} ]});
-
-        const { file } = igv.parseUri(url);
-        this.$track_label.text(file);
-
-        return this.track;
     }
 
     async gotoDefaultLocus() {
@@ -102,22 +120,7 @@ class IGVPalette {
     }
 
     async goto({ chr, start, end }) {
-
-        this.locus = { chr, start, end };
-
-        this.bpp = (end - start) / this.ctx.canvas.offsetWidth;
-        this.referenceFrame = new igv.ReferenceFrame(this.genome, chr, start, end, this.bpp);
-
-        let features = undefined;
-
-        try {
-            features = await this.track.getFeatures(chr, start, end, this.bpp);
-        } catch(error) {
-            console.warn(error.message);
-            return;
-        }
-
-        this.render({ track: this.track, features, start, end });
+        await this.browser.goto(chr, start, end);
     }
 
     render({ track, features, start, end }) {
@@ -217,31 +220,6 @@ class IGVPalette {
         layout(container, palette);
     };
 
-    async DEPRICATED_loadTrack(url) {
-
-        this.track = await igv.browser.loadTrack({ url });
-
-        igv.browser.$root.off();
-
-        $(igv.browser.trackContainerDiv).off();
-
-        for (let trackView of igv.browser.trackViews) {
-            for (let viewport of trackView.viewports) {
-                viewport.$viewport.off();
-            }
-        }
-
-        // discard canvas mouse handlers
-        const canvas = this.track.trackView.viewports[ 0 ].canvas;
-        $(canvas).off();
-
-        // add canvas mouse handler
-        $(canvas).on('mousemove.trace3d.igvpalette.track', (event) => {
-            this.onCanvasMouseMove(undefined, event)
-        });
-
-    }
-
     async DEPRICATED_createBrowser($container) {
 
         const config =
@@ -258,6 +236,54 @@ class IGVPalette {
             .then((browser) => {
                 console.log('browser good to go')
             });
+    }
+
+    async DEPRICATED_createLoadLowLevelTrack({genomeID, url}) {
+
+        if (undefined === this.genome || this.genome.id !== genomeID) {
+            this.genome = await this.createGenome(genomeID);
+            if (undefined === this.genome) {
+                return undefined;
+            }
+        }
+
+        let config =
+            {
+                url,
+                height: this.ctx.canvas.offsetHeight,
+                featureHeight: this.ctx.canvas.offsetHeight,
+                margin: 0,
+                color: rgb255String(appleCrayonColorRGB255('midnight'))
+            };
+
+        // NOTE: config is edited in place!
+        igv.inferTrackTypes(config);
+
+        this.track = igv.createLowLevelTrack(config, { genome: this.genome, genomicStateList: [ {} ]});
+
+        const { file } = igv.parseUri(url);
+        this.$track_label.text(file);
+
+        return this.track;
+    }
+
+    async DEPRICATED_goto({ chr, start, end }) {
+
+        this.locus = { chr, start, end };
+
+        this.bpp = (end - start) / this.ctx.canvas.offsetWidth;
+        this.referenceFrame = new igv.ReferenceFrame(this.genome, chr, start, end, this.bpp);
+
+        let features = undefined;
+
+        try {
+            features = await this.track.getFeatures(chr, start, end, this.bpp);
+        } catch(error) {
+            console.warn(error.message);
+            return;
+        }
+
+        this.render({ track: this.track, features, start, end });
     }
 
 }

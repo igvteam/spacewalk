@@ -160,6 +160,7 @@
     border-style: solid;
     border-width: thin;
     border-color: #a09fa0;
-    background-color: #ffffff; }
+    background-color: #ffffff;
+    overflow: auto; }
 
 /*# sourceMappingURL=app.css.map */
