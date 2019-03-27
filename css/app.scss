@@ -114,6 +114,29 @@ $trace3d_color_ramp_width: 36px;
   //background-color: $trace3d_strawberry;
 }
 
+// ui manager
+#trace3d_ui_manager {
+
+  z-index: 1024;
+
+  position: absolute;
+  top: 128px;
+  right: 64px;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+
+  color: $trace3d_aluminum;
+  i {
+    cursor: pointer;
+    display: block;
+  }
+
+}
+
 // modals
 #trace3d_data_file_load_select_container {
 
