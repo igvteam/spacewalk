@@ -75,23 +75,18 @@ let main = async container => {
 
     const igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
 
-    await igvPalette.gotoDefaultLocus();
+    if (igvBrowser) {
 
+        await igvPalette.gotoDefaultLocus();
 
-    // if (igvBrowser) {
-    //
-    //     // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
-    //     // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
-    //     const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
-    //     // const url = 'https://www.encodeproject.org/files/ENCFF722EUH/@@download/ENCFF722EUH.bigWig';
-    //
-    //     const track = await igvPalette.loadTrack(url);
-    //
-    //     if (track) {
-    //         await igvPalette.gotoDefaultLocus();
-    //     }
-    //
-    // }
+        // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
+        // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
+        const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
+        // const url = 'https://www.encodeproject.org/files/ENCFF722EUH/@@download/ENCFF722EUH.bigWig';
+
+        await igvPalette.loadTrack(url);
+
+    }
 
     sceneManager.defaultConfiguration();
 

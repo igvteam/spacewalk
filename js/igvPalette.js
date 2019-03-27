@@ -60,8 +60,10 @@ class IGVPalette {
 
         try {
             this.browser = await igv.createBrowser( $(this.palette).find('#trace3d_igv_root_container').get(0), config );
+            return this.browser;
         } catch (error) {
             console.warn(error.message);
+            return undefined;
         }
 
     }
