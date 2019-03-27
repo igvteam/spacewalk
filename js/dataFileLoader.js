@@ -2,6 +2,7 @@ import igv from '../vendor/igv.esm.js'
 import { globalEventBus } from "./eventBus.js";
 
 let currentURL = undefined;
+
 class DataFileLoader {
 
     constructor({ $urlModal, $selectModal }) {
@@ -76,6 +77,7 @@ const loadURL = async ({ url, $spinner, $modal }) => {
     if ('' !== url) {
 
         try {
+
             let urlContents = await igv.xhr.load(url);
             const { file } = igv.parseUri(url);
 
