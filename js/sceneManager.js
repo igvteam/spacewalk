@@ -126,15 +126,11 @@ class SceneManager {
         const [ fov, near, far, aspectRatio ] = [ 35, 1e-1 * dimen, 32 * dimen, (window.innerWidth/window.innerHeight) ];
         this.orbitalCamera.setProjection({ fov, near, far, aspectRatio });
 
-        const delta = far - near;
-        this.orbitalCamera.orbitControl.minDistance = near + 1e-2 * delta;
-        this.orbitalCamera.orbitControl.maxDistance =  far - 4e-1 * delta;
-
         // Add camera to scene. This is need to allow lights to be attached to camera
         this.scene.add( this.orbitalCamera.camera );
 
-        const thang = this.scene.getObjectByName( this.orbitalCamera.cameraName() );
-        console.log('camera name ' + thang.name);
+        // const thang = this.scene.getObjectByName( this.orbitalCamera.name() );
+        // console.log('camera name ' + thang.name);
 
         this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
         this.scene.add( this.groundPlane );
