@@ -68,6 +68,14 @@ class IGVPalette {
 
     }
 
+    async goto({ chr, start, end }) {
+        await this.browser.goto(chr, start, end);
+    }
+
+    async gotoDefaultLocus() {
+        await this.goto({ chr:'chr21', start:28e6, end:30e6 });
+    }
+
     async loadTrack(url) {
 
         try {
@@ -80,40 +88,23 @@ class IGVPalette {
 
     }
 
-    async gotoDefaultLocus() {
-        await this.goto({ chr:'chr21', start:28e6, end:30e6 });
-    }
+    async loadURL({ url, $spinner }){
 
-    async goto({ chr, start, end }) {
-        await this.browser.goto(chr, start, end);
-    }
+        url = url || '';
 
-    render({ track, features, start, end }) {
+        if ('' !== url) {
+            $spinner.show();
+            let track = await this.loadTrack(url);
+            $spinner.hide();
+        }
 
-        track.dataRange = igv.doAutoscale(features);
+    };
 
-        const config =
-            {
-                features: features,
-                context: this.ctx,
-                bpPerPixel: this.bpp,
-                bpStart: start,
-                pixelWidth: this.ctx.canvas.offsetWidth,
-                pixelHeight: this.ctx.canvas.offsetHeight,
-                viewportContainerX: 0,
-                viewportContainerWidth: this.ctx.canvas.offsetWidth,
-                genomicState: {}
-            };
+    onWindowResize(container, palette) {
+        layout(container, palette);
+    };
 
-        igv.graphics.fillRect(this.ctx, 0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight, { fillStyle: rgb255String(appleCrayonColorRGB255('snow')) });
 
-        track.draw(config);
-
-    }
-
-    async repaint() {
-        this.browser.updateViews();
-    }
 
     // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
     async buildFeatureSegmentIndices({ chr, start, end, stepSize }) {
@@ -134,54 +125,6 @@ class IGVPalette {
 
     }
 
-    async createGenome(genomeID) {
-
-
-        // TODO: This is necessary otherwise igv.GenomeUtils.genomeList is undefined if browser is not created.
-        igv.GenomeUtils.genomeList = "https://s3.amazonaws.com/igv.org.genomes/genomes.json";
-
-        let config;
-        try {
-
-            // throw "Let's throw stuff from createGenome(genomeID)";
-            config = await igv.GenomeUtils.expandReference(genomeID);
-        } catch (error) {
-            console.warn(error.message);
-            return undefined;
-        }
-
-        let genome;
-        try {
-            genome = await igv.GenomeUtils.loadGenome(config);
-            return genome;
-        } catch (error) {
-            console.warn(error.message);
-            return undefined;
-        }
-
-    }
-
-    async loadURL({ url, $spinner }){
-
-        url = url || '';
-
-        if ('' !== url) {
-            $spinner.show();
-
-            let track = await this.createLoadLowLevelTrack({genomeID: 'hg38', url});
-
-            if (track) {
-                await this.repaint();
-            }
-
-            $spinner.hide();
-        }
-
-    };
-
-    onWindowResize(container, palette) {
-        layout(container, palette);
-    };
 
     async DEPRICATED_createBrowser($container) {
 
@@ -253,6 +196,56 @@ class IGVPalette {
         const { chr, start, end } = this.locus;
         const features = await this.track.getFeatures(chr, start, end, this.bpp);
         this.render({ track: this.track, features, start, end });
+    }
+
+    DEPRICATED_render({ track, features, start, end }) {
+
+        track.dataRange = igv.doAutoscale(features);
+
+        const config =
+            {
+                features: features,
+                context: this.ctx,
+                bpPerPixel: this.bpp,
+                bpStart: start,
+                pixelWidth: this.ctx.canvas.offsetWidth,
+                pixelHeight: this.ctx.canvas.offsetHeight,
+                viewportContainerX: 0,
+                viewportContainerWidth: this.ctx.canvas.offsetWidth,
+                genomicState: {}
+            };
+
+        igv.graphics.fillRect(this.ctx, 0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight, { fillStyle: rgb255String(appleCrayonColorRGB255('snow')) });
+
+        track.draw(config);
+
+    }
+
+    async DEPRICATED_createGenome(genomeID) {
+
+
+        // TODO: This is necessary otherwise igv.GenomeUtils.genomeList is undefined if browser is not created.
+        igv.GenomeUtils.genomeList = "https://s3.amazonaws.com/igv.org.genomes/genomes.json";
+
+        let config;
+        try {
+
+            // throw "Let's throw stuff from createGenome(genomeID)";
+            config = await igv.GenomeUtils.expandReference(genomeID);
+        } catch (error) {
+            console.warn(error.message);
+            return undefined;
+        }
+
+        let genome;
+        try {
+            genome = await igv.GenomeUtils.loadGenome(config);
+            return genome;
+        } catch (error) {
+            console.warn(error.message);
+            return undefined;
+        }
+
     }
 
 }

@@ -135,7 +135,7 @@
       text-align: center; }
 
 #trace3d_igv_palette.card {
-  width: 768px;
+  width: 600px;
   height: auto;
   align-items: center; }
   #trace3d_igv_palette.card #trace3d_igv_container.card-body .form-group {

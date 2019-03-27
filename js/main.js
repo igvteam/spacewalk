@@ -66,7 +66,7 @@ let main = async container => {
 
     const igvBrowserConfig =
         {
-            genome: 'hg19',
+            genome: 'hg38',
             locus: 'all',
             showIdeogram: false,
             showControls: false,
@@ -80,10 +80,10 @@ let main = async container => {
         await igvPalette.gotoDefaultLocus();
 
         // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
-        // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
+        // const url =                  'https://www.dropbox.com/s/cj909wdtckjsptx/ENCFF079FWO.bigBed?dl=0';
+
         // const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
-        const url = 'https://www.dropbox.com/s/ay6x1im4s1didp2/ENCFF298BFT.bigWig?dl=0';
-        // const url = 'https://www.encodeproject.org/files/ENCFF722EUH/@@download/ENCFF722EUH.bigWig';
+        const url =                     'https://www.dropbox.com/s/ay6x1im4s1didp2/ENCFF298BFT.bigWig?dl=0';
 
         await igvPalette.loadTrack(url);
 

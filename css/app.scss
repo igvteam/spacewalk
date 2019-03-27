@@ -18,8 +18,7 @@ $trace3d_structure_select_palette_height: 108px;
 $trace3d_structure_select_palette_label_height: 16px;
 
 // igv palette
-$trace3d_igv_palette_width: 768px;
-$trace3d_igv_palette_height: 128px;
+$trace3d_igv_palette_width: 600px;
 
 $trace3d_color_ramp_width: 36px;
 
@@ -261,7 +260,6 @@ $trace3d_ui_manager_panel_size: 256px;
 #trace3d_igv_palette.card {
 
   width: $trace3d_igv_palette_width;
-  //height: $trace3d_igv_palette_height;
   height: auto;
 
   //background-color: $trace3d_snow;
