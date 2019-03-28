@@ -68,6 +68,7 @@ let main = async container => {
         {
             genome: 'hg38',
             locus: 'all',
+            showCursorTrackingGuide: true,
             showTrackLabels: false,
             showIdeogram: false,
             showControls: false,
