@@ -31351,6 +31351,8 @@ var igv = (function (igv) {
  * THE SOFTWARE.
  */
 
+"use strict";
+
 var igv = (function (igv) {
 
     const MAX_GZIP_BLOCK_SIZE = (1 << 16);
@@ -31650,22 +31652,22 @@ var igv = (function (igv) {
             })
             rows.push(-1000);
 
-            let r;
-            for (let feature of featureList) {
+            featureList.forEach(function (feature) {
 
-                const length = Math.min(rows.length, maxRows);
-                for (r = 0; r < length; r++) {
-                    if (feature.start > rows[ r ]) {
+                let r = 0
+                const len = Math.min(rows.length, maxRows)
+                for (r = 0; r < len; r++) {
+                    if (feature.start > rows[r]) {
                         feature.row = r;
-                        rows[ r ] = feature.end;
+                        rows[r] = feature.end;
                         return;
                     }
                 }
-
                 feature.row = r;
-                rows[ r ] = feature.end;
+                rows[r] = feature.end;
 
-            }
+
+            });
         }
     }
 
