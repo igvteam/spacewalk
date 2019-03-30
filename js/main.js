@@ -1,3 +1,4 @@
+import igv from '../vendor/igv.esm.js'
 import * as THREE from './threejs_es6/three.module.js';
 import SceneManager from './sceneManager.js';
 import Picker from './picker.js';
@@ -75,9 +76,13 @@ let main = async container => {
             showNavigation: false
         };
 
-    const igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
+    let igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
 
     if (igvBrowser) {
+
+        igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
+            console.log('x ' + interpolant.toFixed(3) + ' bp ' + igv.numberFormatter(bp) + ' start ' + igv.numberFormatter(start) + ' end ' + igv.numberFormatter(end));
+        });
 
         await igvPalette.gotoDefaultLocus();
 
