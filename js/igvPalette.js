@@ -250,6 +250,19 @@ class IGVPalette {
 
 }
 
+let layout = (container, element) => {
+
+    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const elementRect = element.getBoundingClientRect();
+
+    const left = (containerRect.width - elementRect.width)/2;
+    const top = containerRect.height - 1.1 * elementRect.height;
+
+    $(element).offset( { left, top } );
+
+};
+
 let onCanvasMouseMove = (canvas, event) => {
 
     let { x, y } = getMouseXY(canvas, event);
@@ -259,18 +272,6 @@ let onCanvasMouseMove = (canvas, event) => {
     } else {
         console.log(Date.now() + ' canvas x ' + x + ' y ' + y);
     }
-};
-
-let layout = (container, element) => {
-
-    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    const elementRect = element.getBoundingClientRect();
-
-    const left = (containerRect.width - elementRect.width)/2;
-    const top = containerRect.height - (3 * elementRect.height);
-    $(element).offset( { left, top } );
-
 };
 
 export default IGVPalette;

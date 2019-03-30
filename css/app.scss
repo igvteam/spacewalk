@@ -19,6 +19,7 @@ $trace3d_structure_select_palette_label_height: 16px;
 
 // igv palette
 $trace3d_igv_palette_width: 600px;
+$trace3d_igv_palette_heigth: 0.5 * $trace3d_igv_palette_width;
 
 $trace3d_color_ramp_width: 36px;
 
@@ -260,14 +261,15 @@ $trace3d_ui_manager_panel_size: 256px;
 #trace3d_igv_palette.card {
 
   width: $trace3d_igv_palette_width;
-  height: auto;
-
-  //background-color: $trace3d_snow;
+  height: $trace3d_igv_palette_heigth;
 
   align-items: center;
 
   // igvjs container
   #trace3d_igv_container.card-body {
+
+    height: $trace3d_igv_palette_heigth;
+    overflow: auto;
 
     // url loader
     .form-group {
@@ -302,15 +304,17 @@ $trace3d_ui_manager_panel_size: 256px;
     // track container
     #trace3d_igv_root_container {
       width: 100%;
-      height: auto;
+      width: -moz-available;
+      width: -webkit-fill-available;
+      width: fill-available;
+
+      overflow: auto;
 
       border-style: solid;
       border-width: thin;
       border-color: $trace3d_aluminum;
 
       background-color: $trace3d_snow;
-
-      overflow: auto;
 
     }
   }
