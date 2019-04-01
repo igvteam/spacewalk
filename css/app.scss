@@ -25,6 +25,11 @@ $trace3d_color_ramp_width: 36px;
 
 $trace3d_ui_manager_panel_size: 256px;
 
+$trace3d_navbar_height: 56px;
+$trace3d_ui_manager_button_top: 32px + $trace3d_navbar_height;
+$trace3d_ui_manager_panel_top: 48px + $trace3d_ui_manager_button_top;
+$trace3d_ui_manager_left: 32px;
+
 .navbar {
   background-color: $trace3d_iron;
 }
@@ -38,6 +43,8 @@ $trace3d_ui_manager_panel_size: 256px;
 
   border-color: $trace3d_aluminum;
   background-color: rgba(255, 255, 255, 0.65);
+
+  user-select: none;
 
   .card-body {
 
@@ -121,8 +128,8 @@ $trace3d_ui_manager_panel_size: 256px;
   z-index: 2048;
 
   position: absolute;
-  top: 128px;
-  right: 64px;
+  top: $trace3d_ui_manager_button_top;
+  left: $trace3d_ui_manager_left;
 
   display: flex;
   flex-direction: row;
@@ -130,25 +137,26 @@ $trace3d_ui_manager_panel_size: 256px;
   justify-content: center;
   align-items: center;
 
-  color: $trace3d_aluminum;
   i {
-    cursor: pointer;
+    color: $trace3d_aluminum;
     display: block;
   }
 
+  i:hover {
+    cursor: pointer;
+    color: $trace3d_iron;
+  }
 }
 
 #trace3d_ui_manager_panel.card {
 
   z-index: 2048;
 
-  top: 200px;
-  right: 64px;
+  top: $trace3d_ui_manager_panel_top;
+  left: $trace3d_ui_manager_left;
 
   width: $trace3d_ui_manager_panel_size;
   height: auto;
-
-  user-select: none;
 
   li {
     display: flex;

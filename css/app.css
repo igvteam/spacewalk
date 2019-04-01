@@ -7,7 +7,8 @@
   width: 512px;
   height: 512px;
   border-color: #a09fa0;
-  background-color: rgba(255, 255, 255, 0.65); }
+  background-color: rgba(255, 255, 255, 0.65);
+  user-select: none; }
   .card .card-body {
     display: flex;
     flex-direction: column;
@@ -60,25 +61,26 @@
 #trace3d_ui_manager_button {
   z-index: 2048;
   position: absolute;
-  top: 128px;
-  right: 64px;
+  top: 88px;
+  left: 32px;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: center;
-  align-items: center;
-  color: #a09fa0; }
+  align-items: center; }
   #trace3d_ui_manager_button i {
-    cursor: pointer;
+    color: #a09fa0;
     display: block; }
+  #trace3d_ui_manager_button i:hover {
+    cursor: pointer;
+    color: #545453; }
 
 #trace3d_ui_manager_panel.card {
   z-index: 2048;
-  top: 200px;
-  right: 64px;
+  top: 136px;
+  left: 32px;
   width: 256px;
-  height: auto;
-  user-select: none; }
+  height: auto; }
   #trace3d_ui_manager_panel.card li {
     display: flex;
     flex-direction: row;
