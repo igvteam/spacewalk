@@ -81,7 +81,7 @@ let main = async container => {
     if (igvBrowser) {
 
         igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
-            console.log('x ' + interpolant.toFixed(3) + ' bp ' + igv.numberFormatter(bp) + ' start ' + igv.numberFormatter(start) + ' end ' + igv.numberFormatter(end));
+            console.log('x ' + interpolant.toFixed(3) + ' start ' + igv.numberFormatter(start) + ' bp ' + igv.numberFormatter(bp) + ' end ' + igv.numberFormatter(Math.round(end)));
         });
 
         await igvPalette.gotoDefaultLocus();
