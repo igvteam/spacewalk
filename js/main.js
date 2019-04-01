@@ -1,5 +1,6 @@
 import igv from '../vendor/igv.esm.js'
 import * as THREE from './threejs_es6/three.module.js';
+import GUIManager from './guiManager.js';
 import SceneManager from './sceneManager.js';
 import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
@@ -11,6 +12,8 @@ import IGVPalette from './igvPalette.js';
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 import { globalEventBus } from './eventBus.js';
+
+let guiManager;
 
 let structureManager;
 
@@ -27,6 +30,8 @@ let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 let doUpdateCameraPose = true;
 
 let main = async container => {
+    
+    guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
 
     const sceneManagerSettings =
         {

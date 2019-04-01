@@ -77,7 +77,8 @@
   top: 200px;
   right: 64px;
   width: 256px;
-  height: auto; }
+  height: auto;
+  user-select: none; }
   #trace3d_ui_manager_panel.card li {
     display: flex;
     flex-direction: row;
@@ -85,6 +86,7 @@
     justify-content: flex-start;
     align-items: center; }
     #trace3d_ui_manager_panel.card li input {
+      cursor: pointer;
       display: block; }
 
 #trace3d_data_file_load_select_container .form-control {

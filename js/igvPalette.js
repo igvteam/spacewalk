@@ -11,7 +11,7 @@ class IGVPalette {
 
     constructor ({ container, palette }) {
 
-        this.palette = palette;
+        this.$palette = $(palette);
 
         layout(container, palette);
 
@@ -54,12 +54,19 @@ class IGVPalette {
             currentURL = undefined;
         });
 
+        globalEventBus.subscribe("ToggleUIControls", this);
+    }
+
+    receiveEvent({ type }) {
+        if ("ToggleUIControls" === type) {
+            this.$palette.toggle();
+        }
     }
 
     async createBrowser (config) {
 
         try {
-            this.browser = await igv.createBrowser( $(this.palette).find('#trace3d_igv_root_container').get(0), config );
+            this.browser = await igv.createBrowser( this.$palette.find('#trace3d_igv_root_container').get(0), config );
             return this.browser;
         } catch (error) {
             console.warn(error.message);

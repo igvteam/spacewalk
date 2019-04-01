@@ -148,6 +148,8 @@ $trace3d_ui_manager_panel_size: 256px;
   width: $trace3d_ui_manager_panel_size;
   height: auto;
 
+  user-select: none;
+
   li {
     display: flex;
     flex-direction: row;
@@ -155,6 +157,7 @@ $trace3d_ui_manager_panel_size: 256px;
     justify-content: flex-start;
     align-items: center;
     input {
+      cursor: pointer;
       display: block;
     }
   }

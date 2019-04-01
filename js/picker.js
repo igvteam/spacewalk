@@ -37,7 +37,7 @@ class Picker {
 
             if (false === this.pickHighlighter.isCurrentObject(hitList[ 0 ].object)) {
                 this.pickHighlighter.configure(hitList[ 0 ].object);
-                globalEventBus.post({ type: "PickerDidHitObject", data: this.pickHighlighter.object.uuid });
+                globalEventBus .post({ type: "PickerDidHitObject", data: this.pickHighlighter.object.uuid });
             }
 
         } else {

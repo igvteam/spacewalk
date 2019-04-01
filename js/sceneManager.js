@@ -45,6 +45,7 @@ class SceneManager {
             this.onContainerMouseMove(event)
         });
 
+        globalEventBus.subscribe("ToggleGroundplane", this);
         globalEventBus.subscribe("PickerDidHitObject", this);
         globalEventBus.subscribe("PickerDidLeaveObject", this);
         globalEventBus.subscribe("DidSelectSegmentIndex", this);
@@ -69,6 +70,8 @@ class SceneManager {
                 this.picker.pickHighlighter.configure(this.segmentIndex2Object[ data ].object);
             }
 
+        } else if ("ToggleGroundplane" === type) {
+            this.groundPlane.visible = data;
         }
 
     }
