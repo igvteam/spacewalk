@@ -128,26 +128,24 @@
 
     <div id="trace3d_canvas_container">
 
-        <!--
-
+        <!-- UI Manager Button -->
         <div id="trace3d_ui_manager_button">
             <i class="fas fa-cog fa-2x"></i>
         </div>
 
-        <div id="trace3d_ui_manager_panel" class="card">
+        <!-- UI Manager Panel -->
+        <div id="trace3d_ui_manager_panel" class="card" style="display:none;">
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">
-                    <input type="checkbox" class="mr-2">
-                    <div>Show Groundplane</div>
+                    <input id="trace3d_ui_manager_groundplane" class="mr-2" type="checkbox">
+                    <div>Groundplane</div>
                 </li>
                 <li class="list-group-item">
-                    <input type="checkbox" class="mr-2">
-                    <div>Hide UI Controls</div>
+                    <input id="trace3d_ui_manager_ui_controls" class="mr-2" type="checkbox" checked>
+                    <div>UI Controls</div>
                 </li>
             </ul>
         </div>
-
-        -->
 
         <!-- color ramp palette -->
         <div id="trace3d_color_ramp_palette" class="card">
@@ -226,10 +224,8 @@
                 </div>
 
                 <!-- track container -->
-                <div id="trace3d_igv_track_container">
+                <div id="trace3d_igv_root_container">
 
-                    <!-- track canvas -->
-                    <canvas></canvas>
 
                 </div>
 

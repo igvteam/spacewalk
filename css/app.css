@@ -7,7 +7,8 @@
   width: 512px;
   height: 512px;
   border-color: #a09fa0;
-  background-color: rgba(255, 255, 255, 0.65); }
+  background-color: rgba(255, 255, 255, 0.65);
+  user-select: none; }
   .card .card-body {
     display: flex;
     flex-direction: column;
@@ -60,22 +61,24 @@
 #trace3d_ui_manager_button {
   z-index: 2048;
   position: absolute;
-  top: 128px;
-  right: 64px;
+  top: 88px;
+  left: 32px;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: center;
-  align-items: center;
-  color: #a09fa0; }
+  align-items: center; }
   #trace3d_ui_manager_button i {
-    cursor: pointer;
+    color: #a09fa0;
     display: block; }
+  #trace3d_ui_manager_button i:hover {
+    cursor: pointer;
+    color: #545453; }
 
 #trace3d_ui_manager_panel.card {
   z-index: 2048;
-  top: 200px;
-  right: 64px;
+  top: 136px;
+  left: 32px;
   width: 256px;
   height: auto; }
   #trace3d_ui_manager_panel.card li {
@@ -85,6 +88,7 @@
     justify-content: flex-start;
     align-items: center; }
     #trace3d_ui_manager_panel.card li input {
+      cursor: pointer;
       display: block; }
 
 #trace3d_data_file_load_select_container .form-control {
@@ -135,33 +139,37 @@
       text-align: center; }
 
 #trace3d_igv_palette.card {
-  width: 512px;
-  height: auto;
+  width: 600px;
+  height: 300px;
   align-items: center; }
-  #trace3d_igv_palette.card #trace3d_igv_container.card-body .form-group {
-    width: 100%;
-    margin-top: 8px;
-    margin-bottom: 8px; }
-  #trace3d_igv_palette.card #trace3d_igv_container.card-body .spinner-border {
-    margin-left: 8px;
-    margin-right: 8px;
-    color: #6e6e6e; }
-  #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_label {
-    width: 100%;
-    height: 16px;
-    line-height: 16px;
-    font-size: 12px;
-    vertical-align: middle;
-    color: #6e6e6e;
-    background-color: transparent; }
-  #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_container {
-    width: 100%;
-    height: 36px;
-    border-style: solid;
-    border-width: thin;
-    border-color: #a09fa0;
-    background-color: #ffffff; }
-    #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_container > canvas {
-      cursor: pointer; }
+  #trace3d_igv_palette.card #trace3d_igv_container.card-body {
+    height: 300px;
+    overflow: auto; }
+    #trace3d_igv_palette.card #trace3d_igv_container.card-body .form-group {
+      width: 100%;
+      margin-top: 8px;
+      margin-bottom: 8px; }
+    #trace3d_igv_palette.card #trace3d_igv_container.card-body .spinner-border {
+      margin-left: 8px;
+      margin-right: 8px;
+      color: #6e6e6e; }
+    #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_track_label {
+      width: 100%;
+      height: 16px;
+      line-height: 16px;
+      font-size: 12px;
+      vertical-align: middle;
+      color: #6e6e6e;
+      background-color: transparent; }
+    #trace3d_igv_palette.card #trace3d_igv_container.card-body #trace3d_igv_root_container {
+      width: 100%;
+      width: -moz-available;
+      width: -webkit-fill-available;
+      width: fill-available;
+      overflow: auto;
+      border-style: solid;
+      border-width: thin;
+      border-color: #a09fa0;
+      background-color: #ffffff; }
 
 /*# sourceMappingURL=app.css.map */

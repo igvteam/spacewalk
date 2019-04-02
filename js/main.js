@@ -1,4 +1,6 @@
+import igv from '../vendor/igv.esm.js'
 import * as THREE from './threejs_es6/three.module.js';
+import GUIManager from './guiManager.js';
 import SceneManager from './sceneManager.js';
 import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
@@ -10,6 +12,8 @@ import IGVPalette from './igvPalette.js';
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 import { globalEventBus } from './eventBus.js';
+
+let guiManager;
 
 let structureManager;
 
@@ -26,6 +30,8 @@ let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 let doUpdateCameraPose = true;
 
 let main = async container => {
+
+    guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
 
     const sceneManagerSettings =
         {
@@ -64,15 +70,35 @@ let main = async container => {
 
     igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
 
-    // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
-    // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
-    const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
-    // const url = 'https://www.encodeproject.org/files/ENCFF722EUH/@@download/ENCFF722EUH.bigWig';
+    const igvBrowserConfig =
+        {
+            genome: 'hg38',
+            locus: 'all',
+            showCursorTrackingGuide: true,
+            showTrackLabels: false,
+            showIdeogram: false,
+            showControls: false,
+            showNavigation: false
+        };
 
-    let track = await igvPalette.createLoadLowLevelTrack({genomeID: 'hg38', url});
+    let igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
 
-    if (track) {
+    if (igvBrowser) {
+
+        igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
+            console.log('x ' + interpolant.toFixed(3) + ' start ' + igv.numberFormatter(start) + ' bp ' + igv.numberFormatter(bp) + ' end ' + igv.numberFormatter(Math.round(end)));
+        });
+
         await igvPalette.gotoDefaultLocus();
+
+        // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
+        // const url =                  'https://www.dropbox.com/s/cj909wdtckjsptx/ENCFF079FWO.bigBed?dl=0';
+
+        // const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
+        const url =                     'https://www.dropbox.com/s/ay6x1im4s1didp2/ENCFF298BFT.bigWig?dl=0';
+
+        await igvPalette.loadTrack(url);
+
     }
 
     sceneManager.defaultConfiguration();
@@ -117,15 +143,16 @@ let main = async container => {
 
                     doUpdateCameraPose = false;
 
+                } else if ('ToggleUIControls' === type) {
+                    $('.navbar').toggle();
                 }
-
 
             }
         };
 
     globalEventBus.subscribe('DidSelectStructure', eventListener);
     globalEventBus.subscribe('DidLoadFile', eventListener);
-
+    globalEventBus.subscribe("ToggleUIControls", eventListener);
 };
 
 let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {

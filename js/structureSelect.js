@@ -2,12 +2,13 @@ import { makeDraggable } from "./draggable.js";
 import {globalEventBus} from "./eventBus.js";
 import { clamp } from './math.js'
 
-
 let currentStructureKey = undefined;
 
 class StructureSelect {
 
     constructor({ container, palette }) {
+
+        this.$palette = $(palette);
 
         this.$header = $('#trace3d_structure_select_header');
 
@@ -89,6 +90,14 @@ class StructureSelect {
 
         $(document).on('keyup.structure_select', handleKeyUp);
 
+        globalEventBus.subscribe("ToggleUIControls", this);
+
+    }
+
+    receiveEvent({ type }) {
+        if ("ToggleUIControls" === type) {
+            this.$palette.toggle();
+        }
     }
 
     updateStructureKey(value) {

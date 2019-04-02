@@ -5,6 +5,8 @@ import ColorRampWidget from "./colorRampWidget.js";
 class ColorRampPalette {
     constructor({ container, palette, colors, highlightColor }) {
 
+        this.$palette = $(palette);
+
         this.genomicRampWidget = new ColorRampWidget( { palette, namespace: 'genomicRampWidget', colors, highlightColor } );
 
         layout(container, palette);
@@ -26,6 +28,13 @@ class ColorRampPalette {
             globalEventBus.post({type: "DidLeaveGUI" });
         });
 
+        globalEventBus.subscribe("ToggleUIControls", this);
+    }
+
+    receiveEvent({ type }) {
+        if ("ToggleUIControls" === type) {
+            this.$palette.toggle();
+        }
     }
 
     configure({ chr, genomicStart, genomicEnd, structureLength }) {

@@ -11,18 +11,13 @@ class IGVPalette {
 
     constructor ({ container, palette }) {
 
-        const canvas = $('#trace3d_igv_track_container').find('canvas').get(0);
+        this.$palette = $(palette);
 
-        fitToContainer(canvas);
+        layout(container, palette);
 
-        this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
+        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
 
         this.$track_label = $('#trace3d_igv_track_label');
-
-        $(container).on('mousemove.trace3d.trace3d_igv_track_canvas', (event) => {
-            onCanvasMouseMove(canvas, event)
-        });
 
         $(window).on('resize.trace3d.trace3d_igv_palette', () => { this.onWindowResize(container, palette) });
 
@@ -35,7 +30,6 @@ class IGVPalette {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
-
 
         // URL
         const $url_input = $('#trace3d_igv_palette_url_input');
@@ -60,13 +54,104 @@ class IGVPalette {
             currentURL = undefined;
         });
 
-        layout(container, palette);
+        globalEventBus.subscribe("ToggleUIControls", this);
+    }
 
-        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
+    receiveEvent({ type }) {
+        if ("ToggleUIControls" === type) {
+            this.$palette.toggle();
+        }
+    }
+
+    async createBrowser (config) {
+
+        try {
+            this.browser = await igv.createBrowser( this.$palette.find('#trace3d_igv_root_container').get(0), config );
+            return this.browser;
+        } catch (error) {
+            console.warn(error.message);
+            return undefined;
+        }
 
     }
 
-    async createLoadLowLevelTrack({genomeID, url}) {
+    async goto({ chr, start, end }) {
+        await this.browser.goto(chr, start, end);
+    }
+
+    async gotoDefaultLocus() {
+        await this.goto({ chr:'chr21', start:28e6, end:30e6 });
+    }
+
+    async loadTrack(url) {
+
+        try {
+            const track = await igv.browser.loadTrack({ url });
+            return track;
+        } catch (error) {
+            console.warn(error.message);
+            return undefined;
+        }
+
+    }
+
+    async loadURL({ url, $spinner }){
+
+        url = url || '';
+
+        if ('' !== url) {
+            $spinner.show();
+            let track = await this.loadTrack(url);
+            $spinner.hide();
+        }
+
+    };
+
+    onWindowResize(container, palette) {
+        layout(container, palette);
+    };
+
+
+
+    // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
+    async buildFeatureSegmentIndices({ chr, start, end, stepSize }) {
+
+        this.featureSegmentIndices = new Set();
+
+        const features = await this.track.getFeatures(chr, start, end, this.bpp);
+
+        for (let feature of features) {
+
+            const index = Math.floor((feature.start - start) / stepSize);
+
+            const one_based = 1 + index;
+            if(index >= 0) {
+                this.featureSegmentIndices.add(one_based);
+            }
+        }
+
+    }
+
+
+    async DEPRICATED_createBrowser($container) {
+
+        const config =
+            {
+                genome: 'hg19',
+                locus: 'all',
+                showTrackLabels: false,
+                showIdeogram: false,
+                showNavigation: false
+            };
+
+        return igv
+            .createBrowser($container, config)
+            .then((browser) => {
+                console.log('browser good to go')
+            });
+    }
+
+    async DEPRICATED_createLoadLowLevelTrack({genomeID, url}) {
 
         if (undefined === this.genome || this.genome.id !== genomeID) {
             this.genome = await this.createGenome(genomeID);
@@ -95,11 +180,7 @@ class IGVPalette {
         return this.track;
     }
 
-    async gotoDefaultLocus() {
-        await this.goto({ chr:'chr21', start:28e6, end:30e6 });
-    }
-
-    async goto({ chr, start, end }) {
+    async DEPRICATED_goto({ chr, start, end }) {
 
         this.locus = { chr, start, end };
 
@@ -118,7 +199,13 @@ class IGVPalette {
         this.render({ track: this.track, features, start, end });
     }
 
-    render({ track, features, start, end }) {
+    async DEPRICATE_repaint() {
+        const { chr, start, end } = this.locus;
+        const features = await this.track.getFeatures(chr, start, end, this.bpp);
+        this.render({ track: this.track, features, start, end });
+    }
+
+    DEPRICATED_render({ track, features, start, end }) {
 
         track.dataRange = igv.doAutoscale(features);
 
@@ -141,32 +228,7 @@ class IGVPalette {
 
     }
 
-    async repaint() {
-        const { chr, start, end } = this.locus;
-        const features = await this.track.getFeatures(chr, start, end, this.bpp);
-        this.render({ track: this.track, features, start, end });
-    }
-
-    // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
-    async buildFeatureSegmentIndices({ chr, start, end, stepSize }) {
-
-        this.featureSegmentIndices = new Set();
-
-        const features = await this.track.getFeatures(chr, start, end, this.bpp);
-
-        for (let feature of features) {
-
-            const index = Math.floor((feature.start - start) / stepSize);
-
-            const one_based = 1 + index;
-            if(index >= 0) {
-                this.featureSegmentIndices.add(one_based);
-            }
-        }
-
-    }
-
-    async createGenome(genomeID) {
+    async DEPRICATED_createGenome(genomeID) {
 
 
         // TODO: This is necessary otherwise igv.GenomeUtils.genomeList is undefined if browser is not created.
@@ -193,72 +255,20 @@ class IGVPalette {
 
     }
 
-    async loadURL({ url, $spinner }){
-
-        url = url || '';
-
-        if ('' !== url) {
-            $spinner.show();
-
-            let track = await this.createLoadLowLevelTrack({genomeID: 'hg38', url});
-
-            if (track) {
-                await this.repaint();
-            }
-
-            $spinner.hide();
-        }
-
-    };
-
-    onWindowResize(container, palette) {
-        layout(container, palette);
-    };
-
-    async DEPRICATED_loadTrack(url) {
-
-        this.track = await igv.browser.loadTrack({ url });
-
-        igv.browser.$root.off();
-
-        $(igv.browser.trackContainerDiv).off();
-
-        for (let trackView of igv.browser.trackViews) {
-            for (let viewport of trackView.viewports) {
-                viewport.$viewport.off();
-            }
-        }
-
-        // discard canvas mouse handlers
-        const canvas = this.track.trackView.viewports[ 0 ].canvas;
-        $(canvas).off();
-
-        // add canvas mouse handler
-        $(canvas).on('mousemove.trace3d.igvpalette.track', (event) => {
-            this.onCanvasMouseMove(undefined, event)
-        });
-
-    }
-
-    async DEPRICATED_createBrowser($container) {
-
-        const config =
-            {
-                genome: 'hg19',
-                locus: 'all',
-                showTrackLabels: false,
-                showIdeogram: false,
-                showNavigation: false
-            };
-
-        return igv
-            .createBrowser($container, config)
-            .then((browser) => {
-                console.log('browser good to go')
-            });
-    }
-
 }
+
+let layout = (container, element) => {
+
+    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const elementRect = element.getBoundingClientRect();
+
+    const left = (containerRect.width - elementRect.width)/2;
+    const top = containerRect.height - 1.1 * elementRect.height;
+
+    $(element).offset( { left, top } );
+
+};
 
 let onCanvasMouseMove = (canvas, event) => {
 
@@ -269,18 +279,6 @@ let onCanvasMouseMove = (canvas, event) => {
     } else {
         console.log(Date.now() + ' canvas x ' + x + ' y ' + y);
     }
-};
-
-let layout = (container, element) => {
-
-    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    const elementRect = element.getBoundingClientRect();
-
-    const left = (containerRect.width - elementRect.width)/2;
-    const top = containerRect.height - (1.25 * elementRect.height);
-    $(element).offset( { left, top } );
-
 };
 
 export default IGVPalette;
