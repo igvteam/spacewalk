@@ -115,10 +115,10 @@
 
 #trace3d_color_ramp_palette.card {
   width: 128px;
-  height: 640px; }
+  height: 600px; }
   #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body {
     width: 100%;
-    height: auto;
+    height: 600px;
     font-size: 16px; }
     #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_header {
       width: 100%;
@@ -129,7 +129,7 @@
     #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp {
       cursor: pointer;
       width: 36px;
-      height: calc(100% - 32px - 32px);
+      height: calc(98% - 2 * 32px - 16px);
       background-color: transparent; }
     #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_footer {
       width: 100%;

@@ -157,8 +157,8 @@ let main = async container => {
 
 let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
-    let [ structureLength, structureExtent, cameraPosition, centroid ] = [ structure.array.length, structure.extent, structure.cameraPosition, structure.centroid ];
-    sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, centroid, doUpdateCameraPose });
+    let [ structureLength, structureExtent, cameraPosition, structureCentroid ] = [ structure.array.length, structure.extent, structure.cameraPosition, structure.centroid ];
+    sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose });
 
     // Dictionay of segment indices. Key is UUID of 3D object
     sceneManager.objectUUID2SegmentIndex = {};
