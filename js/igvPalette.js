@@ -1,9 +1,7 @@
 import igv from '../vendor/igv.esm.js'
 import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./eventBus.js";
-import { fitToContainer, getMouseXY } from "./utils.js";
-import { clamp } from "./math.js";
-import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
+import { lerp, quantize } from "./math.js";
 
 let currentURL = undefined;
 
@@ -111,8 +109,6 @@ class IGVPalette {
         layout(container, palette);
     };
 
-
-
     // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
     async buildFeatureSegmentIndices({ chr, start, end, stepSize }) {
 
@@ -132,129 +128,6 @@ class IGVPalette {
 
     }
 
-
-    async DEPRICATED_createBrowser($container) {
-
-        const config =
-            {
-                genome: 'hg19',
-                locus: 'all',
-                showTrackLabels: false,
-                showIdeogram: false,
-                showNavigation: false
-            };
-
-        return igv
-            .createBrowser($container, config)
-            .then((browser) => {
-                console.log('browser good to go')
-            });
-    }
-
-    async DEPRICATED_createLoadLowLevelTrack({genomeID, url}) {
-
-        if (undefined === this.genome || this.genome.id !== genomeID) {
-            this.genome = await this.createGenome(genomeID);
-            if (undefined === this.genome) {
-                return undefined;
-            }
-        }
-
-        let config =
-            {
-                url,
-                height: this.ctx.canvas.offsetHeight,
-                featureHeight: this.ctx.canvas.offsetHeight,
-                margin: 0,
-                color: rgb255String(appleCrayonColorRGB255('midnight'))
-            };
-
-        // NOTE: config is edited in place!
-        igv.inferTrackTypes(config);
-
-        this.track = igv.createLowLevelTrack(config, { genome: this.genome, genomicStateList: [ {} ]});
-
-        const { file } = igv.parseUri(url);
-        this.$track_label.text(file);
-
-        return this.track;
-    }
-
-    async DEPRICATED_goto({ chr, start, end }) {
-
-        this.locus = { chr, start, end };
-
-        this.bpp = (end - start) / this.ctx.canvas.offsetWidth;
-        this.referenceFrame = new igv.ReferenceFrame(this.genome, chr, start, end, this.bpp);
-
-        let features = undefined;
-
-        try {
-            features = await this.track.getFeatures(chr, start, end, this.bpp);
-        } catch(error) {
-            console.warn(error.message);
-            return;
-        }
-
-        this.render({ track: this.track, features, start, end });
-    }
-
-    async DEPRICATE_repaint() {
-        const { chr, start, end } = this.locus;
-        const features = await this.track.getFeatures(chr, start, end, this.bpp);
-        this.render({ track: this.track, features, start, end });
-    }
-
-    DEPRICATED_render({ track, features, start, end }) {
-
-        track.dataRange = igv.doAutoscale(features);
-
-        const config =
-            {
-                features: features,
-                context: this.ctx,
-                bpPerPixel: this.bpp,
-                bpStart: start,
-                pixelWidth: this.ctx.canvas.offsetWidth,
-                pixelHeight: this.ctx.canvas.offsetHeight,
-                viewportContainerX: 0,
-                viewportContainerWidth: this.ctx.canvas.offsetWidth,
-                genomicState: {}
-            };
-
-        igv.graphics.fillRect(this.ctx, 0, 0, this.ctx.canvas.offsetWidth, this.ctx.canvas.offsetHeight, { fillStyle: rgb255String(appleCrayonColorRGB255('snow')) });
-
-        track.draw(config);
-
-    }
-
-    async DEPRICATED_createGenome(genomeID) {
-
-
-        // TODO: This is necessary otherwise igv.GenomeUtils.genomeList is undefined if browser is not created.
-        igv.GenomeUtils.genomeList = "https://s3.amazonaws.com/igv.org.genomes/genomes.json";
-
-        let config;
-        try {
-
-            // throw "Let's throw stuff from createGenome(genomeID)";
-            config = await igv.GenomeUtils.expandReference(genomeID);
-        } catch (error) {
-            console.warn(error.message);
-            return undefined;
-        }
-
-        let genome;
-        try {
-            genome = await igv.GenomeUtils.loadGenome(config);
-            return genome;
-        } catch (error) {
-            console.warn(error.message);
-            return undefined;
-        }
-
-    }
-
 }
 
 let layout = (container, element) => {
@@ -270,15 +143,11 @@ let layout = (container, element) => {
 
 };
 
-let onCanvasMouseMove = (canvas, event) => {
-
-    let { x, y } = getMouseXY(canvas, event);
-
-    if (y < 0 || x < 0 || y > canvas.offsetHeight || x > canvas.offsetWidth) {
-        // do nothing
-    } else {
-        console.log(Date.now() + ' canvas x ' + x + ' y ' + y);
-    }
+export let mouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
+    const quantized = quantize(interpolant, structureLength);
+    const one_based = lerp(1, structureLength, quantized);
+    const segmentIndex = Math.ceil(one_based);
+    globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
 };
 
 export default IGVPalette;
