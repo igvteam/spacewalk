@@ -1,7 +1,7 @@
 import igv from '../vendor/igv.esm.js'
 import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./eventBus.js";
-import { fitToContainer, getMouseXY } from "./utils.js";
+import { fitToContainer, numberFormatter } from "./utils.js";
 import { clamp } from "./math.js";
 import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 
@@ -270,15 +270,8 @@ let layout = (container, element) => {
 
 };
 
-let onCanvasMouseMove = (canvas, event) => {
-
-    let { x, y } = getMouseXY(canvas, event);
-
-    if (y < 0 || x < 0 || y > canvas.offsetHeight || x > canvas.offsetWidth) {
-        // do nothing
-    } else {
-        console.log(Date.now() + ' canvas x ' + x + ' y ' + y);
-    }
+export let mouseHandler = ({ bp, start, end, interpolant }) => {
+    console.log('x ' + interpolant.toFixed(3) + ' start ' + numberFormatter(start) + ' bp ' + numberFormatter(bp) + ' end ' + numberFormatter(Math.round(end)));
 };
 
 export default IGVPalette;

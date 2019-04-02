@@ -7,9 +7,9 @@ import PickHighlighter from './pickHighlighter.js';
 import DataFileLoader from './dataFileLoader.js';
 import StructureSelect from './structureSelect.js';
 import StructureManager from './structureManager.js';
-import IGVPalette from './igvPalette.js';
-
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
+import IGVPalette from './igvPalette.js';
+import { mouseHandler } from './igvPalette.js';
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 import { globalEventBus } from './eventBus.js';
 
@@ -85,9 +85,7 @@ let main = async container => {
 
     if (igvBrowser) {
 
-        igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
-            console.log('x ' + interpolant.toFixed(3) + ' start ' + igv.numberFormatter(start) + ' bp ' + igv.numberFormatter(bp) + ' end ' + igv.numberFormatter(Math.round(end)));
-        });
+        igvBrowser.cursorGuide.setCustomMouseHandler(mouseHandler);
 
         await igvPalette.gotoDefaultLocus();
 
