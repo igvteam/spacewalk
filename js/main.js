@@ -1,4 +1,3 @@
-import igv from '../vendor/igv.esm.js'
 import * as THREE from './threejs_es6/three.module.js';
 import GUIManager from './guiManager.js';
 import SceneManager from './sceneManager.js';
@@ -9,9 +8,10 @@ import StructureSelect from './structureSelect.js';
 import StructureManager from './structureManager.js';
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import IGVPalette from './igvPalette.js';
-import { mouseHandler } from './igvPalette.js';
+import { mouseHandler} from "./igvPalette.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 import { globalEventBus } from './eventBus.js';
+import {lerp, quantize} from "./math.js";
 
 let guiManager;
 
@@ -85,7 +85,6 @@ let main = async container => {
 
     if (igvBrowser) {
 
-        igvBrowser.cursorGuide.setCustomMouseHandler(mouseHandler);
 
         await igvPalette.gotoDefaultLocus();
 
@@ -112,6 +111,10 @@ let main = async container => {
 
                     structure = structureManager.structureWithName(data);
 
+                    igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
+                        mouseHandler({ bp, start, end, interpolant, structureLength: structure.array.length })
+                    });
+
                     sceneManager.dispose();
                     [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(structureManager.path);
 
@@ -131,7 +134,12 @@ let main = async container => {
                     igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
 
                     const initialStructureKey = '0';
+
                     structure = structureManager.structureWithName(initialStructureKey);
+
+                    igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
+                        mouseHandler({ bp, start, end, interpolant, structureLength: structure.array.length })
+                    });
 
                     structureSelect.configure({ structures: structureManager.structures, initialStructureKey });
 
