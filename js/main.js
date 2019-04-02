@@ -30,7 +30,7 @@ let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 let doUpdateCameraPose = true;
 
 let main = async container => {
-    
+
     guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
 
     const sceneManagerSettings =
@@ -143,15 +143,16 @@ let main = async container => {
 
                     doUpdateCameraPose = false;
 
+                } else if ('ToggleUIControls' === type) {
+                    $('.navbar').toggle();
                 }
-
 
             }
         };
 
     globalEventBus.subscribe('DidSelectStructure', eventListener);
     globalEventBus.subscribe('DidLoadFile', eventListener);
-
+    globalEventBus.subscribe("ToggleUIControls", eventListener);
 };
 
 let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
