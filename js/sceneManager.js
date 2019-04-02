@@ -116,7 +116,7 @@ class SceneManager {
         this.scene.background = this.background;
         this.scene.add(this.hemisphereLight);
 
-        this.colorRampPalette.configure({ chr, genomicStart, genomicEnd, structureLength });
+        this.colorRampPalette.configure({ genomicStart, genomicEnd, structureLength });
 
         if (true === doUpdateCameraPose) {
             this.orbitalCamera.setPose({ position: cameraPosition, centroid: structureCentroid });

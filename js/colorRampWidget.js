@@ -5,6 +5,7 @@ import { fitToContainer, getMouseXY } from "./utils.js";
 import { lerp, quantize } from "./math.js";
 import { rgb255, rgb255Lerp, rgb255String } from "./color.js";
 
+let currentSegmentIndex = undefined;
 class ColorRampWidget {
 
     constructor({ palette, namespace, colors, highlightColor }) {
@@ -34,12 +35,12 @@ class ColorRampWidget {
 
         $canvas.on(('mouseenter.trace3d.' + namespace), (event) => {
             event.stopPropagation();
-            this.currentSegmentIndex = undefined;
+            currentSegmentIndex = undefined;
         });
 
         $canvas.on(('mouseleave.trace3d.' + namespace), (event) => {
             event.stopPropagation();
-            this.currentSegmentIndex = undefined;
+            currentSegmentIndex = undefined;
         });
 
         // soak up misc events
@@ -69,14 +70,16 @@ class ColorRampWidget {
 
         const segmentIndex = Math.ceil(one_based);
 
-        if (this.currentSegmentIndex !== segmentIndex) {
-            this.currentSegmentIndex = segmentIndex;
+        this.highlight(segmentIndex);
+
+        if (currentSegmentIndex !== segmentIndex) {
+            currentSegmentIndex = segmentIndex;
             globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
         }
 
     };
 
-    configure({ chr, genomicStart, genomicEnd, structureLength }) {
+    configure({ genomicStart, genomicEnd, structureLength }) {
 
         this.structureLength = structureLength;
 
