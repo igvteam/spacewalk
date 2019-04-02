@@ -5,6 +5,7 @@ import OrbitalCamera from "./orbitalCamera.js";
 import { getMouseXY } from "./utils.js";
 import { specularCubicTexture } from './materialLibrary.js';
 
+let currentStructureCentroid = undefined;
 class SceneManager {
 
     constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPalette, colorRampPaletteColors, renderer, picker, hemisphereLight }) {
@@ -108,7 +109,8 @@ class SceneManager {
 
     }
 
-    configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, centroid, doUpdateCameraPose }) {
+
+    configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose }) {
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
@@ -117,12 +119,17 @@ class SceneManager {
         this.colorRampPalette.configure({ chr, genomicStart, genomicEnd, structureLength });
 
         if (true === doUpdateCameraPose) {
-            this.orbitalCamera.setPose({ position: cameraPosition, centroid });
+            this.orbitalCamera.setPose({ position: cameraPosition, centroid: structureCentroid });
         } else {
-            const delta = this.orbitalCamera.orbitControl.target.clone().sub(this.groundPlane.position);
-            const _centroid = centroid.clone().add(delta);
+
+            // maintain the pre-existing delta between camera target and groundplane beneath stucture
+            const delta = this.orbitalCamera.orbitControl.target.clone().sub(currentStructureCentroid);
+
+            const _centroid = structureCentroid.clone().add(delta);
             this.orbitalCamera.setTarget({ centroid: _centroid });
         }
+
+        currentStructureCentroid = structureCentroid.clone();
 
         let dimen = 0.5 * Math.max(structureExtent.x, structureExtent.y, structureExtent.z);
         dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
@@ -132,10 +139,16 @@ class SceneManager {
         // Add camera to scene. This is need to allow lights to be attached to camera
         this.scene.add( this.orbitalCamera.camera );
 
-        // const thang = this.scene.getObjectByName( this.orbitalCamera.name() );
-        // console.log('camera name ' + thang.name);
+        // const thang = this.scene.getObjectByName( 'groundplane' );
+        // console.log('groundplane ' + thang.name);
 
-        this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
+        // position groundplane beneath structure along the vertical (y) axis.
+        let wye = structureCentroid.y - (structureExtent.y/2.0);
+
+        const fudge = 4e-2;
+        wye -= fudge * structureExtent.y;
+        this.groundPlane.position.set(structureCentroid.x, wye, structureCentroid.z);
+
         this.scene.add( this.groundPlane );
 
     }
