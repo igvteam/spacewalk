@@ -7,7 +7,7 @@
   width: 512px;
   height: 512px;
   border-color: #a09fa0;
-  background-color: rgba(255, 255, 255, 0.65);
+  background-color: #ffffff;
   user-select: none; }
   .card .card-body {
     display: flex;
@@ -29,11 +29,6 @@
       background-color: transparent; }
       .card .card-body .trace3d_card_drag_container i.fa-grip-lines {
         display: block; }
-
-.card:hover {
-  border-width: 2px;
-  border-color: #6e6e6e;
-  background-color: #ffffff; }
 
 #trace3d_navbar {
   position: absolute;

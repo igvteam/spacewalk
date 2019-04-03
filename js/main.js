@@ -9,9 +9,9 @@ import StructureManager from './structureManager.js';
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import IGVPalette from './igvPalette.js';
 import { mouseHandler} from "./igvPalette.js";
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonColorRGB255 } from './color.js';
 import { globalEventBus } from './eventBus.js';
-import {lerp, quantize} from "./math.js";
+import ColorRampPalette from "./colorRampPalette.js";
 
 let guiManager;
 
@@ -33,37 +33,6 @@ let main = async container => {
 
     guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
 
-    const sceneManagerSettings =
-        {
-            container: container,
-
-            ballRadius: 24,
-
-            // stickMaterial: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
-            stickMaterial: new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
-
-            backgroundColor: appleCrayonColorThreeJS('mercury'),
-            // backgroundColor: rgb255ToThreeJSColor(195, 236, 255),
-
-            groundPlaneColor: appleCrayonColorHexValue('steel'),
-
-            colorRampPalette: $('#trace3d_color_ramp_palette').get(0),
-
-            colorRampPaletteColors: [ appleCrayonColorRGB255('honeydew'), appleCrayonColorRGB255('clover') ],
-
-            renderer: new THREE.WebGLRenderer({ antialias: true }),
-
-            picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(appleCrayonColorThreeJS('maraschino')) } ),
-
-            // skyColor | grundColor | intensity
-            // hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('sky'), appleCrayonColorHexValue('moss'), 1 )
-            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 )
-        };
-
-    sceneManager = new SceneManager(sceneManagerSettings);
-
-    structureManager = new StructureManager();
-
     dataFileLoader = new DataFileLoader({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
 
     structureSelect = new StructureSelect({ container, palette: $('#trace3d_structure_select_palette').get(0) });
@@ -84,21 +53,50 @@ let main = async container => {
     let igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
 
     if (igvBrowser) {
-
-
-        await igvPalette.gotoDefaultLocus();
-
-        // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
-        // const url =                  'https://www.dropbox.com/s/cj909wdtckjsptx/ENCFF079FWO.bigBed?dl=0';
-
-        // const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
-        const url =                     'https://www.dropbox.com/s/ay6x1im4s1didp2/ENCFF298BFT.bigWig?dl=0';
-
-        await igvPalette.loadTrack(url);
-
+        await igvPalette.defaultConfiguration();
     }
 
+    const highlightColor = appleCrayonColorThreeJS('maraschino');
+
+    const colorRampPaletteConfig =
+        {
+            container,
+            palette: $('#trace3d_color_ramp_palette').get(0),
+            colors:
+                [
+                    appleCrayonColorRGB255('honeydew'),
+                    appleCrayonColorRGB255('clover')
+                ],
+            highlightColor
+        };
+
+    const sceneManagerConfig =
+        {
+            container: container,
+
+            ballRadius: 24,
+
+            stickMaterial: new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
+
+            backgroundColor: appleCrayonColorThreeJS('mercury'),
+
+            groundPlaneColor: appleCrayonColorHexValue('steel'),
+
+            colorRampPalette: new ColorRampPalette(colorRampPaletteConfig),
+
+            renderer: new THREE.WebGLRenderer({ antialias: true }),
+
+            picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
+
+            // skyColor | groundColor | intensity
+            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 )
+        };
+
+    sceneManager = new SceneManager(sceneManagerConfig);
+
     sceneManager.defaultConfiguration();
+
+    structureManager = new StructureManager();
 
     renderLoop();
 
@@ -217,7 +215,7 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
         if (!doSkip) {
 
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-            const stickGeometry = new THREE.TubeGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
+            const stickGeometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
 
             const stickMesh = new THREE.Mesh(stickGeometry, sceneManager.stickMaterial);
             stickMesh.name = 'stick';

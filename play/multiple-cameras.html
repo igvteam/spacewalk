@@ -72,12 +72,10 @@
 								0
 							],
 					fov: 30,
-					updateCamera: function ( camera, scene, mouseX ) {
-
+					updateCamera: ( camera, scene, mouseX ) => {
 						camera.position.x += mouseX * 0.05;
 						camera.position.x = Math.max( Math.min( camera.position.x, 2000 ), - 2000 );
 						camera.lookAt( scene.position );
-
 					}
 				},
 				{
@@ -99,12 +97,10 @@
 								1
 							],
 					fov: 45,
-					updateCamera: function ( camera, scene, mouseX ) {
-
+					updateCamera: ( camera, scene, mouseX ) => {
 						camera.position.x -= mouseX * 0.05;
 						camera.position.x = Math.max( Math.min( camera.position.x, 2000 ), - 2000 );
 						camera.lookAt( camera.position.clone().setY( 0 ) );
-
 					}
 				},
 				{
@@ -126,12 +122,10 @@
 								0
 							],
 					fov: 60,
-					updateCamera: function ( camera, scene, mouseX ) {
-
+					updateCamera: ( camera, scene, mouseX ) => {
 						camera.position.y -= mouseX * 0.05;
 						camera.position.y = Math.max( Math.min( camera.position.y, 1600 ), - 1600 );
 						camera.lookAt( scene.position );
-
 					}
 				}
 			];
@@ -143,16 +137,6 @@
 
 		container = document.getElementById( 'container' );
 
-		// for ( var ii = 0; ii < views.length; ++ ii ) {
-		//
-		// 	var view = views[ ii ];
-		// 	var camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
-		// 	camera.position.fromArray( view.eye );
-		// 	camera.up.fromArray( view.up );
-		// 	view.camera = camera;
-		//
-		// }
-
 		for (let view of views) {
 			view.camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
 			view.camera.position.fromArray( view.eye );
@@ -161,46 +145,13 @@
 
 		scene = new THREE.Scene();
 
-		var directionalLight = new THREE.DirectionalLight( 0xffffff );
+		let directionalLight = new THREE.DirectionalLight( 0xffffff );
 		directionalLight.position.set( 0, 0, 1 );
 		scene.add( directionalLight );
 
-		// shadow
-		var canvas = document.createElement( 'canvas' );
-		canvas.width = 128;
-		canvas.height = 128;
+		let color = new THREE.Color();
 
-		var context = canvas.getContext( '2d' );
-		var gradient = context.createRadialGradient( canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2 );
-		gradient.addColorStop( 0.1, 'rgba(0,0,0,0.15)' );
-		gradient.addColorStop( 1, 'rgba(0,0,0,0)' );
-
-		context.fillStyle = gradient;
-		context.fillRect( 0, 0, canvas.width, canvas.height );
-
-		var shadowMaterial = new THREE.MeshBasicMaterial( { map: new THREE.CanvasTexture( canvas ), transparent: true } );
-		var shadowGeo = new THREE.PlaneBufferGeometry( 300, 300, 1, 1 );
-
-		var shadowMesh;
-
-		shadowMesh = new THREE.Mesh( shadowGeo, shadowMaterial );
-		shadowMesh.position.y = - 250;
-		shadowMesh.rotation.x = - Math.PI / 2;
-		scene.add( shadowMesh );
-
-		shadowMesh = new THREE.Mesh( shadowGeo, shadowMaterial );
-		shadowMesh.position.x = - 400;
-		shadowMesh.position.y = - 250;
-		shadowMesh.rotation.x = - Math.PI / 2;
-		scene.add( shadowMesh );
-
-		shadowMesh = new THREE.Mesh( shadowGeo, shadowMaterial );
-		shadowMesh.position.x = 400;
-		shadowMesh.position.y = - 250;
-		shadowMesh.rotation.x = - Math.PI / 2;
-		scene.add( shadowMesh );
-
-		var radius = 200;
+		const radius = 200;
 
 		var geometry1 = new THREE.IcosahedronBufferGeometry( radius, 1 );
 
@@ -210,7 +161,6 @@
 		var geometry2 = geometry1.clone();
 		var geometry3 = geometry1.clone();
 
-		var color = new THREE.Color();
 		var positions1 = geometry1.attributes.position;
 		var positions2 = geometry2.attributes.position;
 		var positions3 = geometry3.attributes.position;
@@ -240,22 +190,27 @@
 
 		var wireframeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } );
 
-		var mesh = new THREE.Mesh( geometry1, material );
-		var wireframe = new THREE.Mesh( geometry1, wireframeMaterial );
+		let mesh;
+		let wireframe;
+
+		//
+		mesh = new THREE.Mesh( geometry1, material );
+		wireframe = new THREE.Mesh( geometry1, wireframeMaterial );
 		mesh.add( wireframe );
-		mesh.position.x = - 400;
-		mesh.rotation.x = - 1.87;
+		mesh.position.x = -400;
 		scene.add( mesh );
 
-		var mesh = new THREE.Mesh( geometry2, material );
-		var wireframe = new THREE.Mesh( geometry2, wireframeMaterial );
+		//
+		mesh = new THREE.Mesh( geometry2, material );
+		wireframe = new THREE.Mesh( geometry2, wireframeMaterial );
+		mesh.add( wireframe );
+		scene.add( mesh );
+
+		//
+		mesh = new THREE.Mesh( geometry3, material );
+		wireframe = new THREE.Mesh( geometry3, wireframeMaterial );
 		mesh.add( wireframe );
 		mesh.position.x = 400;
-		scene.add( mesh );
-
-		var mesh = new THREE.Mesh( geometry3, material );
-		var wireframe = new THREE.Mesh( geometry3, wireframeMaterial );
-		mesh.add( wireframe );
 		scene.add( mesh );
 
 		renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -271,21 +226,16 @@
 	}
 
 	function onDocumentMouseMove( event ) {
-
 		mouseX = ( event.clientX - windowWidth / 2 );
 		mouseY = ( event.clientY - windowHeight / 2 );
-
 	}
 
 	function updateSize() {
 
 		if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight ) {
-
 			windowWidth = window.innerWidth;
 			windowHeight = window.innerHeight;
-
 			renderer.setSize( windowWidth, windowHeight );
-
 		}
 
 	}
@@ -303,12 +253,9 @@
 
 		updateSize();
 
-		for ( var ii = 0; ii < views.length; ++ ii ) {
+		for (let view of views) {
 
-			var view = views[ ii ];
-			var camera = view.camera;
-
-			view.updateCamera( camera, scene, mouseX, mouseY );
+			view.updateCamera( view.camera, scene, mouseX, mouseY );
 
 			var left = Math.floor( windowWidth * view.left );
 			var bottom = Math.floor( windowHeight * view.bottom );
@@ -320,10 +267,10 @@
 			renderer.setScissorTest( true );
 			renderer.setClearColor( view.background );
 
-			camera.aspect = width / height;
-			camera.updateProjectionMatrix();
+			view.camera.aspect = width / height;
+			view.camera.updateProjectionMatrix();
 
-			renderer.render( scene, camera );
+			renderer.render( scene, view.camera );
 
 		}
 

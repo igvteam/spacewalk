@@ -1,6 +1,5 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
-import ColorRampPalette from "./colorRampPalette.js";
 import OrbitalCamera from "./orbitalCamera.js";
 import { getMouseXY } from "./utils.js";
 import { specularCubicTexture } from './materialLibrary.js';
@@ -8,10 +7,10 @@ import { specularCubicTexture } from './materialLibrary.js';
 let currentStructureCentroid = undefined;
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPalette, colorRampPaletteColors, renderer, picker, hemisphereLight }) {
+    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPalette, renderer, picker, hemisphereLight }) {
 
         this.ballRadius = ballRadius;
-        this.ballGeometry = new THREE.SphereGeometry(ballRadius, 32, 16);
+        this.ballGeometry = new THREE.SphereBufferGeometry(ballRadius, 32, 16);
 
         this.stickMaterial = stickMaterial;
 
@@ -28,7 +27,7 @@ class SceneManager {
 
         this.renderer = renderer;
 
-        this.colorRampPalette = new ColorRampPalette({ container, palette: colorRampPalette, colors: colorRampPaletteColors, highlightColor: picker.pickHighlighter.highlightColor });
+        this.colorRampPalette = colorRampPalette;
 
         this.picker = picker;
 
@@ -99,7 +98,12 @@ class SceneManager {
         // Nice numbers
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
         this.groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, this.groundPlaneColor, this.groundPlaneColor);
+
+        this.groundPlane.material.opacity = 0.25;
+        this.groundPlane.material.transparent = true;
+
         this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
+
         this.groundPlane.name = 'groundplane';
 
         // TODO: Support toggling groundplane

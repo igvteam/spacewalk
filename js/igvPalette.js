@@ -77,6 +77,20 @@ class IGVPalette {
         await this.browser.goto(chr, start, end);
     }
 
+    async defaultConfiguration () {
+
+        await this.gotoDefaultLocus();
+
+        // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
+        // const url = 'https://www.dropbox.com/s/cj909wdtckjsptx/ENCFF079FWO.bigBed?dl=0';
+
+        // const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
+        const url = 'https://www.dropbox.com/s/ay6x1im4s1didp2/ENCFF298BFT.bigWig?dl=0';
+
+        await this.loadTrack(url);
+
+    }
+
     async gotoDefaultLocus() {
         await this.goto({ chr:'chr21', start:28e6, end:30e6 });
     }
