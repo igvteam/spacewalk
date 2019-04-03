@@ -99,7 +99,12 @@ class SceneManager {
         // Nice numbers
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
         this.groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, this.groundPlaneColor, this.groundPlaneColor);
+
+        this.groundPlane.material.opacity = 0.25;
+        this.groundPlane.material.transparent = true;
+
         this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
+
         this.groundPlane.name = 'groundplane';
 
         // TODO: Support toggling groundplane

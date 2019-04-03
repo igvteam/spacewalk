@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - geometry - catmull spline editor</title>
+		<title>Drop Shadow</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
@@ -24,16 +24,14 @@
 	<body>
 
 		<div id="container"></div>
-		<div id="info"><a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - geometry - catmull spline editor</div>
 
-		<script src="../js/three.js"></script>
+		<script src="js/three.js"></script>
 
-		<script src="../js/controls/DragControls.js"></script>
-		<script src="../js/controls/OrbitControls.js"></script>
-		<script src="../js/controls/TransformControls.js"></script>
+		<script src="js/controls/DragControls.js"></script>
+		<script src="js/controls/OrbitControls.js"></script>
+		<script src="js/controls/TransformControls.js"></script>
 
-		<script src="../js/libs/stats.min.js"></script>
-		<script src="../js/libs/dat.gui.min.js"></script>
+		<script src="js/libs/dat.gui.min.js"></script>
 
 		<script>
 
@@ -50,7 +48,7 @@
 
 			};
 
-			var container, stats;
+			var container;
 			var camera, scene, renderer;
 			var splineHelperObjects = [];
 			var splinePointsLength = 4;
@@ -91,15 +89,12 @@
 				// Ambient
 				scene.add( new THREE.AmbientLight( 0xf0f0f0 ) );
 
-				// Spot
+				// Spotlight
 				let spotLight = new THREE.SpotLight( 0xffffff, 1.5 );
 				spotLight.position.set( 0, 1500, 200 );
 				spotLight.castShadow = true;
 
-				const shadowCamera = new THREE.PerspectiveCamera( 70, 1, 200, 2000 );
-				const shadow = new THREE.LightShadow( shadowCamera );
-				shadow.bias = - 0.000222;
-
+				// Spotlight Shadow Configuration
 				spotLight.shadow.mapSize.width = 1024;
 				spotLight.shadow.mapSize.height = 1024;
 				spotLight.shadow.radius = 1.5;
@@ -107,41 +102,40 @@
 				spotLight.shadow.camera.far = 2000;
 				scene.add( spotLight );
 
+				// Visualize shadow placement
 				const shadowHelper = new THREE.CameraHelper( spotLight.shadow.camera );
 				scene.add( shadowHelper );
-
 
 				const dimen = 2000;
 				const translation = -200;
 
-				var planeGeometry = new THREE.PlaneBufferGeometry( dimen, dimen );
+				const planeGeometry = new THREE.PlaneBufferGeometry( dimen, dimen );
 				planeGeometry.rotateX( - Math.PI / 2 );
-				var shadowMaterial = new THREE.ShadowMaterial( { opacity: 0.2 } );
 
-				var planeMesh = new THREE.Mesh( planeGeometry, shadowMaterial );
+				const shadowMaterial = new THREE.ShadowMaterial( { opacity: 0.2 } );
+
+				const planeMesh = new THREE.Mesh( planeGeometry, shadowMaterial );
 				planeMesh.position.y = translation;
 				planeMesh.receiveShadow = true;
+
 				scene.add( planeMesh );
 
-				// place grid just above the show receiving plane
+				// place grid just above shadow receiving planeMesh
 				var gridHelper = new THREE.GridHelper( dimen, 100 );
 				gridHelper.position.y = translation + 1;
 				gridHelper.material.opacity = 0.25;
 				gridHelper.material.transparent = true;
 				scene.add( gridHelper );
 
-				//var axes = new THREE.AxesHelper( 1000 );
-				//axes.position.set( - 500, - 500, - 500 );
-				//scene.add( axes );
+				// const axes = new THREE.AxesHelper( 1000 );
+				// axes.position.set( - 500, - 500, - 500 );
+				// scene.add( axes );
 
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.shadowMap.enabled = true;
 				container.appendChild( renderer.domElement );
-
-				stats = new Stats();
-				container.appendChild( stats.dom );
 
 				var gui = new dat.GUI();
 
@@ -427,11 +421,8 @@
 			}
 
 			function animate() {
-
 				requestAnimationFrame( animate );
 				render();
-				stats.update();
-
 			}
 
 			function render() {
