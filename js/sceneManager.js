@@ -11,7 +11,7 @@ class SceneManager {
     constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPalette, colorRampPaletteColors, renderer, picker, hemisphereLight }) {
 
         this.ballRadius = ballRadius;
-        this.ballGeometry = new THREE.SphereGeometry(ballRadius, 32, 16);
+        this.ballGeometry = new THREE.SphereBufferGeometry(ballRadius, 32, 16);
 
         this.stickMaterial = stickMaterial;
 
