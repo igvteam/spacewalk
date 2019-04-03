@@ -11,7 +11,6 @@ import IGVPalette from './igvPalette.js';
 import { mouseHandler} from "./igvPalette.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, rgb255ToThreeJSColor, appleCrayonColorRGB255 } from './color.js';
 import { globalEventBus } from './eventBus.js';
-import {lerp, quantize} from "./math.js";
 
 let guiManager;
 
@@ -84,18 +83,7 @@ let main = async container => {
     let igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
 
     if (igvBrowser) {
-
-
-        await igvPalette.gotoDefaultLocus();
-
-        // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
-        // const url =                  'https://www.dropbox.com/s/cj909wdtckjsptx/ENCFF079FWO.bigBed?dl=0';
-
-        // const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
-        const url =                     'https://www.dropbox.com/s/ay6x1im4s1didp2/ENCFF298BFT.bigWig?dl=0';
-
-        await igvPalette.loadTrack(url);
-
+        await igvPalette.defaultConfiguration();
     }
 
     sceneManager.defaultConfiguration();
