@@ -119,9 +119,7 @@
 
 			}
 
-			var extrudePath = splines[ params.spline ];
-
-			tubeGeometry = new THREE.TubeBufferGeometry( extrudePath, params.extrusionSegments, 2, params.radiusSegments, params.closed );
+			tubeGeometry = new THREE.TubeBufferGeometry( splines[ params.spline ], params.extrusionSegments, 2, params.radiusSegments, params.closed );
 
 			addGeometry( tubeGeometry );
 
