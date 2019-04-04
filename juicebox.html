@@ -1,134 +1,116 @@
-<!--
-  ~  The MIT License (MIT)
-  ~
-  ~ Copyright (c) 2016-2017 The Regents of the University of California
-  ~
-  ~ Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-  ~ associated documentation files (the "Software"), to deal in the Software without restriction, including
-  ~ without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  ~ copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
-  ~ following conditions:
-  ~
-  ~ The above copyright notice and this permission notice shall be included in all copies or substantial
-  ~ portions of the Software.
-  ~
-  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-  ~ BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND
-  ~ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-  ~ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-  ~ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-  ~ THE SOFTWARE.
-  ~
-  -->
-
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <title>Juicebox</title>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="icon" type="image/png" href="http://aidenlab.org/favicon.ico">
 
-    <!-- MS polyfill (pointer -> touch -->
-    <script src="js/touchpolyfill.min.js"></script>
+    <script src="vendor/touchpolyfill.min.js"></script>
 
-    <!-- Font Awesome CSS-->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+    <!-- font awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 
     <!-- Juicebox CSS-->
-    <link rel="stylesheet" type="text/css" href="css/juicebox.css">
+    <link rel="stylesheet" type="text/css" href="vendor/juicebox.css">
 
     <!-- IGV JS -->
     <script src="https://cdn.jsdelivr.net/npm/igv@2.2.6/dist/igv.min.js"></script>
 
     <!-- Juicebox JS -->
-    <script src="js/juicebox.min.js"></script>
-    <script src="js/hic-straw.js"></script>
+    <script src="vendor/juicebox_tracing3d.js"></script>
+    <script src="vendor/hic-straw.js"></script>
 
 </head>
 
 <body>
 
 
-<div id="app-container" class="juicebox-app-clone-container"></div>
+<div id="juicebox-container" class="juicebox-app-clone-container"></div>
 
 
 <script type="text/javascript">
 
+    document.addEventListener("DOMContentLoaded", async () => {
 
-    document.addEventListener("DOMContentLoaded", function () {
+        const urlShortenerConfig =
+            [
+                {
+                    provider: "bitly",
+                    apiKey: "ABCD",        // TODO -- replace with your Bitly access token
+                    hostname: 'bit.ly'
+                },
+                {
+                    provider: "google",
+                    apiKey: "ABCD",        // TODO -- replace with your Google API Key
+                    hostname: "goo.gl"
+                }
+            ];
 
+        hic.setURLShortener(urlShortenerConfig);
 
-        var query = hic.extractQuery(window.location.href);
-        var container = document.getElementById("app-container");
-
-        hic.setURLShortener([
-            {
-                provider: "bitly",
-                apiKey: "ABCD",        // TODO -- replace with your Bitly access token
-                hostname: 'bit.ly'
-            },
-            {
-                provider: "google",
-                apiKey: "ABCD",        // TODO -- replace with your Google API Key
-                hostname: "goo.gl"
-            }
-        ]);
-
+        let query = hic.extractQuery(window.location.href);
 
         if (query && query.hasOwnProperty("juiceboxURL")) {
 
-            hic.expandURL(query["juiceboxURL"])
-                .then(function (jbURL) {
+            let jbURL = await hic.expandURL(query["juiceboxURL"]);
+            query = hic.extractQuery(jbURL);
 
-                    query = hic.extractQuery(jbURL);
-                    createBrowsers(query);
-
-                });
-        }
-        else {
-            createBrowsers(query);
+            await createBrowsers(document.getElementById("juicebox-container"), query);
+        } else {
+            await createBrowsers(document.getElementById("juicebox-container"), query);
         }
 
-        function createBrowsers(query) {
+    });
 
-            var parts, q, config;
 
-            config = {};
+    let createBrowsers = async (container, query) => {
 
-            if (query && query.hasOwnProperty("juicebox")) {
-                q = query["juicebox"];
+        let config;
 
-                if (q.startsWith("%7B")) {
-                    q = decodeURIComponent(q);
-                }
+        config =
+            {
+                figureMode: true,
+                width: 480,
+                height: 480
+            };
 
-                q = q.substr(1, q.length - 2);  // Strip leading and trailing bracket
-                parts = q.split("},{");
+        if (query && query.hasOwnProperty( 'juicebox' )) {
 
-                config.href = decodeURIComponent(parts[0]);
+            let q = query[ 'juicebox' ];
 
-                hic.createBrowser(container, config);
-
-                if (parts && parts.length > 1) {
-                    for (i = 1; i < parts.length; i++) {
-                        config = Object.assign({}, config);
-                        config.href = decodeURIComponent(parts[i]);
-                        hic.createBrowser(container, config, syncBrowsers);
-                    }
-                }
-            } else {
-                hic.createBrowser(container, config);
+            if (q.startsWith("%7B")) {
+                q = decodeURIComponent(q);
             }
+
+            q = q.substr(1, q.length - 2);
+
+            let parts = q.split("},{");
+            config.href = decodeURIComponent(parts[0]);
+
+            hic.createBrowser(container, config);
+
+            if (parts && parts.length > 1) {
+
+                for (let part of parts) {
+
+                    config = Object.assign({}, config);
+                    config.href = decodeURIComponent(part);
+
+                    await hic.createBrowser(container, config, syncBrowsers);
+                }
+
+            }
+
+        } else {
+            await hic.createBrowser(container, config);
         }
+    };
 
-        function syncBrowsers() {
-            hic.syncBrowsers(hic.allBrowsers);
-        }
-
-    })
-
+    let syncBrowsers = () => {
+        hic.syncBrowsers(hic.allBrowsers);
+    };
 
 </script>
 
