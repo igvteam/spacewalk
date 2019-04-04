@@ -8,6 +8,7 @@ import StructureSelect from './structureSelect.js';
 import StructureManager from './structureManager.js';
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import IGVPalette from './igvPalette.js';
+import JuiceboxPalette from './juiceboxPalette.js';
 import { mouseHandler} from "./igvPalette.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonColorRGB255 } from './color.js';
 import { globalEventBus } from './eventBus.js';
@@ -23,6 +24,8 @@ let dataFileLoader;
 
 let igvPalette;
 
+let juiceboxPalette;
+
 let sceneManager;
 
 let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
@@ -36,6 +39,18 @@ let main = async container => {
     dataFileLoader = new DataFileLoader({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
 
     structureSelect = new StructureSelect({ container, palette: $('#trace3d_structure_select_palette').get(0) });
+
+    juiceboxPalette = new JuiceboxPalette({ container, palette: $('#trace3d_juicebox_palette').get(0) });
+
+    const juiceboxBrowserConfig =
+        {
+            container: $('#trace3d_juicebox_root_container'),
+            figureMode: true,
+            width: 480,
+            height: 480
+        };
+
+    let juiceboxBrowser = await juiceboxPalette.createBrowser(juiceboxBrowserConfig);
 
     igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
 

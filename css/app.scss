@@ -31,7 +31,43 @@ $trace3d_ui_manager_button_top: 32px + $trace3d_navbar_height;
 $trace3d_ui_manager_panel_top: 48px + $trace3d_ui_manager_button_top;
 $trace3d_ui_manager_left: 32px;
 
+// three.js canvas container
+#trace3d_canvas_container {
+
+  width: 100%;
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: fill-available;
+
+  height: 100%;
+  height: -moz-available;
+  height: -webkit-fill-available;
+  height: fill-available;
+
+  overflow: hidden;
+
+  //background-color: $trace3d_strawberry;
+}
+
 .navbar {
+  background-color: $trace3d_iron;
+}
+
+#trace3d_navbar {
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  z-index: 1024;
+
+  width: 100%;
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: fill-available;
+
+  height: 64px;
+
   background-color: $trace3d_iron;
 }
 
@@ -82,46 +118,27 @@ $trace3d_ui_manager_left: 32px;
 
 }
 
-//.card:hover {
-//  border-width: 2px;
-//  border-color: $trace3d_steel;
-//  background-color: $trace3d_snow;
-//}
+// juicebox palette
+#trace3d_juicebox_palette.card {
 
-#trace3d_navbar {
+  width: auto;
+  height: auto;
 
-  position: absolute;
-  top: 0;
-  left: 0;
+  align-items: center;
 
-  z-index: 1024;
+  #trace3d_juicebox_root_container {
+    width: 100%;
+    height: 100%;
+    //background-color: $trace3d_strawberry;
 
-  width: 100%;
-  width: -moz-available;
-  width: -webkit-fill-available;
-  width: fill-available;
+    .hic-root {
+      margin: 0;
+      border-color: transparent;
+      border-width: thin;
+      border-radius: .25rem;
+    }
+  }
 
-  height: 64px;
-
-  background-color: $trace3d_iron;
-}
-
-// three.js canvas container
-#trace3d_canvas_container {
-
-  width: 100%;
-  width: -moz-available;
-  width: -webkit-fill-available;
-  width: fill-available;
-
-  height: 100%;
-  height: -moz-available;
-  height: -webkit-fill-available;
-  height: fill-available;
-
-  overflow: hidden;
-
-  //background-color: $trace3d_strawberry;
 }
 
 // ui manager

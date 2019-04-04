@@ -50,66 +50,15 @@
 
         hic.setURLShortener(urlShortenerConfig);
 
-        let query = hic.extractQuery(window.location.href);
-
-        if (query && query.hasOwnProperty("juiceboxURL")) {
-
-            let jbURL = await hic.expandURL(query["juiceboxURL"]);
-            query = hic.extractQuery(jbURL);
-
-            await createBrowsers(document.getElementById("juicebox-container"), query);
-        } else {
-            await createBrowsers(document.getElementById("juicebox-container"), query);
-        }
-
-    });
-
-    let createBrowsers = async (container, query) => {
-
-        let config;
-
-        config =
+        const config =
             {
                 figureMode: true,
                 width: 480,
                 height: 480
             };
 
-        if (query && query.hasOwnProperty( 'juicebox' )) {
-
-            let q = query[ 'juicebox' ];
-
-            if (q.startsWith("%7B")) {
-                q = decodeURIComponent(q);
-            }
-
-            q = q.substr(1, q.length - 2);
-
-            let parts = q.split("},{");
-            config.href = decodeURIComponent(parts[0]);
-
-            hic.createBrowser(container, config);
-
-            if (parts && parts.length > 1) {
-
-                for (let part of parts) {
-
-                    config = Object.assign({}, config);
-                    config.href = decodeURIComponent(part);
-
-                    await hic.createBrowser(container, config, syncBrowsers);
-                }
-
-            }
-
-        } else {
-            await hic.createBrowser(container, config);
-        }
-    };
-
-    let syncBrowsers = () => {
-        hic.syncBrowsers(hic.allBrowsers);
-    };
+        await hic.createBrowser(document.getElementById("juicebox-container"), config);
+    });
 
 </script>
 
