@@ -86,50 +86,34 @@
 				camera.position.set( 0, 250, 1000 );
 				scene.add( camera );
 
-				// Ambient
 				scene.add( new THREE.AmbientLight( 0xf0f0f0 ) );
+				var light = new THREE.SpotLight( 0xffffff, 1.5 );
+				light.position.set( 0, 1500, 200 );
+				light.castShadow = true;
+				light.shadow = new THREE.LightShadow( new THREE.PerspectiveCamera( 70, 1, 200, 2000 ) );
+				light.shadow.bias = - 0.000222;
+				light.shadow.mapSize.width = 1024;
+				light.shadow.mapSize.height = 1024;
+				scene.add( light );
 
-				// Spotlight
-				let spotLight = new THREE.SpotLight( 0xffffff, 1.5 );
-				spotLight.position.set( 0, 1500, 200 );
-				spotLight.castShadow = true;
-
-				// Spotlight Shadow Configuration
-				spotLight.shadow.mapSize.width = 1024;
-				spotLight.shadow.mapSize.height = 1024;
-				spotLight.shadow.radius = 1.5;
-				spotLight.shadow.camera.near = 800;
-				spotLight.shadow.camera.far = 2000;
-				scene.add( spotLight );
-
-				// Visualize shadow placement
-				const shadowHelper = new THREE.CameraHelper( spotLight.shadow.camera );
-				scene.add( shadowHelper );
-
-				const dimen = 2000;
-				const translation = -200;
-
-				const planeGeometry = new THREE.PlaneBufferGeometry( dimen, dimen );
+				var planeGeometry = new THREE.PlaneBufferGeometry( 2000, 2000 );
 				planeGeometry.rotateX( - Math.PI / 2 );
+				var planeMaterial = new THREE.ShadowMaterial( { opacity: 0.2 } );
 
-				const shadowMaterial = new THREE.ShadowMaterial( { opacity: 0.2 } );
+				var plane = new THREE.Mesh( planeGeometry, planeMaterial );
+				plane.position.y = - 200;
+				plane.receiveShadow = true;
+				scene.add( plane );
 
-				const planeMesh = new THREE.Mesh( planeGeometry, shadowMaterial );
-				planeMesh.position.y = translation;
-				planeMesh.receiveShadow = true;
+				var helper = new THREE.GridHelper( 2000, 100 );
+				helper.position.y = - 199;
+				helper.material.opacity = 0.25;
+				helper.material.transparent = true;
+				scene.add( helper );
 
-				scene.add( planeMesh );
-
-				// place grid just above shadow receiving planeMesh
-				var gridHelper = new THREE.GridHelper( dimen, 100 );
-				gridHelper.position.y = translation + 1;
-				gridHelper.material.opacity = 0.25;
-				gridHelper.material.transparent = true;
-				scene.add( gridHelper );
-
-				// const axes = new THREE.AxesHelper( 1000 );
-				// axes.position.set( - 500, - 500, - 500 );
-				// scene.add( axes );
+				//var axes = new THREE.AxesHelper( 1000 );
+				//axes.position.set( - 500, - 500, - 500 );
+				//scene.add( axes );
 
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -145,7 +129,7 @@
 					splines.uniform.tension = value;
 					updateSplineOutline();
 
-	} );
+				} );
 				gui.add( params, 'centripetal' );
 				gui.add( params, 'chordal' );
 				gui.add( params, 'addPoint' );
@@ -176,7 +160,7 @@
 
 					controls.enabled = ! event.value;
 
-	} );
+				} );
 				scene.add( transformControl );
 
 				// Hiding transform situation is a little in a mess :()
@@ -421,6 +405,7 @@
 			}
 
 			function animate() {
+
 				requestAnimationFrame( animate );
 				render();
 			}

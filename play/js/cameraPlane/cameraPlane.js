@@ -1,8 +1,8 @@
-import * as THREE from '../../js/threejs_es6/three.module.js';
-import OrbitControls from '../../js/threejs_es6/orbit-controls-es6.js';
-import CubicMapManager from '../../js/cubicMapManager.js';
-import { appleCrayonColorThreeJS, appleCrayonColorHexValue } from '../../js/color.js';
-import { prettyMatrix4Print } from '../../js/math.js';
+import * as THREE from '../../../js/threejs_es6/three.module.js';
+import OrbitControls from '../../../js/threejs_es6/orbit-controls-es6.js';
+import CubicMapManager from '../../../js/cubicMapManager.js';
+import { appleCrayonColorThreeJS, appleCrayonColorHexValue } from '../../../js/color.js';
+import { prettyMatrix4Print } from '../../../js/math.js';
 
 let scene;
 let renderer;

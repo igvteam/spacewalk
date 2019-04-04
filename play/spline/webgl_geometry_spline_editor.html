@@ -50,7 +50,7 @@
 
 			};
 
-			var container, stats;
+			var container;
 			var camera, scene, renderer;
 			var splineHelperObjects = [];
 			var splinePointsLength = 4;
@@ -88,47 +88,30 @@
 				camera.position.set( 0, 250, 1000 );
 				scene.add( camera );
 
-				// Ambient
 				scene.add( new THREE.AmbientLight( 0xf0f0f0 ) );
+				var light = new THREE.SpotLight( 0xffffff, 1.5 );
+				light.position.set( 0, 1500, 200 );
+				light.castShadow = true;
+				light.shadow = new THREE.LightShadow( new THREE.PerspectiveCamera( 70, 1, 200, 2000 ) );
+				light.shadow.bias = - 0.000222;
+				light.shadow.mapSize.width = 1024;
+				light.shadow.mapSize.height = 1024;
+				scene.add( light );
 
-				// Spot
-				let spotLight = new THREE.SpotLight( 0xffffff, 1.5 );
-				spotLight.position.set( 0, 1500, 200 );
-				spotLight.castShadow = true;
-
-				const shadowCamera = new THREE.PerspectiveCamera( 70, 1, 200, 2000 );
-				const shadow = new THREE.LightShadow( shadowCamera );
-				shadow.bias = - 0.000222;
-
-				spotLight.shadow.mapSize.width = 1024;
-				spotLight.shadow.mapSize.height = 1024;
-				spotLight.shadow.radius = 1.5;
-				spotLight.shadow.camera.near = 800;
-				spotLight.shadow.camera.far = 2000;
-				scene.add( spotLight );
-
-				const shadowHelper = new THREE.CameraHelper( spotLight.shadow.camera );
-				scene.add( shadowHelper );
-
-
-				const dimen = 2000;
-				const translation = -200;
-
-				var planeGeometry = new THREE.PlaneBufferGeometry( dimen, dimen );
+				var planeGeometry = new THREE.PlaneBufferGeometry( 2000, 2000 );
 				planeGeometry.rotateX( - Math.PI / 2 );
-				var shadowMaterial = new THREE.ShadowMaterial( { opacity: 0.2 } );
+				var planeMaterial = new THREE.ShadowMaterial( { opacity: 0.2 } );
 
-				var planeMesh = new THREE.Mesh( planeGeometry, shadowMaterial );
-				planeMesh.position.y = translation;
-				planeMesh.receiveShadow = true;
-				scene.add( planeMesh );
+				var plane = new THREE.Mesh( planeGeometry, planeMaterial );
+				plane.position.y = - 200;
+				plane.receiveShadow = true;
+				scene.add( plane );
 
-				// place grid just above the show receiving plane
-				var gridHelper = new THREE.GridHelper( dimen, 100 );
-				gridHelper.position.y = translation + 1;
-				gridHelper.material.opacity = 0.25;
-				gridHelper.material.transparent = true;
-				scene.add( gridHelper );
+				var helper = new THREE.GridHelper( 2000, 100 );
+				helper.position.y = - 199;
+				helper.material.opacity = 0.25;
+				helper.material.transparent = true;
+				scene.add( helper );
 
 				//var axes = new THREE.AxesHelper( 1000 );
 				//axes.position.set( - 500, - 500, - 500 );
@@ -140,9 +123,6 @@
 				renderer.shadowMap.enabled = true;
 				container.appendChild( renderer.domElement );
 
-				stats = new Stats();
-				container.appendChild( stats.dom );
-
 				var gui = new dat.GUI();
 
 				gui.add( params, 'uniform' );
@@ -151,7 +131,7 @@
 					splines.uniform.tension = value;
 					updateSplineOutline();
 
-	} );
+				} );
 				gui.add( params, 'centripetal' );
 				gui.add( params, 'chordal' );
 				gui.add( params, 'addPoint' );
@@ -182,7 +162,7 @@
 
 					controls.enabled = ! event.value;
 
-	} );
+				} );
 				scene.add( transformControl );
 
 				// Hiding transform situation is a little in a mess :()
@@ -430,8 +410,6 @@
 
 				requestAnimationFrame( animate );
 				render();
-				stats.update();
-
 			}
 
 			function render() {
