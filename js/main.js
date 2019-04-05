@@ -45,12 +45,16 @@ let main = async container => {
     const juiceboxBrowserConfig =
         {
             container: $('#trace3d_juicebox_root_container'),
-            figureMode: true,
+            // figureMode: true,
             width: 480,
             height: 480
         };
 
     let juiceboxBrowser = await juiceboxPalette.createBrowser(juiceboxBrowserConfig);
+
+    if (juiceboxBrowser) {
+        juiceboxPalette.defaultConfiguration();
+    }
 
     igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
 
@@ -145,6 +149,8 @@ let main = async container => {
                     [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(structureManager.path);
 
                     igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
+
+                    juiceboxPalette.goto({ chr, start: genomicStart, end: genomicEnd });
 
                     const initialStructureKey = '0';
 

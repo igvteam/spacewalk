@@ -52,45 +52,34 @@ class JuiceboxPalette {
 
         hic.setURLShortener(urlShortenerConfig);
 
-        let browser = await hic.createBrowser(config.container, config);
-
-        layout(this.container, this.$palette.get(0));
-
-        return browser;
-    }
-
-    async goto({ chr, start, end }) {
-        await this.browser.goto(chr, start, end);
-    }
-
-    async defaultConfiguration () {
-
-        await this.gotoDefaultLocus();
-
-        // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
-        // const url = 'https://www.dropbox.com/s/cj909wdtckjsptx/ENCFF079FWO.bigBed?dl=0';
-
-        // const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
-        const url = 'https://www.dropbox.com/s/ay6x1im4s1didp2/ENCFF298BFT.bigWig?dl=0';
-
-        await this.loadTrack(url);
-
-    }
-
-    async gotoDefaultLocus() {
-        await this.goto({ chr:'chr21', start:28e6, end:30e6 });
-    }
-
-    async loadTrack(url) {
-
         try {
-            const track = await igv.browser.loadTrack({ url });
-            return track;
+            const browser = await hic.createBrowser(config.container, config);
+            layout(this.container, this.$palette.get(0));
+            this.browser = browser;
+            return browser;
         } catch (error) {
             console.warn(error.message);
             return undefined;
         }
+    }
 
+    goto({ chr, start, end }) {
+        const locus = chr + ':' + start + '-' + end;
+        this.browser.parseGotoInput(locus);
+    }
+
+    async defaultConfiguration () {
+
+        const config =
+            {
+                url: "https://hicfiles.s3.amazonaws.com/hiseq/gm12878/in-situ/HIC010.hic",
+                name: "Rao and Huntley et al. | Cell 2014 GM12878 (human) in situ MboI HIC010 (47M)",
+                isControl: false
+            };
+
+        await this.browser.loadHicFile(config);
+
+        this.goto({ chr:'chr21', start:28e6, end:30e6 });
     }
 
     async loadURL({ url, $spinner }){
@@ -110,44 +99,6 @@ class JuiceboxPalette {
     };
 
 }
-
-let _createBrowsers = async (container, query, config) => {
-
-    if (query && query.hasOwnProperty( 'juicebox' )) {
-
-        let q = query[ 'juicebox' ];
-
-        if (q.startsWith("%7B")) {
-            q = decodeURIComponent(q);
-        }
-
-        q = q.substr(1, q.length - 2);
-
-        let parts = q.split("},{");
-        config.href = decodeURIComponent(parts[0]);
-
-        hic.createBrowser(container, config);
-
-        if (parts && parts.length > 1) {
-
-            for (let part of parts) {
-
-                config = Object.assign({}, config);
-                config.href = decodeURIComponent(part);
-
-                await hic.createBrowser(container, config, syncBrowsers);
-            }
-
-        }
-
-    } else {
-        await hic.createBrowser(container, config);
-    }
-};
-
-let syncBrowsers = () => {
-    hic.syncBrowsers(hic.allBrowsers);
-};
 
 let layout = (container, element) => {
 
