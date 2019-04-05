@@ -7,18 +7,10 @@ class SpotLightDropShadow {
 
         spotLight.castShadow = true;
 
-        // magic numbers: fov | aspectRatio | near | far
-        this.shadowCamera = new THREE.PerspectiveCamera(70, 1, 8e2, 3e3);
-
-        let lightShadow = new THREE.LightShadow( this.shadowCamera );
-        lightShadow.mapSize.width = shadowSize;
-        lightShadow.mapSize.height = shadowSize;
-
-        // magic numbers
-        lightShadow.radius = 1.5;
-        lightShadow.bias = - 0.000222;
-
-        spotLight.shadow = lightShadow;
+        spotLight.shadow.mapSize.width = shadowSize;
+        spotLight.shadow.mapSize.height = shadowSize;
+        spotLight.shadow.camera.near = 8e2;
+        spotLight.shadow.camera.far = 3e3;
 
         if (doShowHelper) {
             this.shadowHelper = new THREE.CameraHelper(spotLight.shadow.camera);
@@ -44,9 +36,10 @@ class SpotLightDropShadow {
         this.spotLight.position.copy(position);
         this.spotLight.target.position.copy(target);
 
-        this.shadowCamera.near = near;
-        this.shadowCamera.far = far;
-        this.shadowCamera.updateProjectionMatrix();
+        this.spotLight.shadow.camera.near = near;
+        this.spotLight.shadow.camera.far = far;
+
+        this.spotLight.shadow.update(this.spotLight);
 
     }
 }

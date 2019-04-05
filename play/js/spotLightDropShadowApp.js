@@ -64,7 +64,7 @@ let main = (container) => {
         duglaSpot.addToScene(scene);
 
         const near = 800;
-        const far = 2000;
+        const far = 1000;
         duglaSpot.pose({ position: new THREE.Vector3(-400, 1500, -400), target: new THREE.Vector3(-400, 0, -400), near, far });
 
         const dimen = 2000;
@@ -92,6 +92,8 @@ let main = (container) => {
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( window.innerWidth, window.innerHeight );
         renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+
         container.appendChild( renderer.domElement );
 
         // Controls
