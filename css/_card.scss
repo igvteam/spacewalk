@@ -1,0 +1,88 @@
+
+// palette template
+$trace3d_tool_palette_width: 512px;
+$trace3d_tool_palette_height: 512px;
+$trace3d_card_drag_container_height: 24px;
+
+.card {
+  position: absolute;
+  z-index: 512;
+
+  width: $trace3d_tool_palette_width;
+  height: $trace3d_tool_palette_height;
+
+  border-color: $trace3d_aluminum;
+  //background-color: rgba(255, 255, 255, 0.65);
+  background-color: $trace3d_snow;
+
+  user-select: none;
+
+  .card-body {
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 100%;
+
+    .trace3d_card_drag_container {
+
+      cursor: grab;
+
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+
+      width: 100%;
+      height: $trace3d_card_drag_container_height;
+      background-color: transparent;
+
+      i.fa-grip-lines {
+        display: block;
+      }
+    }
+
+    .trace3d_card_arrow_container {
+
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+
+      width: 100%;
+      height: $trace3d_card_drag_container_height;
+      background-color: transparent;
+
+      i.fa-caret-down {
+        cursor: pointer;
+        display: block;
+        color: $trace3d_iron;
+        margin: 2px;
+      }
+
+      i.fa-caret-down:hover {
+        color: $trace3d_tangerine;
+      }
+
+      i.fa-caret-up {
+        cursor: pointer;
+        display: block;
+        color: $trace3d_iron;
+        margin: 2px;
+      }
+
+      i.fa-caret-up:hover {
+        color: $trace3d_tangerine;
+      }
+
+    }
+
+    padding: 0.5rem;
+  }
+
+}
