@@ -51,18 +51,20 @@
         color: #ff8802; }
 
 #trace3d_structure_select_palette.card {
-  width: 256px;
+  width: 160px;
   height: auto; }
   #trace3d_structure_select_palette.card .card-body #trace3d_structure_select_header {
-    line-height: 16px;
+    font-size: 14px;
+    line-height: 24px;
     vertical-align: center;
-    height: 16px;
+    height: 24px;
     width: 100%;
     background-color: transparent; }
   #trace3d_structure_select_palette.card .card-body .form-group {
-    width: 95%; }
+    width: 95%;
+    margin-bottom: 0.25rem; }
     #trace3d_structure_select_palette.card .card-body .form-group input#trace3d_structure_select_input {
-      font-size: 18px; }
+      font-size: 16px; }
 
 #trace3d_color_ramp_palette.card {
   width: 128px;

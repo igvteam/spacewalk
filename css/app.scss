@@ -10,9 +10,9 @@ $trace3d_color_ramp_palette_width: 128px;
 $trace3d_color_ramp_palette_height: 600px;
 
 // structure select palette
-$trace3d_structure_select_palette_width: 256px;
+$trace3d_structure_select_palette_width: 160px;
 $trace3d_structure_select_palette_height: 108px;
-$trace3d_structure_select_palette_label_height: 16px;
+$trace3d_structure_select_palette_label_height: 24px;
 
 // igv palette
 $trace3d_igv_palette_width: 600px;
@@ -37,6 +37,8 @@ $trace3d_ui_manager_left: 32px;
 
     #trace3d_structure_select_header {
 
+      font-size: 14px;
+
       line-height: $trace3d_structure_select_palette_label_height;
       vertical-align: center;
       height: $trace3d_structure_select_palette_label_height;
@@ -49,9 +51,10 @@ $trace3d_ui_manager_left: 32px;
 
     .form-group {
       width: 95%;
+      margin-bottom: 0.25rem;
 
       input#trace3d_structure_select_input {
-        font-size: 18px;
+        font-size: 16px;
       }
 
     }
