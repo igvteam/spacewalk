@@ -3,6 +3,8 @@ import OrbitControls from "../../js/threejs_es6/orbit-controls-es6.js";
 import { appleCrayonColorThreeJS } from '../../js/color.js'
 import SpotLightDropShadow from "../../js/spotLightDropShadow.js";
 
+let spotlightDropshadow;
+
 let main = (container) => {
 
     String.prototype.format = function () {
@@ -62,12 +64,12 @@ let main = (container) => {
         scene.add( ambientLight );
 
 
-        let spotlight = new SpotLightDropShadow({ color: appleCrayonColorThreeJS('snow'), intensity: 1.5, shadowSize: 1024, near: 0.8e3, far: 3.0e3, doShowHelper: true });
-        spotlight.addToScene(scene);
+        spotlightDropshadow = new SpotLightDropShadow({ color: appleCrayonColorThreeJS('snow'), intensity: 1.5, shadowSize: 1024, near: 0.8e3, far: 3.0e3, doShowHelper: true });
+        spotlightDropshadow.addToScene(scene);
 
         const near = 1e3;
         const  far = 2e3;
-        spotlight.pose({ position: new THREE.Vector3(-400, 1500, -400), target: new THREE.Vector3(-400, 0, -400), near, far });
+        spotlightDropshadow.pose({ position: new THREE.Vector3(-400, 1500, -400), target: new THREE.Vector3(-400, 0, -400), near, far });
 
         const dimen = 2000;
         const translation = -200;
@@ -272,9 +274,13 @@ let main = (container) => {
     }
 
     function render() {
+
         splines.uniform.mesh.visible = params.uniform;
         splines.centripetal.mesh.visible = params.centripetal;
         splines.chordal.mesh.visible = params.chordal;
+
+        spotlightDropshadow.spotLight.shadow.update(spotlightDropshadow.spotLight);
+
         renderer.render( scene, camera );
     }
 
