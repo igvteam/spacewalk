@@ -1,16 +1,22 @@
 
+$trace3d_color_ramp_canvas_width: 32px;
+
 $trace3d_color_ramp_palette_width: 128px;
-$trace3d_color_ramp_palette_height: 600px;
-$trace3d_color_ramp_width: 36px;
+$trace3d_color_ramp_palette_height: 512px;
 
 $trace3d_text_box_height: 32px;
+$trace3d_color_ramp_palette_padding: 8px;
 
 #trace3d_color_ramp_palette.card {
 
-  width: $trace3d_color_ramp_palette_width;
+  width: auto;
   height: $trace3d_color_ramp_palette_height;
 
+  padding-left: $trace3d_color_ramp_palette_padding;
+  padding-right: $trace3d_color_ramp_palette_padding;
+
   #trace3d_color_ramp_widget_container.card-body {
+
     width: 100%;
     height: $trace3d_color_ramp_palette_height;
 
@@ -27,11 +33,10 @@ $trace3d_text_box_height: 32px;
     }
 
     // ramp
-    #trace3d_color_ramp {
+    #trace3d_color_ramp_canvas_container {
       cursor: pointer;
-      width: $trace3d_color_ramp_width;
+      width: $trace3d_color_ramp_canvas_width;
       height: calc(98% - 2 * #{$trace3d_text_box_height} - #{$trace3d_card_drag_container_height});
-
       background-color: transparent;
     }
 
