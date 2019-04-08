@@ -1,9 +1,21 @@
 .navbar {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-right: 0.50rem;
+  padding-left: 0.50rem;
+  height: 36px;
   background-color: #545453; }
+
+.navbar-brand {
+  display: inline-block;
+  margin-right: 1rem;
+  font-size: 1.25rem;
+  line-height: inherit;
+  white-space: nowrap; }
 
 .card {
   position: absolute;
-  z-index: 512;
+  z-index: 2048;
   width: 512px;
   height: 512px;
   border-color: #a09fa0;
@@ -15,8 +27,8 @@
     flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    padding: 0.5rem; }
+    padding: 0.125rem;
+    width: 100%; }
     .card .card-body .trace3d_card_drag_container {
       cursor: grab;
       display: flex;
@@ -25,66 +37,33 @@
       justify-content: center;
       align-items: center;
       width: 100%;
-      height: 16px;
+      height: 24px;
       background-color: transparent; }
       .card .card-body .trace3d_card_drag_container i.fa-grip-lines {
         display: block; }
-
-#trace3d_navbar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1024;
-  width: 100%;
-  width: -moz-available;
-  width: -webkit-fill-available;
-  width: fill-available;
-  height: 64px;
-  background-color: #545453; }
-
-#trace3d_canvas_container {
-  width: 100%;
-  width: -moz-available;
-  width: -webkit-fill-available;
-  width: fill-available;
-  height: 100%;
-  height: -moz-available;
-  height: -webkit-fill-available;
-  height: fill-available;
-  overflow: hidden; }
-
-#trace3d_ui_manager_button {
-  z-index: 2048;
-  position: absolute;
-  top: 88px;
-  left: 32px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center; }
-  #trace3d_ui_manager_button i {
-    color: #a09fa0;
-    display: block; }
-  #trace3d_ui_manager_button i:hover {
-    cursor: pointer;
-    color: #545453; }
-
-#trace3d_ui_manager_panel.card {
-  z-index: 2048;
-  top: 136px;
-  left: 32px;
-  width: 256px;
-  height: auto; }
-  #trace3d_ui_manager_panel.card li {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    align-items: center; }
-    #trace3d_ui_manager_panel.card li input {
-      cursor: pointer;
-      display: block; }
+    .card .card-body .trace3d_card_arrow_container {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 24px;
+      background-color: transparent; }
+      .card .card-body .trace3d_card_arrow_container i.fa-caret-down {
+        cursor: pointer;
+        display: block;
+        color: #545453;
+        margin: 2px; }
+      .card .card-body .trace3d_card_arrow_container i.fa-caret-down:hover {
+        color: #ff8802; }
+      .card .card-body .trace3d_card_arrow_container i.fa-caret-up {
+        cursor: pointer;
+        display: block;
+        color: #545453;
+        margin: 2px; }
+      .card .card-body .trace3d_card_arrow_container i.fa-caret-up:hover {
+        color: #ff8802; }
 
 #trace3d_data_file_load_select_container .form-control {
   border-top-left-radius: .25rem;
@@ -95,25 +74,29 @@
   border-bottom-left-radius: .25rem; }
 
 #trace3d_structure_select_palette.card {
-  width: 256px;
+  width: 160px;
   height: auto; }
   #trace3d_structure_select_palette.card .card-body #trace3d_structure_select_header {
-    line-height: 16px;
+    font-size: 14px;
+    line-height: 24px;
     vertical-align: center;
-    height: 16px;
+    height: 24px;
     width: 100%;
     background-color: transparent; }
   #trace3d_structure_select_palette.card .card-body .form-group {
-    width: 95%; }
+    width: 95%;
+    margin-bottom: 0.25rem; }
     #trace3d_structure_select_palette.card .card-body .form-group input#trace3d_structure_select_input {
-      font-size: 18px; }
+      font-size: 16px; }
 
 #trace3d_color_ramp_palette.card {
-  width: 128px;
-  height: 600px; }
+  width: auto;
+  height: 512px;
+  padding-left: 8px;
+  padding-right: 8px; }
   #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body {
     width: 100%;
-    height: 600px;
+    height: 512px;
     font-size: 16px; }
     #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_header {
       width: 100%;
@@ -121,10 +104,10 @@
       line-height: 32px;
       vertical-align: middle;
       text-align: center; }
-    #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp {
+    #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_canvas_container {
       cursor: pointer;
-      width: 36px;
-      height: calc(98% - 2 * 32px - 16px);
+      width: 32px;
+      height: calc(98% - 2 * 32px - 24px);
       background-color: transparent; }
     #trace3d_color_ramp_palette.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_footer {
       width: 100%;
@@ -166,5 +149,67 @@
       border-width: thin;
       border-color: #a09fa0;
       background-color: #ffffff; }
+
+#trace3d_juicebox_palette.card {
+  width: auto;
+  height: auto;
+  align-items: center; }
+  #trace3d_juicebox_palette.card .card-body #trace3d_hic_url_form_group {
+    width: 95%;
+    margin-top: 4px;
+    margin-bottom: 4px; }
+  #trace3d_juicebox_palette.card .card-body #trace3d_juicebox_root_container {
+    width: 100%;
+    height: 398px;
+    overflow-y: auto; }
+    #trace3d_juicebox_palette.card .card-body #trace3d_juicebox_root_container .hic-root {
+      margin: 0;
+      border-color: transparent;
+      border-width: thin;
+      border-radius: .25rem; }
+
+#trace3d_ui_manager_button {
+  z-index: 2048;
+  position: absolute;
+  top: 68px;
+  left: 32px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center; }
+  #trace3d_ui_manager_button i {
+    color: #a09fa0;
+    display: block; }
+  #trace3d_ui_manager_button i:hover {
+    cursor: pointer;
+    color: #545453; }
+
+#trace3d_ui_manager_panel.card {
+  z-index: 2048;
+  top: 116px;
+  left: 32px;
+  width: 256px;
+  height: auto; }
+  #trace3d_ui_manager_panel.card li {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center; }
+    #trace3d_ui_manager_panel.card li input {
+      cursor: pointer;
+      display: block; }
+
+#trace3d_canvas_container {
+  width: 100%;
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: fill-available;
+  height: 100%;
+  height: -moz-available;
+  height: -webkit-fill-available;
+  height: fill-available;
+  overflow: hidden; }
 
 /*# sourceMappingURL=app.css.map */

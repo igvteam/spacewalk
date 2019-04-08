@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>SpotLight - DropShadow</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container"></div>
+
+<script type="module">
+
+    import { main } from './js/spotLightDropShadowApp.js';
+
+    document.addEventListener("DOMContentLoaded", (event) => {
+        main( document.getElementById('container') );
+    });
+</script>
+
+</body>
+
+</html>
