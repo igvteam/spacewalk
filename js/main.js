@@ -46,8 +46,8 @@ let main = async container => {
         {
             container: $('#trace3d_juicebox_root_container'),
             // figureMode: true,
-            width: 480,
-            height: 480
+            width: 400,
+            height: 400
         };
 
     let juiceboxBrowser = await juiceboxPalette.createBrowser(juiceboxBrowserConfig);
