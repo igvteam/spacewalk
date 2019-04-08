@@ -1,0 +1,22 @@
+
+.navbar {
+  padding-top:   0.25rem;
+  padding-bottom: 0.25rem;
+
+  padding-right:  0.50rem;
+  padding-left:   0.50rem;
+
+  height: $trace3d_navbar_height;
+
+  background-color: $trace3d_iron;
+}
+
+.navbar-brand {
+  display: inline-block;
+  //padding-top: .3125rem;
+  //padding-bottom: .3125rem;
+  margin-right: 1rem;
+  font-size: 1.25rem;
+  line-height: inherit;
+  white-space: nowrap;
+}

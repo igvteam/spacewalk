@@ -1,3 +1,18 @@
+.navbar {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-right: 0.50rem;
+  padding-left: 0.50rem;
+  height: 36px;
+  background-color: #545453; }
+
+.navbar-brand {
+  display: inline-block;
+  margin-right: 1rem;
+  font-size: 1.25rem;
+  line-height: inherit;
+  white-space: nowrap; }
+
 .card {
   position: absolute;
   z-index: 2048;
@@ -49,6 +64,14 @@
         margin: 2px; }
       .card .card-body .trace3d_card_arrow_container i.fa-caret-up:hover {
         color: #ff8802; }
+
+#trace3d_data_file_load_select_container .form-control {
+  border-top-left-radius: .25rem;
+  border-bottom-left-radius: .25rem; }
+
+#trace3d_data_file_load_url_container .form-control {
+  border-top-left-radius: .25rem;
+  border-bottom-left-radius: .25rem; }
 
 #trace3d_structure_select_palette.card {
   width: 160px;
@@ -142,18 +165,10 @@
       border-width: thin;
       border-radius: .25rem; }
 
-#trace3d_data_file_load_select_container .form-control {
-  border-top-left-radius: .25rem;
-  border-bottom-left-radius: .25rem; }
-
-#trace3d_data_file_load_url_container .form-control {
-  border-top-left-radius: .25rem;
-  border-bottom-left-radius: .25rem; }
-
 #trace3d_ui_manager_button {
   z-index: 2048;
   position: absolute;
-  top: 88px;
+  top: 68px;
   left: 32px;
   display: flex;
   flex-direction: row;
@@ -169,7 +184,7 @@
 
 #trace3d_ui_manager_panel.card {
   z-index: 2048;
-  top: 136px;
+  top: 116px;
   left: 32px;
   width: 256px;
   height: auto; }
@@ -193,32 +208,5 @@
   height: -webkit-fill-available;
   height: fill-available;
   overflow: hidden; }
-
-.navbar {
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-  padding-right: 0.50rem;
-  padding-left: 0.50rem;
-  height: 36px;
-  background-color: #545453; }
-
-.navbar-brand {
-  display: inline-block;
-  margin-right: 1rem;
-  font-size: 1.25rem;
-  line-height: inherit;
-  white-space: nowrap; }
-
-#trace3d_navbar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1024;
-  width: 100%;
-  width: -moz-available;
-  width: -webkit-fill-available;
-  width: fill-available;
-  height: 64px;
-  background-color: #545453; }
 
 /*# sourceMappingURL=app.css.map */
