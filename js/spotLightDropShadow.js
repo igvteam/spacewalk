@@ -1,7 +1,7 @@
 import * as THREE from './threejs_es6/three.module.js';
 
 class SpotLightDropShadow {
-    constructor({ color, intensity, shadowSize, doShowHelper}) {
+    constructor({ color, intensity, shadowSize, near, far, doShowHelper}) {
 
         let spotLight = new THREE.SpotLight( color, intensity );
 
@@ -9,8 +9,8 @@ class SpotLightDropShadow {
 
         spotLight.shadow.mapSize.width = shadowSize;
         spotLight.shadow.mapSize.height = shadowSize;
-        spotLight.shadow.camera.near = 8e2;
-        spotLight.shadow.camera.far = 3e3;
+        spotLight.shadow.camera.near = near;
+        spotLight.shadow.camera.far = far;
 
         if (doShowHelper) {
             this.shadowHelper = new THREE.CameraHelper(spotLight.shadow.camera);

@@ -50,7 +50,9 @@ let main = (container) => {
         scene.background = new THREE.Color( 0xf0f0f0 );
 
         camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
-        camera.position.set( 0, 250, 1000 );
+
+        const d = 2400;
+        camera.position.set( 0.5 * d, 0.75 * d, d );
         scene.add( camera );
 
 
@@ -60,12 +62,12 @@ let main = (container) => {
         scene.add( ambientLight );
 
 
-        let duglaSpot = new SpotLightDropShadow({ color: appleCrayonColorThreeJS('snow'), intensity: 1.5, shadowSize: 1024, doShowHelper: true });
-        duglaSpot.addToScene(scene);
+        let spotlight = new SpotLightDropShadow({ color: appleCrayonColorThreeJS('snow'), intensity: 1.5, shadowSize: 1024, near: 0.8e3, far: 3.0e3, doShowHelper: true });
+        spotlight.addToScene(scene);
 
-        const near = 800;
-        const far = 1000;
-        duglaSpot.pose({ position: new THREE.Vector3(-400, 1500, -400), target: new THREE.Vector3(-400, 0, -400), near, far });
+        const near = 1e3;
+        const  far = 2e3;
+        spotlight.pose({ position: new THREE.Vector3(-400, 1500, -400), target: new THREE.Vector3(-400, 0, -400), near, far });
 
         const dimen = 2000;
         const translation = -200;
