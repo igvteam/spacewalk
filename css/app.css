@@ -1,6 +1,6 @@
 .card {
   position: absolute;
-  z-index: 512;
+  z-index: 2048;
   width: 512px;
   height: 512px;
   border-color: #a09fa0;
@@ -12,8 +12,8 @@
     flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    padding: 0.5rem; }
+    padding: 0.125rem;
+    width: 100%; }
     .card .card-body .trace3d_card_drag_container {
       cursor: grab;
       display: flex;
@@ -193,7 +193,19 @@
   overflow: hidden; }
 
 .navbar {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-right: 0.50rem;
+  padding-left: 0.50rem;
+  height: 36px;
   background-color: #545453; }
+
+.navbar-brand {
+  display: inline-block;
+  margin-right: 1rem;
+  font-size: 1.25rem;
+  line-height: inherit;
+  white-space: nowrap; }
 
 #trace3d_navbar {
   position: absolute;
