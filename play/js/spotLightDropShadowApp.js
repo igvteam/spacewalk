@@ -3,6 +3,8 @@ import OrbitControls from "../../js/threejs_es6/orbit-controls-es6.js";
 import { appleCrayonColorThreeJS } from '../../js/color.js'
 import SpotLightDropShadow from "../../js/spotLightDropShadow.js";
 
+let spotlightDropshadow;
+
 let main = (container) => {
 
     String.prototype.format = function () {
@@ -47,7 +49,7 @@ let main = (container) => {
     function init(container) {
 
         scene = new THREE.Scene();
-        scene.background = new THREE.Color( 0xf0f0f0 );
+        scene.background = appleCrayonColorThreeJS('steel');
 
         camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
 
@@ -61,13 +63,25 @@ let main = (container) => {
         const ambientLight = new THREE.AmbientLight( ambientColor );
         scene.add( ambientLight );
 
+        const spotlightDropshadowConfig =
+            {
+                color: appleCrayonColorThreeJS('lime'),
+                intensity: 1.5,
+                shadowSize: 1024,
+                near: 0.8e3,
+                distance: 4e3,
+                angle: Math.PI/8,
+                penumbra: 0.1,
+                doShowHelper: true
+            };
 
-        let spotlight = new SpotLightDropShadow({ color: appleCrayonColorThreeJS('snow'), intensity: 1.5, shadowSize: 1024, near: 0.8e3, far: 3.0e3, doShowHelper: true });
-        spotlight.addToScene(scene);
+        spotlightDropshadow = new SpotLightDropShadow(spotlightDropshadowConfig);
+        spotlightDropshadow.addToScene(scene);
 
-        const near = 1e3;
-        const  far = 2e3;
-        spotlight.pose({ position: new THREE.Vector3(-400, 1500, -400), target: new THREE.Vector3(-400, 0, -400), near, far });
+        const near = 0.8e3;
+        const distance = 3e3;
+        // spotlightDropshadow.pose({ position: new THREE.Vector3(-400, 1500, -400), target: new THREE.Vector3(-400, 0, -400), near, distance });
+        spotlightDropshadow.pose({ position: new THREE.Vector3(-400, 1500, -400), target: new THREE.Vector3(0, 0, 0), near, distance });
 
         const dimen = 2000;
         const translation = -200;
@@ -99,9 +113,9 @@ let main = (container) => {
         container.appendChild( renderer.domElement );
 
         // Controls
-        var controls = new OrbitControls( camera, renderer.domElement );
-        controls.damping = 0.2;
-        controls.addEventListener( 'change', render );
+        let orbitControls = new OrbitControls( camera, renderer.domElement );
+        orbitControls.damping = 0.2;
+        orbitControls.addEventListener( 'change', render );
 
         /*******
          * Curves
@@ -272,9 +286,13 @@ let main = (container) => {
     }
 
     function render() {
+
         splines.uniform.mesh.visible = params.uniform;
         splines.centripetal.mesh.visible = params.centripetal;
         splines.chordal.mesh.visible = params.chordal;
+
+        spotlightDropshadow.update();
+
         renderer.render( scene, camera );
     }
 

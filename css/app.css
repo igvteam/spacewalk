@@ -201,6 +201,21 @@
       cursor: pointer;
       display: block; }
 
+.igv-root-div {
+  padding: 0 !important;
+  margin: 0 !important; }
+
+.igv-content-header {
+  display: none !important; }
+
+.igv-track-div {
+  margin-top: 2px !important;
+  margin-bottom: 2px !important; }
+
+.igv-trackgear-container {
+  width: 14px !important;
+  height: 14px !important; }
+
 #trace3d_canvas_container {
   width: 100%;
   width: -moz-available;
