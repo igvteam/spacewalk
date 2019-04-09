@@ -1,6 +1,8 @@
 import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./eventBus.js";
 
+let currentURL = undefined;
+
 class JuiceboxPalette {
 
     constructor ({ container, palette }) {
@@ -24,6 +26,31 @@ class JuiceboxPalette {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
+
+        // URL
+        const $url_input = $('#trace3d_juicebox_palette_url_input');
+        $url_input.val('');
+
+        const $url_button = $('#trace3d_juicebox_palette_url_button');
+
+        $url_input.on('change.trace3d_juicebox_palette_url_input', (event) => {
+            event.stopPropagation();
+            currentURL = event.target.value;
+        });
+
+        const $spinner_container = $('#trace3d_hic_url_form_group');
+
+        $url_button.on('click.trace3d_juicebox_palette_url_button', async (event) => {
+
+            event.stopPropagation();
+
+            $url_input.trigger('change.trace3d_juicebox_palette_url_input');
+            await this.loadURL({ url: currentURL, $spinner: $spinner_container.find('.spinner-border')});
+            $url_input.val('');
+            currentURL = undefined;
+
+        });
+
 
         globalEventBus.subscribe("ToggleUIControls", this);
     }
@@ -63,9 +90,9 @@ class JuiceboxPalette {
         }
     }
 
-    goto({ chr, start, end }) {
-        const locus = chr + ':' + start + '-' + end;
-        this.browser.parseGotoInput(locus);
+    async goto({ chr, start, end }) {
+        this.locus = chr + ':' + start + '-' + end;
+        await this.browser.parseGotoInput(this.locus);
     }
 
     async defaultConfiguration () {
@@ -78,8 +105,7 @@ class JuiceboxPalette {
             };
 
         await this.browser.loadHicFile(config);
-
-        this.goto({ chr:'chr21', start:28e6, end:30e6 });
+        await this.goto({ chr:'chr21', start:28e6, end:30e6 });
     }
 
     async loadURL({ url, $spinner }){
@@ -88,7 +114,9 @@ class JuiceboxPalette {
 
         if ('' !== url) {
             $spinner.show();
-            let track = await this.loadTrack(url);
+
+            await this.browser.loadHicFile({ url });
+            await this.browser.parseGotoInput(this.locus);
             $spinner.hide();
         }
 
