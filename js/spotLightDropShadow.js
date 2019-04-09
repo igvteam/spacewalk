@@ -1,21 +1,24 @@
 import * as THREE from './threejs_es6/three.module.js';
 
 class SpotLightDropShadow {
-    constructor({ color, intensity, shadowSize, near, far, doShowHelper}) {
+    constructor({ color, intensity, shadowSize, near, distance, angle, penumbra, doShowHelper}) {
 
         let spotLight = new THREE.SpotLight( color, intensity );
-
         spotLight.castShadow = true;
+        spotLight.angle = angle;
+        spotLight.penumbra = penumbra;
+        spotLight.distance = distance;
 
         spotLight.shadow.mapSize.width = shadowSize;
         spotLight.shadow.mapSize.height = shadowSize;
         spotLight.shadow.camera.near = near;
-        spotLight.shadow.camera.far = far;
 
         if (doShowHelper) {
-            this.shadowHelper = new THREE.CameraHelper(spotLight.shadow.camera);
+            this.spotLightHelper = new THREE.SpotLightHelper(spotLight);
+            this.shadowCameraHelper = new THREE.CameraHelper(spotLight.shadow.camera);
         }
 
+        this.doShowHelper = doShowHelper;
         this.spotLight = spotLight;
 
     }
@@ -25,21 +28,26 @@ class SpotLightDropShadow {
         scene.add(this.spotLight.target);
         scene.add(this.spotLight);
 
-        if (this.shadowHelper) {
-            scene.add(this.shadowHelper);
+        if (this.doShowHelper) {
+            scene.add(this.spotLightHelper);
+            scene.add(this.shadowCameraHelper);
         }
 
     }
 
-    pose({ position, target, near, far }) {
+    pose({ position, target, near, distance }) {
 
         this.spotLight.position.copy(position);
         this.spotLight.target.position.copy(target);
 
         this.spotLight.shadow.camera.near = near;
-        this.spotLight.shadow.camera.far = far;
+        this.spotLight.distance = distance;
 
-        this.spotLight.shadow.update(this.spotLight);
+    }
+
+    update () {
+        this.spotLightHelper.update();
+        this.shadowCameraHelper.update();
 
     }
 }
