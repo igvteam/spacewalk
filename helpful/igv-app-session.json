@@ -77,7 +77,11 @@
 			"filename": "refGene.sorted.txt.gz",
 			"sourceType": "file",
 			"type": "annotation",
-			"maxRows": 500
+			"maxRows": 500,
+			"filterTypes": [
+				"chromosome",
+				"gene"
+			]
 		}
 	]
 }
