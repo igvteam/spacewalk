@@ -9,10 +9,11 @@ import StructureManager from './structureManager.js';
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import IGVPalette from './igvPalette.js';
 import JuiceboxPalette from './juiceboxPalette.js';
-import { mouseHandler} from "./igvPalette.js";
+import { mouseHandler, igvDefaultConfiguration } from "./igvPalette.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonColorRGB255 } from './color.js';
 import { globalEventBus } from './eventBus.js';
 import ColorRampPalette from "./colorRampPalette.js";
+
 
 let guiManager;
 
@@ -58,22 +59,25 @@ let main = async container => {
 
     igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
 
-    const igvBrowserConfig =
-        {
-            genome: 'hg38',
-            locus: 'all',
-            showCursorTrackingGuide: true,
-            showTrackLabels: false,
-            showIdeogram: false,
-            showControls: false,
-            showNavigation: false
-        };
-
+    const igvBrowserConfig = igvDefaultConfiguration();
     let igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
 
-    if (igvBrowser) {
-        await igvPalette.defaultConfiguration();
-    }
+    // const igvBrowserConfig =
+    //     {
+    //         genome: 'hg38',
+    //         locus: 'all',
+    //         showCursorTrackingGuide: true,
+    //         showTrackLabels: false,
+    //         showIdeogram: false,
+    //         showControls: false,
+    //         showNavigation: false
+    //     };
+    //
+    // let igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
+
+    // if (igvBrowser) {
+    //     await igvPalette.defaultConfiguration();
+    // }
 
     const highlightColor = appleCrayonColorThreeJS('maraschino');
 
