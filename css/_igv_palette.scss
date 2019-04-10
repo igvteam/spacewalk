@@ -7,7 +7,8 @@ $trace3d_igv_palette_heigth: 0.5 * $trace3d_igv_palette_width;
 #trace3d_igv_palette.card {
 
   width: $trace3d_igv_palette_width;
-  height: $trace3d_igv_palette_heigth;
+  //height: $trace3d_igv_palette_heigth;
+  height: auto;
 
   align-items: center;
 
@@ -15,6 +16,7 @@ $trace3d_igv_palette_heigth: 0.5 * $trace3d_igv_palette_width;
   #trace3d_igv_container.card-body {
 
     height: $trace3d_igv_palette_heigth;
+    //height: unset;
     overflow: auto;
 
     // url loader

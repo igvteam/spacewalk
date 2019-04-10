@@ -118,7 +118,7 @@
 
 #trace3d_igv_palette.card {
   width: 600px;
-  height: 300px;
+  height: auto;
   align-items: center; }
   #trace3d_igv_palette.card #trace3d_igv_container.card-body {
     height: 300px;
