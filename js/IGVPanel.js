@@ -147,12 +147,11 @@ class IGVPanel {
 let layout = (container, element) => {
 
     // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    const elementRect = element.getBoundingClientRect();
+    const { width: c_w, height: c_h } = container.getBoundingClientRect();
+    const { width:   w, height:   h } = element.getBoundingClientRect();
 
-    const left = (containerRect.width - elementRect.width)/2;
-    const top = containerRect.height - 1.1 * elementRect.height;
-
+    const left = (c_w - w)/2;
+    const top = c_h - 1.1 * h;
     $(element).offset( { left, top } );
 
 };
@@ -200,43 +199,43 @@ export const igvDefaultConfiguration = () => {
                         "autoscale": false,
                         "order": 4
                     },
-                    {
-                        "url": "https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed",
-                        "color": "rgb(0,0,150)",
-                        "name": "IMR-90 CTCF optimal idr thresholded peaks ENCSR000EFI",
-                        "format": "bigbed",
-                        "type": "annotation",
-                        "filename": "ENCFF079FWO.bigBed",
-                        "sourceType": "file",
-                        "maxRows": 500,
-                        "order": 7
-                    },
-                    {
-                        "url": "https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig",
-                        "color": "#018448",
-                        "name": "IMR-90 RAD21 signal p-value ENCSR000EFJ",
-                        "format": "bigwig",
-                        "type": "wig",
-                        "filename": "ENCFF298BFT.bigWig",
-                        "sourceType": "file",
-                        "height": 50,
-                        "min": 0,
-                        "max": 10,
-                        "autoScale": false,
-                        "autoscale": false,
-                        "order": 8
-                    },
-                    {
-                        "url": "https://www.encodeproject.org/files/ENCFF087JJO/@@download/ENCFF087JJO.bigBed",
-                        "color": "rgb(0,0,150)",
-                        "name": "IMR-90 RAD21 conservative idr thresholded peaks ENCSR000EFJ",
-                        "format": "bigbed",
-                        "type": "annotation",
-                        "filename": "ENCFF087JJO.bigBed",
-                        "sourceType": "file",
-                        "maxRows": 500,
-                        "order": 9
-                    },
+                    // {
+                    //     "url": "https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed",
+                    //     "color": "rgb(0,0,150)",
+                    //     "name": "IMR-90 CTCF optimal idr thresholded peaks ENCSR000EFI",
+                    //     "format": "bigbed",
+                    //     "type": "annotation",
+                    //     "filename": "ENCFF079FWO.bigBed",
+                    //     "sourceType": "file",
+                    //     "maxRows": 500,
+                    //     "order": 7
+                    // },
+                    // {
+                    //     "url": "https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig",
+                    //     "color": "#018448",
+                    //     "name": "IMR-90 RAD21 signal p-value ENCSR000EFJ",
+                    //     "format": "bigwig",
+                    //     "type": "wig",
+                    //     "filename": "ENCFF298BFT.bigWig",
+                    //     "sourceType": "file",
+                    //     "height": 50,
+                    //     "min": 0,
+                    //     "max": 10,
+                    //     "autoScale": false,
+                    //     "autoscale": false,
+                    //     "order": 8
+                    // },
+                    // {
+                    //     "url": "https://www.encodeproject.org/files/ENCFF087JJO/@@download/ENCFF087JJO.bigBed",
+                    //     "color": "rgb(0,0,150)",
+                    //     "name": "IMR-90 RAD21 conservative idr thresholded peaks ENCSR000EFJ",
+                    //     "format": "bigbed",
+                    //     "type": "annotation",
+                    //     "filename": "ENCFF087JJO.bigBed",
+                    //     "sourceType": "file",
+                    //     "maxRows": 500,
+                    //     "order": 9
+                    // },
                     {
                         "name": "Refseq Genes",
                         "format": "refgene",

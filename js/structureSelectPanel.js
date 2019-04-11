@@ -131,11 +131,11 @@ class StructureSelectPanel {
 let layout = (container, element) => {
 
     // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const rectContainer = container.getBoundingClientRect();
-    const rectElement = element.getBoundingClientRect();
+    const { height: c_h } = container.getBoundingClientRect();
+    const { width: w, height: h } = element.getBoundingClientRect();
 
-    const left = 0.125 * rectElement.width;
-    const top = (rectContainer.height - rectElement.height)/2;
+    const left = 0.125 * w;
+    const top = (c_h - h)/2;
     $(element).offset( { left, top } );
 
 };

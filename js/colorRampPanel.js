@@ -50,11 +50,13 @@ class ColorRampPanel {
 let layout = (container, element) => {
 
     // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const { width, height } = container.getBoundingClientRect();
-    const domRect = element.getBoundingClientRect();
+    const { width: c_w, height: c_h } = container.getBoundingClientRect();
+    const { width:   w, height:   h } = element.getBoundingClientRect();
 
     const multiple = 5/4;
-    $(element).offset( { left: (width - multiple * domRect.width), top: ((height - domRect.height)/2) } );
+    const left = (c_w - multiple * w);
+    const top = ((c_h - h)/2);
+    $(element).offset( { left, top } );
 
 };
 

@@ -1,5 +1,6 @@
 import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./eventBus.js";
+import {numberFormatter} from "./utils.js";
 
 let currentURL = undefined;
 
@@ -53,11 +54,25 @@ class JuiceboxPanel {
 
 
         globalEventBus.subscribe("ToggleUIControls", this);
+
     }
 
-    receiveEvent({ type }) {
+    receiveEvent({ type, data }) {
         if ("ToggleUIControls" === type) {
             this.$panel.toggle();
+        } else if ('UpdateContactMapMousePosition' === type) {
+
+            const state = this.browser.state;
+
+            // bp-per-bin
+            const resolution = this.browser.resolution();
+
+            // bp = ((bin + pixel/pixel-per-bin) / bp-per-bin)
+            const { x, y } = data;
+            const xBP = (state.x + (x / state.pixelSize)) * resolution;
+            const yBP = (state.y + (y / state.pixelSize)) * resolution;
+
+            console.log('juicebox bp ' + numberFormatter( Math.round(xBP) ));
         }
     }
 
@@ -81,8 +96,12 @@ class JuiceboxPanel {
 
         try {
             const browser = await hic.createBrowser(config.container, config);
+
             layout(this.container, this.$panel.get(0));
+
             this.browser = browser;
+            this.browser.eventBus.subscribe("UpdateContactMapMousePosition", this);
+
             return browser;
         } catch (error) {
             console.warn(error.message);
@@ -131,12 +150,11 @@ class JuiceboxPanel {
 let layout = (container, element) => {
 
     // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    const elementRect = element.getBoundingClientRect();
+    const { width: c_w, height: c_h } = container.getBoundingClientRect();
+    const { width:   w, height:   h } = element.getBoundingClientRect();
 
-    const left = (containerRect.width - elementRect.width)/2;
-    const top = containerRect.height - 1.05 * elementRect.height;
-
+    const left = (c_w - w)/2;
+    const top = c_h - 1.05 * h;
     $(element).offset( { left, top } );
 
 };
