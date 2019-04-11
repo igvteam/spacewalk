@@ -139,12 +139,11 @@ class JuiceboxPanel {
 let layout = (container, element) => {
 
     // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    const elementRect = element.getBoundingClientRect();
+    const { width: c_w, height: c_h } = container.getBoundingClientRect();
+    const { width:   w, height:   h } = element.getBoundingClientRect();
 
-    const left = (containerRect.width - elementRect.width)/2;
-    const top = containerRect.height - 1.05 * elementRect.height;
-
+    const left = (c_w - w)/2;
+    const top = c_h - 1.05 * h;
     $(element).offset( { left, top } );
 
 };
