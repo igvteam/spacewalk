@@ -53,11 +53,15 @@ class JuiceboxPanel {
 
 
         globalEventBus.subscribe("ToggleUIControls", this);
+
     }
 
-    receiveEvent({ type }) {
+    receiveEvent({ type, data }) {
         if ("ToggleUIControls" === type) {
             this.$panel.toggle();
+        } else if ('UpdateContactMapMousePosition' === type) {
+            const { x, y } = data;
+            console.log(Date.now() + ' juicebox palette ' + type + ' x ' + x + ' ' + y);
         }
     }
 
@@ -81,8 +85,12 @@ class JuiceboxPanel {
 
         try {
             const browser = await hic.createBrowser(config.container, config);
+
             layout(this.container, this.$panel.get(0));
+
             this.browser = browser;
+            this.browser.eventBus.subscribe("UpdateContactMapMousePosition", this);
+
             return browser;
         } catch (error) {
             console.warn(error.message);
