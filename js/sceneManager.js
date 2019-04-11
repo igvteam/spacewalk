@@ -3,11 +3,15 @@ import { globalEventBus } from "./eventBus.js";
 import OrbitalCamera from "./orbitalCamera.js";
 import { getMouseXY } from "./utils.js";
 import { specularCubicTexture } from './materialLibrary.js';
+import {appleCrayonColorHexValue, appleCrayonColorRGB255, appleCrayonColorThreeJS} from "./color.js";
+import ColorRampPanel from "./colorRampPanel.js";
+import Picker from "./picker.js";
+import PickHighlighter from "./pickHighlighter.js";
 
 let currentStructureCentroid = undefined;
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPalette, renderer, picker, hemisphereLight }) {
+    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPanel, renderer, picker, hemisphereLight }) {
 
         this.ballRadius = ballRadius;
         this.ballGeometry = new THREE.SphereBufferGeometry(ballRadius, 32, 16);
@@ -27,7 +31,7 @@ class SceneManager {
 
         this.renderer = renderer;
 
-        this.colorRampPalette = colorRampPalette;
+        this.colorRampPanel = colorRampPanel;
 
         this.picker = picker;
 
@@ -57,12 +61,12 @@ class SceneManager {
 
             if (this.objectUUID2SegmentIndex[ data ]) {
                 const segmentIndex = this.objectUUID2SegmentIndex[ data ].segmentIndex;
-                this.colorRampPalette.genomicRampWidget.highlight(segmentIndex)
+                this.colorRampPanel.genomicRampWidget.highlight(segmentIndex)
             }
 
         } else if ("PickerDidLeaveObject" === type) {
 
-            this.colorRampPalette.genomicRampWidget.repaint();
+            this.colorRampPanel.genomicRampWidget.repaint();
 
         } else if ("DidSelectSegmentIndex" === type) {
 
@@ -120,7 +124,7 @@ class SceneManager {
         this.scene.background = this.background;
         this.scene.add(this.hemisphereLight);
 
-        this.colorRampPalette.configure({ genomicStart, genomicEnd, structureLength });
+        this.colorRampPanel.configure({ genomicStart, genomicEnd, structureLength });
 
         if (true === doUpdateCameraPose) {
             this.orbitalCamera.setPose({ position: cameraPosition, centroid: structureCentroid });
@@ -187,5 +191,47 @@ class SceneManager {
     }
 
 }
+
+export const sceneManagerConfigurator = (container) => {
+
+    const highlightColor = appleCrayonColorThreeJS('maraschino');
+
+    const colorRampPanelConfig =
+        {
+            container,
+            panel: $('#trace3d_color_ramp_panel').get(0),
+            colors:
+                [
+                    appleCrayonColorRGB255('honeydew'),
+                    appleCrayonColorRGB255('clover')
+                ],
+            highlightColor
+        };
+
+    const config =
+        {
+            container: container,
+
+            ballRadius: 24,
+
+            stickMaterial: new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
+
+            backgroundColor: appleCrayonColorThreeJS('mercury'),
+
+            groundPlaneColor: appleCrayonColorHexValue('steel'),
+
+            colorRampPanel: new ColorRampPanel(colorRampPanelConfig),
+
+            renderer: new THREE.WebGLRenderer({ antialias: true }),
+
+            picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
+
+            // skyColor | groundColor | intensity
+            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 )
+        };
+
+    return config;
+};
+
 
 export default SceneManager;

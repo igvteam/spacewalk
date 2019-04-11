@@ -156,7 +156,7 @@ let layout = (container, element) => {
 
 };
 
-export const igvDefaultConfiguration = () => {
+export let igvConfigurator = () => {
 
     let config =
         {
