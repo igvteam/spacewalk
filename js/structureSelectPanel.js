@@ -4,11 +4,11 @@ import { clamp } from './math.js'
 
 let currentStructureKey = undefined;
 
-class StructureSelect {
+class StructureSelectPanel {
 
-    constructor({ container, palette }) {
+    constructor({ container, panel }) {
 
-        this.$palette = $(palette);
+        this.$panel = $(panel);
 
         this.$header = $('#trace3d_structure_select_header');
 
@@ -19,18 +19,18 @@ class StructureSelect {
 
         this.keys = undefined;
 
-        layout(container, palette);
+        layout(container, panel);
 
-        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
+        makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 
-        $(window).on('resize.trace3d.structure_select', () => { this.onWindowResize(container, palette) });
+        $(window).on('resize.trace3d.structure_select', () => { this.onWindowResize(container, panel) });
 
-        $(palette).on('mouseenter.trace3d.structure_select', (event) => {
+        $(panel).on('mouseenter.trace3d.structure_select', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidEnterGUI" });
         });
 
-        $(palette).on('mouseleave.trace3d.structure_select', (event) => {
+        $(panel).on('mouseleave.trace3d.structure_select', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
@@ -96,7 +96,7 @@ class StructureSelect {
 
     receiveEvent({ type }) {
         if ("ToggleUIControls" === type) {
-            this.$palette.toggle();
+            this.$panel.toggle();
         }
     }
 
@@ -122,8 +122,8 @@ class StructureSelect {
 
     }
 
-    onWindowResize(container, palette) {
-        layout(container, palette);
+    onWindowResize(container, panel) {
+        layout(container, panel);
     };
 
 }
@@ -140,4 +140,4 @@ let layout = (container, element) => {
 
 };
 
-export default StructureSelect;
+export default StructureSelectPanel;

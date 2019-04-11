@@ -3,16 +3,16 @@ import GUIManager from './guiManager.js';
 import SceneManager from './sceneManager.js';
 import Picker from './picker.js';
 import PickHighlighter from './pickHighlighter.js';
-import DataFileLoader from './dataFileLoader.js';
-import StructureSelect from './structureSelect.js';
+import DataFileLoadModal from './dataFileLoadModal.js';
+import StructureSelectPanel from './structureSelectPanel.js';
 import StructureManager from './structureManager.js';
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
-import IGVPalette from './igvPalette.js';
-import JuiceboxPalette from './juiceboxPalette.js';
-import { mouseHandler, igvDefaultConfiguration } from "./igvPalette.js";
+import IGVPanel from './IGVPanel.js';
+import JuiceboxPanel from './juiceboxPanel.js';
+import { mouseHandler, igvDefaultConfiguration } from "./IGVPanel.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonColorRGB255 } from './color.js';
 import { globalEventBus } from './eventBus.js';
-import ColorRampPalette from "./colorRampPalette.js";
+import ColorRampPanel from "./colorRampPanel.js";
 
 
 let guiManager;
@@ -37,11 +37,11 @@ let main = async container => {
 
     guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
 
-    dataFileLoader = new DataFileLoader({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
+    dataFileLoader = new DataFileLoadModal({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
 
-    structureSelect = new StructureSelect({ container, palette: $('#trace3d_structure_select_palette').get(0) });
+    structureSelect = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0) });
 
-    juiceboxPalette = new JuiceboxPalette({ container, palette: $('#trace3d_juicebox_palette').get(0) });
+    juiceboxPalette = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0) });
 
     const juiceboxBrowserConfig =
         {
@@ -57,7 +57,7 @@ let main = async container => {
         juiceboxPalette.defaultConfiguration();
     }
 
-    igvPalette = new IGVPalette({ container, palette: $('#trace3d_igv_palette').get(0) });
+    igvPalette = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0) });
 
     const igvBrowserConfig = igvDefaultConfiguration();
     let igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
@@ -84,7 +84,7 @@ let main = async container => {
     const colorRampPaletteConfig =
         {
             container,
-            palette: $('#trace3d_color_ramp_palette').get(0),
+            panel: $('#trace3d_color_ramp_panel').get(0),
             colors:
                 [
                     appleCrayonColorRGB255('honeydew'),
@@ -105,7 +105,7 @@ let main = async container => {
 
             groundPlaneColor: appleCrayonColorHexValue('steel'),
 
-            colorRampPalette: new ColorRampPalette(colorRampPaletteConfig),
+            colorRampPalette: new ColorRampPanel(colorRampPaletteConfig),
 
             renderer: new THREE.WebGLRenderer({ antialias: true }),
 

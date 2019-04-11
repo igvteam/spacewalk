@@ -3,7 +3,7 @@ import { globalEventBus } from "./eventBus.js";
 
 let currentURL = undefined;
 
-class DataFileLoader {
+class DataFileLoadModal {
 
     constructor({ $urlModal, $selectModal }) {
 
@@ -126,4 +126,4 @@ const readFileAsText = file => {
     });
 };
 
-export default DataFileLoader;
+export default DataFileLoadModal;

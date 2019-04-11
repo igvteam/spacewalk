@@ -2,12 +2,12 @@ $trace3d_navbar_height: 36px;
 
 @import "color";
 @import "navbar";
-@import "palette";
-@import "data_file_load";
-@import "structure_select_palette";
-@import "color_ramp_palette";
-@import "igv_palette";
-@import "juicebox_palette";
+@import "panel";
+@import "data_file_load_modal";
+@import "structure_select_panel";
+@import "color_ramp_panel";
+@import "igv_panel";
+@import "juicebox_panel";
 @import "ui_manager";
 
 .igv-root-div {
