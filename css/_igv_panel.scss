@@ -1,13 +1,13 @@
 
-// igv palette
-$trace3d_igv_palette_width: 600px;
-$trace3d_igv_palette_heigth: 256px;
+// igv panel
+$trace3d_igv_panel_width: 600px;
+$trace3d_igv_panel_heigth: 256px;
 
-// igvjs palette
-#trace3d_igv_palette.card {
+// igvjs panel
+#trace3d_igv_panel.card {
 
-  width: $trace3d_igv_palette_width;
-  //height: $trace3d_igv_palette_heigth;
+  width: $trace3d_igv_panel_width;
+  //height: $trace3d_igv_panel_heigth;
   height: auto;
 
   align-items: center;
@@ -16,7 +16,7 @@ $trace3d_igv_palette_heigth: 256px;
   // igvjs container
   #trace3d_igv_container.card-body {
 
-    height: $trace3d_igv_palette_heigth;
+    height: $trace3d_igv_panel_heigth;
     //height: unset;
     overflow: auto;
 

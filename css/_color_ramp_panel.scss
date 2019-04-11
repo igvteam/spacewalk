@@ -1,24 +1,24 @@
 
 $trace3d_color_ramp_canvas_width: 32px;
 
-$trace3d_color_ramp_palette_width: 128px;
-$trace3d_color_ramp_palette_height: 512px;
+$trace3d_color_ramp_panel_width: 128px;
+$trace3d_color_ramp_panel_height: 512px;
 
 $trace3d_text_box_height: 32px;
-$trace3d_color_ramp_palette_padding: 8px;
+$trace3d_color_ramp_panel_padding: 8px;
 
-#trace3d_color_ramp_palette.card {
+#trace3d_color_ramp_panel.card {
 
   width: auto;
-  height: $trace3d_color_ramp_palette_height;
+  height: $trace3d_color_ramp_panel_height;
 
-  padding-left: $trace3d_color_ramp_palette_padding;
-  padding-right: $trace3d_color_ramp_palette_padding;
+  padding-left: $trace3d_color_ramp_panel_padding;
+  padding-right: $trace3d_color_ramp_panel_padding;
 
   #trace3d_color_ramp_widget_container.card-body {
 
     width: 100%;
-    height: $trace3d_color_ramp_palette_height;
+    height: $trace3d_color_ramp_panel_height;
 
     font-size: 16px;
 

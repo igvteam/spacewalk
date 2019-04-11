@@ -3,48 +3,48 @@ import { globalEventBus } from "./eventBus.js";
 
 let currentURL = undefined;
 
-class JuiceboxPalette {
+class JuiceboxPanel {
 
-    constructor ({ container, palette }) {
+    constructor ({ container, panel }) {
 
         this.container = container;
 
-        this.$palette = $(palette);
+        this.$panel = $(panel);
 
-        layout(container, palette);
+        layout(container, panel);
 
-        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
+        makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 
-        $(window).on('resize.trace3d.juicebox_palette', () => { this.onWindowResize(container, palette) });
+        $(window).on('resize.trace3d.juicebox_panel', () => { this.onWindowResize(container, panel) });
 
-        $(palette).on('mouseenter.trace3d.juicebox_palette', (event) => {
+        $(panel).on('mouseenter.trace3d.juicebox_panel', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidEnterGUI" });
         });
 
-        $(palette).on('mouseleave.trace3d.juicebox_palette', (event) => {
+        $(panel).on('mouseleave.trace3d.juicebox_panel', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
         // URL
-        const $url_input = $('#trace3d_juicebox_palette_url_input');
+        const $url_input = $('#trace3d_juicebox_panel_url_input');
         $url_input.val('');
 
-        const $url_button = $('#trace3d_juicebox_palette_url_button');
+        const $url_button = $('#trace3d_juicebox_panel_url_button');
 
-        $url_input.on('change.trace3d_juicebox_palette_url_input', (event) => {
+        $url_input.on('change.trace3d_juicebox_panel_url_input', (event) => {
             event.stopPropagation();
             currentURL = event.target.value;
         });
 
         const $spinner_container = $('#trace3d_hic_url_form_group');
 
-        $url_button.on('click.trace3d_juicebox_palette_url_button', async (event) => {
+        $url_button.on('click.trace3d_juicebox_panel_url_button', async (event) => {
 
             event.stopPropagation();
 
-            $url_input.trigger('change.trace3d_juicebox_palette_url_input');
+            $url_input.trigger('change.trace3d_juicebox_panel_url_input');
             await this.loadURL({ url: currentURL, $spinner: $spinner_container.find('.spinner-border')});
             $url_input.val('');
             currentURL = undefined;
@@ -57,7 +57,7 @@ class JuiceboxPalette {
 
     receiveEvent({ type }) {
         if ("ToggleUIControls" === type) {
-            this.$palette.toggle();
+            this.$panel.toggle();
         }
     }
 
@@ -81,7 +81,7 @@ class JuiceboxPalette {
 
         try {
             const browser = await hic.createBrowser(config.container, config);
-            layout(this.container, this.$palette.get(0));
+            layout(this.container, this.$panel.get(0));
             this.browser = browser;
             return browser;
         } catch (error) {
@@ -122,8 +122,8 @@ class JuiceboxPalette {
 
     };
 
-    onWindowResize(container, palette) {
-        layout(container, palette);
+    onWindowResize(container, panel) {
+        layout(container, panel);
     };
 
 }
@@ -141,4 +141,4 @@ let layout = (container, element) => {
 
 };
 
-export default JuiceboxPalette;
+export default JuiceboxPanel;

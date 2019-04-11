@@ -2,28 +2,28 @@ import { globalEventBus } from "./eventBus.js";
 import { makeDraggable } from "./draggable.js";
 import ColorRampWidget from "./colorRampWidget.js";
 
-class ColorRampPalette {
-    constructor({ container, palette, colors, highlightColor }) {
+class ColorRampPanel {
+    constructor({ container, panel, colors, highlightColor }) {
 
-        this.$palette = $(palette);
+        this.$panel = $(panel);
 
-        this.genomicRampWidget = new ColorRampWidget( { palette, namespace: 'genomicRampWidget', colors, highlightColor } );
+        this.genomicRampWidget = new ColorRampWidget( { panel, namespace: 'genomicRampWidget', colors, highlightColor } );
 
-        layout(container, palette);
+        layout(container, panel);
 
-        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
+        makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 
-        $(window).on('resize.trace3d.toolpalette', () => {
-            this.onWindowResize(container, palette)
+        $(window).on('resize.trace3d.toolpanel', () => {
+            this.onWindowResize(container, panel)
         });
 
-        $(palette).on('mouseenter.trace3d.toolpalette', (event) => {
+        $(panel).on('mouseenter.trace3d.toolpanel', (event) => {
             event.stopPropagation();
             this.genomicRampWidget.repaint();
             globalEventBus.post({type: "DidEnterGUI" });
         });
 
-        $(palette).on('mouseleave.trace3d.toolpalette', (event) => {
+        $(panel).on('mouseleave.trace3d.toolpanel', (event) => {
             event.stopPropagation();
             globalEventBus.post({type: "DidLeaveGUI" });
         });
@@ -33,7 +33,7 @@ class ColorRampPalette {
 
     receiveEvent({ type }) {
         if ("ToggleUIControls" === type) {
-            this.$palette.toggle();
+            this.$panel.toggle();
         }
     }
 
@@ -41,8 +41,8 @@ class ColorRampPalette {
         this.genomicRampWidget.configure({ genomicStart, genomicEnd, structureLength });
     }
 
-    onWindowResize(container, palette) {
-        layout(container, palette);
+    onWindowResize(container, panel) {
+        layout(container, panel);
     };
 
 }
@@ -58,4 +58,4 @@ let layout = (container, element) => {
 
 };
 
-export default ColorRampPalette;
+export default ColorRampPanel;

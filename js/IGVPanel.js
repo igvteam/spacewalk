@@ -5,37 +5,37 @@ import { lerp, quantize } from "./math.js";
 
 let currentURL = undefined;
 
-class IGVPalette {
+class IGVPanel {
 
-    constructor ({ container, palette }) {
+    constructor ({ container, panel }) {
 
-        this.$palette = $(palette);
+        this.$panel = $(panel);
 
-        layout(container, palette);
+        layout(container, panel);
 
-        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
+        makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 
         this.$track_label = $('#trace3d_igv_track_label');
 
-        $(window).on('resize.trace3d.trace3d_igv_palette', () => { this.onWindowResize(container, palette) });
+        $(window).on('resize.trace3d.trace3d_igv_panel', () => { this.onWindowResize(container, panel) });
 
-        $(palette).on('mouseenter.trace3d.trace3d_igv_palette', (event) => {
+        $(panel).on('mouseenter.trace3d.trace3d_igv_panel', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidEnterGUI" });
         });
 
-        $(palette).on('mouseleave.trace3d.trace3d_igv_palette', (event) => {
+        $(panel).on('mouseleave.trace3d.trace3d_igv_panel', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
         // URL
-        const $url_input = $('#trace3d_igv_palette_url_input');
+        const $url_input = $('#trace3d_igv_panel_url_input');
         $url_input.val('');
 
-        const $url_button = $('#trace3d_igv_palette_url_button');
+        const $url_button = $('#trace3d_igv_panel_url_button');
 
-        $url_input.on('change.trace3d_igv_palette_url_input', (event) => {
+        $url_input.on('change.trace3d_igv_panel_url_input', (event) => {
             event.stopPropagation();
             // console.log('url on change - value ' + event.target.value);
             currentURL = event.target.value;
@@ -43,9 +43,9 @@ class IGVPalette {
 
         const $url_container = $('#trace3d_igv_container');
 
-        $url_button.on('click.trace3d_igv_palette_url_button', async (event) => {
+        $url_button.on('click.trace3d_igv_panel_url_button', async (event) => {
             event.stopPropagation();
-            $url_input.trigger('change.trace3d_igv_palette_url_input');
+            $url_input.trigger('change.trace3d_igv_panel_url_input');
             await this.loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border')});
 
             $url_input.val('');
@@ -57,14 +57,14 @@ class IGVPalette {
 
     receiveEvent({ type }) {
         if ("ToggleUIControls" === type) {
-            this.$palette.toggle();
+            this.$panel.toggle();
         }
     }
 
     async createBrowser (config) {
 
         try {
-            this.browser = await igv.createBrowser( this.$palette.find('#trace3d_igv_root_container').get(0), config );
+            this.browser = await igv.createBrowser( this.$panel.find('#trace3d_igv_root_container').get(0), config );
             return this.browser;
         } catch (error) {
             console.warn(error.message);
@@ -119,8 +119,8 @@ class IGVPalette {
 
     };
 
-    onWindowResize(container, palette) {
-        layout(container, palette);
+    onWindowResize(container, panel) {
+        layout(container, panel);
     };
 
     // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
@@ -268,4 +268,4 @@ export let mouseHandler = ({ bp, start, end, interpolant, structureLength }) => 
     globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
 };
 
-export default IGVPalette;
+export default IGVPanel;

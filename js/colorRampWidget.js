@@ -8,7 +8,7 @@ import { rgb255, rgb255Lerp, rgb255String } from "./color.js";
 let currentSegmentIndex = undefined;
 class ColorRampWidget {
 
-    constructor({ palette, namespace, colors, highlightColor }) {
+    constructor({ panel, namespace, colors, highlightColor }) {
 
         this.colors = colors;
         let { r, g, b } = highlightColor;
@@ -17,13 +17,13 @@ class ColorRampWidget {
         let rampContainer;
         let ramp;
 
-        const $palette = $(palette);
+        const $panel = $(panel);
 
         // header
-        this.$header = $palette.find('#trace3d_color_ramp_header');
+        this.$header = $panel.find('#trace3d_color_ramp_header');
 
         // ramp canvas
-        const $canvas = $palette.find('canvas');
+        const $canvas = $panel.find('canvas');
         const canvas = $canvas.get(0);
 
         fitToContainer(canvas);
@@ -50,7 +50,7 @@ class ColorRampWidget {
         $canvas.on(('click.trace3d.' + namespace), eventSink);
 
         // footer
-        this.$footer = $palette.find('#trace3d_color_ramp_footer');
+        this.$footer = $panel.find('#trace3d_color_ramp_footer');
 
         this.context = canvas.getContext('2d');
 
