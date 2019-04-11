@@ -1,5 +1,6 @@
 import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./eventBus.js";
+import {numberFormatter} from "./utils.js";
 
 let currentURL = undefined;
 
@@ -60,8 +61,18 @@ class JuiceboxPanel {
         if ("ToggleUIControls" === type) {
             this.$panel.toggle();
         } else if ('UpdateContactMapMousePosition' === type) {
+
+            const state = this.browser.state;
+
+            // bp-per-bin
+            const resolution = this.browser.resolution();
+
+            // bp = ((bin + pixel/pixel-per-bin) / bp-per-bin)
             const { x, y } = data;
-            console.log(Date.now() + ' juicebox palette ' + type + ' x ' + x + ' ' + y);
+            const xBP = (state.x + (x / state.pixelSize)) * resolution;
+            const yBP = (state.y + (y / state.pixelSize)) * resolution;
+
+            console.log('juicebox bp ' + numberFormatter( Math.round(xBP) ));
         }
     }
 
