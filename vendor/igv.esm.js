@@ -23778,14 +23778,21 @@ var igv = (function (igv) {
 
         var level = null, i, zl;
 
-        for (i = 0; i < zoomLevelHeaders.length; i++) {
+        if (zoomLevelHeaders && zoomLevelHeaders.length > 0) {
 
-            zl = zoomLevelHeaders[i];
+            for (i = 0; i < zoomLevelHeaders.length; i++) {
 
-            if (zl.reductionLevel < bpPerPixel) {
-                level = zl;
-                break;
+                zl = zoomLevelHeaders[i];
+
+                if (zl.reductionLevel < bpPerPixel) {
+                    level = zl;
+                    break;
+                }
             }
+
+        } else {
+
+            level = undefined;
         }
 
         return level;
@@ -24582,29 +24589,32 @@ var igv = (function (igv) {
 
             const urlOrFile = options.url || options.file
 
-            let filename = options.filename
-            if (!filename) {
-                filename = (options.url ? igv.getFilename(options.url) : options.file.name)
-            }
 
             if (options.url && (options.url.startsWith("blob:") || options.url.startsWith("data:"))) {
 
                 var json = igv.Browser.uncompressSession(options.url);
                 return JSON.parse(json);
 
-            } else if (filename.endsWith(".xml")) {
-
-                const knownGenomes = await igv.GenomeUtils.getKnownGenomes()
-
-                const string = await igv.xhr.loadString(urlOrFile)
-
-                return new igv.XMLSession(string, knownGenomes);
-
-
-            } else if (filename.endsWith(".json")) {
-                return igv.xhr.loadJson(urlOrFile);
             } else {
-                undefined;
+                let filename = options.filename
+                if (!filename) {
+                    filename = (options.url ? igv.getFilename(options.url) : options.file.name)
+                }
+
+                if (filename.endsWith(".xml")) {
+
+                    const knownGenomes = await igv.GenomeUtils.getKnownGenomes()
+
+                    const string = await igv.xhr.loadString(urlOrFile)
+
+                    return new igv.XMLSession(string, knownGenomes);
+
+
+                } else if (filename.endsWith(".json")) {
+                    return igv.xhr.loadJson(urlOrFile);
+                } else {
+                    return undefined;
+                }
             }
 
         }
@@ -26241,7 +26251,11 @@ var igv = (function (igv) {
             }
             bytes = new Zlib.RawInflate(compressedBytes).decompress();
         }
-        const json = String.fromCharCode.apply(null, bytes);
+        let json = ''
+        for(let b of bytes) {
+            json += String.fromCharCode(b)
+        }
+            
         return json;
 
 
@@ -26311,13 +26325,16 @@ var igv = (function (igv) {
 
     igv.Browser.prototype.cancelTrackPan = function () {
 
-        if (this.isDragging) {
-            this.updateViews();
-            this.fireEvent('trackdragend');
-        }
+        const dragEnd = this.isDragging
         this.isDragging = false;
         this.isScrolling = false;
         this.vpMouseDown = undefined;
+
+
+        if (dragEnd) {
+            this.updateViews();
+            this.fireEvent('trackdragend');
+        }
 
     }
 
@@ -32328,7 +32345,8 @@ var igv = (function (igv) {
             }
 
             const windowX = Math.round(options.viewportContainerX);
-            const windowX1 = windowX + options.viewportContainerWidth / (browser.genomicStateList.length || 1);
+            const nLoci = browser.genomicStateList ? browser.genomicStateList.length : 1
+            const windowX1 = windowX + options.viewportContainerWidth / nLoci;
 
             renderFeatureLabels.call(this, ctx, feature, coord.px, coord.px1, py, windowX, windowX1, options.genomicState, options);
         }
@@ -46529,9 +46547,10 @@ var igv = (function (igv) {
         fn = fn.toLowerCase();
 
         // Special case -- UCSC refgene files
-        if (fn.endsWith("refgene.txt.gz") || fn.endsWith("refgene.txt")) {
+        if (fn.endsWith("refgene.txt.gz") ||
+            fn.endsWith("refgene.txt") ||
+            fn.endsWith("refgene.sorted.txt.gz")) {
             return "refgene";
-            return;
         }
 
 
@@ -47203,7 +47222,7 @@ var igv = (function (igv) {
         resizeControlCanvas.call(this, $leftHandGutter.outerWidth(), $leftHandGutter.outerHeight())
     }
 
-    igv.appendRightHandGutter = function($parent) {
+    igv.appendRightHandGutter = function ($parent) {
 
         let $div = $('<div class="igv-right-hand-gutter">');
         $parent.append($div);
@@ -47211,12 +47230,12 @@ var igv = (function (igv) {
         igv.createTrackGearPopover.call(this, $div);
     };
 
-    igv.createTrackGearPopover = function($parent) {
+    igv.createTrackGearPopover = function ($parent) {
 
-        let $cogContainer = $("<div>", { class:'igv-trackgear-container' });
+        let $cogContainer = $("<div>", {class: 'igv-trackgear-container'});
         $parent.append($cogContainer);
 
-        $cogContainer.append( igv.createIcon('cog') );
+        $cogContainer.append(igv.createIcon('cog'));
 
         this.trackGearPopover = new igv.TrackGearPopover($parent);
         this.trackGearPopover.$popover.hide();
@@ -47450,11 +47469,9 @@ var igv = (function (igv) {
     /**
      * Update viewports to reflect current genomic state, possibly loading additional data.
      */
-    igv.TrackView.prototype.updateViews = function (force) {
+    igv.TrackView.prototype.updateViews = async function (force) {
 
         if (!(this.browser && this.browser.genomicStateList)) return;
-
-        let self = this, promises, rpV, groupAutoscale;
 
         const visibleViewports = this.viewports.filter(vp => vp.isVisible())
 
@@ -47462,79 +47479,50 @@ var igv = (function (igv) {
             viewport.shift();
         });
 
-        let isDragging = this.browser.isDragging;
-
         // List of viewports that need reloading
-        rpV = viewportsToReload.call(this, force);
+        const rpV = viewportsToReload.call(this, force);
+        for (let vp of rpV) {
+            await vp.loadFeatures()
+        }
 
-        // promises = rpV.map(function (vp) {
-        //     return function () {
-        //         return vp.loadFeatures();
-        //     }
-        // });
-        // promiseSerial(promises)
-        //
-        //
-        promises = rpV.map(function (vp) {
-            return vp.loadFeatures();
-        })
+        const isDragging = this.browser.isDragging;
 
-        Promise.all(promises)
-            .then(function (tiles) {
+        if (!isDragging && this.track.autoscale) {
+            let allFeatures = [];
+            for(let vp of visibleViewports) {
+                const referenceFrame = vp.genomicState.referenceFrame;
+                const start = referenceFrame.start;
+                const end = start + referenceFrame.toBP($(vp.contentDiv).width());
 
-                if (!isDragging && self.track.autoscale) {
+                if (vp.tile && vp.tile.features) {
+                        allFeatures = allFeatures.concat(igv.FeatureUtils.findOverlapping(vp.tile.features, start, end));
 
-                    var allFeatures = [];
-                    visibleViewports.forEach(function (vp) {
-                        var referenceFrame, chr, start, end, cache;
-                        referenceFrame = vp.genomicState.referenceFrame;
-                        start = referenceFrame.start;
-                        end = start + referenceFrame.toBP($(vp.contentDiv).width());
-
-                        if (vp.tile && vp.tile.features) {
-                            if (self.track.autoscale) {
-                                allFeatures = allFeatures.concat(igv.FeatureUtils.findOverlapping(vp.tile.features, start, end));
-                            }
-                            else {
-                                allFeatures = allFeatures.concat(vp.tile.features);
-                            }
-                        }
-                    });
-
-                    if (typeof self.track.doAutoscale === 'function') {
-                        self.track.doAutoscale(allFeatures);
-                    } else {
-                        self.track.dataRange = igv.doAutoscale(allFeatures);
-                    }
                 }
+            }
+
+            if (typeof this.track.doAutoscale === 'function') {
+                this.track.doAutoscale(allFeatures);
+            } else {
+                this.track.dataRange = igv.doAutoscale(allFeatures);
+            }
+        }
 
 
-            })
-            .then(function (ignore) {
+        // Must repaint all viewports if autoscaling
+        if (!isDragging && (this.track.autoscale || this.track.autoscaleGroup)) {
+            for(let vp of visibleViewports) {
+                vp.repaint();
+            }
+        }
+        else {
+            for(let vp of rpV) {
+                vp.repaint();
+            }
+        }
 
-                // Must repaint all viewports if autoscaling
-                if (!isDragging && (self.track.autoscale || self.track.autoscaleGroup)) {
-                    visibleViewports.forEach(function (vp) {
-                        vp.repaint();
-                    })
-                }
-                else {
-                    rpV.forEach(function (vp) {
-                        vp.repaint();
-                    })
-                }
-            })
+        adjustTrackHeight.call(this);
 
-            .then(function (ignore) {
-                adjustTrackHeight.call(self);
-            })
-
-            .catch(function (error) {
-                console.error(error);
-                // TODO -- inform user,  remove track
-            })
-
-    };
+    }
 
     /**
      * Return a promise to get all in-view features.  Used for group autoscaling.
@@ -47579,7 +47567,7 @@ var igv = (function (igv) {
 
         // List of viewports that need reloading
         rpV = this.viewports.filter(function (viewport) {
-            if(!viewport.isVisible()) {
+            if (!viewport.isVisible()) {
                 return false
             }
             if (!viewport.checkZoomIn()) {
@@ -47619,8 +47607,8 @@ var igv = (function (igv) {
 
         if (this.scrollbar) {
             const currentTop = this.viewports[0].getContentTop();
-            const newTop =  Math.min(0, this.$viewportContainer.height() - minContentHeight(this.viewports));
-            if(currentTop < newTop) {
+            const newTop = Math.min(0, this.$viewportContainer.height() - minContentHeight(this.viewports));
+            if (currentTop < newTop) {
                 this.viewports.forEach(function (viewport) {
                     $(viewport.contentDiv).css("top", newTop + "px");
                 });
@@ -47634,12 +47622,12 @@ var igv = (function (igv) {
     }
 
     function maxContentHeight(viewports) {
-        const heights = viewports.map((viewport)  => viewport.getContentHeight());
+        const heights = viewports.map((viewport) => viewport.getContentHeight());
         return Math.max(...heights);
     }
 
     function minContentHeight(viewports) {
-        const heights = viewports.map((viewport)  => viewport.getContentHeight());
+        const heights = viewports.map((viewport) => viewport.getContentHeight());
         return Math.min(...heights);
     }
 
@@ -47738,7 +47726,7 @@ var igv = (function (igv) {
                     colorHandler(color);
                 });
 
-                $swatch.on('touchend.trackview',  (event) => {
+                $swatch.on('touchend.trackview', (event) => {
                     event.stopPropagation();
                     colorHandler(color);
                 });
@@ -48338,7 +48326,12 @@ var igv = (function (igv) {
         // bp = bp + (pixel * (bp / pixel))
         const bp = Math.round(_startBP + viewportContentMouseXY.x * referenceFrame.bpPerPixel);
 
-        return { bp: bp, start: _startBP, end: _endBP, interpolant: viewportContentMouseXY.xNormalized };
+        // TODO: Can we make use of this in the custom mouse handler (ie: Tracing3D)
+        const $trackContainer = $viewportContent.closest('.igv-track-container-div');
+        const trackContainerMouseXY = igv.getMouseXY($trackContainer.get(0), event);
+
+
+        return { $host: $trackContainer, host_css_left: left, bp: bp, start: _startBP, end: _endBP, interpolant: viewportContentMouseXY.xNormalized };
     };
 
     igv.CursorGuide.prototype.setCustomMouseHandler = function (customMouseHandler) {
