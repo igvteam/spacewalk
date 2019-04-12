@@ -3,21 +3,12 @@ import * as THREE from "./threejs_es6/three.module.js";
 class StructureManager {
 
     constructor () {
+        this.stepSize = 3e4;
         this.path = undefined;
     }
 
-    async loadSegments({ path}) {
-
-        this.path = path;
-
-        const response = await fetch(path);
-        const text = await response.text();
-        this.ingest(text);
-    }
-
     ingest(string) {
-        this.stepSize = 3e4;
-        this.structures = {};
+         this.structures = {};
         const lines = string.split(/\r?\n/);
 
         // discard blurb
@@ -32,9 +23,7 @@ class StructureManager {
         let list;
         for (let line of lines) {
 
-            if ("" === line) {
-                // do nothing
-            } else {
+            if ("" !== line) {
 
                 let parts = line.split(',');
 
@@ -50,14 +39,11 @@ class StructureManager {
                         list = this.structures[ currentKey ].array;
                     }
 
-                    // discard chr index
+                    // discard chr-index
                     parts.shift();
 
-                    // discard segment index
+                    // discard segment-index
                     parts.shift();
-
-                    // let [ z, x, y ] = parts.map((token) => { return parseFloat(token); });
-                    // let obj = { xyz: [ x, y, z ] };
 
                     let [ z, x, y ] = parts;
                     let obj = { xyz: [ parseFloat(x), parseFloat(y), parseFloat(z) ] };
