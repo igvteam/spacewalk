@@ -91,12 +91,12 @@
 
 #trace3d_color_ramp_panel.card {
   width: auto;
-  height: 512px;
-  padding-left: 8px;
-  padding-right: 8px; }
+  height: 600px;
+  padding-left: 12px;
+  padding-right: 12px; }
   #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body {
     width: 100%;
-    height: 512px;
+    height: 600px;
     font-size: 16px; }
     #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_header {
       width: 100%;
@@ -106,7 +106,7 @@
       text-align: center; }
     #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_canvas_container {
       cursor: pointer;
-      width: 32px;
+      width: 40px;
       height: calc(98% - 2 * 32px - 24px);
       background-color: transparent; }
     #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_footer {

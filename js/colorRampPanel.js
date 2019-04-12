@@ -3,11 +3,12 @@ import { makeDraggable } from "./draggable.js";
 import ColorRampWidget from "./colorRampWidget.js";
 
 class ColorRampPanel {
-    constructor({ container, panel, colors, highlightColor }) {
+
+    constructor({ container, panel, colorTableManager, highlightColor }) {
 
         this.$panel = $(panel);
 
-        this.genomicRampWidget = new ColorRampWidget( { panel, namespace: 'genomicRampWidget', colors, highlightColor } );
+        this.genomicRampWidget = new ColorRampWidget( { panel, namespace: 'genomicRampWidget', colorTableManager, highlightColor } );
 
         layout(container, panel);
 

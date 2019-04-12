@@ -1,16 +1,15 @@
-import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
-
 import { fitToContainer, getMouseXY } from "./utils.js";
-import { lerp, quantize } from "./math.js";
-import { rgb255, rgb255Lerp, rgb255String } from "./color.js";
+import { quantize } from "./math.js";
+import { rgb255, rgb255String } from "./color.js";
 
 let currentSegmentIndex = undefined;
 class ColorRampWidget {
 
-    constructor({ panel, namespace, colors, highlightColor }) {
+    constructor({ panel, namespace, colorTableManager, highlightColor }) {
 
-        this.colors = colors;
+        this.colorTableManager = colorTableManager;
+
         let { r, g, b } = highlightColor;
         this.highlightColor = rgb255(r*255, g*255, b*255);
 
@@ -53,7 +52,6 @@ class ColorRampWidget {
 
         this.canvas = canvas;
 
-        this.colors = colors;
     }
 
     configure({ genomicStart, genomicEnd, structureLength }) {
@@ -63,11 +61,11 @@ class ColorRampWidget {
         const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
         this.$footer.text(ss + 'Mb');
         this.$header.text(ee + 'Mb');
-        this.paintQuantizedRamp(this.context, this.colors, structureLength, undefined);
+        this.paintQuantizedRamp(this.context, structureLength, undefined);
     }
 
     repaint () {
-        this.paintQuantizedRamp(this.context, this.colors, this.structureLength, undefined);
+        this.paintQuantizedRamp(this.context, this.structureLength, undefined);
     }
 
     onCanvasMouseMove(canvas, event) {
@@ -99,10 +97,10 @@ class ColorRampWidget {
     };
 
     highlight (segmentIndex) {
-        this.paintQuantizedRamp(this.context, this.colors, this.structureLength, segmentIndex)
+        this.paintQuantizedRamp(this.context, this.structureLength, segmentIndex)
     }
 
-    paintQuantizedRamp(ctx, colors, structureLength, highlightedSegmentIndex){
+    paintQuantizedRamp(ctx, structureLength, highlightedSegmentIndex){
 
         const yIndices = new Array(ctx.canvas.offsetHeight);
 
@@ -125,8 +123,7 @@ class ColorRampWidget {
             if (highlightedSegmentIndex && highlightedSegmentIndex === segmentIndex) {
                 ctx.fillStyle = rgb255String(this.highlightColor);
             } else {
-                const { r, g, b } = rgb255Lerp(colors[ 0 ], colors[ 1 ], quantized);
-                ctx.fillStyle = rgb255String({r, g, b});
+                ctx.fillStyle = this.colorTableManager.retrieveRGB255String('kenneth_moreland_smooth_cool_warm', quantized);
             }
 
             ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);
@@ -135,9 +132,7 @@ class ColorRampWidget {
     }
 
     colorForInterpolant(interpolant) {
-        const { r, g, b } = rgb255Lerp(this.colors[ 0 ], this.colors[ 1 ], interpolant);
-        const str = `rgb(${r},${g},${b})`;
-        return new THREE.Color( str );
+        return this.colorTableManager.retrieveThreeJS('kenneth_moreland_smooth_cool_warm', interpolant)
     }
 
 }
