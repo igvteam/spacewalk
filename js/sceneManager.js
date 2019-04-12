@@ -38,10 +38,10 @@ class SceneManager {
         this.hemisphereLight = hemisphereLight;
 
         // Dictionay of segment indices. Key is UUID of 3D object
-        this.objectUUID2SegmentIndex = {};
+        this.indexDictionary = {};
 
         // Array of 3D objects. Index is segment index.
-        this.segmentIndex2Object = [];
+        this.objectList = [];
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 
@@ -59,8 +59,8 @@ class SceneManager {
         const now = Date.now();
         if ("PickerDidHitObject" === type) {
 
-            if (this.objectUUID2SegmentIndex[ data ]) {
-                const segmentIndex = this.objectUUID2SegmentIndex[ data ].segmentIndex;
+            if (this.indexDictionary[ data ]) {
+                const segmentIndex = 1 + this.indexDictionary[ data ].index;
                 this.colorRampPanel.genomicRampWidget.highlight(segmentIndex)
             }
 
@@ -70,8 +70,9 @@ class SceneManager {
 
         } else if ("DidSelectSegmentIndex" === type) {
 
-            if (this.segmentIndex2Object[ data ]) {
-                this.picker.pickHighlighter.configure(this.segmentIndex2Object[ data ].object);
+            const index = data - 1;
+            if (this.objectList[ index ]) {
+                this.picker.pickHighlighter.configure(this.objectList[ index ].object);
             }
 
         } else if ("ToggleGroundplane" === type) {
@@ -157,6 +158,13 @@ class SceneManager {
         this.groundPlane.position.set(structureCentroid.x, wye, structureCentroid.z);
 
         this.scene.add( this.groundPlane );
+
+        // Dictionay of segment indices. Key is UUID of 3D object
+        this.indexDictionary = {};
+
+        // Array of 3D objects. Index is segment index.
+        this.objectList = [];
+
 
     }
 

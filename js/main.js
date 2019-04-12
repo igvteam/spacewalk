@@ -136,35 +136,26 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
     let [ structureLength, structureExtent, cameraPosition, structureCentroid ] = [ structure.array.length, structure.extent, structure.cameraPosition, structure.centroid ];
     sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose });
 
-    // Dictionay of segment indices. Key is UUID of 3D object
-    sceneManager.objectUUID2SegmentIndex = {};
-
-    // Array of 3D objects. Index is segment index.
-    sceneManager.segmentIndex2Object = [];
-
     // balls
     for(let item of structure.array) {
 
+        const index = structure.array.indexOf(item);
+
         const [ x, y, z ] = item.xyz;
 
-        const color = sceneManager.colorRampPanel.genomicRampWidget.colorForSegmentIndex(item.segmentIndex);
+        const color = sceneManager.colorRampPanel.genomicRampWidget.colorForInterpolant(index / (structure.array.length - 1));
+
         // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
         const ballMaterial = new THREE.MeshPhongMaterial({ color });
 
         const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
         ballMesh.position.set(x, y, z);
 
-        sceneManager.objectUUID2SegmentIndex[ ballMesh.uuid ] =
-            {
-                'segmentIndex' : item.segmentIndex,
-                'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
-            };
+        const genomicLocation = index * structureManager.stepSize + genomicStart;
 
-        sceneManager.segmentIndex2Object[ item.segmentIndex ] =
-            {
-                'object' : ballMesh,
-                'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
-            };
+        sceneManager.indexDictionary[ ballMesh.uuid ] = { index, genomicLocation };
+
+        sceneManager.objectList[ index ] = { object: ballMesh, genomicLocation };
 
         sceneManager.scene.add(ballMesh);
 
