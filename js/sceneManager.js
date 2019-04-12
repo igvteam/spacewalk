@@ -7,8 +7,10 @@ import {appleCrayonColorHexValue, appleCrayonColorRGB255, appleCrayonColorThreeJ
 import ColorRampPanel from "./colorRampPanel.js";
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
+import ColorTableManager from "./colorTableManager.js";
 
 let currentStructureCentroid = undefined;
+
 class SceneManager {
 
     constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPanel, renderer, picker, hemisphereLight }) {
@@ -201,17 +203,21 @@ class SceneManager {
 
 export const sceneManagerConfigurator = (container) => {
 
-    const highlightColor = appleCrayonColorThreeJS('maraschino');
+    let colorTableManager = new ColorTableManager();
+
+    const name = 'kenneth_moreland_smooth_cool_warm';
+    const path = 'resource/colortables/kenneth_moreland/smooth-cool-warm-table-byte-1024.csv';
+
+    colorTableManager.addTable({ name, path });
+
+    // const highlightColor = appleCrayonColorThreeJS('maraschino');
+    const highlightColor = appleCrayonColorThreeJS('honeydew');
 
     const colorRampPanelConfig =
         {
             container,
             panel: $('#trace3d_color_ramp_panel').get(0),
-            colors:
-                [
-                    appleCrayonColorRGB255('honeydew'),
-                    appleCrayonColorRGB255('clover')
-                ],
+            colorTableManager,
             highlightColor
         };
 
@@ -239,6 +245,5 @@ export const sceneManagerConfigurator = (container) => {
 
     return config;
 };
-
 
 export default SceneManager;

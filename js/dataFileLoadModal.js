@@ -108,7 +108,7 @@ const loadFile = async file => {
     globalEventBus.post({ type: "DidLeaveGUI" });
 };
 
-const readFileAsText = file => {
+const readFileAsText = async file => {
 
     const fileReader = new FileReader();
 

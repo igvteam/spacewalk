@@ -6,15 +6,28 @@ class CubicMapManager {
         // const paths = pathsPosNegStyleWithRoot(textureRoot, suffix);
         const paths = pathsOpenEXRStyleWithRoot(textureRoot, suffix);
 
-        let cubeTexture = new THREE.CubeTextureLoader().load( paths );
-        cubeTexture.format   = THREE.RGBFormat;
-        cubeTexture.mapping  = THREE.CubeReflectionMapping;
-        cubeTexture.encoding = THREE.sRGBEncoding;
+        const textureLoader = new THREE.CubeTextureLoader();
 
-        this.cubicTexture = cubeTexture;
+        const onLoad = (cubicTexture) => {
 
-        this.material = isSpecularMap ? specularMaterial(cubeTexture) : diffuseMaterial(cubeTexture, vertexShaderName, fragmentShaderName);
-        this.material.side = THREE.DoubleSide;
+            cubicTexture.format   = THREE.RGBFormat;
+            cubicTexture.mapping  = THREE.CubeReflectionMapping;
+            cubicTexture.encoding = THREE.sRGBEncoding;
+
+            this.cubicTexture = cubicTexture;
+
+            this.material = isSpecularMap ? specularMaterial(cubicTexture) : diffuseMaterial(cubicTexture, vertexShaderName, fragmentShaderName);
+            this.material.side = THREE.DoubleSide;
+        };
+
+        const onProgress = () => { };
+
+        const onError = (error) => {
+            console.log(error.message)
+        };
+
+        textureLoader.load( paths, onLoad, onProgress, onError );
+
     }
 
 }
