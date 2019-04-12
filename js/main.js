@@ -147,32 +147,26 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
         const [ x, y, z ] = item.xyz;
 
-        const doSkip = isNaN(x) || isNaN(y) || isNaN(z);
+        const color = sceneManager.colorRampPanel.genomicRampWidget.colorForSegmentIndex(item.segmentIndex);
+        // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
+        const ballMaterial = new THREE.MeshPhongMaterial({ color });
 
-        if (!doSkip) {
+        const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
+        ballMesh.position.set(x, y, z);
 
-            const color = sceneManager.colorRampPanel.genomicRampWidget.colorForSegmentIndex(item.segmentIndex);
-            // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
-            const ballMaterial = new THREE.MeshPhongMaterial({ color });
+        sceneManager.objectUUID2SegmentIndex[ ballMesh.uuid ] =
+            {
+                'segmentIndex' : item.segmentIndex,
+                'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
+            };
 
-            const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
-            ballMesh.position.set(x, y, z);
+        sceneManager.segmentIndex2Object[ item.segmentIndex ] =
+            {
+                'object' : ballMesh,
+                'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
+            };
 
-            sceneManager.objectUUID2SegmentIndex[ ballMesh.uuid ] =
-                {
-                    'segmentIndex' : item.segmentIndex,
-                    'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
-                };
-
-            sceneManager.segmentIndex2Object[ item.segmentIndex ] =
-                {
-                    'object' : ballMesh,
-                    'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
-                };
-
-            sceneManager.scene.add(ballMesh);
-
-        }
+        sceneManager.scene.add(ballMesh);
 
     }
 
@@ -182,18 +176,13 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
         const [ x0, y0, z0 ] = structure.array[i].xyz;
         const [ x1, y1, z1 ] = structure.array[j].xyz;
 
-        const doSkip = isNaN(x0) || isNaN(x1);
+        const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
+        const stickGeometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
 
-        if (!doSkip) {
+        const stickMesh = new THREE.Mesh(stickGeometry, sceneManager.stickMaterial);
+        stickMesh.name = 'stick';
 
-            const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-            const stickGeometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
-
-            const stickMesh = new THREE.Mesh(stickGeometry, sceneManager.stickMaterial);
-            stickMesh.name = 'stick';
-
-            sceneManager.scene.add( stickMesh );
-        }
+        sceneManager.scene.add( stickMesh );
 
     }
 

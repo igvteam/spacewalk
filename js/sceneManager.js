@@ -117,7 +117,6 @@ class SceneManager {
 
     }
 
-
     configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose }) {
 
         this.scene = new THREE.Scene();

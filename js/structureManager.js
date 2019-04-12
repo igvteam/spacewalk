@@ -26,39 +26,45 @@ class StructureManager {
         // discard column titles
         lines.shift();
 
-        // chr index | segment index | Z | X | y
-        let [ currentStructureKey, structureKey ] = [ undefined, undefined ];
+        // chr-index ( 0-based)| segment-index (one-based) | Z | X | y
 
+        let currentKey;
+        let list;
         for (let line of lines) {
 
             if ("" === line) {
                 // do nothing
-                // console.log('ignore blank line');
             } else {
 
-                const parts = line.split(',');
+                let parts = line.split(',');
 
-                const number = parseInt(parts[ 0 ], 10) - 1;
+                if ('nan' === parts[ 2 ] || 'nan' === parts[ 3 ] || 'nan' === parts[ 4 ]) {
+                    // do nothing
+                } else {
 
-                structureKey = number.toString();
+                    const key = parseInt(parts[ 0 ], 10) - 1;
 
-                if (undefined === currentStructureKey || currentStructureKey !== structureKey) {
-                    currentStructureKey = structureKey;
+                    if (undefined === currentKey || currentKey !== key) {
+                        currentKey = key;
+                        this.structures[ currentKey ] = { bbox: [], extent: [], centroid: [], cameraPosition: [], array: [] };
+                        list = this.structures[ currentKey ].array;
+                    }
 
-                    this.structures[ currentStructureKey ] = { bbox: [], extent: [], centroid: [], cameraPosition: [], array: [] };
+                    // discard chr index
+                    parts.shift();
+
+                    // discard segment index
+                    parts.shift();
+
+                    // let [ z, x, y ] = parts.map((token) => { return parseFloat(token); });
+                    // let obj = { xyz: [ x, y, z ] };
+
+                    let [ z, x, y ] = parts;
+                    let obj = { xyz: [ parseFloat(x), parseFloat(y), parseFloat(z) ] };
+
+                    list.push(obj);
+                    obj.segmentIndex = 1 + list.indexOf(obj);
                 }
-
-                const segmentIndex = parseInt(parts[1]);
-
-
-                // discard chr index
-                parts.shift();
-
-                // discard segment index
-                parts.shift();
-
-                let [ z, x, y ] = parts.map((token) => { return 'nan' === token ? NaN : parseFloat(token); });
-                this.structures[ currentStructureKey ].array.push({ structureKey: structureKey, segmentIndex: segmentIndex, xyz: [ x, y, z ] });
 
             }
 
@@ -68,22 +74,18 @@ class StructureManager {
 
             const [ minX, minY, minZ, maxX, maxY, maxZ ] = structure.array.map(items => items.xyz).reduce((accumulator, xyz) => {
 
-                const doSkip = isNaN(xyz[ 0 ])|| isNaN(xyz[ 1 ]) || isNaN(xyz[ 2 ]);
+                accumulator =
+                    [
+                        // min
+                        Math.min(accumulator[ 0 ], xyz[ 0 ]),
+                        Math.min(accumulator[ 1 ], xyz[ 1 ]),
+                        Math.min(accumulator[ 2 ], xyz[ 2 ]),
 
-                if (!doSkip) {
-                    accumulator =
-                        [
-                            // min
-                            Math.min(accumulator[ 0 ], xyz[ 0 ]),
-                            Math.min(accumulator[ 1 ], xyz[ 1 ]),
-                            Math.min(accumulator[ 2 ], xyz[ 2 ]),
-
-                            // max
-                            Math.max(accumulator[ 3 ], xyz[ 0 ]),
-                            Math.max(accumulator[ 4 ], xyz[ 1 ]),
-                            Math.max(accumulator[ 5 ], xyz[ 2 ]),
-                        ];
-                }
+                        // max
+                        Math.max(accumulator[ 3 ], xyz[ 0 ]),
+                        Math.max(accumulator[ 4 ], xyz[ 1 ]),
+                        Math.max(accumulator[ 5 ], xyz[ 2 ]),
+                    ];
 
                 return accumulator;
 
