@@ -14,9 +14,6 @@ class ColorRampWidget {
         let { r, g, b } = highlightColor;
         this.highlightColor = rgb255(r*255, g*255, b*255);
 
-        let rampContainer;
-        let ramp;
-
         const $panel = $(panel);
 
         // header
@@ -59,26 +56,6 @@ class ColorRampWidget {
         this.colors = colors;
     }
 
-    onCanvasMouseMove(canvas, event) {
-
-        let { yNormalized } = getMouseXY(canvas, event);
-
-        // flip direction
-        yNormalized = 1.0 - yNormalized;
-        const quantized = quantize(yNormalized, this.structureLength);
-        const one_based = lerp(1, this.structureLength, quantized);
-
-        const segmentIndex = Math.ceil(one_based);
-
-        this.highlight(segmentIndex);
-
-        if (currentSegmentIndex !== segmentIndex) {
-            currentSegmentIndex = segmentIndex;
-            globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
-        }
-
-    };
-
     configure({ genomicStart, genomicEnd, structureLength }) {
 
         this.structureLength = structureLength;
@@ -93,6 +70,34 @@ class ColorRampWidget {
         this.paintQuantizedRamp(this.context, this.colors, this.structureLength, undefined);
     }
 
+    onCanvasMouseMove(canvas, event) {
+
+        let { yNormalized } = getMouseXY(canvas, event);
+
+        // 0 to 1. Flip direction.
+        yNormalized = 1.0 - yNormalized;
+
+        // find bucket. 0 based.
+        let quantized = quantize(yNormalized, this.structureLength);
+
+        // scale to structure length
+        quantized *= (this.structureLength - 1);
+
+        // Convert to discrete value. Integer-ize.
+        quantized = Math.ceil(quantized);
+
+        // segment index is 1-based
+        const segmentIndex = 1 + quantized;
+
+        this.highlight(segmentIndex);
+
+        if (currentSegmentIndex !== segmentIndex) {
+            currentSegmentIndex = segmentIndex;
+            globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
+        }
+
+    };
+
     highlight (segmentIndex) {
         this.paintQuantizedRamp(this.context, this.colors, this.structureLength, segmentIndex)
     }
@@ -103,14 +108,19 @@ class ColorRampWidget {
 
         for (let y = 0;  y < yIndices.length; y++) {
 
-            let quantized = y / yIndices.length;
-            quantized = quantize(quantized, structureLength);
+            // 0 to 1 continuous
+            const interpolant = y / (yIndices.length - 1);
+
+            // 0 to 1 quantized into discrete steps
+            let quantized = quantize(interpolant, structureLength);
+
+            // flip direction
             quantized = 1.0 - quantized;
 
+            // map to 1-based segment-index
             const segmentIndex = Math.round(quantized * structureLength);
 
-            // const now = Date.now();
-            // console.log('time(' + now + ')' + ' x ' + quantized + ' segment index ' + segmentIndex);
+            // console.log(Date.now() + ' segmentIndex ' + segmentIndex + ' quantized ' + quantized);
 
             if (highlightedSegmentIndex && highlightedSegmentIndex === segmentIndex) {
                 ctx.fillStyle = rgb255String(this.highlightColor);
@@ -124,12 +134,9 @@ class ColorRampWidget {
 
     }
 
-    colorForSegmentIndex(index) {
-
-        const interpolant = index / this.structureLength;
+    colorForInterpolant(interpolant) {
         const { r, g, b } = rgb255Lerp(this.colors[ 0 ], this.colors[ 1 ], interpolant);
         const str = `rgb(${r},${g},${b})`;
-
         return new THREE.Color( str );
     }
 
