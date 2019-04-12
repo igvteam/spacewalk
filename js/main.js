@@ -1,31 +1,30 @@
 import * as THREE from './threejs_es6/three.module.js';
+
 import GUIManager from './guiManager.js';
 import SceneManager from './sceneManager.js';
-import Picker from './picker.js';
-import PickHighlighter from './pickHighlighter.js';
 import DataFileLoadModal from './dataFileLoadModal.js';
 import StructureSelectPanel from './structureSelectPanel.js';
 import StructureManager from './structureManager.js';
-import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import IGVPanel from './IGVPanel.js';
 import JuiceboxPanel from './juiceboxPanel.js';
-import { mouseHandler, igvDefaultConfiguration } from "./IGVPanel.js";
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonColorRGB255 } from './color.js';
-import { globalEventBus } from './eventBus.js';
-import ColorRampPanel from "./colorRampPanel.js";
 
+import { globalEventBus } from './eventBus.js';
+import { mouseHandler, igvConfigurator } from "./IGVPanel.js";
+import { sceneManagerConfigurator } from './sceneManager.js';
+import { parsePathEncodedGenomicLocation } from './structureManager.js';
 
 let guiManager;
 
 let structureManager;
 
-let structureSelect;
+let structureSelectPanel;
 
-let dataFileLoader;
+let dataFileLoadeModal;
 
-let igvPalette;
+let igvPanel;
+let igvBrowser;
 
-let juiceboxPalette;
+let juiceboxPanel;
 
 let sceneManager;
 
@@ -37,11 +36,11 @@ let main = async container => {
 
     guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
 
-    dataFileLoader = new DataFileLoadModal({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
+    dataFileLoadeModal = new DataFileLoadModal({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
 
-    structureSelect = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0) });
+    structureSelectPanel = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0) });
 
-    juiceboxPalette = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0) });
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0) });
 
     const juiceboxBrowserConfig =
         {
@@ -51,72 +50,20 @@ let main = async container => {
             height: 400
         };
 
-    let juiceboxBrowser = await juiceboxPalette.createBrowser(juiceboxBrowserConfig);
+    let juiceboxBrowser = await juiceboxPanel.createBrowser(juiceboxBrowserConfig);
+    juiceboxPanel.defaultConfiguration();
 
     if (juiceboxBrowser) {
-        juiceboxPalette.defaultConfiguration();
+        juiceboxPanel.defaultConfiguration();
     }
 
-    igvPalette = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0) });
+    igvPanel = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0) });
 
-    const igvBrowserConfig = igvDefaultConfiguration();
-    let igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
+    const igvBrowserConfig = igvConfigurator();
+    igvBrowser = await igvPanel.createBrowser(igvBrowserConfig);
 
-    // const igvBrowserConfig =
-    //     {
-    //         genome: 'hg38',
-    //         locus: 'all',
-    //         showCursorTrackingGuide: true,
-    //         showTrackLabels: false,
-    //         showIdeogram: false,
-    //         showControls: false,
-    //         showNavigation: false
-    //     };
-    //
-    // let igvBrowser = await igvPalette.createBrowser(igvBrowserConfig);
-
-    // if (igvBrowser) {
-    //     await igvPalette.defaultConfiguration();
-    // }
-
-    const highlightColor = appleCrayonColorThreeJS('maraschino');
-
-    const colorRampPaletteConfig =
-        {
-            container,
-            panel: $('#trace3d_color_ramp_panel').get(0),
-            colors:
-                [
-                    appleCrayonColorRGB255('honeydew'),
-                    appleCrayonColorRGB255('clover')
-                ],
-            highlightColor
-        };
-
-    const sceneManagerConfig =
-        {
-            container: container,
-
-            ballRadius: 24,
-
-            stickMaterial: new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
-
-            backgroundColor: appleCrayonColorThreeJS('mercury'),
-
-            groundPlaneColor: appleCrayonColorHexValue('steel'),
-
-            colorRampPalette: new ColorRampPanel(colorRampPaletteConfig),
-
-            renderer: new THREE.WebGLRenderer({ antialias: true }),
-
-            picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
-
-            // skyColor | groundColor | intensity
-            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 )
-        };
-
+    const sceneManagerConfig = sceneManagerConfigurator(container);
     sceneManager = new SceneManager(sceneManagerConfig);
-
     sceneManager.defaultConfiguration();
 
     structureManager = new StructureManager();
@@ -152,9 +99,9 @@ let main = async container => {
 
                     [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(structureManager.path);
 
-                    igvPalette.goto({ chr, start: genomicStart, end: genomicEnd });
+                    igvPanel.goto({ chr, start: genomicStart, end: genomicEnd });
 
-                    juiceboxPalette.goto({ chr, start: genomicStart, end: genomicEnd });
+                    juiceboxPanel.goto({ chr, start: genomicStart, end: genomicEnd });
 
                     const initialStructureKey = '0';
 
@@ -164,7 +111,7 @@ let main = async container => {
                         mouseHandler({ bp, start, end, interpolant, structureLength: structure.array.length })
                     });
 
-                    structureSelect.configure({ structures: structureManager.structures, initialStructureKey });
+                    structureSelectPanel.configure({ structures: structureManager.structures, initialStructureKey });
 
                     sceneManager.dispose();
 
@@ -200,32 +147,26 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
         const [ x, y, z ] = item.xyz;
 
-        const doSkip = isNaN(x) || isNaN(y) || isNaN(z);
+        const color = sceneManager.colorRampPanel.genomicRampWidget.colorForSegmentIndex(item.segmentIndex);
+        // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
+        const ballMaterial = new THREE.MeshPhongMaterial({ color });
 
-        if (!doSkip) {
+        const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
+        ballMesh.position.set(x, y, z);
 
-            const color = sceneManager.colorRampPalette.genomicRampWidget.colorForSegmentIndex(item.segmentIndex);
-            // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
-            const ballMaterial = new THREE.MeshPhongMaterial({ color });
+        sceneManager.objectUUID2SegmentIndex[ ballMesh.uuid ] =
+            {
+                'segmentIndex' : item.segmentIndex,
+                'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
+            };
 
-            const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
-            ballMesh.position.set(x, y, z);
+        sceneManager.segmentIndex2Object[ item.segmentIndex ] =
+            {
+                'object' : ballMesh,
+                'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
+            };
 
-            sceneManager.objectUUID2SegmentIndex[ ballMesh.uuid ] =
-                {
-                    'segmentIndex' : item.segmentIndex,
-                    'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
-                };
-
-            sceneManager.segmentIndex2Object[ item.segmentIndex ] =
-                {
-                    'object' : ballMesh,
-                    'genomicLocation' : (item.segmentIndex - 1) * 3e4 + genomicStart,
-                };
-
-            sceneManager.scene.add(ballMesh);
-
-        }
+        sceneManager.scene.add(ballMesh);
 
     }
 
@@ -235,18 +176,13 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
         const [ x0, y0, z0 ] = structure.array[i].xyz;
         const [ x1, y1, z1 ] = structure.array[j].xyz;
 
-        const doSkip = isNaN(x0) || isNaN(x1);
+        const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
+        const stickGeometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
 
-        if (!doSkip) {
+        const stickMesh = new THREE.Mesh(stickGeometry, sceneManager.stickMaterial);
+        stickMesh.name = 'stick';
 
-            const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-            const stickGeometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
-
-            const stickMesh = new THREE.Mesh(stickGeometry, sceneManager.stickMaterial);
-            stickMesh.name = 'stick';
-
-            sceneManager.scene.add( stickMesh );
-        }
+        sceneManager.scene.add( stickMesh );
 
     }
 
