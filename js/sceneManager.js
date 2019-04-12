@@ -206,7 +206,8 @@ export const sceneManagerConfigurator = (container) => {
     let colorTableManager = new ColorTableManager();
 
     const name = 'kenneth_moreland_smooth_cool_warm';
-    const path = 'resource/colortables/kenneth_moreland/smooth-cool-warm-table-byte-1024.csv';
+    // const path = 'resource/colortables/kenneth_moreland/smooth-cool-warm-table-byte-1024.csv';
+    const path = 'resource/colortables/kenneth_moreland/bent-cool-warm-table-byte-1024.csv';
 
     colorTableManager.addTable({ name, path });
 
