@@ -4,11 +4,11 @@ import ColorRampWidget from "./colorRampWidget.js";
 
 class ColorRampPanel {
 
-    constructor({ container, panel, colorTableManager, highlightColor }) {
+    constructor({ container, panel, colorMapManager, highlightColor }) {
 
         this.$panel = $(panel);
 
-        this.genomicRampWidget = new ColorRampWidget( { panel, namespace: 'genomicRampWidget', colorTableManager, highlightColor } );
+        this.genomicRampWidget = new ColorRampWidget( { panel, namespace: 'genomicRampWidget', colorMapManager, highlightColor } );
 
         layout(container, panel);
 

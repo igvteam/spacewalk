@@ -6,9 +6,9 @@ import { rgb255, rgb255String } from "./color.js";
 let currentSegmentIndex = undefined;
 class ColorRampWidget {
 
-    constructor({ panel, namespace, colorTableManager, highlightColor }) {
+    constructor({ panel, namespace, colorMapManager, highlightColor }) {
 
-        this.colorTableManager = colorTableManager;
+        this.colorMapManager = colorMapManager;
 
         let { r, g, b } = highlightColor;
         this.highlightColor = rgb255(r*255, g*255, b*255);
@@ -123,7 +123,7 @@ class ColorRampWidget {
             if (highlightedSegmentIndex && highlightedSegmentIndex === segmentIndex) {
                 ctx.fillStyle = rgb255String(this.highlightColor);
             } else {
-                ctx.fillStyle = this.colorTableManager.retrieveRGB255String('kenneth_moreland_smooth_cool_warm', quantized);
+                ctx.fillStyle = this.colorMapManager.retrieveRGB255String('peter_kovesi_rainbow_bgyr_35_85_c72_n256', quantized);
             }
 
             ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);
@@ -132,7 +132,7 @@ class ColorRampWidget {
     }
 
     colorForInterpolant(interpolant) {
-        return this.colorTableManager.retrieveThreeJS('kenneth_moreland_smooth_cool_warm', interpolant)
+        return this.colorMapManager.retrieveThreeJS('peter_kovesi_rainbow_bgyr_35_85_c72_n256', interpolant)
     }
 
 }
