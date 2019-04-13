@@ -1,13 +1,13 @@
 
 import { rgb255String, rgb255ToThreeJSColor } from "./color.js";
 
-class ColorTableManager {
+class ColorMapManager {
 
     constructor () {
         this.dictionary = {};
     }
 
-    async addTable ({ name, path }) {
+    async addMap({name, path}) {
 
         this.dictionary[ name ] = { path, rgb: undefined };
         let obj = this.dictionary[ name ];
@@ -28,18 +28,20 @@ class ColorTableManager {
         const string = await response.text();
         const lines = string.split(/\r?\n/);
 
-        // discard preamble
-        lines.shift();
+        if (isKennethMorland(name)) {
+            lines.shift(); // discard preamble
+        }
 
-        // scalar | red | green | blue
         obj.rgb = lines
             .filter((line) => { return "" !== line})
             .map((line) => {
 
+                // scalar | red | green | blue
                 let parts = line.split(',');
 
-                // discard scalar
-                parts.shift();
+                if (isKennethMorland(name)) {
+                    parts.shift(); // discard scalar
+                }
 
                 let [ r, g, b ] = parts.map((f) => { return parseInt(f, 10)} );
                 return { rgb255String: rgb255String({ r, g, b }), threejs: rgb255ToThreeJSColor(r, g, b) }
@@ -62,4 +64,12 @@ class ColorTableManager {
 
 }
 
-export default ColorTableManager;
+let isKennethMorland = (name) => {
+    return name.indexOf('kenneth_moreland') > 0;
+};
+
+let isPeterKovesi = (name) => {
+    return name.indexOf('peter_kovesi') > 0;
+};
+
+export default ColorMapManager;

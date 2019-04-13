@@ -7,7 +7,7 @@ import StructureSelectPanel from './structureSelectPanel.js';
 import StructureManager from './structureManager.js';
 import IGVPanel from './IGVPanel.js';
 import JuiceboxPanel from './juiceboxPanel.js';
-import ColorTableManager from './colorTableManager.js';
+import ColorMapManager from './colorMapManager.js';
 
 import { globalEventBus } from './eventBus.js';
 import { mouseHandler, igvConfigurator } from "./IGVPanel.js";
