@@ -201,14 +201,15 @@ class SceneManager {
 
 }
 
+export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
+
 export const sceneManagerConfigurator = (container) => {
 
     let colorMapManager = new ColorMapManager();
 
     const colormaps =
         {
-            // kenneth_moreland_smooth_cool_warm: 'resource/colortables/kenneth_moreland/bent-cool-warm-table-byte-1024.csv',
-            peter_kovesi_rainbow_bgyr_35_85_c72_n256: 'resource/colormaps/peter_kovesi/CET-R2.csv',
+            peter_kovesi_rainbow_bgyr_35_85_c72_n256: 'resource/colormaps/peter_kovesi/CET-R2.csv'
         };
 
     for (let key of Object.keys(colormaps)) {
