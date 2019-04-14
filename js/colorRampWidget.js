@@ -2,6 +2,7 @@ import { globalEventBus } from "./eventBus.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
+import { defaultColormapName } from "./sceneManager.js";
 
 let currentSegmentIndex = undefined;
 class ColorRampWidget {
@@ -61,11 +62,11 @@ class ColorRampWidget {
         const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
         this.$footer.text(ss + 'Mb');
         this.$header.text(ee + 'Mb');
-        this.paintQuantizedRamp(this.context, structureLength, undefined);
+        this.paintQuantizedRamp({ ctx: this.context, structureLength, highlightedSegmentIndex: undefined });
     }
 
     repaint () {
-        this.paintQuantizedRamp(this.context, this.structureLength, undefined);
+        this.paintQuantizedRamp({ ctx: this.context, structureLength: this.structureLength, highlightedSegmentIndex: undefined });
     }
 
     onCanvasMouseMove(canvas, event) {
@@ -73,19 +74,7 @@ class ColorRampWidget {
         let { yNormalized } = getMouseXY(canvas, event);
 
         // 0 to 1. Flip direction.
-        yNormalized = 1.0 - yNormalized;
-
-        // find bucket. 0 based.
-        let quantized = quantize(yNormalized, this.structureLength);
-
-        // scale to structure length
-        quantized *= (this.structureLength - 1);
-
-        // Convert to discrete value. Integer-ize.
-        quantized = Math.ceil(quantized);
-
-        // segment index is 1-based
-        const segmentIndex = 1 + quantized;
+        const segmentIndex = segmentIndexForInterpolant(1.0 - yNormalized, this.structureLength);
 
         this.highlight(segmentIndex);
 
@@ -97,44 +86,45 @@ class ColorRampWidget {
     };
 
     highlight (segmentIndex) {
-        this.paintQuantizedRamp(this.context, this.structureLength, segmentIndex)
+        this.paintQuantizedRamp({ ctx: this.context, structureLength: this.structureLength, highlightedSegmentIndex: segmentIndex })
     }
 
-    paintQuantizedRamp(ctx, structureLength, highlightedSegmentIndex){
+    paintQuantizedRamp({ ctx, structureLength, highlightedSegmentIndex }){
 
         const yIndices = new Array(ctx.canvas.offsetHeight);
 
         for (let y = 0;  y < yIndices.length; y++) {
 
-            // 0 to 1 continuous
-            const interpolant = y / (yIndices.length - 1);
-
-            // 0 to 1 quantized into discrete steps
-            let quantized = quantize(interpolant, structureLength);
-
-            // flip direction
-            quantized = 1.0 - quantized;
-
-            // map to 1-based segment-index
-            const segmentIndex = Math.round(quantized * structureLength);
-
-            // console.log(Date.now() + ' segmentIndex ' + segmentIndex + ' quantized ' + quantized);
+            const interpolant = 1 - (y / (yIndices.length - 1));
+            const quantizedInterpolant = quantize(interpolant, structureLength);
+            const segmentIndex = segmentIndexForInterpolant(interpolant, structureLength);
 
             if (highlightedSegmentIndex && highlightedSegmentIndex === segmentIndex) {
                 ctx.fillStyle = rgb255String(this.highlightColor);
             } else {
-                ctx.fillStyle = this.colorMapManager.retrieveRGB255String('peter_kovesi_rainbow_bgyr_35_85_c72_n256', quantized);
+                ctx.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
             }
 
             ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);
+
         }
 
     }
 
     colorForInterpolant(interpolant) {
-        return this.colorMapManager.retrieveThreeJS('peter_kovesi_rainbow_bgyr_35_85_c72_n256', interpolant)
+        return this.colorMapManager.retrieveThreeJS(defaultColormapName, interpolant)
     }
 
 }
+
+const segmentIndexForInterpolant = (interpolant, structureLength) => {
+
+    // find bucket. 0 based.
+    let quantized = quantize(interpolant, structureLength);
+
+    // Scale to structure length. Convert to discrete value (integer-ize).
+    // Segment index is 1-based.
+    return 1 + Math.ceil(quantized * (structureLength - 1));
+};
 
 export default ColorRampWidget;
