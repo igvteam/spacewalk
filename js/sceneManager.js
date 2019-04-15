@@ -39,10 +39,13 @@ class SceneManager {
 
         this.hemisphereLight = hemisphereLight;
 
-        // Dictionay of segment indices. Key is UUID of 3D object
+        // 3D Object dictionary. Key is string-ified genomic location.
+        this.genomicLocationObjectDictionary = {};
+
+        // segment-index dictionay. 3D Object UUID is key.
         this.indexDictionary = {};
 
-        // Array of 3D objects. Index is segment index.
+        // 3D Object Array. Indexed by structure list index.
         this.objectList = [];
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
@@ -161,12 +164,14 @@ class SceneManager {
 
         this.scene.add( this.groundPlane );
 
-        // Dictionay of segment indices. Key is UUID of 3D object
+        // 3D Object dictionary. Key is string-ified genomic location.
+        this.genomicLocationObjectDictionary = {};
+
+        // segment-index dictionay. 3D Object UUID is key.
         this.indexDictionary = {};
 
-        // Array of 3D objects. Index is segment index.
+        // 3D Object Array. Indexed by structure list index.
         this.objectList = [];
-
 
     }
 

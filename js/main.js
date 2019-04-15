@@ -155,6 +155,8 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
         const genomicLocation = index * structureManager.stepSize + genomicStart;
 
+        sceneManager.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: ballMesh, centroid: ballMesh.position.clone() };
+
         sceneManager.indexDictionary[ ballMesh.uuid ] = { index, genomicLocation };
 
         sceneManager.objectList[ index ] = { object: ballMesh, genomicLocation };
