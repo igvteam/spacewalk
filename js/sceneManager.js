@@ -235,6 +235,7 @@ export const sceneManagerConfigurator = (container) => {
             ballRadius: 24,
 
             stickMaterial: new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
+            // stickMaterial: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
 
             backgroundColor: appleCrayonColorThreeJS('mercury'),
 

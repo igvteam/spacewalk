@@ -120,8 +120,8 @@ let main = async container => {
 
                     doUpdateCameraPose = false;
 
-                } else if ('ToggleUIControls' === type) {
-                    $('.navbar').toggle();
+                } else if ('ToggleAllUIControls' === type) {
+                    // $('.navbar').toggle();
                 }
 
             }
@@ -129,7 +129,7 @@ let main = async container => {
 
     globalEventBus.subscribe('DidSelectStructure', eventListener);
     globalEventBus.subscribe('DidLoadFile', eventListener);
-    globalEventBus.subscribe("ToggleUIControls", eventListener);
+    globalEventBus.subscribe("ToggleAllUIControls", eventListener);
 };
 
 let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
@@ -148,6 +148,7 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
         // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
         const ballMaterial = new THREE.MeshPhongMaterial({ color });
+        // const ballMaterial = new THREE.MeshBasicMaterial({ color });
 
         const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
         ballMesh.position.set(x, y, z);

@@ -53,13 +53,22 @@ class JuiceboxPanel {
         });
 
 
-        globalEventBus.subscribe("ToggleUIControls", this);
+        globalEventBus.subscribe("ToggleUIControl", this);
 
     }
 
-    receiveEvent({ type, data }) {
-        if ("ToggleUIControls" === type) {
+    async receiveEvent({ type, data }) {
+
+        const { payload } = data;
+
+        if ("ToggleUIControl" === type && this.$panel.attr('id') === payload) {
+
             this.$panel.toggle();
+
+            if (this.$panel.is(":visible")) {
+                await this.browser.parseGotoInput(this.locus);
+            }
+
         } else if ('UpdateContactMapMousePosition' === type) {
 
             const state = this.browser.state;
@@ -72,7 +81,7 @@ class JuiceboxPanel {
             const xBP = (state.x + (x / state.pixelSize)) * resolution;
             const yBP = (state.y + (y / state.pixelSize)) * resolution;
 
-            console.log('juicebox bp ' + numberFormatter( Math.round(xBP) ));
+            // console.log('juicebox bp ' + numberFormatter( Math.round(xBP) ));
         }
     }
 
