@@ -55,11 +55,17 @@ class IGVPanel {
         globalEventBus.subscribe("ToggleUIControls", this);
     }
 
-    receiveEvent({ type }) {
+    async receiveEvent({ type }) {
         if ("ToggleUIControls" === type) {
+
             this.$panel.toggle();
-        }
-    }
+
+            if (this.$panel.is(":visible")) {
+                const { chr, start, end } = this.locus;
+                await this.browser.goto(chr, start, end);
+            }
+
+        }    }
 
     async createBrowser (config) {
 
@@ -74,6 +80,7 @@ class IGVPanel {
     }
 
     async goto({ chr, start, end }) {
+        this.locus = { chr, start, end };
         await this.browser.goto(chr, start, end);
     }
 
@@ -163,8 +170,8 @@ export let igvConfigurator = () => {
             showCursorTrackingGuide: true,
             showTrackLabels: false,
             showIdeogram: false,
-            showControls: false,
-            showNavigation: false,
+            showControls: true,
+            showNavigation: true,
 
             "reference":
                 {

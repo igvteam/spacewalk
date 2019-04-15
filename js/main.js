@@ -121,7 +121,7 @@ let main = async container => {
                     doUpdateCameraPose = false;
 
                 } else if ('ToggleUIControls' === type) {
-                    $('.navbar').toggle();
+                    // $('.navbar').toggle();
                 }
 
             }
