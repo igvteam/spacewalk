@@ -53,12 +53,13 @@ class JuiceboxPanel {
         });
 
 
-        globalEventBus.subscribe("ToggleUIControls", this);
+        globalEventBus.subscribe("ToggleAllUIControls", this);
 
     }
 
     async receiveEvent({ type, data }) {
-        if ("ToggleUIControls" === type) {
+
+        if ("ToggleUIControl" === type) {
 
             this.$panel.toggle();
 

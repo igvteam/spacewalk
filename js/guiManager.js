@@ -14,12 +14,29 @@ class GUIManager {
             globalEventBus .post({ type: "ToggleGroundplane", data: $groundplane_input.prop('checked') });
         });
 
-        const $ui_controls_input = $panel.find('#trace3d_ui_manager_ui_controls');
-        $ui_controls_input.on('change.gui_manager_ui_controls', (e) => {
-            e.preventDefault();
-            globalEventBus .post({ type: "ToggleUIControls", data: $ui_controls_input.prop('checked') });
-        });
+        // const $ui_controls_input = $panel.find('#trace3d_ui_manager_ui_controls');
+        // $ui_controls_input.on('change.gui_manager_ui_controls', (e) => {
+        //     e.preventDefault();
+        //     globalEventBus .post({ type: "ToggleAllUIControls", data: $ui_controls_input.prop('checked') });
+        // });
 
+        [
+            'trace3d_ui_manager_ui_controls_color_ramp',
+            'trace3d_ui_manager_ui_controls_structure_select',
+            'trace3d_ui_manager_ui_controls_juicebox',
+            'trace3d_ui_manager_ui_controls_igv'
+        ].forEach((input_id) => {
+            const selector = '#' + input_id;
+            const $input = $panel.find(selector);
+            const change = 'change.' + input_id;
+            $input.on(change, (e) => {
+                e.preventDefault();
+
+                const payload = $input.data('target');
+                globalEventBus .post({ type: "ToggleUIControl", data: { $input, payload } });
+            });
+
+        });
     }
 }
 

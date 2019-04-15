@@ -120,7 +120,7 @@ let main = async container => {
 
                     doUpdateCameraPose = false;
 
-                } else if ('ToggleUIControls' === type) {
+                } else if ('ToggleAllUIControls' === type) {
                     // $('.navbar').toggle();
                 }
 
@@ -129,7 +129,7 @@ let main = async container => {
 
     globalEventBus.subscribe('DidSelectStructure', eventListener);
     globalEventBus.subscribe('DidLoadFile', eventListener);
-    globalEventBus.subscribe("ToggleUIControls", eventListener);
+    globalEventBus.subscribe("ToggleAllUIControls", eventListener);
 };
 
 let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {

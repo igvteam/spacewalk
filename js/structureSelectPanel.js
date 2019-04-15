@@ -90,12 +90,12 @@ class StructureSelectPanel {
 
         $(document).on('keyup.structure_select', handleKeyUp);
 
-        globalEventBus.subscribe("ToggleUIControls", this);
+        globalEventBus.subscribe("ToggleAllUIControls", this);
 
     }
 
     receiveEvent({ type }) {
-        if ("ToggleUIControls" === type) {
+        if ("ToggleAllUIControls" === type) {
             this.$panel.toggle();
         }
     }

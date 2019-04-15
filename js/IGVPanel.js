@@ -52,11 +52,12 @@ class IGVPanel {
             currentURL = undefined;
         });
 
-        globalEventBus.subscribe("ToggleUIControls", this);
+        globalEventBus.subscribe("ToggleAllUIControls", this);
     }
 
     async receiveEvent({ type }) {
-        if ("ToggleUIControls" === type) {
+
+        if ("ToggleUIControl" === type) {
 
             this.$panel.toggle();
 
@@ -65,7 +66,8 @@ class IGVPanel {
                 await this.browser.goto(chr, start, end);
             }
 
-        }    }
+        }
+    }
 
     async createBrowser (config) {
 
