@@ -148,6 +148,7 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
         // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
         const ballMaterial = new THREE.MeshPhongMaterial({ color });
+        // const ballMaterial = new THREE.MeshBasicMaterial({ color });
 
         const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
         ballMesh.position.set(x, y, z);
