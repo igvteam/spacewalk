@@ -52,12 +52,14 @@ class IGVPanel {
             currentURL = undefined;
         });
 
-        globalEventBus.subscribe("ToggleAllUIControls", this);
+        globalEventBus.subscribe("ToggleUIControl", this);
     }
 
-    async receiveEvent({ type }) {
+    async receiveEvent({ type, data }) {
 
-        if ("ToggleUIControl" === type) {
+        const { payload } = data;
+
+        if ("ToggleUIControl" === type && this.$panel.attr('id') === payload) {
 
             this.$panel.toggle();
 
@@ -73,6 +75,12 @@ class IGVPanel {
 
         try {
             this.browser = await igv.createBrowser( this.$panel.find('#trace3d_igv_root_container').get(0), config );
+
+            // TODO: Make less fragile
+            const [ chr, se ] = config.locus[ 0 ].split(':');
+            const [ start, end ] = se.split('-').map(str => parseInt(str, 10));
+
+            this.locus = { chr, start, end };
             return this.browser;
         } catch (error) {
             console.warn(error.message);
@@ -84,24 +92,6 @@ class IGVPanel {
     async goto({ chr, start, end }) {
         this.locus = { chr, start, end };
         await this.browser.goto(chr, start, end);
-    }
-
-    async defaultConfiguration () {
-
-        await this.gotoDefaultLocus();
-
-        // const url = 'https://www.encodeproject.org/files/ENCFF079FWO/@@download/ENCFF079FWO.bigBed';
-        // const url = 'https://www.dropbox.com/s/cj909wdtckjsptx/ENCFF079FWO.bigBed?dl=0';
-
-        // const url = 'https://www.encodeproject.org/files/ENCFF298BFT/@@download/ENCFF298BFT.bigWig';
-        const url = 'https://www.dropbox.com/s/ay6x1im4s1didp2/ENCFF298BFT.bigWig?dl=0';
-
-        await this.loadTrack(url);
-
-    }
-
-    async gotoDefaultLocus() {
-        await this.goto({ chr:'chr21', start:28e6, end:30e6 });
     }
 
     async loadTrack(url) {
@@ -172,8 +162,8 @@ export let igvConfigurator = () => {
             showCursorTrackingGuide: true,
             showTrackLabels: false,
             showIdeogram: false,
-            showControls: true,
-            showNavigation: true,
+            // showControls: false,
+            // showNavigation: false,
 
             "reference":
                 {
@@ -185,7 +175,7 @@ export let igvConfigurator = () => {
                 },
             "locus":
                 [
-                    "chr21:15,327,137-24,440,334"
+                    "chr21:28000000-30000000"
                 ],
             "tracks":
                 [
