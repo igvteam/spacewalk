@@ -87,7 +87,7 @@ let main = async container => {
                     sceneManager.dispose();
                     [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(structureManager.path);
 
-                    setup({ sceneManager, chr, genomicStart, genomicEnd, structure });
+                    setup({ chr, genomicStart, genomicEnd, structure });
 
                 } else if ('DidLoadFile' === type) {
 
@@ -116,7 +116,7 @@ let main = async container => {
 
                     sceneManager.dispose();
 
-                    setup({ sceneManager, chr, genomicStart, genomicEnd, structure });
+                    setup({ chr, genomicStart, genomicEnd, structure });
 
                     doUpdateCameraPose = false;
 
@@ -132,19 +132,45 @@ let main = async container => {
     globalEventBus.subscribe("ToggleAllUIControls", eventListener);
 };
 
-let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
+let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
 
     let [ structureLength, structureExtent, cameraPosition, structureCentroid ] = [ structure.array.length, structure.extent, structure.cameraPosition, structure.centroid ];
+
     sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose });
 
-    // balls
-    for(let item of structure.array) {
+    drawTube(structure.array);
 
-        const index = structure.array.indexOf(item);
+    // drawBall(structure.array);
+    // drawStick(structure.array);
+};
 
-        const [ x, y, z ] = item.xyz;
+let drawTube = (structureList) => {
 
-        const color = sceneManager.colorRampPanel.genomicRampWidget.colorForInterpolant(index / (structure.array.length - 1));
+    const knots = structureList.map((obj) => {
+        let [ x, y, z ] = obj.xyz;
+        return new THREE.Vector3( x, y, z );
+    });
+
+    const axis = new THREE.CatmullRomCurve3(knots);
+    const tubeGeometry = new THREE.TubeBufferGeometry(axis, 2048, 0.85 * sceneManager.ballRadius, 128, false);
+
+    const tuneMaterial = sceneManager.stickMaterial.clone();
+    const tubeMesh = new THREE.Mesh(tubeGeometry, tuneMaterial);
+    tubeMesh.name = 'tube';
+
+    sceneManager.scene.add( tubeMesh );
+
+};
+
+let drawBall = (structureList) => {
+
+    for(let structure of structureList) {
+
+        const index = structureList.indexOf(structure);
+
+        const [ x, y, z ] = structure.xyz;
+
+        const color = sceneManager.colorRampPanel.genomicRampWidget.colorForInterpolant(index / (structureList.length - 1));
 
         // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
         const ballMaterial = new THREE.MeshPhongMaterial({ color });
@@ -165,11 +191,14 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
 
     }
 
-    // sticks
-    for (let i = 0, j = 1; j < structure.array.length; ++i, ++j) {
+};
 
-        const [ x0, y0, z0 ] = structure.array[i].xyz;
-        const [ x1, y1, z1 ] = structure.array[j].xyz;
+let drawStick = (structureList) => {
+
+    for (let i = 0, j = 1; j < structureList.length; ++i, ++j) {
+
+        const [ x0, y0, z0 ] = structureList[i].xyz;
+        const [ x1, y1, z1 ] = structureList[j].xyz;
 
         const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
         const stickGeometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
