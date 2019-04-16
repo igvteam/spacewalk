@@ -38,6 +38,7 @@ class ColorRampWidget {
         $canvas.on(('mouseleave.trace3d.' + namespace), (event) => {
             event.stopPropagation();
             currentSegmentIndex = undefined;
+            this.repaint();
         });
 
         // soak up misc events

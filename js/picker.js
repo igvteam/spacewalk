@@ -36,14 +36,17 @@ class Picker {
 
         if (hitList.length > 0) {
 
-            // Track object rather then hit once.
+            const [ hit ] = hitList;
+            const { object } = hit;
 
-            if (doTrackObject || false === this.pickHighlighter.isCurrentObject(hitList[ 0 ].object)) {
-                const [ hit ] = hitList;
+            if (doTrackObject || false === this.pickHighlighter.isCurrentObject(object)) {
+
                 const { uv } = hit;
                 const { x: s } = uv;
-                console.log('s ' + s);
-                this.pickHighlighter.configure(hitList[ 0 ].object);
+
+                // console.log('s ' + s);
+
+                this.pickHighlighter.configure(object);
                 globalEventBus .post({ type: "PickerDidHitObject", data: this.pickHighlighter.object.uuid });
             }
 

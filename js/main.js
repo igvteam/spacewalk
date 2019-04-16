@@ -33,6 +33,8 @@ let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 
 let doUpdateCameraPose = true;
 
+let tubeTexture;
+
 let main = async container => {
 
     guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
@@ -138,13 +140,13 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
 
     sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose });
 
-    drawTube(structure.array);
+    drawTube(structure.array, sceneManager.colorRampPanel.genomicRampWidget.canvas);
 
     // drawBall(structure.array);
     // drawStick(structure.array);
 };
 
-let drawTube = (structureList) => {
+let drawTube = (structureList, canvas) => {
 
     const knots = structureList.map((obj) => {
         let [ x, y, z ] = obj.xyz;
@@ -152,10 +154,19 @@ let drawTube = (structureList) => {
     });
 
     const axis = new THREE.CatmullRomCurve3(knots);
-    const tubeGeometry = new THREE.TubeBufferGeometry(axis, 2048, 0.85 * sceneManager.ballRadius, 128, false);
+    const tubeGeometry = new THREE.TubeBufferGeometry(axis, 2048, sceneManager.ballRadius, 128, false);
 
-    const tuneMaterial = sceneManager.stickMaterial.clone();
-    const tubeMesh = new THREE.Mesh(tubeGeometry, tuneMaterial);
+    tubeTexture = new THREE.Texture(canvas);
+    tubeTexture.center.set(0.5, 0.5);
+    tubeTexture.rotation = Math.PI/2.0;
+    tubeTexture.minFilter = tubeTexture.magFilter = THREE.NearestFilter;
+
+    // let tubeMaterial = new THREE.MeshBasicMaterial({ map: tubeTexture });
+    let tubeMaterial = new THREE.MeshPhongMaterial({ map: tubeTexture });
+    tubeMaterial.side = THREE.DoubleSide;
+
+    // let tubeMaterial = sceneManager.stickMaterial.clone();
+    const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
     tubeMesh.name = 'tube';
 
     sceneManager.scene.add( tubeMesh );
@@ -218,6 +229,12 @@ let renderLoop = () => {
     requestAnimationFrame( renderLoop );
 
     if (sceneManager.scene && sceneManager.orbitalCamera) {
+
+        if (tubeTexture) {
+            tubeTexture.needsUpdate = true;
+
+        }
+
         sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera);
     }
 
