@@ -174,7 +174,8 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
         const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
         const stickGeometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
 
-        const stickMesh = new THREE.Mesh(stickGeometry, sceneManager.stickMaterial);
+        const stickMaterial = sceneManager.stickMaterial.clone();
+        const stickMesh = new THREE.Mesh(stickGeometry, stickMaterial);
         stickMesh.name = 'stick';
 
         sceneManager.scene.add( stickMesh );

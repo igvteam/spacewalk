@@ -1,6 +1,7 @@
 import {globalEventBus} from "./eventBus.js";
 
-const exclusionSet = new Set([ 'groundplane', 'stick' ]);
+// const exclusionSet = new Set([ 'groundplane', 'stick' ]);
+const exclusionSet = new Set([ 'groundplane' ]);
 
 class Picker {
 
@@ -36,6 +37,10 @@ class Picker {
         if (hitList.length > 0) {
 
             if (false === this.pickHighlighter.isCurrentObject(hitList[ 0 ].object)) {
+                const [ hit ] = hitList;
+                const { uv } = hit;
+                const { x: s } = uv;
+                console.log('s ' + s);
                 this.pickHighlighter.configure(hitList[ 0 ].object);
                 globalEventBus .post({ type: "PickerDidHitObject", data: this.pickHighlighter.object.uuid });
             }
