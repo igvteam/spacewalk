@@ -19,18 +19,22 @@ class PickHighlighter {
         this.unhighlight();
 
         this.object = object;
+
         this.currentColor = object.material.color;
 
         this.highlight();
     }
 
     highlight() {
-        this.object.material.color = this.highlightColor;
+
+        // this.object.material.color = this.highlightColor;
+
     }
 
     unhighlight() {
 
         if (this.hasObject()) {
+
             this.object.material.color = this.currentColor;
 
             globalEventBus.post({ type: "PickerDidLeaveObject", data: this.object.uuid });

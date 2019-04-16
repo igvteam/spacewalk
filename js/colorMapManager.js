@@ -1,5 +1,5 @@
 
-import { rgb255String, rgb255ToThreeJSColor } from "./color.js";
+import { rgba255, rgba255String, rgb255String, rgb255ToThreeJSColor } from "./color.js";
 
 class ColorMapManager {
 
@@ -44,10 +44,23 @@ class ColorMapManager {
                 }
 
                 let [ r, g, b ] = parts.map((f) => { return parseInt(f, 10)} );
-                return { rgb255String: rgb255String({ r, g, b }), threejs: rgb255ToThreeJSColor(r, g, b) }
+                return { rgba255: rgba255(r, g, b, 1), rgb255String: rgb255String({ r, g, b }), threejs: rgb255ToThreeJSColor(r, g, b) }
 
             });
 
+    }
+
+    retrieveRGBA255String(name, interpolant) {
+
+        const { rgb } = this.dictionary[ name ];
+
+        const index = Math.floor(interpolant * (rgb.length - 1));
+
+        const { rgba255 } = rgb[ index ];
+
+        rgba255.a = 0.25;
+
+        return rgba255String(rgba255);
     }
 
     retrieveRGB255String(name, interpolant) {

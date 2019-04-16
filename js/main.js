@@ -154,16 +154,20 @@ let drawTube = (structureList, canvas) => {
     });
 
     const axis = new THREE.CatmullRomCurve3(knots);
-    const tubeGeometry = new THREE.TubeBufferGeometry(axis, 2048, sceneManager.ballRadius, 128, false);
+    const tubeGeometry = new THREE.TubeBufferGeometry(axis, 1024, sceneManager.ballRadius, 96, false);
 
     tubeTexture = new THREE.Texture(canvas);
     tubeTexture.center.set(0.5, 0.5);
     tubeTexture.rotation = Math.PI/2.0;
+
+    // turn off any filtering to create sharp edges when highlighting
+    // tube section based on colorRamp highlighting.
     tubeTexture.minFilter = tubeTexture.magFilter = THREE.NearestFilter;
 
     // let tubeMaterial = new THREE.MeshBasicMaterial({ map: tubeTexture });
     let tubeMaterial = new THREE.MeshPhongMaterial({ map: tubeTexture });
     tubeMaterial.side = THREE.DoubleSide;
+    tubeMaterial.transparent = true;
 
     // let tubeMaterial = sceneManager.stickMaterial.clone();
     const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);

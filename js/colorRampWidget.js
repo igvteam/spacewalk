@@ -1,7 +1,7 @@
 import { globalEventBus } from "./eventBus.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
-import { rgb255, rgb255String } from "./color.js";
+import { rgb255, rgb255String, rgba255, rgba255String } from "./color.js";
 import { defaultColormapName } from "./sceneManager.js";
 
 let currentSegmentIndex = undefined;
@@ -13,6 +13,7 @@ class ColorRampWidget {
 
         let { r, g, b } = highlightColor;
         this.highlightColor = rgb255(r*255, g*255, b*255);
+        // this.highlightColor = rgba255(r*255, g*255, b*255, 1.0);
 
         const $panel = $(panel);
 
