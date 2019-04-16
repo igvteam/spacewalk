@@ -8,7 +8,7 @@ import StructureManager from './structureManager.js';
 import IGVPanel from './IGVPanel.js';
 import JuiceboxPanel from './juiceboxPanel.js';
 import ColorMapManager from './colorMapManager.js';
-
+import { showSTMaterial, showSMaterial, showTMaterial } from './materialLibrary.js';
 import { globalEventBus } from './eventBus.js';
 import { mouseHandler, igvConfigurator } from "./IGVPanel.js";
 import { sceneManagerConfigurator } from './sceneManager.js';
@@ -149,11 +149,13 @@ let setup = ({ sceneManager, chr, genomicStart, genomicEnd, structure }) => {
         // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
         const ballMaterial = new THREE.MeshPhongMaterial({ color });
         // const ballMaterial = new THREE.MeshBasicMaterial({ color });
-
+        // const ballMaterial = showTMaterial;
         const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
         ballMesh.position.set(x, y, z);
 
         const genomicLocation = index * structureManager.stepSize + genomicStart;
+
+        sceneManager.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: ballMesh, centroid: ballMesh.position.clone() };
 
         sceneManager.indexDictionary[ ballMesh.uuid ] = { index, genomicLocation };
 

@@ -23,13 +23,34 @@ const diffuseCubicTexture = diffuseCubicMapManager.cubicTexture;
 
 const showNormalsMaterial = new THREE.MeshNormalMaterial();
 
-const showSTMaterialConfig =
+// ST
+const showSTConfig =
     {
-        uniforms: {},
+        uniforms: { showS:  { value: 1 }, showT:  { value: 1 } },
         vertexShader: document.getElementById( 'show_st_vert' ).textContent,
         fragmentShader: document.getElementById( 'show_st_frag' ).textContent
     };
 
-const showSTMaterial = new THREE.ShaderMaterial(showSTMaterialConfig );
+const showSTMaterial = new THREE.ShaderMaterial(showSTConfig );
 
-export { diffuseCubicTexture, specularCubicTexture, showNormalsMaterial, showSTMaterial };
+// S
+const showSConfig =
+    {
+        uniforms: { showS:  { value: 1 }, showT:  { value: 0 } },
+        vertexShader: document.getElementById( 'show_st_vert' ).textContent,
+        fragmentShader: document.getElementById( 'show_st_frag' ).textContent
+    };
+
+const showSMaterial = new THREE.ShaderMaterial(showSConfig );
+
+// T
+const showTConfig =
+    {
+        uniforms: { showS:  { value: 0 }, showT:  { value: 1 } },
+        vertexShader: document.getElementById( 'show_st_vert' ).textContent,
+        fragmentShader: document.getElementById( 'show_st_frag' ).textContent
+    };
+
+const showTMaterial = new THREE.ShaderMaterial(showTConfig );
+
+export { diffuseCubicTexture, specularCubicTexture, showNormalsMaterial, showSTMaterial, showSMaterial, showTMaterial };

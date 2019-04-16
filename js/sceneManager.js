@@ -2,7 +2,7 @@ import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 import OrbitalCamera from "./orbitalCamera.js";
 import { getMouseXY } from "./utils.js";
-import { specularCubicTexture } from './materialLibrary.js';
+import { showSTMaterial, showSMaterial, specularCubicTexture } from './materialLibrary.js';
 import {appleCrayonColorHexValue, appleCrayonColorRGB255, appleCrayonColorThreeJS} from "./color.js";
 import ColorRampPanel from "./colorRampPanel.js";
 import Picker from "./picker.js";
@@ -39,10 +39,13 @@ class SceneManager {
 
         this.hemisphereLight = hemisphereLight;
 
-        // Dictionay of segment indices. Key is UUID of 3D object
+        // 3D Object dictionary. Key is string-ified genomic location.
+        this.genomicLocationObjectDictionary = {};
+
+        // segment-index dictionay. 3D Object UUID is key.
         this.indexDictionary = {};
 
-        // Array of 3D objects. Index is segment index.
+        // 3D Object Array. Indexed by structure list index.
         this.objectList = [];
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
@@ -161,12 +164,14 @@ class SceneManager {
 
         this.scene.add( this.groundPlane );
 
-        // Dictionay of segment indices. Key is UUID of 3D object
+        // 3D Object dictionary. Key is string-ified genomic location.
+        this.genomicLocationObjectDictionary = {};
+
+        // segment-index dictionay. 3D Object UUID is key.
         this.indexDictionary = {};
 
-        // Array of 3D objects. Index is segment index.
+        // 3D Object Array. Indexed by structure list index.
         this.objectList = [];
-
 
     }
 
@@ -234,6 +239,7 @@ export const sceneManagerConfigurator = (container) => {
 
             ballRadius: 24,
 
+            // stickMaterial: showSMaterial,
             stickMaterial: new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
             // stickMaterial: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
 
