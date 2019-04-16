@@ -2,7 +2,7 @@ import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 import OrbitalCamera from "./orbitalCamera.js";
 import { getMouseXY } from "./utils.js";
-import { specularCubicTexture } from './materialLibrary.js';
+import { showSTMaterial, showSMaterial, specularCubicTexture } from './materialLibrary.js';
 import {appleCrayonColorHexValue, appleCrayonColorRGB255, appleCrayonColorThreeJS} from "./color.js";
 import ColorRampPanel from "./colorRampPanel.js";
 import Picker from "./picker.js";
@@ -239,6 +239,7 @@ export const sceneManagerConfigurator = (container) => {
 
             ballRadius: 24,
 
+            // stickMaterial: showSMaterial,
             stickMaterial: new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
             // stickMaterial: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') }),
 
