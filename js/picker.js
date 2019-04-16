@@ -28,7 +28,7 @@ class Picker {
     }
 
 
-    intersect({ x ,y, camera, scene }) {
+    intersect({ x ,y, camera, scene, doTrackObject }) {
 
         this.raycaster.setFromCamera({ x, y }, camera);
 
@@ -36,7 +36,9 @@ class Picker {
 
         if (hitList.length > 0) {
 
-            if (false === this.pickHighlighter.isCurrentObject(hitList[ 0 ].object)) {
+            // Track object rather then hit once.
+
+            if (doTrackObject || false === this.pickHighlighter.isCurrentObject(hitList[ 0 ].object)) {
                 const [ hit ] = hitList;
                 const { uv } = hit;
                 const { x: s } = uv;
