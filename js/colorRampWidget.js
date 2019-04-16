@@ -20,8 +20,8 @@ class ColorRampWidget {
         // header
         this.$header = $panel.find('#trace3d_color_ramp_header');
 
-        // ramp canvas
-        const $canvas = $panel.find('canvas');
+        // ramp rgb canvas
+        const $canvas = $panel.find('#trace3d_color_ramp_canvas_rgb');
         const canvas = $canvas.get(0);
 
         fitToContainer(canvas);
@@ -42,6 +42,20 @@ class ColorRampWidget {
             this.repaint();
         });
 
+        this.context = canvas.getContext('2d');
+        this.canvas = canvas;
+
+
+        // ramp rgb canvas
+        const $alpha_canvas = $panel.find('#trace3d_color_ramp_canvas_alpha');
+        const alpha_canvas = $alpha_canvas.get(0);
+
+        fitToContainer(alpha_canvas);
+
+        this.alpha_context = alpha_canvas.getContext('2d');
+        this.alpha_canvas = alpha_canvas;
+
+
         // soak up misc events
         let eventSink = e => { e.stopPropagation(); };
         $canvas.on(('mouseup.trace3d.' + namespace), eventSink);
@@ -50,10 +64,6 @@ class ColorRampWidget {
 
         // footer
         this.$footer = $panel.find('#trace3d_color_ramp_footer');
-
-        this.context = canvas.getContext('2d');
-
-        this.canvas = canvas;
 
     }
 
@@ -101,13 +111,16 @@ class ColorRampWidget {
             const quantizedInterpolant = quantize(interpolant, structureLength);
             const segmentIndex = segmentIndexForInterpolant(interpolant, structureLength);
 
-            if (highlightedSegmentIndex && highlightedSegmentIndex === segmentIndex) {
-                ctx.fillStyle = rgb255String(this.highlightColor);
+            if (highlightedSegmentIndex) {
+                this.alpha_context.fillStyle = highlightedSegmentIndex === segmentIndex ? 'rgb(255, 255, 255)' : 'rgb(32, 32, 32)';
             } else {
-                ctx.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
+                this.alpha_context.fillStyle = 'rgb(255, 255, 255)'
             }
 
+            ctx.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
             ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);
+
+            this.alpha_context.fillRect(0, y, this.alpha_context.canvas.offsetWidth, 1);
 
         }
 

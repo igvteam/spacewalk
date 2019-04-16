@@ -33,7 +33,8 @@ let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 
 let doUpdateCameraPose = true;
 
-let tubeTexture;
+let rgbTexture;
+let alphaTexture;
 
 let main = async container => {
 
@@ -140,13 +141,14 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
 
     sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose });
 
-    drawTube(structure.array, sceneManager.colorRampPanel.genomicRampWidget.canvas);
+    let { canvas, alpha_canvas } = sceneManager.colorRampPanel.genomicRampWidget;
+    drawTube(structure.array, canvas, alpha_canvas);
 
     // drawBall(structure.array);
     // drawStick(structure.array);
 };
 
-let drawTube = (structureList, canvas) => {
+let drawTube = (structureList, rgb_canvas, alpha_canvas) => {
 
     const knots = structureList.map((obj) => {
         let [ x, y, z ] = obj.xyz;
@@ -156,16 +158,19 @@ let drawTube = (structureList, canvas) => {
     const axis = new THREE.CatmullRomCurve3(knots);
     const tubeGeometry = new THREE.TubeBufferGeometry(axis, 1024, sceneManager.ballRadius, 96, false);
 
-    tubeTexture = new THREE.Texture(canvas);
-    tubeTexture.center.set(0.5, 0.5);
-    tubeTexture.rotation = Math.PI/2.0;
+    rgbTexture = new THREE.Texture(rgb_canvas);
+    rgbTexture.center.set(0.5, 0.5);
+    rgbTexture.rotation = Math.PI/2.0;
+    rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
 
-    // turn off any filtering to create sharp edges when highlighting
-    // tube section based on colorRamp highlighting.
-    tubeTexture.minFilter = tubeTexture.magFilter = THREE.NearestFilter;
+    alphaTexture = new THREE.Texture(alpha_canvas);
+    alphaTexture.center.set(0.5, 0.5);
+    alphaTexture.rotation = Math.PI/2.0;
+    alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
 
     // let tubeMaterial = new THREE.MeshBasicMaterial({ map: tubeTexture });
-    let tubeMaterial = new THREE.MeshPhongMaterial({ map: tubeTexture });
+
+    let tubeMaterial = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });
     tubeMaterial.side = THREE.DoubleSide;
     tubeMaterial.transparent = true;
 
@@ -234,9 +239,9 @@ let renderLoop = () => {
 
     if (sceneManager.scene && sceneManager.orbitalCamera) {
 
-        if (tubeTexture) {
-            tubeTexture.needsUpdate = true;
-
+        if (rgbTexture) {
+            rgbTexture.needsUpdate = true;
+            alphaTexture.needsUpdate = true;
         }
 
         sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera);
