@@ -212,9 +212,7 @@ let drawSpline = (structureList, genomicRampWidget) => {
     geometry.vertices = vertices;
     geometry.colors = colors;
 
-    // const geometry = new THREE.BufferGeometry().setFromPoints( curve.getPoints( howmany ) );
-
-    const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors, color : appleCrayonColorHexValue('snow') } );
+    const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
 
     const line = new THREE.Line( geometry, material );
 
