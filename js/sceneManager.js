@@ -66,12 +66,12 @@ class SceneManager {
 
             if (this.indexDictionary[ data ]) {
                 const segmentIndex = 1 + this.indexDictionary[ data ].index;
-                this.colorRampPanel.genomicRampWidget.highlight(segmentIndex)
+                this.colorRampPanel.colorRampWidget.highlight(segmentIndex)
             }
 
         } else if ("PickerDidLeaveObject" === type) {
 
-            this.colorRampPanel.genomicRampWidget.repaint();
+            this.colorRampPanel.colorRampWidget.repaint();
 
         } else if ("DidSelectSegmentIndex" === type) {
 

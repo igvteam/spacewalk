@@ -29,7 +29,7 @@ class IGVPanel {
 
         $(panel).on('mouseleave.trace3d.trace3d_igv_panel', (event) => {
             event.stopPropagation();
-            sceneManager.colorRampPanel.genomicRampWidget.repaint();
+            sceneManager.colorRampPanel.colorRampWidget.repaint();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
@@ -270,7 +270,7 @@ export let mouseHandler = ({ bp, start, end, interpolant, structureLength }) => 
 
     const segmentIndex = segmentIndexForInterpolant(interpolant, structureLength);
 
-    sceneManager.colorRampPanel.genomicRampWidget.highlight(segmentIndex);
+    sceneManager.colorRampPanel.colorRampWidget.highlight(segmentIndex);
 
     // globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
 };

@@ -142,16 +142,16 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
 
     sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose });
 
-    let { canvas, alpha_canvas } = sceneManager.colorRampPanel.genomicRampWidget;
-    drawTube(structure.array, canvas, alpha_canvas);
+    let { canvas, alphamap_canvas } = sceneManager.colorRampPanel.colorRampWidget;
+    drawTube(structure.array, canvas, alphamap_canvas);
 
-    drawSpline(structure.array, sceneManager.colorRampPanel.genomicRampWidget);
+    drawSpline(structure.array, sceneManager.colorRampPanel.colorRampWidget);
 
     // drawBall(structure.array);
     // drawStick(structure.array);
 };
 
-let drawTube = (structureList, rgb_canvas, alpha_canvas) => {
+let drawTube = (structureList, rgb_canvas, alphamap_canvas) => {
 
     const knots = structureList.map((obj) => {
         let [ x, y, z ] = obj.xyz;
@@ -166,12 +166,10 @@ let drawTube = (structureList, rgb_canvas, alpha_canvas) => {
     rgbTexture.rotation = Math.PI/2.0;
     rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
 
-    alphaTexture = new THREE.CanvasTexture(alpha_canvas);
+    alphaTexture = new THREE.CanvasTexture(alphamap_canvas);
     alphaTexture.center.set(0.5, 0.5);
     alphaTexture.rotation = Math.PI/2.0;
     alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
-
-    // let tubeMaterial = new THREE.MeshBasicMaterial({ map: tubeTexture });
 
     let tubeMaterial = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });
     tubeMaterial.alphaTest = 0.5;
@@ -186,7 +184,7 @@ let drawTube = (structureList, rgb_canvas, alpha_canvas) => {
 
 };
 
-let drawSpline = (structureList, genomicRampWidget) => {
+let drawSpline = (structureList, colorRampWidget) => {
 
     const knots = structureList.map((obj) => {
         let [ x, y, z ] = obj.xyz;
@@ -205,7 +203,7 @@ let drawSpline = (structureList, genomicRampWidget) => {
         // flip direction
         interpolant = 1 - interpolant;
 
-        return genomicRampWidget.colorForInterpolant(interpolant);
+        return colorRampWidget.colorForInterpolant(interpolant);
     });
 
     const geometry = new THREE.Geometry();
@@ -228,7 +226,7 @@ let drawBall = (structureList) => {
 
         const [ x, y, z ] = structure.xyz;
 
-        const color = sceneManager.colorRampPanel.genomicRampWidget.colorForInterpolant(index / (structureList.length - 1));
+        const color = sceneManager.colorRampPanel.colorRampWidget.colorForInterpolant(index / (structureList.length - 1));
 
         // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
         const ballMaterial = new THREE.MeshPhongMaterial({ color });

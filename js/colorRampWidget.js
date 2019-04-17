@@ -50,13 +50,13 @@ class ColorRampWidget {
 
 
         // ramp rgb canvas
-        const $alpha_canvas = $panel.find('#trace3d_color_ramp_canvas_alpha');
-        const alpha_canvas = $alpha_canvas.get(0);
+        const $alphamap_canvas = $panel.find('#trace3d_color_ramp_canvas_alpha');
+        const alphamap_canvas = $alphamap_canvas.get(0);
 
-        fitToContainer(alpha_canvas);
+        fitToContainer(alphamap_canvas);
 
-        this.alpha_context = alpha_canvas.getContext('2d');
-        this.alpha_canvas = alpha_canvas;
+        this.alphamap_ctx = alphamap_canvas.getContext('2d');
+        this.alphamap_canvas = alphamap_canvas;
 
 
         // soak up misc events
@@ -115,15 +115,15 @@ class ColorRampWidget {
             const segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
 
             if (highlightedSegmentIndex) {
-                this.alpha_context.fillStyle = highlightedSegmentIndex === segmentIndex ? alpha_visible : alpha_hidden;
+                this.alphamap_ctx.fillStyle = highlightedSegmentIndex === segmentIndex ? alpha_visible : alpha_hidden;
             } else {
-                this.alpha_context.fillStyle = alpha_visible;
+                this.alphamap_ctx.fillStyle = alpha_visible;
             }
 
             this.context.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
             this.context.fillRect(0, y, this.context.canvas.offsetWidth, 1);
 
-            this.alpha_context.fillRect(0, y, this.alpha_context.canvas.offsetWidth, 1);
+            this.alphamap_ctx.fillRect(0, y, this.alphamap_ctx.canvas.offsetWidth, 1);
 
         }
 

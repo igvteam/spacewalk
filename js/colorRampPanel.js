@@ -9,7 +9,7 @@ class ColorRampPanel {
         this.container = container;
         this.$panel = $(panel);
 
-        this.genomicRampWidget = new ColorRampWidget( { panel, namespace: 'genomicRampWidget', colorMapManager, highlightColor } );
+        this.colorRampWidget = new ColorRampWidget( { panel, namespace: 'colorRampWidget', colorMapManager, highlightColor } );
 
         layout(container, panel);
 
@@ -21,7 +21,7 @@ class ColorRampPanel {
 
         $(panel).on('mouseenter.trace3d.toolpanel', (event) => {
             event.stopPropagation();
-            this.genomicRampWidget.repaint();
+            this.colorRampWidget.repaint();
             globalEventBus.post({type: "DidEnterGUI" });
         });
 
@@ -49,7 +49,7 @@ class ColorRampPanel {
     }
 
     configure({ genomicStart, genomicEnd, structureLength }) {
-        this.genomicRampWidget.configure({ genomicStart, genomicEnd, structureLength });
+        this.colorRampWidget.configure({ genomicStart, genomicEnd, structureLength });
     }
 
     onWindowResize(container, panel) {
