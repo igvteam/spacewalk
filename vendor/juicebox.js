@@ -21500,8 +21500,6 @@ var hic = (function (hic) {
         $e.text(isTrack2D ? track.config.name : track1D.config.name);
         $row.append($e);
 
-
-
         // track hide/show
         if (isTrack2D) {
             str = (true === track.isVisible) ? 'fa fa-eye fa-lg' : 'fa fa-eye-slash fa-lg';
@@ -21525,6 +21523,17 @@ var hic = (function (hic) {
             });
         }
 
+        if (isTrack2D) {
+
+            // matrix diagonal widget
+            const $matrix_diagonal_div = $('<div>', { class: 'matrix-diagonal-widget-container matrix-diagonal-widget-all' });
+            $row.append($matrix_diagonal_div);
+            $matrix_diagonal_div.on('click.matrix_diagonal_div', (e) => {
+                e.preventDefault();
+                matrixDiagionalWidgetHandler($matrix_diagonal_div, track);
+            });
+
+        }
 
         // color swatch selector button
         $colorpickerButton = annotationColorSwatch(isTrack2D ? track.getColor() : track1D.color);
@@ -21636,6 +21645,33 @@ var hic = (function (hic) {
 
             self.updateBody(trackList);
         });
+    }
+
+    function matrixDiagionalWidgetHandler($icon, track2D) {
+
+            if ($icon.hasClass('matrix-diagonal-widget-all')) {
+
+                $icon.removeClass('matrix-diagonal-widget-all');
+
+                $icon.addClass('matrix-diagonal-widget-lower');
+                track2D.displayMode = hic.Track2DDisplaceModes.displayLowerMatrix;
+            } else if ($icon.hasClass('matrix-diagonal-widget-lower')) {
+
+                $icon.removeClass('matrix-diagonal-widget-lower');
+
+                $icon.addClass('matrix-diagonal-widget-upper');
+                track2D.displayMode = hic.Track2DDisplaceModes.displayUpperMatrix;
+            } else if ($icon.hasClass('matrix-diagonal-widget-upper')) {
+
+                $icon.removeClass('matrix-diagonal-widget-upper');
+
+                $icon.addClass('matrix-diagonal-widget-all');
+                track2D.displayMode = hic.Track2DDisplaceModes.displayAllMatrix;
+            } else {
+
+                $icon.addClass('matrix-diagonal-widget-all');
+                track2D.displayMode = hic.Track2DDisplaceModes.displayAllMatrix;
+            }
     }
 
     function annotationColorSwatch(rgbString) {
@@ -25658,7 +25694,7 @@ var hic = (function (hic) {
         cycle = query["cycle"];
 
         if (hicUrl) {
-            hicUrl = parapmDecode(hicUrl, uriDecode);
+            hicUrl = paramDecode(hicUrl, uriDecode);
             Object.keys(urlShortcuts).forEach(function (key) {
                 var value = urlShortcuts[key];
                 if (hicUrl.startsWith(key)) hicUrl = hicUrl.replace(key, value);
@@ -25667,10 +25703,10 @@ var hic = (function (hic) {
 
         }
         if (name) {
-            config.name = parapmDecode(name, uriDecode);
+            config.name = paramDecode(name, uriDecode);
         }
         if (controlUrl) {
-            controlUrl = parapmDecode(controlUrl, uriDecode);
+            controlUrl = paramDecode(controlUrl, uriDecode);
             Object.keys(urlShortcuts).forEach(function (key) {
                 var value = urlShortcuts[key];
                 if (controlUrl.startsWith(key)) controlUrl = controlUrl.replace(key, value);
@@ -25678,25 +25714,25 @@ var hic = (function (hic) {
             config.controlUrl = controlUrl;
         }
         if (controlName) {
-            config.controlName = parapmDecode(controlName, uriDecode);
+            config.controlName = paramDecode(controlName, uriDecode);
         }
 
         if (stateString) {
-            stateString = parapmDecode(stateString, uriDecode);
+            stateString = paramDecode(stateString, uriDecode);
             config.state = destringifyStateV0(stateString);
 
         }
         if (colorScale) {
-            colorScale = parapmDecode(colorScale, uriDecode);
+            colorScale = paramDecode(colorScale, uriDecode);
             config.colorScale = hic.destringifyColorScale(colorScale);
         }
 
         if (displayMode) {
-            config.displayMode = parapmDecode(displayMode, uriDecode);
+            config.displayMode = paramDecode(displayMode, uriDecode);
         }
 
         if (trackString) {
-            trackString = parapmDecode(trackString, uriDecode);
+            trackString = paramDecode(trackString, uriDecode);
             config.tracks = destringifyTracksV0(trackString);
 
             // If an oAuth token is provided append it to track configs.
@@ -25712,7 +25748,7 @@ var hic = (function (hic) {
         }
 
         if (captionText) {
-            captionText = parapmDecode(captionText, uriDecode);
+            captionText = paramDecode(captionText, uriDecode);
             var captionDiv = document.getElementById("hic-caption");
             if (captionDiv) {
                 captionDiv.textContent = captionText;
@@ -25727,10 +25763,10 @@ var hic = (function (hic) {
         // }
 
         if (nvi) {
-            config.nvi = parapmDecode(nvi, uriDecode);
+            config.nvi = paramDecode(nvi, uriDecode);
         }
         if (controlNvi) {
-            config.controlNvi = parapmDecode(controlNvi, uriDecode);
+            config.controlNvi = paramDecode(controlNvi, uriDecode);
         }
 
         function destringifyStateV0(string) {
@@ -25832,7 +25868,7 @@ var hic = (function (hic) {
         return s;
     }
 
-    function parapmDecode(str, uriDecode) {
+    function paramDecode(str, uriDecode) {
 
         if (uriDecode) {
             return decodeURIComponent(str);   // Still more backward compatibility
@@ -27468,6 +27504,13 @@ var hic = (function (hic) {
 
 var hic = (function (hic) {
 
+    hic.Track2DDisplaceModes =
+        {
+            displayAllMatrix: 'displayAllMatrix',
+            displayLowerMatrix: 'displayLowerMatrix',
+            displayUpperMatrix: 'displayUpperMatrix'
+        };
+
     hic.Track2D = function (config, features) {
 
         var self = this;
@@ -27477,6 +27520,9 @@ var hic = (function (hic) {
         this.featureMap = {};
         this.featureCount = 0;
         this.isVisible = true;
+
+        this.displayMode = hic.Track2DDisplaceModes.displayAllMatrix;
+
         if(config.color && hic.validateColor(config.color)) {
             this.color = this.color = config.color;    // If specified, this will override colors of individual records.
         }
@@ -27497,7 +27543,7 @@ var hic = (function (hic) {
         });
 
     };
-    
+
     hic.Track2D.prototype.getColor = function() {
         return this.color || this.repColor;
     }
