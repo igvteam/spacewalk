@@ -1,4 +1,5 @@
 import * as THREE from './threejs_es6/three.module.js';
+import { globalEventBus } from './eventBus.js';
 
 import GUIManager from './guiManager.js';
 import SceneManager from './sceneManager.js';
@@ -7,12 +8,12 @@ import StructureSelectPanel from './structureSelectPanel.js';
 import StructureManager from './structureManager.js';
 import IGVPanel from './IGVPanel.js';
 import JuiceboxPanel from './juiceboxPanel.js';
-import ColorMapManager from './colorMapManager.js';
-import { showSTMaterial, showSMaterial, showTMaterial } from './materialLibrary.js';
-import { globalEventBus } from './eventBus.js';
-import { mouseHandler, igvConfigurator } from "./IGVPanel.js";
+
+import { mouseHandler, igvConfigurator } from './IGVPanel.js';
 import { sceneManagerConfigurator } from './sceneManager.js';
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
+import { appleCrayonColorHexValue } from './color.js';
+import { showSTMaterial, showSMaterial, showTMaterial } from './materialLibrary.js';
 
 let guiManager;
 
@@ -132,7 +133,7 @@ let main = async container => {
 
     globalEventBus.subscribe('DidSelectStructure', eventListener);
     globalEventBus.subscribe('DidLoadFile', eventListener);
-    globalEventBus.subscribe("ToggleAllUIControls", eventListener);
+    globalEventBus.subscribe('ToggleAllUIControls', eventListener);
 };
 
 let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
@@ -143,6 +144,8 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
 
     let { canvas, alpha_canvas } = sceneManager.colorRampPanel.genomicRampWidget;
     drawTube(structure.array, canvas, alpha_canvas);
+
+    drawSpline(structure.array, sceneManager.colorRampPanel.genomicRampWidget);
 
     // drawBall(structure.array);
     // drawStick(structure.array);
@@ -180,6 +183,42 @@ let drawTube = (structureList, rgb_canvas, alpha_canvas) => {
     tubeMesh.name = 'tube';
 
     sceneManager.scene.add( tubeMesh );
+
+};
+
+let drawSpline = (structureList, genomicRampWidget) => {
+
+    const knots = structureList.map((obj) => {
+        let [ x, y, z ] = obj.xyz;
+        return new THREE.Vector3( x, y, z );
+    });
+
+    const curve = new THREE.CatmullRomCurve3(knots);
+
+    const howmany = 2048;
+    const vertices = curve.getPoints( howmany );
+
+    const colors = vertices.map((vertex, index) => {
+
+        let interpolant = index / (vertices.length - 1);
+
+        // flip direction
+        interpolant = 1 - interpolant;
+
+        return genomicRampWidget.colorForInterpolant(interpolant);
+    });
+
+    const geometry = new THREE.Geometry();
+    geometry.vertices = vertices;
+    geometry.colors = colors;
+
+    // const geometry = new THREE.BufferGeometry().setFromPoints( curve.getPoints( howmany ) );
+
+    const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors, color : appleCrayonColorHexValue('snow') } );
+
+    const line = new THREE.Line( geometry, material );
+
+    sceneManager.scene.add( line );
 
 };
 
