@@ -6,6 +6,7 @@ class ColorRampPanel {
 
     constructor({ container, panel, colorMapManager, highlightColor }) {
 
+        this.container = container;
         this.$panel = $(panel);
 
         this.genomicRampWidget = new ColorRampWidget( { panel, namespace: 'genomicRampWidget', colorMapManager, highlightColor } );
@@ -33,9 +34,17 @@ class ColorRampPanel {
     }
 
     receiveEvent({ type, data }) {
+
         const { payload } = data;
+
         if ("ToggleUIControl" === type && this.$panel.attr('id') === payload) {
+
             this.$panel.toggle();
+
+            if (this.$panel.is(":visible")) {
+                layout(this.container, this.$panel.get(0));
+            }
+
         }
     }
 

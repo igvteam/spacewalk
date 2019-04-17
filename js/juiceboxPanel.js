@@ -8,9 +8,8 @@ class JuiceboxPanel {
 
     constructor ({ container, panel }) {
 
-        this.container = container;
-
         this.$panel = $(panel);
+        this.container = container;
 
         layout(container, panel);
 
@@ -66,6 +65,7 @@ class JuiceboxPanel {
             this.$panel.toggle();
 
             if (this.$panel.is(":visible")) {
+                layout(this.container, this.$panel.get(0));
                 await this.browser.parseGotoInput(this.locus);
             }
 

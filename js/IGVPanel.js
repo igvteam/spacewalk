@@ -9,6 +9,7 @@ class IGVPanel {
 
     constructor ({ container, panel }) {
 
+        this.container = container;
         this.$panel = $(panel);
 
         layout(container, panel);
@@ -64,6 +65,9 @@ class IGVPanel {
             this.$panel.toggle();
 
             if (this.$panel.is(":visible")) {
+
+                layout(this.container, this.$panel.get(0));
+
                 const { chr, start, end } = this.locus;
                 await this.browser.goto(chr, start, end);
             }
