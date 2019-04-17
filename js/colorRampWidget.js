@@ -5,6 +5,10 @@ import { rgb255, rgb255String, rgba255, rgba255String } from "./color.js";
 import { defaultColormapName } from "./sceneManager.js";
 
 let currentSegmentIndex = undefined;
+
+const alpha_hidden = `rgb(${32},${32},${32})`;
+const alpha_visible = `rgb(${255},${255},${255})`;
+
 class ColorRampWidget {
 
     constructor({ panel, namespace, colorMapManager, highlightColor }) {
@@ -112,9 +116,9 @@ class ColorRampWidget {
             const segmentIndex = segmentIndexForInterpolant(interpolant, structureLength);
 
             if (highlightedSegmentIndex) {
-                this.alpha_context.fillStyle = highlightedSegmentIndex === segmentIndex ? 'rgb(255, 255, 255)' : 'rgb(32, 32, 32)';
+                this.alpha_context.fillStyle = highlightedSegmentIndex === segmentIndex ? alpha_visible : alpha_hidden;
             } else {
-                this.alpha_context.fillStyle = 'rgb(255, 255, 255)'
+                this.alpha_context.fillStyle = alpha_visible;
             }
 
             ctx.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);

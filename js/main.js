@@ -158,12 +158,12 @@ let drawTube = (structureList, rgb_canvas, alpha_canvas) => {
     const axis = new THREE.CatmullRomCurve3(knots);
     const tubeGeometry = new THREE.TubeBufferGeometry(axis, 1024, sceneManager.ballRadius, 96, false);
 
-    rgbTexture = new THREE.Texture(rgb_canvas);
+    rgbTexture = new THREE.CanvasTexture(rgb_canvas);
     rgbTexture.center.set(0.5, 0.5);
     rgbTexture.rotation = Math.PI/2.0;
     rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
 
-    alphaTexture = new THREE.Texture(alpha_canvas);
+    alphaTexture = new THREE.CanvasTexture(alpha_canvas);
     alphaTexture.center.set(0.5, 0.5);
     alphaTexture.rotation = Math.PI/2.0;
     alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
@@ -171,6 +171,7 @@ let drawTube = (structureList, rgb_canvas, alpha_canvas) => {
     // let tubeMaterial = new THREE.MeshBasicMaterial({ map: tubeTexture });
 
     let tubeMaterial = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });
+    tubeMaterial.alphaTest = 0.5;
     tubeMaterial.side = THREE.DoubleSide;
     tubeMaterial.transparent = true;
 
