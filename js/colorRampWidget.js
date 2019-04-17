@@ -17,7 +17,6 @@ class ColorRampWidget {
 
         let { r, g, b } = highlightColor;
         this.highlightColor = rgb255(r*255, g*255, b*255);
-        // this.highlightColor = rgba255(r*255, g*255, b*255, 1.0);
 
         const $panel = $(panel);
 
@@ -136,7 +135,7 @@ class ColorRampWidget {
 
 }
 
-const segmentIndexForInterpolant = (interpolant, structureLength) => {
+export const segmentIndexForInterpolant = (interpolant, structureLength) => {
 
     // find bucket. 0 based.
     let quantized = quantize(interpolant, structureLength);

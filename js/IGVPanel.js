@@ -1,7 +1,9 @@
-import igv from '../vendor/igv.esm.js'
-import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./eventBus.js";
+import igv from '../vendor/igv.esm.js'
+import { segmentIndexForInterpolant } from './colorRampWidget.js';
+import { makeDraggable } from "./draggable.js";
 import { lerp, quantize } from "./math.js";
+import { sceneManager } from './main.js';
 
 let currentURL = undefined;
 
@@ -27,6 +29,7 @@ class IGVPanel {
 
         $(panel).on('mouseleave.trace3d.trace3d_igv_panel', (event) => {
             event.stopPropagation();
+            sceneManager.colorRampPanel.genomicRampWidget.repaint();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
@@ -264,10 +267,12 @@ export let igvConfigurator = () => {
 }
 
 export let mouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
-    const quantized = quantize(interpolant, structureLength);
-    const one_based = lerp(1, structureLength, quantized);
-    const segmentIndex = Math.ceil(one_based);
-    globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
+
+    const segmentIndex = segmentIndexForInterpolant(interpolant, structureLength);
+
+    sceneManager.colorRampPanel.genomicRampWidget.highlight(segmentIndex);
+
+    // globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
 };
 
 export default IGVPanel;
