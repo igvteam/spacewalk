@@ -78,11 +78,11 @@ class ColorRampWidget {
         const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
         this.$footer.text(ss + 'Mb');
         this.$header.text(ee + 'Mb');
-        this.paintQuantizedRamp({ ctx: this.context, structureLength, highlightedSegmentIndex: undefined });
+        this.paintQuantizedRamp(undefined);
     }
 
     repaint () {
-        this.paintQuantizedRamp({ ctx: this.context, structureLength: this.structureLength, highlightedSegmentIndex: undefined });
+        this.paintQuantizedRamp(undefined);
     }
 
     onCanvasMouseMove(canvas, event) {
@@ -101,19 +101,19 @@ class ColorRampWidget {
 
     };
 
-    highlight (segmentIndex) {
-        this.paintQuantizedRamp({ ctx: this.context, structureLength: this.structureLength, highlightedSegmentIndex: segmentIndex })
+    highlight(segmentIndex) {
+        this.paintQuantizedRamp(segmentIndex)
     }
 
-    paintQuantizedRamp({ ctx, structureLength, highlightedSegmentIndex }){
+    paintQuantizedRamp(highlightedSegmentIndex){
 
-        const yIndices = new Array(ctx.canvas.offsetHeight);
+        const yIndices = new Array(this.context.canvas.offsetHeight);
 
         for (let y = 0;  y < yIndices.length; y++) {
 
             const interpolant = 1 - (y / (yIndices.length - 1));
-            const quantizedInterpolant = quantize(interpolant, structureLength);
-            const segmentIndex = segmentIndexForInterpolant(interpolant, structureLength);
+            const quantizedInterpolant = quantize(interpolant, this.structureLength);
+            const segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
 
             if (highlightedSegmentIndex) {
                 this.alpha_context.fillStyle = highlightedSegmentIndex === segmentIndex ? alpha_visible : alpha_hidden;
@@ -121,8 +121,8 @@ class ColorRampWidget {
                 this.alpha_context.fillStyle = alpha_visible;
             }
 
-            ctx.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
-            ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);
+            this.context.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
+            this.context.fillRect(0, y, this.context.canvas.offsetWidth, 1);
 
             this.alpha_context.fillRect(0, y, this.alpha_context.canvas.offsetWidth, 1);
 
