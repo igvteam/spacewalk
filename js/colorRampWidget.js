@@ -86,6 +86,10 @@ class ColorRampWidget {
 
     onCanvasMouseMove(canvas, event) {
 
+        if (undefined === this.structureLength) {
+            return;
+        }
+
         let { yNormalized } = getMouseXY(canvas, event);
 
         // 0 to 1. Flip direction.
@@ -105,6 +109,10 @@ class ColorRampWidget {
     }
 
     paintQuantizedRamp(highlightedSegmentIndex){
+
+        if (undefined === this.structureLength) {
+            return;
+        }
 
         const yIndices = new Array(this.context.canvas.offsetHeight);
 

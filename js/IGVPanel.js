@@ -29,7 +29,11 @@ class IGVPanel {
 
         $(panel).on('mouseleave.trace3d.trace3d_igv_panel', (event) => {
             event.stopPropagation();
-            sceneManager.colorRampPanel.colorRampWidget.repaint();
+
+            if (sceneManager) {
+                sceneManager.colorRampPanel.colorRampWidget.repaint();
+            }
+
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
