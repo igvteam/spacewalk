@@ -1,9 +1,8 @@
 import { globalEventBus } from "./eventBus.js";
-import igv from '../vendor/igv.esm.js'
 import { segmentIndexForInterpolant } from './colorRampWidget.js';
 import { makeDraggable } from "./draggable.js";
-import { lerp, quantize } from "./math.js";
 import { sceneManager } from './main.js';
+import igv from '../vendor/igv.esm.js'
 
 let currentURL = undefined;
 

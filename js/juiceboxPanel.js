@@ -1,7 +1,6 @@
-import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./eventBus.js";
-import { numberFormatter } from "./utils.js";
-import { segmentIndexForInterpolant } from "./colorRampWidget.js";
+import { segmentIndexForInterpolant } from './colorRampWidget.js';
+import { makeDraggable } from "./draggable.js";
 import { sceneManager } from "./main.js";
 
 let currentURL = undefined;
@@ -26,6 +25,11 @@ class JuiceboxPanel {
 
         $(panel).on('mouseleave.trace3d.juicebox_panel', (event) => {
             event.stopPropagation();
+
+            if (sceneManager) {
+                sceneManager.colorRampPanel.colorRampWidget.repaint();
+            }
+
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
