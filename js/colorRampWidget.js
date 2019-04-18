@@ -95,7 +95,7 @@ class ColorRampWidget {
         // 0 to 1. Flip direction.
         const segmentIndex = segmentIndexForInterpolant(1.0 - yNormalized, this.structureLength);
 
-        this.highlight(segmentIndex);
+        this.highlight([ segmentIndex ]);
 
         if (currentSegmentIndex !== segmentIndex) {
             currentSegmentIndex = segmentIndex;
