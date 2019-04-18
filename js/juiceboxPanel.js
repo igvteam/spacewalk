@@ -1,7 +1,9 @@
 import { globalEventBus } from "./eventBus.js";
 import { segmentIndexForInterpolant } from './colorRampWidget.js';
 import { makeDraggable } from "./draggable.js";
-import { sceneManager } from "./main.js";
+import { sceneManager, structureManager } from "./main.js";
+import { numberFormatter } from './utils.js'
+import { lerp } from './math.js'
 
 let currentURL = undefined;
 
@@ -75,19 +77,6 @@ class JuiceboxPanel {
                 await this.browser.parseGotoInput(this.locus);
             }
 
-        } else if ('UpdateContactMapMousePosition' === type) {
-
-            const state = this.browser.state;
-
-            // bp-per-bin
-            const resolution = this.browser.resolution();
-
-            // bp = ((bin + pixel/pixel-per-bin) / bp-per-bin)
-            const { x, y } = data;
-            const xBP = (state.x + (x / state.pixelSize)) * resolution;
-            const yBP = (state.y + (y / state.pixelSize)) * resolution;
-
-            // console.log('juicebox bp ' + numberFormatter( Math.round(xBP) ));
         }
     }
 
@@ -115,7 +104,6 @@ class JuiceboxPanel {
             layout(this.container, this.$panel.get(0));
 
             this.browser = browser;
-            this.browser.eventBus.subscribe("UpdateContactMapMousePosition", this);
 
             return browser;
         } catch (error) {
@@ -174,12 +162,32 @@ let layout = (container, element) => {
 
 };
 
-export let juiceboxMouseHandler = ({ startX, startY, endX, endY, interpolantX, interpolantY, structureLength }) => {
+export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength }) => {
 
-    // console.log('interpolant x ' + interpolantX + ' y ' + interpolantY);
+    const { genomicStart, genomicEnd } = structureManager.locus;
 
-    const segmentIndexX = segmentIndexForInterpolant(interpolantX, structureLength);
-    const segmentIndexY = segmentIndexForInterpolant(interpolantY, structureLength);
+    const [ gs, s, e, ge ] =
+        [
+            numberFormatter(Math.round(genomicStart)),
+            numberFormatter(Math.round(startXBP)),
+            numberFormatter(Math.round(endXBP)),
+            numberFormatter(Math.round(genomicEnd))
+        ];
+
+    let _a;
+    let _b;
+    let interpolant;
+
+    [ _a, _b ] = [ (startXBP - genomicStart)/(genomicEnd - genomicStart), (endXBP - genomicStart)/(genomicEnd - genomicStart) ];
+    interpolant = lerp(_a, _b, interpolantX);
+
+    console.log('interpolant ' + interpolant);
+
+    const segmentIndexX = segmentIndexForInterpolant(interpolant, structureLength);
+
+    [ _a, _b ] = [ (startYBP - genomicStart)/(genomicEnd - genomicStart), (endYBP - genomicStart)/(genomicEnd - genomicStart) ];
+    interpolant = lerp(_a, _b, interpolantY);
+    const segmentIndexY = segmentIndexForInterpolant(interpolant, structureLength);
 
     if (segmentIndexX === segmentIndexY) {
         sceneManager.colorRampPanel.colorRampWidget.highlight([ segmentIndexX ]);

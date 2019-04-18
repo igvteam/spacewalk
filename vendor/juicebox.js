@@ -24311,10 +24311,13 @@ var hic = (function (hic) {
 
         this.state = config.state ? config.state : defaultState.clone();
 
+        this.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+            console.log('start ' + igv.numberFormatter(Math.round(startXBP)) + ' x ' + igv.numberFormatter(Math.round(xBP)) + ' end ' + igv.numberFormatter(Math.round(endXBP)));
+        });
+
         this.eventBus.subscribe("LocusChange", this);
 
     };
-
 
     hic.Browser.getCurrentBrowser = function () {
 
@@ -24425,9 +24428,17 @@ var hic = (function (hic) {
         this.layoutController.$y_track_guide.css(yGuide);
 
         if (this.customCrosshairsHandler) {
-            let { startBP: startX, endBP: endX } = this.genomicState('x');
-            let { startBP: startY, endBP: endY } = this.genomicState('y');
-            this.customCrosshairsHandler({ startX, startY, endX, endY, interpolantX: xNormalized, interpolantY: yNormalized });
+
+            const { x: stateX, y: stateY, pixelSize } = this.state;
+            const resolution = this.resolution();
+
+            const xBP = (stateX + (x / pixelSize)) * resolution;
+            const yBP = (stateY + (y / pixelSize)) * resolution;
+            
+            let { startBP: startXBP, endBP: endXBP } = this.genomicState('x');
+            let { startBP: startYBP, endBP: endYBP } = this.genomicState('y');
+
+            this.customCrosshairsHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX: xNormalized, interpolantY: yNormalized });
          }
 
     };
