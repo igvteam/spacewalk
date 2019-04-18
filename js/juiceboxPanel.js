@@ -166,28 +166,28 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
 
     const { genomicStart, genomicEnd } = structureManager.locus;
 
-    const [ gs, s, e, ge ] =
-        [
-            numberFormatter(Math.round(genomicStart)),
-            numberFormatter(Math.round(startXBP)),
-            numberFormatter(Math.round(endXBP)),
-            numberFormatter(Math.round(genomicEnd))
-        ];
+    if (startXBP > genomicEnd || startYBP > genomicEnd || endXBP < genomicStart || endYBP < genomicStart) {
+        return;
+    }
 
-    let _a;
-    let _b;
-    let interpolant;
+    startXBP = Math.max(startXBP, genomicStart);
+    startYBP = Math.max(startYBP, genomicStart);
 
-    [ _a, _b ] = [ (startXBP - genomicStart)/(genomicEnd - genomicStart), (endXBP - genomicStart)/(genomicEnd - genomicStart) ];
-    interpolant = lerp(_a, _b, interpolantX);
+    endXBP = Math.min(endXBP, genomicEnd);
+    endYBP = Math.min(endYBP, genomicEnd);
 
-    console.log('interpolant ' + interpolant);
+    let a;
+    let b;
 
-    const segmentIndexX = segmentIndexForInterpolant(interpolant, structureLength);
+    [ a, b ] = [ (startXBP - genomicStart)/(genomicEnd - genomicStart), (endXBP - genomicStart)/(genomicEnd - genomicStart) ];
+    interpolantX = lerp(a, b, interpolantX);
 
-    [ _a, _b ] = [ (startYBP - genomicStart)/(genomicEnd - genomicStart), (endYBP - genomicStart)/(genomicEnd - genomicStart) ];
-    interpolant = lerp(_a, _b, interpolantY);
-    const segmentIndexY = segmentIndexForInterpolant(interpolant, structureLength);
+    const segmentIndexX = segmentIndexForInterpolant(interpolantX, structureLength);
+
+    [ a, b ] = [ (startYBP - genomicStart)/(genomicEnd - genomicStart), (endYBP - genomicStart)/(genomicEnd - genomicStart) ];
+    interpolantY = lerp(a, b, interpolantY);
+
+    const segmentIndexY = segmentIndexForInterpolant(interpolantY, structureLength);
 
     if (segmentIndexX === segmentIndexY) {
         sceneManager.colorRampPanel.colorRampWidget.highlight([ segmentIndexX ]);
