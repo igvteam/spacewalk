@@ -1,6 +1,8 @@
 import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./eventBus.js";
-import {numberFormatter} from "./utils.js";
+import { numberFormatter } from "./utils.js";
+import { segmentIndexForInterpolant } from "./colorRampWidget.js";
+import { sceneManager } from "./main.js";
 
 let currentURL = undefined;
 
@@ -8,9 +10,8 @@ class JuiceboxPanel {
 
     constructor ({ container, panel }) {
 
-        this.container = container;
-
         this.$panel = $(panel);
+        this.container = container;
 
         layout(container, panel);
 
@@ -66,6 +67,7 @@ class JuiceboxPanel {
             this.$panel.toggle();
 
             if (this.$panel.is(":visible")) {
+                layout(this.container, this.$panel.get(0));
                 await this.browser.parseGotoInput(this.locus);
             }
 
@@ -166,6 +168,22 @@ let layout = (container, element) => {
     const top = c_h - 1.05 * h;
     $(element).offset( { left, top } );
 
+};
+
+export let juiceboxMouseHandler = ({ startX, startY, endX, endY, interpolantX, interpolantY, structureLength }) => {
+
+    // console.log('interpolant x ' + interpolantX + ' y ' + interpolantY);
+
+    const segmentIndexX = segmentIndexForInterpolant(interpolantX, structureLength);
+    const segmentIndexY = segmentIndexForInterpolant(interpolantY, structureLength);
+
+    if (segmentIndexX === segmentIndexY) {
+        sceneManager.colorRampPanel.colorRampWidget.highlight([ segmentIndexX ]);
+    } else {
+        sceneManager.colorRampPanel.colorRampWidget.highlight([ segmentIndexX, segmentIndexY ]);
+    }
+
+    // globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
 };
 
 export default JuiceboxPanel;

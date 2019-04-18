@@ -37241,7 +37241,7 @@ var igv = (function (igv) {
             datasetId = datasetId || 'gtex_v7';
             baseURL = baseURL || 'https://gtexportal.org/rest/v1';
 
-            let url = baseURL + '/dataset/tissueSummary?datasetId=' + datasetId;
+            let url = baseURL + '/dataset/tissueInfo?datasetId=' + datasetId;
 
             return igv.xhr.loadJson(url, {})
         },
@@ -47635,7 +47635,7 @@ var igv = (function (igv) {
 
         let appleColors = Object.values(igv.appleCrayonPalette);
 
-        if (defaultColor) {
+        if (defaultColor && !(typeof defaultColor === 'function')) {
 
             // Remove 'snow' color.
             appleColors.splice(11, 1);

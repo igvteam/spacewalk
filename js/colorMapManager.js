@@ -1,5 +1,5 @@
 
-import { rgb255String, rgb255ToThreeJSColor } from "./color.js";
+import { rgba255, rgba255String, rgb255String, rgb255ToThreeJSColor } from "./color.js";
 
 class ColorMapManager {
 

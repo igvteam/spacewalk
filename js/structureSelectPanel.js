@@ -8,6 +8,7 @@ class StructureSelectPanel {
 
     constructor({ container, panel }) {
 
+        this.container = container;
         this.$panel = $(panel);
 
         this.$header = $('#trace3d_structure_select_header');
@@ -95,9 +96,17 @@ class StructureSelectPanel {
     }
 
     receiveEvent({ type, data }) {
+
         const { payload } = data;
+
         if ("ToggleUIControl" === type && this.$panel.attr('id') === payload) {
+
             this.$panel.toggle();
+
+            if (this.$panel.is(":visible")) {
+                layout(this.container, this.$panel.get(0));
+            }
+
         }
     }
 

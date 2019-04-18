@@ -21500,8 +21500,6 @@ var hic = (function (hic) {
         $e.text(isTrack2D ? track.config.name : track1D.config.name);
         $row.append($e);
 
-
-
         // track hide/show
         if (isTrack2D) {
             str = (true === track.isVisible) ? 'fa fa-eye fa-lg' : 'fa fa-eye-slash fa-lg';
@@ -21525,6 +21523,17 @@ var hic = (function (hic) {
             });
         }
 
+        if (isTrack2D) {
+
+            // matrix diagonal widget
+            const $matrix_diagonal_div = $('<div>', { class: 'matrix-diagonal-widget-container matrix-diagonal-widget-all' });
+            $row.append($matrix_diagonal_div);
+            $matrix_diagonal_div.on('click.matrix_diagonal_div', (e) => {
+                e.preventDefault();
+                matrixDiagionalWidgetHandler($matrix_diagonal_div, track);
+            });
+
+        }
 
         // color swatch selector button
         $colorpickerButton = annotationColorSwatch(isTrack2D ? track.getColor() : track1D.color);
@@ -21636,6 +21645,33 @@ var hic = (function (hic) {
 
             self.updateBody(trackList);
         });
+    }
+
+    function matrixDiagionalWidgetHandler($icon, track2D) {
+
+            if ($icon.hasClass('matrix-diagonal-widget-all')) {
+
+                $icon.removeClass('matrix-diagonal-widget-all');
+
+                $icon.addClass('matrix-diagonal-widget-lower');
+                track2D.displayMode = hic.Track2DDisplaceModes.displayLowerMatrix;
+            } else if ($icon.hasClass('matrix-diagonal-widget-lower')) {
+
+                $icon.removeClass('matrix-diagonal-widget-lower');
+
+                $icon.addClass('matrix-diagonal-widget-upper');
+                track2D.displayMode = hic.Track2DDisplaceModes.displayUpperMatrix;
+            } else if ($icon.hasClass('matrix-diagonal-widget-upper')) {
+
+                $icon.removeClass('matrix-diagonal-widget-upper');
+
+                $icon.addClass('matrix-diagonal-widget-all');
+                track2D.displayMode = hic.Track2DDisplaceModes.displayAllMatrix;
+            } else {
+
+                $icon.addClass('matrix-diagonal-widget-all');
+                track2D.displayMode = hic.Track2DDisplaceModes.displayAllMatrix;
+            }
     }
 
     function annotationColorSwatch(rgbString) {
@@ -22729,27 +22765,15 @@ var hic = (function (hic) {
 
                 $viewport.on('mousemove', function (e) {
 
-                    var coords,
-                        eFixed,
-                        xy;
-
                     e.preventDefault();
                     e.stopPropagation();
 
-                    coords =
-                        {
-                            x: e.offsetX,
-                            y: e.offsetY
-                        };
+                    const coords = { x: e.offsetX, y: e.offsetY };
 
                     // Sets pageX and pageY for browsers that don't support them
-                    eFixed = $.event.fix(e);
+                    const eFixed = $.event.fix(e);
 
-                    xy =
-                        {
-                            x: eFixed.pageX - $viewport.offset().left,
-                            y: eFixed.pageY - $viewport.offset().top
-                        };
+                    const xy = hic.getMouseXY($viewport.get(0), e);
 
                     self.browser.eventBus.post(hic.Event("UpdateContactMapMousePosition", xy, false));
 
@@ -24388,19 +24412,28 @@ var hic = (function (hic) {
         this.contactMatrixView.setColorScaleThreshold(threshold);
     };
 
-    hic.Browser.prototype.updateCrosshairs = function (coords) {
+    hic.Browser.prototype.updateCrosshairs = function ({ x , y, xNormalized, yNormalized }) {
         var xGuide,
             yGuide;
 
-        xGuide = coords.y < 0 ? {left: 0} : {top: coords.y, left: 0};
+        xGuide = y < 0 ? {left: 0} : {top: y, left: 0};
         this.contactMatrixView.$x_guide.css(xGuide);
         this.layoutController.$x_track_guide.css(xGuide);
 
-        yGuide = coords.x < 0 ? {top: 0} : {top: 0, left: coords.x};
+        yGuide = x < 0 ? {top: 0} : {top: 0, left: x};
         this.contactMatrixView.$y_guide.css(yGuide);
         this.layoutController.$y_track_guide.css(yGuide);
 
+        if (this.customCrosshairsHandler) {
+            let { startBP: startX, endBP: endX } = this.genomicState('x');
+            let { startBP: startY, endBP: endY } = this.genomicState('y');
+            this.customCrosshairsHandler({ startX, startY, endX, endY, interpolantX: xNormalized, interpolantY: yNormalized });
+         }
 
+    };
+
+    hic.Browser.prototype.setCustomCrosshairsHandler = function (crosshairsHandler) {
+        this.customCrosshairsHandler = crosshairsHandler;
     };
 
     hic.Browser.prototype.hideCrosshairs = function () {
@@ -25658,7 +25691,7 @@ var hic = (function (hic) {
         cycle = query["cycle"];
 
         if (hicUrl) {
-            hicUrl = parapmDecode(hicUrl, uriDecode);
+            hicUrl = paramDecode(hicUrl, uriDecode);
             Object.keys(urlShortcuts).forEach(function (key) {
                 var value = urlShortcuts[key];
                 if (hicUrl.startsWith(key)) hicUrl = hicUrl.replace(key, value);
@@ -25667,10 +25700,10 @@ var hic = (function (hic) {
 
         }
         if (name) {
-            config.name = parapmDecode(name, uriDecode);
+            config.name = paramDecode(name, uriDecode);
         }
         if (controlUrl) {
-            controlUrl = parapmDecode(controlUrl, uriDecode);
+            controlUrl = paramDecode(controlUrl, uriDecode);
             Object.keys(urlShortcuts).forEach(function (key) {
                 var value = urlShortcuts[key];
                 if (controlUrl.startsWith(key)) controlUrl = controlUrl.replace(key, value);
@@ -25678,25 +25711,25 @@ var hic = (function (hic) {
             config.controlUrl = controlUrl;
         }
         if (controlName) {
-            config.controlName = parapmDecode(controlName, uriDecode);
+            config.controlName = paramDecode(controlName, uriDecode);
         }
 
         if (stateString) {
-            stateString = parapmDecode(stateString, uriDecode);
+            stateString = paramDecode(stateString, uriDecode);
             config.state = destringifyStateV0(stateString);
 
         }
         if (colorScale) {
-            colorScale = parapmDecode(colorScale, uriDecode);
+            colorScale = paramDecode(colorScale, uriDecode);
             config.colorScale = hic.destringifyColorScale(colorScale);
         }
 
         if (displayMode) {
-            config.displayMode = parapmDecode(displayMode, uriDecode);
+            config.displayMode = paramDecode(displayMode, uriDecode);
         }
 
         if (trackString) {
-            trackString = parapmDecode(trackString, uriDecode);
+            trackString = paramDecode(trackString, uriDecode);
             config.tracks = destringifyTracksV0(trackString);
 
             // If an oAuth token is provided append it to track configs.
@@ -25712,7 +25745,7 @@ var hic = (function (hic) {
         }
 
         if (captionText) {
-            captionText = parapmDecode(captionText, uriDecode);
+            captionText = paramDecode(captionText, uriDecode);
             var captionDiv = document.getElementById("hic-caption");
             if (captionDiv) {
                 captionDiv.textContent = captionText;
@@ -25727,10 +25760,10 @@ var hic = (function (hic) {
         // }
 
         if (nvi) {
-            config.nvi = parapmDecode(nvi, uriDecode);
+            config.nvi = paramDecode(nvi, uriDecode);
         }
         if (controlNvi) {
-            config.controlNvi = parapmDecode(controlNvi, uriDecode);
+            config.controlNvi = paramDecode(controlNvi, uriDecode);
         }
 
         function destringifyStateV0(string) {
@@ -25832,7 +25865,7 @@ var hic = (function (hic) {
         return s;
     }
 
-    function parapmDecode(str, uriDecode) {
+    function paramDecode(str, uriDecode) {
 
         if (uriDecode) {
             return decodeURIComponent(str);   // Still more backward compatibility
@@ -27468,6 +27501,13 @@ var hic = (function (hic) {
 
 var hic = (function (hic) {
 
+    hic.Track2DDisplaceModes =
+        {
+            displayAllMatrix: 'displayAllMatrix',
+            displayLowerMatrix: 'displayLowerMatrix',
+            displayUpperMatrix: 'displayUpperMatrix'
+        };
+
     hic.Track2D = function (config, features) {
 
         var self = this;
@@ -27477,6 +27517,9 @@ var hic = (function (hic) {
         this.featureMap = {};
         this.featureCount = 0;
         this.isVisible = true;
+
+        this.displayMode = hic.Track2DDisplaceModes.displayAllMatrix;
+
         if(config.color && hic.validateColor(config.color)) {
             this.color = this.color = config.color;    // If specified, this will override colors of individual records.
         }
@@ -27497,7 +27540,7 @@ var hic = (function (hic) {
         });
 
     };
-    
+
     hic.Track2D.prototype.getColor = function() {
         return this.color || this.repColor;
     }
@@ -27624,6 +27667,7 @@ var hic = (function (hic) {
 /**
  * Created by dat on 3/8/17.
  */
+
 var hic = (function (hic) {
 
     var urlShorteners;
@@ -27697,12 +27741,10 @@ var hic = (function (hic) {
         return Promise.resolve(url);
     }
 
-    hic.shortJuiceboxURL = function (base) {
+    hic.shortJuiceboxURL = async function (base) {
 
         var url, queryString,
             self = this;
-
-        url = base + "?juicebox=";
 
         queryString = "{";
         hic.allBrowsers.forEach(function (browser, index) {
@@ -27710,51 +27752,66 @@ var hic = (function (hic) {
             queryString += (index === hic.allBrowsers.length - 1 ? "}" : "},{");
         });
 
-        url = url + encodeURIComponent(queryString);
+        const compressedString = compressQueryParameter(queryString)
+
+        url = base + "?juiceboxData=" + compressedString
 
         if (url.length > 2048) {
-            return Promise.resolve(url)
+            return url
         }
         else {
             return self.shortenURL(url)
-
-                .then(function (shortURL) {
-
-                    // Now shorten a second time, with short url as a parameter.  This solves the problem of
-                    // the expanded url (after a redirect) being over the browser limit.
-
-                    var idx, href, url;
-
-                    href = window.location.href;
-                    idx = href.indexOf("?");
-                    if (idx > 0) {
-                        href = href.substr(0, idx);
-                    }
-
-                    url = href + "?juiceboxURL=" + shortURL;
-                    return url;
-                })
         }
     };
 
 
     hic.decodeJBUrl = function (jbURL) {
 
-        var q, parts, config;
+        let q
+        const queryMap = hic.extractQuery(jbURL)
 
-        q = hic.extractQuery(jbURL)["juicebox"];
-
-        if (q.startsWith("%7B")) {
-            q = decodeURIComponent(q);
+        if (queryMap.hasOwnProperty("juicebox")) {
+            q = queryMap["juicebox"];
+            if (q.startsWith("%7B")) {
+                q = decodeURIComponent(q);
+            }
+        }
+        else if (queryMap.hasOwnProperty("juiceboxData")) {
+            const compressed = queryMap["juiceboxData"]
+            q = hic.decompressQueryParameter(compressed)
         }
 
-        q = q.substr(1, q.length - 2);  // Strip leading and trailing bracket
-        parts = q.split("},{");
+        if (q) {
+            q = q.substr(1, q.length - 2);  // Strip leading and trailing bracket
+            const parts = q.split("},{");
 
-        return {
-            queryString: decodeURIComponent(parts[0]),
-            oauthToken: oauthToken
+            return {
+                queryString: decodeURIComponent(parts[0]),
+                oauthToken: oauthToken
+            }
         }
+        else {
+            return undefined
+        }
+    }
+
+    hic.decompressQueryParameter = function (enc) {
+
+        enc = enc.replace(/\./g, '+').replace(/_/g, '/').replace(/-/g, '=')
+
+        const compressedString = atob(enc);
+        const compressedBytes = [];
+        for (let i = 0; i < compressedString.length; i++) {
+            compressedBytes.push(compressedString.charCodeAt(i));
+        }
+        const bytes = new Zlib.RawInflate(compressedBytes).decompress();
+
+        let str = ''
+        for (let b of bytes) {
+            str += String.fromCharCode(b)
+        }
+
+        return str;
     }
 
 
@@ -27921,6 +27978,45 @@ var hic = (function (hic) {
     }
 
 
+    function compressQueryParameter(str) {
+
+        var bytes, deflate, compressedBytes, compressedString, enc;
+
+        bytes = [];
+        for (var i = 0; i < str.length; i++) {
+            bytes.push(str.charCodeAt(i));
+        }
+        compressedBytes = new Zlib.RawDeflate(bytes).compress();            // UInt8Arry
+        compressedString = String.fromCharCode.apply(null, compressedBytes);      // Convert to string
+        enc = btoa(compressedString);
+        enc = enc.replace(/\+/g, '.').replace(/\//g, '_').replace(/\=/g, '-');   // URL safe
+
+        //console.log(json);
+        //console.log(enc);
+
+        return enc;
+    }
+
+    // function decompressQueryParameter(enc) {
+    //
+    //     enc = enc.replace(/\./g, '+').replace(/_/g, '/').replace(/-/g, '=')
+    //
+    //     const compressedString = atob(enc);
+    //     const compressedBytes = [];
+    //     for (let i = 0; i < compressedString.length; i++) {
+    //         compressedBytes.push(compressedString.charCodeAt(i));
+    //     }
+    //     const bytes = new Zlib.RawInflate(compressedBytes).decompress();
+    //
+    //     let str = ''
+    //     for (let b of bytes) {
+    //         str += String.fromCharCode(b)
+    //     }
+    //
+    //     return str;
+    // }
+
+
     return hic;
 
 })
@@ -27953,6 +28049,17 @@ var hic = (function (hic) {
  * Created by dat on 3/8/17.
  */
 var hic = (function (hic) {
+
+
+    hic.getMouseXY = (domElement, { clientX, clientY }) => {
+
+        // a DOMRect object with eight properties: left, top, right, bottom, x, y, width, height
+        const { left, top, width, height } = domElement.getBoundingClientRect();
+
+        return { x: clientX - left,  y: clientY - top, xNormalized: (clientX - left)/width, yNormalized: (clientY - top)/height };
+
+    };
+
 
     hic.colorSwatch = function (rgbString, doPlusOrMinusOrUndefined) {
         var $swatch,

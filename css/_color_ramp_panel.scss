@@ -33,10 +33,28 @@ $trace3d_color_ramp_panel_padding: 12px;
 
     // ramp
     #trace3d_color_ramp_canvas_container {
+      position: relative;
+
       cursor: pointer;
+
       width: $trace3d_color_ramp_canvas_width;
       height: calc(98% - 2 * #{$trace3d_text_box_height} - #{$trace3d_card_drag_container_height});
-      background-color: transparent;
+
+      canvas {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      canvas:first-child {
+        z-index: inherit;
+      }
+
+      canvas:last-child {
+        z-index: -100;
+      }
+
     }
 
     // footer text

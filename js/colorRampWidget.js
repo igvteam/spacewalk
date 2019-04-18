@@ -1,10 +1,14 @@
 import { globalEventBus } from "./eventBus.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
-import { rgb255, rgb255String } from "./color.js";
+import { rgb255, rgb255String, rgba255, rgba255String } from "./color.js";
 import { defaultColormapName } from "./sceneManager.js";
 
 let currentSegmentIndex = undefined;
+
+const alpha_hidden = `rgb(${32},${32},${32})`;
+const alpha_visible = `rgb(${255},${255},${255})`;
+
 class ColorRampWidget {
 
     constructor({ panel, namespace, colorMapManager, highlightColor }) {
@@ -19,8 +23,8 @@ class ColorRampWidget {
         // header
         this.$header = $panel.find('#trace3d_color_ramp_header');
 
-        // ramp canvas
-        const $canvas = $panel.find('canvas');
+        // ramp rgb canvas
+        const $canvas = $panel.find('#trace3d_color_ramp_canvas_rgb');
         const canvas = $canvas.get(0);
 
         fitToContainer(canvas);
@@ -38,7 +42,22 @@ class ColorRampWidget {
         $canvas.on(('mouseleave.trace3d.' + namespace), (event) => {
             event.stopPropagation();
             currentSegmentIndex = undefined;
+            this.repaint();
         });
+
+        this.context = canvas.getContext('2d');
+        this.canvas = canvas;
+
+
+        // ramp rgb canvas
+        const $alphamap_canvas = $panel.find('#trace3d_color_ramp_canvas_alpha');
+        const alphamap_canvas = $alphamap_canvas.get(0);
+
+        fitToContainer(alphamap_canvas);
+
+        this.alphamap_ctx = alphamap_canvas.getContext('2d');
+        this.alphamap_canvas = alphamap_canvas;
+
 
         // soak up misc events
         let eventSink = e => { e.stopPropagation(); };
@@ -49,10 +68,6 @@ class ColorRampWidget {
         // footer
         this.$footer = $panel.find('#trace3d_color_ramp_footer');
 
-        this.context = canvas.getContext('2d');
-
-        this.canvas = canvas;
-
     }
 
     configure({ genomicStart, genomicEnd, structureLength }) {
@@ -62,14 +77,18 @@ class ColorRampWidget {
         const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
         this.$footer.text(ss + 'Mb');
         this.$header.text(ee + 'Mb');
-        this.paintQuantizedRamp({ ctx: this.context, structureLength, highlightedSegmentIndex: undefined });
+        this.paintQuantizedRamp(undefined);
     }
 
     repaint () {
-        this.paintQuantizedRamp({ ctx: this.context, structureLength: this.structureLength, highlightedSegmentIndex: undefined });
+        this.paintQuantizedRamp(undefined);
     }
 
     onCanvasMouseMove(canvas, event) {
+
+        if (undefined === this.structureLength) {
+            return;
+        }
 
         let { yNormalized } = getMouseXY(canvas, event);
 
@@ -85,27 +104,34 @@ class ColorRampWidget {
 
     };
 
-    highlight (segmentIndex) {
-        this.paintQuantizedRamp({ ctx: this.context, structureLength: this.structureLength, highlightedSegmentIndex: segmentIndex })
+    highlight(segmentIndexList) {
+        this.paintQuantizedRamp(new Set(segmentIndexList))
     }
 
-    paintQuantizedRamp({ ctx, structureLength, highlightedSegmentIndex }){
+    paintQuantizedRamp(highlightedSegmentIndexSet){
 
-        const yIndices = new Array(ctx.canvas.offsetHeight);
+        if (undefined === this.structureLength) {
+            return;
+        }
+
+        const yIndices = new Array(this.context.canvas.offsetHeight);
 
         for (let y = 0;  y < yIndices.length; y++) {
 
             const interpolant = 1 - (y / (yIndices.length - 1));
-            const quantizedInterpolant = quantize(interpolant, structureLength);
-            const segmentIndex = segmentIndexForInterpolant(interpolant, structureLength);
+            const quantizedInterpolant = quantize(interpolant, this.structureLength);
+            const segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
 
-            if (highlightedSegmentIndex && highlightedSegmentIndex === segmentIndex) {
-                ctx.fillStyle = rgb255String(this.highlightColor);
+            if (highlightedSegmentIndexSet) {
+                this.alphamap_ctx.fillStyle = highlightedSegmentIndexSet.has(segmentIndex) ? alpha_visible : alpha_hidden;
             } else {
-                ctx.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
+                this.alphamap_ctx.fillStyle = alpha_visible;
             }
 
-            ctx.fillRect(0, y, ctx.canvas.offsetWidth, 1);
+            this.context.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
+            this.context.fillRect(0, y, this.context.canvas.offsetWidth, 1);
+
+            this.alphamap_ctx.fillRect(0, y, this.alphamap_ctx.canvas.offsetWidth, 1);
 
         }
 
@@ -117,7 +143,7 @@ class ColorRampWidget {
 
 }
 
-const segmentIndexForInterpolant = (interpolant, structureLength) => {
+export const segmentIndexForInterpolant = (interpolant, structureLength) => {
 
     // find bucket. 0 based.
     let quantized = quantize(interpolant, structureLength);

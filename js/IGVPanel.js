@@ -1,7 +1,9 @@
-import igv from '../vendor/igv.esm.js'
-import { makeDraggable } from "./draggable.js";
 import { globalEventBus } from "./eventBus.js";
+import igv from '../vendor/igv.esm.js'
+import { segmentIndexForInterpolant } from './colorRampWidget.js';
+import { makeDraggable } from "./draggable.js";
 import { lerp, quantize } from "./math.js";
+import { sceneManager } from './main.js';
 
 let currentURL = undefined;
 
@@ -9,6 +11,7 @@ class IGVPanel {
 
     constructor ({ container, panel }) {
 
+        this.container = container;
         this.$panel = $(panel);
 
         layout(container, panel);
@@ -26,6 +29,11 @@ class IGVPanel {
 
         $(panel).on('mouseleave.trace3d.trace3d_igv_panel', (event) => {
             event.stopPropagation();
+
+            if (sceneManager) {
+                sceneManager.colorRampPanel.colorRampWidget.repaint();
+            }
+
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
@@ -64,6 +72,9 @@ class IGVPanel {
             this.$panel.toggle();
 
             if (this.$panel.is(":visible")) {
+
+                layout(this.container, this.$panel.get(0));
+
                 const { chr, start, end } = this.locus;
                 await this.browser.goto(chr, start, end);
             }
@@ -259,11 +270,13 @@ export let igvConfigurator = () => {
     return config;
 }
 
-export let mouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
-    const quantized = quantize(interpolant, structureLength);
-    const one_based = lerp(1, structureLength, quantized);
-    const segmentIndex = Math.ceil(one_based);
-    globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
+export let IGVMouseHandler = ({bp, start, end, interpolant, structureLength}) => {
+
+    const segmentIndex = segmentIndexForInterpolant(interpolant, structureLength);
+
+    sceneManager.colorRampPanel.colorRampWidget.highlight([segmentIndex]);
+
+    // globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
 };
 
 export default IGVPanel;
