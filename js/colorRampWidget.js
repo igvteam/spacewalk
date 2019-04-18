@@ -104,11 +104,11 @@ class ColorRampWidget {
 
     };
 
-    highlight(segmentIndex) {
-        this.paintQuantizedRamp(segmentIndex)
+    highlight(segmentIndexList) {
+        this.paintQuantizedRamp(new Set(segmentIndexList))
     }
 
-    paintQuantizedRamp(highlightedSegmentIndex){
+    paintQuantizedRamp(highlightedSegmentIndexSet){
 
         if (undefined === this.structureLength) {
             return;
@@ -122,8 +122,8 @@ class ColorRampWidget {
             const quantizedInterpolant = quantize(interpolant, this.structureLength);
             const segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
 
-            if (highlightedSegmentIndex) {
-                this.alphamap_ctx.fillStyle = highlightedSegmentIndex === segmentIndex ? alpha_visible : alpha_hidden;
+            if (highlightedSegmentIndexSet) {
+                this.alphamap_ctx.fillStyle = highlightedSegmentIndexSet.has(segmentIndex) ? alpha_visible : alpha_hidden;
             } else {
                 this.alphamap_ctx.fillStyle = alpha_visible;
             }

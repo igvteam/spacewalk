@@ -1,6 +1,5 @@
 import * as THREE from './threejs_es6/three.module.js';
 import { globalEventBus } from './eventBus.js';
-
 import GUIManager from './guiManager.js';
 import SceneManager from './sceneManager.js';
 import DataFileLoadModal from './dataFileLoadModal.js';
@@ -9,7 +8,8 @@ import StructureManager from './structureManager.js';
 import IGVPanel from './IGVPanel.js';
 import JuiceboxPanel from './juiceboxPanel.js';
 
-import { mouseHandler, igvConfigurator } from './IGVPanel.js';
+import { juiceboxMouseHandler } from './juiceboxPanel.js'
+import { IGVMouseHandler, igvConfigurator } from './IGVPanel.js';
 import { sceneManagerConfigurator } from './sceneManager.js';
 import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import { appleCrayonColorHexValue } from './color.js';
@@ -85,7 +85,11 @@ let main = async container => {
                     structure = structureManager.structureWithName(data);
 
                     igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
-                        mouseHandler({ bp, start, end, interpolant, structureLength: structure.array.length })
+                        IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
+                    });
+
+                    juiceboxBrowser.setCustomCrosshairsHandler(({ startX, startY, endX, endY, interpolantX, interpolantY }) => {
+                        juiceboxMouseHandler({ startX, startY, endX, endY, interpolantX, interpolantY, structureLength: structure.array.length });
                     });
 
                     sceneManager.dispose();
@@ -113,7 +117,11 @@ let main = async container => {
                     structure = structureManager.structureWithName(initialStructureKey);
 
                     igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
-                        mouseHandler({ bp, start, end, interpolant, structureLength: structure.array.length })
+                        IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
+                    });
+
+                    juiceboxBrowser.setCustomCrosshairsHandler(({ startX, startY, endX, endY, interpolantX, interpolantY }) => {
+                        juiceboxMouseHandler({ startX, startY, endX, endY, interpolantX, interpolantY, structureLength: structure.array.length });
                     });
 
                     structureSelectPanel.configure({ structures: structureManager.structures, initialStructureKey });

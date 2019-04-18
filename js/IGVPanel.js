@@ -270,11 +270,11 @@ export let igvConfigurator = () => {
     return config;
 }
 
-export let mouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
+export let IGVMouseHandler = ({bp, start, end, interpolant, structureLength}) => {
 
     const segmentIndex = segmentIndexForInterpolant(interpolant, structureLength);
 
-    sceneManager.colorRampPanel.colorRampWidget.highlight(segmentIndex);
+    sceneManager.colorRampPanel.colorRampWidget.highlight([segmentIndex]);
 
     // globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
 };

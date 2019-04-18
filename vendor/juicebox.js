@@ -22765,27 +22765,15 @@ var hic = (function (hic) {
 
                 $viewport.on('mousemove', function (e) {
 
-                    var coords,
-                        eFixed,
-                        xy;
-
                     e.preventDefault();
                     e.stopPropagation();
 
-                    coords =
-                        {
-                            x: e.offsetX,
-                            y: e.offsetY
-                        };
+                    const coords = { x: e.offsetX, y: e.offsetY };
 
                     // Sets pageX and pageY for browsers that don't support them
-                    eFixed = $.event.fix(e);
+                    const eFixed = $.event.fix(e);
 
-                    xy =
-                        {
-                            x: eFixed.pageX - $viewport.offset().left,
-                            y: eFixed.pageY - $viewport.offset().top
-                        };
+                    const xy = hic.getMouseXY($viewport.get(0), e);
 
                     self.browser.eventBus.post(hic.Event("UpdateContactMapMousePosition", xy, false));
 
@@ -24286,8 +24274,6 @@ var hic = (function (hic) {
 
     hic.Browser = function ($app_container, config) {
 
-        this.customCrosshairsHandler = true;
-
         this.config = config;
         this.figureMode = config.figureMode || config.miniMode;    // Mini mode for backward compatibility
         this.resolutionLocked = false;
@@ -24426,28 +24412,27 @@ var hic = (function (hic) {
         this.contactMatrixView.setColorScaleThreshold(threshold);
     };
 
-    hic.Browser.prototype.updateCrosshairs = function (coords) {
+    hic.Browser.prototype.updateCrosshairs = function ({ x , y, xNormalized, yNormalized }) {
         var xGuide,
             yGuide;
 
-        xGuide = coords.y < 0 ? {left: 0} : {top: coords.y, left: 0};
+        xGuide = y < 0 ? {left: 0} : {top: y, left: 0};
         this.contactMatrixView.$x_guide.css(xGuide);
         this.layoutController.$x_track_guide.css(xGuide);
 
-        yGuide = coords.x < 0 ? {top: 0} : {top: 0, left: coords.x};
+        yGuide = x < 0 ? {top: 0} : {top: 0, left: x};
         this.contactMatrixView.$y_guide.css(yGuide);
         this.layoutController.$y_track_guide.css(yGuide);
 
         if (this.customCrosshairsHandler) {
-            let { x, y } = coords;
             let { startBP: startX, endBP: endX } = this.genomicState('x');
             let { startBP: startY, endBP: endY } = this.genomicState('y');
-            console.log('custom crosshairs handler');
+            this.customCrosshairsHandler({ startX, startY, endX, endY, interpolantX: xNormalized, interpolantY: yNormalized });
          }
 
     };
 
-    igv.Browser.prototype.setCustomCrosshairsHandler = function (crosshairsHandler) {
+    hic.Browser.prototype.setCustomCrosshairsHandler = function (crosshairsHandler) {
         this.customCrosshairsHandler = crosshairsHandler;
     };
 
@@ -28064,6 +28049,17 @@ var hic = (function (hic) {
  * Created by dat on 3/8/17.
  */
 var hic = (function (hic) {
+
+
+    hic.getMouseXY = (domElement, { clientX, clientY }) => {
+
+        // a DOMRect object with eight properties: left, top, right, bottom, x, y, width, height
+        const { left, top, width, height } = domElement.getBoundingClientRect();
+
+        return { x: clientX - left,  y: clientY - top, xNormalized: (clientX - left)/width, yNormalized: (clientY - top)/height };
+
+    };
+
 
     hic.colorSwatch = function (rgbString, doPlusOrMinusOrUndefined) {
         var $swatch,
