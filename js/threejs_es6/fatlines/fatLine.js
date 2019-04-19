@@ -1,5 +1,5 @@
 import FatLineSegments from "./fatLineSegments.js";
-import LineGeometry from "./line_geometry_es6.js";
+import FatLineGeometry from "./fatLineGeometry.js";
 
 class FatLine extends FatLineSegments {
 
@@ -10,7 +10,7 @@ class FatLine extends FatLineSegments {
        this.type = 'FatLine';
        this.isFatLine = true;
 
-       this.geometry = geometry !== undefined ? geometry : new LineGeometry();
+       this.geometry = geometry !== undefined ? geometry : new FatLineGeometry();
        this.material = material !== undefined ? material : new FatLineMaterial( { color: Math.random() * 0xffffff } );
 
    }

@@ -2,11 +2,11 @@ import * as THREE from '../../../js/threejs_es6/three.module.js';
 import OrbitControls from '../../../js/threejs_es6/orbit-controls-es6.js';
 import hilbert3D from '../../../js/threejs_es6/hilbert3D.js';
 
-import { appleCrayonNames, appleCrayonColorHexValue } from '../../../js/color.js';
-
-import LineGeometry from "../../../js/threejs_es6/fatlines/line_geometry_es6.js";
+import FatLineGeometry from "../../../js/threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "../../../js/threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "../../../js/threejs_es6/fatlines/fatLine.js";
+
+import { appleCrayonNames, appleCrayonColorHexValue } from '../../../js/color.js';
 
 let scene;
 let renderer;
@@ -64,7 +64,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     }
 
     // geometry
-    let geometry = new LineGeometry();
+    let geometry = new FatLineGeometry();
     geometry.setPositions( positions );
     geometry.setColors( colors );
 

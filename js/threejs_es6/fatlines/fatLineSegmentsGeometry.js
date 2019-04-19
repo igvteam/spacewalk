@@ -1,13 +1,13 @@
 import * as THREE from '../three.module.js';
 
-class LineSegmentsGeometry extends THREE.InstancedBufferGeometry {
+class FatLineSegmentsGeometry extends THREE.InstancedBufferGeometry {
 
     constructor () {
         super();
 
-        this.type = 'LineSegmentsGeometry';
+        this.type = 'FatLineSegmentsGeometry';
 
-        this.isLineSegmentsGeometry = true;
+        this.isFatLineSegmentsGeometry = true;
 
         const plane = new THREE.BufferGeometry();
 
@@ -213,7 +213,7 @@ class LineSegmentsGeometry extends THREE.InstancedBufferGeometry {
 
             if ( isNaN( this.boundingSphere.radius ) ) {
 
-                console.error( 'LineSegmentsGeometry.computeBoundingSphere(): Computed radius is NaN. The instanced position data is likely to have NaN values.', this );
+                console.error( 'FatLineSegmentsGeometry.computeBoundingSphere(): Computed radius is NaN. The instanced position data is likely to have NaN values.', this );
 
             }
 
@@ -223,4 +223,4 @@ class LineSegmentsGeometry extends THREE.InstancedBufferGeometry {
 
 }
 
-export default LineSegmentsGeometry;
+export default FatLineSegmentsGeometry;

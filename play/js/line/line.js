@@ -98,7 +98,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
         colors.push( color.r, color.g, color.b );
     }
 
-    let geometry = new LineGeometry();
+    let geometry = new FatLineGeometry();
     geometry.setPositions( positions );
     geometry.setColors( colors );
 

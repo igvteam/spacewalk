@@ -1,5 +1,5 @@
 import * as THREE from '../three.module.js';
-import LineSegmentsGeometry from "./line_segments_geometry_es6.js";
+import FatLineSegmentsGeometry from "./fatLineSegmentsGeometry.js";
 import FatLineMaterial from "./fatLineMaterial.js";
 
 class FatLineSegments extends THREE.Mesh {
@@ -11,7 +11,7 @@ class FatLineSegments extends THREE.Mesh {
         this.type = 'FatLineSegments';
         this.isFatLineSegments = true;
 
-        this.geometry = geometry !== undefined ? geometry : new LineSegmentsGeometry();
+        this.geometry = geometry !== undefined ? geometry : new FatLineSegmentsGeometry();
         this.material = material !== undefined ? material : new FatLineMaterial( { color: Math.random() * 0xffffff } );
 
     }

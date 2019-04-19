@@ -12,12 +12,12 @@ import { juiceboxMouseHandler } from './juiceboxPanel.js'
 import { IGVMouseHandler, igvConfigurator } from './IGVPanel.js';
 import { sceneManagerConfigurator } from './sceneManager.js';
 
-import { appleCrayonColorHexValue } from './color.js';
-import { showSTMaterial, showSMaterial, showTMaterial } from './materialLibrary.js';
-
-import LineGeometry from "./threejs_es6/fatlines/line_geometry_es6.js";
+import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "./threejs_es6/fatlines/fatLine.js";
+
+import { appleCrayonColorHexValue } from './color.js';
+import { showSTMaterial, showSMaterial, showTMaterial } from './materialLibrary.js';
 
 let guiManager;
 
@@ -39,7 +39,7 @@ let doUpdateCameraPose = true;
 let rgbTexture;
 let alphaTexture;
 
-let lineMaterial;
+let fatLineMaterial;
 
 let main = async container => {
 
@@ -211,37 +211,37 @@ let drawSpline = (structureList, colorRampWidget) => {
 
     const howmany = 2048;
 
-    const v = curve.getPoints( howmany );
+    const xyzList = curve.getPoints( howmany );
 
-    const c = v.map((xyz, index) => {
-        let interpolant = index / (v.length - 1);
+    const rgbList = xyzList.map((xyz, index) => {
+        let interpolant = index / (xyzList.length - 1);
         interpolant = 1 - interpolant;
         return colorRampWidget.colorForInterpolant(interpolant);
     });
 
     let vertices = [];
-    v.forEach((xyz) => {
+    xyzList.forEach((xyz) => {
         const { x, y, z } = xyz;
         vertices.push(x, y, z);
     });
 
     let colors = [];
-    c.forEach((rgb) => {
+    rgbList.forEach((rgb) => {
         const { r, g, b } = rgb;
         colors.push(r, g, b);
     });
 
-    let geometry = new LineGeometry();
-    geometry.setPositions( vertices );
-    geometry.setColors( colors );
+    let fatLineGeometry = new FatLineGeometry();
+    fatLineGeometry.setPositions( vertices );
+    fatLineGeometry.setColors( colors );
 
-    lineMaterial = new FatLineMaterial( { linewidth: 4, vertexColors: THREE.VertexColors } );
+    fatLineMaterial = new FatLineMaterial( { linewidth: 2, vertexColors: THREE.VertexColors } );
 
-    let line = new FatLine(geometry, lineMaterial);
-    line.computeLineDistances();
-    line.scale.set( 1, 1, 1 );
+    let fatLine = new FatLine(fatLineGeometry, fatLineMaterial);
+    fatLine.computeLineDistances();
+    fatLine.scale.set( 1, 1, 1 );
 
-    sceneManager.scene.add( line );
+    sceneManager.scene.add( fatLine );
 
 };
 
@@ -310,8 +310,8 @@ let renderLoop = () => {
             alphaTexture.needsUpdate = true;
         }
 
-        if (lineMaterial) {
-            lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
+        if (fatLineMaterial) {
+            fatLineMaterial.resolution.set(window.innerWidth, window.innerHeight);
         }
 
         sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera);
