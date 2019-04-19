@@ -1,11 +1,11 @@
-import LineSegmentsGeometry from "./line_segments_geometry_es6.js";
+import FatLineSegmentsGeometry from "./fatLineSegmentsGeometry.js";
 
-class LineGeometry extends LineSegmentsGeometry {
+class FatLineGeometry extends FatLineSegmentsGeometry {
 
     constructor() {
         super();
-        this.type = 'LineGeometry';
-        this.isLineGeometry = true;
+        this.type = 'FatLineGeometry';
+        this.isFatLineGeometry = true;
     }
 
     setPositions( array ) {
@@ -79,4 +79,4 @@ class LineGeometry extends LineSegmentsGeometry {
 
 }
 
-export default LineGeometry;
+export default FatLineGeometry;

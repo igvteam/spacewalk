@@ -2,11 +2,11 @@ import * as THREE from '../../../js/threejs_es6/three.module.js';
 import OrbitControls from '../../../js/threejs_es6/orbit-controls-es6.js';
 import hilbert3D from '../../../js/threejs_es6/hilbert3D.js';
 
-import { appleCrayonNames, appleCrayonColorHexValue } from '../../../js/color.js';
+import FatLineGeometry from "../../../js/threejs_es6/fatlines/fatLineGeometry.js";
+import FatLineMaterial from "../../../js/threejs_es6/fatlines/fatLineMaterial.js";
+import FatLine from "../../../js/threejs_es6/fatlines/fatLine.js";
 
-import LineGeometry from "../../../js/threejs_es6/fatlines/line_geometry_es6.js";
-import LineMaterial from "../../../js/threejs_es6/fatlines/line_material_es6.js";
-import LineES6 from "../../../js/threejs_es6/fatlines/line_es6.js";
+import { appleCrayonNames, appleCrayonColorHexValue } from '../../../js/color.js';
 
 let scene;
 let renderer;
@@ -64,7 +64,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     }
 
     // geometry
-    let geometry = new LineGeometry();
+    let geometry = new FatLineGeometry();
     geometry.setPositions( positions );
     geometry.setColors( colors );
 
@@ -75,10 +75,10 @@ let setup = async (scene, renderer, camera, orbitControl) => {
             vertexColors: THREE.VertexColors,
         };
 
-    lineMaterial = new LineMaterial(lineMaterialConfig);
+    lineMaterial = new FatLineMaterial(lineMaterialConfig);
 
     // line object
-    let line = new LineES6(geometry, lineMaterial);
+    let line = new FatLine(geometry, lineMaterial);
     line.computeLineDistances();
     line.scale.set( 1, 1, 1 );
     scene.add( line );

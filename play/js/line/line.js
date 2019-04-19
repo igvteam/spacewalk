@@ -98,11 +98,11 @@ let setup = async (scene, renderer, camera, orbitControl) => {
         colors.push( color.r, color.g, color.b );
     }
 
-    let geometry = new LineGeometry();
+    let geometry = new FatLineGeometry();
     geometry.setPositions( positions );
     geometry.setColors( colors );
 
-    let material = new LineMaterial( { color: 0xffffff, linewidth: 5, vertexColors: THREE.VertexColors, dashed: false } );
+    let material = new FatLineMaterial( { color: 0xffffff, linewidth: 5, vertexColors: THREE.VertexColors, dashed: false } );
 
     let line = new Line2( geometry, material );
     line.computeLineDistances();
