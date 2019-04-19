@@ -273,19 +273,16 @@ export let igvConfigurator = () => {
 
 export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
 
-    const [ ss, ee ] = [ numberFormatter(Math.round(start)), numberFormatter(Math.round(end)) ];
-    console.log('s ' + ss + ' e ' + ee);
-
     const { genomicStart, genomicEnd } = structureManager.locus;
 
-    if (start > genomicEnd || end < genomicStart) {
+    const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
+
+    if (xRejection) {
         return;
     }
 
-    let [ a, b ] = [ (Math.max(start, genomicStart) - genomicStart)/(genomicEnd - genomicStart), (Math.min(end, genomicEnd) - genomicStart)/(genomicEnd - genomicStart) ];
-    interpolant = lerp(a, b, interpolant);
-
-    const segmentIndex = segmentIndexForInterpolant(interpolant, structureLength);
+    let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
+    const segmentIndex = segmentIndexForInterpolant(lerp(a, b, interpolant), structureLength);
 
     sceneManager.colorRampPanel.colorRampWidget.highlight([segmentIndex]);
 
