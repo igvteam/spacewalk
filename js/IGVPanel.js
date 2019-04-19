@@ -1,8 +1,10 @@
 import { globalEventBus } from "./eventBus.js";
+import igv from '../vendor/igv.esm.js'
+import { sceneManager, structureManager } from './main.js';
 import { segmentIndexForInterpolant } from './colorRampWidget.js';
 import { makeDraggable } from "./draggable.js";
-import { sceneManager } from './main.js';
-import igv from '../vendor/igv.esm.js'
+import { numberFormatter } from "./utils.js";
+import { lerp } from "./math.js";
 
 let currentURL = undefined;
 
@@ -269,7 +271,19 @@ export let igvConfigurator = () => {
     return config;
 }
 
-export let IGVMouseHandler = ({bp, start, end, interpolant, structureLength}) => {
+export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
+
+    const [ ss, ee ] = [ numberFormatter(Math.round(start)), numberFormatter(Math.round(end)) ];
+    console.log('s ' + ss + ' e ' + ee);
+
+    const { genomicStart, genomicEnd } = structureManager.locus;
+
+    if (start > genomicEnd || end < genomicStart) {
+        return;
+    }
+
+    let [ a, b ] = [ (Math.max(start, genomicStart) - genomicStart)/(genomicEnd - genomicStart), (Math.min(end, genomicEnd) - genomicStart)/(genomicEnd - genomicStart) ];
+    interpolant = lerp(a, b, interpolant);
 
     const segmentIndex = segmentIndexForInterpolant(interpolant, structureLength);
 
