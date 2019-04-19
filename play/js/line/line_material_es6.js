@@ -1,39 +1,45 @@
-import * as THREE from './three.module.js';
+import * as THREE from '../../../js/threejs_es6/three.module.js';
 
-/**
- * @author WestLangley / http://github.com/WestLangley
- *
- * parameters = {
- *  color: <hex>,
- *  linewidth: <float>,
- *  dashed: <boolean>,
- *  dashScale: <float>,
- *  dashSize: <float>,
- *  gapSize: <float>,
- *  resolution: <Vector2>, // to be set by renderer
- * }
- */
+THREE.UniformsLib[ 'line' ] =
+    {
 
-THREE.UniformsLib.line = {
+        linewidth:
+            {
+                value: 1
+            },
 
-	linewidth: { value: 1 },
-	resolution: { value: new THREE.Vector2( 1, 1 ) },
-	dashScale: { value: 1 },
-	dashSize: { value: 1 },
-	gapSize: { value: 1 } // todo FIX - maybe change to totalSize
+        resolution:
+            {
+                value: new THREE.Vector2( 1, 1 )
+            },
 
-};
+        dashScale:
+            {
+                value: 1
+            },
+
+        dashSize:
+            {
+                value: 1
+            },
+
+        gapSize:
+            {
+                value: 1
+            } // todo FIX - maybe change to totalSize
+
+    };
 
 THREE.ShaderLib[ 'line' ] = {
 
-	uniforms: THREE.UniformsUtils.merge( [
-		THREE.UniformsLib.common,
-		THREE.UniformsLib.fog,
-		THREE.UniformsLib.line
-	] ),
+    uniforms: THREE.UniformsUtils.merge( [
+        THREE.UniformsLib.common,
+        THREE.UniformsLib.fog,
+        THREE.UniformsLib.line
+    ] ),
 
-	vertexShader:
-		`
+    vertexShader:
+        `
 		#include <common>
 		#include <color_pars_vertex>
 		#include <fog_pars_vertex>
@@ -179,8 +185,8 @@ THREE.ShaderLib[ 'line' ] = {
 		}
 		`,
 
-	fragmentShader:
-		`
+    fragmentShader:
+        `
 		uniform vec3 diffuse;
 		uniform float opacity;
 
@@ -239,155 +245,75 @@ THREE.ShaderLib[ 'line' ] = {
 		`
 };
 
-export default function LineMaterial( parameters ) {
+class LineMaterial extends THREE.ShaderMaterial {
 
-	THREE.ShaderMaterial.call( this, {
+    constructor (parameters) {
 
-		type: 'LineMaterial',
+        const config =
+            {
+                type: 'LineMaterial',
+                uniforms: THREE.UniformsUtils.clone( THREE.ShaderLib[ 'line' ].uniforms ),
+                vertexShader: THREE.ShaderLib[ 'line' ].vertexShader,
+                fragmentShader: THREE.ShaderLib[ 'line' ].fragmentShader
+            };
 
-		uniforms: THREE.UniformsUtils.clone( THREE.ShaderLib[ 'line' ].uniforms ),
+        super(config);
 
-		vertexShader: THREE.ShaderLib[ 'line' ].vertexShader,
-		fragmentShader: THREE.ShaderLib[ 'line' ].fragmentShader
+        this.isLineMaterial = true;
 
-	} );
+        this.dashed = false;
 
-	this.dashed = false;
+        super.setValues( parameters );
+    }
 
-	Object.defineProperties( this, {
+    get color () {
+        return this.uniforms.diffuse.value;
+    }
 
-		color: {
+    set color (value) {
+        this.uniforms.diffuse.value = value;
+    }
 
-			enumerable: true,
+    get linewidth () {
+        return this.uniforms.linewidth.value
+    }
 
-			get: function () {
+    set linewidth (value) {
+        this.uniforms.linewidth.value = value;
+    }
 
-				return this.uniforms.diffuse.value;
+    get dashScale() {
+        return this.uniforms.dashScale.value;
+    }
 
-			},
+    set dashScale (value) {
+        this.uniforms.dashScale.value = value;
+    }
 
-			set: function ( value ) {
+    get dashSize () {
+        return this.uniforms.dashSize.value;
+    }
 
-				this.uniforms.diffuse.value = value;
+    set dashSize (value) {
+        this.uniforms.dashSize.value = value;
+    }
 
-			}
+    get gapSize () {
+        return this.uniforms.gapSize.value;
+    }
 
-		},
+    set gapSize (value) {
+        this.uniforms.gapSize.value = value;
+    }
 
-		linewidth: {
+    get resolution () {
+        return this.uniforms.resolution.value;
+    }
 
-			enumerable: true,
+    set resolution (value) {
+        this.uniforms.resolution.value.copy( value );
+    }
 
-			get: function () {
+}
 
-				return this.uniforms.linewidth.value;
-
-			},
-
-			set: function ( value ) {
-
-				this.uniforms.linewidth.value = value;
-
-			}
-
-		},
-
-		dashScale: {
-
-			enumerable: true,
-
-			get: function () {
-
-				return this.uniforms.dashScale.value;
-
-			},
-
-			set: function ( value ) {
-
-				this.uniforms.dashScale.value = value;
-
-			}
-
-		},
-
-		dashSize: {
-
-			enumerable: true,
-
-			get: function () {
-
-				return this.uniforms.dashSize.value;
-
-			},
-
-			set: function ( value ) {
-
-				this.uniforms.dashSize.value = value;
-
-			}
-
-		},
-
-		gapSize: {
-
-			enumerable: true,
-
-			get: function () {
-
-				return this.uniforms.gapSize.value;
-
-			},
-
-			set: function ( value ) {
-
-				this.uniforms.gapSize.value = value;
-
-			}
-
-		},
-
-		resolution: {
-
-			enumerable: true,
-
-			get: function () {
-
-				return this.uniforms.resolution.value;
-
-			},
-
-			set: function ( value ) {
-
-				this.uniforms.resolution.value.copy( value );
-
-			}
-
-		}
-
-	} );
-
-	this.setValues( parameters );
-
-};
-
-LineMaterial.prototype = Object.create( THREE.ShaderMaterial.prototype );
-LineMaterial.prototype.constructor = LineMaterial;
-
-LineMaterial.prototype.isLineMaterial = true;
-
-LineMaterial.prototype.copy = function ( source ) {
-
-	THREE.ShaderMaterial.prototype.copy.call( this, source );
-
-	this.color.copy( source.color );
-
-	this.linewidth = source.linewidth;
-
-	this.resolution = source.resolution;
-
-	// todo
-
-	return this;
-
-};
-
+export default LineMaterial;

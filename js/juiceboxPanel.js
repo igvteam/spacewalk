@@ -166,28 +166,32 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
 
     const { genomicStart, genomicEnd } = structureManager.locus;
 
-    if (startXBP > genomicEnd || startYBP > genomicEnd || endXBP < genomicStart || endYBP < genomicStart) {
+    const trivialRejection = startXBP > genomicEnd || endXBP < genomicStart || startYBP > genomicEnd || endYBP < genomicStart;
+
+    if (trivialRejection) {
         return;
     }
 
-    startXBP = Math.max(startXBP, genomicStart);
-    startYBP = Math.max(startYBP, genomicStart);
+    const xRejection = xBP < genomicStart || xBP > genomicEnd;
+    const yRejection = yBP < genomicStart || yBP > genomicEnd;
 
-    endXBP = Math.min(endXBP, genomicEnd);
-    endYBP = Math.min(endYBP, genomicEnd);
+    if (xRejection || yRejection) {
+        return;
+    }
 
     let a;
     let b;
 
     [ a, b ] = [ (startXBP - genomicStart)/(genomicEnd - genomicStart), (endXBP - genomicStart)/(genomicEnd - genomicStart) ];
-    interpolantX = lerp(a, b, interpolantX);
-
-    const segmentIndexX = segmentIndexForInterpolant(interpolantX, structureLength);
+    const segmentIndexX = segmentIndexForInterpolant(lerp(a, b, interpolantX, structureLength));
 
     [ a, b ] = [ (startYBP - genomicStart)/(genomicEnd - genomicStart), (endYBP - genomicStart)/(genomicEnd - genomicStart) ];
-    interpolantY = lerp(a, b, interpolantY);
+    const segmentIndexY = segmentIndexForInterpolant(lerp(a, b, interpolantY), structureLength);
 
-    const segmentIndexY = segmentIndexForInterpolant(interpolantY, structureLength);
+    // const [ xx, yy ] = [ numberFormatter(Math.round(xBP)), numberFormatter(Math.round(yBP)) ];
+    // const [ ss, ee ] = [ numberFormatter(Math.round(startXBP)), numberFormatter(Math.round(endXBP)) ];
+    //
+    // console.log('s ' + ss + ' x ' + xx + ' e ' + ee);
 
     if (segmentIndexX === segmentIndexY) {
         sceneManager.colorRampPanel.colorRampWidget.highlight([ segmentIndexX ]);

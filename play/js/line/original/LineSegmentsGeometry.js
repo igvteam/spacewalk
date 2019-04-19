@@ -1,11 +1,9 @@
-import * as THREE from './three.module.js';
-
 /**
  * @author WestLangley / http://github.com/WestLangley
  *
  */
 
-export default function LineSegmentsGeometry() {
+THREE.LineSegmentsGeometry = function () {
 
 	THREE.InstancedBufferGeometry.call( this );
 
@@ -23,9 +21,9 @@ export default function LineSegmentsGeometry() {
 
 };
 
-LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.InstancedBufferGeometry.prototype ), {
+THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.InstancedBufferGeometry.prototype ), {
 
-	constructor: LineSegmentsGeometry,
+	constructor: THREE.LineSegmentsGeometry,
 
 	isLineSegmentsGeometry: true,
 
@@ -229,7 +227,7 @@ LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.InstancedBu
 
 				if ( isNaN( this.boundingSphere.radius ) ) {
 
-					console.error( 'LineSegmentsGeometry.computeBoundingSphere(): Computed radius is NaN. The instanced position data is likely to have NaN values.', this );
+					console.error( 'THREE.LineSegmentsGeometry.computeBoundingSphere(): Computed radius is NaN. The instanced position data is likely to have NaN values.', this );
 
 				}
 
