@@ -245,14 +245,14 @@ THREE.ShaderLib[ 'line' ] = {
 		`
 };
 
-class LineMaterial extends THREE.ShaderMaterial {
+class FatLineMaterial extends THREE.ShaderMaterial {
 
     constructor (parameters) {
 
         const { uniforms: src_uniforms, vertexShader, fragmentShader } = THREE.ShaderLib[ 'line' ];
         const uniforms = THREE.UniformsUtils.clone( src_uniforms );
 
-        super({ type: 'LineMaterial', uniforms, vertexShader, fragmentShader });
+        super({ type: 'FatLineMaterial', uniforms, vertexShader, fragmentShader });
 
         this.isLineMaterial = true;
 
@@ -423,4 +423,4 @@ class LineMaterial extends THREE.ShaderMaterial {
 
 }
 
-export default LineMaterial;
+export default FatLineMaterial;

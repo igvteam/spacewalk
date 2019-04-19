@@ -16,8 +16,8 @@ import { appleCrayonColorHexValue } from './color.js';
 import { showSTMaterial, showSMaterial, showTMaterial } from './materialLibrary.js';
 
 import LineGeometry from "./threejs_es6/fatlines/line_geometry_es6.js";
-import LineMaterial from "./threejs_es6/fatlines/line_material_es6.js";
-import LineES6 from "./threejs_es6/fatlines/line_es6.js";
+import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
+import FatLine from "./threejs_es6/fatlines/fatLine.js";
 
 let guiManager;
 
@@ -235,9 +235,9 @@ let drawSpline = (structureList, colorRampWidget) => {
     geometry.setPositions( vertices );
     geometry.setColors( colors );
 
-    lineMaterial = new LineMaterial( { linewidth: 4, vertexColors: THREE.VertexColors } );
+    lineMaterial = new FatLineMaterial( { linewidth: 4, vertexColors: THREE.VertexColors } );
 
-    let line = new LineES6(geometry, lineMaterial);
+    let line = new FatLine(geometry, lineMaterial);
     line.computeLineDistances();
     line.scale.set( 1, 1, 1 );
 

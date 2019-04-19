@@ -102,7 +102,7 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     geometry.setPositions( positions );
     geometry.setColors( colors );
 
-    let material = new LineMaterial( { color: 0xffffff, linewidth: 5, vertexColors: THREE.VertexColors, dashed: false } );
+    let material = new FatLineMaterial( { color: 0xffffff, linewidth: 5, vertexColors: THREE.VertexColors, dashed: false } );
 
     let line = new Line2( geometry, material );
     line.computeLineDistances();

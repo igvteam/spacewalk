@@ -1,18 +1,18 @@
 import * as THREE from '../three.module.js';
 import LineSegmentsGeometry from "./line_segments_geometry_es6.js";
-import LineMaterial from "./line_material_es6.js";
+import FatLineMaterial from "./fatLineMaterial.js";
 
-class LineSegmentsES6 extends THREE.Mesh {
+class FatLineSegments extends THREE.Mesh {
 
     constructor(geometry, material) {
 
         super();
 
-        this.type = 'LineSegmentsES6';
-        this.isLineSegmentsES6 = true;
+        this.type = 'FatLineSegments';
+        this.isFatLineSegments = true;
 
         this.geometry = geometry !== undefined ? geometry : new LineSegmentsGeometry();
-        this.material = material !== undefined ? material : new LineMaterial( { color: Math.random() * 0xffffff } );
+        this.material = material !== undefined ? material : new FatLineMaterial( { color: Math.random() * 0xffffff } );
 
     }
 
@@ -47,4 +47,4 @@ class LineSegmentsES6 extends THREE.Mesh {
 
 }
 
-export default LineSegmentsES6;
+export default FatLineSegments;

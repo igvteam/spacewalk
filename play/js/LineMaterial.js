@@ -241,7 +241,7 @@ THREE.LineMaterial = function ( parameters ) {
 
 	THREE.ShaderMaterial.call( this, {
 
-		type: 'LineMaterial',
+		type: 'FatLineMaterial',
 
 		uniforms: THREE.UniformsUtils.clone( THREE.ShaderLib[ 'line' ].uniforms ),
 
