@@ -11,7 +11,6 @@ import JuiceboxPanel from './juiceboxPanel.js';
 import { juiceboxMouseHandler } from './juiceboxPanel.js'
 import { IGVMouseHandler, igvConfigurator } from './IGVPanel.js';
 import { sceneManagerConfigurator } from './sceneManager.js';
-import { parsePathEncodedGenomicLocation } from './structureManager.js';
 import { appleCrayonColorHexValue } from './color.js';
 import { showSTMaterial, showSMaterial, showTMaterial } from './materialLibrary.js';
 
@@ -29,8 +28,6 @@ let igvBrowser;
 let juiceboxPanel;
 
 let sceneManager;
-
-let [ chr, genomicStart, genomicEnd ] = [ undefined, undefined, undefined ];
 
 let doUpdateCameraPose = true;
 
@@ -88,13 +85,15 @@ let main = async container => {
                         IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
                     });
 
-                    juiceboxBrowser.setCustomCrosshairsHandler(({ startX, startY, endX, endY, interpolantX, interpolantY }) => {
-                        juiceboxMouseHandler({ startX, startY, endX, endY, interpolantX, interpolantY, structureLength: structure.array.length });
+                    juiceboxBrowser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+                        juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.array.length });
                     });
 
                     sceneManager.dispose();
-                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(structureManager.path);
 
+                    structureManager.parsePathEncodedGenomicLocation(structureManager.path);
+
+                    const { chr, genomicStart, genomicEnd } = structureManager.locus;
                     setup({ chr, genomicStart, genomicEnd, structure });
 
                 } else if ('DidLoadFile' === type) {
@@ -106,7 +105,9 @@ let main = async container => {
                     structureManager.path = name;
                     structureManager.ingest(payload);
 
-                    [ chr, genomicStart, genomicEnd ] = parsePathEncodedGenomicLocation(structureManager.path);
+                    structureManager.parsePathEncodedGenomicLocation(structureManager.path);
+
+                    const { chr, genomicStart, genomicEnd } = structureManager.locus;
 
                     igvPanel.goto({ chr, start: genomicStart, end: genomicEnd });
 
@@ -120,8 +121,8 @@ let main = async container => {
                         IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
                     });
 
-                    juiceboxBrowser.setCustomCrosshairsHandler(({ startX, startY, endX, endY, interpolantX, interpolantY }) => {
-                        juiceboxMouseHandler({ startX, startY, endX, endY, interpolantX, interpolantY, structureLength: structure.array.length });
+                    juiceboxBrowser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+                        juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.array.length });
                     });
 
                     structureSelectPanel.configure({ structures: structureManager.structures, initialStructureKey });
@@ -243,7 +244,7 @@ let drawBall = (structureList) => {
         const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
         ballMesh.position.set(x, y, z);
 
-        const genomicLocation = index * structureManager.stepSize + genomicStart;
+        const genomicLocation = index * structureManager.stepSize + structureManager.locus.genomicStart;
 
         sceneManager.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: ballMesh, centroid: ballMesh.position.clone() };
 
@@ -293,4 +294,4 @@ let renderLoop = () => {
 
 };
 
-export { main, sceneManager };
+export { main, sceneManager, structureManager };
