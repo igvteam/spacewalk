@@ -4,9 +4,9 @@ import hilbert3D from '../../../js/threejs_es6/hilbert3D.js';
 
 import { appleCrayonNames, appleCrayonColorHexValue } from '../../../js/color.js';
 
-import LineGeometry from "./line_geometry_es6.js";
-import LineMaterial from "./line_material_es6.js";
-import LineES6 from "./line_es6.js";
+import LineGeometry from "../../../js/threejs_es6/fatlines/line_geometry_es6.js";
+import LineMaterial from "../../../js/threejs_es6/fatlines/line_material_es6.js";
+import LineES6 from "../../../js/threejs_es6/fatlines/line_es6.js";
 
 let scene;
 let renderer;
@@ -71,11 +71,8 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     // material
     const lineMaterialConfig =
         {
-            color: 0xffffff,
             linewidth: 5, // pixels
             vertexColors: THREE.VertexColors,
-            //resolution:  // to be set by renderer, eventually
-            dashed: false
         };
 
     lineMaterial = new LineMaterial(lineMaterialConfig);

@@ -1,4 +1,4 @@
-import * as THREE from '../../../js/threejs_es6/three.module.js';
+import * as THREE from '../three.module.js';
 
 class LineSegmentsGeometry extends THREE.InstancedBufferGeometry {
 
