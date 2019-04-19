@@ -1,5 +1,6 @@
-import * as THREE from '../../../js/threejs_es6/three.module.js';
+import * as THREE from '../three.module.js';
 import LineSegmentsGeometry from "./line_segments_geometry_es6.js";
+import LineMaterial from "./line_material_es6.js";
 
 class LineSegmentsES6 extends THREE.Mesh {
 
@@ -15,15 +16,15 @@ class LineSegmentsES6 extends THREE.Mesh {
 
     }
 
-    computeLineDistances() {
+    computeLineDistances () {
+
+        let { instanceStart, instanceEnd } = this.geometry.attributes;
+        let { count } = instanceStart.data;
 
         let lineDistances = new Float32Array( 2 * instanceStart.data.count );
 
         let start = new THREE.Vector3();
         let end = new THREE.Vector3();
-
-        let { instanceStart, instanceEnd } = this.geometry.attributes;
-        let { count } = instanceStart.data;
 
         for ( let i = 0, j = 0, l = count; i < l; i ++, j += 2 ) {
 

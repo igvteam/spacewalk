@@ -11,8 +11,13 @@ import JuiceboxPanel from './juiceboxPanel.js';
 import { juiceboxMouseHandler } from './juiceboxPanel.js'
 import { IGVMouseHandler, igvConfigurator } from './IGVPanel.js';
 import { sceneManagerConfigurator } from './sceneManager.js';
+
 import { appleCrayonColorHexValue } from './color.js';
 import { showSTMaterial, showSMaterial, showTMaterial } from './materialLibrary.js';
+
+import LineGeometry from "./threejs_es6/fatlines/line_geometry_es6.js";
+import LineMaterial from "./threejs_es6/fatlines/line_material_es6.js";
+import LineES6 from "./threejs_es6/fatlines/line_es6.js";
 
 let guiManager;
 
@@ -33,6 +38,8 @@ let doUpdateCameraPose = true;
 
 let rgbTexture;
 let alphaTexture;
+
+let lineMaterial;
 
 let main = async container => {
 
@@ -203,25 +210,36 @@ let drawSpline = (structureList, colorRampWidget) => {
     const curve = new THREE.CatmullRomCurve3(knots);
 
     const howmany = 2048;
-    const vertices = curve.getPoints( howmany );
 
-    const colors = vertices.map((vertex, index) => {
+    const v = curve.getPoints( howmany );
 
-        let interpolant = index / (vertices.length - 1);
-
-        // flip direction
+    const c = v.map((xyz, index) => {
+        let interpolant = index / (v.length - 1);
         interpolant = 1 - interpolant;
-
         return colorRampWidget.colorForInterpolant(interpolant);
     });
 
-    const geometry = new THREE.Geometry();
-    geometry.vertices = vertices;
-    geometry.colors = colors;
+    let vertices = [];
+    v.forEach((xyz) => {
+        const { x, y, z } = xyz;
+        vertices.push(x, y, z);
+    });
 
-    const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
+    let colors = [];
+    c.forEach((rgb) => {
+        const { r, g, b } = rgb;
+        colors.push(r, g, b);
+    });
 
-    const line = new THREE.Line( geometry, material );
+    let geometry = new LineGeometry();
+    geometry.setPositions( vertices );
+    geometry.setColors( colors );
+
+    lineMaterial = new LineMaterial( { linewidth: 4, vertexColors: THREE.VertexColors } );
+
+    let line = new LineES6(geometry, lineMaterial);
+    line.computeLineDistances();
+    line.scale.set( 1, 1, 1 );
 
     sceneManager.scene.add( line );
 
@@ -286,7 +304,14 @@ let renderLoop = () => {
 
         if (rgbTexture) {
             rgbTexture.needsUpdate = true;
+        }
+
+        if (alphaTexture) {
             alphaTexture.needsUpdate = true;
+        }
+
+        if (lineMaterial) {
+            lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
         }
 
         sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera);

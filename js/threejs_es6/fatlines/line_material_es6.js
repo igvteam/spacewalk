@@ -1,4 +1,4 @@
-import * as THREE from '../../../js/threejs_es6/three.module.js';
+import * as THREE from '../three.module.js';
 
 THREE.UniformsLib[ 'line' ] =
     {
@@ -249,70 +249,177 @@ class LineMaterial extends THREE.ShaderMaterial {
 
     constructor (parameters) {
 
-        const config =
-            {
-                type: 'LineMaterial',
-                uniforms: THREE.UniformsUtils.clone( THREE.ShaderLib[ 'line' ].uniforms ),
-                vertexShader: THREE.ShaderLib[ 'line' ].vertexShader,
-                fragmentShader: THREE.ShaderLib[ 'line' ].fragmentShader
-            };
+        const { uniforms: src_uniforms, vertexShader, fragmentShader } = THREE.ShaderLib[ 'line' ];
+        const uniforms = THREE.UniformsUtils.clone( src_uniforms );
 
-        super(config);
+        super({ type: 'LineMaterial', uniforms, vertexShader, fragmentShader });
 
         this.isLineMaterial = true;
 
         this.dashed = false;
 
+        Object.defineProperties( this, {
+
+            color: {
+
+                enumerable: true,
+
+                get: function () {
+
+                    return this.uniforms.diffuse.value;
+
+                },
+
+                set: function ( value ) {
+
+                    this.uniforms.diffuse.value = value;
+
+                }
+
+            },
+
+            linewidth: {
+
+                enumerable: true,
+
+                get: function () {
+
+                    return this.uniforms.linewidth.value;
+
+                },
+
+                set: function ( value ) {
+
+                    this.uniforms.linewidth.value = value;
+
+                }
+
+            },
+
+            dashScale: {
+
+                enumerable: true,
+
+                get: function () {
+
+                    return this.uniforms.dashScale.value;
+
+                },
+
+                set: function ( value ) {
+
+                    this.uniforms.dashScale.value = value;
+
+                }
+
+            },
+
+            dashSize: {
+
+                enumerable: true,
+
+                get: function () {
+
+                    return this.uniforms.dashSize.value;
+
+                },
+
+                set: function ( value ) {
+
+                    this.uniforms.dashSize.value = value;
+
+                }
+
+            },
+
+            gapSize: {
+
+                enumerable: true,
+
+                get: function () {
+
+                    return this.uniforms.gapSize.value;
+
+                },
+
+                set: function ( value ) {
+
+                    this.uniforms.gapSize.value = value;
+
+                }
+
+            },
+
+            resolution: {
+
+                enumerable: true,
+
+                get: function () {
+
+                    return this.uniforms.resolution.value;
+
+                },
+
+                set: function ( value ) {
+
+                    this.uniforms.resolution.value.copy( value );
+
+                }
+
+            }
+
+        } );
+
         super.setValues( parameters );
     }
 
-    get color () {
-        return this.uniforms.diffuse.value;
-    }
-
-    set color (value) {
-        this.uniforms.diffuse.value = value;
-    }
-
-    get linewidth () {
-        return this.uniforms.linewidth.value
-    }
-
-    set linewidth (value) {
-        this.uniforms.linewidth.value = value;
-    }
-
-    get dashScale() {
-        return this.uniforms.dashScale.value;
-    }
-
-    set dashScale (value) {
-        this.uniforms.dashScale.value = value;
-    }
-
-    get dashSize () {
-        return this.uniforms.dashSize.value;
-    }
-
-    set dashSize (value) {
-        this.uniforms.dashSize.value = value;
-    }
-
-    get gapSize () {
-        return this.uniforms.gapSize.value;
-    }
-
-    set gapSize (value) {
-        this.uniforms.gapSize.value = value;
-    }
-
-    get resolution () {
-        return this.uniforms.resolution.value;
-    }
-
-    set resolution (value) {
-        this.uniforms.resolution.value.copy( value );
-    }
+    // get color () {
+    //     return this.uniforms.diffuse.value;
+    // }
+    //
+    // set color (value) {
+    //     this.uniforms.diffuse.value = value;
+    // }
+    //
+    // get linewidth () {
+    //     return this.uniforms.linewidth.value
+    // }
+    //
+    // set linewidth (value) {
+    //     this.uniforms.linewidth.value = value;
+    // }
+    //
+    // get dashScale() {
+    //     return this.uniforms.dashScale.value;
+    // }
+    //
+    // set dashScale (value) {
+    //     this.uniforms.dashScale.value = value;
+    // }
+    //
+    // get dashSize () {
+    //     return this.uniforms.dashSize.value;
+    // }
+    //
+    // set dashSize (value) {
+    //     this.uniforms.dashSize.value = value;
+    // }
+    //
+    // get gapSize () {
+    //     return this.uniforms.gapSize.value;
+    // }
+    //
+    // set gapSize (value) {
+    //     this.uniforms.gapSize.value = value;
+    // }
+    //
+    // get resolution () {
+    //     return this.uniforms.resolution.value;
+    // }
+    //
+    // set resolution (value) {
+    //     this.uniforms.resolution.value.copy( value );
+    // }
 
 }
 

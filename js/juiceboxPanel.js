@@ -183,15 +183,10 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
     let b;
 
     [ a, b ] = [ (startXBP - genomicStart)/(genomicEnd - genomicStart), (endXBP - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentIndexX = segmentIndexForInterpolant(lerp(a, b, interpolantX, structureLength));
+    const segmentIndexX = segmentIndexForInterpolant(lerp(a, b, interpolantX), structureLength);
 
     [ a, b ] = [ (startYBP - genomicStart)/(genomicEnd - genomicStart), (endYBP - genomicStart)/(genomicEnd - genomicStart) ];
     const segmentIndexY = segmentIndexForInterpolant(lerp(a, b, interpolantY), structureLength);
-
-    // const [ xx, yy ] = [ numberFormatter(Math.round(xBP)), numberFormatter(Math.round(yBP)) ];
-    // const [ ss, ee ] = [ numberFormatter(Math.round(startXBP)), numberFormatter(Math.round(endXBP)) ];
-    //
-    // console.log('s ' + ss + ' x ' + xx + ' e ' + ee);
 
     if (segmentIndexX === segmentIndexY) {
         sceneManager.colorRampPanel.colorRampWidget.highlight([ segmentIndexX ]);
