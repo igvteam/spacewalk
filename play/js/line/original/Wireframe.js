@@ -1,28 +1,24 @@
-import * as THREE from './three.module.js';
-import LineSegmentsGeometry from './LineSegmentsGeometry.js';
-import LineMaterial from './LineMaterial.js';
-
 /**
  * @author WestLangley / http://github.com/WestLangley
  *
  */
 
-export default function LineSegments2( geometry, material ) {
+THREE.Wireframe = function ( geometry, material ) {
 
 	THREE.Mesh.call( this );
 
-	this.type = 'LineSegments2';
+	this.type = 'Wireframe';
 
-	this.geometry = geometry !== undefined ? geometry : new LineSegmentsGeometry();
-	this.material = material !== undefined ? material : new LineMaterial( { color: Math.random() * 0xffffff } );
+	this.geometry = geometry !== undefined ? geometry : new THREE.LineSegmentsGeometry();
+	this.material = material !== undefined ? material : new THREE.LineMaterial( { color: Math.random() * 0xffffff } );
 
 };
 
-LineSegments2.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
+THREE.Wireframe.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
 
-	constructor: LineSegments2,
+	constructor: THREE.Wireframe,
 
-	isLineSegments2: true,
+	isWireframe: true,
 
 	computeLineDistances: ( function () { // for backwards-compatability, but could be a method of LineSegmentsGeometry...
 

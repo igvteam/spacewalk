@@ -1,19 +1,18 @@
-import * as THREE from '../../js/threejs_es6/three.module.js';
-import OrbitControls from '../../js/threejs_es6/orbit-controls-es6.js';
+import * as THREE from '../../../js/threejs_es6/three.module.js';
+import OrbitControls from '../../../js/threejs_es6/orbit-controls-es6.js';
+import hilbert3D from '../../../js/threejs_es6/hilbert3D.js';
 
-import { appleCrayonNames, appleCrayonColorHexValue } from '../../js/color.js';
+import { appleCrayonNames, appleCrayonColorHexValue } from '../../../js/color.js';
 
-import LineGeometry from '../../js/threejs_es6/LineGeometry.js';
-import LineMaterial from '../../js/threejs_es6/LineMaterial.js';
-import Line2        from '../../js/threejs_es6/Line2.js';
-
-import hilbert3D from '../../js/threejs_es6/hilbert3D.js';
+import LineGeometry from "./line_geometry_es6.js";
+import LineMaterial from "./line_material_es6.js";
+import LineES6 from "./line_es6.js";
 
 let scene;
 let renderer;
 let camera;
 let orbitControl;
-
+let lineMaterial;
 let main = (threejs_canvas) => {
 
     renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
@@ -27,6 +26,10 @@ let main = (threejs_canvas) => {
     scene = new THREE.Scene();
 
     setup(scene, renderer, camera, orbitControl);
+
+    animate();
+
+
 };
 
 let setup = async (scene, renderer, camera, orbitControl) => {
@@ -42,38 +45,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     orbitControl.screenSpacePanning = false;
     orbitControl.target = target;
     orbitControl.update();
-    orbitControl.addEventListener("change", () => renderer.render(scene, camera));
-
-    let geometry;
-
-    /*
-    const dimen = 16;
-    const fudge = 1e-2;
-
-    let vertices;
-    let colors;
-
-    //
-    vertices =
-        [
-            new THREE.Vector3(-dimen, -dimen, dimen),
-            new THREE.Vector3(fudge, fudge, fudge),
-
-            new THREE.Vector3(fudge, fudge, fudge),
-            new THREE.Vector3(dimen, dimen, -dimen)
-        ];
-
-    colors =
-        [
-            new THREE.Color( appleCrayonColor('maraschino') ),
-            new THREE.Color( appleCrayonColor('lime') ),
-
-            new THREE.Color( appleCrayonColor('lime') ),
-            new THREE.Color( appleCrayonColor('blueberry') )
-        ];
-
-    */
-
 
     const [ positions, colors ] = [ [], [] ];
 
@@ -92,25 +63,28 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
     }
 
-    geometry = new LineGeometry();
+    // geometry
+    let geometry = new LineGeometry();
     geometry.setPositions( positions );
     geometry.setColors( colors );
 
-    const materialConfig =
+    // material
+    const lineMaterialConfig =
         {
             color: 0xffffff,
-            linewidth: 5,
+            linewidth: 5, // pixels
             vertexColors: THREE.VertexColors,
+            //resolution:  // to be set by renderer, eventually
             dashed: false
         };
 
-    const material = new LineMaterial(materialConfig);
+    lineMaterial = new LineMaterial(lineMaterialConfig);
 
-    let line = new Line2(geometry, material);
+    // line object
+    let line = new LineES6(geometry, lineMaterial);
     line.computeLineDistances();
     line.scale.set( 1, 1, 1 );
-
-    scene.add(line);
+    scene.add( line );
 
     window.addEventListener( 'resize', onWindowResize, false );
 
@@ -118,12 +92,20 @@ let setup = async (scene, renderer, camera, orbitControl) => {
 
 };
 
+let animate = () => {
+    requestAnimationFrame( animate );
+
+    // renderer will set this eventually
+    lineMaterial.resolution.set( window.innerWidth, window.innerHeight ); // resolution of the viewport
+
+    renderer.render(scene, camera)
+};
+
 let onWindowResize = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
     renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.render( scene, camera );
 };
 
 export { main };
