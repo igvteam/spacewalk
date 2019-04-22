@@ -3,25 +3,25 @@ import igv from '../vendor/igv.esm.js'
 import { sceneManager, structureManager } from './main.js';
 import { segmentIndexForInterpolant } from './colorRampWidget.js';
 import { makeDraggable } from "./draggable.js";
-import { numberFormatter } from "./utils.js";
 import { lerp } from "./math.js";
+import { moveOffScreen, moveOnScreen } from './utils.js';
 
 let currentURL = undefined;
-
 class IGVPanel {
 
-    constructor ({ container, panel }) {
+    constructor ({ container, panel, isHidden }) {
 
         this.container = container;
         this.$panel = $(panel);
+        this.isHidden = isHidden;
 
-        layout(container, panel);
+        this.layout();
 
         makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 
         this.$track_label = $('#trace3d_igv_track_label');
 
-        $(window).on('resize.trace3d.trace3d_igv_panel', () => { this.onWindowResize(container, panel) });
+        $(window).on('resize.trace3d.trace3d_igv_panel', () => { this.onWindowResize() });
 
         $(panel).on('mouseenter.trace3d.trace3d_igv_panel', (event) => {
             event.stopPropagation();
@@ -70,16 +70,15 @@ class IGVPanel {
 
         if ("ToggleUIControl" === type && this.$panel.attr('id') === payload) {
 
-            this.$panel.toggle();
-
-            if (this.$panel.is(":visible")) {
-
-                layout(this.container, this.$panel.get(0));
-
+            if (true === this.isHidden) {
+                moveOnScreen(this);
                 const { chr, start, end } = this.locus;
                 await this.browser.goto(chr, start, end);
+            } else {
+                moveOffScreen(this);
             }
 
+            this.isHidden = !this.isHidden;
         }
     }
 
@@ -130,9 +129,22 @@ class IGVPanel {
 
     };
 
-    onWindowResize(container, panel) {
-        layout(container, panel);
-    };
+    onWindowResize() {
+        if (false === this.isHidden) {
+            this.layout();
+        }
+    }
+
+    layout() {
+
+        // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
+        const { width: c_w, height: c_h } = this.container.getBoundingClientRect();
+        const { width:   w, height:   h } = this.$panel.get(0).getBoundingClientRect();
+
+        const left = (c_w - w)/2;
+        const top = c_h - 1.1 * h;
+        this.$panel.offset( { left, top } );
+    }
 
     // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
     async buildFeatureSegmentIndices({ chr, start, end, stepSize }) {
@@ -154,18 +166,6 @@ class IGVPanel {
     }
 
 }
-
-let layout = (container, element) => {
-
-    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const { width: c_w, height: c_h } = container.getBoundingClientRect();
-    const { width:   w, height:   h } = element.getBoundingClientRect();
-
-    const left = (c_w - w)/2;
-    const top = c_h - 1.1 * h;
-    $(element).offset( { left, top } );
-
-};
 
 export let igvConfigurator = () => {
 

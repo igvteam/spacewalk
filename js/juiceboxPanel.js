@@ -2,19 +2,19 @@ import { globalEventBus } from "./eventBus.js";
 import { segmentIndexForInterpolant } from './colorRampWidget.js';
 import { makeDraggable } from "./draggable.js";
 import { sceneManager, structureManager } from "./main.js";
-import { numberFormatter } from './utils.js'
 import { lerp } from './math.js'
+import { numberFormatter, moveOffScreen, moveOnScreen } from "./utils.js";
 
 let currentURL = undefined;
-
 class JuiceboxPanel {
 
-    constructor ({ container, panel }) {
+    constructor ({ container, panel, isHidden }) {
 
         this.$panel = $(panel);
         this.container = container;
+        this.isHidden = isHidden;
 
-        layout(container, panel);
+        this.layout();
 
         makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 
@@ -70,13 +70,14 @@ class JuiceboxPanel {
 
         if ("ToggleUIControl" === type && this.$panel.attr('id') === payload) {
 
-            this.$panel.toggle();
-
-            if (this.$panel.is(":visible")) {
-                layout(this.container, this.$panel.get(0));
+            if (true === this.isHidden) {
+                moveOnScreen(this);
                 await this.browser.parseGotoInput(this.locus);
+            } else {
+                moveOffScreen(this);
             }
 
+            this.isHidden = !this.isHidden;
         }
     }
 
@@ -101,7 +102,7 @@ class JuiceboxPanel {
         try {
             const browser = await hic.createBrowser(config.container, config);
 
-            layout(this.container, this.$panel.get(0));
+            this.layout();
 
             this.browser = browser;
 
@@ -142,25 +143,26 @@ class JuiceboxPanel {
             $spinner.hide();
         }
 
-    };
+    }
 
-    onWindowResize(container, panel) {
-        layout(container, panel);
-    };
+    onWindowResize() {
+        if (false === this.isHidden) {
+            this.layout();
+        }
+    }
+
+    layout() {
+
+        // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
+        const { width: c_w, height: c_h } = this.container.getBoundingClientRect();
+        const { width:   w, height:   h } = this.$panel.get(0).getBoundingClientRect();
+
+        const left = (c_w - w)/2;
+        const top = c_h - 1.05 * h;
+        this.$panel.offset( { left, top } );
+    }
 
 }
-
-let layout = (container, element) => {
-
-    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const { width: c_w, height: c_h } = container.getBoundingClientRect();
-    const { width:   w, height:   h } = element.getBoundingClientRect();
-
-    const left = (c_w - w)/2;
-    const top = c_h - 1.05 * h;
-    $(element).offset( { left, top } );
-
-};
 
 export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength }) => {
 

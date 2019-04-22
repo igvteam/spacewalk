@@ -8,6 +8,7 @@ import ColorRampPanel from "./colorRampPanel.js";
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import ColorMapManager from "./colorMapManager.js";
+import { guiManager } from './main.js';
 
 let currentStructureCentroid = undefined;
 
@@ -225,12 +226,14 @@ export const sceneManagerConfigurator = (container) => {
     // const highlightColor = appleCrayonColorThreeJS('maraschino');
     const highlightColor = appleCrayonColorThreeJS('honeydew');
 
+    const isHidden = guiManager.isPanelHidden('trace3d_color_ramp_panel');
     const colorRampPanelConfig =
         {
             container,
             panel: $('#trace3d_color_ramp_panel').get(0),
             colorMapManager,
-            highlightColor
+            highlightColor,
+            isHidden
         };
 
     const stickMaterial = showSMaterial;

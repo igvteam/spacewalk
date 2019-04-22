@@ -3,6 +3,8 @@ import {globalEventBus} from "./eventBus.js";
 class GUIManager {
     constructor ({ $button, $panel }) {
 
+        this.$panel = $panel;
+
         $button.on('click.gui_manager', (e) => {
             e.preventDefault();
             $panel.toggle();
@@ -37,6 +39,10 @@ class GUIManager {
             });
 
         });
+    }
+
+    isPanelHidden (panelID) {
+        return !(this.$panel.find(`[data-target='${panelID}']`).prop('checked'));
     }
 }
 
