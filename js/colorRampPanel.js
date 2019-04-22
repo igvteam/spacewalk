@@ -2,6 +2,7 @@ import { globalEventBus } from "./eventBus.js";
 import { makeDraggable } from "./draggable.js";
 import ColorRampWidget from "./colorRampWidget.js";
 
+let isHidden = true;
 class ColorRampPanel {
 
     constructor({ container, panel, colorMapManager, highlightColor }) {
@@ -39,12 +40,13 @@ class ColorRampPanel {
 
         if ("ToggleUIControl" === type && this.$panel.attr('id') === payload) {
 
-            this.$panel.toggle();
-
-            if (this.$panel.is(":visible")) {
-                layout(this.container, this.$panel.get(0));
+            if (true === isHidden) {
+                moveOffScreen(this.container, this.$panel.get(0));
+            } else {
+                moveOnScreen(this.container, this.$panel.get(0));
             }
 
+            isHidden = !isHidden;
         }
     }
 
@@ -57,6 +59,21 @@ class ColorRampPanel {
     };
 
 }
+
+let moveOffScreen = (container, element) => {
+
+    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
+    const { x: c_x, y:c_y, width: c_w, height: c_h } = container.getBoundingClientRect();
+
+    const left = c_x - c_w;
+    const top = c_y - c_y;
+    $(element).offset( { left, top } );
+
+};
+
+let moveOnScreen = (container, element) => {
+    layout(container, element);
+};
 
 let layout = (container, element) => {
 

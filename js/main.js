@@ -88,7 +88,7 @@ let main = async container => {
 
                     structure = structureManager.structureWithName(data);
 
-                    igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
+                    igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
                         IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
                     });
 
@@ -124,7 +124,7 @@ let main = async container => {
 
                     structure = structureManager.structureWithName(initialStructureKey);
 
-                    igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
+                    igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
                         IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
                     });
 

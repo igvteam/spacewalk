@@ -24785,6 +24785,10 @@ var igv = (function (igv) {
         this.cursorGuideVisible = true;
     };
 
+    igv.Browser.prototype.setCustomCursorGuideMouseHandler = function (mouseHandler) {
+        this.cursorGuide.customMouseHandler = mouseHandler;
+    };
+
     // center guide
     igv.Browser.prototype.hideCenterGuide = function () {
         this.centerGuide.$container.hide();
@@ -26197,7 +26201,7 @@ var igv = (function (igv) {
         for(let b of bytes) {
             json += String.fromCharCode(b)
         }
-            
+
         return json;
 
 
@@ -48276,9 +48280,9 @@ var igv = (function (igv) {
         return { $host: $trackContainer, host_css_left: left, bp: bp, start: _startBP, end: _endBP, interpolant: viewportContentMouseXY.xNormalized };
     };
 
-    igv.CursorGuide.prototype.setCustomMouseHandler = function (customMouseHandler) {
-        this.customMouseHandler = customMouseHandler;
-    };
+    // igv.CursorGuide.prototype.setCustomMouseHandler = function (customMouseHandler) {
+    //     this.customMouseHandler = customMouseHandler;
+    // };
 
     igv.CursorGuide.prototype.doHide = function () {
         if (this.$button) {
