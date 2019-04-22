@@ -1,4 +1,18 @@
 
+let moveOnScreen = (panelHost) => {
+    panelHost.layout(panelHost.container, panelHost.$panel.get(0));
+};
+
+let moveOffScreen = (panelHost) => {
+
+    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
+    const { x: c_x, y:c_y, width: c_w, height: c_h } = panelHost.container.getBoundingClientRect();
+
+    const left = c_x - c_w;
+    const top = c_y - c_y;
+    panelHost.$panel.offset( { left, top } );
+};
+
 let fitToContainer = (canvas, devicePixelRatio) => {
 
     canvas.style.width ='100%';
@@ -58,4 +72,4 @@ let numberFormatter = (rawNumber) => {
 };
 
 
-export { fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
+export { moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };

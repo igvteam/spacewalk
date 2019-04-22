@@ -1,15 +1,16 @@
 import { makeDraggable } from "./draggable.js";
 import {globalEventBus} from "./eventBus.js";
 import { clamp } from './math.js'
+import { moveOffScreen, moveOnScreen } from './utils.js';
 
 let currentStructureKey = undefined;
-
 class StructureSelectPanel {
 
-    constructor({ container, panel }) {
+    constructor({ container, panel, isHidden }) {
 
         this.container = container;
         this.$panel = $(panel);
+        this.isHidden = isHidden;
 
         this.$header = $('#trace3d_structure_select_header');
 
@@ -20,7 +21,7 @@ class StructureSelectPanel {
 
         this.keys = undefined;
 
-        layout(container, panel);
+        this.layout();
 
         makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 
@@ -101,12 +102,12 @@ class StructureSelectPanel {
 
         if ("ToggleUIControl" === type && this.$panel.attr('id') === payload) {
 
-            this.$panel.toggle();
-
-            if (this.$panel.is(":visible")) {
-                layout(this.container, this.$panel.get(0));
+            if (this.isHidden) {
+                moveOnScreen(this);
+            } else {
+                moveOffScreen(this);
             }
-
+            this.isHidden = !this.isHidden;
         }
     }
 
@@ -132,23 +133,24 @@ class StructureSelectPanel {
 
     }
 
-    onWindowResize(container, panel) {
-        layout(container, panel);
-    };
+    onWindowResize() {
+        if (false === this.isHidden) {
+            this.layout();
+        }
+    }
+
+    layout() {
+
+        // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
+        const { height: c_h } = this.container.getBoundingClientRect();
+        const { width: w, height: h } = this.$panel.get(0).getBoundingClientRect();
+
+        const left = 0.125 * w;
+        // const top = (c_h - h)/2;
+        const top = 0.5 * c_h;
+        this.$panel.offset( { left, top } );
+    }
 
 }
-
-let layout = (container, element) => {
-
-    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const { height: c_h } = container.getBoundingClientRect();
-    const { width: w, height: h } = element.getBoundingClientRect();
-
-    const left = 0.125 * w;
-    // const top = (c_h - h)/2;
-    const top = 0.5 * c_h;
-    $(element).offset( { left, top } );
-
-};
 
 export default StructureSelectPanel;

@@ -40,16 +40,18 @@ let rgbTexture;
 let alphaTexture;
 
 let fatLineMaterial;
-
+let isHidden;
 let main = async container => {
 
     guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
 
     dataFileLoadeModal = new DataFileLoadModal({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
 
-    structureSelectPanel = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0) });
+    isHidden = guiManager.isPanelHidden('trace3d_structure_select_panel');
+    structureSelectPanel = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0), isHidden });
 
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0) });
+    isHidden = guiManager.isPanelHidden('trace3d_juicebox_panel');
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0), isHidden });
 
     const juiceboxBrowserConfig =
         {
@@ -66,7 +68,8 @@ let main = async container => {
         juiceboxPanel.defaultConfiguration();
     }
 
-    igvPanel = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0) });
+    isHidden = guiManager.isPanelHidden('trace3d_igv_panel');
+    igvPanel = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0), isHidden });
 
     const igvBrowserConfig = igvConfigurator();
     igvBrowser = await igvPanel.createBrowser(igvBrowserConfig);
@@ -88,7 +91,7 @@ let main = async container => {
 
                     structure = structureManager.structureWithName(data);
 
-                    igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
+                    igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
                         IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
                     });
 
@@ -124,7 +127,7 @@ let main = async container => {
 
                     structure = structureManager.structureWithName(initialStructureKey);
 
-                    igvBrowser.cursorGuide.setCustomMouseHandler(({ bp, start, end, interpolant }) => {
+                    igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
                         IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
                     });
 
@@ -319,4 +322,4 @@ let renderLoop = () => {
 
 };
 
-export { main, sceneManager, structureManager };
+export { main, sceneManager, structureManager, guiManager };
