@@ -1,4 +1,3 @@
-import * as THREE from './threejs_es6/three.module.js';
 import { globalEventBus } from './eventBus.js';
 import GUIManager from './guiManager.js';
 import SceneManager from './sceneManager.js';
@@ -7,39 +6,28 @@ import StructureSelectPanel from './structureSelectPanel.js';
 import StructureManager from './structureManager.js';
 import IGVPanel from './IGVPanel.js';
 import JuiceboxPanel from './juiceboxPanel.js';
+import BallAndStick from './ballAndStick.js';
+import Noodle from './Noodle.js';
 
 import { juiceboxMouseHandler } from './juiceboxPanel.js'
 import { IGVMouseHandler, igvConfigurator } from './IGVPanel.js';
 import { sceneManagerConfigurator } from './sceneManager.js';
 
-import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
-import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
-import FatLine from "./threejs_es6/fatlines/fatLine.js";
-
-import { appleCrayonColorHexValue } from './color.js';
-import { showSTMaterial, showSMaterial, showTMaterial } from './materialLibrary.js';
+let dataFileLoadeModal;
 
 let guiManager;
 
-let structureManager;
-
 let structureSelectPanel;
-
-let dataFileLoadeModal;
-
 let igvPanel;
-let igvBrowser;
-
 let juiceboxPanel;
 
 let sceneManager;
+let structureManager;
 
 let doUpdateCameraPose = true;
 
-let rgbTexture;
-let alphaTexture;
-
-let fatLineMaterial;
+let noodle;
+let ballAndStick;
 
 let main = async container => {
 
@@ -69,13 +57,17 @@ let main = async container => {
     igvPanel = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_igv_panel') });
 
     const igvBrowserConfig = igvConfigurator();
-    igvBrowser = await igvPanel.createBrowser(igvBrowserConfig);
+    let igvBrowser = await igvPanel.createBrowser(igvBrowserConfig);
 
     const sceneManagerConfig = sceneManagerConfigurator(container);
     sceneManager = new SceneManager(sceneManagerConfig);
     sceneManager.defaultConfiguration();
 
     structureManager = new StructureManager();
+
+    noodle = new Noodle();
+
+    ballAndStick = new BallAndStick();
 
     renderLoop();
 
@@ -158,187 +150,11 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
 
     sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose });
 
-    // drawNoodle(structure.array, sceneManager.colorRampPanel.colorRampWidget);
+    // noodle.configure(structure.array, sceneManager.colorRampPanel.colorRampWidget);
+    // noodle.addToScene(sceneManager.scene);
 
-    drawBallAndStick(structure.array);
-};
-
-let drawNoodle = (structureList, colorRampWidget) => {
-
-    let { canvas: rgb_canvas, alphamap_canvas } = colorRampWidget;
-
-    drawTube(structureList, rgb_canvas, alphamap_canvas);
-
-    drawFatSpline(structureList, colorRampWidget);
-    // drawThinSpline(structureList, colorRampWidget);
-
-};
-
-let drawTube = (structureList, rgb_canvas, alphamap_canvas) => {
-
-    const knots = structureList.map((obj) => {
-        let [ x, y, z ] = obj.xyz;
-        return new THREE.Vector3( x, y, z );
-    });
-
-    const axis = new THREE.CatmullRomCurve3(knots);
-    const tubeGeometry = new THREE.TubeBufferGeometry(axis, 1024, sceneManager.ballRadius, 96, false);
-
-    rgbTexture = new THREE.CanvasTexture(rgb_canvas);
-    rgbTexture.center.set(0.5, 0.5);
-    rgbTexture.rotation = Math.PI/2.0;
-    rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
-
-    alphaTexture = new THREE.CanvasTexture(alphamap_canvas);
-    alphaTexture.center.set(0.5, 0.5);
-    alphaTexture.rotation = Math.PI/2.0;
-    alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
-
-    let tubeMaterial = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });
-    tubeMaterial.alphaTest = 0.5;
-    tubeMaterial.side = THREE.DoubleSide;
-    tubeMaterial.transparent = true;
-
-    // let tubeMaterial = sceneManager.stickMaterial.clone();
-    const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
-    tubeMesh.name = 'tube';
-
-    sceneManager.scene.add( tubeMesh );
-
-};
-
-let drawFatSpline = (structureList, colorRampWidget) => {
-
-    const knots = structureList.map((obj) => {
-        let [ x, y, z ] = obj.xyz;
-        return new THREE.Vector3( x, y, z );
-    });
-
-    const curve = new THREE.CatmullRomCurve3(knots);
-
-    const howmany = 2048;
-
-    const xyzList = curve.getPoints( howmany );
-
-    const rgbList = xyzList.map((xyz, index) => {
-        let interpolant = index / (xyzList.length - 1);
-        interpolant = 1 - interpolant;
-        return colorRampWidget.colorForInterpolant(interpolant);
-    });
-
-    let vertices = [];
-    xyzList.forEach((xyz) => {
-        const { x, y, z } = xyz;
-        vertices.push(x, y, z);
-    });
-
-    let colors = [];
-    rgbList.forEach((rgb) => {
-        const { r, g, b } = rgb;
-        colors.push(r, g, b);
-    });
-
-    let fatLineGeometry = new FatLineGeometry();
-    fatLineGeometry.setPositions( vertices );
-    fatLineGeometry.setColors( colors );
-
-    fatLineMaterial = new FatLineMaterial( { linewidth: 2, vertexColors: THREE.VertexColors } );
-
-    let fatLine = new FatLine(fatLineGeometry, fatLineMaterial);
-    fatLine.computeLineDistances();
-    fatLine.scale.set( 1, 1, 1 );
-
-    sceneManager.scene.add( fatLine );
-
-};
-
-let drawThinSpline = (structureList, colorRampWidget) => {
-
-    const knots = structureList.map((obj) => {
-        let [ x, y, z ] = obj.xyz;
-        return new THREE.Vector3( x, y, z );
-    });
-
-    const curve = new THREE.CatmullRomCurve3(knots);
-
-    const howmany = 2048;
-    const vertices = curve.getPoints( howmany );
-
-    const colors = vertices.map((vertex, index) => {
-
-        let interpolant = index / (vertices.length - 1);
-
-        // flip direction
-        interpolant = 1 - interpolant;
-
-        return colorRampWidget.colorForInterpolant(interpolant);
-    });
-
-    const geometry = new THREE.Geometry();
-    geometry.vertices = vertices;
-    geometry.colors = colors;
-
-    const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
-
-    const line = new THREE.Line( geometry, material );
-
-    sceneManager.scene.add( line );
-
-};
-
-let drawBallAndStick = (structureList) => {
-    drawBall(structureList);
-    drawStick(structureList);
-};
-
-let drawBall = (structureList) => {
-
-    for(let structure of structureList) {
-
-        const index = structureList.indexOf(structure);
-
-        const [ x, y, z ] = structure.xyz;
-
-        const color = sceneManager.colorRampPanel.colorRampWidget.colorForInterpolant(index / (structureList.length - 1));
-
-        // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
-        // const ballMaterial = new THREE.MeshPhongMaterial({ color });
-        const ballMaterial = new THREE.MeshBasicMaterial({ color });
-        // const ballMaterial = showTMaterial;
-        const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
-        ballMesh.position.set(x, y, z);
-
-        const genomicLocation = index * structureManager.stepSize + structureManager.locus.genomicStart;
-
-        sceneManager.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: ballMesh, centroid: ballMesh.position.clone() };
-
-        sceneManager.indexDictionary[ ballMesh.uuid ] = { index, genomicLocation };
-
-        sceneManager.objectList[ index ] = { object: ballMesh, genomicLocation };
-
-        sceneManager.scene.add(ballMesh);
-
-    }
-
-};
-
-let drawStick = (structureList) => {
-
-    for (let i = 0, j = 1; j < structureList.length; ++i, ++j) {
-
-        const [ x0, y0, z0 ] = structureList[i].xyz;
-        const [ x1, y1, z1 ] = structureList[j].xyz;
-
-        const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
-        const stickGeometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
-
-        const stickMaterial = sceneManager.stickMaterial.clone();
-        const stickMesh = new THREE.Mesh(stickGeometry, stickMaterial);
-        stickMesh.name = 'stick';
-
-        sceneManager.scene.add( stickMesh );
-
-    }
+    ballAndStick.configure(structure.array);
+    ballAndStick.addToScene(sceneManager.scene);
 
 };
 
@@ -347,19 +163,8 @@ let renderLoop = () => {
     requestAnimationFrame( renderLoop );
 
     if (sceneManager.scene && sceneManager.orbitalCamera) {
-
-        if (rgbTexture) {
-            rgbTexture.needsUpdate = true;
-        }
-
-        if (alphaTexture) {
-            alphaTexture.needsUpdate = true;
-        }
-
-        if (fatLineMaterial) {
-            fatLineMaterial.resolution.set(window.innerWidth, window.innerHeight);
-        }
-
+        noodle.renderLoopHelper();
+        ballAndStick.renderLoopHelper();
         sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera);
     }
 
