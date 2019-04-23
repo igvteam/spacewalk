@@ -48,7 +48,7 @@
 			let SimpleGI = (renderer, scene) => {
 
 				const SIZE = 32;
-				const SIZE2 = SIZE * SIZE;
+				const SIZE_SIZE = SIZE * SIZE;
 
 				let camera = new THREE.PerspectiveCamera( 90, 1, 0.01, 100 );
 
@@ -73,7 +73,7 @@
 				let currentVertex = 0;
 
 				let color = new Float32Array( 3 );
-				let buffer = new Uint8Array( SIZE2 * 4 );
+				let buffer = new Uint8Array( SIZE_SIZE * 4 );
 
 				let compute = () => {
 
@@ -84,18 +84,14 @@
 						console.log('shoot ray. bounces ' + bounces);
 					}
 
-					let object = scene.children[ 0 ];
-
-					let { attributes } = object.geometry;
-					let positions = attributes.position.array;
-					let normals = attributes.normal.array;
+					let { attributes } = scene.children[ 0 ].geometry;
 
 					if (undefined === attributes.color) {
-						object.geometry.addAttribute( 'color', new THREE.BufferAttribute( new Float32Array( positions.length ), 3 ).setDynamic( true ) );
+						scene.children[ 0 ].geometry.addAttribute( 'color', new THREE.BufferAttribute( new Float32Array( attributes.position.array.length ), 3 ).setDynamic( true ) );
 					}
 
 					const startVertex = currentVertex;
-					const totalVertex = positions.length / 3;
+					const totalVertex = attributes.position.array.length / 3;
 
 					for ( let i = 0; i < 32; i ++ ) {
 
@@ -103,11 +99,11 @@
 							break;
 						}
 
-						position.fromArray( positions, currentVertex * 3 );
-						position.applyMatrix4( object.matrixWorld );
+						position.fromArray( attributes.position.array, currentVertex * 3 );
+						position.applyMatrix4( scene.children[ 0 ].matrixWorld );
 
-						normal.fromArray( normals, currentVertex * 3 );
-						normal.applyMatrix3( normalMatrix.getNormalMatrix( object.matrixWorld ) ).normalize();
+						normal.fromArray( attributes.normal.array, currentVertex * 3 );
+						normal.applyMatrix3( normalMatrix.getNormalMatrix( scene.children[ 0 ].matrixWorld ) ).normalize();
 
 						camera.position.copy( position );
 						camera.lookAt( position.add( normal ) );
@@ -131,9 +127,9 @@
 						}
 
 						let colors = attributes.color.array;
-						colors[ currentVertex * 3 + 0 ] = color[ 0 ] / ( SIZE2 * 255 );
-						colors[ currentVertex * 3 + 1 ] = color[ 1 ] / ( SIZE2 * 255 );
-						colors[ currentVertex * 3 + 2 ] = color[ 2 ] / ( SIZE2 * 255 );
+						colors[ currentVertex * 3 + 0 ] = color[ 0 ] / ( SIZE_SIZE * 255 );
+						colors[ currentVertex * 3 + 1 ] = color[ 1 ] / ( SIZE_SIZE * 255 );
+						colors[ currentVertex * 3 + 2 ] = color[ 2 ] / ( SIZE_SIZE * 255 );
 
 						++currentVertex;
 

@@ -226,14 +226,13 @@ export const sceneManagerConfigurator = (container) => {
     // const highlightColor = appleCrayonColorThreeJS('maraschino');
     const highlightColor = appleCrayonColorThreeJS('honeydew');
 
-    const isHidden = guiManager.isPanelHidden('trace3d_color_ramp_panel');
     const colorRampPanelConfig =
         {
             container,
             panel: $('#trace3d_color_ramp_panel').get(0),
             colorMapManager,
             highlightColor,
-            isHidden
+            isHidden: guiManager.isPanelHidden('trace3d_color_ramp_panel')
         };
 
     const stickMaterial = showSMaterial;
@@ -241,29 +240,19 @@ export const sceneManagerConfigurator = (container) => {
     // const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
     stickMaterial.side = THREE.DoubleSide;
 
-    const config =
-        {
-            container: container,
-
+    return {
+            container,
             ballRadius: 24,
-
             stickMaterial,
-
             backgroundColor: appleCrayonColorThreeJS('mercury'),
-
             groundPlaneColor: appleCrayonColorHexValue('steel'),
-
             colorRampPanel: new ColorRampPanel(colorRampPanelConfig),
-
             renderer: new THREE.WebGLRenderer({ antialias: true }),
-
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
-
             // skyColor | groundColor | intensity
             hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 )
         };
 
-    return config;
 };
 
 export default SceneManager;
