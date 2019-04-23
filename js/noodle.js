@@ -16,9 +16,9 @@ class Noodle {
 
     configure (structureList, colorRampWidget) {
 
-        let { canvas: rgb_canvas, alphamap_canvas } = colorRampWidget;
+        let { rgb_ctx, alphamap_ctx } = colorRampWidget;
 
-        this.tube = createTube(structureList, rgb_canvas, alphamap_canvas);
+        this.tube = createTube(structureList, rgb_ctx.canvas, alphamap_ctx.canvas);
 
         this.spline = createFatSpline(structureList, colorRampWidget);
         // his.spline = createThinSpline(structureList, colorRampWidget);
@@ -85,7 +85,7 @@ let createTube = (structureList, rgb_canvas, alphamap_canvas) => {
 
     // let tubeMaterial = sceneManager.stickMaterial.clone();
     const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
-    tubeMesh.name = 'tube';
+    tubeMesh.name = 'noodle';
 
     return tubeMesh;
 
@@ -131,6 +131,7 @@ let createFatSpline = (structureList, colorRampWidget) => {
     let fatLine = new FatLine(fatLineGeometry, fatLineMaterial);
     fatLine.computeLineDistances();
     fatLine.scale.set( 1, 1, 1 );
+    fatLine.name = 'noodle_spline';
 
     return fatLine;
 

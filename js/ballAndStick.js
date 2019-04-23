@@ -55,6 +55,8 @@ let createBalls = (structureList) => {
 
         sceneManager.objectList[ index ] = { object: ballMesh, genomicLocation };
 
+        ballMesh.name = 'ball';
+
         return ballMesh;
 
     });
@@ -75,6 +77,7 @@ let createSticks = (structureList) => {
 
         const stickMaterial = sceneManager.stickMaterial.clone();
         const stickMesh = new THREE.Mesh(stickGeometry, stickMaterial);
+
         stickMesh.name = 'stick';
 
         sticks.push(stickMesh);
