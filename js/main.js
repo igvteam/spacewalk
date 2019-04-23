@@ -158,14 +158,20 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
 
     sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose });
 
-    let { canvas, alphamap_canvas } = sceneManager.colorRampPanel.colorRampWidget;
+    // drawNoodle(structure.array, sceneManager.colorRampPanel.colorRampWidget);
 
-    // drawTube(structure.array, canvas, alphamap_canvas);
-    // drawThinSpline(structure.array, sceneManager.colorRampPanel.colorRampWidget);
-    // drawFatSpline(structure.array, sceneManager.colorRampPanel.colorRampWidget);
+    drawBallAndStick(structure.array);
+};
 
-    drawBall(structure.array);
-    drawStick(structure.array);
+let drawNoodle = (structureList, colorRampWidget) => {
+
+    let { canvas: rgb_canvas, alphamap_canvas } = colorRampWidget;
+
+    drawTube(structureList, rgb_canvas, alphamap_canvas);
+
+    drawFatSpline(structureList, colorRampWidget);
+    // drawThinSpline(structureList, colorRampWidget);
+
 };
 
 let drawTube = (structureList, rgb_canvas, alphamap_canvas) => {
@@ -278,6 +284,11 @@ let drawThinSpline = (structureList, colorRampWidget) => {
 
     sceneManager.scene.add( line );
 
+};
+
+let drawBallAndStick = (structureList) => {
+    drawBall(structureList);
+    drawStick(structureList);
 };
 
 let drawBall = (structureList) => {
