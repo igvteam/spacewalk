@@ -160,13 +160,12 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
 
     let { canvas, alphamap_canvas } = sceneManager.colorRampPanel.colorRampWidget;
 
-    drawTube(structure.array, canvas, alphamap_canvas);
-
+    // drawTube(structure.array, canvas, alphamap_canvas);
     // drawThinSpline(structure.array, sceneManager.colorRampPanel.colorRampWidget);
-    drawFatSpline(structure.array, sceneManager.colorRampPanel.colorRampWidget);
+    // drawFatSpline(structure.array, sceneManager.colorRampPanel.colorRampWidget);
 
-    // drawBall(structure.array);
-    // drawStick(structure.array);
+    drawBall(structure.array);
+    drawStick(structure.array);
 };
 
 let drawTube = (structureList, rgb_canvas, alphamap_canvas) => {
@@ -292,8 +291,8 @@ let drawBall = (structureList) => {
         const color = sceneManager.colorRampPanel.colorRampWidget.colorForInterpolant(index / (structureList.length - 1));
 
         // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
-        const ballMaterial = new THREE.MeshPhongMaterial({ color });
-        // const ballMaterial = new THREE.MeshBasicMaterial({ color });
+        // const ballMaterial = new THREE.MeshPhongMaterial({ color });
+        const ballMaterial = new THREE.MeshBasicMaterial({ color });
         // const ballMaterial = showTMaterial;
         const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
         ballMesh.position.set(x, y, z);

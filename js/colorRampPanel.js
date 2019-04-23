@@ -13,7 +13,11 @@ class ColorRampPanel {
 
         this.colorRampWidget = new ColorRampWidget( { panel, namespace: 'colorRampWidget', colorMapManager, highlightColor } );
 
-        this.layout();
+        if (isHidden) {
+            moveOffScreen(this);
+        } else {
+            this.layout();
+        }
 
         makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 

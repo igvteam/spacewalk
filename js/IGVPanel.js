@@ -15,7 +15,11 @@ class IGVPanel {
         this.$panel = $(panel);
         this.isHidden = isHidden;
 
-        this.layout();
+        if (isHidden) {
+            moveOffScreen(this);
+        } else {
+            this.layout();
+        }
 
         makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 
@@ -286,7 +290,7 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
 
     sceneManager.colorRampPanel.colorRampWidget.highlight([segmentIndex]);
 
-    // globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
+    globalEventBus.post({ type: 'DidSelectSegmentIndex', data: [segmentIndex] });
 };
 
 export default IGVPanel;

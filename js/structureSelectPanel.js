@@ -21,7 +21,11 @@ class StructureSelectPanel {
 
         this.keys = undefined;
 
-        this.layout();
+        if (isHidden) {
+            moveOffScreen(this);
+        } else {
+            this.layout();
+        }
 
         makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 

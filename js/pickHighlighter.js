@@ -1,47 +1,45 @@
 import { globalEventBus } from "./eventBus.js";
 
 class PickHighlighter {
+
     constructor (highlightColor) {
         this.highlightColor = highlightColor;
-        this.object = this.currentColor = undefined;
+
+        this.objects = new Set();
+        this.objects.clear();
+
+        this.colorDictionary = {};
     }
 
-    hasObject() {
-        return !(this.object === undefined);
+    hasObject(candidate) {
+        return this.objects.has(candidate);
     }
 
-    isCurrentObject(candidate) {
-        return this.object === candidate;
-    }
-
-    configure (object) {
+    configureObjects(objects) {
 
         this.unhighlight();
 
-        this.object = object;
-
-        this.currentColor = object.material.color;
+        objects.forEach((object) => {
+            this.objects.add(object);
+            this.colorDictionary[ object.uuid ] = object.material.color.clone();
+        });
 
         this.highlight();
     }
 
     highlight() {
-
-        // this.object.material.color = this.highlightColor;
-
+        this.objects.forEach(object => object.material.color.copy(this.highlightColor));
     }
 
     unhighlight() {
 
-        if (this.hasObject()) {
+        this.objects.forEach(object => {
+            object.material.color.copy(this.colorDictionary[ object.uuid ]);
+            // globalEventBus.post({ type: "PickerDidLeaveObject", data: object.uuid });
+        });
 
-            this.object.material.color = this.currentColor;
-
-            globalEventBus.post({ type: "PickerDidLeaveObject", data: this.object.uuid });
-
-            this.object = this.currentColor = undefined;
-
-        }
+        this.objects.clear();
+        this.colorDictionary = {};
 
     }
 }

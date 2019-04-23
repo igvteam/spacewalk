@@ -39,15 +39,13 @@ class Picker {
             const [ hit ] = hitList;
             const { object } = hit;
 
-            if (doTrackObject || false === this.pickHighlighter.isCurrentObject(object)) {
+            if (doTrackObject || false === this.pickHighlighter.hasObject(object)) {
 
                 const { uv } = hit;
                 const { x: s } = uv;
 
-                // console.log('s ' + s);
-
-                this.pickHighlighter.configure(object);
-                globalEventBus .post({ type: "PickerDidHitObject", data: this.pickHighlighter.object.uuid });
+                this.pickHighlighter.configureObjects([ object ]);
+                globalEventBus .post({ type: "PickerDidHitObject", data: object.uuid });
             }
 
         } else {

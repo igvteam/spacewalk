@@ -99,7 +99,7 @@ class ColorRampWidget {
 
         if (currentSegmentIndex !== segmentIndex) {
             currentSegmentIndex = segmentIndex;
-            globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
+            globalEventBus.post({type: "DidSelectSegmentIndex", data: [ segmentIndex ] });
         }
 
     };
