@@ -40,18 +40,16 @@ let rgbTexture;
 let alphaTexture;
 
 let fatLineMaterial;
-let isHidden;
+
 let main = async container => {
 
     guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
 
     dataFileLoadeModal = new DataFileLoadModal({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
 
-    isHidden = guiManager.isPanelHidden('trace3d_structure_select_panel');
-    structureSelectPanel = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0), isHidden });
+    structureSelectPanel = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_structure_select_panel') });
 
-    isHidden = guiManager.isPanelHidden('trace3d_juicebox_panel');
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0), isHidden });
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_juicebox_panel') });
 
     const juiceboxBrowserConfig =
         {
@@ -68,8 +66,7 @@ let main = async container => {
         juiceboxPanel.defaultConfiguration();
     }
 
-    isHidden = guiManager.isPanelHidden('trace3d_igv_panel');
-    igvPanel = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0), isHidden });
+    igvPanel = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_igv_panel') });
 
     const igvBrowserConfig = igvConfigurator();
     igvBrowser = await igvPanel.createBrowser(igvBrowserConfig);
@@ -162,9 +159,11 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
     sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose });
 
     let { canvas, alphamap_canvas } = sceneManager.colorRampPanel.colorRampWidget;
+
     drawTube(structure.array, canvas, alphamap_canvas);
 
-    drawSpline(structure.array, sceneManager.colorRampPanel.colorRampWidget);
+    // drawThinSpline(structure.array, sceneManager.colorRampPanel.colorRampWidget);
+    drawFatSpline(structure.array, sceneManager.colorRampPanel.colorRampWidget);
 
     // drawBall(structure.array);
     // drawStick(structure.array);
@@ -203,7 +202,7 @@ let drawTube = (structureList, rgb_canvas, alphamap_canvas) => {
 
 };
 
-let drawSpline = (structureList, colorRampWidget) => {
+let drawFatSpline = (structureList, colorRampWidget) => {
 
     const knots = structureList.map((obj) => {
         let [ x, y, z ] = obj.xyz;
@@ -245,6 +244,40 @@ let drawSpline = (structureList, colorRampWidget) => {
     fatLine.scale.set( 1, 1, 1 );
 
     sceneManager.scene.add( fatLine );
+
+};
+
+let drawThinSpline = (structureList, colorRampWidget) => {
+
+    const knots = structureList.map((obj) => {
+        let [ x, y, z ] = obj.xyz;
+        return new THREE.Vector3( x, y, z );
+    });
+
+    const curve = new THREE.CatmullRomCurve3(knots);
+
+    const howmany = 2048;
+    const vertices = curve.getPoints( howmany );
+
+    const colors = vertices.map((vertex, index) => {
+
+        let interpolant = index / (vertices.length - 1);
+
+        // flip direction
+        interpolant = 1 - interpolant;
+
+        return colorRampWidget.colorForInterpolant(interpolant);
+    });
+
+    const geometry = new THREE.Geometry();
+    geometry.vertices = vertices;
+    geometry.colors = colors;
+
+    const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
+
+    const line = new THREE.Line( geometry, material );
+
+    sceneManager.scene.add( line );
 
 };
 

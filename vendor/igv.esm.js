@@ -23720,21 +23720,14 @@ var igv = (function (igv) {
 
         var level = null, i, zl;
 
-        if (zoomLevelHeaders && zoomLevelHeaders.length > 0) {
+        for (i = 0; i < zoomLevelHeaders.length; i++) {
 
-            for (i = 0; i < zoomLevelHeaders.length; i++) {
+            zl = zoomLevelHeaders[i];
 
-                zl = zoomLevelHeaders[i];
-
-                if (zl.reductionLevel < bpPerPixel) {
-                    level = zl;
-                    break;
-                }
+            if (zl.reductionLevel < bpPerPixel) {
+                level = zl;
+                break;
             }
-
-        } else {
-
-            level = undefined;
         }
 
         return level;
@@ -24788,6 +24781,7 @@ var igv = (function (igv) {
     igv.Browser.prototype.setCustomCursorGuideMouseHandler = function (mouseHandler) {
         this.cursorGuide.customMouseHandler = mouseHandler;
     };
+
 
     // center guide
     igv.Browser.prototype.hideCenterGuide = function () {
@@ -48222,7 +48216,7 @@ var igv = (function (igv) {
 
             if ($viewportContent.hasClass('igv-viewport-content-div')) {
 
-                const { bp, start, end, interpolant }  = mouseHandler(e, $viewportContent, this.$guide, $cursorGuideParent, this.browser);
+                const { bp, start, end, interpolant }  = mouseHandler(e, $viewportContent, this.$guide, $cursorGuideParent, browser);
 
                 // console.log('x ' + interpolant.toFixed(3) + ' bp ' + igv.numberFormatter(bp) + ' start ' + igv.numberFormatter(start) + ' end ' + igv.numberFormatter(end));
 
@@ -48277,12 +48271,8 @@ var igv = (function (igv) {
         const trackContainerMouseXY = igv.getMouseXY($trackContainer.get(0), event);
 
 
-        return { $host: $trackContainer, host_css_left: left, bp: bp, start: _startBP, end: _endBP, interpolant: viewportContentMouseXY.xNormalized };
+        return { $host: $trackContainer, host_css_left: left, bp, start: _startBP, end: _endBP, interpolant: viewportContentMouseXY.xNormalized };
     };
-
-    // igv.CursorGuide.prototype.setCustomMouseHandler = function (customMouseHandler) {
-    //     this.customMouseHandler = customMouseHandler;
-    // };
 
     igv.CursorGuide.prototype.doHide = function () {
         if (this.$button) {

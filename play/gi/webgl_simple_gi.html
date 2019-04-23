@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - simple global illumination</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				margin: 0;
+				background-color: #000000;
+				overflow: hidden;
+			}
+
+			a { color: #0078ff; }
+
+			#info {
+				position: absolute;
+				top: 5px;
+				width: 100%;
+				color:#fff;
+				font-size:13px;
+				font-weight: bold;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div id="info">
+			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - simple global illumination (<a href="http://www.iquilezles.org/www/articles/simplegi/simplegi.htm">article</a>)
+		</div>
+
+		<script src="../js/three.js"></script>
+		<script src="../js/controls/OrbitControls.js"></script>
+
+		<script>
+
+			let camera;
+			let scene;
+			let renderer;
+			let orbitControls;
+
+			THREE.Mesh.prototype.clone = function () {
+				var newMaterial = ( this.material.isMaterial ) ? this.material.clone() : this.material.slice();
+				return new this.constructor( this.geometry.clone(), newMaterial ).copy( this );
+			};
+
+			let SimpleGI = (renderer, scene) => {
+
+				const SIZE = 32;
+				const SIZE_SIZE = SIZE * SIZE;
+
+				let camera = new THREE.PerspectiveCamera( 90, 1, 0.01, 100 );
+
+				scene.updateMatrixWorld( true );
+
+				let sceneCloned = scene.clone();
+				sceneCloned.autoUpdate = false;
+
+				let renderTarget = new THREE.WebGLRenderTarget( SIZE, SIZE, {
+					wrapS: THREE.ClampToEdgeWrapping,
+					wrapT: THREE.ClampToEdgeWrapping,
+					stencilBuffer: false,
+					depthBuffer: true
+				} );
+
+				let normalMatrix = new THREE.Matrix3();
+
+				let position = new THREE.Vector3();
+				let normal = new THREE.Vector3();
+
+				let bounces = 0;
+				let currentVertex = 0;
+
+				let color = new Float32Array( 3 );
+				let buffer = new Uint8Array( SIZE_SIZE * 4 );
+
+				let compute = () => {
+
+					if (3 === bounces) {
+						console.log('done shooting rays. bounces ' + bounces);
+						return;
+					} else {
+						console.log('shoot ray. bounces ' + bounces);
+					}
+
+					let { attributes } = scene.children[ 0 ].geometry;
+
+					if (undefined === attributes.color) {
+						scene.children[ 0 ].geometry.addAttribute( 'color', new THREE.BufferAttribute( new Float32Array( attributes.position.array.length ), 3 ).setDynamic( true ) );
+					}
+
+					const startVertex = currentVertex;
+					const totalVertex = attributes.position.array.length / 3;
+
+					for ( let i = 0; i < 32; i ++ ) {
+
+						if ( currentVertex >= totalVertex ) {
+							break;
+						}
+
+						position.fromArray( attributes.position.array, currentVertex * 3 );
+						position.applyMatrix4( scene.children[ 0 ].matrixWorld );
+
+						normal.fromArray( attributes.normal.array, currentVertex * 3 );
+						normal.applyMatrix3( normalMatrix.getNormalMatrix( scene.children[ 0 ].matrixWorld ) ).normalize();
+
+						camera.position.copy( position );
+						camera.lookAt( position.add( normal ) );
+
+						renderer.setRenderTarget( renderTarget );
+						renderer.render( sceneCloned, camera );
+
+						renderer.readRenderTargetPixels( renderTarget, 0, 0, SIZE, SIZE, buffer );
+
+						color[ 0 ] = 0;
+						color[ 1 ] = 0;
+						color[ 2 ] = 0;
+
+						const kl = buffer.length;
+						for ( let k = 0; k < kl; k += 4 ) {
+
+							color[ 0 ] += buffer[ k + 0 ];
+							color[ 1 ] += buffer[ k + 1 ];
+							color[ 2 ] += buffer[ k + 2 ];
+
+						}
+
+						let colors = attributes.color.array;
+						colors[ currentVertex * 3 + 0 ] = color[ 0 ] / ( SIZE_SIZE * 255 );
+						colors[ currentVertex * 3 + 1 ] = color[ 1 ] / ( SIZE_SIZE * 255 );
+						colors[ currentVertex * 3 + 2 ] = color[ 2 ] / ( SIZE_SIZE * 255 );
+
+						++currentVertex;
+
+					}
+
+					attributes.color.updateRange.offset = startVertex * 3;
+					attributes.color.updateRange.count = ( currentVertex - startVertex ) * 3;
+					attributes.color.needsUpdate = true;
+
+					if ( currentVertex >= totalVertex ) {
+
+						sceneCloned = scene.clone();
+						sceneCloned.autoUpdate = false;
+
+						bounces ++;
+						currentVertex = 0;
+
+					}
+
+					requestAnimationFrame( compute );
+
+				};
+
+				requestAnimationFrame( compute );
+
+			};
+
+			init();
+			animate();
+
+			function init() {
+
+				let geometry;
+				let material;
+				let mesh;
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 100 );
+				camera.position.z = 4;
+
+				scene = new THREE.Scene();
+
+				// sphere
+
+				geometry = new THREE.TorusKnotBufferGeometry( 0.75, 0.3, 128, 32, 1 );
+				// var geometry = new THREE.BoxBufferGeometry( 1, 1, 1, 10, 10, 10 )
+				material = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } );
+
+				mesh = new THREE.Mesh( geometry, material );
+				// mesh.position.y = 1;
+				scene.add( mesh );
+
+				/*
+				var geometry = new THREE.SphereBufferGeometry( 0.5, 16, 8 );
+
+				for ( var i = 0; i < 10; i ++ ) {
+
+					var material = new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, side: THREE.DoubleSide } );
+
+					var mesh = new THREE.Mesh( geometry, material );
+					mesh.position.x = Math.random() * 3 - 1.5;
+					mesh.position.y = Math.random() * 3 - 1.5;
+					mesh.position.z = Math.random() * 3 - 1.5;
+					mesh.updateMatrix();
+					scene.add( mesh );
+
+				}
+				*/
+
+				// room
+
+				let materials = [];
+
+				for (let i = 0; i < 8; i++ ) {
+					materials.push( new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, side: THREE.BackSide } ) );
+				}
+
+				geometry = new THREE.BoxBufferGeometry( 3, 3, 3 );
+
+				mesh = new THREE.Mesh( geometry, materials );
+
+				scene.add( mesh );
+
+				//
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				let orbitControls = new THREE.OrbitControls( camera );
+
+				SimpleGI( renderer, scene );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				renderer.setRenderTarget( null );
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
