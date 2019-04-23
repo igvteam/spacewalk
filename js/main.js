@@ -159,8 +159,10 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
     sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose });
 
     let { canvas, alphamap_canvas } = sceneManager.colorRampPanel.colorRampWidget;
+
     drawTube(structure.array, canvas, alphamap_canvas);
 
+    // drawThinSpline(structure.array, sceneManager.colorRampPanel.colorRampWidget);
     drawFatSpline(structure.array, sceneManager.colorRampPanel.colorRampWidget);
 
     // drawBall(structure.array);
@@ -242,6 +244,40 @@ let drawFatSpline = (structureList, colorRampWidget) => {
     fatLine.scale.set( 1, 1, 1 );
 
     sceneManager.scene.add( fatLine );
+
+};
+
+let drawThinSpline = (structureList, colorRampWidget) => {
+
+    const knots = structureList.map((obj) => {
+        let [ x, y, z ] = obj.xyz;
+        return new THREE.Vector3( x, y, z );
+    });
+
+    const curve = new THREE.CatmullRomCurve3(knots);
+
+    const howmany = 2048;
+    const vertices = curve.getPoints( howmany );
+
+    const colors = vertices.map((vertex, index) => {
+
+        let interpolant = index / (vertices.length - 1);
+
+        // flip direction
+        interpolant = 1 - interpolant;
+
+        return colorRampWidget.colorForInterpolant(interpolant);
+    });
+
+    const geometry = new THREE.Geometry();
+    geometry.vertices = vertices;
+    geometry.colors = colors;
+
+    const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
+
+    const line = new THREE.Line( geometry, material );
+
+    sceneManager.scene.add( line );
 
 };
 
