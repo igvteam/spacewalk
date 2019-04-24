@@ -15,55 +15,55 @@ class ColorRampWidget {
 
         this.colorMapManager = colorMapManager;
 
-        let { r, g, b } = highlightColor;
-        this.highlightColor = rgb255(r*255, g*255, b*255);
+        const { r, g, b } = highlightColor;
+        this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
         const $panel = $(panel);
 
-        // header
-        this.$header = $panel.find('#trace3d_color_ramp_header');
+        const $canvasContainer = $panel.find('#trace3d_color_ramp_canvas_container');
 
-        // ramp rgb canvas
-        const $canvas = $panel.find('#trace3d_color_ramp_canvas_rgb');
-        const canvas = $canvas.get(0);
-
-        fitToContainer(canvas);
-
-        $canvas.on(('mousemove.trace3d.' + namespace), (event) => {
+        $canvasContainer.on(('mousemove.trace3d.' + namespace), (event) => {
             event.stopPropagation();
             this.onCanvasMouseMove(canvas, event)
         });
 
-        $canvas.on(('mouseenter.trace3d.' + namespace), (event) => {
+        $canvasContainer.on(('mouseenter.trace3d.' + namespace), (event) => {
             event.stopPropagation();
             currentSegmentIndex = undefined;
         });
 
-        $canvas.on(('mouseleave.trace3d.' + namespace), (event) => {
+        $canvasContainer.on(('mouseleave.trace3d.' + namespace), (event) => {
             event.stopPropagation();
             currentSegmentIndex = undefined;
             this.repaint();
         });
 
-        this.context = canvas.getContext('2d');
-        this.canvas = canvas;
-
-
-        // ramp rgb canvas
-        const $alphamap_canvas = $panel.find('#trace3d_color_ramp_canvas_alpha');
-        const alphamap_canvas = $alphamap_canvas.get(0);
-
-        fitToContainer(alphamap_canvas);
-
-        this.alphamap_ctx = alphamap_canvas.getContext('2d');
-        this.alphamap_canvas = alphamap_canvas;
-
-
         // soak up misc events
         let eventSink = e => { e.stopPropagation(); };
-        $canvas.on(('mouseup.trace3d.' + namespace), eventSink);
-        $canvas.on(('mousedown.trace3d.' + namespace), eventSink);
-        $canvas.on(('click.trace3d.' + namespace), eventSink);
+        $canvasContainer.on(('mouseup.trace3d.' + namespace), eventSink);
+        $canvasContainer.on(('mousedown.trace3d.' + namespace), eventSink);
+        $canvasContainer.on(('click.trace3d.' + namespace), eventSink);
+
+        let canvas;
+
+        // highlight canvas
+        canvas = $panel.find('#trace3d_color_ramp_canvas_highlight').get(0);
+        fitToContainer(canvas);
+        this.highlight_ctx = canvas.getContext('2d');
+
+        // ramp rgb canvas
+        canvas = $panel.find('#trace3d_color_ramp_canvas_rgb').get(0);
+        fitToContainer(canvas);
+        this.rgb_ctx = canvas.getContext('2d');
+
+        // alpha canvas indicating highlighted region of rgb canvas
+        canvas = $panel.find('#trace3d_color_ramp_canvas_alpha').get(0);
+        fitToContainer(canvas);
+        this.alphamap_ctx = canvas.getContext('2d');
+
+
+        // header
+        this.$header = $panel.find('#trace3d_color_ramp_header');
 
         // footer
         this.$footer = $panel.find('#trace3d_color_ramp_footer');
@@ -99,7 +99,7 @@ class ColorRampWidget {
 
         if (currentSegmentIndex !== segmentIndex) {
             currentSegmentIndex = segmentIndex;
-            globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
+            globalEventBus.post({type: "DidSelectSegmentIndex", data: [ segmentIndex ] });
         }
 
     };
@@ -114,26 +114,46 @@ class ColorRampWidget {
             return;
         }
 
-        const yIndices = new Array(this.context.canvas.offsetHeight);
+        const yIndices = new Array(this.rgb_ctx.canvas.offsetHeight);
+        let interpolant;
+        let quantizedInterpolant;
+        let segmentIndex;
 
+        // paint rgb ramp
         for (let y = 0;  y < yIndices.length; y++) {
-
-            const interpolant = 1 - (y / (yIndices.length - 1));
-            const quantizedInterpolant = quantize(interpolant, this.structureLength);
-            const segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
-
-            if (highlightedSegmentIndexSet) {
-                this.alphamap_ctx.fillStyle = highlightedSegmentIndexSet.has(segmentIndex) ? alpha_visible : alpha_hidden;
-            } else {
-                this.alphamap_ctx.fillStyle = alpha_visible;
-            }
-
-            this.context.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
-            this.context.fillRect(0, y, this.context.canvas.offsetWidth, 1);
-
-            this.alphamap_ctx.fillRect(0, y, this.alphamap_ctx.canvas.offsetWidth, 1);
-
+            interpolant = 1 - (y / (yIndices.length - 1));
+            quantizedInterpolant = quantize(interpolant, this.structureLength);
+            segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
+            this.rgb_ctx.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
+            this.rgb_ctx.fillRect(0, y, this.rgb_ctx.canvas.offsetWidth, 1);
         }
+
+        // paint alpha map
+        this.alphamap_ctx.fillStyle = alpha_visible;
+        this.alphamap_ctx.fillRect(0, 0, this.alphamap_ctx.canvas.offsetWidth, this.alphamap_ctx.canvas.offsetHeight);
+
+        if (highlightedSegmentIndexSet) {
+
+            // paint highlight map
+            this.highlight_ctx.clearRect(0, 0, this.highlight_ctx.canvas.offsetWidth, this.highlight_ctx.canvas.offsetHeight);
+            this.alphamap_ctx.clearRect(0, 0, this.alphamap_ctx.canvas.offsetWidth, this.alphamap_ctx.canvas.offsetHeight);
+
+            this.highlight_ctx.fillStyle = this.highlightColor;
+            this.alphamap_ctx.fillStyle = alpha_visible;
+            for (let y = 0;  y < yIndices.length; y++) {
+
+                interpolant = 1 - (y / (yIndices.length - 1));
+                quantizedInterpolant = quantize(interpolant, this.structureLength);
+                segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
+
+                if (highlightedSegmentIndexSet.has(segmentIndex)) {
+                    this.highlight_ctx.fillRect(0, y, this.highlight_ctx.canvas.offsetWidth, 1);
+                    this.alphamap_ctx.fillRect(0, y, this.alphamap_ctx.canvas.offsetWidth, 1);
+                }
+
+            } // for (y)
+
+        } // if (highlightedSegmentIndexSet)
 
     }
 

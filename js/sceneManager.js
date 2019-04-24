@@ -76,10 +76,19 @@ class SceneManager {
 
         } else if ("DidSelectSegmentIndex" === type) {
 
-            const index = data - 1;
-            if (this.objectList[ index ]) {
-                this.picker.pickHighlighter.configure(this.objectList[ index ].object);
+            let objects = [];
+            data.forEach(item => {
+                const index = item - 1;
+                if (this.objectList[ index ]) {
+                    let { object } = this.objectList[ index ];
+                    objects.push(object);
+                }
+            });
+
+            if (objects.length > 0) {
+                this.picker.pickHighlighter.configureObjects(objects);
             }
+
 
         } else if ("ToggleGroundplane" === type) {
             this.groundPlane.visible = data;
@@ -130,7 +139,7 @@ class SceneManager {
         this.scene.background = this.background;
         this.scene.add(this.hemisphereLight);
 
-        this.colorRampPanel.configure({ genomicStart, genomicEnd, structureLength });
+        this.colorRampPanel.configure({genomicStart, genomicEnd, structureLength});
 
         if (true === doUpdateCameraPose) {
             this.orbitalCamera.setPose({ position: cameraPosition, centroid: structureCentroid });
@@ -235,8 +244,8 @@ export const sceneManagerConfigurator = (container) => {
             isHidden: guiManager.isPanelHidden('trace3d_color_ramp_panel')
         };
 
-    const stickMaterial = showSMaterial;
-    // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
+    // const stickMaterial = showSMaterial;
+    const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
     // const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
     stickMaterial.side = THREE.DoubleSide;
 

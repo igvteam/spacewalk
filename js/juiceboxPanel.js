@@ -14,7 +14,11 @@ class JuiceboxPanel {
         this.container = container;
         this.isHidden = isHidden;
 
-        this.layout();
+        if (isHidden) {
+            moveOffScreen(this);
+        } else {
+            this.layout();
+        }
 
         makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 
@@ -59,7 +63,6 @@ class JuiceboxPanel {
 
         });
 
-
         globalEventBus.subscribe("ToggleUIControl", this);
 
     }
@@ -102,7 +105,9 @@ class JuiceboxPanel {
         try {
             const browser = await hic.createBrowser(config.container, config);
 
-            this.layout();
+            if (false === this.isHidden) {
+                this.layout();
+            }
 
             this.browser = browser;
 
@@ -192,11 +197,13 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
 
     if (segmentIndexX === segmentIndexY) {
         sceneManager.colorRampPanel.colorRampWidget.highlight([ segmentIndexX ]);
+        globalEventBus.post({ type: 'DidSelectSegmentIndex', data: [ segmentIndexX ] });
     } else {
         sceneManager.colorRampPanel.colorRampWidget.highlight([ segmentIndexX, segmentIndexY ]);
+        globalEventBus.post({ type: 'DidSelectSegmentIndex', data: [ segmentIndexX, segmentIndexY ] });
     }
 
-    // globalEventBus.post({type: "DidSelectSegmentIndex", data: segmentIndex });
+
 };
 
 export default JuiceboxPanel;
