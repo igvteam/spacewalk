@@ -102,9 +102,7 @@ class StructureSelectPanel {
 
     receiveEvent({ type, data }) {
 
-        const { payload } = data;
-
-        if ("ToggleUIControl" === type && this.$panel.attr('id') === payload) {
+        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
 
             if (this.isHidden) {
                 moveOnScreen(this);

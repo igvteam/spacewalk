@@ -152,11 +152,11 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
 
     noodle.configure(structure.array, sceneManager.colorRampPanel.colorRampWidget);
     noodle.addToScene(sceneManager.scene);
-    noodle.hide();
+    // noodle.hide();
 
     ballAndStick.configure(structure.array);
     ballAndStick.addToScene(sceneManager.scene);
-    // ballAndStick.hide();
+    ballAndStick.hide();
 
 };
 

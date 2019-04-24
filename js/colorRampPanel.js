@@ -2,6 +2,7 @@ import { globalEventBus } from "./eventBus.js";
 import { makeDraggable } from "./draggable.js";
 import ColorRampWidget from "./colorRampWidget.js";
 import { moveOffScreen, moveOnScreen } from './utils.js';
+import { sceneManager } from "./main.js";
 
 class ColorRampPanel {
 
@@ -27,23 +28,21 @@ class ColorRampPanel {
 
         $(panel).on('mouseenter.trace3d.toolpanel', (event) => {
             event.stopPropagation();
-            this.colorRampWidget.repaint();
             globalEventBus.post({type: "DidEnterGUI" });
         });
 
         $(panel).on('mouseleave.trace3d.toolpanel', (event) => {
             event.stopPropagation();
-            globalEventBus.post({type: "DidLeaveGUI" });
+            globalEventBus.post({type: "DidLeaveGUI", });
         });
 
         globalEventBus.subscribe("ToggleUIControl", this);
+        globalEventBus.subscribe("DidLeaveGUI", this);
     }
 
     receiveEvent({ type, data }) {
 
-        const { payload } = data;
-
-        if ("ToggleUIControl" === type && this.$panel.attr('id') === payload) {
+        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
 
             if (true === this.isHidden) {
                 moveOnScreen(this);
@@ -52,6 +51,9 @@ class ColorRampPanel {
             }
 
             this.isHidden = !this.isHidden;
+
+        } else if (sceneManager && "DidLeaveGUI" === type) {
+            this.colorRampWidget.repaint();
         }
     }
 
