@@ -43,7 +43,8 @@ $trace3d_card_drag_container_height: 24px;
       height: $trace3d_card_drag_container_height;
       background-color: transparent;
 
-      i.fa-grip-lines {
+      i.fa-grip-horizontal {
+        color: $trace3d_steel;
         display: block;
       }
     }

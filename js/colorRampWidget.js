@@ -35,7 +35,6 @@ class ColorRampWidget {
         $canvasContainer.on(('mouseleave.trace3d.' + namespace), (event) => {
             event.stopPropagation();
             currentSegmentIndex = undefined;
-            this.repaint();
         });
 
         // soak up misc events
@@ -128,18 +127,24 @@ class ColorRampWidget {
             this.rgb_ctx.fillRect(0, y, this.rgb_ctx.canvas.offsetWidth, 1);
         }
 
-        // paint alpha map
+        // clear highlight canvas
+        this.highlight_ctx.clearRect(0, 0, this.highlight_ctx.canvas.offsetWidth, this.highlight_ctx.canvas.offsetHeight);
+
+        // paint alpha map opacque
         this.alphamap_ctx.fillStyle = alpha_visible;
         this.alphamap_ctx.fillRect(0, 0, this.alphamap_ctx.canvas.offsetWidth, this.alphamap_ctx.canvas.offsetHeight);
 
         if (highlightedSegmentIndexSet) {
 
-            // paint highlight map
-            this.highlight_ctx.clearRect(0, 0, this.highlight_ctx.canvas.offsetWidth, this.highlight_ctx.canvas.offsetHeight);
+            // set highlight color
+            this.highlight_ctx.fillStyle = this.highlightColor;
+
+            // paint alpha map transparent
             this.alphamap_ctx.clearRect(0, 0, this.alphamap_ctx.canvas.offsetWidth, this.alphamap_ctx.canvas.offsetHeight);
 
-            this.highlight_ctx.fillStyle = this.highlightColor;
+            // set opaque color
             this.alphamap_ctx.fillStyle = alpha_visible;
+
             for (let y = 0;  y < yIndices.length; y++) {
 
                 interpolant = 1 - (y / (yIndices.length - 1));

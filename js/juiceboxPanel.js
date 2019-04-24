@@ -31,11 +31,6 @@ class JuiceboxPanel {
 
         $(panel).on('mouseleave.trace3d.juicebox_panel', (event) => {
             event.stopPropagation();
-
-            if (sceneManager) {
-                sceneManager.colorRampPanel.colorRampWidget.repaint();
-            }
-
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
@@ -69,9 +64,7 @@ class JuiceboxPanel {
 
     async receiveEvent({ type, data }) {
 
-        const { payload } = data;
-
-        if ("ToggleUIControl" === type && this.$panel.attr('id') === payload) {
+        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
 
             if (true === this.isHidden) {
                 moveOnScreen(this);
