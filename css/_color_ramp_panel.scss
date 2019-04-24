@@ -47,12 +47,16 @@ $trace3d_color_ramp_panel_padding: 12px;
         left: 0;
       }
 
-      canvas:first-child {
+      canvas#trace3d_color_ramp_canvas_highlight {
+        z-index: 128;
+      }
+
+      canvas#trace3d_color_ramp_canvas_rgb {
         z-index: inherit;
       }
 
-      canvas:last-child {
-        z-index: -100;
+      canvas#trace3d_color_ramp_canvas_alpha {
+        z-index: -128;
       }
 
     }
