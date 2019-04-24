@@ -7,7 +7,7 @@ import StructureManager from './structureManager.js';
 import IGVPanel from './IGVPanel.js';
 import JuiceboxPanel from './juiceboxPanel.js';
 import BallAndStick from './ballAndStick.js';
-import Noodle from './Noodle.js';
+import Noodle from './noodle.js';
 
 import { juiceboxMouseHandler } from './juiceboxPanel.js'
 import { IGVMouseHandler, igvConfigurator } from './IGVPanel.js';
