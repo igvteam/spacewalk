@@ -39,7 +39,8 @@
       width: 100%;
       height: 24px;
       background-color: transparent; }
-      .card .card-body .trace3d_card_drag_container i.fa-grip-lines {
+      .card .card-body .trace3d_card_drag_container i.fa-grip-horizontal {
+        color: #6e6e6e;
         display: block; }
     .card .card-body .trace3d_card_arrow_container {
       display: flex;
