@@ -66,10 +66,6 @@
 
 				scene = new THREE.Scene();
 
-				// scene.background = new THREE.Color( 0x050505 );
-
-				// scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
-
 				scene.add( new THREE.AmbientLight( 0x444444 ) );
 
 				var light1 = new THREE.DirectionalLight( 0xffffff, 0.5 );
@@ -98,7 +94,7 @@
 				var cb = new THREE.Vector3();
 				var ab = new THREE.Vector3();
 
-				var triangles = 5e5;
+				var triangles = 1.5e5;
 				// var triangles = 5e2;
 				for ( var i = 0; i < triangles; i ++ ) {
 
@@ -162,9 +158,10 @@
 					this.array = null;
 				}
 
+				console.log('vertices ' + positions.length + ' normals ' + normals.length);
 				geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ).onUpload( disposeArray ) );
 				geometry.addAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ).onUpload( disposeArray ) );
-				// geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ).onUpload( disposeArray ) );
+				geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ).onUpload( disposeArray ) );
 
 				geometry.computeBoundingSphere();
 
@@ -190,7 +187,7 @@
 
 				let materialColor = new THREE.Color();
 				materialColor.setRGB( 1.0, 1.0, 1.0 );
-				material = new THREE.MeshPhongMaterial( { color: materialColor, envMap: textureCube, side: THREE.DoubleSide } );
+				// material = new THREE.MeshPhongMaterial( { color: materialColor, envMap: textureCube, side: THREE.DoubleSide } );
 
 				mesh = new THREE.Mesh( geometry, material );
 
