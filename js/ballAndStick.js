@@ -22,13 +22,19 @@ class BallAndStick {
     }
 
     hide () {
-
+        setVisibility(this.balls, false);
+        setVisibility(this.sticks, false);
     }
 
     show () {
-
+        setVisibility(this.balls, true);
+        setVisibility(this.sticks, true);
     }
 }
+
+let setVisibility = (objects, isVisible) => {
+    objects.forEach(object => object.visible = isVisible);
+};
 
 let createBalls = (structureList) => {
 

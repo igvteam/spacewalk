@@ -47,11 +47,11 @@ class Noodle {
     }
 
     hide () {
-
+        this.tube.visible = this.spline.visible = false;
     }
 
     show () {
-
+        this.tube.visible = this.spline.visible = true;
     }
 
 
