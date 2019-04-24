@@ -1,10 +1,10 @@
-import { globalEventBus } from "./eventBus.js";
-import igv from '../vendor/igv.esm.js'
-import { sceneManager, structureManager } from './main.js';
-import { segmentIndexForInterpolant } from './colorRampWidget.js';
-import { makeDraggable } from "./draggable.js";
-import { lerp } from "./math.js";
-import { moveOffScreen, moveOnScreen } from './utils.js';
+import { globalEventBus } from "../eventBus.js";
+import igv from '../../vendor/igv.esm.js'
+import { sceneManager, structureManager } from '../main.js';
+import { segmentIndexForInterpolant } from '../colorRampWidget.js';
+import { makeDraggable } from "../draggable.js";
+import { lerp } from "../math.js";
+import { moveOffScreen, moveOnScreen } from '../utils.js';
 
 let currentURL = undefined;
 class IGVPanel {

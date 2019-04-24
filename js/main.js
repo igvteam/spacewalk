@@ -4,13 +4,21 @@ import SceneManager from './sceneManager.js';
 import DataFileLoadModal from './dataFileLoadModal.js';
 import StructureSelectPanel from './structureSelectPanel.js';
 import StructureManager from './structureManager.js';
-import IGVPanel from './IGVPanel.js';
-import JuiceboxPanel from './juiceboxPanel.js';
+
+// IGV
+import IGVPanel from './igv/IGVPanel.js';
+import { IGVMouseHandler, igvConfigurator } from './igv/IGVPanel.js';
+import TrackLoadController from './igv/trackLoadController.js';
+import { trackLoadControllerConfigurator } from './igv/trackLoadController.js';
+
+
+// Juicebox
+import JuiceboxPanel from './juicebox/juiceboxPanel.js';
+import { juiceboxMouseHandler } from './juicebox/juiceboxPanel.js'
+
 import BallAndStick from './ballAndStick.js';
 import Noodle from './noodle.js';
 
-import { juiceboxMouseHandler } from './juiceboxPanel.js'
-import { IGVMouseHandler, igvConfigurator } from './IGVPanel.js';
 import { sceneManagerConfigurator } from './sceneManager.js';
 
 let dataFileLoadeModal;
@@ -28,6 +36,10 @@ let doUpdateCameraPose = true;
 
 let noodle;
 let ballAndStick;
+
+let trackLoadController;
+
+let googleEnabled = false;
 
 let main = async container => {
 
@@ -58,6 +70,9 @@ let main = async container => {
 
     const igvBrowserConfig = igvConfigurator();
     let igvBrowser = await igvPanel.createBrowser(igvBrowserConfig);
+
+    const trackLoadControllerConfig = trackLoadControllerConfigurator(igvBrowser, undefined, googleEnabled, $('#igv-app-multiple-file-load-modal'));
+    trackLoadController = new TrackLoadController(trackLoadControllerConfig);
 
     const sceneManagerConfig = sceneManagerConfigurator(container);
     sceneManager = new SceneManager(sceneManagerConfig);
@@ -172,4 +187,4 @@ let renderLoop = () => {
 
 };
 
-export { main, sceneManager, structureManager, guiManager };
+export { trackLoadController, main, sceneManager, structureManager, guiManager };

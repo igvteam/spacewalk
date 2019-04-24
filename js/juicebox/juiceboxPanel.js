@@ -1,9 +1,9 @@
-import { globalEventBus } from "./eventBus.js";
-import { segmentIndexForInterpolant } from './colorRampWidget.js';
-import { makeDraggable } from "./draggable.js";
-import { sceneManager, structureManager } from "./main.js";
-import { lerp } from './math.js'
-import { numberFormatter, moveOffScreen, moveOnScreen } from "./utils.js";
+import { globalEventBus } from "../eventBus.js";
+import { segmentIndexForInterpolant } from '../colorRampWidget.js';
+import { makeDraggable } from "../draggable.js";
+import { sceneManager, structureManager } from "../main.js";
+import { lerp } from '../math.js'
+import { numberFormatter, moveOffScreen, moveOnScreen } from "../utils.js";
 
 let currentURL = undefined;
 class JuiceboxPanel {
