@@ -1,19 +1,21 @@
-import igv from '../vendor/igv.esm.js'
 import { globalEventBus } from "./eventBus.js";
+import { readFileAsText } from './utils.js';
 
 let currentURL = undefined;
 
 class DataFileLoadModal {
 
-    constructor({ $urlModal, $selectModal }) {
+    constructor({ $urlModal, $selectModal, $localFileInput, selectLoader, urlLoader, localFileLoader }) {
 
         // Select
-        const $select_container = $selectModal.find('#trace3d_data_file_load_select_container');
-        const $select = $selectModal.find('#trace3d_data_file_load_select');
+        const $select_container = $selectModal.find('.modal-body div:first');
+
+        const $select = $selectModal.find('select');
+        selectLoader($select);
 
         $select.on('change.trace3d_data_file_load_select', async (event) => {
             event.stopPropagation();
-            await loadURL({ url: event.target.value, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
+            await loadURL({ url: event.target.value, urlLoader, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
 
             const $option = $select.find('option:first');
             $select.val( $option.val() );
@@ -21,11 +23,15 @@ class DataFileLoadModal {
         });
 
         // URL
-        const $url_container = $('#trace3d_data_file_load_url_container');
-        const $url_input = $('#trace3d_data_file_load_url_input');
-        const $url_upper_cancel_button = $('#trace3d_data_file_load_url_upper_cancel_button');
-        const $url_cancel_button = $('#trace3d_data_file_load_url_cancel_button');
-        const $url_ok_button = $('#trace3d_data_file_load_url_ok_button');
+        const $url_upper_cancel_button = $urlModal.find('.modal-header button');
+
+        const $url_container = $urlModal.find('.modal-body div:first');
+
+        const $url_input = $urlModal.find('input');
+
+        const $url_cancel_button = $urlModal.find('.modal-footer button:first');
+
+        const $url_ok_button = $urlModal.find('.modal-footer button:last');
 
         $url_input.val('');
         $url_ok_button.prop('disabled', true);
@@ -39,7 +45,7 @@ class DataFileLoadModal {
         $url_ok_button.on('click.trace3d_data_file_load_url_button', async (event) => {
             event.stopPropagation();
             $url_input.trigger('change.trace3d_data_file_load_url_input');
-            await loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
+            await loadURL({ url: currentURL, urlLoader, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
 
             $url_input.val('');
             currentURL = undefined;
@@ -59,34 +65,23 @@ class DataFileLoadModal {
         $url_cancel_button.on('click', doCancel);
 
         // local file
-        $('#trace3d-file-load-local').on('change.trace3d-file-load-local', (event) => {
+        $localFileInput.on('change.trace3d-file-load-local', (event) => {
             event.stopPropagation();
-            loadFile(event.target.files[0]);
+            loadFile(event.target.files[0], localFileLoader);
         });
 
     }
 
 }
 
-const loadURL = async ({ url, $spinner, $modal }) => {
+const loadURL = async ({ url, urlLoader, $spinner, $modal }) => {
 
     $spinner.show();
 
     url = url || '';
 
     if ('' !== url) {
-
-        try {
-
-            let urlContents = await igv.xhr.load(url);
-            const { file } = igv.parseUri(url);
-
-            globalEventBus.post({ type: "DidLoadFile", data: { name: file, payload: urlContents } });
-
-        } catch (error) {
-            console.warn(error.message);
-        }
-
+        await urlLoader.loadURL({ url });
     }
 
     $spinner.hide();
@@ -96,34 +91,11 @@ const loadURL = async ({ url, $spinner, $modal }) => {
 
 };
 
-const loadFile = async file => {
+const loadFile = async (file, localFileLoader) => {
 
-    try {
-        const fileContents = await readFileAsText(file);
-        globalEventBus.post({ type: "DidLoadFile", data: { name: file.name, payload: fileContents } });
-    } catch (e) {
-        console.warn(e.message)
-    }
+    await localFileLoader.loadLocalFile({ file });
 
     globalEventBus.post({ type: "DidLeaveGUI" });
-};
-
-const readFileAsText = async file => {
-
-    const fileReader = new FileReader();
-
-    return new Promise((resolve, reject) => {
-        fileReader.onerror = () => {
-            fileReader.abort();
-            reject(new DOMException("Problem parsing input file."));
-        };
-
-        fileReader.onload = () => {
-            resolve(fileReader.result);
-        };
-
-        fileReader.readAsText(file);
-    });
 };
 
 export default DataFileLoadModal;

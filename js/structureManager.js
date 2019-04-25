@@ -1,4 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
+import igv from "../vendor/igv.esm.js";
+import {globalEventBus} from "./eventBus.js";
+import { readFileAsText } from "./utils.js";
 
 class StructureManager {
 
@@ -119,6 +122,31 @@ class StructureManager {
         this.locus = { chr, genomicStart: parseInt(start) * 1e6, genomicEnd: parseInt(end) * 1e6 };
     };
 
+    async loadURL ({ url }) {
+
+        try {
+
+            let urlContents = await igv.xhr.load(url);
+            const { file } = igv.parseUri(url);
+
+            globalEventBus.post({ type: "DidLoadFile", data: { name: file, payload: urlContents } });
+
+        } catch (error) {
+            console.warn(error.message);
+        }
+
+    }
+
+    async loadLocalFile ({ file }) {
+
+        try {
+            const fileContents = await readFileAsText(file);
+            globalEventBus.post({ type: "DidLoadFile", data: { name: file.name, payload: fileContents } });
+        } catch (e) {
+            console.warn(e.message)
+        }
+
+    }
 }
 
 export let parsePathEncodedGenomicLocation = path => {
