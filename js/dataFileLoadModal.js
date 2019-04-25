@@ -8,8 +8,8 @@ class DataFileLoadModal {
     constructor({ $urlModal, $selectModal }) {
 
         // Select
-        const $select_container = $selectModal.find('#trace3d_data_file_load_select_container');
-        const $select = $selectModal.find('#trace3d_data_file_load_select');
+        const $select_container = $selectModal.find('.modal-body div:first');
+        const $select = $selectModal.find('select');
 
         $select.on('change.trace3d_data_file_load_select', async (event) => {
             event.stopPropagation();
