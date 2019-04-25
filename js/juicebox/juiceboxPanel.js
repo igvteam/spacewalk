@@ -3,7 +3,7 @@ import { segmentIndexForInterpolant } from '../colorRampWidget.js';
 import { makeDraggable } from "../draggable.js";
 import { sceneManager, structureManager } from "../main.js";
 import { lerp } from '../math.js'
-import { numberFormatter, moveOffScreen, moveOnScreen } from "../utils.js";
+import { moveOffScreen, moveOnScreen } from "../utils.js";
 
 let currentURL = undefined;
 class JuiceboxPanel {
@@ -45,14 +45,14 @@ class JuiceboxPanel {
             currentURL = event.target.value;
         });
 
-        const $spinner_container = $('#trace3d_hic_url_form_group');
+        this.$spinner = $('#trace3d_hic_url_form_group').find('.spinner-border');
 
         $url_button.on('click.trace3d_juicebox_panel_url_button', async (event) => {
 
             event.stopPropagation();
 
             $url_input.trigger('change.trace3d_juicebox_panel_url_input');
-            await this.loadURL({ url: currentURL, $spinner: $spinner_container.find('.spinner-border')});
+            await this.loadURL({ url: currentURL });
             $url_input.val('');
             currentURL = undefined;
 
@@ -129,17 +129,20 @@ class JuiceboxPanel {
         await this.goto({ chr:'chr21', start:28e6, end:30e6 });
     }
 
-    async loadURL({ url, $spinner }){
+    async loadURL({ url }){
 
-        url = url || '';
-
-        if ('' !== url) {
-            $spinner.show();
-
+        try {
             await this.browser.loadHicFile({ url });
-            await this.browser.parseGotoInput(this.locus);
-            $spinner.hide();
+        } catch (error) {
+            console.warn(error.message);
         }
+
+        await this.browser.parseGotoInput(this.locus);
+    }
+
+    async loadLocalFile({ file }){
+
+        await this.loadURL({ url: file });
 
     }
 

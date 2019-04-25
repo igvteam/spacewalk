@@ -49,42 +49,6 @@ $trace3d_card_drag_container_height: 32px;
       }
     }
 
-    .trace3d_card_arrow_container {
-
-      display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      justify-content: center;
-      align-items: center;
-
-      width: 100%;
-      height: $trace3d_card_drag_container_height;
-      background-color: transparent;
-
-      i.fa-caret-down {
-        cursor: pointer;
-        display: block;
-        color: $trace3d_iron;
-        margin: 2px;
-      }
-
-      i.fa-caret-down:hover {
-        color: $trace3d_tangerine;
-      }
-
-      i.fa-caret-up {
-        cursor: pointer;
-        display: block;
-        color: $trace3d_iron;
-        margin: 2px;
-      }
-
-      i.fa-caret-up:hover {
-        color: $trace3d_tangerine;
-      }
-
-    }
-
   }
 
 }

@@ -71,5 +71,22 @@ let numberFormatter = (rawNumber) => {
         .join('') + (dec[1] ? decsep + dec[1] : '');
 };
 
+const readFileAsText = async file => {
 
-export { moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
+    const fileReader = new FileReader();
+
+    return new Promise((resolve, reject) => {
+        fileReader.onerror = () => {
+            fileReader.abort();
+            reject(new DOMException("Problem parsing input file."));
+        };
+
+        fileReader.onload = () => {
+            resolve(fileReader.result);
+        };
+
+        fileReader.readAsText(file);
+    });
+};
+
+export { readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };

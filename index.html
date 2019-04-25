@@ -143,7 +143,7 @@
                                 Local File ...
                             </div>
                             <div>
-                                <input id="trace3d-file-load-local" type="file" name="file" style="display: none;">
+                                <input id="trace3d-file-load-local-input" type="file" name="file" style="display: none;">
                             </div>
                         </div>
                     </label>
@@ -239,7 +239,7 @@
                                 Local Map File ...
                             </div>
                             <div>
-                                <input id="trace3d-juicebox-load-local" type="file" name="file" style="display: none;">
+                                <input id="trace3d-juicebox-load-local-input" type="file" name="file" style="display: none;">
                             </div>
                         </div>
                     </label>
@@ -298,7 +298,7 @@
 
                 <!-- toggle juicebox panel -->
                 <li class="list-group-item">
-                    <input id="trace3d_ui_manager_ui_controls_juicebox" data-target="trace3d_juicebox_panel" class="mr-2" type="checkbox">
+                    <input id="trace3d_ui_manager_ui_controls_juicebox" data-target="trace3d_juicebox_panel" class="mr-2" type="checkbox" checked>
                     <div>Juicebox</div>
                 </li>
 
@@ -375,23 +375,6 @@
                     <i class="fas fa-sm fa-grip-horizontal"></i>
                 </div>
 
-                <!-- show/hide url loader -->
-                <div class="trace3d_card_arrow_container">
-                    <a data-toggle="collapse" href="#trace3d_hic_url_form_group">
-                        <i class="fas fa-caret-down fa-lg"></i>
-                    </a>
-                </div>
-
-                <div id="trace3d_hic_url_form_group" class="form-group collapse">
-                    <div class="input-group input-group-sm">
-                        <div class="input-group-prepend">
-                            <button id="trace3d_juicebox_panel_url_button" class="btn btn-outline-secondary" type="button">Load URL</button>
-                        </div>
-                        <div class="spinner-border" style="display: none;"></div>
-                        <input id="trace3d_juicebox_panel_url_input" class="form-control" type="text" placeholder="Enter Hic URL">
-                    </div>
-                </div>
-
                 <!-- juicebox browser container -->
                 <div id="trace3d_juicebox_root_container"></div>
 
@@ -422,7 +405,7 @@
 
     </div>
 
-    <!-- Modal: Select Structures CSV File -->
+    <!-- Structures CSV File Select Modal -->
     <div id="trace3d-file-load-select-modal" class="modal fade">
 
         <div class="modal-dialog">
@@ -482,7 +465,7 @@
 
     </div>
 
-    <!-- Modal: Load Structures CSV File via URL -->
+    <!-- Structure CSV URL Modal -->
     <div id="trace3d-file-load-url-modal" class="modal fade">
 
         <div class="modal-dialog">
@@ -493,26 +476,26 @@
 
                     <div class="modal-title">Load File From URL</div>
 
-                    <button id="trace3d_data_file_load_url_upper_cancel_button" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
 
                 </div>
 
                 <div class="modal-body">
-                    <div id="trace3d_data_file_load_url_container">
+                    <div>
                         <div class="input-group">
                             <div class="spinner-border" style="display: none;">
                                 <!-- spinner -->
                             </div>
-                            <input id="trace3d_data_file_load_url_input" class="form-control" type="text" placeholder="Enter URL">
+                            <input class="form-control" type="text" placeholder="Enter URL">
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button id="trace3d_data_file_load_url_cancel_button" type="button" class="btn btn-sm btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button id="trace3d_data_file_load_url_ok_button" type="button" class="btn btn-sm btn-secondary">OK</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-sm btn-secondary">OK</button>
                 </div>
 
             </div>
@@ -641,25 +624,40 @@
 
     <!-- Contact Map Select Modal -->
     <div id="hic-contact-map-select-modal" class="modal fade">
+
         <div class="modal-dialog">
+
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">
+
+                    <div class="modal-title">Select File</div>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
-                        <span class="sr-only">Close</span>
                     </button>
-                    <h4 id="hic-contact-map-select-modal-label" class="modal-title">Select Contact Map</h4>
+
                 </div>
 
                 <div class="modal-body">
-                    <div class="form-group">
-                        <select id="dataset_selector" name="dataset_selector" class="form-control selectpicker" data-size="25" data-width="100%" data-live-search="true" title="Select contact map">
-                        </select>
+                    <div>
+                        <div class="input-group my-3">
+
+                            <div class="spinner-border" style="display: none;">
+                                <!-- spinner border-radius: .25rem; -->
+                            </div>
+
+                            <select class="form-control custom-select">
+
+                            </select>
+                        </div>
                     </div>
                 </div>
+
             </div>
+
         </div>
+
     </div>
 
     <!-- Contact Map URL Modal -->

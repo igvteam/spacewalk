@@ -23,7 +23,8 @@ import Noodle from './noodle.js';
 
 import { sceneManagerConfigurator } from './sceneManager.js';
 
-let dataFileLoadeModal;
+let structureFileLoadModal;
+let juiceboxFileLoadModal;
 
 let guiManager;
 
@@ -46,8 +47,6 @@ let googleEnabled = false;
 let main = async container => {
 
     guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
-
-    dataFileLoadeModal = new DataFileLoadModal({ $urlModal: $('#trace3d-file-load-url-modal'), $selectModal: $('#trace3d-file-load-select-modal')});
 
     structureSelectPanel = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_structure_select_panel') });
 
@@ -81,6 +80,46 @@ let main = async container => {
     sceneManager.defaultConfiguration();
 
     structureManager = new StructureManager();
+
+    const structureFileLoadModalConfig =
+        {
+            $urlModal: $('#trace3d-file-load-url-modal'),
+            $selectModal: $('#trace3d-file-load-select-modal'),
+            $localFileInput: $('#trace3d-file-load-local-input') ,
+            selectLoader: ($select) => { },
+            urlLoader: structureManager,
+            localFileLoader: structureManager
+        };
+
+    structureFileLoadModal = new DataFileLoadModal(structureFileLoadModalConfig);
+
+    const juiceboxFileLoadModalConfig =
+        {
+            $urlModal: $('#hic-load-url-modal'),
+            $selectModal: $('#hic-contact-map-select-modal'),
+            $localFileInput: $('#trace3d-juicebox-load-local-input'),
+            selectLoader: async ($select) => {
+
+                const data = await igv.xhr.loadString('resources/hicFiles.txt');
+                const lines = igv.splitLines(data);
+
+                for (let line of lines) {
+
+                    const tokens = line.split('\t');
+
+                    if (tokens.length > 1) {
+                        const $option = $('<option value="' + tokens[0] + '">' + tokens[1] + '</option>');
+                        $select.append($option);
+                    }
+
+                }
+
+            },
+            urlLoader: juiceboxPanel,
+            localFileLoader: juiceboxPanel
+        };
+
+    juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfig);
 
     noodle = new Noodle();
 
