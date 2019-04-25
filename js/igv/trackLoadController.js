@@ -83,8 +83,6 @@ class TrackLoadController {
 
     createEncodeTable() {
 
-        const browser = this.browser;
-
         const columns =['CellType', 'Target', 'AssayType', 'OutputType', 'BioRep', 'TechRep',
             'Format', 'Experiment', 'Accession', 'Lab'];
 
@@ -99,7 +97,7 @@ class TrackLoadController {
                 $modalGoButton: this.$encodeModal.find('.modal-footer button:nth-child(2)'),
                 datasource: encodeDatasource,
                 browserHandler: (trackConfigurations) => {
-                    browser.loadTrackList(trackConfigurations);
+                    this.browser.loadTrackList(trackConfigurations);
                 }
             };
 
@@ -112,22 +110,20 @@ class TrackLoadController {
 
         const id_prefix = 'genome_specific_';
 
-        const self = this;
-
-        const $divider = self.$dropdownMenu.find('#igv-app-annotations-section');
+        const $divider = this.$dropdownMenu.find('#igv-app-annotations-section');
 
         const searchString = '[id^=' + id_prefix + ']';
-        const $found = self.$dropdownMenu.find(searchString);
+        const $found = this.$dropdownMenu.find(searchString);
         $found.remove();
 
-        self.trackRegistry = await this.getTrackRegistry();
+        this.trackRegistry = await this.getTrackRegistry();
 
-        if (undefined === self.trackRegistry) {
+        if (undefined === this.trackRegistry) {
             console.log("Info -- No track registry file  (config.trackRegistryFile)");
             return;
         }
 
-        const paths = self.trackRegistry[ genomeID ];
+        const paths = this.trackRegistry[ genomeID ];
 
         if (undefined === paths) {
             console.log("No tracks defined for: " + genomeID);
@@ -153,7 +149,7 @@ class TrackLoadController {
         if (encodeConfiguration) {
 
             encodeConfiguration = encodeConfiguration.pop();
-            encodeConfiguration.encodeTable = self.createEncodeTable(encodeConfiguration.genomeID);
+            encodeConfiguration.encodeTable = this.createEncodeTable(encodeConfiguration.genomeID);
 
             try {
 
@@ -205,7 +201,7 @@ class TrackLoadController {
                     markup += '<div>' + config.description + '</div>';
                 }
 
-                self.$modal.find('#igv-app-generic-track-select-modal-label').html(markup);
+                this.$modal.find('#igv-app-generic-track-select-modal-label').html(markup);
 
                 if ('ENCODE' === config.type) {
 
@@ -214,8 +210,8 @@ class TrackLoadController {
 
                 } else {
 
-                    configureModalSelectList(self.$modal, config.tracks, config.label);
-                    self.$modal.modal('show');
+                    configureModalSelectList(this.browser, this.$modal, config.tracks, config.label);
+                    this.$modal.modal('show');
                 }
 
 
@@ -228,7 +224,7 @@ class TrackLoadController {
 
 }
 
-let configureModalSelectList = ($modal, configurations, promiseTaskName) => {
+let configureModalSelectList = (browser, $modal, configurations, promiseTaskName) => {
 
     $modal.find('select').remove();
 
@@ -268,7 +264,7 @@ let configureModalSelectList = ($modal, configurations, promiseTaskName) => {
             trackConfiguration = $option.data('track');
             $option.removeAttr("selected");
 
-            igv.browser.loadTrack(trackConfiguration);
+            browser.loadTrack(trackConfiguration);
 
         }
 

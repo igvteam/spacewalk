@@ -3,6 +3,29 @@
 $trace3d_igv_panel_width: 600px;
 $trace3d_igv_panel_heigth: 256px;
 
+.igv-app-dropdown-item-cloud-storage {
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+
+  height: 18px;
+
+  margin-top: 4px;
+  margin-bottom: 4px;
+
+  div:first-child {
+    margin-right: 4px;
+  }
+
+  div:last-child {
+    margin-left: 4px;
+  }
+
+}
+
 // igvjs panel
 #trace3d_igv_panel.card {
 
@@ -20,6 +43,19 @@ $trace3d_igv_panel_heigth: 256px;
     //height: unset;
     overflow: auto;
 
+    .trace3d_card_drag_container {
+
+      width: 100%;
+      height: $trace3d_card_drag_container_height;
+      background-color: transparent;
+
+      i.fa-grip-horizontal {
+        color: $trace3d_steel;
+        display: block;
+      }
+
+    }
+
     // url loader
     .form-group {
       width: 100%;
@@ -33,22 +69,6 @@ $trace3d_igv_panel_heigth: 256px;
       margin-left: 8px;
       margin-right: 8px;
       color: $trace3d_steel;
-    }
-
-    // track label
-    #trace3d_igv_track_label {
-
-      width: 100%;
-      height: 16px;
-
-      line-height: 16px;
-      font-size: 12px;
-      vertical-align: middle;
-
-      color: $trace3d_steel;
-
-      background-color: transparent;
-
     }
 
     // track container

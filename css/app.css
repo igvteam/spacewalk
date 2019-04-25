@@ -37,7 +37,7 @@
       justify-content: center;
       align-items: center;
       width: 100%;
-      height: 24px;
+      height: 32px;
       background-color: transparent; }
       .card .card-body .trace3d_card_drag_container i.fa-grip-horizontal {
         color: #6e6e6e;
@@ -49,7 +49,7 @@
       justify-content: center;
       align-items: center;
       width: 100%;
-      height: 24px;
+      height: 32px;
       background-color: transparent; }
       .card .card-body .trace3d_card_arrow_container i.fa-caret-down {
         cursor: pointer;
@@ -109,7 +109,7 @@
       position: relative;
       cursor: pointer;
       width: 40px;
-      height: calc(98% - 2 * 32px - 24px); }
+      height: calc(98% - 2 * 32px - 32px); }
       #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_canvas_container canvas {
         display: block;
         position: absolute;
@@ -179,6 +179,20 @@
       cursor: pointer;
       display: block; }
 
+.igv-app-dropdown-item-cloud-storage {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  height: 18px;
+  margin-top: 4px;
+  margin-bottom: 4px; }
+  .igv-app-dropdown-item-cloud-storage div:first-child {
+    margin-right: 4px; }
+  .igv-app-dropdown-item-cloud-storage div:last-child {
+    margin-left: 4px; }
+
 #trace3d_igv_panel.card {
   width: 600px;
   height: auto;
@@ -187,6 +201,13 @@
   #trace3d_igv_panel.card #trace3d_igv_container.card-body {
     height: 256px;
     overflow: auto; }
+    #trace3d_igv_panel.card #trace3d_igv_container.card-body .trace3d_card_drag_container {
+      width: 100%;
+      height: 32px;
+      background-color: transparent; }
+      #trace3d_igv_panel.card #trace3d_igv_container.card-body .trace3d_card_drag_container i.fa-grip-horizontal {
+        color: #6e6e6e;
+        display: block; }
     #trace3d_igv_panel.card #trace3d_igv_container.card-body .form-group {
       width: 100%;
       padding: 6px; }
@@ -194,14 +215,6 @@
       margin-left: 8px;
       margin-right: 8px;
       color: #6e6e6e; }
-    #trace3d_igv_panel.card #trace3d_igv_container.card-body #trace3d_igv_track_label {
-      width: 100%;
-      height: 16px;
-      line-height: 16px;
-      font-size: 12px;
-      vertical-align: middle;
-      color: #6e6e6e;
-      background-color: transparent; }
     #trace3d_igv_panel.card #trace3d_igv_container.card-body #trace3d_igv_root_container {
       width: 100%;
       width: -moz-available;

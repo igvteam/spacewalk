@@ -23,8 +23,6 @@ class IGVPanel {
 
         makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 
-        this.$track_label = $('#trace3d_igv_track_label');
-
         $(window).on('resize.trace3d.trace3d_igv_panel', () => { this.onWindowResize() });
 
         $(panel).on('mouseenter.trace3d.trace3d_igv_panel', (event) => {
