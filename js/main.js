@@ -7,7 +7,9 @@ import StructureManager from './structureManager.js';
 
 // IGV
 import IGVPanel from './igv/IGVPanel.js';
-import { IGVMouseHandler, igvConfigurator } from './igv/IGVPanel.js';
+import { IGVMouseHandler } from './igv/IGVPanel.js';
+import * as IGVConfigurator from './igv/igvConfigurator.js';
+
 import TrackLoadController from './igv/trackLoadController.js';
 import { trackLoadControllerConfigurator } from './igv/trackLoadController.js';
 
@@ -68,10 +70,10 @@ let main = async container => {
 
     igvPanel = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_igv_panel') });
 
-    const igvBrowserConfig = igvConfigurator();
+    const igvBrowserConfig = IGVConfigurator.browser;
     let igvBrowser = await igvPanel.createBrowser(igvBrowserConfig);
 
-    const trackLoadControllerConfig = trackLoadControllerConfigurator(igvBrowser, undefined, googleEnabled, $('#igv-app-multiple-file-load-modal'));
+    const trackLoadControllerConfig = trackLoadControllerConfigurator(igvBrowser, IGVConfigurator.trackRegistryFile, googleEnabled, $('#igv-app-multiple-file-load-modal'));
     trackLoadController = new TrackLoadController(trackLoadControllerConfig);
 
     const sceneManagerConfig = sceneManagerConfigurator(container);

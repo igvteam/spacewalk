@@ -43,7 +43,7 @@ module.exports =
                     { from:'css/app.css', to:'css' },
                     { from:'img/*'         },
                     { from:'texture/**/*'  },
-                    { from:'resource/**/*' },
+                    { from:'resources/**/*' },
                     { from:'vendor/**/*'   },
                     { from:'favicon.ico'   },
                     {

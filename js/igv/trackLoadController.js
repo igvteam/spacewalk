@@ -169,7 +169,7 @@ class TrackLoadController {
         }
 
         let gtexConfiguration = results.filter((c) => { return 'GTEX' === c.type });
-        if (gtexConfiguration) {
+        if (gtexConfiguration && gtexConfiguration.length > 0) {
 
             gtexConfiguration = gtexConfiguration.pop();
             try {
@@ -280,7 +280,7 @@ let configureModalSelectList = ($modal, configurations, promiseTaskName) => {
 
 export default TrackLoadController;
 
-export const trackLoadControllerConfigurator = (browser, options, googleEnabled, $multipleFileLoadModal) => {
+export const trackLoadControllerConfigurator = (browser, trackRegistryFile, googleEnabled, $multipleFileLoadModal) => {
 
     let $igv_app_dropdown_google_drive_track_file_button = $('#igv-app-dropdown-google-drive-track-file-button');
     if (!googleEnabled) {
@@ -303,7 +303,7 @@ export const trackLoadControllerConfigurator = (browser, options, googleEnabled,
     // Track load controller configuration
     return {
         browser,
-        trackRegistryFile: options ? options.trackRegistryFile : undefined,
+        trackRegistryFile,
         $urlModal: $('#igv-app-track-from-url-modal'),
         $encodeModal: $('#igv-app-encode-modal'),
         $dropdownMenu: $('#igv-app-track-dropdown-menu'),

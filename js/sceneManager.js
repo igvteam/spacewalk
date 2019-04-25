@@ -224,7 +224,7 @@ export const sceneManagerConfigurator = (container) => {
 
     const colormaps =
         {
-            peter_kovesi_rainbow_bgyr_35_85_c72_n256: 'resource/colormaps/peter_kovesi/CET-R2.csv'
+            peter_kovesi_rainbow_bgyr_35_85_c72_n256: 'resources/colormaps/peter_kovesi/CET-R2.csv'
         };
 
     for (let key of Object.keys(colormaps)) {
