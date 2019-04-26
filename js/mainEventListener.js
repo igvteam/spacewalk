@@ -1,13 +1,30 @@
 import { IGVMouseHandler } from "./igv/IGVPanel.js";
 import { juiceboxMouseHandler } from "./juicebox/juiceboxPanel.js";
-import { setup, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, sceneManager, structureManager } from "./main.js";
+import { setup, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, sceneManager, structureManager } from "./main.js";
 
 export const mainEventListener =
     {
         receiveEvent: async ({ type, data }) => {
+
             let structure;
 
-            if ('DidSelectStructure' === type) {
+            if ('RenderStyleDidChange' === type) {
+
+                const renderStyles =
+                    {
+                        'render-style-ball-stick' : () => {
+                            noodle.hide();
+                            ballAndStick.show();
+                        },
+                        'render-style-noodle' : () => {
+                            ballAndStick.hide();
+                            noodle.show();
+                        }
+                    };
+
+                renderStyles[ data ]();
+
+            } else if ('DidSelectStructure' === type) {
 
                 structure = structureManager.structureWithName(data);
 

@@ -39,6 +39,12 @@ class GUIManager {
             });
 
         });
+
+        const $input = $panel.find('.trace3d_ui_manager_render_style_container input');
+        $input.on('change.gui_manager', (e) => {
+            e.preventDefault();
+            globalEventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
+        });
     }
 
     isPanelHidden (panelID) {

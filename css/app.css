@@ -123,6 +123,16 @@
       border-width: thin;
       border-radius: .25rem; }
 
+.trace3d_ui_manager_render_style_container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  align-items: flex-start; }
+  .trace3d_ui_manager_render_style_container > div {
+    margin-top: 4px;
+    margin-bottom: 4px; }
+
 #trace3d_ui_manager_button {
   z-index: 2048;
   position: absolute;

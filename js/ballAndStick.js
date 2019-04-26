@@ -47,8 +47,8 @@ let createBalls = (structureList) => {
         const color = sceneManager.colorRampPanel.colorRampWidget.colorForInterpolant(index / (structureList.length - 1));
 
         // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
-        // const ballMaterial = new THREE.MeshPhongMaterial({ color });
-        const ballMaterial = new THREE.MeshBasicMaterial({ color });
+        const ballMaterial = new THREE.MeshPhongMaterial({ color });
+        // const ballMaterial = new THREE.MeshBasicMaterial({ color });
         // const ballMaterial = showTMaterial;
         const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
         ballMesh.position.set(x, y, z);
