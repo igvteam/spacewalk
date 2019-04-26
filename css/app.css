@@ -181,6 +181,8 @@
     margin-left: 4px; }
 
 #trace3d_igv_panel.card {
+  resize: both;
+  overflow: scroll;
   width: 600px;
   height: auto;
   align-items: center;
@@ -204,10 +206,7 @@
       color: #6e6e6e; }
     #trace3d_igv_panel.card #trace3d_igv_container.card-body #trace3d_igv_root_container {
       width: 100%;
-      width: -moz-available;
-      width: -webkit-fill-available;
-      width: fill-available;
-      overflow: auto;
+      height: 100%;
       border-style: solid;
       border-width: thin;
       border-color: #a09fa0;
