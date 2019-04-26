@@ -19,7 +19,16 @@ class DataFileLoadModal {
 
         $select.on('change.trace3d_data_file_load_select', async (event) => {
             event.stopPropagation();
-            await loadURL({ url: event.target.value, fileLoader, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
+
+            //
+            const url = $select.val();
+            const index = $select.get(0).selectedIndex;
+            const option = $select.get(0)[ index ];
+
+            //
+            const name = $(option).text();
+
+            await loadURL({ url, name, fileLoader, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
 
             const $option = $select.find('option:first');
             $select.val( $option.val() );
@@ -49,7 +58,7 @@ class DataFileLoadModal {
         $url_ok_button.on('click.trace3d_data_file_load_url_button', async (event) => {
             event.stopPropagation();
             $url_input.trigger('change.trace3d_data_file_load_url_input');
-            await loadURL({ url: currentURL, fileLoader, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
+            await loadURL({ url: currentURL, name: 'unnamed', fileLoader, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
 
             $url_input.val('');
             currentURL = undefined;
@@ -78,14 +87,14 @@ class DataFileLoadModal {
 
 }
 
-const loadURL = async ({ url, fileLoader, $spinner, $modal }) => {
+const loadURL = async ({ url, name, fileLoader, $spinner, $modal }) => {
 
     $spinner.show();
 
     url = url || '';
 
     if ('' !== url) {
-        await fileLoader.loadURL({ url });
+        await fileLoader.loadURL({ url, name });
     }
 
     $spinner.hide();
