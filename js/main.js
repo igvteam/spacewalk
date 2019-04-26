@@ -1,27 +1,32 @@
 import { globalEventBus } from './eventBus.js';
 import GUIManager from './guiManager.js';
 import SceneManager from './sceneManager.js';
-import DataFileLoadModal from './dataFileLoadModal.js';
-import StructureSelectPanel from './structureSelectPanel.js';
 import StructureManager from './structureManager.js';
 
-// IGV
+// Data File Load Modal
+import DataFileLoadModal from './dataFileLoadModal.js';
+import { structureFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator } from './dataFileLoadModal.js';
+
+// IGV Panel
 import IGVPanel from './igv/IGVPanel.js';
-import { IGVMouseHandler } from './igv/IGVPanel.js';
 import * as IGVConfigurator from './igv/igvConfigurator.js';
 
+// Track Load Controller
 import TrackLoadController from './igv/trackLoadController.js';
 import { trackLoadControllerConfigurator } from './igv/trackLoadController.js';
 
-
-// Juicebox
+// Juicebox Panel
 import JuiceboxPanel from './juicebox/juiceboxPanel.js';
-import { juiceboxMouseHandler } from './juicebox/juiceboxPanel.js'
+
+// Structure Select Panel
+import StructureSelectPanel from './structureSelectPanel.js';
 
 import BallAndStick from './ballAndStick.js';
 import Noodle from './noodle.js';
 
 import { sceneManagerConfigurator } from './sceneManager.js';
+
+import { mainEventListener } from './mainEventListener.js';
 
 let structureFileLoadModal;
 let juiceboxFileLoadModal;
@@ -35,14 +40,15 @@ let juiceboxPanel;
 let sceneManager;
 let structureManager;
 
-let doUpdateCameraPose = true;
-
 let noodle;
 let ballAndStick;
 
 let trackLoadController;
 
 let googleEnabled = false;
+
+let igvBrowser;
+let juiceboxBrowser;
 
 let main = async container => {
 
@@ -52,74 +58,24 @@ let main = async container => {
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_juicebox_panel') });
 
-    const juiceboxBrowserConfig =
-        {
-            container: $('#trace3d_juicebox_root_container'),
-            // figureMode: true,
-            width: 400,
-            height: 400
-        };
-
-    let juiceboxBrowser = await juiceboxPanel.createBrowser(juiceboxBrowserConfig);
-    juiceboxPanel.defaultConfiguration();
-
-    if (juiceboxBrowser) {
-        juiceboxPanel.defaultConfiguration();
-    }
-
     igvPanel = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_igv_panel') });
 
-    const igvBrowserConfig = IGVConfigurator.browser;
-    let igvBrowser = await igvPanel.createBrowser(igvBrowserConfig);
+    juiceboxBrowser = await juiceboxPanel.createBrowser({ container: $('#trace3d_juicebox_root_container'), width: 400, height: 400 });
+    juiceboxPanel.defaultConfiguration();
+
+    igvBrowser = await igvPanel.createBrowser(IGVConfigurator.browser);
 
     const trackLoadControllerConfig = trackLoadControllerConfigurator(igvBrowser, IGVConfigurator.trackRegistryFile, googleEnabled, $('#igv-app-multiple-file-load-modal'));
     trackLoadController = new TrackLoadController(trackLoadControllerConfig);
 
-    const sceneManagerConfig = sceneManagerConfigurator(container);
-    sceneManager = new SceneManager(sceneManagerConfig);
+    sceneManager = new SceneManager(sceneManagerConfigurator(container));
     sceneManager.defaultConfiguration();
 
     structureManager = new StructureManager();
 
-    const structureFileLoadModalConfig =
-        {
-            $urlModal: $('#trace3d-file-load-url-modal'),
-            $selectModal: $('#trace3d-file-load-select-modal'),
-            $localFileInput: $('#trace3d-file-load-local-input') ,
-            selectLoader: ($select) => { },
-            urlLoader: structureManager,
-            localFileLoader: structureManager
-        };
+    structureFileLoadModal = new DataFileLoadModal(structureFileLoadModalConfigurator());
 
-    structureFileLoadModal = new DataFileLoadModal(structureFileLoadModalConfig);
-
-    const juiceboxFileLoadModalConfig =
-        {
-            $urlModal: $('#hic-load-url-modal'),
-            $selectModal: $('#hic-contact-map-select-modal'),
-            $localFileInput: $('#trace3d-juicebox-load-local-input'),
-            selectLoader: async ($select) => {
-
-                const data = await igv.xhr.loadString('resources/hicFiles.txt');
-                const lines = igv.splitLines(data);
-
-                for (let line of lines) {
-
-                    const tokens = line.split('\t');
-
-                    if (tokens.length > 1) {
-                        const $option = $('<option value="' + tokens[0] + '">' + tokens[1] + '</option>');
-                        $select.append($option);
-                    }
-
-                }
-
-            },
-            urlLoader: juiceboxPanel,
-            localFileLoader: juiceboxPanel
-        };
-
-    juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfig);
+    juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator());
 
     noodle = new Noodle();
 
@@ -127,84 +83,16 @@ let main = async container => {
 
     renderLoop();
 
-    const eventListener =
-        {
-            receiveEvent: async ({ type, data }) => {
-                let structure;
-
-                if ('DidSelectStructure' === type) {
-
-                    structure = structureManager.structureWithName(data);
-
-                    igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                        IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
-                    });
-
-                    juiceboxBrowser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                        juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.array.length });
-                    });
-
-                    sceneManager.dispose();
-
-                    structureManager.parsePathEncodedGenomicLocation(structureManager.path);
-
-                    const { chr, genomicStart, genomicEnd } = structureManager.locus;
-                    setup({ chr, genomicStart, genomicEnd, structure });
-
-                } else if ('DidLoadFile' === type) {
-
-                    let { name, payload } = data;
-
-                    $('.navbar').find('#trace3d-file-name').text(name);
-
-                    structureManager.path = name;
-                    structureManager.ingest(payload);
-
-                    structureManager.parsePathEncodedGenomicLocation(structureManager.path);
-
-                    const { chr, genomicStart, genomicEnd } = structureManager.locus;
-
-                    igvPanel.goto({ chr, start: genomicStart, end: genomicEnd });
-
-                    juiceboxPanel.goto({ chr, start: genomicStart, end: genomicEnd });
-
-                    const initialStructureKey = '0';
-
-                    structure = structureManager.structureWithName(initialStructureKey);
-
-                    igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                        IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
-                    });
-
-                    juiceboxBrowser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                        juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.array.length });
-                    });
-
-                    structureSelectPanel.configure({ structures: structureManager.structures, initialStructureKey });
-
-                    sceneManager.dispose();
-
-                    setup({ chr, genomicStart, genomicEnd, structure });
-
-                    doUpdateCameraPose = false;
-
-                } else if ('ToggleAllUIControls' === type) {
-                    // $('.navbar').toggle();
-                }
-
-            }
-        };
-
-    globalEventBus.subscribe('DidSelectStructure', eventListener);
-    globalEventBus.subscribe('DidLoadFile', eventListener);
-    globalEventBus.subscribe('ToggleAllUIControls', eventListener);
+    globalEventBus.subscribe('DidSelectStructure', mainEventListener);
+    globalEventBus.subscribe('DidLoadFile', mainEventListener);
+    globalEventBus.subscribe('ToggleAllUIControls', mainEventListener);
 };
 
 let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
 
     let [ structureLength, structureExtent, cameraPosition, structureCentroid ] = [ structure.array.length, structure.extent, structure.cameraPosition, structure.centroid ];
 
-    sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose });
+    sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid });
 
     noodle.configure(structure.array, sceneManager.colorRampPanel.colorRampWidget);
     noodle.addToScene(sceneManager.scene);
@@ -228,4 +116,4 @@ let renderLoop = () => {
 
 };
 
-export { trackLoadController, main, sceneManager, structureManager, guiManager };
+export { main, setup, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, trackLoadController, sceneManager, structureManager, guiManager };

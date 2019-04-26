@@ -202,4 +202,22 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
 
 };
 
+export let juiceboxSelectLoader = async ($select) => {
+
+    const data = await igv.xhr.loadString('resources/hicFiles.txt');
+    const lines = igv.splitLines(data);
+
+    for (let line of lines) {
+
+        const tokens = line.split('\t');
+
+        if (tokens.length > 1) {
+            const $option = $('<option value="' + tokens[0] + '">' + tokens[1] + '</option>');
+            $select.append($option);
+        }
+
+    }
+
+};
+
 export default JuiceboxPanel;

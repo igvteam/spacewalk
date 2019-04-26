@@ -1,21 +1,25 @@
 import { globalEventBus } from "./eventBus.js";
-import { readFileAsText } from './utils.js';
+import { juiceboxPanel, structureManager } from "./main.js";
+import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
 
 let currentURL = undefined;
 
 class DataFileLoadModal {
 
-    constructor({ $urlModal, $selectModal, $localFileInput, selectLoader, urlLoader, localFileLoader }) {
+    constructor({ $urlModal, $selectModal, $localFileInput, selectLoader, fileLoader }) {
 
         // Select
         const $select_container = $selectModal.find('.modal-body div:first');
 
         const $select = $selectModal.find('select');
-        selectLoader($select);
+
+        if (selectLoader) {
+            selectLoader($select);
+        }
 
         $select.on('change.trace3d_data_file_load_select', async (event) => {
             event.stopPropagation();
-            await loadURL({ url: event.target.value, urlLoader, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
+            await loadURL({ url: event.target.value, fileLoader, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
 
             const $option = $select.find('option:first');
             $select.val( $option.val() );
@@ -45,7 +49,7 @@ class DataFileLoadModal {
         $url_ok_button.on('click.trace3d_data_file_load_url_button', async (event) => {
             event.stopPropagation();
             $url_input.trigger('change.trace3d_data_file_load_url_input');
-            await loadURL({ url: currentURL, urlLoader, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
+            await loadURL({ url: currentURL, fileLoader, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
 
             $url_input.val('');
             currentURL = undefined;
@@ -67,21 +71,21 @@ class DataFileLoadModal {
         // local file
         $localFileInput.on('change.trace3d-file-load-local', (event) => {
             event.stopPropagation();
-            loadFile(event.target.files[0], localFileLoader);
+            loadFile(event.target.files[0], fileLoader);
         });
 
     }
 
 }
 
-const loadURL = async ({ url, urlLoader, $spinner, $modal }) => {
+const loadURL = async ({ url, fileLoader, $spinner, $modal }) => {
 
     $spinner.show();
 
     url = url || '';
 
     if ('' !== url) {
-        await urlLoader.loadURL({ url });
+        await fileLoader.loadURL({ url });
     }
 
     $spinner.hide();
@@ -91,11 +95,36 @@ const loadURL = async ({ url, urlLoader, $spinner, $modal }) => {
 
 };
 
-const loadFile = async (file, localFileLoader) => {
+const loadFile = async (file, fileLoader) => {
 
-    await localFileLoader.loadLocalFile({ file });
+    await fileLoader.loadLocalFile({ file });
 
     globalEventBus.post({ type: "DidLeaveGUI" });
 };
+
+const structureFileLoadModalConfigurator = () => {
+
+    return {
+        $urlModal: $('#trace3d-file-load-url-modal'),
+        $selectModal: $('#trace3d-file-load-select-modal'),
+        $localFileInput: $('#trace3d-file-load-local-input'),
+        selectLoader: undefined,
+        fileLoader: structureManager
+    }
+};
+
+const juiceboxFileLoadModalConfigurator = () => {
+
+    return {
+        $urlModal: $('#hic-load-url-modal'),
+        $selectModal: $('#hic-contact-map-select-modal'),
+        $localFileInput: $('#trace3d-juicebox-load-local-input'),
+        selectLoader: juiceboxSelectLoader,
+        fileLoader: juiceboxPanel
+    }
+};
+
+
+export { structureFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
 
 export default DataFileLoadModal;
