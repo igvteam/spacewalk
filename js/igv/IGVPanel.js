@@ -23,14 +23,22 @@ class IGVPanel {
 
         makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
 
-        $(window).on('resize.trace3d.trace3d_igv_panel', () => { this.onWindowResize() });
+        $(window).on('resize.window.trace3d.trace3d_igv_panel', () => { this.onWindowResize() });
 
-        $(panel).on('mouseenter.trace3d.trace3d_igv_panel', (event) => {
+        addResizeListener(panel, () => {
+
+            if (this.browser) {
+                this.browser.resize();
+            }
+
+        });
+
+        this.$panel.on('mouseenter.trace3d.trace3d_igv_panel', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidEnterGUI" });
         });
 
-        $(panel).on('mouseleave.trace3d.trace3d_igv_panel', (event) => {
+        this.$panel.on('mouseleave.trace3d.trace3d_igv_panel', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
