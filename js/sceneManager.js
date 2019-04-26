@@ -16,6 +16,8 @@ class SceneManager {
 
     constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPanel, renderer, picker, hemisphereLight }) {
 
+        this.doUpdateCameraPose = true;
+
         this.ballRadius = ballRadius;
         this.ballGeometry = new THREE.SphereBufferGeometry(ballRadius, 32, 16);
 
@@ -133,7 +135,7 @@ class SceneManager {
 
     }
 
-    configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid, doUpdateCameraPose }) {
+    configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid }) {
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
@@ -141,7 +143,7 @@ class SceneManager {
 
         this.colorRampPanel.configure({genomicStart, genomicEnd, structureLength});
 
-        if (true === doUpdateCameraPose) {
+        if (true === this.doUpdateCameraPose) {
             this.orbitalCamera.setPose({ position: cameraPosition, centroid: structureCentroid });
         } else {
 

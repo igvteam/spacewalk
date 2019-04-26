@@ -34,30 +34,6 @@ class JuiceboxPanel {
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
-        // URL
-        const $url_input = $('#trace3d_juicebox_panel_url_input');
-        $url_input.val('');
-
-        const $url_button = $('#trace3d_juicebox_panel_url_button');
-
-        $url_input.on('change.trace3d_juicebox_panel_url_input', (event) => {
-            event.stopPropagation();
-            currentURL = event.target.value;
-        });
-
-        this.$spinner = $('#trace3d_hic_url_form_group').find('.spinner-border');
-
-        $url_button.on('click.trace3d_juicebox_panel_url_button', async (event) => {
-
-            event.stopPropagation();
-
-            $url_input.trigger('change.trace3d_juicebox_panel_url_input');
-            await this.loadURL({ url: currentURL });
-            $url_input.val('');
-            currentURL = undefined;
-
-        });
-
         globalEventBus.subscribe("ToggleUIControl", this);
 
     }
@@ -129,10 +105,10 @@ class JuiceboxPanel {
         await this.goto({ chr:'chr21', start:28e6, end:30e6 });
     }
 
-    async loadURL({ url }){
+    async loadURL({ url, name }){
 
         try {
-            await this.browser.loadHicFile({ url });
+            await this.browser.loadHicFile({ url, name, isControl: false });
         } catch (error) {
             console.warn(error.message);
         }
@@ -142,7 +118,7 @@ class JuiceboxPanel {
 
     async loadLocalFile({ file }){
 
-        await this.loadURL({ url: file });
+        await this.loadURL({ url: file, name: file.name });
 
     }
 
@@ -199,6 +175,24 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
         globalEventBus.post({ type: 'DidSelectSegmentIndex', data: [ segmentIndexX, segmentIndexY ] });
     }
 
+
+};
+
+export let juiceboxSelectLoader = async ($select) => {
+
+    const data = await igv.xhr.loadString('resources/hicFiles.txt');
+    const lines = igv.splitLines(data);
+
+    for (let line of lines) {
+
+        const tokens = line.split('\t');
+
+        if (tokens.length > 1) {
+            const $option = $('<option value="' + tokens[0] + '">' + tokens[1] + '</option>');
+            $select.append($option);
+        }
+
+    }
 
 };
 

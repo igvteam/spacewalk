@@ -122,7 +122,7 @@ class StructureManager {
         this.locus = { chr, genomicStart: parseInt(start) * 1e6, genomicEnd: parseInt(end) * 1e6 };
     };
 
-    async loadURL ({ url }) {
+    async loadURL ({ url, name }) {
 
         try {
 
