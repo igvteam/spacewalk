@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "http-server build",
+    "start": "http-server -a localhost build",
     "build": "webpack"
   },
   "keywords": [],
