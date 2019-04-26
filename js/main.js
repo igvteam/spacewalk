@@ -86,6 +86,8 @@ let main = async container => {
     globalEventBus.subscribe('DidSelectStructure', mainEventListener);
     globalEventBus.subscribe('DidLoadFile', mainEventListener);
     globalEventBus.subscribe('ToggleAllUIControls', mainEventListener);
+    globalEventBus.subscribe('RenderStyleDidChange', mainEventListener);
+
 };
 
 let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
@@ -116,4 +118,4 @@ let renderLoop = () => {
 
 };
 
-export { main, setup, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, trackLoadController, sceneManager, structureManager, guiManager };
+export { main, setup, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, trackLoadController, sceneManager, structureManager, guiManager };
