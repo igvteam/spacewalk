@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
 
     <!-- Juicebox CSS-->
-    <link rel="stylesheet" type="text/css" href="vendor/juicebox.css">
+    <link rel="stylesheet" type="text/css" href="css/juicebox/juicebox.css">
 
     <!-- APP CSS -->
     <link rel="stylesheet" href="css/app.css">
@@ -47,11 +47,6 @@
 
     <!-- MS polyfill (pointer -> touch -->
     <script src="https://igv.org/web/jb/release/current/touchpolyfill.min.js"></script>
-
-
-    <!-- Juicebox JS -->
-    <script src="vendor/juicebox.js"></script>
-    <script src="vendor/hic-straw.js"></script>
 
     <script type="x-shader/x-vertex" id="diffuse_cube_vert">
 
@@ -612,7 +607,7 @@
 
     </div>
 
-    <!-- IGV ENCODE Table -->
+    <!-- ENCODE Modal -->
     <div id="igv-app-encode-modal" class="modal fade">
 
         <div class="modal-dialog modal-xl">
@@ -620,7 +615,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <div id="igv-app-encode-modal-label" class="modal-title">ENCODE</div>
+                    <div class="modal-title">ENCODE</div>
 
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -629,6 +624,16 @@
                 </div>
 
                 <div class="modal-body">
+
+                    <div id="igv-encode-spinner-container">
+                        <div id="igv-encode-spinner" class="spinner-border" style="display: none;">
+                            <!-- spinner -->
+                        </div>
+                    </div>
+
+                    <div id="igv-encode-datatable">
+
+                    </div>
                 </div>
 
                 <div class="modal-footer">
