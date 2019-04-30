@@ -45,8 +45,6 @@ let ballAndStick;
 
 let trackLoadController;
 
-let googleEnabled = false;
-
 let igvBrowser;
 let juiceboxBrowser;
 
@@ -65,8 +63,7 @@ let main = async container => {
 
     igvBrowser = await igvPanel.createBrowser(IGVConfigurator.browser);
 
-    const trackLoadControllerConfig = trackLoadControllerConfigurator(igvBrowser, IGVConfigurator.trackRegistryFile, googleEnabled, $('#igv-app-multiple-file-load-modal'));
-    trackLoadController = new TrackLoadController(trackLoadControllerConfig);
+    trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvBrowser, trackRegistryFile: IGVConfigurator.trackRegistryFile, $googleDriveButton: undefined } ));
 
     sceneManager = new SceneManager(sceneManagerConfigurator(container));
     sceneManager.defaultConfiguration();

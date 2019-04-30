@@ -1,3 +1,24 @@
+#igv-encode-spinner-container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center; }
+
+#hic-modal-button-container {
+  display: flex;
+  flex-flow: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 64px;
+  margin-left: 32px;
+  height: 64px; }
+  #hic-modal-button-container > div {
+    margin-left: 12px;
+    margin-right: 12px; }
+
 .igv-right-hand-gutter {
   top: 0;
   margin-top: 4px;
@@ -81,13 +102,13 @@
       .hic-menu .hic-chromosome-selector-widget-container div div {
         width: 24px;
         height: 24px;
-        background-image: url("img/circular-arrows-24-grey.png");
+        background-image: url("../../vendor/img/circular-arrows-24-grey.png");
         background-repeat: no-repeat; }
       .hic-menu .hic-chromosome-selector-widget-container div div:hover,
       .hic-menu .hic-chromosome-selector-widget-container div div:focus,
       .hic-menu .hic-chromosome-selector-widget-container div div:active {
         cursor: pointer;
-        background-image: url("img/circular-arrows-24-blue.png"); }
+        background-image: url("../../vendor/img/circular-arrows-24-blue.png"); }
   .hic-menu .hic-colorscale-widget-container {
     display: flex;
     flex-flow: row;
@@ -333,11 +354,11 @@
       background-repeat: no-repeat;
       background-size: 16px 16px; }
     .hic-annotation-panel-container .hic-annotation-modal-row .matrix-diagonal-widget-all {
-      background: url(img/matrix-diagonal-all.svg); }
+      background: url(../../vendor/img/matrix-diagonal-all.svg); }
     .hic-annotation-panel-container .hic-annotation-modal-row .matrix-diagonal-widget-lower {
-      background: url(img/matrix-diagonal-lower.svg); }
+      background: url(../../vendor/img/matrix-diagonal-lower.svg); }
     .hic-annotation-panel-container .hic-annotation-modal-row .matrix-diagonal-widget-upper {
-      background: url(img/matrix-diagonal-upper.svg); }
+      background: url(../../vendor/img/matrix-diagonal-upper.svg); }
     .hic-annotation-panel-container .hic-annotation-modal-row .up-down-arrow-container {
       display: flex;
       flex-flow: row;

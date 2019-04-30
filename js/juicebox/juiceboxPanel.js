@@ -1,4 +1,5 @@
 import { globalEventBus } from "../eventBus.js";
+import { createBrowser } from './core/hic.js'
 import { segmentIndexForInterpolant } from '../colorRampWidget.js';
 import { makeDraggable } from "../draggable.js";
 import { sceneManager, structureManager } from "../main.js";
@@ -55,24 +56,24 @@ class JuiceboxPanel {
 
     async createBrowser (config) {
 
-        const urlShortenerConfig =
-            [
-                {
-                    provider: "bitly",
-                    apiKey: "ABCD",        // TODO -- replace with your Bitly access token
-                    hostname: 'bit.ly'
-                },
-                {
-                    provider: "google",
-                    apiKey: "ABCD",        // TODO -- replace with your Google API Key
-                    hostname: "goo.gl"
-                }
-            ];
-
-        hic.setURLShortener(urlShortenerConfig);
+        // const urlShortenerConfig =
+        //     [
+        //         {
+        //             provider: "bitly",
+        //             apiKey: "ABCD",        // TODO -- replace with your Bitly access token
+        //             hostname: 'bit.ly'
+        //         },
+        //         {
+        //             provider: "google",
+        //             apiKey: "ABCD",        // TODO -- replace with your Google API Key
+        //             hostname: "goo.gl"
+        //         }
+        //     ];
+        //
+        // hic.setURLShortener(urlShortenerConfig);
 
         try {
-            const browser = await hic.createBrowser(config.container, config);
+            const browser = await createBrowser(config.container, config);
 
             if (false === this.isHidden) {
                 this.layout();
