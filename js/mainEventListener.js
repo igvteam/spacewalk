@@ -48,14 +48,15 @@ export const mainEventListener =
 
                 let { name, payload } = data;
 
-                $('.navbar').find('#trace3d-file-name').text(name);
-
                 structureManager.path = name;
                 structureManager.ingest(payload);
 
                 structureManager.parsePathEncodedGenomicLocation(structureManager.path);
 
                 const { chr, genomicStart, genomicEnd } = structureManager.locus;
+
+                const str = 'STRUCTURE: CHR ' + chr + ' ' + Math.floor(genomicStart/1e6) + 'MB to ' + Math.floor(genomicEnd/1e6) + 'MB';
+                $('.navbar').find('#trace3d-file-name').text(str);
 
                 igvPanel.goto({ chr, start: genomicStart, end: genomicEnd });
 

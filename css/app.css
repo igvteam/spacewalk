@@ -3,8 +3,7 @@
   padding-bottom: 0.25rem;
   padding-right: 0.50rem;
   padding-left: 0.50rem;
-  height: 36px;
-  background-color: #545453; }
+  height: 36px; }
 
 .navbar-brand {
   display: inline-block;
@@ -12,6 +11,10 @@
   font-size: 1.25rem;
   line-height: inherit;
   white-space: nowrap; }
+
+#tracing3d-navbar-content #trace3d-file-name {
+  color: #ffffff;
+  font-size: 1rem; }
 
 .card {
   position: absolute;

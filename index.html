@@ -114,148 +114,161 @@
 
 <body>
 
-<nav class="navbar navbar-dark navbar-expand-md fixed-top">
+<nav class="navbar fixed-top py-0 navbar-expand-sm navbar-dark bg-dark justify-content-between">
 
+    <!-- Brand -->
     <span class="navbar-brand">Tracing3D</span>
 
-    <ul class="navbar-nav">
+    <!-- Brand -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#tracing3d-navbar-content">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-        <!-- Structure Files -->
-        <li class="nav-item">
+    <!-- navbar content -->
+    <div id="tracing3d-navbar-content" class="collapse navbar-collapse d-flex flex-row ml-5">
+        <ul class="navbar-nav">
 
-            <div class="dropdown">
+            <!-- Structure Files -->
+            <li class="nav-item">
 
-                <a id="trace3d-file-load-dropdown-button"  data-toggle="dropdown" href="#" class="nav-link dropdown-toggle">
-                    Load Structure
-                </a>
+                <div class="dropdown">
 
-                <div id="trace3d-file-load-dropdown-menu"  class="dropdown-menu">
+                    <a id="trace3d-file-load-dropdown-button"  data-toggle="dropdown" href="#" class="nav-link dropdown-toggle">
+                        Load Structure
+                    </a>
 
-                    <!-- select -->
-                    <button id="trace3d-file-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#trace3d-file-load-select-modal">Select From List ...
-                    </button>
+                    <div id="trace3d-file-load-dropdown-menu"  class="dropdown-menu">
 
-                    <!-- local file -->
-                    <label class="dropdown-item btn btn-default btn-file">
-                        <div>
+                        <!-- select -->
+                        <button id="trace3d-file-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#trace3d-file-load-select-modal">Select From List ...
+                        </button>
+
+                        <!-- local file -->
+                        <label class="dropdown-item btn btn-default btn-file">
                             <div>
-                                Local File ...
+                                <div>
+                                    Local File ...
+                                </div>
+                                <div>
+                                    <input id="trace3d-file-load-local-input" type="file" name="file" style="display: none;">
+                                </div>
                             </div>
-                            <div>
-                                <input id="trace3d-file-load-local-input" type="file" name="file" style="display: none;">
-                            </div>
-                        </div>
-                    </label>
+                        </label>
 
-                    <!-- url -->
-                    <button id="trace3d-file-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#trace3d-file-load-url-modal">URL ...
-                    </button>
-
-                </div>
-
-            </div>
-
-        </li>
-
-        <!-- IGV Track Files -->
-        <li class="nav-item">
-
-            <div class="dropdown">
-
-                <a id="trace3d-igv-load-dropdown-button"  data-toggle="dropdown" href="#" class="nav-link dropdown-toggle">
-                    Load IGV Track
-                </a>
-
-                <!-- -->
-                <div id="igv-app-track-dropdown-menu" class="dropdown-menu">
-
-                    <!-- local file -->
-                    <label class="dropdown-item btn btn-default btn-file">
-                        <div class="igv-app-dropdown-item-cloud-storage">
-                            <div>
-                                Local File ...
-                            </div>
-                            <div>
-                                <input id="igv-app-dropdown-local-track-file-input" type="file" name="file" multiple style="display: none;">
-                            </div>
-                        </div>
-                    </label>
-
-                    <!-- Dropbox -->
-                    <div class="dropdown-item">
-
-                        <div id="igv-app-dropdown-dropbox-track-file-button" class="igv-app-dropdown-item-cloud-storage">
-
-                            <div>Dropbox</div>
-                            <div><img src="img/dropbox-dropdown-menu-item.png" width="18" height="18"></div>
-                            <div>...</div>
-
-                        </div>
+                        <!-- url -->
+                        <button id="trace3d-file-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#trace3d-file-load-url-modal">URL ...
+                        </button>
 
                     </div>
 
-                    <!-- Google Drive -->
-                    <div class="dropdown-item">
-                        <div id="igv-app-dropdown-google-drive-track-file-button" class="igv-app-dropdown-item-cloud-storage">
-                            <div>Google Drive</div>
-                            <div><img src="img/googledrive-dropdown-menu-item.png" width="18" height="18"></div>
-                            <div>...</div>
+                </div>
+
+            </li>
+
+            <!-- IGV Track Files -->
+            <li class="nav-item">
+
+                <div class="dropdown">
+
+                    <a id="trace3d-igv-load-dropdown-button"  data-toggle="dropdown" href="#" class="nav-link dropdown-toggle">
+                        Load IGV Track
+                    </a>
+
+                    <!-- -->
+                    <div id="igv-app-track-dropdown-menu" class="dropdown-menu">
+
+                        <!-- local file -->
+                        <label class="dropdown-item btn btn-default btn-file">
+                            <div class="igv-app-dropdown-item-cloud-storage">
+                                <div>
+                                    Local File ...
+                                </div>
+                                <div>
+                                    <input id="igv-app-dropdown-local-track-file-input" type="file" name="file" multiple style="display: none;">
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Dropbox -->
+                        <div class="dropdown-item">
+
+                            <div id="igv-app-dropdown-dropbox-track-file-button" class="igv-app-dropdown-item-cloud-storage">
+
+                                <div>Dropbox</div>
+                                <div><img src="img/dropbox-dropdown-menu-item.png" width="18" height="18"></div>
+                                <div>...</div>
+
+                            </div>
+
                         </div>
+
+                        <!-- Google Drive -->
+                        <div class="dropdown-item">
+                            <div id="igv-app-dropdown-google-drive-track-file-button" class="igv-app-dropdown-item-cloud-storage">
+                                <div>Google Drive</div>
+                                <div><img src="img/googledrive-dropdown-menu-item.png" width="18" height="18"></div>
+                                <div>...</div>
+                            </div>
+                        </div>
+
+                        <!-- URL -->
+                        <button class="dropdown-item" type="button" data-toggle="modal" data-target="#igv-app-track-from-url-modal">URL ...
+                        </button>
+
+                        <div id="igv-app-annotations-section" class="dropdown-divider"></div>
+
                     </div>
 
-                    <!-- URL -->
-                    <button class="dropdown-item" type="button" data-toggle="modal" data-target="#igv-app-track-from-url-modal">URL ...
-                    </button>
+                </div>
 
-                    <div id="igv-app-annotations-section" class="dropdown-divider"></div>
+            </li>
+
+            <!-- Hi-C Files -->
+            <li class="nav-item">
+
+                <div class="dropdown">
+
+                    <a id="trace3d-juicebox-load-dropdown-button" data-toggle="dropdown" href="#" class="nav-link dropdown-toggle">
+                        Load Map File
+                    </a>
+
+                    <div id="trace3d-juicebox-load-dropdown-menu"  class="dropdown-menu">
+
+                        <!-- select -->
+                        <button id="trace3d-juicebox-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#hic-contact-map-select-modal">
+                            Select Map File
+                        </button>
+
+                        <!-- local file -->
+                        <label class="dropdown-item btn btn-default btn-file">
+                            <div>
+                                <div>
+                                    Local Map File ...
+                                </div>
+                                <div>
+                                    <input id="trace3d-juicebox-load-local-input" type="file" name="file" style="display: none;">
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- url -->
+                        <button id="trace3d-juicebox-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#hic-load-url-modal">Map URL ...
+                        </button>
+
+                    </div>
 
                 </div>
 
-            </div>
+            </li>
 
-        </li>
+            <li class="nav-item">
+                <div id="trace3d-file-name" class="navbar-brand"></div>
+            </li>
 
-        <!-- Hi-C Files -->
-        <li class="nav-item">
+        </ul>
+    </div>
 
-            <div class="dropdown">
 
-                <a id="trace3d-juicebox-load-dropdown-button" data-toggle="dropdown" href="#" class="nav-link dropdown-toggle">
-                    Load Map File
-                </a>
-
-                <div id="trace3d-juicebox-load-dropdown-menu"  class="dropdown-menu">
-
-                    <!-- select -->
-                    <button id="trace3d-juicebox-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#hic-contact-map-select-modal">
-                        Select Map File
-                    </button>
-
-                    <!-- local file -->
-                    <label class="dropdown-item btn btn-default btn-file">
-                        <div>
-                            <div>
-                                Local Map File ...
-                            </div>
-                            <div>
-                                <input id="trace3d-juicebox-load-local-input" type="file" name="file" style="display: none;">
-                            </div>
-                        </div>
-                    </label>
-
-                    <!-- url -->
-                    <button id="trace3d-juicebox-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#hic-load-url-modal">Map URL ...
-                    </button>
-
-                </div>
-
-            </div>
-
-        </li>
-
-    </ul>
-
-    <span id="trace3d-file-name" class="navbar-brand mx-auto"></span>
 </nav>
 
 <main>
