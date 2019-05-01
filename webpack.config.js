@@ -40,12 +40,13 @@ module.exports =
         plugins:
             [
                 new CopyPlugin([
-                    { from:'css/app.css', to:'css' },
-                    { from:'img/*'         },
-                    { from:'texture/**/*'  },
+                    { from:'css/*.css'      },
+                    { from:'css/img/*'      },
+                    { from:'img/*'          },
+                    { from:'texture/**/*'   },
                     { from:'resources/**/*' },
-                    { from:'vendor/**/*'   },
-                    { from:'favicon.ico'   },
+                    { from:'vendor/*'       },
+                    { from:'favicon.ico'    },
                     {
                         from: 'index.html',
                         transform: (content) => {
