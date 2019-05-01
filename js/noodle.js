@@ -14,7 +14,7 @@ class Noodle {
         this.dictionary = {};
     }
 
-    static renderStyle () {
+    static getRenderStyle() {
         return 'render-style-noodle';
     }
 
@@ -27,7 +27,7 @@ class Noodle {
         this.spline = createFatSpline(structureList, colorRampWidget);
         // his.spline = createThinSpline(structureList, colorRampWidget);
 
-        if (renderStyle === Noodle.renderStyle()) {
+        if (renderStyle === Noodle.getRenderStyle()) {
             this.show();
         } else {
             this.hide();

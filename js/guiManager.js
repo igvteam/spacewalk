@@ -43,7 +43,7 @@ class GUIManager {
         });
 
         const $inputBallAndSick = $panel.find('#trace3d-render-style-ball-stick');
-        $inputBallAndSick.val(BallAndStick.renderStyle());
+        $inputBallAndSick.val(BallAndStick.getRenderStyle());
 
         $inputBallAndSick.on('change.gui_manager.render_style_ball_stick', (e) => {
             e.preventDefault();
@@ -52,7 +52,7 @@ class GUIManager {
 
 
         const $inputNoodle = $panel.find('#trace3d-render-style-noodle');
-        $inputNoodle.val(Noodle.renderStyle());
+        $inputNoodle.val(Noodle.getRenderStyle());
 
         $inputNoodle.on('change.gui_manager.render_style_noodle', (e) => {
             e.preventDefault();

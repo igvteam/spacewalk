@@ -7,7 +7,7 @@ class BallAndStick {
         this.dictionary = {};
     }
 
-    static renderStyle () {
+    static getRenderStyle() {
         return 'render-style-ball-stick';
     }
 
@@ -16,7 +16,7 @@ class BallAndStick {
         this.balls = createBalls(structureList);
         this.sticks = createSticks(structureList);
 
-        if (renderStyle === BallAndStick.renderStyle()) {
+        if (renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
         } else {
             this.hide();

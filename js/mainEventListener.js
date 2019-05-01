@@ -12,12 +12,12 @@ export const mainEventListener =
 
             if ('RenderStyleDidChange' === type) {
 
-                if (data === Noodle.renderStyle()) {
-                    sceneManager.renderStyle = Noodle.renderStyle();
+                if (data === Noodle.getRenderStyle()) {
+                    sceneManager.renderStyle = Noodle.getRenderStyle();
                     ballAndStick.hide();
                     noodle.show();
                 } else {
-                    sceneManager.renderStyle = BallAndStick.renderStyle();
+                    sceneManager.renderStyle = BallAndStick.getRenderStyle();
                     noodle.hide();
                     ballAndStick.show();
                 }
