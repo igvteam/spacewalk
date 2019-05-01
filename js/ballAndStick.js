@@ -7,9 +7,20 @@ class BallAndStick {
         this.dictionary = {};
     }
 
-    configure (structureList) {
+    static renderStyle () {
+        return 'render-style-ball-stick';
+    }
+
+    configure (structureList, renderStyle) {
+
         this.balls = createBalls(structureList);
         this.sticks = createSticks(structureList);
+
+        if (renderStyle === BallAndStick.renderStyle()) {
+            this.show();
+        } else {
+            this.hide();
+        }
     }
 
     addToScene (scene) {

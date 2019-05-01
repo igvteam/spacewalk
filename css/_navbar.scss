@@ -8,7 +8,7 @@
 
   height: $trace3d_navbar_height;
 
-  background-color: $trace3d_iron;
+  //background-color: $trace3d_iron;
 }
 
 .navbar-brand {
@@ -19,4 +19,12 @@
   font-size: 1.25rem;
   line-height: inherit;
   white-space: nowrap;
+}
+
+#tracing3d-navbar-content {
+
+  #trace3d-file-name {
+    color: $trace3d_snow;
+    font-size: 1rem;
+  }
 }

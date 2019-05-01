@@ -1,4 +1,6 @@
 import {globalEventBus} from "./eventBus.js";
+import Noodle from "./noodle.js";
+import BallAndStick from "./ballAndStick.js";
 
 class GUIManager {
     constructor ({ $button, $panel }) {
@@ -40,8 +42,19 @@ class GUIManager {
 
         });
 
-        const $input = $panel.find('.trace3d_ui_manager_render_style_container input');
-        $input.on('change.gui_manager', (e) => {
+        const $inputBallAndSick = $panel.find('#trace3d-render-style-ball-stick');
+        $inputBallAndSick.val(BallAndStick.renderStyle());
+
+        $inputBallAndSick.on('change.gui_manager.render_style_ball_stick', (e) => {
+            e.preventDefault();
+            globalEventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
+        });
+
+
+        const $inputNoodle = $panel.find('#trace3d-render-style-noodle');
+        $inputNoodle.val(Noodle.renderStyle());
+
+        $inputNoodle.on('change.gui_manager.render_style_noodle', (e) => {
             e.preventDefault();
             globalEventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
         });
