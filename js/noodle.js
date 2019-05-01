@@ -14,7 +14,11 @@ class Noodle {
         this.dictionary = {};
     }
 
-    configure (structureList, colorRampWidget) {
+    static renderStyle () {
+        return 'render-style-noodle';
+    }
+
+    configure (structureList, colorRampWidget, renderStyle) {
 
         let { rgb_ctx, alphamap_ctx } = colorRampWidget;
 
@@ -22,6 +26,12 @@ class Noodle {
 
         this.spline = createFatSpline(structureList, colorRampWidget);
         // his.spline = createThinSpline(structureList, colorRampWidget);
+
+        if (renderStyle === Noodle.renderStyle()) {
+            this.show();
+        } else {
+            this.hide();
+        }
 
     }
 

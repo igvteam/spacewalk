@@ -9,12 +9,16 @@ import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import ColorMapManager from "./colorMapManager.js";
 import { guiManager } from './main.js';
+import Noodle from "./noodle.js";
+import BallAndStick from "./ballAndStick.js";
 
 let currentStructureCentroid = undefined;
 
 class SceneManager {
 
     constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPanel, renderer, picker, hemisphereLight }) {
+
+        this.renderStyle = Noodle.renderStyle();
 
         this.doUpdateCameraPose = true;
 
@@ -99,6 +103,8 @@ class SceneManager {
     }
 
     defaultConfiguration() {
+
+        this.renderStyle = Noodle.renderStyle();
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
