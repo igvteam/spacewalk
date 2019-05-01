@@ -18,7 +18,7 @@ class SceneManager {
 
     constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPanel, renderer, picker, hemisphereLight }) {
 
-        this.renderStyle = Noodle.renderStyle();
+        this.renderStyle = Noodle.getRenderStyle();
 
         this.doUpdateCameraPose = true;
 
@@ -104,7 +104,7 @@ class SceneManager {
 
     defaultConfiguration() {
 
-        this.renderStyle = Noodle.renderStyle();
+        this.renderStyle = Noodle.getRenderStyle();
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
