@@ -11,7 +11,6 @@ let fatLineMaterial;
 class Noodle {
 
     constructor () {
-        this.dictionary = {};
     }
 
     static getRenderStyle() {
@@ -22,10 +21,17 @@ class Noodle {
 
         let { rgb_ctx, alphamap_ctx } = colorRampWidget;
 
-        this.tube = createTube(structureList, rgb_ctx.canvas, alphamap_ctx.canvas);
+        if (this.disposable) {
+            this.disposable.forEach(item => {
+                item.dispose()
+            })
+        }
 
-        this.spline = createFatSpline(structureList, colorRampWidget);
-        // his.spline = createThinSpline(structureList, colorRampWidget);
+        this.disposable = [];
+
+        this.tube = this.createTube(structureList, rgb_ctx.canvas, alphamap_ctx.canvas);
+
+        this.spline = this.createFatSpline(structureList, colorRampWidget);
 
         if (renderStyle === Noodle.getRenderStyle()) {
             this.show();
@@ -34,6 +40,90 @@ class Noodle {
         }
 
     }
+
+    createTube(structureList, rgb_canvas, alphamap_canvas) {
+
+        const knots = structureList.map((obj) => {
+            let [ x, y, z ] = obj.xyz;
+            return new THREE.Vector3( x, y, z );
+        });
+
+        const axis = new THREE.CatmullRomCurve3(knots);
+        const tubeGeometry = new THREE.TubeBufferGeometry(axis, 1024, sceneManager.ballRadius, 96, false);
+        this.disposable.push(tubeGeometry);
+
+        rgbTexture = new THREE.CanvasTexture(rgb_canvas);
+        rgbTexture.center.set(0.5, 0.5);
+        rgbTexture.rotation = Math.PI/2.0;
+        rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
+        this.disposable.push(rgbTexture);
+
+        alphaTexture = new THREE.CanvasTexture(alphamap_canvas);
+        alphaTexture.center.set(0.5, 0.5);
+        alphaTexture.rotation = Math.PI/2.0;
+        alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
+        this.disposable.push(alphaTexture);
+
+        let tubeMaterial = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });
+        tubeMaterial.alphaTest = 0.5;
+        tubeMaterial.side = THREE.DoubleSide;
+        tubeMaterial.transparent = true;
+        this.disposable.push(tubeMaterial);
+
+        // let tubeMaterial = sceneManager.stickMaterial.clone();
+        const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
+        tubeMesh.name = 'noodle';
+
+        return tubeMesh;
+
+    };
+
+    createFatSpline(structureList, colorRampWidget){
+
+        const knots = structureList.map((obj) => {
+            let [ x, y, z ] = obj.xyz;
+            return new THREE.Vector3( x, y, z );
+        });
+
+        const curve = new THREE.CatmullRomCurve3(knots);
+
+        const howmany = 2048;
+
+        const xyzList = curve.getPoints( howmany );
+
+        const rgbList = xyzList.map((xyz, index) => {
+            let interpolant = index / (xyzList.length - 1);
+            interpolant = 1 - interpolant;
+            return colorRampWidget.colorForInterpolant(interpolant);
+        });
+
+        let vertices = [];
+        xyzList.forEach((xyz) => {
+            const { x, y, z } = xyz;
+            vertices.push(x, y, z);
+        });
+
+        let colors = [];
+        rgbList.forEach((rgb) => {
+            const { r, g, b } = rgb;
+            colors.push(r, g, b);
+        });
+
+        let fatLineGeometry = new FatLineGeometry();
+        fatLineGeometry.setPositions( vertices );
+        fatLineGeometry.setColors( colors );
+
+        fatLineMaterial = new FatLineMaterial( { linewidth: 2, vertexColors: THREE.VertexColors } );
+        this.disposable.push(fatLineMaterial);
+
+        let fatLine = new FatLine(fatLineGeometry, fatLineMaterial);
+        fatLine.computeLineDistances();
+        fatLine.scale.set( 1, 1, 1 );
+        fatLine.name = 'noodle_spline';
+
+        return fatLine;
+
+    };
 
     addToScene (scene) {
         scene.add( this.tube );
@@ -66,86 +156,6 @@ class Noodle {
 
 
 }
-
-
-let createTube = (structureList, rgb_canvas, alphamap_canvas) => {
-
-    const knots = structureList.map((obj) => {
-        let [ x, y, z ] = obj.xyz;
-        return new THREE.Vector3( x, y, z );
-    });
-
-    const axis = new THREE.CatmullRomCurve3(knots);
-    const tubeGeometry = new THREE.TubeBufferGeometry(axis, 1024, sceneManager.ballRadius, 96, false);
-
-    rgbTexture = new THREE.CanvasTexture(rgb_canvas);
-    rgbTexture.center.set(0.5, 0.5);
-    rgbTexture.rotation = Math.PI/2.0;
-    rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
-
-    alphaTexture = new THREE.CanvasTexture(alphamap_canvas);
-    alphaTexture.center.set(0.5, 0.5);
-    alphaTexture.rotation = Math.PI/2.0;
-    alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
-
-    let tubeMaterial = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });
-    tubeMaterial.alphaTest = 0.5;
-    tubeMaterial.side = THREE.DoubleSide;
-    tubeMaterial.transparent = true;
-
-    // let tubeMaterial = sceneManager.stickMaterial.clone();
-    const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
-    tubeMesh.name = 'noodle';
-
-    return tubeMesh;
-
-};
-
-let createFatSpline = (structureList, colorRampWidget) => {
-
-    const knots = structureList.map((obj) => {
-        let [ x, y, z ] = obj.xyz;
-        return new THREE.Vector3( x, y, z );
-    });
-
-    const curve = new THREE.CatmullRomCurve3(knots);
-
-    const howmany = 2048;
-
-    const xyzList = curve.getPoints( howmany );
-
-    const rgbList = xyzList.map((xyz, index) => {
-        let interpolant = index / (xyzList.length - 1);
-        interpolant = 1 - interpolant;
-        return colorRampWidget.colorForInterpolant(interpolant);
-    });
-
-    let vertices = [];
-    xyzList.forEach((xyz) => {
-        const { x, y, z } = xyz;
-        vertices.push(x, y, z);
-    });
-
-    let colors = [];
-    rgbList.forEach((rgb) => {
-        const { r, g, b } = rgb;
-        colors.push(r, g, b);
-    });
-
-    let fatLineGeometry = new FatLineGeometry();
-    fatLineGeometry.setPositions( vertices );
-    fatLineGeometry.setColors( colors );
-
-    fatLineMaterial = new FatLineMaterial( { linewidth: 2, vertexColors: THREE.VertexColors } );
-
-    let fatLine = new FatLine(fatLineGeometry, fatLineMaterial);
-    fatLine.computeLineDistances();
-    fatLine.scale.set( 1, 1, 1 );
-    fatLine.name = 'noodle_spline';
-
-    return fatLine;
-
-};
 
 let createThinSpline = (structureList, colorRampWidget) => {
 

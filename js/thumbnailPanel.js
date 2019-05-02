@@ -42,7 +42,8 @@ class ThumbnailPanel {
         this.scene = new THREE.Scene();
         this.scene.background = appleCrayonColorThreeJS('sky');
 
-        this.scene.add(new THREE.Mesh(model.geometry, material));
+        this.mesh = new THREE.Mesh(model.geometry, material);
+        this.scene.add(this.mesh);
 
         layout(container, palette);
 
@@ -65,6 +66,13 @@ class ThumbnailPanel {
         // origin is at north-west corner of canvas: x-east, y-south
         this.context.drawImage(renderCanvas, 0, 0, rw, rh, 0, 0, w, h);
 
+    }
+
+    dispose () {
+
+        this.scene.remove( this.mesh );
+        // geometry.dispose();
+        // material.dispose();
     }
 
     onWindowResize(container, palette) {
