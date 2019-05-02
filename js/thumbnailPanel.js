@@ -2,6 +2,7 @@ import * as THREE from './threejs_es6/three.module.js';
 import { makeDraggable } from "./draggable.js";
 import { fitToContainer } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
+import MeshModel from './meshModel.js';
 
 const [ fov, near, far ] = [ 40, 1e-1, 7e2 ];
 
@@ -78,6 +79,24 @@ class ThumbnailPanel {
     }
 
 }
+
+let boxGeometry;
+
+export let thumbnailPanelConfigurator = (container) => {
+
+    const dimen = 16;
+    const [ sx, sy, sz, tessx, tessy, tessz ] = [ dimen, dimen/4, dimen/2, 4, 4, 4 ];
+    boxGeometry = new THREE.BoxBufferGeometry( sx, sy, sz, tessx, tessy, tessz );
+
+    return {
+            container,
+            palette: $('#trace3d_thumbnail_panel').get(0),
+            renderer: new THREE.WebGLRenderer(),
+            model: new MeshModel({ sx, sy, sz, geometry: boxGeometry, material: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('salmon') }) }),
+            material: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('salmon') })
+        };
+
+};
 
 let layout = (container, palette) => {
 

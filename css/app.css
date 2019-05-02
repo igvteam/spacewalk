@@ -127,8 +127,8 @@
       border-radius: .25rem; }
 
 #trace3d_thumbnail_panel.card {
-  width: 512px;
-  height: 544px; }
+  width: 256px;
+  height: 288px; }
   #trace3d_thumbnail_panel.card #trace3d_thumbnail_panel_body.card-body {
     width: 100%;
     height: 100%; }

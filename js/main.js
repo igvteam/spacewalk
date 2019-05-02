@@ -21,6 +21,10 @@ import JuiceboxPanel from './juicebox/juiceboxPanel.js';
 // Structure Select Panel
 import StructureSelectPanel from './structureSelectPanel.js';
 
+// Thumbnail Panel
+import ThumbnailPanel from './thumbnailPanel.js';
+import { thumbnailPanelConfigurator } from './thumbnailPanel.js';
+
 import BallAndStick from './ballAndStick.js';
 import Noodle from './noodle.js';
 
@@ -36,6 +40,7 @@ let guiManager;
 let structureSelectPanel;
 let igvPanel;
 let juiceboxPanel;
+let thumbnailPanel;
 
 let sceneManager;
 let structureManager;
@@ -55,6 +60,8 @@ let main = async container => {
     structureSelectPanel = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_structure_select_panel') });
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_juicebox_panel') });
+
+    thumbnailPanel = new ThumbnailPanel(thumbnailPanelConfigurator(container));
 
     igvPanel = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_igv_panel') });
 
@@ -98,6 +105,8 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
 
     ballAndStick.configure(structure.array, sceneManager.renderStyle);
     ballAndStick.addToScene(sceneManager.scene);
+
+    thumbnailPanel.renderOneTime();
 
 };
 
