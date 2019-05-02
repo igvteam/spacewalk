@@ -52,26 +52,19 @@ class ThumbnailPanel {
 
     }
 
-    renderOneTime() {
-
-        if (doRender) {
-
-            this.render();
-
-            const { width: rw, height: rh } = this.renderer.domElement;
-            const { width:  w, height:  h } = this.canvas;
-
-            // origin is at north-west corner of canvas: x-east, y-south
-            this.context.drawImage(this.renderer.domElement, 0, 0, rw, rh, 0, 0, w, h);
-
-
-            doRender = false;
-        }
-    }
-
     render () {
+
         const { scene, camera } = this;
         this.renderer.render( scene, camera );
+
+        const { domElement: renderCanvas } = this.renderer;
+
+        const { width: rw, height: rh } = renderCanvas;
+        const { width:  w, height:  h } = this.canvas;
+
+        // origin is at north-west corner of canvas: x-east, y-south
+        this.context.drawImage(renderCanvas, 0, 0, rw, rh, 0, 0, w, h);
+
     }
 
     onWindowResize(container, palette) {

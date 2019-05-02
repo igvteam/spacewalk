@@ -106,7 +106,7 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
     ballAndStick.configure(structure.array, sceneManager.renderStyle);
     ballAndStick.addToScene(sceneManager.scene);
 
-    thumbnailPanel.renderOneTime();
+    thumbnailPanel.render();
 
 };
 
