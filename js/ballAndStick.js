@@ -13,14 +13,7 @@ class BallAndStick {
 
     configure (structureList, renderStyle) {
 
-        if (this.disposable) {
-            this.disposable.forEach(item => {
-                item.dispose()
-            })
-        }
-
-        this.disposable = [];
-
+        this.dispose();
         this.balls = this.createBalls(structureList);
         this.sticks = this.createSticks(structureList);
 
@@ -33,7 +26,10 @@ class BallAndStick {
 
     createBalls(structureList) {
 
-        return structureList.map(structure => {
+        let geometryList = [];
+        let materialList = [];
+
+        let meshList = structureList.map(structure => {
 
             const index = structureList.indexOf(structure);
 
@@ -41,34 +37,41 @@ class BallAndStick {
 
             const color = sceneManager.colorRampPanel.colorRampWidget.colorForInterpolant(index / (structureList.length - 1));
 
-            // const ballMaterial = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
-            const ballMaterial = new THREE.MeshPhongMaterial({ color });
-            // const ballMaterial = new THREE.MeshBasicMaterial({ color });
-            // const ballMaterial = showTMaterial;
-            this.disposable.push(ballMaterial);
+            // const material = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
+            const material = new THREE.MeshPhongMaterial({ color });
+            // const material = new THREE.MeshBasicMaterial({ color });
+            // const material = showTMaterial;
 
-            const ballMesh = new THREE.Mesh(sceneManager.ballGeometry, ballMaterial);
-            ballMesh.position.set(x, y, z);
+            materialList.push(material);
+
+            const geometry = sceneManager.ballGeometry.clone();
+            geometry.translate(x, y, z);
+            geometryList.push(material);
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.name = 'ball';
 
             const genomicLocation = index * structureManager.stepSize + structureManager.locus.genomicStart;
 
-            sceneManager.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: ballMesh, centroid: ballMesh.position.clone() };
+            sceneManager.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: mesh, centroid: mesh.position.clone() };
 
-            sceneManager.indexDictionary[ ballMesh.uuid ] = { index, genomicLocation };
+            sceneManager.indexDictionary[ mesh.uuid ] = { index, genomicLocation };
 
-            sceneManager.objectList[ index ] = { object: ballMesh, genomicLocation };
+            sceneManager.objectList[ index ] = { object: mesh, genomicLocation };
 
-            ballMesh.name = 'ball';
-
-            return ballMesh;
+            return mesh;
 
         });
+
+        return { mesh: meshList, geometry: geometryList, material: materialList };
 
     }
 
     createSticks(structureList) {
 
-        let sticks = [];
+        let geometryList = [];
+        let materialList = [];
+        let meshList = [];
 
         for (let i = 0, j = 1; j < structureList.length; ++i, ++j) {
 
@@ -77,26 +80,25 @@ class BallAndStick {
 
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
 
-            const stickGeometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
-            this.disposable.push(stickGeometry);
+            const geometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
+            geometryList.push(geometry);
 
-            const stickMaterial = sceneManager.stickMaterial.clone();
-            this.disposable.push(stickMaterial);
+            const material = sceneManager.stickMaterial.clone();
+            materialList.push(material);
 
-            const stickMesh = new THREE.Mesh(stickGeometry, stickMaterial);
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.name = 'stick';
 
-            stickMesh.name = 'stick';
-
-            sticks.push(stickMesh);
+            meshList.push(mesh);
 
         }
 
-        return sticks;
+        return { mesh: meshList, geometry: geometryList, material: materialList };
     }
 
     addToScene (scene) {
-        this.balls.forEach(ball => scene.add(ball));
-        this.sticks.forEach(stick => scene.add(stick));
+        this.balls.mesh.forEach(m => scene.add(m));
+        this.sticks.mesh.forEach(m => scene.add(m));
     }
 
     renderLoopHelper () {
@@ -104,13 +106,29 @@ class BallAndStick {
     }
 
     hide () {
-        setVisibility(this.balls, false);
-        setVisibility(this.sticks, false);
+        setVisibility(this.balls.mesh, false);
+        setVisibility(this.sticks.mesh, false);
     }
 
     show () {
-        setVisibility(this.balls, true);
-        setVisibility(this.sticks, true);
+        setVisibility(this.balls.mesh, true);
+        setVisibility(this.sticks.mesh, true);
+    }
+
+    dispose () {
+
+        if (this.balls) {
+            let { geometry, material } = this.balls;
+            geometry.forEach(g => g.dispose());
+            material.forEach(m => m.dispose());
+        }
+
+        if (this.sticks) {
+            let { geometry, material } = this.sticks;
+            geometry.forEach(g => g.dispose());
+            material.forEach(m => m.dispose());
+        }
+
     }
 }
 
