@@ -4,12 +4,10 @@ import { fitToContainer } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import MeshModel from './meshModel.js';
 
-const [ fov, near, far ] = [ 40, 1e-1, 7e2 ];
-
 let doRender = true;
 class ThumbnailPanel {
 
-    constructor ({ container, palette, renderer, model, material }) {
+    constructor ({ container, palette, renderer, material }) {
 
         const $canvas = $(palette).find('canvas');
         const canvas = $canvas.get(0);
@@ -28,13 +26,11 @@ class ThumbnailPanel {
 
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(renderWidth, renderHeight);
-
         renderer.setClearColor(appleCrayonColorHexValue('sky'));
-
         this.renderer = renderer;
 
         // camera
-        this.camera = new THREE.PerspectiveCamera(fov, renderWidth / renderHeight, near, far);
+        this.camera = new THREE.PerspectiveCamera(15, 1, 1e-1, 1e3);
 
         // scene
         this.scene = new THREE.Scene();
@@ -54,26 +50,44 @@ class ThumbnailPanel {
 
         this.dispose();
 
-        let { camera } = this;
-
-        camera.lookAt(target);
-        camera.position.copy(position);
-
-        const extent = 2 * boundingRadius;
-        const [ fov, near, far, aspect ] = [ 35, 1e-1 * extent, 1e1 * extent, 1 ];
-
-        camera.fov = fov;
-        camera.near = near;
-        camera.far = far;
-        camera.aspect = aspect;
-
-        camera.updateProjectionMatrix();
-
+        let meshModel = undefined;
         model.getThumbnailGeometryList().forEach((geometry) => {
-            const mesh = new THREE.Mesh(geometry, this.material);
+
+            geometry.computeBoundingBox();
+            const { min, max } = geometry.boundingBox;
+
+            const { x:mx, y:my, z:mz } = min;
+            const { x:Mx, y:My, z:Mz } = max;
+            const [ sx, sy, sz ] = [ Mx - mx, My - my, Mz - mz ];
+
+            const boxBufferGeometry = new THREE.BoxBufferGeometry( sx, sy, sz, 4, 4, 4 );
+
+            const [ tx, ty, tz ] = [ (Mx+mx)/2, (My+my)/2, (Mz+mz)/2 ];
+            boxBufferGeometry.translate(tx, ty, tz);
+
+            meshModel = new MeshModel({ sx, sy, sz, geometry: boxBufferGeometry, material: this.material });
+
+            const mesh = new THREE.Mesh(meshModel.geometry, meshModel.material);
+
+            // const mesh = new THREE.Mesh(geometry, this.material);
+
             this.scene.add(mesh);
             this.meshList.push(mesh);
         });
+
+        const { target: tt, position: pp } = meshModel.getNiceCameraPose();
+        this.camera.lookAt(tt);
+        this.camera.position.copy(pp);
+
+        const extent = 2 * boundingRadius;
+        const [ fov, near, far, aspect ] = [ 4, 5e-2 * extent, 2e1 * extent, 1 ];
+        this.camera.fov = fov;
+        this.camera.near = near;
+        this.camera.far = far;
+        this.camera.aspect = aspect;
+
+        // this.camera.updateMatrixWorld();
+        // this.camera.updateProjectionMatrix();
 
     }
 
@@ -107,41 +121,12 @@ class ThumbnailPanel {
 
 }
 
-let poseCamera = (camera, target, toCamera) => {
-
-    // TODO: Refer to sceneManager.configure for details
-
-    camera.lookAt(target);
-
-    const { x, y, z } = target.clone().add(toCamera);
-    camera.position.set(x, y, z);
-
-
-    const [ fov, near, far, aspect ] = [ 35, 1e-1 * dimen, 32 * dimen, 1 ];
-
-    camera.fov = fov;
-    camera.near = near;
-    camera.far = far;
-    camera.aspect = aspect;
-
-    camera.updateProjectionMatrix();
-
-
-};
-
-let boxGeometry;
-
 export let thumbnailPanelConfigurator = (container) => {
-
-    const dimen = 16;
-    const [ sx, sy, sz, tessx, tessy, tessz ] = [ dimen, dimen/4, dimen/2, 4, 4, 4 ];
-    boxGeometry = new THREE.BoxBufferGeometry( sx, sy, sz, tessx, tessy, tessz );
 
     return {
             container,
             palette: $('#trace3d_thumbnail_panel').get(0),
             renderer: new THREE.WebGLRenderer(),
-            model: new MeshModel({ sx, sy, sz, geometry: boxGeometry, material: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('salmon') }) }),
             material: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('salmon') })
         };
 
