@@ -1,5 +1,5 @@
 import * as THREE from "./threejs_es6/three.module.js";
-import igv from "../vendor/igv.esm.js";
+import igv from '../vendor/igv.esm.js';
 import {globalEventBus} from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
 
@@ -103,17 +103,9 @@ class StructureManager {
 
     }
 
-    static getCameraPoseAlongAxis ({ structure, axis }) {
+    static getCameraPoseAlongAxis ({ structure, axis, scaleFactor }) {
 
-        const { sx, sy, sz } = structure.extent;
-        let dimen = Math.max(...[sx, sy, sz]);
-
-        dimen *= 2;
-
-        const target = structure.centroid;
-
-        let position;
-
+        const dimen = scaleFactor * structure.boundingRadius;
         const axes =
             {
                 '-x': () => {
@@ -136,7 +128,13 @@ class StructureManager {
                 },
             };
 
-        position = axes[ axis ]();
+        const vector = axes[ axis ]();
+        let position = new THREE.Vector3();
+
+        const target = structure.centroid;
+
+        position.addVectors(target, vector);
+
         return { target, position }
     }
 

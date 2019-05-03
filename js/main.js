@@ -106,13 +106,9 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
     ballAndStick.configure(structure.array, sceneManager.renderStyle);
     ballAndStick.addToScene(sceneManager.scene);
 
-    const { position, target } = StructureManager.getCameraPoseAlongAxis({ structure, axis: '+z' });
-    if ( sceneManager.renderStyle === Noodle.getRenderStyle() ) {
-        thumbnailPanel.configure({ model: noodle, position, target, extent: structure.boundingRadius });
-    } else {
-        thumbnailPanel.configure({ model: ballAndStick, position, target, extent: structure.boundingRadius });
-    }
-
+    const { position, target } = StructureManager.getCameraPoseAlongAxis({ structure, axis: '+z', scaleFactor: 2 });
+    const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;
+    thumbnailPanel.configure({ model, target, position, boundingRadius: structure.boundingRadius });
     thumbnailPanel.render();
 
 };

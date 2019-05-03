@@ -3,7 +3,6 @@ import { makeDraggable } from "./draggable.js";
 import { fitToContainer } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import MeshModel from './meshModel.js';
-import {ballAndStick} from "./main";
 
 const [ fov, near, far ] = [ 40, 1e-1, 7e2 ];
 
@@ -21,6 +20,8 @@ class ThumbnailPanel {
 
         this.canvas = canvas;
 
+        this.material = material;
+
         // renderer
         const renderContainer = $(palette).find('#trace3d_thumbnail_container').get(0);
         const { width: renderWidth, height: renderHeight } = renderContainer.getBoundingClientRect();
@@ -35,16 +36,11 @@ class ThumbnailPanel {
         // camera
         this.camera = new THREE.PerspectiveCamera(fov, renderWidth / renderHeight, near, far);
 
-        const { target, position } = model.getCameraPoseAlongAxis('-z');
-        this.camera.position.copy(position);
-        this.camera.lookAt( target );
-
         // scene
         this.scene = new THREE.Scene();
         this.scene.background = appleCrayonColorThreeJS('sky');
 
-        this.mesh = new THREE.Mesh(model.geometry, material);
-        this.scene.add(this.mesh);
+        this.meshList = [];
 
         layout(container, palette);
 
@@ -54,16 +50,17 @@ class ThumbnailPanel {
 
     }
 
-    configure ({ model, position, target, extent }) {
+    configure ({ model, target, position, boundingRadius }) {
+
+        this.dispose();
 
         let { camera } = this;
 
         camera.lookAt(target);
+        camera.position.copy(position);
 
-        const { x, y, z } = position;
-        camera.position.set(x, y, z);
-
-        const [ fov, near, far, aspect ] = [ 35, 1e-1 * extent, 32 * extent, 1 ];
+        const extent = 2 * boundingRadius;
+        const [ fov, near, far, aspect ] = [ 35, 1e-1 * extent, 1e1 * extent, 1 ];
 
         camera.fov = fov;
         camera.near = near;
@@ -72,12 +69,11 @@ class ThumbnailPanel {
 
         camera.updateProjectionMatrix();
 
-        // TODO: Scene disposal and all it's contents.
-        // TODO: Derive camera pose from model - add bbox method and camera pose method to model
-        return;
-
-        this.mesh = new THREE.Mesh(model.geometry, material);
-        this.scene.add(this.mesh);
+        model.getThumbnailGeometryList().forEach((geometry) => {
+            const mesh = new THREE.Mesh(geometry, this.material);
+            this.scene.add(mesh);
+            this.meshList.push(mesh);
+        });
 
     }
 
@@ -98,9 +94,11 @@ class ThumbnailPanel {
 
     dispose () {
 
-        this.scene.remove( this.mesh );
-        // geometry.dispose();
-        // material.dispose();
+        if (this.meshList.length > 0) {
+            this.meshList.forEach(mesh => this.scene.remove(mesh));
+        }
+
+        this.meshList = [];
     }
 
     onWindowResize(container, palette) {

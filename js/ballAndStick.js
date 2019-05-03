@@ -130,6 +130,12 @@ class BallAndStick {
         }
 
     }
+
+    getThumbnailGeometryList () {
+        // return [ ...this.balls.geometry,  ...this.sticks.geometry ];
+        return this.sticks.geometry;
+    }
+
 }
 
 let setVisibility = (objects, isVisible) => {

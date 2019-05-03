@@ -160,6 +160,11 @@ class Noodle {
         }
 
     }
+
+    getThumbnailGeometryList () {
+        return [ this.tube.geometry ];
+    }
+
 }
 
 let createThinSpline = (structureList, colorRampWidget) => {
