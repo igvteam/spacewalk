@@ -3,6 +3,7 @@ import { makeDraggable } from "./draggable.js";
 import { fitToContainer } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import MeshModel from './meshModel.js';
+import {ballAndStick} from "./main";
 
 const [ fov, near, far ] = [ 40, 1e-1, 7e2 ];
 
@@ -53,6 +54,33 @@ class ThumbnailPanel {
 
     }
 
+    configure ({ model, position, target, extent }) {
+
+        let { camera } = this;
+
+        camera.lookAt(target);
+
+        const { x, y, z } = position;
+        camera.position.set(x, y, z);
+
+        const [ fov, near, far, aspect ] = [ 35, 1e-1 * extent, 32 * extent, 1 ];
+
+        camera.fov = fov;
+        camera.near = near;
+        camera.far = far;
+        camera.aspect = aspect;
+
+        camera.updateProjectionMatrix();
+
+        // TODO: Scene disposal and all it's contents.
+        // TODO: Derive camera pose from model - add bbox method and camera pose method to model
+        return;
+
+        this.mesh = new THREE.Mesh(model.geometry, material);
+        this.scene.add(this.mesh);
+
+    }
+
     render () {
 
         const { scene, camera } = this;
@@ -80,6 +108,28 @@ class ThumbnailPanel {
     }
 
 }
+
+let poseCamera = (camera, target, toCamera) => {
+
+    // TODO: Refer to sceneManager.configure for details
+
+    camera.lookAt(target);
+
+    const { x, y, z } = target.clone().add(toCamera);
+    camera.position.set(x, y, z);
+
+
+    const [ fov, near, far, aspect ] = [ 35, 1e-1 * dimen, 32 * dimen, 1 ];
+
+    camera.fov = fov;
+    camera.near = near;
+    camera.far = far;
+    camera.aspect = aspect;
+
+    camera.updateProjectionMatrix();
+
+
+};
 
 let boxGeometry;
 
