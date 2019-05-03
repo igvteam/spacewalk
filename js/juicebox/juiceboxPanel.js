@@ -1,5 +1,5 @@
 import { globalEventBus } from "../eventBus.js";
-import { createBrowser } from './core/hic.js'
+import { createBrowser } from '../../node_modules/juicebox.js/js/hic.js'
 import { segmentIndexForInterpolant } from '../colorRampWidget.js';
 import { makeDraggable } from "../draggable.js";
 import { sceneManager, structureManager } from "../main.js";
