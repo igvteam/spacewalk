@@ -1,49 +1,38 @@
 import * as THREE from "./threejs_es6/three.module.js";
 
 class MeshModel {
-    constructor ({ sx, sy, sz, geometry, material }) {
-
-        this.sx = sx;
-        this.sy = sy;
-        this.sz = sz;
-
+    constructor ({ geometry, material }) {
         this.geometry = geometry;
         this.material = material;
-
         this.mesh = new THREE.Mesh(geometry, material);
-
     }
 
-    getBBox() {
-        const { sx, sy, sz } = this;
-        return { sx, sy, sz }
+    getBounds() {
+
+        this.geometry.computeBoundingSphere();
+        const { center, radius } = this.geometry.boundingSphere;
+
+        this.geometry.computeBoundingBox();
+        const { min, max } = this.geometry.boundingBox;
+
+        return { min, max, center, radius }
     }
 
     getNiceCameraPose() {
 
-        const [ targetX, targetY, targetZ ] = [ 0, 0, 0 ];
-        const target = new THREE.Vector3(targetX, targetY, targetZ);
+        const { min, max, center, radius } = this.getBounds();
 
-        const { sx, sy, sz } = this;
-        const dimen = Math.max(...[sx, sy, sz]);
+        const dimen = radius * 2;
+        const position = new THREE.Vector3(dimen, dimen, dimen);
 
-        const [ locationX, locationY, locationZ ] = [ dimen, dimen, dimen ];
-        const position = new THREE.Vector3(locationX, locationY, locationZ);
-
-        return { target, position }
+        return { target:center, position }
     }
 
-    getCameraPoseAlongAxis (axis) {
+    getCameraPoseAlongAxis ({ axis, scaleFactor }) {
 
-        const { sx, sy, sz } = this;
-        let dimen = Math.max(...[sx, sy, sz]);
+        const { center, radius } = this.getBounds();
 
-        dimen *= 2;
-
-        const [ targetX, targetY, targetZ ] = [ 0, 0, 0 ];
-        const target = new THREE.Vector3(targetX, targetY, targetZ);
-
-        let position;
+        const dimen = scaleFactor * radius;
 
         const axes =
             {
@@ -67,9 +56,14 @@ class MeshModel {
                 },
             };
 
-        position = axes[ axis ]();
-        return { target, position }
+        const vector = axes[ axis ]();
+        let position = new THREE.Vector3();
+
+        position.addVectors(center, vector);
+
+        return { target:center, position }
     }
+
 }
 
 export default MeshModel;

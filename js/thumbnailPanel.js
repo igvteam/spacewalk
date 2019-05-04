@@ -5,6 +5,7 @@ import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import MeshModel from './meshModel.js';
 
 let doRender = true;
+let meshModel = undefined;
 class ThumbnailPanel {
 
     constructor ({ container, palette, renderer, material }) {
@@ -29,9 +30,6 @@ class ThumbnailPanel {
         renderer.setClearColor(appleCrayonColorHexValue('sky'));
         this.renderer = renderer;
 
-        // camera
-        this.camera = new THREE.PerspectiveCamera(15, 1, 1e-1, 1e3);
-
         // scene
         this.scene = new THREE.Scene();
         this.scene.background = appleCrayonColorThreeJS('sky');
@@ -50,7 +48,6 @@ class ThumbnailPanel {
 
         this.dispose();
 
-        let meshModel = undefined;
         model.getThumbnailGeometryList().forEach((geometry) => {
 
             geometry.computeBoundingBox();
@@ -59,13 +56,15 @@ class ThumbnailPanel {
             const { x:mx, y:my, z:mz } = min;
             const { x:Mx, y:My, z:Mz } = max;
             const [ sx, sy, sz ] = [ Mx - mx, My - my, Mz - mz ];
-
             const boxBufferGeometry = new THREE.BoxBufferGeometry( sx, sy, sz, 4, 4, 4 );
 
-            const [ tx, ty, tz ] = [ (Mx+mx)/2, (My+my)/2, (Mz+mz)/2 ];
-            boxBufferGeometry.translate(tx, ty, tz);
+            geometry.computeBoundingSphere();
+            const { center } = geometry.boundingSphere;
 
-            meshModel = new MeshModel({ sx, sy, sz, geometry: boxBufferGeometry, material: this.material });
+            // const { x:tx, y:ty, z:tz } = center;
+            // boxBufferGeometry.translate(tx, ty, tz);
+
+            meshModel = new MeshModel({ geometry: boxBufferGeometry, material: this.material });
 
             const mesh = new THREE.Mesh(meshModel.geometry, meshModel.material);
 
@@ -75,26 +74,23 @@ class ThumbnailPanel {
             this.meshList.push(mesh);
         });
 
-        const { target: tt, position: pp } = meshModel.getNiceCameraPose();
-        this.camera.lookAt(tt);
+        const { radius } = meshModel.getBounds();
+        const extent = 2 * radius;
+        const [ fov, near, far, aspect ] = [ 35, 1e-2 * extent, 1e1 * extent, 1 ];
+
+        // camera - fov, aspect, near, far
+        this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+        const { target: tt, position: pp } = meshModel.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 4 });
         this.camera.position.copy(pp);
-
-        const extent = 2 * boundingRadius;
-        const [ fov, near, far, aspect ] = [ 4, 5e-2 * extent, 2e1 * extent, 1 ];
-        this.camera.fov = fov;
-        this.camera.near = near;
-        this.camera.far = far;
-        this.camera.aspect = aspect;
-
+        this.camera.lookAt(tt);
         // this.camera.updateMatrixWorld();
-        // this.camera.updateProjectionMatrix();
 
     }
 
     render () {
 
-        const { scene, camera } = this;
-        this.renderer.render( scene, camera );
+        this.renderer.render( this.scene, this.camera );
 
         const { domElement: renderCanvas } = this.renderer;
 
