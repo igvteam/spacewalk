@@ -2,10 +2,8 @@ import * as THREE from './threejs_es6/three.module.js';
 import { makeDraggable } from "./draggable.js";
 import { fitToContainer } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
-import MeshModel from './meshModel.js';
 
 let doRender = true;
-let meshModel = undefined;
 class ThumbnailPanel {
 
     constructor ({ container, palette, renderer, material }) {
@@ -44,47 +42,26 @@ class ThumbnailPanel {
 
     }
 
-    configure ({ model, target, position, boundingRadius }) {
+    configure (model) {
 
         this.dispose();
 
         model.getThumbnailGeometryList().forEach((geometry) => {
-
-            geometry.computeBoundingBox();
-            const { min, max } = geometry.boundingBox;
-
-            const { x:mx, y:my, z:mz } = min;
-            const { x:Mx, y:My, z:Mz } = max;
-            const [ sx, sy, sz ] = [ Mx - mx, My - my, Mz - mz ];
-            const boxBufferGeometry = new THREE.BoxBufferGeometry( sx, sy, sz, 4, 4, 4 );
-
-            geometry.computeBoundingSphere();
-            const { center } = geometry.boundingSphere;
-
-            // const { x:tx, y:ty, z:tz } = center;
-            // boxBufferGeometry.translate(tx, ty, tz);
-
-            meshModel = new MeshModel({ geometry: boxBufferGeometry, material: this.material });
-
-            const mesh = new THREE.Mesh(meshModel.geometry, meshModel.material);
-
-            // const mesh = new THREE.Mesh(geometry, this.material);
-
+            let mesh = new THREE.Mesh(geometry, this.material);
             this.scene.add(mesh);
             this.meshList.push(mesh);
         });
 
-        const { radius } = meshModel.getBounds();
+        const { radius } = model.getBounds();
         const extent = 2 * radius;
         const [ fov, near, far, aspect ] = [ 35, 1e-2 * extent, 1e1 * extent, 1 ];
 
         // camera - fov, aspect, near, far
         this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
-        const { target: tt, position: pp } = meshModel.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 4 });
-        this.camera.position.copy(pp);
-        this.camera.lookAt(tt);
-        // this.camera.updateMatrixWorld();
+        const { target, position } = model.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 4 });
+        this.camera.position.copy(position);
+        this.camera.lookAt(target);
 
     }
 

@@ -132,10 +132,71 @@ class BallAndStick {
     }
 
     getThumbnailGeometryList () {
-        // return [ ...this.balls.geometry,  ...this.sticks.geometry ];
-        return this.sticks.geometry;
+        let { geometry: bg } = this.balls;
+        let { geometry: sg } = this.sticks;
+
+        let g = [ ...bg, ...sg ];
+
+        return g;
     }
 
+    getBounds() {
+
+        let bbox = new THREE.Box3();
+        this.balls.mesh.forEach(m => {
+            bbox.expandByObject(m)
+        });
+
+        const { min, max } = bbox;
+
+        let sphere = new THREE.Sphere();
+        bbox.getBoundingSphere(sphere);
+        const { center, radius } = sphere;
+
+        // this.tube.geometry.computeBoundingSphere();
+        // const { center, radius } = this.tube.geometry.boundingSphere;
+        //
+        // this.tube.geometry.computeBoundingBox();
+        // const { min, max } = this.tube.geometry.boundingBox;
+
+        return { min, max, center, radius }
+    }
+
+    getCameraPoseAlongAxis ({ axis, scaleFactor }) {
+
+        const { center, radius } = this.getBounds();
+
+        const dimen = scaleFactor * radius;
+
+        const axes =
+            {
+                '-x': () => {
+                    return new THREE.Vector3(-dimen, 0, 0);
+                },
+                '+x': () => {
+                    return new THREE.Vector3(dimen, 0, 0);
+                },
+                '-y': () => {
+                    return new THREE.Vector3(0, -dimen, 0);
+                },
+                '+y': () => {
+                    return new THREE.Vector3(0, dimen, 0);
+                },
+                '-z': () => {
+                    return new THREE.Vector3(0, 0, -dimen);
+                },
+                '+z': () => {
+                    return new THREE.Vector3(0, 0, dimen);
+                },
+            };
+
+        const vector = axes[ axis ]();
+        let position = new THREE.Vector3();
+
+        position.addVectors(center, vector);
+
+        return { target:center, position }
+    }
 }
 
 let setVisibility = (objects, isVisible) => {
