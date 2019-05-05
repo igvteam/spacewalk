@@ -26,9 +26,6 @@ class BallAndStick {
 
     createBalls(structureList) {
 
-        let geometryList = [];
-        let materialList = [];
-
         let meshList = structureList.map(structure => {
 
             const index = structureList.indexOf(structure);
@@ -42,11 +39,8 @@ class BallAndStick {
             // const material = new THREE.MeshBasicMaterial({ color });
             // const material = showTMaterial;
 
-            materialList.push(material);
-
             const geometry = sceneManager.ballGeometry.clone();
             geometry.translate(x, y, z);
-            geometryList.push(material);
 
             const mesh = new THREE.Mesh(geometry, material);
             mesh.name = 'ball';
@@ -63,14 +57,12 @@ class BallAndStick {
 
         });
 
-        return { mesh: meshList, geometry: geometryList, material: materialList };
+        return { mesh: meshList };
 
     }
 
     createSticks(structureList) {
 
-        let geometryList = [];
-        let materialList = [];
         let meshList = [];
 
         for (let i = 0, j = 1; j < structureList.length; ++i, ++j) {
@@ -81,19 +73,16 @@ class BallAndStick {
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
 
             const geometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
-            geometryList.push(geometry);
-
             const material = sceneManager.stickMaterial.clone();
-            materialList.push(material);
 
             const mesh = new THREE.Mesh(geometry, material);
+
             mesh.name = 'stick';
 
             meshList.push(mesh);
-
         }
 
-        return { mesh: meshList, geometry: geometryList, material: materialList };
+        return { mesh: meshList };
     }
 
     addToScene (scene) {
@@ -118,13 +107,15 @@ class BallAndStick {
     dispose () {
 
         if (this.balls) {
-            let { geometry, material } = this.balls;
+            let geometry = this.balls.mesh.map(m => m.geometry);
+            let material = this.balls.mesh.map(m => m.material);
             geometry.forEach(g => g.dispose());
             material.forEach(m => m.dispose());
         }
 
         if (this.sticks) {
-            let { geometry, material } = this.sticks;
+            let geometry = this.sticks.mesh.map(m => m.geometry);
+            let material = this.sticks.mesh.map(m => m.material);
             geometry.forEach(g => g.dispose());
             material.forEach(m => m.dispose());
         }
@@ -132,8 +123,9 @@ class BallAndStick {
     }
 
     getThumbnailGeometryList () {
-        let { geometry: bg } = this.balls;
-        let { geometry: sg } = this.sticks;
+
+        let bg = this.balls.mesh.map(m => m.geometry);
+        let sg = this.sticks.mesh.map(m => m.geometry);
 
         let g = [ ...bg, ...sg ];
 

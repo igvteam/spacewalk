@@ -63,7 +63,7 @@ class Noodle {
         const mesh = new THREE.Mesh(geometry, material);
         mesh.name = 'noodle';
 
-        return { mesh, material, geometry, textures: [ rgbTexture, alphaTexture ] };
+        return { mesh, textures: [ rgbTexture, alphaTexture ] };
 
     };
 
@@ -109,7 +109,7 @@ class Noodle {
         mesh.scale.set( 1, 1, 1 );
         mesh.name = 'noodle_spline';
 
-        return { mesh, geometry, material: fatLineMaterial };
+        return { mesh };
 
     };
 
@@ -146,7 +146,8 @@ class Noodle {
 
         if (this.tube) {
 
-            let { material, geometry, textures } = this.tube;
+            let { material, geometry } = this.tube.mesh;
+            let { textures } = this.tube;
 
             [ material, geometry ].forEach(item => item.dispose());
             textures.forEach(t => t.dispose())
@@ -154,7 +155,7 @@ class Noodle {
 
         if (this.spline) {
 
-            let { material, geometry } = this.spline;
+            let { material, geometry } = this.spline.mesh;
 
             [ material, geometry ].forEach(item => item.dispose())
         }
@@ -162,16 +163,18 @@ class Noodle {
     }
 
     getThumbnailGeometryList () {
-        return [ this.tube.geometry ];
+        return [ this.tube.mesh.geometry ];
     }
 
     getBounds() {
 
-        this.tube.geometry.computeBoundingSphere();
-        const { center, radius } = this.tube.geometry.boundingSphere;
+        let { geometry } = this.tube.mesh;
 
-        this.tube.geometry.computeBoundingBox();
-        const { min, max } = this.tube.geometry.boundingBox;
+        geometry.computeBoundingSphere();
+        const { center, radius } = geometry.boundingSphere;
+
+        geometry.computeBoundingBox();
+        const { min, max } = geometry.boundingBox;
 
         return { min, max, center, radius }
     }
