@@ -217,6 +217,13 @@ class SceneManager {
 
     dispose() {
         if (this.scene) {
+
+            let disposable = this.scene.children.filter(child => {
+                return 'noodle' === child.name || 'ball' === child.name || 'stick' === child.name || 'noodle_spline' === child.name
+            });
+
+            disposable.forEach(d => this.scene.remove(d));
+
             this.scene.dispose();
             delete this.scene;
         }
@@ -259,7 +266,7 @@ export const sceneManagerConfigurator = (container) => {
 
     return {
             container,
-            ballRadius: 24,
+            ballRadius: 32,
             stickMaterial,
             backgroundColor: appleCrayonColorThreeJS('mercury'),
             groundPlaneColor: appleCrayonColorHexValue('steel'),

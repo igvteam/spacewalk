@@ -1,5 +1,5 @@
 import * as THREE from "./threejs_es6/three.module.js";
-import igv from "../vendor/igv.esm.js";
+import igv from '../node_modules/igv/dist/igv.esm.js'
 import {globalEventBus} from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
 
@@ -11,7 +11,7 @@ class StructureManager {
     }
 
     ingest(string) {
-         this.structures = {};
+        this.structures = {};
         const lines = string.split(/\r?\n/);
 
         // discard blurb
@@ -38,7 +38,7 @@ class StructureManager {
 
                     if (undefined === currentKey || currentKey !== key) {
                         currentKey = key;
-                        this.structures[ currentKey ] = { bbox: [], extent: [], centroid: [], cameraPosition: [], array: [] };
+                        this.structures[ currentKey ] = { bbox: {}, extent: [], centroid: [], cameraDistance: undefined, cameraPosition: [], array: [] };
                         list = this.structures[ currentKey ].array;
                     }
 
@@ -80,8 +80,10 @@ class StructureManager {
 
             }, [ Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE ]);
 
-            // bounding hyper-rectangle
-            const [ extentX, extentY, extentZ ] = [ maxX-minX, maxY-minY, maxZ-minZ ];
+            // bbox
+            structure.bbox = { min: new THREE.Vector3(minX, minY, minZ), max: new THREE.Vector3(maxX, maxY, maxZ) };
+
+            const [ extentX, extentY, extentZ ] = [ maxX - minX, maxY - minY, maxZ - minZ ];
             structure.extent = new THREE.Vector3(extentX, extentY, extentZ);
 
             // longest edge
@@ -94,11 +96,46 @@ class StructureManager {
             const [ centroidX, centroidY, centroidZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
             structure.centroid = new THREE.Vector3(centroidX, centroidY, centroidZ);
 
-            // where to position the camera. the camera with look at the centroid
+            // Nice camera position. Point camera at centroid from the positive x-y-z quadrant.
             structure.cameraPosition = new THREE.Vector3(centroidX + structure.boundingRadius, centroidY + structure.boundingRadius, centroidZ + structure.boundingRadius);
 
         });
 
+    }
+
+    static getCameraPoseAlongAxis ({ structure, axis, scaleFactor }) {
+
+        const dimen = scaleFactor * structure.boundingRadius;
+        const axes =
+            {
+                '-x': () => {
+                    return new THREE.Vector3(-dimen, 0, 0);
+                },
+                '+x': () => {
+                    return new THREE.Vector3(dimen, 0, 0);
+                },
+                '-y': () => {
+                    return new THREE.Vector3(0, -dimen, 0);
+                },
+                '+y': () => {
+                    return new THREE.Vector3(0, dimen, 0);
+                },
+                '-z': () => {
+                    return new THREE.Vector3(0, 0, -dimen);
+                },
+                '+z': () => {
+                    return new THREE.Vector3(0, 0, dimen);
+                },
+            };
+
+        const vector = axes[ axis ]();
+        let position = new THREE.Vector3();
+
+        const target = structure.centroid;
+
+        position.addVectors(target, vector);
+
+        return { target, position }
     }
 
     structureWithName(name) {

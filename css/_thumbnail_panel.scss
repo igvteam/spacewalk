@@ -1,0 +1,23 @@
+
+$trace3d_thumbnail_panel_width: 160px;
+$trace3d_thumbnail_panel_heigth: $trace3d_thumbnail_panel_width + $trace3d_card_drag_container_height;
+
+#trace3d_thumbnail_panel.card {
+
+  width: $trace3d_thumbnail_panel_width;
+  height: $trace3d_thumbnail_panel_heigth;
+
+  #trace3d_thumbnail_panel_body.card-body {
+
+    width: 100%;
+    height: 100%;
+
+    #trace3d_thumbnail_container {
+      width: 100%;
+      height: calc(100% - #{ $trace3d_card_drag_container_height });
+
+      //background-color: $trace3d_strawberry;
+    }
+  }
+
+}
