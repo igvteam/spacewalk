@@ -28,14 +28,14 @@ class GUIManager {
             'trace3d_ui_manager_ui_controls_color_ramp',
             'trace3d_ui_manager_ui_controls_structure_select',
             'trace3d_ui_manager_ui_controls_juicebox',
-            'trace3d_ui_manager_ui_controls_igv'
+            'trace3d_ui_manager_ui_controls_igv',
+            'trace3d_ui_manager_ui_controls_thumbnail'
         ].forEach((input_id) => {
             const selector = '#' + input_id;
             const $input = $panel.find(selector);
             const change = 'change.' + input_id;
             $input.on(change, (e) => {
                 e.preventDefault();
-
                 const payload = $input.data('target');
                 globalEventBus .post({ type: "ToggleUIControl", data: { $input, payload } });
             });

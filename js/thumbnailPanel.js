@@ -1,14 +1,19 @@
 import * as THREE from './threejs_es6/three.module.js';
+import {globalEventBus} from "./eventBus.js";
 import { makeDraggable } from "./draggable.js";
-import { fitToContainer } from "./utils.js";
+import { fitToContainer, moveOffScreen, moveOnScreen } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
+import { guiManager, ballAndStick, noodle, sceneManager } from "./main.js";
+import Noodle from "./noodle.js";
 
-let doRender = true;
 class ThumbnailPanel {
 
-    constructor ({ container, palette, renderer, material }) {
+    constructor ({ container, panel, renderer, material, isHidden }) {
 
-        const $canvas = $(palette).find('canvas');
+        this.container = container;
+        this.$panel = $(panel);
+
+        const $canvas = this.$panel.find('canvas');
         const canvas = $canvas.get(0);
 
         fitToContainer(canvas, window.devicePixelRatio);
@@ -20,7 +25,7 @@ class ThumbnailPanel {
         this.material = material;
 
         // renderer
-        const renderContainer = $(palette).find('#trace3d_thumbnail_container').get(0);
+        const renderContainer = this.$panel.find('#trace3d_thumbnail_container').get(0);
         const { width: renderWidth, height: renderHeight } = renderContainer.getBoundingClientRect();
 
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -37,11 +42,18 @@ class ThumbnailPanel {
 
         this.meshList = [];
 
-        layout(container, palette);
+        this.isHidden = isHidden;
+        if (isHidden) {
+            moveOffScreen(this);
+        } else {
+            this.layout();
+        }
 
-        makeDraggable(palette, $(palette).find('.trace3d_card_drag_container').get(0));
+        makeDraggable(panel, this.$panel.find('.trace3d_card_drag_container').get(0));
 
-        $(window).on('resize.thumbnail_palette', () => { this.onWindowResize(container, palette) });
+        $(window).on('resize.thumbnail_panel', () => { this.onWindowResize(container, panel) });
+
+        globalEventBus.subscribe("ToggleUIControl", this);
 
     }
 
@@ -92,8 +104,38 @@ class ThumbnailPanel {
         this.meshList = [];
     }
 
-    onWindowResize(container, palette) {
-        layout(container, palette);
+    receiveEvent({ type, data }) {
+
+        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
+
+            if (this.isHidden) {
+                moveOnScreen(this);
+                const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;
+                this.configure(model);
+                this.render();
+            } else {
+                moveOffScreen(this);
+            }
+            this.isHidden = !this.isHidden;
+        }
+    }
+
+    onWindowResize() {
+        if (false === this.isHidden) {
+            this.layout();
+        }
+    }
+
+    layout() {
+
+        const { width: cw, height: ch } = this.container.getBoundingClientRect();
+        const { width: pw, height: ph } = this.$panel.get(0).getBoundingClientRect();
+
+        const left = cw - 1.1 * pw;
+        const  top = ch - 1.1 * ph;
+
+        this.$panel.offset( { left, top } );
+
     }
 
 }
@@ -102,22 +144,11 @@ export let thumbnailPanelConfigurator = (container) => {
 
     return {
             container,
-            palette: $('#trace3d_thumbnail_panel').get(0),
+            panel: $('#trace3d_thumbnail_panel').get(0),
             renderer: new THREE.WebGLRenderer(),
-            material: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aqua') })
+            material: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aqua') }),
+            isHidden: guiManager.isPanelHidden('trace3d_thumbnail_panel')
         };
-
-};
-
-let layout = (container, palette) => {
-
-    const { width: cw, height: ch } = container.getBoundingClientRect();
-    const { width: pw, height: ph } = palette.getBoundingClientRect();
-
-    const left = cw - 1.1 * pw;
-    const  top = ch - 1.1 * ph;
-
-    $(palette).offset( { left, top } );
 
 };
 

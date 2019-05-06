@@ -22,9 +22,11 @@ export const mainEventListener =
                     ballAndStick.show();
                 }
 
-                const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;
-                thumbnailPanel.configure(model);
-                thumbnailPanel.render();
+                if (false === thumbnailPanel.isHidden) {
+                    const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;
+                    thumbnailPanel.configure(model);
+                    thumbnailPanel.render();
+                }
 
             } else if ('DidSelectStructure' === type) {
 

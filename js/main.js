@@ -106,11 +106,11 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
     ballAndStick.configure(structure.array, sceneManager.renderStyle);
     ballAndStick.addToScene(sceneManager.scene);
 
-    const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;
-
-    thumbnailPanel.configure(model);
-
-    thumbnailPanel.render();
+    if (false === thumbnailPanel.isHidden) {
+        const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;
+        thumbnailPanel.configure(model);
+        thumbnailPanel.render();
+    }
 
 };
 
