@@ -3,6 +3,7 @@ import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "./threejs_es6/fatlines/fatLine.js";
 import { sceneManager } from "./main.js";
+import { degrees } from './math.js';
 
 let rgbTexture;
 let alphaTexture;
@@ -185,6 +186,9 @@ class Noodle {
 
         const dimen = scaleFactor * radius;
 
+        const theta = Math.atan(radius/dimen);
+        const fov = degrees( 2 * theta);
+
         const axes =
             {
                 '-x': () => {
@@ -212,7 +216,7 @@ class Noodle {
 
         position.addVectors(center, vector);
 
-        return { target:center, position }
+        return { target:center, position, fov }
     }
 
 }

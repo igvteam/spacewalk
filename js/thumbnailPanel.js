@@ -25,12 +25,15 @@ class ThumbnailPanel {
 
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(renderWidth, renderHeight);
-        renderer.setClearColor(appleCrayonColorHexValue('sky'));
+        renderer.setClearColor(appleCrayonColorHexValue('snow'));
         this.renderer = renderer;
+
+        this.renderWidth = renderWidth;
+        this.renderHeight = renderHeight;
 
         // scene
         this.scene = new THREE.Scene();
-        this.scene.background = appleCrayonColorThreeJS('sky');
+        this.scene.background = appleCrayonColorThreeJS('snow');
 
         this.meshList = [];
 
@@ -52,14 +55,15 @@ class ThumbnailPanel {
             this.meshList.push(mesh);
         });
 
+        const { target, position, fov } = model.getCameraPoseAlongAxis({ axis: '+x', scaleFactor: 3.5 });
+
         const { radius } = model.getBounds();
         const extent = 2 * radius;
-        const [ fov, near, far, aspect ] = [ 35, 1e-2 * extent, 1e1 * extent, 1 ];
+        const [ near, far, aspect ] = [ 1e-2 * extent, 1e1 * extent, this.renderWidth / this.renderHeight ];
 
         // camera - fov, aspect, near, far
         this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
-        const { target, position } = model.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 4 });
         this.camera.position.copy(position);
         this.camera.lookAt(target);
 
@@ -100,7 +104,7 @@ export let thumbnailPanelConfigurator = (container) => {
             container,
             palette: $('#trace3d_thumbnail_panel').get(0),
             renderer: new THREE.WebGLRenderer(),
-            material: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('salmon') })
+            material: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aqua') })
         };
 
 };

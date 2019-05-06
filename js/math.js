@@ -48,4 +48,7 @@ let random = (min, max) => {
     return Math.random() * (max - min) + min;
 };
 
-export { lerp, clamp, whichTile, quantize, random, prettyMatrix4Print, prettyVector3Print };
+let radians = degrees => degrees * Math.PI / 180;
+let degrees = radians => radians * 180 / Math.PI;
+
+export { radians, degrees, lerp, clamp, whichTile, quantize, random, prettyMatrix4Print, prettyVector3Print };

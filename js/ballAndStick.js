@@ -1,5 +1,6 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { sceneManager, structureManager } from "./main.js";
+import { degrees } from './math.js';
 
 class BallAndStick {
 
@@ -160,6 +161,9 @@ class BallAndStick {
 
         const dimen = scaleFactor * radius;
 
+        const theta = Math.atan(radius/dimen);
+        const fov = degrees( 2 * theta);
+
         const axes =
             {
                 '-x': () => {
@@ -187,7 +191,7 @@ class BallAndStick {
 
         position.addVectors(center, vector);
 
-        return { target:center, position }
+        return { target:center, position, fov }
     }
 }
 
