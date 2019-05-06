@@ -141,13 +141,12 @@ class SceneManager {
 
     }
 
-    configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid }) {
+    configure({ scene, structureExtent, cameraPosition, structureCentroid, fov }) {
 
-        this.scene = new THREE.Scene();
+        this.scene = scene;
         this.scene.background = this.background;
-        this.scene.add(this.hemisphereLight);
 
-        this.colorRampPanel.configure({genomicStart, genomicEnd, structureLength});
+        this.scene.add(this.hemisphereLight);
 
         if (true === this.doUpdateCameraPose) {
             this.orbitalCamera.setPose({ position: cameraPosition, centroid: structureCentroid });
@@ -162,9 +161,8 @@ class SceneManager {
 
         currentStructureCentroid = structureCentroid.clone();
 
-        let dimen = 0.5 * Math.max(structureExtent.x, structureExtent.y, structureExtent.z);
-        dimen = Math.sqrt(dimen*dimen + (2 * dimen*dimen));
-        const [ fov, near, far, aspectRatio ] = [ 35, 1e-1 * dimen, 32 * dimen, (window.innerWidth/window.innerHeight) ];
+        const [ near, far, aspectRatio ] = [ 1e-1 * structureExtent, 3e1 * structureExtent, (window.innerWidth/window.innerHeight) ];
+
         this.orbitalCamera.setProjection({ fov, near, far, aspectRatio });
 
         // Add camera to scene. This is need to allow lights to be attached to camera

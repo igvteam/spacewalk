@@ -12,11 +12,11 @@ class BallAndStick {
         return 'render-style-ball-stick';
     }
 
-    configure (structureList, renderStyle) {
+    configure (structure, renderStyle) {
 
         this.dispose();
-        this.balls = this.createBalls(structureList);
-        this.sticks = this.createSticks(structureList);
+        this.balls = this.createBalls(structure);
+        this.sticks = this.createSticks(structure);
 
         if (renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
@@ -25,15 +25,15 @@ class BallAndStick {
         }
     }
 
-    createBalls(structureList) {
+    createBalls(structure) {
 
-        let meshList = structureList.map(structure => {
+        let meshList = structure.map(obj => {
 
-            const index = structureList.indexOf(structure);
+            const index = structure.indexOf(obj);
 
-            const [ x, y, z ] = structure.xyz;
+            const [ x, y, z ] = obj.xyz;
 
-            const color = sceneManager.colorRampPanel.colorRampWidget.colorForInterpolant(index / (structureList.length - 1));
+            const color = sceneManager.colorRampPanel.colorRampWidget.colorForInterpolant(index / (structure.length - 1));
 
             // const material = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
             const material = new THREE.MeshPhongMaterial({ color });
@@ -62,14 +62,14 @@ class BallAndStick {
 
     }
 
-    createSticks(structureList) {
+    createSticks(structure) {
 
         let meshList = [];
 
-        for (let i = 0, j = 1; j < structureList.length; ++i, ++j) {
+        for (let i = 0, j = 1; j < structure.length; ++i, ++j) {
 
-            const [ x0, y0, z0 ] = structureList[i].xyz;
-            const [ x1, y1, z1 ] = structureList[j].xyz;
+            const [ x0, y0, z0 ] = structure[i].xyz;
+            const [ x1, y1, z1 ] = structure[j].xyz;
 
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
 
