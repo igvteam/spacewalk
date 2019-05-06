@@ -55,7 +55,7 @@ class ThumbnailPanel {
             this.meshList.push(mesh);
         });
 
-        const { target, position, fov } = model.getCameraPoseAlongAxis({ axis: '+x', scaleFactor: 3.5 });
+        const { target, position, fov } = model.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3.5 });
 
         const { radius } = model.getBounds();
         const extent = 2 * radius;
