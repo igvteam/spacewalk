@@ -72,7 +72,7 @@ class BallAndStick {
 
             const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
 
-            const geometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/8, 16, false);
+            const geometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/4, 16, false);
             const material = sceneManager.stickMaterial.clone();
 
             const mesh = new THREE.Mesh(geometry, material);

@@ -1,6 +1,6 @@
 import { IGVMouseHandler } from "./igv/IGVPanel.js";
 import { juiceboxMouseHandler } from "./juicebox/juiceboxPanel.js";
-import { setup, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, sceneManager, structureManager } from "./main.js";
+import { setup, thumbnailPanel, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, sceneManager, structureManager } from "./main.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 
@@ -21,6 +21,10 @@ export const mainEventListener =
                     noodle.hide();
                     ballAndStick.show();
                 }
+
+                const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;
+                thumbnailPanel.configure(model);
+                thumbnailPanel.render();
 
             } else if ('DidSelectStructure' === type) {
 

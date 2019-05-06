@@ -266,7 +266,7 @@ export const sceneManagerConfigurator = (container) => {
 
     return {
             container,
-            ballRadius: 24,
+            ballRadius: 32,
             stickMaterial,
             backgroundColor: appleCrayonColorThreeJS('mercury'),
             groundPlaneColor: appleCrayonColorHexValue('steel'),

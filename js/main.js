@@ -106,7 +106,6 @@ let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
     ballAndStick.configure(structure.array, sceneManager.renderStyle);
     ballAndStick.addToScene(sceneManager.scene);
 
-    const { position, target } = StructureManager.getCameraPoseAlongAxis({ structure, axis: '+z', scaleFactor: 1 });
     const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;
 
     thumbnailPanel.configure(model);
@@ -127,4 +126,4 @@ let renderLoop = () => {
 
 };
 
-export { main, setup, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, trackLoadController, sceneManager, structureManager, guiManager };
+export { main, setup, thumbnailPanel, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, trackLoadController, sceneManager, structureManager, guiManager };
