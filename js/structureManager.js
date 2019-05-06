@@ -1,6 +1,5 @@
 import * as THREE from "./threejs_es6/three.module.js";
-import igv from '../vendor/igv.esm.js';
-// import igv from 'https://cdn.jsdelivr.net/npm/igv@2.2.9/dist/igv.esm.js';
+import igv from '../node_modules/igv/dist/igv.esm.js'
 import {globalEventBus} from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
 
