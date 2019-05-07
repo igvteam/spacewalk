@@ -105,10 +105,10 @@ let main = async container => {
 
 let setup = ({ genomicStart, genomicEnd, structure }) => {
 
-    colorRampPanel.configure({genomicStart, genomicEnd, structureLength: structure.length });
+    colorRampPanel.configure({genomicStart, genomicEnd, structureLength: structure.length});
 
-    noodle.configure(structure, colorRampPanel.colorRampWidget, sceneManager.renderStyle);
-    ballAndStick.configure(structure, colorRampPanel.colorRampWidget, sceneManager.renderStyle);
+    noodle.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
+    ballAndStick.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
 
     let scene = new THREE.Scene();
 
@@ -138,7 +138,7 @@ let renderLoop = () => {
 
         ballAndStick.renderLoopHelper();
 
-        colorRampPanel.colorRampWidget.renderLoopHelper();
+        colorRampPanel.colorRampMaterialProvider.renderLoopHelper();
 
         sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera);
     }

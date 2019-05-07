@@ -2,7 +2,7 @@ import { globalEventBus } from "./eventBus.js";
 
 import { guiManager } from "./main.js";
 
-import ColorRampWidget from "./colorRampWidget.js";
+import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import ColorMapManager from "./colorMapManager.js";
 
 import { makeDraggable } from "./draggable.js";
@@ -10,11 +10,11 @@ import { moveOffScreen, moveOnScreen } from './utils.js';
 
 class ColorRampPanel {
 
-    constructor({ container, panel, colorRampWidget, isHidden }) {
+    constructor({ container, panel, colorRampMaterialProvider, isHidden }) {
 
         this.container = container;
         this.$panel = $(panel);
-        this.colorRampWidget = colorRampWidget;
+        this.colorRampMaterialProvider = colorRampMaterialProvider;
         this.isHidden = isHidden;
 
         // header
@@ -69,7 +69,7 @@ class ColorRampPanel {
         this.$footer.text(ss + 'Mb');
         this.$header.text(ee + 'Mb');
 
-        this.colorRampWidget.configure({ structureLength });
+        this.colorRampMaterialProvider.configure({structureLength});
     }
 
     onWindowResize() {
@@ -111,7 +111,7 @@ export const colorRampPanelConfigurator = ({ container, highlightColor }) => {
     return {
             container,
             panel: $('#trace3d_color_ramp_panel').get(0),
-            colorRampWidget: new ColorRampWidget( { $canvasContainer, namespace: 'colorRampWidget', colorMapManager, highlightColor } ),
+            colorRampMaterialProvider: new ColorRampMaterialProvider( { $canvasContainer, namespace: 'colorRampMaterialProvider', colorMapManager, highlightColor } ),
             isHidden: guiManager.isPanelHidden('trace3d_color_ramp_panel')
         };
 

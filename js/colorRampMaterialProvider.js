@@ -14,7 +14,7 @@ const alpha_visible = `rgb(${255},${255},${255})`;
 
 let rgbTexture;
 let alphaTexture;
-class ColorRampWidget {
+class ColorRampMaterialProvider {
 
     constructor({ $canvasContainer, namespace, colorMapManager, highlightColor }) {
 
@@ -230,4 +230,4 @@ export const segmentIndexForInterpolant = (interpolant, structureLength) => {
     return 1 + Math.ceil(quantized * (structureLength - 1));
 };
 
-export default ColorRampWidget;
+export default ColorRampMaterialProvider;

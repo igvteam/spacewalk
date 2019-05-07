@@ -16,15 +16,15 @@ class Noodle {
         return 'render-style-noodle';
     }
 
-    configure(structure, colorRampWidget, renderStyle) {
+    configure(structure, materialProvider, renderStyle) {
 
         this.dispose();
 
-        let { material } = colorRampWidget;
+        let { material } = materialProvider;
 
         this.tube = this.createTube(structure, material);
 
-        this.spline = this.createFatSpline(structure, colorRampWidget);
+        this.spline = this.createFatSpline(structure, materialProvider);
 
         if (renderStyle === Noodle.getRenderStyle()) {
             this.show();
@@ -51,7 +51,7 @@ class Noodle {
 
     };
 
-    createFatSpline(structure, colorRampWidget){
+    createFatSpline(structure, materialProvider){
 
         const knots = structure.map((obj) => {
             let [ x, y, z ] = obj.xyz;
@@ -67,7 +67,7 @@ class Noodle {
         const rgbList = xyzList.map((xyz, index) => {
             let interpolant = index / (xyzList.length - 1);
             interpolant = 1 - interpolant;
-            return colorRampWidget.colorForInterpolant(interpolant);
+            return materialProvider.colorForInterpolant(interpolant);
         });
 
         let vertices = [];
@@ -190,7 +190,7 @@ class Noodle {
 
 }
 
-let createThinSpline = (structure, colorRampWidget) => {
+let createThinSpline = (structure, colorRampMaterialProvider) => {
 
     const knots = structure.map((obj) => {
         let [ x, y, z ] = obj.xyz;
@@ -209,7 +209,7 @@ let createThinSpline = (structure, colorRampWidget) => {
         // flip direction
         interpolant = 1 - interpolant;
 
-        return colorRampWidget.colorForInterpolant(interpolant);
+        return colorRampMaterialProvider.colorForInterpolant(interpolant);
     });
 
     const geometry = new THREE.Geometry();

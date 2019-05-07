@@ -1,7 +1,7 @@
 import { globalEventBus } from "../eventBus.js";
 import igv from '../../vendor/igv/igv.esm.js';
 import { structureManager } from '../main.js';
-import { segmentIndexForInterpolant } from '../colorRampWidget.js';
+import { segmentIndexForInterpolant } from '../colorRampMaterialProvider.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
 import { moveOffScreen, moveOnScreen } from '../utils.js';
