@@ -1,5 +1,4 @@
-import * as THREE from "./threejs_es6/three.module.js";
-import igv from '../node_modules/igv/dist/igv.esm.js'
+import igv from '../vendor/igv/igv.esm.js'
 import { globalEventBus } from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
 

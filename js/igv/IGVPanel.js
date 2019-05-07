@@ -1,5 +1,5 @@
 import { globalEventBus } from "../eventBus.js";
-import igv from '../../node_modules/igv/dist/igv.esm.js'
+import igv from '../../vendor/igv/igv.esm.js';
 import { sceneManager, structureManager } from '../main.js';
 import { segmentIndexForInterpolant } from '../colorRampWidget.js';
 import { makeDraggable } from "../draggable.js";
