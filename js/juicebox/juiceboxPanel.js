@@ -2,7 +2,7 @@ import { globalEventBus } from "../eventBus.js";
 import { createBrowser } from '../../vendor/juicebox/js/hic.js'
 import { segmentIndexForInterpolant } from '../colorRampWidget.js';
 import { makeDraggable } from "../draggable.js";
-import { sceneManager, structureManager } from "../main.js";
+import { structureManager } from "../main.js";
 import { lerp } from '../math.js'
 import { moveOffScreen, moveOnScreen } from "../utils.js";
 
@@ -168,15 +168,9 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
     [ a, b ] = [ (startYBP - genomicStart)/(genomicEnd - genomicStart), (endYBP - genomicStart)/(genomicEnd - genomicStart) ];
     const segmentIndexY = segmentIndexForInterpolant(lerp(a, b, interpolantY), structureLength);
 
-    if (segmentIndexX === segmentIndexY) {
-        sceneManager.colorRampPanel.colorRampWidget.highlight([ segmentIndexX ]);
-        globalEventBus.post({ type: 'DidSelectSegmentIndex', data: [ segmentIndexX ] });
-    } else {
-        sceneManager.colorRampPanel.colorRampWidget.highlight([ segmentIndexX, segmentIndexY ]);
-        globalEventBus.post({ type: 'DidSelectSegmentIndex', data: [ segmentIndexX, segmentIndexY ] });
-    }
+    const list = segmentIndexX === segmentIndexY ? [ segmentIndexX ] : [ segmentIndexX, segmentIndexY ];
 
-
+    globalEventBus.post({ type: 'DidSelectSegmentIndex', data: list });
 };
 
 export let juiceboxSelectLoader = async ($select) => {

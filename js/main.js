@@ -32,6 +32,8 @@ import Noodle from './noodle.js';
 import { sceneManagerConfigurator } from './sceneManager.js';
 
 import { mainEventListener } from './mainEventListener.js';
+import ColorRampPanel, { colorRampPanelConfigurator } from "./colorRampPanel.js";
+import { appleCrayonColorThreeJS } from "./color.js";
 
 let structureFileLoadModal;
 let juiceboxFileLoadModal;
@@ -42,6 +44,7 @@ let structureSelectPanel;
 let igvPanel;
 let juiceboxPanel;
 let thumbnailPanel;
+let colorRampPanel;
 
 let sceneManager;
 let structureManager;
@@ -56,11 +59,16 @@ let juiceboxBrowser;
 
 let main = async container => {
 
+    // const highlightColor = appleCrayonColorThreeJS('maraschino');
+    const highlightColor = appleCrayonColorThreeJS('honeydew');
+
     guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
 
     structureSelectPanel = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_structure_select_panel') });
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_juicebox_panel') });
+
+    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, highlightColor }) );
 
     thumbnailPanel = new ThumbnailPanel(thumbnailPanelConfigurator(container));
 
@@ -73,7 +81,7 @@ let main = async container => {
 
     trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvBrowser, trackRegistryFile: IGVConfigurator.trackRegistryFile, $googleDriveButton: undefined } ));
 
-    sceneManager = new SceneManager(sceneManagerConfigurator(container));
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
     sceneManager.defaultConfiguration();
 
     structureManager = new StructureManager();
@@ -97,10 +105,10 @@ let main = async container => {
 
 let setup = ({ genomicStart, genomicEnd, structure }) => {
 
-    sceneManager.colorRampPanel.configure({genomicStart, genomicEnd, structureLength: structure.length });
+    colorRampPanel.configure({genomicStart, genomicEnd, structureLength: structure.length });
 
-    noodle.configure(structure, sceneManager.colorRampPanel.colorRampWidget, sceneManager.renderStyle);
-    ballAndStick.configure(structure, sceneManager.renderStyle);
+    noodle.configure(structure, colorRampPanel.colorRampWidget, sceneManager.renderStyle);
+    ballAndStick.configure(structure, colorRampPanel.colorRampWidget, sceneManager.renderStyle);
 
     let scene = new THREE.Scene();
 
@@ -125,11 +133,16 @@ let renderLoop = () => {
     requestAnimationFrame( renderLoop );
 
     if (sceneManager.scene && sceneManager.orbitalCamera) {
+
         noodle.renderLoopHelper();
+
         ballAndStick.renderLoopHelper();
+
+        colorRampPanel.colorRampWidget.renderLoopHelper();
+
         sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera);
     }
 
 };
 
-export { main, setup, thumbnailPanel, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, trackLoadController, sceneManager, structureManager, guiManager };
+export { main, setup, colorRampPanel, thumbnailPanel, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, trackLoadController, sceneManager, structureManager, guiManager };

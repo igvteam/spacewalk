@@ -1,18 +1,27 @@
 import { globalEventBus } from "./eventBus.js";
-import { makeDraggable } from "./draggable.js";
+
+import { guiManager } from "./main.js";
+
 import ColorRampWidget from "./colorRampWidget.js";
+import ColorMapManager from "./colorMapManager.js";
+
+import { makeDraggable } from "./draggable.js";
 import { moveOffScreen, moveOnScreen } from './utils.js';
-import { sceneManager } from "./main.js";
 
 class ColorRampPanel {
 
-    constructor({ container, panel, colorMapManager, highlightColor, isHidden }) {
+    constructor({ container, panel, colorRampWidget, isHidden }) {
 
         this.container = container;
         this.$panel = $(panel);
+        this.colorRampWidget = colorRampWidget;
         this.isHidden = isHidden;
 
-        this.colorRampWidget = new ColorRampWidget( { panel, namespace: 'colorRampWidget', colorMapManager, highlightColor } );
+        // header
+        this.$header = this.$panel.find('#trace3d_color_ramp_header');
+
+        // footer
+        this.$footer = this.$panel.find('#trace3d_color_ramp_footer');
 
         if (isHidden) {
             moveOffScreen(this);
@@ -20,24 +29,23 @@ class ColorRampPanel {
             this.layout();
         }
 
-        makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
+        makeDraggable(panel, this.$panel.find('.trace3d_card_drag_container').get(0));
 
         $(window).on('resize.trace3d.toolpanel', () => {
             this.onWindowResize();
         });
 
-        $(panel).on('mouseenter.trace3d.toolpanel', (event) => {
+        this.$panel.on('mouseenter.trace3d.toolpanel', (event) => {
             event.stopPropagation();
             globalEventBus.post({type: "DidEnterGUI" });
         });
 
-        $(panel).on('mouseleave.trace3d.toolpanel', (event) => {
+        this.$panel.on('mouseleave.trace3d.toolpanel', (event) => {
             event.stopPropagation();
-            globalEventBus.post({type: "DidLeaveGUI", });
+            globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
         globalEventBus.subscribe("ToggleUIControl", this);
-        globalEventBus.subscribe("DidLeaveGUI", this);
     }
 
     receiveEvent({ type, data }) {
@@ -52,15 +60,17 @@ class ColorRampPanel {
 
             this.isHidden = !this.isHidden;
 
-        } else if (sceneManager && "DidLeaveGUI" === type) {
-            this.colorRampWidget.repaint();
         }
     }
 
     configure({ genomicStart, genomicEnd, structureLength }) {
-        this.colorRampWidget.configure({ genomicStart, genomicEnd, structureLength });
-    }
 
+        const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
+        this.$footer.text(ss + 'Mb');
+        this.$header.text(ee + 'Mb');
+
+        this.colorRampWidget.configure({ structureLength });
+    }
 
     onWindowResize() {
         if (false === this.isHidden) {
@@ -82,5 +92,29 @@ class ColorRampPanel {
     }
 
 }
+
+export const colorRampPanelConfigurator = ({ container, highlightColor }) => {
+
+    let colorMapManager = new ColorMapManager();
+
+    const colormaps =
+        {
+            peter_kovesi_rainbow_bgyr_35_85_c72_n256: 'resources/colormaps/peter_kovesi/CET-R2.csv'
+        };
+
+    for (let key of Object.keys(colormaps)) {
+        colorMapManager.addMap({name: key, path: colormaps[key]});
+    }
+
+    const $canvasContainer = $('#trace3d_color_ramp_canvas_container');
+
+    return {
+            container,
+            panel: $('#trace3d_color_ramp_panel').get(0),
+            colorRampWidget: new ColorRampWidget( { $canvasContainer, namespace: 'colorRampWidget', colorMapManager, highlightColor } ),
+            isHidden: guiManager.isPanelHidden('trace3d_color_ramp_panel')
+        };
+
+};
 
 export default ColorRampPanel;

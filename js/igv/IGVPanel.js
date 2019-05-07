@@ -1,6 +1,6 @@
 import { globalEventBus } from "../eventBus.js";
 import igv from '../../vendor/igv/igv.esm.js';
-import { sceneManager, structureManager } from '../main.js';
+import { structureManager } from '../main.js';
 import { segmentIndexForInterpolant } from '../colorRampWidget.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
@@ -182,8 +182,6 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
 
     let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
     const segmentIndex = segmentIndexForInterpolant(lerp(a, b, interpolant), structureLength);
-
-    sceneManager.colorRampPanel.colorRampWidget.highlight([segmentIndex]);
 
     globalEventBus.post({ type: 'DidSelectSegmentIndex', data: [segmentIndex] });
 };

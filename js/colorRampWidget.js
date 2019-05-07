@@ -1,26 +1,58 @@
+import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
+
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
-import { rgb255, rgb255String, rgba255, rgba255String } from "./color.js";
+import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./sceneManager.js";
+import { sceneManager } from "./main.js";
 
 let currentSegmentIndex = undefined;
 
 const alpha_hidden = `rgb(${32},${32},${32})`;
 const alpha_visible = `rgb(${255},${255},${255})`;
 
+let rgbTexture;
+let alphaTexture;
 class ColorRampWidget {
 
-    constructor({ panel, namespace, colorMapManager, highlightColor }) {
+    constructor({ $canvasContainer, namespace, colorMapManager, highlightColor }) {
 
-        this.colorMapManager = colorMapManager;
+        let canvas;
 
-        const { r, g, b } = highlightColor;
-        this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
+        // highlight canvas
+        canvas = $canvasContainer.find('#trace3d_color_ramp_canvas_highlight').get(0);
+        fitToContainer(canvas);
+        this.highlight_ctx = canvas.getContext('2d');
 
-        const $panel = $(panel);
+        // ramp rgb canvas
+        canvas = $canvasContainer.find('#trace3d_color_ramp_canvas_rgb').get(0);
+        fitToContainer(canvas);
+        this.rgb_ctx = canvas.getContext('2d');
 
-        const $canvasContainer = $panel.find('#trace3d_color_ramp_canvas_container');
+        // alpha canvas indicating highlighted region of rgb canvas
+        canvas = $canvasContainer.find('#trace3d_color_ramp_canvas_alpha').get(0);
+        fitToContainer(canvas);
+        this.alphamap_ctx = canvas.getContext('2d');
+
+        // rgb
+        rgbTexture = new THREE.CanvasTexture(this.rgb_ctx.canvas);
+        rgbTexture.center.set(0.5, 0.5);
+        rgbTexture.rotation = Math.PI/2.0;
+        rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
+
+        // alpha
+        alphaTexture = new THREE.CanvasTexture(this.alphamap_ctx.canvas);
+        alphaTexture.center.set(0.5, 0.5);
+        alphaTexture.rotation = Math.PI/2.0;
+        alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
+
+        let material = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });
+        material.alphaTest = 0.5;
+        material.side = THREE.DoubleSide;
+        material.transparent = true;
+
+        this.material = material;
 
         $canvasContainer.on(('mousemove.trace3d.' + namespace), (event) => {
             event.stopPropagation();
@@ -43,39 +75,47 @@ class ColorRampWidget {
         $canvasContainer.on(('mousedown.trace3d.' + namespace), eventSink);
         $canvasContainer.on(('click.trace3d.' + namespace), eventSink);
 
-        let canvas;
 
-        // highlight canvas
-        canvas = $panel.find('#trace3d_color_ramp_canvas_highlight').get(0);
-        fitToContainer(canvas);
-        this.highlight_ctx = canvas.getContext('2d');
+        this.colorMapManager = colorMapManager;
 
-        // ramp rgb canvas
-        canvas = $panel.find('#trace3d_color_ramp_canvas_rgb').get(0);
-        fitToContainer(canvas);
-        this.rgb_ctx = canvas.getContext('2d');
-
-        // alpha canvas indicating highlighted region of rgb canvas
-        canvas = $panel.find('#trace3d_color_ramp_canvas_alpha').get(0);
-        fitToContainer(canvas);
-        this.alphamap_ctx = canvas.getContext('2d');
+        const { r, g, b } = highlightColor;
+        this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
 
-        // header
-        this.$header = $panel.find('#trace3d_color_ramp_header');
-
-        // footer
-        this.$footer = $panel.find('#trace3d_color_ramp_footer');
-
+        globalEventBus.subscribe("DidLeaveGUI", this);
+        globalEventBus.subscribe("PickerDidLeaveObject", this);
+        globalEventBus.subscribe("PickerDidHitObject", this);
+        globalEventBus.subscribe("DidSelectSegmentIndex", this);
     }
 
-    configure({ genomicStart, genomicEnd, structureLength }) {
+    receiveEvent({ type, data }) {
+
+        if ("PickerDidHitObject" === type) {
+
+            if (sceneManager.indexDictionary[ data ]) {
+                const segmentIndex = 1 + sceneManager.indexDictionary[ data ].index;
+                this.highlight([segmentIndex])
+            }
+
+        } else if ("PickerDidLeaveObject" === type) {
+
+            this.repaint();
+
+        } else if ("DidSelectSegmentIndex" === type) {
+
+            this.highlight(data);
+
+        } else if (sceneManager && "DidLeaveGUI" === type) {
+
+            this.repaint();
+
+        }
+    }
+
+    configure({ structureLength }) {
 
         this.structureLength = structureLength;
 
-        const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
-        this.$footer.text(ss + 'Mb');
-        this.$header.text(ee + 'Mb');
         this.paintQuantizedRamp(undefined);
     }
 
@@ -164,6 +204,18 @@ class ColorRampWidget {
 
     colorForInterpolant(interpolant) {
         return this.colorMapManager.retrieveThreeJS(defaultColormapName, interpolant)
+    }
+
+    renderLoopHelper () {
+
+        if (rgbTexture) {
+            rgbTexture.needsUpdate = true;
+        }
+
+        if (alphaTexture) {
+            alphaTexture.needsUpdate = true;
+        }
+
     }
 
 }

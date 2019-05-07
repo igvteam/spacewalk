@@ -5,8 +5,6 @@ import FatLine from "./threejs_es6/fatlines/fatLine.js";
 import { sceneManager } from "./main.js";
 import { degrees } from './math.js';
 
-let rgbTexture;
-let alphaTexture;
 let fatLineMaterial;
 
 class Noodle {
@@ -22,9 +20,9 @@ class Noodle {
 
         this.dispose();
 
-        let { rgb_ctx, alphamap_ctx } = colorRampWidget;
+        let { material } = colorRampWidget;
 
-        this.tube = this.createTube(structure, rgb_ctx.canvas, alphamap_ctx.canvas);
+        this.tube = this.createTube(structure, material);
 
         this.spline = this.createFatSpline(structure, colorRampWidget);
 
@@ -36,7 +34,7 @@ class Noodle {
 
     }
 
-    createTube(structure, rgb_canvas, alphamap_canvas) {
+    createTube(structure, material) {
 
         const knots = structure.map((obj) => {
             let [ x, y, z ] = obj.xyz;
@@ -46,25 +44,10 @@ class Noodle {
         const axis = new THREE.CatmullRomCurve3(knots);
         const geometry = new THREE.TubeBufferGeometry(axis, 1024, sceneManager.ballRadius, 96, false);
 
-        rgbTexture = new THREE.CanvasTexture(rgb_canvas);
-        rgbTexture.center.set(0.5, 0.5);
-        rgbTexture.rotation = Math.PI/2.0;
-        rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
-
-        alphaTexture = new THREE.CanvasTexture(alphamap_canvas);
-        alphaTexture.center.set(0.5, 0.5);
-        alphaTexture.rotation = Math.PI/2.0;
-        alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
-
-        let material = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });
-        material.alphaTest = 0.5;
-        material.side = THREE.DoubleSide;
-        material.transparent = true;
-
         const mesh = new THREE.Mesh(geometry, material);
         mesh.name = 'noodle';
 
-        return { mesh, textures: [ rgbTexture, alphaTexture ] };
+        return { mesh };
 
     };
 
@@ -121,14 +104,6 @@ class Noodle {
 
     renderLoopHelper () {
 
-        if (rgbTexture) {
-            rgbTexture.needsUpdate = true;
-        }
-
-        if (alphaTexture) {
-            alphaTexture.needsUpdate = true;
-        }
-
         if (fatLineMaterial) {
             fatLineMaterial.resolution.set(window.innerWidth, window.innerHeight);
         }
@@ -146,18 +121,12 @@ class Noodle {
     dispose () {
 
         if (this.tube) {
-
             let { material, geometry } = this.tube.mesh;
-            let { textures } = this.tube;
-
             [ material, geometry ].forEach(item => item.dispose());
-            textures.forEach(t => t.dispose())
         }
 
         if (this.spline) {
-
             let { material, geometry } = this.spline.mesh;
-
             [ material, geometry ].forEach(item => item.dispose())
         }
 

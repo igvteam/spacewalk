@@ -12,10 +12,10 @@ class BallAndStick {
         return 'render-style-ball-stick';
     }
 
-    configure (structure, renderStyle) {
+    configure (structure, colorRampWidget, renderStyle) {
 
         this.dispose();
-        this.balls = this.createBalls(structure);
+        this.balls = this.createBalls(structure, colorRampWidget);
         this.sticks = this.createSticks(structure);
 
         if (renderStyle === BallAndStick.getRenderStyle()) {
@@ -25,7 +25,7 @@ class BallAndStick {
         }
     }
 
-    createBalls(structure) {
+    createBalls(structure, colorRampWidget) {
 
         let meshList = structure.map(obj => {
 
@@ -33,7 +33,7 @@ class BallAndStick {
 
             const [ x, y, z ] = obj.xyz;
 
-            const color = sceneManager.colorRampPanel.colorRampWidget.colorForInterpolant(index / (structure.length - 1));
+            const color = colorRampWidget.colorForInterpolant(index / (structure.length - 1));
 
             // const material = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
             const material = new THREE.MeshPhongMaterial({ color });
