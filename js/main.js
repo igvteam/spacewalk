@@ -1,3 +1,4 @@
+import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from './eventBus.js';
 import GUIManager from './guiManager.js';
 import SceneManager from './sceneManager.js';
@@ -94,17 +95,22 @@ let main = async container => {
 
 };
 
-let setup = ({ chr, genomicStart, genomicEnd, structure }) => {
+let setup = ({ genomicStart, genomicEnd, structure }) => {
 
-    let [ structureLength, structureExtent, cameraPosition, structureCentroid ] = [ structure.array.length, structure.extent, structure.cameraPosition, structure.centroid ];
+    sceneManager.colorRampPanel.configure({genomicStart, genomicEnd, structureLength: structure.length });
 
-    sceneManager.configure({ chr, genomicStart, genomicEnd, structureLength, structureExtent, cameraPosition, structureCentroid });
+    noodle.configure(structure, sceneManager.colorRampPanel.colorRampWidget, sceneManager.renderStyle);
+    ballAndStick.configure(structure, sceneManager.renderStyle);
 
-    noodle.configure(structure.array, sceneManager.colorRampPanel.colorRampWidget, sceneManager.renderStyle);
-    noodle.addToScene(sceneManager.scene);
+    let scene = new THREE.Scene();
 
-    ballAndStick.configure(structure.array, sceneManager.renderStyle);
-    ballAndStick.addToScene(sceneManager.scene);
+    noodle.addToScene(scene);
+    ballAndStick.addToScene(scene);
+
+    const { center, radius } = ballAndStick.getBounds();
+    const { position, fov } = ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
+
+    sceneManager.configure({scene, structureExtent: (2 * radius), cameraPosition: position, structureCentroid: center, fov});
 
     if (false === thumbnailPanel.isHidden) {
         const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;

@@ -1,6 +1,6 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import igv from '../node_modules/igv/dist/igv.esm.js'
-import {globalEventBus} from "./eventBus.js";
+import { globalEventBus } from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
 
 class StructureManager {
@@ -38,8 +38,8 @@ class StructureManager {
 
                     if (undefined === currentKey || currentKey !== key) {
                         currentKey = key;
-                        this.structures[ currentKey ] = { bbox: {}, extent: [], centroid: [], cameraDistance: undefined, cameraPosition: [], array: [] };
-                        list = this.structures[ currentKey ].array;
+                        this.structures[ currentKey ] = [];
+                        list = this.structures[ currentKey ];
                     }
 
                     // discard chr-index
@@ -59,83 +59,6 @@ class StructureManager {
 
         }
 
-        Object.values(this.structures).forEach(structure => {
-
-            const [ minX, minY, minZ, maxX, maxY, maxZ ] = structure.array.map(items => items.xyz).reduce((accumulator, xyz) => {
-
-                accumulator =
-                    [
-                        // min
-                        Math.min(accumulator[ 0 ], xyz[ 0 ]),
-                        Math.min(accumulator[ 1 ], xyz[ 1 ]),
-                        Math.min(accumulator[ 2 ], xyz[ 2 ]),
-
-                        // max
-                        Math.max(accumulator[ 3 ], xyz[ 0 ]),
-                        Math.max(accumulator[ 4 ], xyz[ 1 ]),
-                        Math.max(accumulator[ 5 ], xyz[ 2 ]),
-                    ];
-
-                return accumulator;
-
-            }, [ Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE ]);
-
-            // bbox
-            structure.bbox = { min: new THREE.Vector3(minX, minY, minZ), max: new THREE.Vector3(maxX, maxY, maxZ) };
-
-            const [ extentX, extentY, extentZ ] = [ maxX - minX, maxY - minY, maxZ - minZ ];
-            structure.extent = new THREE.Vector3(extentX, extentY, extentZ);
-
-            // longest edge
-            const edgeLength = Math.max(structure.extent.x, structure.extent.y, structure.extent.z);
-
-            // radius of bounding sphere
-            structure.boundingRadius = Math.sqrt(3 * edgeLength * edgeLength);
-
-            // Centroid of structure. Where we will aim the camera.
-            const [ centroidX, centroidY, centroidZ ] = [ (maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2 ];
-            structure.centroid = new THREE.Vector3(centroidX, centroidY, centroidZ);
-
-            // Nice camera position. Point camera at centroid from the positive x-y-z quadrant.
-            structure.cameraPosition = new THREE.Vector3(centroidX + structure.boundingRadius, centroidY + structure.boundingRadius, centroidZ + structure.boundingRadius);
-
-        });
-
-    }
-
-    static getCameraPoseAlongAxis ({ structure, axis, scaleFactor }) {
-
-        const dimen = scaleFactor * structure.boundingRadius;
-        const axes =
-            {
-                '-x': () => {
-                    return new THREE.Vector3(-dimen, 0, 0);
-                },
-                '+x': () => {
-                    return new THREE.Vector3(dimen, 0, 0);
-                },
-                '-y': () => {
-                    return new THREE.Vector3(0, -dimen, 0);
-                },
-                '+y': () => {
-                    return new THREE.Vector3(0, dimen, 0);
-                },
-                '-z': () => {
-                    return new THREE.Vector3(0, 0, -dimen);
-                },
-                '+z': () => {
-                    return new THREE.Vector3(0, 0, dimen);
-                },
-            };
-
-        const vector = axes[ axis ]();
-        let position = new THREE.Vector3();
-
-        const target = structure.centroid;
-
-        position.addVectors(target, vector);
-
-        return { target, position }
     }
 
     structureWithName(name) {
@@ -185,22 +108,5 @@ class StructureManager {
 
     }
 }
-
-export let parsePathEncodedGenomicLocation = path => {
-
-    let dev_null;
-    let parts = path.split('_');
-    dev_null = parts.shift();
-    let locus = parts[ 0 ];
-
-    let [ chr, start, end ] = locus.split('-');
-
-    dev_null = end.split(''); // 3 0 M b
-    dev_null.pop(); // 3 0 M
-    dev_null.pop(); // 3 0
-    end = dev_null.join(''); // 30
-
-    return [ chr, parseInt(start) * 1e6, parseInt(end) * 1e6 ];
-};
 
 export default StructureManager;

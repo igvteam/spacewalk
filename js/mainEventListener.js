@@ -33,20 +33,20 @@ export const mainEventListener =
                 structure = structureManager.structureWithName(data);
 
                 igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                    IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
+                    IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.length})
                 });
 
                 juiceboxBrowser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.array.length });
+                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.length });
                 });
 
                 sceneManager.dispose();
 
                 structureManager.parsePathEncodedGenomicLocation(structureManager.path);
 
-                const { chr, genomicStart, genomicEnd } = structureManager.locus;
+                const { genomicStart, genomicEnd } = structureManager.locus;
 
-                setup({ chr, genomicStart, genomicEnd, structure });
+                setup({ genomicStart, genomicEnd, structure });
 
             } else if ('DidLoadFile' === type) {
 
@@ -71,18 +71,18 @@ export const mainEventListener =
                 structure = structureManager.structureWithName(initialStructureKey);
 
                 igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                    IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.array.length})
+                    IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.length})
                 });
 
                 juiceboxBrowser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.array.length });
+                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.length });
                 });
 
-                structureSelectPanel.configure({ structures: structureManager.structures, initialStructureKey });
+                structureSelectPanel.configure({structures: structureManager.structures, initialStructureKey});
 
                 sceneManager.dispose();
 
-                setup({ chr, genomicStart, genomicEnd, structure });
+                setup({ genomicStart, genomicEnd, structure });
 
                 sceneManager.doUpdateCameraPose = false;
 

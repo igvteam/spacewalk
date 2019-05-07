@@ -18,15 +18,15 @@ class Noodle {
         return 'render-style-noodle';
     }
 
-    configure (structureList, colorRampWidget, renderStyle) {
+    configure(structure, colorRampWidget, renderStyle) {
 
         this.dispose();
 
         let { rgb_ctx, alphamap_ctx } = colorRampWidget;
 
-        this.tube = this.createTube(structureList, rgb_ctx.canvas, alphamap_ctx.canvas);
+        this.tube = this.createTube(structure, rgb_ctx.canvas, alphamap_ctx.canvas);
 
-        this.spline = this.createFatSpline(structureList, colorRampWidget);
+        this.spline = this.createFatSpline(structure, colorRampWidget);
 
         if (renderStyle === Noodle.getRenderStyle()) {
             this.show();
@@ -36,9 +36,9 @@ class Noodle {
 
     }
 
-    createTube(structureList, rgb_canvas, alphamap_canvas) {
+    createTube(structure, rgb_canvas, alphamap_canvas) {
 
-        const knots = structureList.map((obj) => {
+        const knots = structure.map((obj) => {
             let [ x, y, z ] = obj.xyz;
             return new THREE.Vector3( x, y, z );
         });
@@ -68,9 +68,9 @@ class Noodle {
 
     };
 
-    createFatSpline(structureList, colorRampWidget){
+    createFatSpline(structure, colorRampWidget){
 
-        const knots = structureList.map((obj) => {
+        const knots = structure.map((obj) => {
             let [ x, y, z ] = obj.xyz;
             return new THREE.Vector3( x, y, z );
         });
@@ -221,9 +221,9 @@ class Noodle {
 
 }
 
-let createThinSpline = (structureList, colorRampWidget) => {
+let createThinSpline = (structure, colorRampWidget) => {
 
-    const knots = structureList.map((obj) => {
+    const knots = structure.map((obj) => {
         let [ x, y, z ] = obj.xyz;
         return new THREE.Vector3( x, y, z );
     });
