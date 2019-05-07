@@ -21,8 +21,6 @@
     "webpack-cli": "^3.2.1"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.2.5",
-    "igv": "^2.2.10",
-    "juicebox.js": "github:igvteam/juicebox.js#dat_tracing3d_edits"
+    "@babel/polyfill": "^7.2.5"
   }
 }
