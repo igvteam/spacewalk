@@ -47,9 +47,7 @@ class DataValueMaterialProvider {
         this.colorMaximum = colorMaximum;
     }
 
-    configure({ startBP, endBP, features, min, max, structureLength }) {
-
-        this.structureLength = structureLength;
+    configure({ startBP, endBP, features, min, max }) {
 
         if (undefined === features) {
             return;
@@ -62,6 +60,7 @@ class DataValueMaterialProvider {
         // initialize rgb map to color indicating no data
         this.rgb_ctx.fillStyle = missingDataColor;
         this.rgb_ctx.fillRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
+        // this.rgb_ctx.clearRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
 
         const bpp = (endBP - startBP) / this.rgb_ctx.canvas.width;
 

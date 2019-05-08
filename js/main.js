@@ -10,7 +10,7 @@ import { structureFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator }
 
 // IGV Panel
 import IGVPanel from './igv/IGVPanel.js';
-import * as IGVConfigurator from './igv/igvConfigurator.js';
+import { trackRegistryFile, igvBrowserConfigurator } from './igv/igvConfigurator.js';
 
 // Track Load Controller
 import TrackLoadController from './igv/trackLoadController.js';
@@ -81,9 +81,20 @@ let main = async container => {
     juiceboxBrowser = await juiceboxPanel.createBrowser({ container: $('#trace3d_juicebox_root_container'), width: 400, height: 400 });
     juiceboxPanel.defaultConfiguration();
 
-    igvBrowser = await igvPanel.createBrowser(IGVConfigurator.browser);
+    let customTrackHandler = async (track) => {
 
-    trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvBrowser, trackRegistryFile: IGVConfigurator.trackRegistryFile, $googleDriveButton: undefined } ));
+        let ta = Date.now();
+        const { features, min, max } = await igvPanel.getFeaturesForTrack(track);
+        let sec = (Date.now() - ta)/1e3;
+        console.log('IGV Panel - Get Feature ' + sec + 'sec.');
+
+        const { start, end } = igvPanel.locus;
+        dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+    };
+
+    igvBrowser = await igvPanel.createBrowser(igvBrowserConfigurator(customTrackHandler));
+
+    trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvBrowser, trackRegistryFile, $googleDriveButton: undefined } ));
 
     sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
     sceneManager.defaultConfiguration();
@@ -111,11 +122,11 @@ let main = async container => {
 
 let setup = async ({ structure }) => {
 
-    // noodle.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
-    // ballAndStick.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
+    noodle.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
+    ballAndStick.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
 
-    noodle.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
-    ballAndStick.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
+    // noodle.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
+    // ballAndStick.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
 
     let scene = new THREE.Scene();
 

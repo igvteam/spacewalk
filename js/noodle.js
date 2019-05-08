@@ -86,7 +86,7 @@ class Noodle {
         geometry.setPositions( vertices );
         geometry.setColors( colors );
 
-        fatLineMaterial = new FatLineMaterial( { linewidth: 2, vertexColors: THREE.VertexColors } );
+        fatLineMaterial = new FatLineMaterial( { linewidth: /*2*/3, vertexColors: THREE.VertexColors } );
 
         let mesh = new FatLine(geometry, fatLineMaterial);
         mesh.computeLineDistances();
