@@ -29,11 +29,13 @@ import { thumbnailPanelConfigurator } from './thumbnailPanel.js';
 import BallAndStick from './ballAndStick.js';
 import Noodle from './noodle.js';
 
+import DataValueMaterialProvider from './dataValueMaterialProvider.js';
+
 import { sceneManagerConfigurator } from './sceneManager.js';
 
 import { mainEventListener } from './mainEventListener.js';
 import ColorRampPanel, { colorRampPanelConfigurator } from "./colorRampPanel.js";
-import { appleCrayonColorThreeJS } from "./color.js";
+import { appleCrayonColorThreeJS, appleCrayonColorRGB255 } from "./color.js";
 
 let structureFileLoadModal;
 let juiceboxFileLoadModal;
@@ -56,6 +58,8 @@ let trackLoadController;
 
 let igvBrowser;
 let juiceboxBrowser;
+
+let dataValueMaterialProvider;
 
 let main = async container => {
 
@@ -90,6 +94,22 @@ let main = async container => {
 
     juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator());
 
+    let ta;
+    let tb;
+    let dt;
+
+    ta = Date.now();
+    const { start: startBP, end: endBP, features, min, max } = await igvPanel.getFeaturesForTrackWithName('MrBigWig');
+    dt = Date.now() - ta;
+    console.log('Get Feature ' + dt/1e3);
+
+    dataValueMaterialProvider = new DataValueMaterialProvider({ width: 1024, height: 128, colorMinimum: appleCrayonColorRGB255('strawberry'), colorMaximum: appleCrayonColorRGB255('blueberry')  });
+
+    ta = Date.now();
+    dataValueMaterialProvider.configure({ startBP, endBP, features, min, max });
+    dt = Date.now() - ta;
+    console.log('Configure DataValue MaterialProvider ' + dt/1e3);
+
     noodle = new Noodle();
 
     ballAndStick = new BallAndStick();
@@ -107,8 +127,11 @@ let setup = ({ genomicStart, genomicEnd, structure }) => {
 
     colorRampPanel.configure({genomicStart, genomicEnd, structureLength: structure.length});
 
-    noodle.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
-    ballAndStick.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
+    noodle.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
+    ballAndStick.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
+
+    // noodle.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
+    // ballAndStick.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
 
     let scene = new THREE.Scene();
 
@@ -139,6 +162,8 @@ let renderLoop = () => {
         ballAndStick.renderLoopHelper();
 
         colorRampPanel.colorRampMaterialProvider.renderLoopHelper();
+
+        dataValueMaterialProvider.renderLoopHelper();
 
         sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera);
     }

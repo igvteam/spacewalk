@@ -31,7 +31,8 @@ export const browser =
                 {
                     "url": "https://www.encodeproject.org/files/ENCFF722EUH/@@download/ENCFF722EUH.bigWig",
                     "color": "#002eff",
-                    "name": "IMR-90 CTCF signal p-value ENCSR000EFI",
+                    // "name": "IMR-90 CTCF signal p-value ENCSR000EFI",
+                    "name": "MrBigWig",
                     "format": "bigwig",
                     "type": "wig",
                     "filename": "ENCFF722EUH.bigWig",

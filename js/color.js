@@ -53,7 +53,7 @@ export let rgb255Lerp = (colorA, colorB, x) => {
 
 };
 
-export let randomGrey255 = (min, max) => {
+export let greyScaleRandom255 = (min, max) => {
 
     min = clamp(min, 0, 255);
     max = clamp(max, 0, 255);
@@ -64,7 +64,7 @@ export let randomGrey255 = (min, max) => {
     // return "rgb(" + grey + "," + grey + "," + grey + ")";
 };
 
-export let randomRGB255 = (min, max) => {
+export let rgbRandom255 = (min, max) => {
 
     min = clamp(min, 0, 255);
     max = clamp(max, 0, 255);
@@ -77,7 +77,7 @@ export let randomRGB255 = (min, max) => {
     // return "rgb(" + r + "," + g + "," + b + ")";
 };
 
-export let randomRGB255ConstantAlpha = (min, max, alpha) => {
+export let rgbaRandomConstantAlpha255 = (min, max, alpha) => {
 
     min = clamp(min, 0, 255);
     max = clamp(max, 0, 255);
