@@ -7,6 +7,7 @@ import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import Noodle from "./noodle.js";
 import { ballAndStick } from "./main.js";
+import BallAndStick from "./ballAndStick.js";
 
 let currentStructureCentroid = undefined;
 
@@ -52,7 +53,7 @@ class SceneManager {
 
     receiveEvent({ type, data }) {
 
-        if ("DidSelectSegmentIndex" === type) {
+        if ("DidSelectSegmentIndex" === type && BallAndStick.getRenderStyle() === this.renderStyle) {
 
             let objects = [];
             data.forEach(item => {

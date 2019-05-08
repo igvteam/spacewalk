@@ -1,5 +1,3 @@
-import { globalEventBus } from "./eventBus.js";
-
 class PickHighlighter {
 
     constructor (highlightColor) {
@@ -35,7 +33,6 @@ class PickHighlighter {
 
         this.objects.forEach(object => {
             object.material.color.copy(this.colorDictionary[ object.uuid ]);
-            // globalEventBus.post({ type: "PickerDidLeaveObject", data: object.uuid });
         });
 
         this.objects.clear();
