@@ -5,7 +5,7 @@ import { fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./sceneManager.js";
-import { sceneManager } from "./main.js";
+import { sceneManager, ballAndStick } from "./main.js";
 
 let currentSegmentIndex = undefined;
 
@@ -92,8 +92,8 @@ class ColorRampMaterialProvider {
 
         if ("PickerDidHitObject" === type) {
 
-            if (sceneManager.indexDictionary[ data ]) {
-                const segmentIndex = 1 + sceneManager.indexDictionary[ data ].index;
+            if (ballAndStick.indexDictionary[ data ]) {
+                const segmentIndex = 1 + ballAndStick.indexDictionary[ data ].index;
                 this.highlight([segmentIndex])
             }
 

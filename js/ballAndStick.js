@@ -27,6 +27,15 @@ class BallAndStick {
 
     createBalls(structure, materialProvider) {
 
+        // 3D Object dictionary. Key is string-ified genomic location.
+        this.genomicLocationObjectDictionary = {};
+
+        // segment-index dictionay. 3D Object UUID is key.
+        this.indexDictionary = {};
+
+        // 3D Object Array. Indexed by structure list index.
+        this.objectList = [];
+
         let meshList = structure.map(obj => {
 
             const index = structure.indexOf(obj);
@@ -48,11 +57,11 @@ class BallAndStick {
 
             const genomicLocation = index * structureManager.stepSize + structureManager.locus.genomicStart;
 
-            sceneManager.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: mesh, centroid: mesh.position.clone() };
+            this.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: mesh, centroid: mesh.position.clone() };
 
-            sceneManager.indexDictionary[ mesh.uuid ] = { index, genomicLocation };
+            this.indexDictionary[ mesh.uuid ] = { index, genomicLocation };
 
-            sceneManager.objectList[ index ] = { object: mesh, genomicLocation };
+            this.objectList[ index ] = { object: mesh, genomicLocation };
 
             return mesh;
 

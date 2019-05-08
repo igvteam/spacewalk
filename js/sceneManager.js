@@ -6,6 +6,7 @@ import {appleCrayonColorHexValue, appleCrayonColorThreeJS} from "./color.js";
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import Noodle from "./noodle.js";
+import { ballAndStick } from "./main.js";
 
 let currentStructureCentroid = undefined;
 
@@ -39,15 +40,6 @@ class SceneManager {
 
         this.hemisphereLight = hemisphereLight;
 
-        // 3D Object dictionary. Key is string-ified genomic location.
-        this.genomicLocationObjectDictionary = {};
-
-        // segment-index dictionay. 3D Object UUID is key.
-        this.indexDictionary = {};
-
-        // 3D Object Array. Indexed by structure list index.
-        this.objectList = [];
-
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 
         $(container).on('mousemove.trace3d.picker', (event) => {
@@ -65,8 +57,8 @@ class SceneManager {
             let objects = [];
             data.forEach(item => {
                 const index = item - 1;
-                if (this.objectList[ index ]) {
-                    let { object } = this.objectList[ index ];
+                if (ballAndStick.objectList[ index ]) {
+                    let { object } = ballAndStick.objectList[ index ];
                     objects.push(object);
                 }
             });
@@ -159,15 +151,6 @@ class SceneManager {
         this.groundPlane.position.set(structureCentroid.x, wye, structureCentroid.z);
 
         this.scene.add( this.groundPlane );
-
-        // 3D Object dictionary. Key is string-ified genomic location.
-        this.genomicLocationObjectDictionary = {};
-
-        // segment-index dictionay. 3D Object UUID is key.
-        this.indexDictionary = {};
-
-        // 3D Object Array. Indexed by structure list index.
-        this.objectList = [];
 
     }
 
