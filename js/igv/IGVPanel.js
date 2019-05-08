@@ -132,20 +132,17 @@ class IGVPanel {
 
     };
 
-    async getFeaturesForTrackWithName(name) {
+    async getFeaturesForTrackWithName({ name, chr, startBP, endBP }) {
 
         const { referenceFrame } = this.browser.genomicStateList[ 0 ];
         const { bpPerPixel } = referenceFrame;
 
-        const { chr, start, end } = this.locus;
-
         let tracks = this.browser.findTracks('name', name);
         const track = tracks.pop();
+        const features = await track.getFeatures(chr, startBP, endBP, bpPerPixel);
 
         const { min, max } = track.dataRange;
-        const features = await track.getFeatures(chr, start, end, bpPerPixel);
-
-        return { start, end, features, min, max };
+        return { features, min, max };
     }
 
     onWindowResize() {

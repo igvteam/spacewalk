@@ -3,11 +3,10 @@ import { rgbRandom255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, appleC
 
 let rgbTexture;
 let alphaTexture;
+
 const alpha_visible = `rgb(${255},${255},${255})`;
 
-const diagnosticColor = rgb255String(appleCrayonColorRGB255('honeydew'));
-
-const mockColor = appleCrayonColorThreeJS('aqua');
+const missingDataColor = rgb255String(appleCrayonColorRGB255('nickel'));
 
 class DataValueMaterialProvider {
 
@@ -48,14 +47,20 @@ class DataValueMaterialProvider {
         this.colorMaximum = colorMaximum;
     }
 
-    configure({ startBP, endBP, features, min, max }) {
+    configure({ startBP, endBP, features, min, max, structureLength }) {
+
+        this.structureLength = structureLength;
+
+        if (undefined === features) {
+            return;
+        }
 
         // paint alpha map opaque
         this.alpha_ctx.fillStyle = alpha_visible;
         this.alpha_ctx.fillRect(0, 0, this.alpha_ctx.canvas.width, this.alpha_ctx.canvas.height);
 
-        // clear rgb map of color
-        this.rgb_ctx.fillStyle = diagnosticColor;
+        // initialize rgb map to color indicating no data
+        this.rgb_ctx.fillStyle = missingDataColor;
         this.rgb_ctx.fillRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
 
         const bpp = (endBP - startBP) / this.rgb_ctx.canvas.width;
@@ -111,49 +116,6 @@ class DataValueMaterialProvider {
             alphaTexture.needsUpdate = true;
         }
 
-    }
-
-}
-
-// WIG Track renderer
-let renderFeature = (feature, bpStart, bpPerPixel, featureValueMinimum, featureValueMaximum, featureValueRange) => {
-
-    const { start, end, value } = feature;
-    const x = Math.floor((start - bpStart) / bpPerPixel);
-    const rectEnd = Math.ceil((end - bpStart) / bpPerPixel);
-    const width = Math.max(1, rectEnd - x);
-    const y = (featureValueMaximum - value) / (featureValueRange);
-
-    let yb;
-    if (featureValueMinimum > 0) {
-        yb = 1;
-    } else if (featureValueMaximum < 0) {
-        yb = 0;
-    } else {
-        yb = featureValueMaximum / featureValueRange;
-    }
-
-    const yUnitless = Math.min(y, yb);
-    const y2 = Math.max(y, yb);
-    const heightUnitLess = y2 - yUnitless;
-
-    if (yUnitless >= 1 || y2 <= 0) return;      //  Value < minimum
-
-    const color = (typeof self.color === "function") ? self.color(feature.value) : self.color;
-
-    if (self.graphType === "points") {
-        const pointSize = self.config.pointSize || 3;
-        const py = feature.value < 0 ? (yUnitless + heightUnitLess) * pixelHeight : yUnitless * pixelHeight;
-        const px = x + width / 2;
-
-        if (isNaN(x)) {
-            console.log('isNaN(x). feature start ' + igv.numberFormatter(feature.start) + ' bp start ' + igv.numberFormatter(bpStart));
-        } else {
-            igv.graphics.fillCircle(ctx, px, py, pointSize / 2);
-        }
-
-    } else {
-        igv.graphics.fillRect(ctx, x, yUnitless * pixelHeight, width, heightUnitLess * pixelHeight, {fillStyle: color});
     }
 
 }

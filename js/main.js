@@ -94,21 +94,7 @@ let main = async container => {
 
     juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator());
 
-    let ta;
-    let tb;
-    let dt;
-
-    ta = Date.now();
-    const { start: startBP, end: endBP, features, min, max } = await igvPanel.getFeaturesForTrackWithName('MrBigWig');
-    dt = Date.now() - ta;
-    console.log('Get Feature ' + dt/1e3);
-
     dataValueMaterialProvider = new DataValueMaterialProvider({ width: 1024, height: 128, colorMinimum: appleCrayonColorRGB255('strawberry'), colorMaximum: appleCrayonColorRGB255('blueberry')  });
-
-    ta = Date.now();
-    dataValueMaterialProvider.configure({ startBP, endBP, features, min, max });
-    dt = Date.now() - ta;
-    console.log('Configure DataValue MaterialProvider ' + dt/1e3);
 
     noodle = new Noodle();
 
@@ -123,15 +109,13 @@ let main = async container => {
 
 };
 
-let setup = ({ genomicStart, genomicEnd, structure }) => {
+let setup = async ({ structure }) => {
 
-    colorRampPanel.configure({genomicStart, genomicEnd, structureLength: structure.length});
+    // noodle.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
+    // ballAndStick.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
 
-    noodle.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
-    ballAndStick.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
-
-    // noodle.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
-    // ballAndStick.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
+    noodle.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
+    ballAndStick.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
 
     let scene = new THREE.Scene();
 
@@ -170,4 +154,4 @@ let renderLoop = () => {
 
 };
 
-export { main, setup, colorRampPanel, thumbnailPanel, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, trackLoadController, sceneManager, structureManager, guiManager };
+export { main, setup, dataValueMaterialProvider, colorRampPanel, thumbnailPanel, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, trackLoadController, sceneManager, structureManager, guiManager };
