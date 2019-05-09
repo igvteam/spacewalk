@@ -1,10 +1,9 @@
 import { globalEventBus } from "../eventBus.js";
 
 import { createBrowser } from '../../vendor/juicebox/js/hic.js'
-import { segmentIndexForInterpolant } from '../colorRampMaterialProvider.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from '../math.js'
-import { moveOffScreen, moveOnScreen } from "../utils.js";
+import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
 
 import { structureManager } from "../main.js";
 

@@ -48,6 +48,8 @@ export const mainEventListener =
 
                 colorRampPanel.colorRampMaterialProvider.configure({ structureLength: structure.length });
 
+                dataValueMaterialProvider.structureLength = structure.length;
+
                 await setup({ structure });
 
             } else if ('DidLoadFile' === type) {
@@ -74,12 +76,7 @@ export const mainEventListener =
 
                 colorRampPanel.configure({ genomicStart, genomicEnd, structureLength: structure.length });
 
-                // let ta = Date.now();
-                // const { features, min, max } = await igvPanel.getFeaturesForTrackWithName({ name: 'MrBigWig', chr, startBP: genomicStart, endBP: genomicEnd });
-                // let sec = (Date.now() - ta)/1e3;
-                // console.log('IGV Panel - Get Feature ' + sec + 'sec.');
-                //
-                // dataValueMaterialProvider.configure({ startBP: genomicStart, endBP: genomicEnd, features, min, max, structureLength: structure.length });
+                dataValueMaterialProvider.structureLength = structure.length;
 
                 igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
                     IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.length})

@@ -1,3 +1,14 @@
+import { quantize } from "./math.js";
+
+const segmentIndexForInterpolant = (interpolant, structureLength) => {
+
+    // find bucket. 0 based.
+    let quantized = quantize(interpolant, structureLength);
+
+    // Scale to structure length. Convert to discrete value (integer-ize).
+    // Segment index is 1-based.
+    return 1 + Math.ceil(quantized * (structureLength - 1));
+};
 
 let moveOnScreen = (panelHost) => {
     panelHost.layout(panelHost.container, panelHost.$panel.get(0));
@@ -89,4 +100,4 @@ const readFileAsText = async file => {
     });
 };
 
-export { readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
+export { segmentIndexForInterpolant, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };

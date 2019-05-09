@@ -1,5 +1,10 @@
 import * as THREE from "./threejs_es6/three.module.js";
+import { globalEventBus } from "./eventBus.js";
+
 import { rgbRandom255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255ToThreeJSColor } from './color.js';
+import { quantize } from "./math.js";
+import { segmentIndexForInterpolant } from "./utils.js";
+import {sceneManager} from "./main.js";
 
 let rgbTexture;
 let alphaTexture;
@@ -45,17 +50,55 @@ class DataValueMaterialProvider {
 
         this.colorMinimum = colorMinimum;
         this.colorMaximum = colorMaximum;
+
+        globalEventBus.subscribe("DidLeaveGUI", this);
+        globalEventBus.subscribe("DidSelectSegmentIndex", this);
+    }
+
+    receiveEvent({ type, data }) {
+
+        if ("DidSelectSegmentIndex" === type) {
+
+            this.highlight(data);
+
+        } else if (sceneManager && "DidLeaveGUI" === type) {
+
+            let { startBP, endBP, features, min, max } = this;
+            this.paint({ startBP, endBP, features, min, max, highlightedSegmentIndexSet: undefined });
+
+        }
+    }
+
+    highlight(segmentIndexList) {
+
+        if (undefined === this.structureLength) {
+            return;
+        }
+
+        let { startBP, endBP, features, min, max } = this;
+        this.paint({ startBP, endBP, features, min, max, highlightedSegmentIndexSet: new Set(segmentIndexList) });
     }
 
     configure({ startBP, endBP, features, min, max }) {
 
-        if (undefined === features) {
+        if (undefined === this.structureLength) {
             return;
         }
 
-        // paint alpha map opaque
-        this.alpha_ctx.fillStyle = alpha_visible;
-        this.alpha_ctx.fillRect(0, 0, this.alpha_ctx.canvas.width, this.alpha_ctx.canvas.height);
+        this.startBP = startBP;
+        this.endBP = endBP;
+        this.features = features;
+        this.min = min;
+        this.max = max;
+
+        this.paint({ startBP, endBP, features, min, max, highlightedSegmentIndexSet: undefined });
+    }
+
+    paint({ startBP, endBP, features, min, max, highlightedSegmentIndexSet }) {
+
+        if (undefined === features) {
+            return;
+        }
 
         // initialize rgb map to color indicating no data
         this.rgb_ctx.fillStyle = missingDataColor;
@@ -96,6 +139,38 @@ class DataValueMaterialProvider {
                 this.colorTable[ p ] = rgb255ToThreeJSColor(r, g, b)
             }
         }
+
+        const { width, height } = this.alpha_ctx.canvas;
+
+        // paint alpha map opaque
+        this.alpha_ctx.fillStyle = alpha_visible;
+        this.alpha_ctx.fillRect(0, 0, width, height);
+
+        if (highlightedSegmentIndexSet) {
+
+            // set highlight color
+            // this.highlight_ctx.fillStyle = this.highlightColor;
+
+            // paint alpha map transparent
+            this.alpha_ctx.clearRect(0, 0, width, height);
+
+            // set opaque color
+            this.alpha_ctx.fillStyle = alpha_visible;
+
+            for (let x = 0;  x < width; x++) {
+
+                const interpolant = (x / (width - 1));
+                const quantizedInterpolant = quantize(interpolant, this.structureLength);
+                const segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
+
+                if (highlightedSegmentIndexSet.has(segmentIndex)) {
+                    // this.highlight_ctx.fillRect(0, x, width, 1);
+                    this.alpha_ctx.fillRect(x, 0, 1, height);
+                }
+
+            } // for (y)
+
+        } // if (highlightedSegmentIndexSet)
 
     }
 

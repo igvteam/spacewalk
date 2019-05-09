@@ -1,7 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 
-import { fitToContainer, getMouseXY } from "./utils.js";
+import { segmentIndexForInterpolant, fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./sceneManager.js";
@@ -153,26 +153,27 @@ class ColorRampMaterialProvider {
             return;
         }
 
-        const yIndices = new Array(this.rgb_ctx.canvas.offsetHeight);
+        const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
+
         let interpolant;
         let quantizedInterpolant;
         let segmentIndex;
 
         // paint rgb ramp
-        for (let y = 0;  y < yIndices.length; y++) {
-            interpolant = 1 - (y / (yIndices.length - 1));
+        for (let y = 0;  y < height; y++) {
+            interpolant = 1 - (y / (height - 1));
             quantizedInterpolant = quantize(interpolant, this.structureLength);
             segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
             this.rgb_ctx.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
-            this.rgb_ctx.fillRect(0, y, this.rgb_ctx.canvas.offsetWidth, 1);
+            this.rgb_ctx.fillRect(0, y, width, 1);
         }
 
         // clear highlight canvas
-        this.highlight_ctx.clearRect(0, 0, this.highlight_ctx.canvas.offsetWidth, this.highlight_ctx.canvas.offsetHeight);
+        this.highlight_ctx.clearRect(0, 0, width, height);
 
         // paint alpha map opacque
         this.alphamap_ctx.fillStyle = alpha_visible;
-        this.alphamap_ctx.fillRect(0, 0, this.alphamap_ctx.canvas.offsetWidth, this.alphamap_ctx.canvas.offsetHeight);
+        this.alphamap_ctx.fillRect(0, 0, width, height);
 
         if (highlightedSegmentIndexSet) {
 
@@ -180,20 +181,20 @@ class ColorRampMaterialProvider {
             this.highlight_ctx.fillStyle = this.highlightColor;
 
             // paint alpha map transparent
-            this.alphamap_ctx.clearRect(0, 0, this.alphamap_ctx.canvas.offsetWidth, this.alphamap_ctx.canvas.offsetHeight);
+            this.alphamap_ctx.clearRect(0, 0, width, height);
 
             // set opaque color
             this.alphamap_ctx.fillStyle = alpha_visible;
 
-            for (let y = 0;  y < yIndices.length; y++) {
+            for (let y = 0;  y < height; y++) {
 
-                interpolant = 1 - (y / (yIndices.length - 1));
+                interpolant = 1 - (y / (height - 1));
                 quantizedInterpolant = quantize(interpolant, this.structureLength);
                 segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
 
                 if (highlightedSegmentIndexSet.has(segmentIndex)) {
-                    this.highlight_ctx.fillRect(0, y, this.highlight_ctx.canvas.offsetWidth, 1);
-                    this.alphamap_ctx.fillRect(0, y, this.alphamap_ctx.canvas.offsetWidth, 1);
+                    this.highlight_ctx.fillRect(0, y, width, 1);
+                    this.alphamap_ctx.fillRect(0, y, width, 1);
                 }
 
             } // for (y)
@@ -219,15 +220,5 @@ class ColorRampMaterialProvider {
     }
 
 }
-
-export const segmentIndexForInterpolant = (interpolant, structureLength) => {
-
-    // find bucket. 0 based.
-    let quantized = quantize(interpolant, structureLength);
-
-    // Scale to structure length. Convert to discrete value (integer-ize).
-    // Segment index is 1-based.
-    return 1 + Math.ceil(quantized * (structureLength - 1));
-};
 
 export default ColorRampMaterialProvider;
