@@ -1,10 +1,11 @@
 import { globalEventBus } from "../eventBus.js";
 import igv from '../../vendor/igv/igv.esm.js';
-import { sceneManager, structureManager } from '../main.js';
-import { segmentIndexForInterpolant } from '../colorRampWidget.js';
+
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
-import { moveOffScreen, moveOnScreen } from '../utils.js';
+import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
+
+import { noodle, ballAndStick, dataValueMaterialProvider, igvPanel, structureManager, sceneManager } from "../main.js";
 
 let currentURL = undefined;
 class IGVPanel {
@@ -132,6 +133,36 @@ class IGVPanel {
 
     };
 
+    async getFeaturesForTrack(track) {
+
+        const { referenceFrame } = this.browser.genomicStateList[ 0 ];
+        const { bpPerPixel } = referenceFrame;
+
+        const { chr, start, end } = this.locus;
+        const features = await track.getFeatures(chr, start, end, bpPerPixel);
+
+        const { min, max } = track.dataRange;
+        return { features, min, max };
+    }
+
+    async trackDataHandler () {
+
+        if (this.currentDataTrack) {
+
+            const { features, min, max } = await this.getFeaturesForTrack(this.currentDataTrack);
+
+            const { start, end } = this.locus;
+            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+
+            sceneManager.materialProvider = dataValueMaterialProvider;
+            noodle.updateMaterialProvider(sceneManager.materialProvider);
+            ballAndStick.updateMaterialProvider(sceneManager.materialProvider);
+
+        }
+
+
+    };
+
     onWindowResize() {
         if (false === this.isHidden) {
             this.layout();
@@ -183,9 +214,12 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
     let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
     const segmentIndex = segmentIndexForInterpolant(lerp(a, b, interpolant), structureLength);
 
-    sceneManager.colorRampPanel.colorRampWidget.highlight([segmentIndex]);
-
     globalEventBus.post({ type: 'DidSelectSegmentIndex', data: [segmentIndex] });
+};
+
+export let customIGVTrackHandler = async (track) => {
+    igvPanel.currentDataTrack = track;
+    igvPanel.trackDataHandler();
 };
 
 export default IGVPanel;

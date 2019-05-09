@@ -1,4 +1,4 @@
-import {globalEventBus} from "./eventBus.js";
+import { globalEventBus } from "./eventBus.js";
 
 // const exclusionSet = new Set([ 'groundplane', 'stick' ]);
 const exclusionSet = new Set([ 'groundplane', 'noodle_spline', 'noodle' ]);
@@ -27,12 +27,13 @@ class Picker {
 
     }
 
-
     intersect({ x ,y, camera, scene, doTrackObject }) {
 
         this.raycaster.setFromCamera({ x, y }, camera);
 
-        let hitList = this.raycaster.intersectObjects(scene.children).filter((item) => { return !exclusionSet.has(item.object.name) });
+        let hitList = this.raycaster.intersectObjects(scene.children).filter((item) => {
+            return !exclusionSet.has(item.object.name) && true === item.object.visible;
+        });
 
         if (hitList.length > 0) {
 
@@ -50,6 +51,7 @@ class Picker {
 
         } else {
             this.pickHighlighter.unhighlight();
+            globalEventBus.post({ type: "PickerDidLeaveObject" });
         }
 
     }

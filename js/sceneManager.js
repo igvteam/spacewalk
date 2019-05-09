@@ -1,22 +1,21 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
+
 import OrbitalCamera from "./orbitalCamera.js";
-import { getMouseXY } from "./utils.js";
-import { showSTMaterial, showSMaterial, specularCubicTexture } from './materialLibrary.js';
-import {appleCrayonColorHexValue, appleCrayonColorRGB255, appleCrayonColorThreeJS} from "./color.js";
-import ColorRampPanel from "./colorRampPanel.js";
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
-import ColorMapManager from "./colorMapManager.js";
-import { guiManager } from './main.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
+
+import { ballAndStick, colorRampPanel } from "./main.js";
+import { getMouseXY } from "./utils.js";
+import {appleCrayonColorHexValue, appleCrayonColorThreeJS} from "./color.js";
 
 let currentStructureCentroid = undefined;
 
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, colorRampPanel, renderer, picker, hemisphereLight }) {
+    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, renderer, picker, hemisphereLight, materialProvider }) {
 
         this.renderStyle = Noodle.getRenderStyle();
 
@@ -40,20 +39,11 @@ class SceneManager {
 
         this.renderer = renderer;
 
-        this.colorRampPanel = colorRampPanel;
-
         this.picker = picker;
 
         this.hemisphereLight = hemisphereLight;
 
-        // 3D Object dictionary. Key is string-ified genomic location.
-        this.genomicLocationObjectDictionary = {};
-
-        // segment-index dictionay. 3D Object UUID is key.
-        this.indexDictionary = {};
-
-        // 3D Object Array. Indexed by structure list index.
-        this.objectList = [];
+        this.materialProvider = materialProvider;
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 
@@ -62,31 +52,18 @@ class SceneManager {
         });
 
         globalEventBus.subscribe("ToggleGroundplane", this);
-        globalEventBus.subscribe("PickerDidHitObject", this);
-        globalEventBus.subscribe("PickerDidLeaveObject", this);
         globalEventBus.subscribe("DidSelectSegmentIndex", this);
     }
 
     receiveEvent({ type, data }) {
-        const now = Date.now();
-        if ("PickerDidHitObject" === type) {
 
-            if (this.indexDictionary[ data ]) {
-                const segmentIndex = 1 + this.indexDictionary[ data ].index;
-                this.colorRampPanel.colorRampWidget.highlight([segmentIndex])
-            }
-
-        } else if ("PickerDidLeaveObject" === type) {
-
-            this.colorRampPanel.colorRampWidget.repaint();
-
-        } else if ("DidSelectSegmentIndex" === type) {
+        if ("DidSelectSegmentIndex" === type && BallAndStick.getRenderStyle() === this.renderStyle) {
 
             let objects = [];
             data.forEach(item => {
                 const index = item - 1;
-                if (this.objectList[ index ]) {
-                    let { object } = this.objectList[ index ];
+                if (ballAndStick.objectList[ index ]) {
+                    let { object } = ballAndStick.objectList[ index ];
                     objects.push(object);
                 }
             });
@@ -180,15 +157,6 @@ class SceneManager {
 
         this.scene.add( this.groundPlane );
 
-        // 3D Object dictionary. Key is string-ified genomic location.
-        this.genomicLocationObjectDictionary = {};
-
-        // segment-index dictionay. 3D Object UUID is key.
-        this.indexDictionary = {};
-
-        // 3D Object Array. Indexed by structure list index.
-        this.objectList = [];
-
     }
 
     onWindowResize() {
@@ -231,31 +199,7 @@ class SceneManager {
 
 export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
 
-export const sceneManagerConfigurator = (container) => {
-
-    let colorMapManager = new ColorMapManager();
-
-    const colormaps =
-        {
-            peter_kovesi_rainbow_bgyr_35_85_c72_n256: 'resources/colormaps/peter_kovesi/CET-R2.csv'
-        };
-
-    for (let key of Object.keys(colormaps)) {
-        colorMapManager.addMap({name: key, path: colormaps[key]});
-    }
-
-
-    // const highlightColor = appleCrayonColorThreeJS('maraschino');
-    const highlightColor = appleCrayonColorThreeJS('honeydew');
-
-    const colorRampPanelConfig =
-        {
-            container,
-            panel: $('#trace3d_color_ramp_panel').get(0),
-            colorMapManager,
-            highlightColor,
-            isHidden: guiManager.isPanelHidden('trace3d_color_ramp_panel')
-        };
+export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     // const stickMaterial = showSMaterial;
     // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
@@ -268,11 +212,11 @@ export const sceneManagerConfigurator = (container) => {
             stickMaterial,
             backgroundColor: appleCrayonColorThreeJS('mercury'),
             groundPlaneColor: appleCrayonColorHexValue('steel'),
-            colorRampPanel: new ColorRampPanel(colorRampPanelConfig),
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
             // skyColor | groundColor | intensity
-            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 )
+            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 ),
+            materialProvider: colorRampPanel.colorRampMaterialProvider
         };
 
 };

@@ -25710,7 +25710,11 @@ var igv = (function (igv) {
 
         const loci = string.split(' ')
 
-        const genomicStateList = await createGenomicStateList(loci)
+        let genomicStateList = await createGenomicStateList(loci)
+        if (!genomicStateList || genomicStateList.length === 0) {
+            // If nothing is found and there are spaces, consider the possibility that the search term itself has spaces
+            genomicStateList = await createGenomicStateList([string])
+        }
 
         if (genomicStateList.length > 0) {
 
@@ -25750,7 +25754,6 @@ var igv = (function (igv) {
          * @param loci - array of locus strings (e.g. chr1:1-100,  egfr)
          */
         async function createGenomicStateList(loci) {
-
 
             let searchConfig = self.searchConfig;
             let result = [];
@@ -26045,6 +26048,11 @@ var igv = (function (igv) {
         this.eventHandlers[eventName].push(fn);
     };
 
+    /**
+     * @deprecated use off()
+     * @param eventName
+     * @param fn
+     */
     igv.Browser.prototype.un = function (eventName, fn) {
         if (!this.eventHandlers[eventName]) {
             return;
@@ -26053,6 +26061,23 @@ var igv = (function (igv) {
         var callbackIndex = this.eventHandlers[eventName].indexOf(fn);
         if (callbackIndex !== -1) {
             this.eventHandlers[eventName].splice(callbackIndex, 1);
+        }
+    };
+
+    igv.Browser.prototype.off = function (eventName, fn) {
+
+        if (!eventName) {
+            this.eventHandlers = {}   // Remove all event handlers
+        }
+        else if (!fn) {
+            this.eventHandlers[eventName] = []  // Remove all eventhandlers matching name
+        }
+        else {
+            // Remove specific event handler
+            const callbackIndex = this.eventHandlers[eventName].indexOf(fn);
+            if (callbackIndex !== -1) {
+                this.eventHandlers[eventName].splice(callbackIndex, 1);
+            }
         }
     };
 
@@ -26192,7 +26217,7 @@ var igv = (function (igv) {
             bytes = new Zlib.RawInflate(compressedBytes).decompress();
         }
         let json = ''
-        for(let b of bytes) {
+        for (let b of bytes) {
             json += String.fromCharCode(b)
         }
 
@@ -34749,10 +34774,27 @@ var igv = (function (igv) {
 
                     featureValueRange = featureValueMaximum - featureValueMinimum;
 
-                    if (renderFeature.end < bpStart) return;
-                    if (renderFeature.start > bpEnd) return;
+                    // if (renderFeature.end < bpStart) return;
+                    // if (renderFeature.start > bpEnd) return;
+                    // features.forEach(renderFeature);
 
-                    features.forEach(renderFeature);
+                    for (let feature of features) {
+
+                        if (feature.end < bpStart) {
+                            // do nothing
+                        } else if (feature.start > bpEnd) {
+                            // do nothing
+                        } else {
+
+                            if (feature.value > featureValueMaximum) {
+                                // console.log('  too big ' + feature.value + ' max ' + featureValueMaximum);
+                            } else if (feature.value < featureValueMinimum) {
+                                // console.log('too small ' + feature.value + ' max ' + featureValueMinimum);
+                            }
+                            renderFeature(feature);
+                        }
+
+                    }
 
                     // If the track includes negative values draw a baseline
                     if (featureValueMinimum < 0) {
@@ -47199,7 +47241,13 @@ var igv = (function (igv) {
         this.leftHandGutter = $leftHandGutter[0];
         $parent.append($leftHandGutter);
 
-        if (this.track.dataRange) {
+        if (this.track.config.customTrackHandler) {
+
+            $leftHandGutter.on('click.track.left_hand_gutter', () => {
+                this.track.config.customTrackHandler(this.track);
+            });
+
+        } else if (this.track.dataRange) {
 
             $leftHandGutter.click(function (e) {
                 self.browser.dataRangeDialog.configure({trackView: self});

@@ -12,10 +12,10 @@ class BallAndStick {
         return 'render-style-ball-stick';
     }
 
-    configure (structure, renderStyle) {
+    configure(structure, materialProvider, renderStyle) {
 
         this.dispose();
-        this.balls = this.createBalls(structure);
+        this.balls = this.createBalls(structure, materialProvider);
         this.sticks = this.createSticks(structure);
 
         if (renderStyle === BallAndStick.getRenderStyle()) {
@@ -25,7 +25,29 @@ class BallAndStick {
         }
     }
 
-    createBalls(structure) {
+    updateMaterialProvider (materialProvider) {
+
+        if (undefined === this.balls) {
+            return;
+        }
+
+        this.balls.mesh.forEach((m, i, array) => {
+            const interpolant = i / (array.length - 1);
+            const color = materialProvider.colorForInterpolant(interpolant);
+            m.material = new THREE.MeshPhongMaterial({ color });
+        });
+    }
+
+    createBalls(structure, materialProvider) {
+
+        // 3D Object dictionary. Key is string-ified genomic location.
+        this.genomicLocationObjectDictionary = {};
+
+        // segment-index dictionay. 3D Object UUID is key.
+        this.indexDictionary = {};
+
+        // 3D Object Array. Indexed by structure list index.
+        this.objectList = [];
 
         let meshList = structure.map(obj => {
 
@@ -33,7 +55,7 @@ class BallAndStick {
 
             const [ x, y, z ] = obj.xyz;
 
-            const color = sceneManager.colorRampPanel.colorRampWidget.colorForInterpolant(index / (structure.length - 1));
+            const color = materialProvider.colorForInterpolant(index / (structure.length - 1));
 
             // const material = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
             const material = new THREE.MeshPhongMaterial({ color });
@@ -48,11 +70,11 @@ class BallAndStick {
 
             const genomicLocation = index * structureManager.stepSize + structureManager.locus.genomicStart;
 
-            sceneManager.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: mesh, centroid: mesh.position.clone() };
+            this.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: mesh, centroid: mesh.position.clone() };
 
-            sceneManager.indexDictionary[ mesh.uuid ] = { index, genomicLocation };
+            this.indexDictionary[ mesh.uuid ] = { index, genomicLocation };
 
-            sceneManager.objectList[ index ] = { object: mesh, genomicLocation };
+            this.objectList[ index ] = { object: mesh, genomicLocation };
 
             return mesh;
 

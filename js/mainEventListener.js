@@ -1,8 +1,9 @@
-import { IGVMouseHandler } from "./igv/IGVPanel.js";
-import { juiceboxMouseHandler } from "./juicebox/juiceboxPanel.js";
-import { setup, thumbnailPanel, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, sceneManager, structureManager } from "./main.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
+import { IGVMouseHandler } from "./igv/IGVPanel.js";
+import { juiceboxMouseHandler } from "./juicebox/juiceboxPanel.js";
+import { setup, dataValueMaterialProvider, colorRampPanel, thumbnailPanel, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, sceneManager, structureManager } from "./main.js";
+import { numberFormatter } from "./utils.js";
 
 export const mainEventListener =
     {
@@ -42,11 +43,14 @@ export const mainEventListener =
 
                 sceneManager.dispose();
 
-                structureManager.parsePathEncodedGenomicLocation(structureManager.path);
+                const { chr, genomicStart, genomicEnd } = structureManager.locus;
+                // console.log('DidSelectStructure - chr ' + chr + ' s: ' + numberFormatter(genomicStart) + ' e: ' + numberFormatter(genomicEnd));
 
-                const { genomicStart, genomicEnd } = structureManager.locus;
+                colorRampPanel.colorRampMaterialProvider.configure({ structureLength: structure.length });
 
-                setup({ genomicStart, genomicEnd, structure });
+                dataValueMaterialProvider.structureLength = structure.length;
+
+                await setup({ structure });
 
             } else if ('DidLoadFile' === type) {
 
@@ -58,6 +62,10 @@ export const mainEventListener =
                 structureManager.parsePathEncodedGenomicLocation(structureManager.path);
 
                 const { chr, genomicStart, genomicEnd } = structureManager.locus;
+                // console.log('DidLoadFile - chr ' + chr + ' s: ' + numberFormatter(genomicStart) + ' e: ' + numberFormatter(genomicEnd));
+
+                const initialStructureKey = '0';
+                structure = structureManager.structureWithName(initialStructureKey);
 
                 const str = 'STRUCTURE: CHR ' + chr + ' ' + Math.floor(genomicStart/1e6) + 'MB to ' + Math.floor(genomicEnd/1e6) + 'MB';
                 $('.navbar').find('#trace3d-file-name').text(str);
@@ -66,9 +74,12 @@ export const mainEventListener =
 
                 juiceboxPanel.goto({ chr, start: genomicStart, end: genomicEnd });
 
-                const initialStructureKey = '0';
+                colorRampPanel.configure({ genomicStart, genomicEnd, structureLength: structure.length });
 
-                structure = structureManager.structureWithName(initialStructureKey);
+                dataValueMaterialProvider.structureLength = structure.length;
+
+                igvPanel.trackDataHandler();
+
 
                 igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
                     IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.length})
@@ -82,7 +93,7 @@ export const mainEventListener =
 
                 sceneManager.dispose();
 
-                setup({ genomicStart, genomicEnd, structure });
+                await setup({ structure });
 
                 sceneManager.doUpdateCameraPose = false;
 
