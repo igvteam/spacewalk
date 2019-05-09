@@ -44,18 +44,7 @@ class Noodle {
         this.tube.mesh.material = materialProvider.material;
 
         // fat spline
-        let colors = [];
-        this.spline.xyzList
-            .map((xyz, i, array) => {
-                let interpolant = i / (array.length - 1);
-                interpolant = 1 - interpolant;
-                return materialProvider.colorForInterpolant(interpolant);
-            })
-            .forEach((rgb) => {
-                const { r, g, b } = rgb;
-                colors.push(r, g, b);
-            });
-
+        let colors = getColorListWithXYZList(materialProvider, this.spline.xyzList);
         this.spline.mesh.geometry.setColors( colors );
 
     }
@@ -96,17 +85,7 @@ class Noodle {
             vertices.push(x, y, z);
         });
 
-        let colors = [];
-        xyzList
-            .map((xyz, i) => {
-                let interpolant = i / (xyzList.length - 1);
-                interpolant = 1 - interpolant;
-                return materialProvider.colorForInterpolant(interpolant);
-            })
-            .forEach((rgb) => {
-                const { r, g, b } = rgb;
-                colors.push(r, g, b);
-            });
+        let colors = getColorListWithXYZList(materialProvider, xyzList);
 
         let geometry = new FatLineGeometry();
         geometry.setPositions( vertices );
@@ -215,6 +194,23 @@ class Noodle {
     }
 
 }
+
+let getColorListWithXYZList = (materialProvider, xyzList) => {
+
+    let colorList = [];
+
+    xyzList
+        .map((xyz, i, array) => {
+            let interpolant = i / (array.length - 1);
+            return materialProvider.colorForInterpolant(interpolant);
+        })
+        .forEach((rgb) => {
+            const { r, g, b } = rgb;
+            colorList.push(r, g, b);
+        });
+
+    return colorList;
+};
 
 let createThinSpline = (structure, colorRampMaterialProvider) => {
 

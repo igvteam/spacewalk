@@ -38,13 +38,13 @@ class ColorRampMaterialProvider {
         // rgb
         rgbTexture = new THREE.CanvasTexture(this.rgb_ctx.canvas);
         rgbTexture.center.set(0.5, 0.5);
-        rgbTexture.rotation = Math.PI/2.0;
+        rgbTexture.rotation = -Math.PI/2.0;
         rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
 
         // alpha
         alphaTexture = new THREE.CanvasTexture(this.alphamap_ctx.canvas);
         alphaTexture.center.set(0.5, 0.5);
-        alphaTexture.rotation = Math.PI/2.0;
+        alphaTexture.rotation = -Math.PI/2.0;
         alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
 
         let material = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });

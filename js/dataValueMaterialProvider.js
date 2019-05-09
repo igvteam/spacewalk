@@ -11,7 +11,7 @@ let alphaTexture;
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
-const missingDataColor = rgb255String(appleCrayonColorRGB255('nickel'));
+const missingDataColor = rgb255String(appleCrayonColorRGB255('mercury'));
 
 class DataValueMaterialProvider {
 
