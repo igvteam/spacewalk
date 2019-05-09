@@ -95,7 +95,8 @@ let main = async container => {
 
     juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator());
 
-    dataValueMaterialProvider = new DataValueMaterialProvider({ width: 1024, height: 128, colorMinimum: appleCrayonColorRGB255('strawberry'), colorMaximum: appleCrayonColorRGB255('blueberry')  });
+    // dataValueMaterialProvider = new DataValueMaterialProvider({ width: 1024, height: 128, colorMinimum: appleCrayonColorRGB255('strawberry'), colorMaximum: appleCrayonColorRGB255('blueberry')  });
+    dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('ocean'), colorMaximum: appleCrayonColorRGB255('maraschino'), highlightColor  });
 
     noodle = new Noodle();
 

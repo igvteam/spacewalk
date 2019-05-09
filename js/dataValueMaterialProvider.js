@@ -1,7 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 
-import { rgbRandom255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255ToThreeJSColor } from './color.js';
+import { rgb255, rgbRandom255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255ToThreeJSColor } from './color.js';
 import { quantize } from "./math.js";
 import { segmentIndexForInterpolant } from "./utils.js";
 import {sceneManager} from "./main.js";
@@ -15,7 +15,7 @@ const missingDataColor = rgb255String(appleCrayonColorRGB255('nickel'));
 
 class DataValueMaterialProvider {
 
-    constructor ({ width, height, colorMinimum, colorMaximum }) {
+    constructor ({ width, height, colorMinimum, colorMaximum, highlightColor }) {
         let canvas;
 
         // rgb
@@ -50,6 +50,9 @@ class DataValueMaterialProvider {
 
         this.colorMinimum = colorMinimum;
         this.colorMaximum = colorMaximum;
+
+        const { r, g, b } = highlightColor;
+        this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
         globalEventBus.subscribe("DidLeaveGUI", this);
         globalEventBus.subscribe("DidSelectSegmentIndex", this);
@@ -149,14 +152,9 @@ class DataValueMaterialProvider {
         if (highlightedSegmentIndexSet) {
 
             // set highlight color
-            // this.highlight_ctx.fillStyle = this.highlightColor;
+            this.rgb_ctx.fillStyle = this.highlightColor;
 
-            // paint alpha map transparent
-            this.alpha_ctx.clearRect(0, 0, width, height);
-
-            // set opaque color
-            this.alpha_ctx.fillStyle = alpha_visible;
-
+            let xList = [];
             for (let x = 0;  x < width; x++) {
 
                 const interpolant = (x / (width - 1));
@@ -164,11 +162,13 @@ class DataValueMaterialProvider {
                 const segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
 
                 if (highlightedSegmentIndexSet.has(segmentIndex)) {
-                    // this.highlight_ctx.fillRect(0, x, width, 1);
-                    this.alpha_ctx.fillRect(x, 0, 1, height);
+                    xList.push(x);
                 }
 
-            } // for (y)
+            } // for (x)
+
+            this.rgb_ctx.fillRect(xList[ 0 ], 0, 1, height);
+            this.rgb_ctx.fillRect(xList[ (xList.length - 1) ], 0, 1, height);
 
         } // if (highlightedSegmentIndexSet)
 
