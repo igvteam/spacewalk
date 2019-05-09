@@ -145,10 +145,35 @@ class DataValueMaterialProvider {
 
         const { width, height } = this.alpha_ctx.canvas;
 
-        // paint alpha map opaque
         this.alpha_ctx.fillStyle = alpha_visible;
         this.alpha_ctx.fillRect(0, 0, width, height);
 
+        // remove regions that have no features
+        this.alpha_ctx.clearRect(0, 0, width, height);
+        for (let feature of features) {
+
+            let { start: fsBP, end: feBP } = feature;
+
+            if (feBP < startBP) {
+                continue;
+            } else if (fsBP > endBP) {
+                continue;
+            }
+
+            fsBP = Math.max(startBP, fsBP);
+            feBP = Math.min(  endBP, feBP);
+
+            let startPixel = (fsBP - startBP) / bpp;
+            let   endPixel = (feBP - startBP) / bpp;
+            let widthPixel = endPixel - startPixel;
+
+            startPixel = Math.round(startPixel);
+            widthPixel = Math.round(widthPixel);
+            this.alpha_ctx.fillRect(startPixel, 0, widthPixel, this.alpha_ctx.canvas.height);
+
+        }
+
+        // paint highlight
         if (highlightedSegmentIndexSet) {
 
             // set highlight color
@@ -167,8 +192,11 @@ class DataValueMaterialProvider {
 
             } // for (x)
 
-            this.rgb_ctx.fillRect(xList[ 0 ], 0, 1, height);
-            this.rgb_ctx.fillRect(xList[ (xList.length - 1) ], 0, 1, height);
+            // this.rgb_ctx.fillRect(xList[ 0 ], 0, 1, height);
+            // this.rgb_ctx.fillRect(xList[ (xList.length - 1) ], 0, 1, height);
+
+            const x_centerline = (xList[ 0 ] + xList[ (xList.length - 1) ]) >> 1;
+            this.rgb_ctx.fillRect(x_centerline, 0, 1, height);
 
         } // if (highlightedSegmentIndexSet)
 
