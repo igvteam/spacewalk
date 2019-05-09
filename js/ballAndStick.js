@@ -30,6 +30,12 @@ class BallAndStick {
         if (undefined === this.balls) {
             return;
         }
+
+        this.balls.mesh.forEach((m, i, array) => {
+            const interpolant = i / (array.length - 1);
+            const color = materialProvider.colorForInterpolant(interpolant);
+            m.material = new THREE.MeshPhongMaterial({ color });
+        });
     }
 
     createBalls(structure, materialProvider) {

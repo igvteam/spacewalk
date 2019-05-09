@@ -78,6 +78,9 @@ export const mainEventListener =
 
                 dataValueMaterialProvider.structureLength = structure.length;
 
+                igvPanel.trackDataHandler();
+
+
                 igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
                     IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.length})
                 });

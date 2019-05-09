@@ -145,6 +145,24 @@ class IGVPanel {
         return { features, min, max };
     }
 
+    async trackDataHandler () {
+
+        if (this.currentDataTrack) {
+
+            const { features, min, max } = await this.getFeaturesForTrack(this.currentDataTrack);
+
+            const { start, end } = this.locus;
+            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+
+            sceneManager.materialProvider = dataValueMaterialProvider;
+            noodle.updateMaterialProvider(sceneManager.materialProvider);
+            ballAndStick.updateMaterialProvider(sceneManager.materialProvider);
+
+        }
+
+
+    };
+
     onWindowResize() {
         if (false === this.isHidden) {
             this.layout();
@@ -199,22 +217,9 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
     globalEventBus.post({ type: 'DidSelectSegmentIndex', data: [segmentIndex] });
 };
 
-
-
 export let customIGVTrackHandler = async (track) => {
-
-    let ta = Date.now();
-    const { features, min, max } = await igvPanel.getFeaturesForTrack(track);
-    let sec = (Date.now() - ta)/1e3;
-    console.log('IGV Panel - Get Feature ' + sec + 'sec.');
-
-    const { start, end } = igvPanel.locus;
-    dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
-
-    sceneManager.materialProvider = dataValueMaterialProvider;
-    noodle.updateMaterialProvider(sceneManager.materialProvider);
-    ballAndStick.updateMaterialProvider(sceneManager.materialProvider);
-
+    igvPanel.currentDataTrack = track;
+    igvPanel.trackDataHandler();
 };
 
 export default IGVPanel;
