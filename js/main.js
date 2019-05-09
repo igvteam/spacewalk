@@ -112,7 +112,7 @@ let main = async container => {
 
 };
 
-let setup = async ({ structure }) => {
+let setup = ({ structure }) => {
 
     noodle.configure(structure, sceneManager.materialProvider, sceneManager.renderStyle);
     ballAndStick.configure(structure, sceneManager.materialProvider, sceneManager.renderStyle);
