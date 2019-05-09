@@ -25,6 +25,13 @@ class BallAndStick {
         }
     }
 
+    updateMaterialProvider (materialProvider) {
+
+        if (undefined === this.balls) {
+            return;
+        }
+    }
+
     createBalls(structure, materialProvider) {
 
         // 3D Object dictionary. Key is string-ified genomic location.

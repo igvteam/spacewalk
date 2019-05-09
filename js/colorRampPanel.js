@@ -1,12 +1,12 @@
 import { globalEventBus } from "./eventBus.js";
 
-import { guiManager } from "./main.js";
-
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import ColorMapManager from "./colorMapManager.js";
 
 import { makeDraggable } from "./draggable.js";
 import { moveOffScreen, moveOnScreen } from './utils.js';
+
+import { noodle, ballAndStick, sceneManager, guiManager } from "./main.js";
 
 class ColorRampPanel {
 
@@ -43,6 +43,12 @@ class ColorRampPanel {
         this.$panel.on('mouseleave.trace3d.toolpanel', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI" });
+        });
+
+        this.$panel.on('click.trace3d.toolpanel', (event) => {
+            sceneManager.materialProvider = this.colorRampMaterialProvider;
+            noodle.updateMaterialProvider(sceneManager.materialProvider);
+            ballAndStick.updateMaterialProvider(sceneManager.materialProvider);
         });
 
         globalEventBus.subscribe("ToggleUIControl", this);

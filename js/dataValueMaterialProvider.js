@@ -86,7 +86,6 @@ class DataValueMaterialProvider {
 
             const { r, g, b } = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolant);
             this.rgb_ctx.fillStyle = rgb255String({ r, g, b });
-
             // this.rgb_ctx.fillStyle = rgb255String(rgbRandom255(128, 255));
 
             startPixel = Math.round(startPixel);

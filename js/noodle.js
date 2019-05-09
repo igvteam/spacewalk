@@ -34,6 +34,32 @@ class Noodle {
 
     }
 
+    updateMaterialProvider (materialProvider) {
+
+        if (undefined === this.tube || undefined === this.spline) {
+            return;
+        }
+
+        // tube
+        this.tube.mesh.material = materialProvider.material;
+
+        // fat spline
+        let colors = [];
+        this.spline.xyzList
+            .map((xyz, i, array) => {
+                let interpolant = i / (array.length - 1);
+                interpolant = 1 - interpolant;
+                return materialProvider.colorForInterpolant(interpolant);
+            })
+            .forEach((rgb) => {
+                const { r, g, b } = rgb;
+                colors.push(r, g, b);
+            });
+
+        this.spline.mesh.geometry.setColors( colors );
+
+    }
+
     createTube(structure, material) {
 
         const knots = structure.map((obj) => {
@@ -64,12 +90,6 @@ class Noodle {
 
         const xyzList = curve.getPoints( howmany );
 
-        const rgbList = xyzList.map((xyz, index) => {
-            let interpolant = index / (xyzList.length - 1);
-            interpolant = 1 - interpolant;
-            return materialProvider.colorForInterpolant(interpolant);
-        });
-
         let vertices = [];
         xyzList.forEach((xyz) => {
             const { x, y, z } = xyz;
@@ -77,10 +97,16 @@ class Noodle {
         });
 
         let colors = [];
-        rgbList.forEach((rgb) => {
-            const { r, g, b } = rgb;
-            colors.push(r, g, b);
-        });
+        xyzList
+            .map((xyz, i) => {
+                let interpolant = i / (xyzList.length - 1);
+                interpolant = 1 - interpolant;
+                return materialProvider.colorForInterpolant(interpolant);
+            })
+            .forEach((rgb) => {
+                const { r, g, b } = rgb;
+                colors.push(r, g, b);
+            });
 
         let geometry = new FatLineGeometry();
         geometry.setPositions( vertices );
@@ -93,7 +119,7 @@ class Noodle {
         mesh.scale.set( 1, 1, 1 );
         mesh.name = 'noodle_spline';
 
-        return { mesh };
+        return { mesh, xyzList };
 
     };
 

@@ -1,10 +1,12 @@
 import { globalEventBus } from "../eventBus.js";
 import igv from '../../vendor/igv/igv.esm.js';
-import { structureManager } from '../main.js';
+
 import { segmentIndexForInterpolant } from '../colorRampMaterialProvider.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
 import { moveOffScreen, moveOnScreen } from '../utils.js';
+
+import { noodle, ballAndStick, dataValueMaterialProvider, igvPanel, structureManager, sceneManager } from "../main.js";
 
 let currentURL = undefined;
 class IGVPanel {
@@ -196,6 +198,24 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
     const segmentIndex = segmentIndexForInterpolant(lerp(a, b, interpolant), structureLength);
 
     globalEventBus.post({ type: 'DidSelectSegmentIndex', data: [segmentIndex] });
+};
+
+
+
+export let customIGVTrackHandler = async (track) => {
+
+    let ta = Date.now();
+    const { features, min, max } = await igvPanel.getFeaturesForTrack(track);
+    let sec = (Date.now() - ta)/1e3;
+    console.log('IGV Panel - Get Feature ' + sec + 'sec.');
+
+    const { start, end } = igvPanel.locus;
+    dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+
+    sceneManager.materialProvider = dataValueMaterialProvider;
+    noodle.updateMaterialProvider(sceneManager.materialProvider);
+    ballAndStick.updateMaterialProvider(sceneManager.materialProvider);
+
 };
 
 export default IGVPanel;

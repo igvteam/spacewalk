@@ -1,19 +1,21 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
+
 import OrbitalCamera from "./orbitalCamera.js";
-import { getMouseXY } from "./utils.js";
-import {appleCrayonColorHexValue, appleCrayonColorThreeJS} from "./color.js";
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import Noodle from "./noodle.js";
-import { ballAndStick } from "./main.js";
 import BallAndStick from "./ballAndStick.js";
+
+import { ballAndStick, colorRampPanel } from "./main.js";
+import { getMouseXY } from "./utils.js";
+import {appleCrayonColorHexValue, appleCrayonColorThreeJS} from "./color.js";
 
 let currentStructureCentroid = undefined;
 
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, renderer, picker, hemisphereLight }) {
+    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, renderer, picker, hemisphereLight, materialProvider }) {
 
         this.renderStyle = Noodle.getRenderStyle();
 
@@ -40,6 +42,8 @@ class SceneManager {
         this.picker = picker;
 
         this.hemisphereLight = hemisphereLight;
+
+        this.materialProvider = materialProvider;
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 
@@ -211,7 +215,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
             // skyColor | groundColor | intensity
-            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 )
+            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 ),
+            materialProvider: colorRampPanel.colorRampMaterialProvider
         };
 
 };

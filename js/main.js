@@ -10,6 +10,7 @@ import { structureFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator }
 
 // IGV Panel
 import IGVPanel from './igv/IGVPanel.js';
+import { customIGVTrackHandler } from './igv/IGVPanel.js';
 import { trackRegistryFile, igvBrowserConfigurator } from './igv/igvConfigurator.js';
 
 // Track Load Controller
@@ -81,18 +82,7 @@ let main = async container => {
     juiceboxBrowser = await juiceboxPanel.createBrowser({ container: $('#trace3d_juicebox_root_container'), width: 400, height: 400 });
     juiceboxPanel.defaultConfiguration();
 
-    let customTrackHandler = async (track) => {
-
-        let ta = Date.now();
-        const { features, min, max } = await igvPanel.getFeaturesForTrack(track);
-        let sec = (Date.now() - ta)/1e3;
-        console.log('IGV Panel - Get Feature ' + sec + 'sec.');
-
-        const { start, end } = igvPanel.locus;
-        dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
-    };
-
-    igvBrowser = await igvPanel.createBrowser(igvBrowserConfigurator(customTrackHandler));
+    igvBrowser = await igvPanel.createBrowser(igvBrowserConfigurator(customIGVTrackHandler));
 
     trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvBrowser, trackRegistryFile, $googleDriveButton: undefined } ));
 
@@ -122,8 +112,8 @@ let main = async container => {
 
 let setup = async ({ structure }) => {
 
-    noodle.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
-    ballAndStick.configure(structure, dataValueMaterialProvider, sceneManager.renderStyle);
+    noodle.configure(structure, sceneManager.materialProvider, sceneManager.renderStyle);
+    ballAndStick.configure(structure, sceneManager.materialProvider, sceneManager.renderStyle);
 
     // noodle.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
     // ballAndStick.configure(structure, colorRampPanel.colorRampMaterialProvider, sceneManager.renderStyle);
