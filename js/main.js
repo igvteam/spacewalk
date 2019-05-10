@@ -97,7 +97,7 @@ let main = async container => {
 
     // dataValueMaterialProvider = new DataValueMaterialProvider({ width: 1024, height: 128, colorMinimum: appleCrayonColorRGB255('strawberry'), colorMaximum: appleCrayonColorRGB255('blueberry')  });
     // dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('ocean'), colorMaximum: appleCrayonColorRGB255('maraschino'), highlightColor  });
-    dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('aluminum'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
+    dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 
     noodle = new Noodle();
 
