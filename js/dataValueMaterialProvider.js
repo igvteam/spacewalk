@@ -3,8 +3,8 @@ import { globalEventBus } from "./eventBus.js";
 
 import { rgb255, rgbRandom255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255ToThreeJSColor } from './color.js';
 import { quantize } from "./math.js";
-import { segmentIndexForInterpolant } from "./utils.js";
-import {sceneManager} from "./main.js";
+import { numberFormatter, segmentIndexForInterpolant } from "./utils.js";
+import { sceneManager } from "./main.js";
 
 let rgbTexture;
 let alphaTexture;
@@ -62,24 +62,25 @@ class DataValueMaterialProvider {
 
         if ("DidSelectSegmentIndex" === type) {
 
-            this.highlight(data);
+            const { interpolantList } = data;
+            this.highlight(interpolantList);
 
         } else if (sceneManager && "DidLeaveGUI" === type) {
 
             let { startBP, endBP, features, min, max } = this;
-            this.paint({ startBP, endBP, features, min, max, highlightedSegmentIndexSet: undefined });
+            this.paint({ startBP, endBP, features, min, max, interpolantList: undefined });
 
         }
     }
 
-    highlight(segmentIndexList) {
+    highlight(interpolantList) {
 
         if (undefined === this.structureLength) {
             return;
         }
 
         let { startBP, endBP, features, min, max } = this;
-        this.paint({ startBP, endBP, features, min, max, highlightedSegmentIndexSet: new Set(segmentIndexList) });
+        this.paint({ startBP, endBP, features, min, max, interpolantList });
     }
 
     configure({ startBP, endBP, features, min, max }) {
@@ -94,10 +95,10 @@ class DataValueMaterialProvider {
         this.min = min;
         this.max = max;
 
-        this.paint({ startBP, endBP, features, min, max, highlightedSegmentIndexSet: undefined });
+        this.paint({ startBP, endBP, features, min, max, interpolantList: undefined });
     }
 
-    paint({ startBP, endBP, features, min, max, highlightedSegmentIndexSet }) {
+    paint({ startBP, endBP, features, min, max, interpolantList }) {
 
         if (undefined === features) {
             return;
@@ -173,32 +174,45 @@ class DataValueMaterialProvider {
 
         }
 
-        // paint highlight
-        if (highlightedSegmentIndexSet) {
+        if (interpolantList) {
 
-            // set highlight color
+            this.alpha_ctx.fillStyle = alpha_visible;
             this.rgb_ctx.fillStyle = this.highlightColor;
 
-            let xList = [];
-            for (let x = 0;  x < width; x++) {
+            interpolantList.forEach(interpolant => {
+               const x = Math.round(interpolant * this.rgb_ctx.canvas.width);
+                this.alpha_ctx.fillRect(x, 0, 1, this.alpha_ctx.canvas.height);
+                this.rgb_ctx.fillRect(x, 0, 1, this.rgb_ctx.canvas.height);
+            });
 
-                const interpolant = (x / (width - 1));
-                const quantizedInterpolant = quantize(interpolant, this.structureLength);
-                const segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
+        }
 
-                if (highlightedSegmentIndexSet.has(segmentIndex)) {
-                    xList.push(x);
-                }
-
-            } // for (x)
-
-            // this.rgb_ctx.fillRect(xList[ 0 ], 0, 1, height);
-            // this.rgb_ctx.fillRect(xList[ (xList.length - 1) ], 0, 1, height);
-
-            const x_centerline = (xList[ 0 ] + xList[ (xList.length - 1) ]) >> 1;
-            this.rgb_ctx.fillRect(x_centerline, 0, 1, height);
-
-        } // if (highlightedSegmentIndexSet)
+        // paint highlight
+        // if (highlightedSegmentIndexSet) {
+        //
+        //     // set highlight color
+        //     this.rgb_ctx.fillStyle = this.highlightColor;
+        //
+        //     let xList = [];
+        //     for (let x = 0;  x < width; x++) {
+        //
+        //         const interpolant = (x / (width - 1));
+        //         const quantizedInterpolant = quantize(interpolant, this.structureLength);
+        //         const segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
+        //
+        //         if (highlightedSegmentIndexSet.has(segmentIndex)) {
+        //             xList.push(x);
+        //         }
+        //
+        //     } // for (x)
+        //
+        //     // this.rgb_ctx.fillRect(xList[ 0 ], 0, 1, height);
+        //     // this.rgb_ctx.fillRect(xList[ (xList.length - 1) ], 0, 1, height);
+        //
+        //     const x_centerline = (xList[ 0 ] + xList[ (xList.length - 1) ]) >> 1;
+        //     this.rgb_ctx.fillRect(x_centerline, 0, 1, height);
+        //
+        // } // if (highlightedSegmentIndexSet)
 
     }
 

@@ -205,7 +205,7 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
     let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
     const segmentIndex = segmentIndexForInterpolant(lerp(a, b, interpolant), structureLength);
 
-    globalEventBus.post({ type: 'DidSelectSegmentIndex', data: [segmentIndex] });
+    globalEventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolant ], segmentIndexList: [ segmentIndex ]} });
 };
 
 export let customIGVTrackHandler = async (track) => {

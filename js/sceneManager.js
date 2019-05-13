@@ -59,12 +59,13 @@ class SceneManager {
         globalEventBus.subscribe("DidSelectSegmentIndex", this);
     }
 
+
     receiveEvent({ type, data }) {
 
         if ("DidSelectSegmentIndex" === type && BallAndStick.getRenderStyle() === this.renderStyle) {
 
             let objects = [];
-            data.forEach(item => {
+            data.segmentIndexList.forEach(item => {
                 const index = item - 1;
                 if (ballAndStick.objectList[ index ]) {
                     let { object } = ballAndStick.objectList[ index ];
