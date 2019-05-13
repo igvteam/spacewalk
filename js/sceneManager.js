@@ -7,17 +7,17 @@ import PickHighlighter from "./pickHighlighter.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 
-import { ballAndStick, colorRampPanel } from "./main.js";
+import { guiManager, ballAndStick, colorRampPanel } from "./main.js";
 import { getMouseXY } from "./utils.js";
 import {appleCrayonColorHexValue, appleCrayonColorThreeJS} from "./color.js";
 
 let currentStructureCentroid = undefined;
 
+const disposableSet = new Set([ 'groundplane', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
+
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, renderer, picker, hemisphereLight, materialProvider }) {
-
-        this.renderStyle = Noodle.getRenderStyle();
+    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, renderer, picker, hemisphereLight, materialProvider, isGroundplaneHidden, renderStyle }) {
 
         this.doUpdateCameraPose = true;
 
@@ -44,6 +44,10 @@ class SceneManager {
         this.hemisphereLight = hemisphereLight;
 
         this.materialProvider = materialProvider;
+
+        this.isGroundplaneHidden = isGroundplaneHidden;
+
+        this.renderStyle = renderStyle;
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 
@@ -74,14 +78,13 @@ class SceneManager {
 
 
         } else if ("ToggleGroundplane" === type) {
-            this.groundPlane.visible = data;
+            this.isGroundplaneHidden = data;
+            this.groundPlane.visible = this.isGroundplaneHidden;
         }
 
     }
 
     defaultConfiguration() {
-
-        this.renderStyle = Noodle.getRenderStyle();
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
@@ -102,23 +105,22 @@ class SceneManager {
 
         // Nice numbers
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
-        this.groundPlane = new THREE.GridHelper(2 * Math.max(extentX, extentY, extentZ), 16, this.groundPlaneColor, this.groundPlaneColor);
+        const dimen = 2 * Math.max(extentX, extentY, extentZ);
+        this.groundPlane = new THREE.GridHelper(dimen, 16, this.groundPlaneColor, this.groundPlaneColor);
+
+        this.groundPlane.name = 'groundplane';
+        this.groundPlane.visible = this.isGroundplaneHidden;
 
         this.groundPlane.material.opacity = 0.25;
         this.groundPlane.material.transparent = true;
 
         this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
 
-        this.groundPlane.name = 'groundplane';
-
-        // TODO: Support toggling groundplane
-        this.groundPlane.visible = false;
-
         this.scene.add( this.groundPlane );
 
     }
 
-    configure({ scene, structureExtent, cameraPosition, structureCentroid, fov }) {
+    configure({ scene, min, max, boundingDiameter, cameraPosition, centroid, fov }) {
 
         this.scene = scene;
         this.scene.background = this.background;
@@ -126,34 +128,39 @@ class SceneManager {
         this.scene.add(this.hemisphereLight);
 
         if (true === this.doUpdateCameraPose) {
-            this.orbitalCamera.setPose({ position: cameraPosition, centroid: structureCentroid });
+            this.orbitalCamera.setPose({ position: cameraPosition, centroid: centroid });
         } else {
 
             // maintain the pre-existing delta between camera target and groundplane beneath stucture
             const delta = this.orbitalCamera.orbitControl.target.clone().sub(currentStructureCentroid);
 
-            const _centroid = structureCentroid.clone().add(delta);
+            const _centroid = centroid.clone().add(delta);
             this.orbitalCamera.setTarget({ centroid: _centroid });
         }
 
-        currentStructureCentroid = structureCentroid.clone();
+        currentStructureCentroid = centroid.clone();
 
-        const [ near, far, aspectRatio ] = [ 1e-1 * structureExtent, 3e1 * structureExtent, (window.innerWidth/window.innerHeight) ];
+        const [ near, far, aspectRatio ] = [ 1e-1 * boundingDiameter, 3e1 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
 
         this.orbitalCamera.setProjection({ fov, near, far, aspectRatio });
 
         // Add camera to scene. This is need to allow lights to be attached to camera
         this.scene.add( this.orbitalCamera.camera );
 
-        // const thang = this.scene.getObjectByName( 'groundplane' );
-        // console.log('groundplane ' + thang.name);
+        // groundplane
+        this.groundPlane.geometry.dispose();
+        this.groundPlane.material.dispose();
 
-        // position groundplane beneath structure along the vertical (y) axis.
-        let wye = structureCentroid.y - (structureExtent.y/2.0);
+        this.groundPlane = new THREE.GridHelper(boundingDiameter, 16, this.groundPlaneColor, this.groundPlaneColor);
 
-        const fudge = 4e-2;
-        wye -= fudge * structureExtent.y;
-        this.groundPlane.position.set(structureCentroid.x, wye, structureCentroid.z);
+        this.groundPlane.name = 'groundplane';
+        this.groundPlane.visible = this.isGroundplaneHidden;
+
+        this.groundPlane.material.opacity = 0.25;
+        this.groundPlane.material.transparent = true;
+
+        const dy = (min.y - centroid.y);
+        this.groundPlane.position.set(centroid.x, (centroid.y + dy), centroid.z);
 
         this.scene.add( this.groundPlane );
 
@@ -185,7 +192,8 @@ class SceneManager {
         if (this.scene) {
 
             let disposable = this.scene.children.filter(child => {
-                return 'noodle' === child.name || 'ball' === child.name || 'stick' === child.name || 'noodle_spline' === child.name
+                // return 'noodle' === child.name || 'ball' === child.name || 'stick' === child.name || 'noodle_spline' === child.name
+                return disposableSet.has(child.name);
             });
 
             disposable.forEach(d => this.scene.remove(d));
@@ -210,13 +218,16 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
             container,
             ballRadius: 32,
             stickMaterial,
-            backgroundColor: appleCrayonColorThreeJS('mercury'),
-            groundPlaneColor: appleCrayonColorHexValue('steel'),
+            // backgroundColor: appleCrayonColorThreeJS('mercury'),
+            backgroundColor: appleCrayonColorThreeJS('snow'),
+            groundPlaneColor: appleCrayonColorThreeJS('steel'),
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
             // skyColor | groundColor | intensity
             hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 ),
-            materialProvider: colorRampPanel.colorRampMaterialProvider
+            materialProvider: colorRampPanel.colorRampMaterialProvider,
+            isGroundplaneHidden: guiManager.isGroundplaneHidden($('#trace3d_ui_manager_panel')),
+            renderStyle: guiManager.getRenderingStyle()
         };
 
 };

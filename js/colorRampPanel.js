@@ -46,6 +46,7 @@ class ColorRampPanel {
         });
 
         this.$panel.on('click.trace3d.toolpanel', (event) => {
+            event.stopPropagation();
             sceneManager.materialProvider = this.colorRampMaterialProvider;
             noodle.updateMaterialProvider(sceneManager.materialProvider);
             ballAndStick.updateMaterialProvider(sceneManager.materialProvider);

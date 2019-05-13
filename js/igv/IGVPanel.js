@@ -133,33 +133,24 @@ class IGVPanel {
 
     };
 
-    async getFeaturesForTrack(track) {
+    async trackDataHandler (track) {
 
-        const { referenceFrame } = this.browser.genomicStateList[ 0 ];
-        const { bpPerPixel } = referenceFrame;
-
-        const { chr, start, end } = this.locus;
-        const features = await track.getFeatures(chr, start, end, bpPerPixel);
-
-        const { min, max } = track.dataRange;
-        return { features, min, max };
-    }
-
-    async trackDataHandler () {
+        if (track) {
+            this.currentDataTrack = track;
+        }
 
         if (this.currentDataTrack) {
 
-            const { features, min, max } = await this.getFeaturesForTrack(this.currentDataTrack);
+            const { referenceFrame } = this.browser.genomicStateList[ 0 ];
+            const { bpPerPixel } = referenceFrame;
 
-            const { start, end } = this.locus;
+            const { chr, start, end } = this.locus;
+            const features = await this.currentDataTrack.getFeatures(chr, start, end, bpPerPixel);
+
+            const { min, max } = this.currentDataTrack.dataRange;
+
             dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
-
-            sceneManager.materialProvider = dataValueMaterialProvider;
-            noodle.updateMaterialProvider(sceneManager.materialProvider);
-            ballAndStick.updateMaterialProvider(sceneManager.materialProvider);
-
         }
-
 
     };
 
@@ -218,8 +209,13 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
 };
 
 export let customIGVTrackHandler = async (track) => {
-    igvPanel.currentDataTrack = track;
-    igvPanel.trackDataHandler();
+
+    await igvPanel.trackDataHandler(track);
+
+    sceneManager.materialProvider = dataValueMaterialProvider;
+    noodle.updateMaterialProvider(sceneManager.materialProvider);
+    ballAndStick.updateMaterialProvider(sceneManager.materialProvider);
+
 };
 
 export default IGVPanel;

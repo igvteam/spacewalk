@@ -97,7 +97,7 @@ let main = async container => {
 
     // dataValueMaterialProvider = new DataValueMaterialProvider({ width: 1024, height: 128, colorMinimum: appleCrayonColorRGB255('strawberry'), colorMaximum: appleCrayonColorRGB255('blueberry')  });
     // dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('ocean'), colorMaximum: appleCrayonColorRGB255('maraschino'), highlightColor  });
-    dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('aluminum'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
+    dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 
     noodle = new Noodle();
 
@@ -112,7 +112,7 @@ let main = async container => {
 
 };
 
-let setup = async ({ structure }) => {
+let setup = ({ structure }) => {
 
     noodle.configure(structure, sceneManager.materialProvider, sceneManager.renderStyle);
     ballAndStick.configure(structure, sceneManager.materialProvider, sceneManager.renderStyle);
@@ -125,10 +125,10 @@ let setup = async ({ structure }) => {
     noodle.addToScene(scene);
     ballAndStick.addToScene(scene);
 
-    const { center, radius } = ballAndStick.getBounds();
+    const { min, max, center, radius } = ballAndStick.getBounds();
     const { position, fov } = ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
 
-    sceneManager.configure({scene, structureExtent: (2 * radius), cameraPosition: position, structureCentroid: center, fov});
+    sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
 
     if (false === thumbnailPanel.isHidden) {
         const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;

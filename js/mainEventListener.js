@@ -7,7 +7,7 @@ import { numberFormatter } from "./utils.js";
 
 export const mainEventListener =
     {
-        receiveEvent: async ({ type, data }) => {
+        receiveEvent: ({ type, data }) => {
 
             let structure;
 
@@ -50,7 +50,7 @@ export const mainEventListener =
 
                 dataValueMaterialProvider.structureLength = structure.length;
 
-                await setup({ structure });
+                setup({ structure });
 
             } else if ('DidLoadFile' === type) {
 
@@ -93,7 +93,7 @@ export const mainEventListener =
 
                 sceneManager.dispose();
 
-                await setup({ structure });
+                setup({ structure });
 
                 sceneManager.doUpdateCameraPose = false;
 
