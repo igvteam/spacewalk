@@ -125,10 +125,10 @@ let setup = ({ structure }) => {
     noodle.addToScene(scene);
     ballAndStick.addToScene(scene);
 
-    const { center, radius } = ballAndStick.getBounds();
+    const { min, max, center, radius } = ballAndStick.getBounds();
     const { position, fov } = ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
 
-    sceneManager.configure({scene, structureExtent: (2 * radius), cameraPosition: position, structureCentroid: center, fov});
+    sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
 
     if (false === thumbnailPanel.isHidden) {
         const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;
