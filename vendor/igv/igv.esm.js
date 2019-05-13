@@ -33125,7 +33125,7 @@ var igv = (function (igv) {
             exon.children.push(cds)
         } else {
             cds.cdStart = cds.start
-            cds.ccdEnd = cds.end
+            cds.cdEnd = cds.end
             exons.push(cds)
         }
 
@@ -47124,7 +47124,7 @@ var igv = (function (igv) {
         }
 
         if (typeof track.paintAxis === 'function') {
-            appendLeftHandGutter.call(this, $(this.trackDiv));
+            appendLeftHandGutter.call(this, $(this.trackDiv), browser.config.customTrackHandler);
         }
 
         this.$viewportContainer = $('<div class="igv-viewport-container">');
@@ -47231,7 +47231,7 @@ var igv = (function (igv) {
 
     };
 
-    function appendLeftHandGutter($parent) {
+    function appendLeftHandGutter($parent, customTrackHandler) {
 
         var self = this,
             $leftHandGutter,
@@ -47241,10 +47241,10 @@ var igv = (function (igv) {
         this.leftHandGutter = $leftHandGutter[0];
         $parent.append($leftHandGutter);
 
-        if (this.track.config.customTrackHandler) {
+        if (customTrackHandler) {
 
             $leftHandGutter.on('click.track.left_hand_gutter', () => {
-                this.track.config.customTrackHandler(this.track);
+                customTrackHandler(this.track);
             });
 
         } else if (this.track.dataRange) {
@@ -52078,8 +52078,8 @@ var igv = (function (igv) {
             const popupClickHandlerResult = browser.fireEvent('trackclick', [track, dataList]);
 
             let content;
-            if (undefined === popupClickHandlerResult) {
-
+            if (undefined === popupClickHandlerResult || true === popupClickHandlerResult) {
+                // Indicates handler did not handle the result, or the handler wishes default behavior to occur
                 if (dataList && dataList.length > 0) {
                     content = formatPopoverText(dataList);
                 }

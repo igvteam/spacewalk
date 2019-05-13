@@ -103,7 +103,7 @@ class ColorRampMaterialProvider {
 
         } else if ("DidSelectSegmentIndex" === type) {
             // console.log(Date.now() + ' highlight');
-            this.highlight(data);
+            this.highlight(data.segmentIndexList);
 
         } else if (sceneManager && "DidLeaveGUI" === type) {
             // console.log(Date.now() + ' repaint');
@@ -138,7 +138,7 @@ class ColorRampMaterialProvider {
 
         if (currentSegmentIndex !== segmentIndex) {
             currentSegmentIndex = segmentIndex;
-            globalEventBus.post({type: "DidSelectSegmentIndex", data: [ segmentIndex ] });
+            globalEventBus.post({type: "DidSelectSegmentIndex", data: { segmentIndexList: [ segmentIndex ] } });
         }
 
     };

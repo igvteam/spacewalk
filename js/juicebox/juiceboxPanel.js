@@ -169,9 +169,9 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
     [ a, b ] = [ (startYBP - genomicStart)/(genomicEnd - genomicStart), (endYBP - genomicStart)/(genomicEnd - genomicStart) ];
     const segmentIndexY = segmentIndexForInterpolant(lerp(a, b, interpolantY), structureLength);
 
-    const list = segmentIndexX === segmentIndexY ? [ segmentIndexX ] : [ segmentIndexX, segmentIndexY ];
+    const segmentIndexList = segmentIndexX === segmentIndexY ? [ segmentIndexX ] : [ segmentIndexX, segmentIndexY ];
 
-    globalEventBus.post({ type: 'DidSelectSegmentIndex', data: list });
+    globalEventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolantX, interpolantY ], segmentIndexList } });
 };
 
 export let juiceboxSelectLoader = async ($select) => {
