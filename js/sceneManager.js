@@ -111,8 +111,8 @@ class SceneManager {
 
         this.groundPlane.name = 'groundplane';
 
-        // TODO: Support toggling groundplane
         this.groundPlane.visible = false;
+        // this.groundPlane.visible = true;
 
         this.scene.add( this.groundPlane );
 
@@ -153,7 +153,7 @@ class SceneManager {
 
         const fudge = 4e-2;
         wye -= fudge * structureExtent.y;
-        this.groundPlane.position.set(structureCentroid.x, wye, structureCentroid.z);
+        this.groundPlane.position.set(structureCentroid.x,structureCentroid.y, structureCentroid.z);
 
         this.scene.add( this.groundPlane );
 
@@ -212,7 +212,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
             stickMaterial,
             // backgroundColor: appleCrayonColorThreeJS('mercury'),
             backgroundColor: appleCrayonColorThreeJS('snow'),
-            groundPlaneColor: appleCrayonColorHexValue('steel'),
+            groundPlaneColor: appleCrayonColorThreeJS('steel'),
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
             // skyColor | groundColor | intensity

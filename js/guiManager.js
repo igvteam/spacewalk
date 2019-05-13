@@ -12,57 +12,52 @@ class GUIManager {
             $panel.toggle();
         });
 
-        const $groundplane_input = $panel.find('#trace3d_ui_manager_groundplane');
-        $groundplane_input.on('change.gui_manager_groundplane', (e) => {
-            e.preventDefault();
-            globalEventBus .post({ type: "ToggleGroundplane", data: $groundplane_input.prop('checked') });
-        });
-
-        // const $ui_controls_input = $panel.find('#trace3d_ui_manager_ui_controls');
-        // $ui_controls_input.on('change.gui_manager_ui_controls', (e) => {
-        //     e.preventDefault();
-        //     globalEventBus .post({ type: "ToggleAllUIControls", data: $ui_controls_input.prop('checked') });
-        // });
-
         [
+            'trace3d_ui_manager_groundplane',
             'trace3d_ui_manager_ui_controls_color_ramp',
             'trace3d_ui_manager_ui_controls_structure_select',
             'trace3d_ui_manager_ui_controls_juicebox',
             'trace3d_ui_manager_ui_controls_igv',
             'trace3d_ui_manager_ui_controls_thumbnail'
-        ].forEach((input_id) => {
-            const selector = '#' + input_id;
-            const $input = $panel.find(selector);
-            const change = 'change.' + input_id;
-            $input.on(change, (e) => {
-                e.preventDefault();
-                const payload = $input.data('target');
-                globalEventBus .post({ type: "ToggleUIControl", data: { $input, payload } });
-            });
+        ].forEach(input_id => configurePanelVisibility($panel, input_id));
 
-        });
-
-        const $inputBallAndSick = $panel.find('#trace3d-render-style-ball-stick');
-        $inputBallAndSick.val(BallAndStick.getRenderStyle());
-
-        $inputBallAndSick.on('change.gui_manager.render_style_ball_stick', (e) => {
-            e.preventDefault();
-            globalEventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
-        });
-
-
-        const $inputNoodle = $panel.find('#trace3d-render-style-noodle');
-        $inputNoodle.val(Noodle.getRenderStyle());
-
-        $inputNoodle.on('change.gui_manager.render_style_noodle', (e) => {
-            e.preventDefault();
-            globalEventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
-        });
+        configureRenderStyleRadioButton($panel.find('#trace3d-render-style-ball-stick'), BallAndStick.getRenderStyle());
+        configureRenderStyleRadioButton($panel.find('#trace3d-render-style-noodle'), Noodle.getRenderStyle());
     }
 
     isPanelHidden (panelID) {
         return !(this.$panel.find(`[data-target='${panelID}']`).prop('checked'));
     }
 }
+
+const configurePanelVisibility = ($guiPanel, input_id) => {
+
+    const selector = '#' + input_id;
+    const $input = $guiPanel.find(selector);
+    const change = 'change.' + input_id;
+    $input.on(change, (e) => {
+
+        e.preventDefault();
+
+        if ('trace3d_ui_manager_groundplane' === input_id) {
+            globalEventBus .post({ type: "ToggleGroundplane", data: $input.prop('checked') });
+        } else {
+            const payload = $input.data('target');
+            globalEventBus .post({ type: "ToggleUIControl", data: { $input, payload } });
+        }
+    });
+
+};
+
+const configureRenderStyleRadioButton = ($input, renderStyle) => {
+
+    $input.val( renderStyle );
+
+    $input.on('change.gui_manager.render_style_ball_stick', (e) => {
+        e.preventDefault();
+        globalEventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
+    });
+
+};
 
 export default GUIManager;
