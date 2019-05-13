@@ -17,9 +17,7 @@ const disposableSet = new Set([ 'groundplane', 'noodle', 'ball' , 'stick' , 'noo
 
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, renderer, picker, hemisphereLight, materialProvider, isGroundplaneHidden }) {
-
-        this.renderStyle = Noodle.getRenderStyle();
+    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, renderer, picker, hemisphereLight, materialProvider, isGroundplaneHidden, renderStyle }) {
 
         this.doUpdateCameraPose = true;
 
@@ -48,6 +46,8 @@ class SceneManager {
         this.materialProvider = materialProvider;
 
         this.isGroundplaneHidden = isGroundplaneHidden;
+
+        this.renderStyle = renderStyle;
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 
@@ -85,8 +85,6 @@ class SceneManager {
     }
 
     defaultConfiguration() {
-
-        this.renderStyle = Noodle.getRenderStyle();
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
@@ -228,7 +226,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
             // skyColor | groundColor | intensity
             hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 ),
             materialProvider: colorRampPanel.colorRampMaterialProvider,
-            isGroundplaneHidden: guiManager.isGroundplaneHidden($('#trace3d_ui_manager_panel'))
+            isGroundplaneHidden: guiManager.isGroundplaneHidden($('#trace3d_ui_manager_panel')),
+            renderStyle: guiManager.getRenderingStyle()
         };
 
 };

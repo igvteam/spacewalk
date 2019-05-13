@@ -25,6 +25,11 @@ class GUIManager {
         configureRenderStyleRadioButton($panel.find('#trace3d-render-style-noodle'), Noodle.getRenderStyle());
     }
 
+    getRenderingStyle () {
+        const id = this.$panel.find("input:radio[name='trace3d-render-style']:checked").attr('id');
+        return 'trace3d-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Noodle.getRenderStyle();
+    }
+
     isGroundplaneHidden () {
         const $input = this.$panel.find('#trace3d_ui_manager_groundplane');
         return $input.prop('checked');
