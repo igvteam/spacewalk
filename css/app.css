@@ -203,20 +203,6 @@
   #trace3d_igv_panel.card #trace3d_igv_container.card-body {
     height: 256px;
     overflow: auto; }
-    #trace3d_igv_panel.card #trace3d_igv_container.card-body .trace3d_card_drag_container {
-      width: 100%;
-      height: 32px;
-      background-color: transparent; }
-      #trace3d_igv_panel.card #trace3d_igv_container.card-body .trace3d_card_drag_container i.fa-grip-horizontal {
-        color: #6e6e6e;
-        display: block; }
-    #trace3d_igv_panel.card #trace3d_igv_container.card-body .form-group {
-      width: 100%;
-      padding: 6px; }
-    #trace3d_igv_panel.card #trace3d_igv_container.card-body .spinner-border {
-      margin-left: 8px;
-      margin-right: 8px;
-      color: #6e6e6e; }
     #trace3d_igv_panel.card #trace3d_igv_container.card-body #trace3d_igv_root_container {
       width: 100%;
       height: 100%;

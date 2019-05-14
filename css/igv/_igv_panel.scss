@@ -33,8 +33,6 @@ $trace3d_igv_panel_heigth: 256px;
   overflow: scroll;
 
   width: $trace3d_igv_panel_width;
-
-  //height: $trace3d_igv_panel_heigth;
   height: auto;
 
   align-items: center;
@@ -44,36 +42,7 @@ $trace3d_igv_panel_heigth: 256px;
   #trace3d_igv_container.card-body {
 
     height: $trace3d_igv_panel_heigth;
-    //height: unset;
     overflow: auto;
-
-    .trace3d_card_drag_container {
-
-      width: 100%;
-      height: $trace3d_card_drag_container_height;
-      background-color: transparent;
-
-      i.fa-grip-horizontal {
-        color: $trace3d_steel;
-        display: block;
-      }
-
-    }
-
-    // url loader
-    .form-group {
-      width: 100%;
-      //margin-top: 8px;
-      //margin-bottom: 8px;
-      padding: 6px;
-    }
-
-    // spinner
-    .spinner-border {
-      margin-left: 8px;
-      margin-right: 8px;
-      color: $trace3d_steel;
-    }
 
     // track container
     #trace3d_igv_root_container {
