@@ -50,10 +50,9 @@ class ModalTable {
         this.$modal = $m
         this.$datatableContainer = $m.find(`#${id}-datatable-container`)
         this.$spinner = $m.find(`#${id}-spinner`)
-        this.$okButton = $m.find('.modal-footer button:nth-child(2)')
+        const $okButton = $m.find('.modal-footer button:nth-child(2)')
 
-        const that = this
-        $m.on('show.bs.modal', (e) => {
+        $m.on('shown.bs.modal', (e) => {
             this.buildTable()
         })
 
@@ -61,7 +60,7 @@ class ModalTable {
             $(e.relatedTarget).find('tr.selected').removeClass('selected')
         })
 
-        this.$okButton.on('click', (e) => {
+        $okButton.on('click', (e) => {
             const selected = this.getSelectedTableRowsData.call(this, this.$dataTable.$('tr.selected'))
             if (selected && this.selectHandler) {
                 this.selectHandler(selected)
