@@ -24,13 +24,15 @@
 import {configureModal} from './utils-igv-webapp.js';
 import FileLoadWidget from './fileLoadWidget.js';
 import FileLoadManager from './fileLoadManager.js';
-import EncodeDataSource from '../encode/encode.js';
-import ModalTable from '../encode/modalTable.js';
+import ModalTable from '../../vendor/encode/modalTable.js'
+import EncodeDataSource from '../../vendor/encode/encodeDataSource.js'
+
 import MultipleFileLoadController from "./multipleFileLoadController.js";
 
 class TrackLoadController {
 
-    constructor({ browser, trackRegistryFile, $urlModal, $encodeModal, $dropdownMenu, $genericTrackSelectModal, uberFileLoader}) {
+    constructor({ browser, trackRegistryFile, $urlModal, encodeModalTable, $dropdownMenu, $genericTrackSelectModal, uberFileLoader}) {
+
 
         let urlConfig;
 
@@ -38,7 +40,8 @@ class TrackLoadController {
         this.browser = browser;
         this.$modal = $genericTrackSelectModal;
         this.$dropdownMenu = $dropdownMenu;
-        this.$encodeModal = $encodeModal;
+
+        this.encodeModalTable = encodeModalTable;
 
         // URL
         urlConfig =
@@ -81,64 +84,29 @@ class TrackLoadController {
 
     }
 
-    createEncodeTable() {
-
-        const browser = this.browser;
-
-        const columnFormat =
-            [
-                {title: 'Cell Type', width: '7%'},
-                {title: 'Target', width: '8%'},
-                {title: 'Assay Type', width: '20%'},
-                {title: 'Output Type', width: '20%'},
-                {title: 'Bio Rep', width: '5%'},
-                {title: 'Tech Rep', width: '5%'},
-                {title: 'Format', width: '5%'},
-                {title: 'Experiment', width: '7%'},
-                {title: 'Accession', width: '8%'},
-                {title: 'Lab', width: '20%'}
-            ];
-
-        const encodeDatasource = new EncodeDataSource(columnFormat);
-
-        const encodeTableConfig =
-            {
-                $modal: this.$encodeModal,
-                $modalBody: this.$encodeModal.find('.modal-body'),
-                $modalTopCloseButton: this.$encodeModal.find('.modal-header button:nth-child(1)'),
-                $modalBottomCloseButton: this.$encodeModal.find('.modal-footer button:nth-child(1)'),
-                $modalGoButton: this.$encodeModal.find('.modal-footer button:nth-child(2)'),
-                datasource: encodeDatasource,
-                browserHandler: (trackConfigurations) => {
-                    browser.loadTrackList(trackConfigurations);
-                }
-            };
-
-        return new ModalTable(encodeTableConfig);
-
-
+    createEncodeTable(genomeID) {
+        const datasource = new EncodeDataSource(genomeID);
+        this.encodeModalTable.setDatasource(datasource)
     };
 
     async updateTrackMenus(genomeID) {
 
         const id_prefix = 'genome_specific_';
 
-        const self = this;
-
-        const $divider = self.$dropdownMenu.find('#igv-app-annotations-section');
+        const $divider = this.$dropdownMenu.find('#igv-app-annotations-section');
 
         const searchString = '[id^=' + id_prefix + ']';
-        const $found = self.$dropdownMenu.find(searchString);
+        const $found = this.$dropdownMenu.find(searchString);
         $found.remove();
 
-        self.trackRegistry = await this.getTrackRegistry();
+        this.trackRegistry = await this.getTrackRegistry();
 
-        if (undefined === self.trackRegistry) {
+        if (undefined === this.trackRegistry) {
             console.log("Info -- No track registry file  (config.trackRegistryFile)");
             return;
         }
 
-        const paths = self.trackRegistry[ genomeID ];
+        const paths = this.trackRegistry[ genomeID ];
 
         if (undefined === paths) {
             console.log("No tracks defined for: " + genomeID);
@@ -163,20 +131,13 @@ class TrackLoadController {
         let encodeConfiguration = results.filter((c) => { return 'ENCODE' === c.type });
         if (encodeConfiguration && encodeConfiguration.length > 0) {
 
-            encodeConfiguration = encodeConfiguration.pop();
-            encodeConfiguration.encodeTable = self.createEncodeTable(encodeConfiguration.genomeID);
+            this.createEncodeTable(encodeConfiguration[ 0 ].genomeID);
 
-            try {
+            const $button = $('<button>', { 'class':'dropdown-item', 'type':'button', 'data-toggle':'modal', 'data-target':'#igv-app-encode-modal' });
+            $button.insertAfter($divider);
 
-                // TESTING
-                // await igv.xhr.loadJson('http://www.nothingtoseehere.com', {});
-
-                encodeConfiguration.data = await encodeConfiguration.encodeTable.loadData(encodeConfiguration.genomeID);
-                configurations.push(encodeConfiguration);
-            } catch(err) {
-                console.error(err);
-            }
-
+            const { label } = encodeConfiguration[ 0 ];
+            $button.text( (label + ' ...') );
         }
 
         let gtexConfiguration = results.filter((c) => { return 'GTEX' === c.type });
@@ -216,19 +177,10 @@ class TrackLoadController {
                     markup += '<div>' + config.description + '</div>';
                 }
 
-                self.$modal.find('#igv-app-generic-track-select-modal-label').html(markup);
+                this.$modal.find('#igv-app-generic-track-select-modal-label').html(markup);
 
-                if ('ENCODE' === config.type) {
-
-                    config.encodeTable.buildTable(true);
-                    config.encodeTable.config.$modal.modal('show');
-
-                } else {
-
-                    configureModalSelectList(self.$modal, config.tracks, config.label);
-                    self.$modal.modal('show');
-                }
-
+                configureModalSelectList(this.$modal, config.tracks, config.label);
+                this.$modal.modal('show');
 
             });
 
@@ -256,11 +208,20 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
             }
         };
 
+    const encodeModalTableConfig =
+        {
+            id: "igv-app-encode-modal",
+            title: "ENCODE",
+            selectHandler: trackConfigurations => {
+                browser.loadTrackList(trackConfigurations);
+            }
+        };
+
     return {
         browser,
         trackRegistryFile,
         $urlModal: $('#igv-app-track-from-url-modal'),
-        $encodeModal: $('#igv-app-encode-modal'),
+        encodeModalTable: new ModalTable(encodeModalTableConfig),
         $dropdownMenu: $('#igv-app-track-dropdown-menu'),
         $genericTrackSelectModal: $('#igv-app-generic-track-select-modal'),
         uberFileLoader: new MultipleFileLoadController(browser, multipleFileTrackConfig)
