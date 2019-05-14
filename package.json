@@ -21,6 +21,7 @@
     "webpack-cli": "^3.2.1"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.2.5"
+    "@babel/polyfill": "^7.2.5",
+    "dataModal": "github:igvteam/data-modal#dat_modaltable"
   }
 }
