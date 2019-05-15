@@ -1,6 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { sceneManager, structureManager } from "./main.js";
 import { degrees } from './math.js';
+import { colorDescriptionThreeJS } from './color.js';
 
 class BallAndStick {
 
@@ -56,6 +57,7 @@ class BallAndStick {
             const [ x, y, z ] = obj.xyz;
 
             const color = materialProvider.colorForInterpolant(index / (structure.length - 1));
+            // console.log(' ball color ' + colorDescriptionThreeJS(color));
 
             // const material = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
             const material = new THREE.MeshPhongMaterial({ color });
