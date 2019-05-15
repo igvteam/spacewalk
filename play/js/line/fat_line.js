@@ -1,10 +1,10 @@
-import * as THREE from '../../../js/threejs_es6/three.module.js';
-import OrbitControls from '../../../js/threejs_es6/orbit-controls-es6.js';
-import hilbert3D from '../../../js/threejs_es6/hilbert3D.js';
+import * as THREE from '../../../js/threejs/three.module.js';
+import OrbitControls from '../../../js/threejs/orbit-controls-es6.js';
+import hilbert3D from '../../../js/threejs/hilbert3D.js';
 
-import FatLineGeometry from "../../../js/threejs_es6/fatlines/fatLineGeometry.js";
-import FatLineMaterial from "../../../js/threejs_es6/fatlines/fatLineMaterial.js";
-import FatLine from "../../../js/threejs_es6/fatlines/fatLine.js";
+import FatLineGeometry from "../../../js/threejs/fatlines/fatLineGeometry.js";
+import FatLineMaterial from "../../../js/threejs/fatlines/fatLineMaterial.js";
+import FatLine from "../../../js/threejs/fatlines/fatLine.js";
 
 import { appleCrayonNames, appleCrayonColorHexValue } from '../../../js/color.js';
 

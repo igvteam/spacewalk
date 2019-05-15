@@ -1,5 +1,5 @@
 import CubicMapManager from "./cubicMapManager.js";
-import * as THREE from "./threejs_es6/three.module.js";
+import * as THREE from '../node_modules/three/build/three.module.js';
 
 // const specularTextureRoot = 'texture/cubic/diagnostic/threejs_format/';
 // const specularTextureRoot = 'texture/cubic/specular/aerodynamics_workshop/';
