@@ -1,4 +1,4 @@
-import * as THREE from '../../../js/threejs/three.module.js';
+import * as THREE from '../../../js/threejs_es6/three.module.js';
 
 class MarchingCubes {
 

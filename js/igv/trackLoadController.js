@@ -24,8 +24,10 @@
 import {configureModal} from './utils-igv-webapp.js';
 import FileLoadWidget from './fileLoadWidget.js';
 import FileLoadManager from './fileLoadManager.js';
-import EncodeDataSource from '../../node_modules/dataModal/js/encodeDataSource.js'
-import ModalTable from '../../node_modules/dataModal/js/modalTable.js'
+import ModalTable from '../../vendor/encode/modalTable.js'
+import EncodeDataSource from '../../vendor/encode/encodeDataSource.js'
+// import EncodeDataSource from '../../node_modules/dataModal/js/encodeDataSource.js'
+// import ModalTable from '../../node_modules/dataModal/js/modalTable.js'
 
 import MultipleFileLoadController from "./multipleFileLoadController.js";
 
