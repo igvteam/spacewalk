@@ -2,8 +2,8 @@ import * as THREE from "./threejs_es6/three.module.js";
 import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "./threejs_es6/fatlines/fatLine.js";
-import { sceneManager } from "./main.js";
-import { degrees } from './math.js';
+import { sceneManager, structureManager } from "./main.js";
+import { degrees, clamp, lerp } from './math.js';
 
 let fatLineMaterial;
 
@@ -56,8 +56,11 @@ class Noodle {
             return new THREE.Vector3( x, y, z );
         });
 
+        const tubularSegments = getTubularSegmentCount(structureManager.locus);
+        const radialSegments = getRadialSegmentCount(structureManager.locus);
+
         const axis = new THREE.CatmullRomCurve3(knots);
-        const geometry = new THREE.TubeBufferGeometry(axis, 1024, sceneManager.ballRadius, 96, false);
+        const geometry = new THREE.TubeBufferGeometry(axis, tubularSegments, sceneManager.ballRadius, radialSegments, false);
 
         const mesh = new THREE.Mesh(geometry, material);
         mesh.name = 'noodle';
@@ -75,9 +78,10 @@ class Noodle {
 
         const curve = new THREE.CatmullRomCurve3(knots);
 
-        const howmany = 2048;
+        // const pointCount = 2048;
+        const pointCount = getFatSplinePointCount(structureManager.locus);
 
-        const xyzList = curve.getPoints( howmany );
+        const xyzList = curve.getPoints( pointCount );
 
         let vertices = [];
         xyzList.forEach((xyz) => {
@@ -195,7 +199,44 @@ class Noodle {
 
 }
 
-let getColorListWithXYZList = (materialProvider, xyzList) =>  {
+const getRadialSegmentCount = (locus) => {
+
+    const { genomicStart, genomicEnd } = locus;
+    const genomicLengthMB = (genomicEnd - genomicStart) / 1e6;
+
+    const [ minLog10, maxLog10 ] = [ 0.25, 2.5 ];
+    let log10 = Math.log10(genomicLengthMB);
+    log10 = clamp(log10, minLog10, maxLog10);
+
+    const interpolant = (log10 - minLog10) / (maxLog10 - minLog10);
+
+    let count = lerp(48, 4, interpolant);
+    count = Math.round(count);
+
+    return count;
+
+};
+
+const getTubularSegmentCount = locus => {
+    return getCountMultiplier(locus) * 1024;
+    // return 1024;
+};
+
+const getFatSplinePointCount = locus => {
+    return getCountMultiplier(locus) * 2048;
+};
+
+const getCountMultiplier = locus => {
+
+    const { genomicStart, genomicEnd } = locus;
+
+    let multiplier = (genomicEnd - genomicStart) / 2e6;
+    multiplier = Math.round(multiplier);
+
+    return multiplier;
+};
+
+const getColorListWithXYZList = (materialProvider, xyzList) =>  {
 
     let colorList = [];
 
@@ -212,7 +253,7 @@ let getColorListWithXYZList = (materialProvider, xyzList) =>  {
     return colorList;
 };
 
-let createThinSpline = (structure, colorRampMaterialProvider) => {
+const createThinSpline = (structure, colorRampMaterialProvider) => {
 
     const knots = structure.map((obj) => {
         let [ x, y, z ] = obj.xyz;
