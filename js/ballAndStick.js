@@ -1,7 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { sceneManager, structureManager } from "./main.js";
 import { degrees } from './math.js';
-import { colorDescriptionThreeJS } from './color.js';
+import { colorDescriptionRGBOrThreeJS } from './color.js';
 
 class BallAndStick {
 

@@ -1,9 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
-
-import { rgb255, rgbRandom255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255ToThreeJSColor } from './color.js';
-import { quantize } from "./math.js";
-import { numberFormatter, segmentIndexForInterpolant } from "./utils.js";
+import BallAndStick from "./ballAndStick.js";
+import { rgb255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, rgb255ToThreeJSColor } from './color.js';
 import { sceneManager } from "./main.js";
 
 let rgbTexture;
@@ -11,7 +9,6 @@ let alphaTexture;
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
-const missingFeatureColor = rgb255String(appleCrayonColorRGB255('mercury'));
 const diagnosticColor = appleCrayonColorThreeJS('strawberry');
 class DataValueMaterialProvider {
 
@@ -182,7 +179,9 @@ class DataValueMaterialProvider {
     }
 
     colorForInterpolant(interpolant) {
-        return this.colorMinimum;
+        // const { r, g, b } = this.colorMinimum;
+        // const color = BallAndStick.getRenderStyle() === sceneManager.renderStyle ? sceneManager.stickMaterial.color : rgb255ToThreeJSColor(r, g, b);
+        return sceneManager.stickMaterial.color;
     }
 
     renderLoopHelper () {

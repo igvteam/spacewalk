@@ -1,7 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { lerp, clamp, random } from './math.js';
 
-export const colorDescriptionThreeJS = (color) => {
+export const colorDescriptionRGBOrThreeJS = color => {
     const { r, g, b } = color;
     return `rgb(${r.toFixed(3)},${g.toFixed(3)},${b.toFixed(3)})`
 };

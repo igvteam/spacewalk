@@ -195,7 +195,7 @@ class Noodle {
 
 }
 
-let getColorListWithXYZList = (materialProvider, xyzList) => {
+let getColorListWithXYZList = (materialProvider, xyzList) =>  {
 
     let colorList = [];
 
