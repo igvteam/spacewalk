@@ -1,4 +1,4 @@
-import { Vector3, MOUSE, Quaternion, Spherical, Vector2, EventDispatcher } from '../../node_modules/three/build/three.module.js';
+import { Vector3, MOUSE, Quaternion, Spherical, Vector2, EventDispatcher } from './three.module.js';
 
 /**
  * @author qiao / https://github.com/qiao
