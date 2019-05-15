@@ -1,9 +1,7 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
-
-import { rgb255, rgbRandom255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255ToThreeJSColor } from './color.js';
-import { quantize } from "./math.js";
-import { numberFormatter, segmentIndexForInterpolant } from "./utils.js";
+import BallAndStick from "./ballAndStick.js";
+import { rgb255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, rgb255ToThreeJSColor } from './color.js';
 import { sceneManager } from "./main.js";
 
 let rgbTexture;
@@ -11,8 +9,7 @@ let alphaTexture;
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
-const missingDataColor = rgb255String(appleCrayonColorRGB255('mercury'));
-
+const diagnosticColor = appleCrayonColorThreeJS('strawberry');
 class DataValueMaterialProvider {
 
     constructor ({ width, height, colorMinimum, colorMaximum, highlightColor }) {
@@ -54,6 +51,8 @@ class DataValueMaterialProvider {
         const { r, g, b } = highlightColor;
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
+        this.featureRects = undefined;
+
         globalEventBus.subscribe("DidLeaveGUI", this);
         globalEventBus.subscribe("DidSelectSegmentIndex", this);
     }
@@ -67,8 +66,8 @@ class DataValueMaterialProvider {
 
         } else if (sceneManager && "DidLeaveGUI" === type) {
 
-            let { startBP, endBP, features, min, max } = this;
-            this.paint({ startBP, endBP, features, min, max, interpolantList: undefined });
+            let { featureRects } = this;
+            this.paint({ featureRects, interpolantList: undefined });
 
         }
     }
@@ -79,8 +78,8 @@ class DataValueMaterialProvider {
             return;
         }
 
-        let { startBP, endBP, features, min, max } = this;
-        this.paint({ startBP, endBP, features, min, max, interpolantList });
+        let { featureRects } = this;
+        this.paint({ featureRects, interpolantList });
     }
 
     configure({ startBP, endBP, features, min, max }) {
@@ -95,23 +94,18 @@ class DataValueMaterialProvider {
         this.min = min;
         this.max = max;
 
-        this.paint({ startBP, endBP, features, min, max, interpolantList: undefined });
-    }
-
-    paint({ startBP, endBP, features, min, max, interpolantList }) {
-
-        if (undefined === features) {
-            return;
+        if (features) {
+            this.featureRects = this.createFeatureRectList({ startBP, endBP, features, min, max });
         }
 
-        // initialize rgb map to color indicating no data
-        this.rgb_ctx.fillStyle = missingDataColor;
-        this.rgb_ctx.fillRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
-        // this.rgb_ctx.clearRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
+        let { featureRects } = this;
+        this.paint({ featureRects, interpolantList: undefined });
+    }
 
+    createFeatureRectList({ startBP, endBP, features, min, max }) {
+
+        let list = [];
         const bpp = (endBP - startBP) / this.rgb_ctx.canvas.width;
-
-        this.colorTable = new Array(this.rgb_ctx.canvas.width);
 
         for (let feature of features) {
 
@@ -129,96 +123,65 @@ class DataValueMaterialProvider {
             let startPixel = (fsBP - startBP) / bpp;
             let   endPixel = (feBP - startBP) / bpp;
             let widthPixel = endPixel - startPixel;
+
             let interpolant = (value - min) / (max - min);
 
             const { r, g, b } = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolant);
-            this.rgb_ctx.fillStyle = rgb255String({ r, g, b });
-            // this.rgb_ctx.fillStyle = rgb255String(rgbRandom255(128, 255));
+            let fillStyle = rgb255String({ r, g, b });
 
             startPixel = Math.round(startPixel);
             widthPixel = Math.round(widthPixel);
-            this.rgb_ctx.fillRect(startPixel, 0, widthPixel, this.rgb_ctx.canvas.height);
 
-            for (let p = startPixel; p <= endPixel; ++p) {
-                this.colorTable[ p ] = rgb255ToThreeJSColor(r, g, b)
-            }
+            list.push( { startPixel, widthPixel, fillStyle } )
+
         }
 
-        const { width, height } = this.alpha_ctx.canvas;
+        return list;
+    }
 
+    paint({ featureRects, interpolantList }) {
+
+        if (undefined === featureRects || 0 === featureRects.length) {
+            return;
+        }
+
+        // Initialize rgb to transparent. Paint color where features exist.
+        this.rgb_ctx.clearRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
+
+        // Initialize alpha to transparent. Make opaque where features exist.
         this.alpha_ctx.fillStyle = alpha_visible;
-        this.alpha_ctx.fillRect(0, 0, width, height);
+        this.alpha_ctx.clearRect(0, 0, this.alpha_ctx.canvas.width, this.alpha_ctx.canvas.height);
 
-        // remove regions that have no features
-        this.alpha_ctx.clearRect(0, 0, width, height);
-        for (let feature of features) {
+        for (let featureRect of featureRects) {
 
-            let { start: fsBP, end: feBP } = feature;
+            const { startPixel, widthPixel, fillStyle } = featureRect;
 
-            if (feBP < startBP) {
-                continue;
-            } else if (fsBP > endBP) {
-                continue;
-            }
+            this.rgb_ctx.fillStyle = fillStyle;
+            this.rgb_ctx.fillRect(startPixel, 0, widthPixel, this.rgb_ctx.canvas.height);
 
-            fsBP = Math.max(startBP, fsBP);
-            feBP = Math.min(  endBP, feBP);
-
-            let startPixel = (fsBP - startBP) / bpp;
-            let   endPixel = (feBP - startBP) / bpp;
-            let widthPixel = endPixel - startPixel;
-
-            startPixel = Math.round(startPixel);
-            widthPixel = Math.round(widthPixel);
+            // fillStyle is alpha_visible
             this.alpha_ctx.fillRect(startPixel, 0, widthPixel, this.alpha_ctx.canvas.height);
 
         }
 
         if (interpolantList) {
 
-            this.alpha_ctx.fillStyle = alpha_visible;
             this.rgb_ctx.fillStyle = this.highlightColor;
+            this.alpha_ctx.fillStyle = alpha_visible;
 
-            interpolantList.forEach(interpolant => {
-               const x = Math.round(interpolant * this.rgb_ctx.canvas.width);
-                this.alpha_ctx.fillRect(x, 0, 1, this.alpha_ctx.canvas.height);
+            for (let interpolant of interpolantList) {
+                const x = Math.round(interpolant * this.rgb_ctx.canvas.width);
                 this.rgb_ctx.fillRect(x, 0, 1, this.rgb_ctx.canvas.height);
-            });
-
+                this.alpha_ctx.fillRect(x, 0, 1, this.alpha_ctx.canvas.height);
+            }
         }
-
-        // paint highlight
-        // if (highlightedSegmentIndexSet) {
-        //
-        //     // set highlight color
-        //     this.rgb_ctx.fillStyle = this.highlightColor;
-        //
-        //     let xList = [];
-        //     for (let x = 0;  x < width; x++) {
-        //
-        //         const interpolant = (x / (width - 1));
-        //         const quantizedInterpolant = quantize(interpolant, this.structureLength);
-        //         const segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
-        //
-        //         if (highlightedSegmentIndexSet.has(segmentIndex)) {
-        //             xList.push(x);
-        //         }
-        //
-        //     } // for (x)
-        //
-        //     // this.rgb_ctx.fillRect(xList[ 0 ], 0, 1, height);
-        //     // this.rgb_ctx.fillRect(xList[ (xList.length - 1) ], 0, 1, height);
-        //
-        //     const x_centerline = (xList[ 0 ] + xList[ (xList.length - 1) ]) >> 1;
-        //     this.rgb_ctx.fillRect(x_centerline, 0, 1, height);
-        //
-        // } // if (highlightedSegmentIndexSet)
 
     }
 
     colorForInterpolant(interpolant) {
-        const index = Math.floor(interpolant * (this.colorTable.length - 1));
-        return this.colorTable[ index ];
+        // const { r, g, b } = this.colorMinimum;
+        // const color = BallAndStick.getRenderStyle() === sceneManager.renderStyle ? sceneManager.stickMaterial.color : rgb255ToThreeJSColor(r, g, b);
+        return sceneManager.stickMaterial.color;
     }
 
     renderLoopHelper () {

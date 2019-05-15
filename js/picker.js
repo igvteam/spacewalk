@@ -1,7 +1,6 @@
 import { globalEventBus } from "./eventBus.js";
 
-// const exclusionSet = new Set([ 'groundplane', 'stick' ]);
-const exclusionSet = new Set([ 'groundplane', 'noodle_spline', 'noodle' ]);
+const exclusionSet = new Set([ 'groundplane', 'noodle_spline', 'noodle', 'stick' ]);
 
 class Picker {
 
