@@ -3,7 +3,8 @@ import {globalEventBus} from "./eventBus.js";
 import { makeDraggable } from "./draggable.js";
 import { fitToContainer, moveOffScreen, moveOnScreen } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
-import { guiManager, ballAndStick, noodle, sceneManager } from "./main.js";
+import { guiManager } from './gui.js';
+import { ballAndStick, noodle, sceneManager } from "./main.js";
 import Noodle from "./noodle.js";
 
 class ThumbnailPanel {

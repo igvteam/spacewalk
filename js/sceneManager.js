@@ -6,8 +6,8 @@ import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-
-import { guiManager, ballAndStick, colorRampPanel } from "./main.js";
+import { guiManager, colorRampPanel } from './gui.js';
+import { ballAndStick } from "./main.js";
 import { getMouseXY } from "./utils.js";
 import {appleCrayonColorHexValue, appleCrayonColorThreeJS} from "./color.js";
 

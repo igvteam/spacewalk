@@ -21,7 +21,7 @@
  *
  */
 
-import { trackLoadController } from '../main.js';
+import { trackLoadController } from '../gui.js';
 
 let validIndexExtensionSet = new Set(['fai', 'bai', 'crai', 'tbi', 'idx']);
 let isValidIndexExtension = (path) => {

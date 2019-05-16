@@ -5,8 +5,8 @@ import ColorMapManager from "./colorMapManager.js";
 
 import { makeDraggable } from "./draggable.js";
 import { moveOffScreen, moveOnScreen } from './utils.js';
-
-import { noodle, ballAndStick, sceneManager, guiManager } from "./main.js";
+import { guiManager } from './gui.js';
+import { noodle, ballAndStick, sceneManager } from "./main.js";
 
 class ColorRampPanel {
 

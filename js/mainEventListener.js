@@ -2,8 +2,8 @@ import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { IGVMouseHandler } from "./igv/IGVPanel.js";
 import { juiceboxMouseHandler } from "./juicebox/juiceboxPanel.js";
-import { setup, dataValueMaterialProvider, colorRampPanel, thumbnailPanel, noodle, ballAndStick, structureSelectPanel, igvBrowser, igvPanel, juiceboxBrowser, juiceboxPanel, sceneManager, structureManager } from "./main.js";
-import { numberFormatter } from "./utils.js";
+import { colorRampPanel, thumbnailPanel, igvPanel, juiceboxPanel, structureSelectPanel, juiceboxBrowser, igvBrowser } from './gui.js';
+import { setup, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, structureManager } from "./main.js";
 
 export const mainEventListener =
     {

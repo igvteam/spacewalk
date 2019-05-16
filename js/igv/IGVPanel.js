@@ -1,11 +1,10 @@
 import { globalEventBus } from "../eventBus.js";
-import igv from '../../vendor/igv/igv.esm.js';
-
+import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
 import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
-
-import { noodle, ballAndStick, dataValueMaterialProvider, igvPanel, structureManager, sceneManager } from "../main.js";
+import { igvPanel } from '../gui.js';
+import { noodle, ballAndStick, dataValueMaterialProvider, structureManager, sceneManager } from "../main.js";
 
 let currentURL = undefined;
 class IGVPanel {
