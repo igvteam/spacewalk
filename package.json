@@ -1,7 +1,7 @@
 {
-  "name": "tracing3D",
-  "version": "1.0.0",
-  "description": "",
+  "name": "tracing",
+  "version": "0.1.0",
+  "description": "3D Chromosome Visualization Tool",
   "scripts": {
     "start": "http-server -a localhost build",
     "build": "webpack"
