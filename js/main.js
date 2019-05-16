@@ -31,7 +31,7 @@ let main = async container => {
 
     sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
     sceneManager.defaultConfiguration();
-    
+
     dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 
     noodle = new Noodle();
@@ -71,22 +71,8 @@ let setup = ({ structure }) => {
 };
 
 let renderLoop = () => {
-
     requestAnimationFrame( renderLoop );
-
-    if (sceneManager.scene && sceneManager.orbitalCamera) {
-
-        noodle.renderLoopHelper();
-
-        ballAndStick.renderLoopHelper();
-
-        sceneManager.materialProvider.renderLoopHelper();
-
-        dataValueMaterialProvider.renderLoopHelper();
-
-        sceneManager.renderer.render(sceneManager.scene, sceneManager.orbitalCamera.camera);
-    }
-
+    sceneManager.render();
 };
 
 export { main, setup, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, structureManager };

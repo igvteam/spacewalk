@@ -4,12 +4,12 @@ import { globalEventBus } from "./eventBus.js";
 import OrbitalCamera from "./orbitalCamera.js";
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
-import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
+
 import { guiManager, colorRampPanel } from './gui.js';
-import { ballAndStick } from "./main.js";
+import { dataValueMaterialProvider, noodle, ballAndStick } from "./main.js";
 import { getMouseXY } from "./utils.js";
-import {appleCrayonColorHexValue, appleCrayonColorThreeJS} from "./color.js";
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 
 let currentStructureCentroid = undefined;
 
@@ -202,6 +202,24 @@ class SceneManager {
             this.scene.dispose();
             delete this.scene;
         }
+    }
+
+    render () {
+
+        if (this.scene && this.orbitalCamera) {
+
+            noodle.renderLoopHelper();
+
+            ballAndStick.renderLoopHelper();
+
+            dataValueMaterialProvider.renderLoopHelper();
+
+            this.materialProvider.renderLoopHelper();
+
+            this.renderer.render(this.scene, this.orbitalCamera.camera);
+
+        }
+
     }
 
 }
