@@ -238,7 +238,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
             ballRadius: 32,
             stickMaterial,
             // backgroundColor: appleCrayonColorThreeJS('mercury'),
-            backgroundColor: appleCrayonColorThreeJS('snow'),
+            backgroundColor: appleCrayonColorThreeJS('nickel'),
             groundPlaneColor: appleCrayonColorThreeJS('steel'),
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
