@@ -227,17 +227,14 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
 
 };
 
-function configureModalSelectList($modal, configurations, promiseTaskName) {
-
-    let $select,
-        $option;
+function configureModalSelectList($modal, configurations) {
 
     $modal.find('select').remove();
 
-    $select = $('<select>', {class: 'form-control'});
+    let $select = $('<select>', {class: 'form-control'});
     $modal.find('.form-group').append($select);
 
-    $option = $('<option>', {text: 'Select...'});
+    let $option = $('<option>', {text: 'Select...'});
     $select.append($option);
 
     $option.attr('selected', 'selected');
