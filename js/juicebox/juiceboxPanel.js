@@ -1,6 +1,5 @@
 import { globalEventBus } from "../eventBus.js";
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
-import HICBrowser from '../../node_modules/juicebox.js/js/hicBrowser.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from '../math.js'
 import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
@@ -54,10 +53,24 @@ class JuiceboxPanel {
         }
     }
 
-    async initialize(config) {
-        const { container, width, height } = config;
-        await hic.createBrowser(container, { width, height });
-        this.browser = HICBrowser.getCurrentBrowser()
+    async initialize(browserConfig) {
+
+        const { container, width, height } = browserConfig;
+
+        this.browser = await hic.createBrowser(container, { width, height });
+
+        const hicConfig =
+            {
+                url: "https://hicfiles.s3.amazonaws.com/hiseq/gm12878/in-situ/HIC010.hic",
+                name: "Rao and Huntley et al. | Cell 2014 GM12878 (human) in situ MboI HIC010 (47M)",
+                isControl: false
+            };
+
+        await this.browser.loadHicFile(hicConfig);
+
+        this.locus = 'all';
+        await this.browser.parseGotoInput(this.locus);
+
     }
 
     async goto({ chr, start, end }) {

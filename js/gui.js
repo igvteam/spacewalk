@@ -4,7 +4,7 @@ import StructureSelectPanel from "./structureSelectPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
 import ThumbnailPanel, {thumbnailPanelConfigurator} from "./thumbnailPanel.js";
-import IGVPanel, { trackRegistryFile, customIGVTrackHandler, igvBrowserConfigurator } from "./igv/IGVPanel.js";
+import IGVPanel, { trackRegistryFile, igvBrowserConfigurator } from "./igv/IGVPanel.js";
 import TrackLoadController, { trackLoadControllerConfigurator } from "./igv/trackLoadController.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 
@@ -38,8 +38,7 @@ const createGUI = async container => {
 
     //
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });
-    await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
-    // await juiceboxPanel.defaultConfiguration();
+    await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
 
     structureFileLoadModal = new DataFileLoadModal(structureFileLoadModalConfigurator());
 

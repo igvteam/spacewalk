@@ -75,8 +75,8 @@ class IGVPanel {
 
             if (true === this.isHidden) {
                 moveOnScreen(this);
-                const { chr, start, end } = this.locus;
-                await this.browser.goto(chr, start, end);
+                // const { chr, start, end } = this.locus;
+                await this.browser.search(this.locus);
             } else {
                 moveOffScreen(this);
             }
@@ -89,6 +89,7 @@ class IGVPanel {
 
         try {
             this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
+            this.locus = this.browser.genomicStateList[ 0 ].locusSearchString;
         } catch (error) {
             console.warn(error.message);
         }
