@@ -55,14 +55,8 @@ class JuiceboxPanel {
     }
 
     async initialize(config) {
-
-        const { container } = config;
-
-        console.log('(0)');
-        await hic.initApp(container, {});
-        console.log('(1)');
-        await hic.updateAllBrowsers();
-        console.log('(2)');
+        const { container, width, height } = config;
+        await hic.createBrowser(container, { width, height });
         this.browser = HICBrowser.getCurrentBrowser()
     }
 
