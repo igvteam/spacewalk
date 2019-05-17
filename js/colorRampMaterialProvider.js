@@ -21,17 +21,17 @@ class ColorRampMaterialProvider {
         let canvas;
 
         // highlight canvas
-        canvas = $canvasContainer.find('#trace3d_color_ramp_canvas_highlight').get(0);
+        canvas = $canvasContainer.find('#spacewalk_color_ramp_canvas_highlight').get(0);
         fitToContainer(canvas);
         this.highlight_ctx = canvas.getContext('2d');
 
         // ramp rgb canvas
-        canvas = $canvasContainer.find('#trace3d_color_ramp_canvas_rgb').get(0);
+        canvas = $canvasContainer.find('#spacewalk_color_ramp_canvas_rgb').get(0);
         fitToContainer(canvas);
         this.rgb_ctx = canvas.getContext('2d');
 
         // alpha canvas indicating highlighted region of rgb canvas
-        canvas = $canvasContainer.find('#trace3d_color_ramp_canvas_alpha').get(0);
+        canvas = $canvasContainer.find('#spacewalk_color_ramp_canvas_alpha').get(0);
         fitToContainer(canvas);
         this.alphamap_ctx = canvas.getContext('2d');
 

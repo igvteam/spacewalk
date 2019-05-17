@@ -12,12 +12,12 @@ class StructureSelectPanel {
         this.$panel = $(panel);
         this.isHidden = isHidden;
 
-        this.$header = $('#trace3d_structure_select_header');
+        this.$header = $('#spacewalk_structure_select_header');
 
-        this.$input = $('#trace3d_structure_select_input');
+        this.$input = $('#spacewalk_structure_select_input');
 
-        this.$button_minus = $('#trace3d_structure_select_button_minus');
-        this.$button_plus = $('#trace3d_structure_select_button_plus');
+        this.$button_minus = $('#spacewalk_structure_select_button_minus');
+        this.$button_plus = $('#spacewalk_structure_select_button_plus');
 
         this.keys = undefined;
 
@@ -27,7 +27,7 @@ class StructureSelectPanel {
             this.layout();
         }
 
-        makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
+        makeDraggable(panel, $(panel).find('.spacewalk_card_drag_container').get(0));
 
         $(window).on('resize.trace3d.structure_select', () => { this.onWindowResize(container, panel) });
 
@@ -41,7 +41,7 @@ class StructureSelectPanel {
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
-        this.$button_minus.on('click.trace3d_structure_select_button_minus', (e) => {
+        this.$button_minus.on('click.spacewalk_structure_select_button_minus', (e) => {
 
             let number = parseInt(currentStructureKey);
             number = clamp(number - 1, 0, (this.keys.length - 1));
@@ -52,7 +52,7 @@ class StructureSelectPanel {
             globalEventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
         });
 
-        this.$button_plus.on('click.trace3d_structure_select_button_plus', (e) => {
+        this.$button_plus.on('click.spacewalk_structure_select_button_plus', (e) => {
 
             let number = parseInt(currentStructureKey);
             number = clamp(number + 1, 0, (this.keys.length - 1));
@@ -63,7 +63,7 @@ class StructureSelectPanel {
             globalEventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
         });
 
-        this.$input.on('keyup.trace3d_structure_select_input', (e) => {
+        this.$input.on('keyup.spacewalk_structure_select_input', (e) => {
 
             // enter (return) key pressed
             if (13 === e.keyCode) {

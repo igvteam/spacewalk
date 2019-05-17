@@ -13,25 +13,25 @@ class GUIManager {
         });
 
         [
-            'trace3d_ui_manager_groundplane',
-            'trace3d_ui_manager_ui_controls_color_ramp',
-            'trace3d_ui_manager_ui_controls_structure_select',
-            'trace3d_ui_manager_ui_controls_juicebox',
-            'trace3d_ui_manager_ui_controls_igv',
-            'trace3d_ui_manager_ui_controls_thumbnail'
+            'spacewalk_ui_manager_groundplane',
+            'spacewalk_ui_manager_ui_controls_color_ramp',
+            'spacewalk_ui_manager_ui_controls_structure_select',
+            'spacewalk_ui_manager_ui_controls_juicebox',
+            'spacewalk_ui_manager_ui_controls_igv',
+            'spacewalk_ui_manager_ui_controls_thumbnail'
         ].forEach(input_id => configurePanelVisibility($panel, input_id));
 
-        configureRenderStyleRadioButton($panel.find('#trace3d-render-style-ball-stick'), BallAndStick.getRenderStyle());
-        configureRenderStyleRadioButton($panel.find('#trace3d-render-style-noodle'), Noodle.getRenderStyle());
+        configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
+        configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
     }
 
     getRenderingStyle () {
-        const id = this.$panel.find("input:radio[name='trace3d-render-style']:checked").attr('id');
-        return 'trace3d-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Noodle.getRenderStyle();
+        const id = this.$panel.find("input:radio[name='spacewalk-render-style']:checked").attr('id');
+        return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Noodle.getRenderStyle();
     }
 
     isGroundplaneHidden () {
-        const $input = this.$panel.find('#trace3d_ui_manager_groundplane');
+        const $input = this.$panel.find('#spacewalk_ui_manager_groundplane');
         return $input.prop('checked');
     }
 
@@ -49,7 +49,7 @@ const configurePanelVisibility = ($guiPanel, input_id) => {
 
         e.preventDefault();
 
-        if ('trace3d_ui_manager_groundplane' === input_id) {
+        if ('spacewalk_ui_manager_groundplane' === input_id) {
             globalEventBus .post({ type: "ToggleGroundplane", data: $input.prop('checked') });
         } else {
             const payload = $input.data('target');

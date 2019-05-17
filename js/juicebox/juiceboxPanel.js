@@ -21,7 +21,7 @@ class JuiceboxPanel {
             this.layout();
         }
 
-        makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
+        makeDraggable(panel, $(panel).find('.spacewalk_card_drag_container').get(0));
 
         $(window).on('resize.trace3d.juicebox_panel', () => { this.onWindowResize(container, panel) });
 

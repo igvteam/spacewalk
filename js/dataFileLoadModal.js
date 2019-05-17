@@ -18,7 +18,7 @@ class DataFileLoadModal {
             selectLoader($select);
         }
 
-        $select.on('change.trace3d_data_file_load_select', async (event) => {
+        $select.on('change.spacewalk_data_file_load_select', async (event) => {
             event.stopPropagation();
 
             //
@@ -50,15 +50,15 @@ class DataFileLoadModal {
         $url_input.val('');
         $url_ok_button.prop('disabled', true);
 
-        $url_input.on('change.trace3d_data_file_load_url_input', (event) => {
+        $url_input.on('change.spacewalk_data_file_load_url_input', (event) => {
             event.stopPropagation();
             currentURL = event.target.value;
             $url_ok_button.prop('disabled', false);
         });
 
-        $url_ok_button.on('click.trace3d_data_file_load_url_button', async (event) => {
+        $url_ok_button.on('click.spacewalk_data_file_load_url_button', async (event) => {
             event.stopPropagation();
-            $url_input.trigger('change.trace3d_data_file_load_url_input');
+            $url_input.trigger('change.spacewalk_data_file_load_url_input');
             await loadURL({ url: currentURL, name: 'unnamed', fileLoader, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
 
             $url_input.val('');
@@ -79,7 +79,7 @@ class DataFileLoadModal {
         $url_cancel_button.on('click', doCancel);
 
         // local file
-        $localFileInput.on('change.trace3d-file-load-local', (event) => {
+        $localFileInput.on('change.spacewalk-file-load-local', (event) => {
             event.stopPropagation();
             loadFile(event.target.files[0], fileLoader);
         });
@@ -115,9 +115,9 @@ const loadFile = async (file, fileLoader) => {
 const structureFileLoadModalConfigurator = () => {
 
     return {
-        $urlModal: $('#trace3d-file-load-url-modal'),
-        $selectModal: $('#trace3d-file-load-select-modal'),
-        $localFileInput: $('#trace3d-file-load-local-input'),
+        $urlModal: $('#spacewalk-file-load-url-modal'),
+        $selectModal: $('#spacewalk-file-load-select-modal'),
+        $localFileInput: $('#spacewalk-file-load-local-input'),
         selectLoader: undefined,
         fileLoader: structureManager
     }
@@ -128,7 +128,7 @@ const juiceboxFileLoadModalConfigurator = () => {
     return {
         $urlModal: $('#hic-load-url-modal'),
         $selectModal: $('#hic-contact-map-select-modal'),
-        $localFileInput: $('#trace3d-juicebox-load-local-input'),
+        $localFileInput: $('#spacewalk-juicebox-load-local-input'),
         selectLoader: juiceboxSelectLoader,
         fileLoader: juiceboxPanel
     }

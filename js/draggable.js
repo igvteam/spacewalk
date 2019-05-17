@@ -1,4 +1,4 @@
-const namespace = '.trace3d_drag';
+const namespace = '.spacewalk_drag';
 let dragData;
 
 let makeDraggable = (targetElement, handleElement) => {

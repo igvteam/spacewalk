@@ -6,9 +6,9 @@
   padding-right:  0.50rem;
   padding-left:   0.50rem;
 
-  height: $trace3d_navbar_height;
+  height: $spacewalk_navbar_height;
 
-  //background-color: $trace3d_iron;
+  //background-color: $spacewalk_iron;
 }
 
 .navbar-brand {
@@ -21,10 +21,10 @@
   white-space: nowrap;
 }
 
-#tracing3d-navbar-content {
+#spacewalk-navbar-content {
 
-  #trace3d-file-name {
-    color: $trace3d_snow;
+  #spacewalk-file-name {
+    color: $spacewalk_snow;
     font-size: 1rem;
   }
 }

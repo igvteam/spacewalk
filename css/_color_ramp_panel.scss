@@ -1,44 +1,44 @@
 
-$trace3d_color_ramp_canvas_width: 40px;
+$spacewalk_color_ramp_canvas_width: 40px;
 
-$trace3d_color_ramp_panel_height: 600px;
+$spacewalk_color_ramp_panel_height: 600px;
 
-$trace3d_text_box_height: 32px;
-$trace3d_color_ramp_panel_padding: 12px;
+$spacewalk_text_box_height: 32px;
+$spacewalk_color_ramp_panel_padding: 12px;
 
-#trace3d_color_ramp_panel.card {
+#spacewalk_color_ramp_panel.card {
 
   width: auto;
-  height: $trace3d_color_ramp_panel_height;
+  height: $spacewalk_color_ramp_panel_height;
 
-  padding-left: $trace3d_color_ramp_panel_padding;
-  padding-right: $trace3d_color_ramp_panel_padding;
+  padding-left: $spacewalk_color_ramp_panel_padding;
+  padding-right: $spacewalk_color_ramp_panel_padding;
 
-  #trace3d_color_ramp_widget_container.card-body {
+  #spacewalk_color_ramp_widget_container.card-body {
 
     width: 100%;
-    height: $trace3d_color_ramp_panel_height;
+    height: $spacewalk_color_ramp_panel_height;
 
     font-size: 16px;
 
     // header text
-    #trace3d_color_ramp_header {
+    #spacewalk_color_ramp_header {
       width: 100%;
-      height: $trace3d_text_box_height;
+      height: $spacewalk_text_box_height;
 
-      line-height: $trace3d_text_box_height;
+      line-height: $spacewalk_text_box_height;
       vertical-align: middle;
       text-align: center;
     }
 
     // ramp
-    #trace3d_color_ramp_canvas_container {
+    #spacewalk_color_ramp_canvas_container {
       position: relative;
 
       cursor: pointer;
 
-      width: $trace3d_color_ramp_canvas_width;
-      height: calc(98% - 2 * #{$trace3d_text_box_height} - #{$trace3d_card_drag_container_height});
+      width: $spacewalk_color_ramp_canvas_width;
+      height: calc(98% - 2 * #{$spacewalk_text_box_height} - #{$spacewalk_card_drag_container_height});
 
       canvas {
         display: block;
@@ -47,26 +47,26 @@ $trace3d_color_ramp_panel_padding: 12px;
         left: 0;
       }
 
-      canvas#trace3d_color_ramp_canvas_highlight {
+      canvas#spacewalk_color_ramp_canvas_highlight {
         z-index: 128;
       }
 
-      canvas#trace3d_color_ramp_canvas_rgb {
+      canvas#spacewalk_color_ramp_canvas_rgb {
         z-index: inherit;
       }
 
-      canvas#trace3d_color_ramp_canvas_alpha {
+      canvas#spacewalk_color_ramp_canvas_alpha {
         z-index: -128;
       }
 
     }
 
     // footer text
-    #trace3d_color_ramp_footer {
+    #spacewalk_color_ramp_footer {
       width: 100%;
-      height: $trace3d_text_box_height;
+      height: $spacewalk_text_box_height;
 
-      line-height: $trace3d_text_box_height;
+      line-height: $spacewalk_text_box_height;
       vertical-align: middle;
       text-align: center;
     }

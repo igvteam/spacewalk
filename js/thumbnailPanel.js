@@ -26,7 +26,7 @@ class ThumbnailPanel {
         this.material = material;
 
         // renderer
-        const renderContainer = this.$panel.find('#trace3d_thumbnail_container').get(0);
+        const renderContainer = this.$panel.find('#spacewalk_thumbnail_container').get(0);
         const { width: renderWidth, height: renderHeight } = renderContainer.getBoundingClientRect();
 
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -50,7 +50,7 @@ class ThumbnailPanel {
             this.layout();
         }
 
-        makeDraggable(panel, this.$panel.find('.trace3d_card_drag_container').get(0));
+        makeDraggable(panel, this.$panel.find('.spacewalk_card_drag_container').get(0));
 
         $(window).on('resize.thumbnail_panel', () => { this.onWindowResize(container, panel) });
 
@@ -145,10 +145,10 @@ export let thumbnailPanelConfigurator = (container) => {
 
     return {
             container,
-            panel: $('#trace3d_thumbnail_panel').get(0),
+            panel: $('#spacewalk_thumbnail_panel').get(0),
             renderer: new THREE.WebGLRenderer(),
             material: new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aqua') }),
-            isHidden: guiManager.isPanelHidden('trace3d_thumbnail_panel')
+            isHidden: guiManager.isPanelHidden('spacewalk_thumbnail_panel')
         };
 
 };

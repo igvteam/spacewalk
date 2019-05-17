@@ -25,13 +25,13 @@ const highlightColor = appleCrayonColorThreeJS('honeydew');
 
 const createGUI = async container => {
 
-    guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
-    structureSelectPanel = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_structure_select_panel') });
+    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
+    structureSelectPanel = new StructureSelectPanel({ container, panel: $('#spacewalk_structure_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_structure_select_panel') });
     colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, highlightColor }) );
     thumbnailPanel = new ThumbnailPanel(thumbnailPanelConfigurator(container));
 
     //
-    igvPanel = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_igv_panel') });
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
     await igvPanel.initialize(igvBrowserConfigurator(customIGVTrackHandler));
 
     //
@@ -39,8 +39,8 @@ const createGUI = async container => {
     await trackLoadController.updateTrackMenus(igvPanel.browser.genome.id);
 
     //
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_juicebox_panel') });
-    await juiceboxPanel.initialize({ container: $('#trace3d_juicebox_root_container'), width: 400, height: 400});
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });
+    await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
     await juiceboxPanel.defaultConfiguration();
 
     structureFileLoadModal = new DataFileLoadModal(structureFileLoadModalConfigurator());

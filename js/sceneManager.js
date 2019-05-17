@@ -245,7 +245,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
             // skyColor | groundColor | intensity
             hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 ),
             materialProvider: colorRampPanel.colorRampMaterialProvider,
-            isGroundplaneHidden: guiManager.isGroundplaneHidden($('#trace3d_ui_manager_panel')),
+            isGroundplaneHidden: guiManager.isGroundplaneHidden($('#spacewalk_ui_manager_panel')),
             renderStyle: guiManager.getRenderingStyle()
         };
 
