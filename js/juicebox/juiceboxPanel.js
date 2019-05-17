@@ -1,5 +1,6 @@
 import { globalEventBus } from "../eventBus.js";
-import * as hic from '../../node_modules/juicebox.js/js/hic.js'
+import * as hic from '../../node_modules/juicebox.js/js/hic.js';
+import HICBrowser from '../../node_modules/juicebox.js/js/hicBrowser.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from '../math.js'
 import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
@@ -62,6 +63,7 @@ class JuiceboxPanel {
         console.log('(1)');
         await hic.updateAllBrowsers();
         console.log('(2)');
+        this.browser = HICBrowser.getCurrentBrowser()
     }
 
     async goto({ chr, start, end }) {

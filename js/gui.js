@@ -39,13 +39,13 @@ const createGUI = async container => {
     await trackLoadController.updateTrackMenus(igvPanel.browser.genome.id);
 
     //
-    // juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_juicebox_panel') });
-    // await juiceboxPanel.initialize({ container: $('#trace3d_juicebox_root_container'), width: 400, height: 400});
-    // await juiceboxPanel.defaultConfiguration();
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_juicebox_panel') });
+    await juiceboxPanel.initialize({ container: $('#trace3d_juicebox_root_container'), width: 400, height: 400});
+    await juiceboxPanel.defaultConfiguration();
 
     structureFileLoadModal = new DataFileLoadModal(structureFileLoadModalConfigurator());
 
-    // juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator());
+    juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator());
 
 };
 
