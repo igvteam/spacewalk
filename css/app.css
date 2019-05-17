@@ -443,6 +443,7 @@
   height: -moz-available;
   height: -webkit-fill-available;
   height: fill-available;
-  overflow: hidden; }
+  overflow: hidden;
+  background-color: #888787; }
 
 /*# sourceMappingURL=app.css.map */
