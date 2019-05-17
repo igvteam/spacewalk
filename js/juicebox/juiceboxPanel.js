@@ -1,10 +1,9 @@
 import { globalEventBus } from "../eventBus.js";
-
-import { createBrowser } from '../../vendor/juicebox/js/hic.js'
+import * as hic from '../../node_modules/juicebox.js/js/hic.js';
+import HICBrowser from '../../node_modules/juicebox.js/js/hicBrowser.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from '../math.js'
 import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
-
 import { structureManager } from "../main.js";
 
 let currentURL = undefined;
@@ -55,38 +54,10 @@ class JuiceboxPanel {
         }
     }
 
-    async createBrowser (config) {
-
-        // const urlShortenerConfig =
-        //     [
-        //         {
-        //             provider: "bitly",
-        //             apiKey: "ABCD",        // TODO -- replace with your Bitly access token
-        //             hostname: 'bit.ly'
-        //         },
-        //         {
-        //             provider: "google",
-        //             apiKey: "ABCD",        // TODO -- replace with your Google API Key
-        //             hostname: "goo.gl"
-        //         }
-        //     ];
-        //
-        // hic.setURLShortener(urlShortenerConfig);
-
-        try {
-            const browser = await createBrowser(config.container, config);
-
-            if (false === this.isHidden) {
-                this.layout();
-            }
-
-            this.browser = browser;
-
-            return browser;
-        } catch (error) {
-            console.warn(error.message);
-            return undefined;
-        }
+    async initialize(config) {
+        const { container, width, height } = config;
+        await hic.createBrowser(container, { width, height });
+        this.browser = HICBrowser.getCurrentBrowser()
     }
 
     async goto({ chr, start, end }) {

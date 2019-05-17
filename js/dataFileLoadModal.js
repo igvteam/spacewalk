@@ -1,5 +1,6 @@
 import { globalEventBus } from "./eventBus.js";
-import { juiceboxPanel, structureManager } from "./main.js";
+import { juiceboxPanel } from "./gui.js";
+import { structureManager } from "./main.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
 
 let currentURL = undefined;

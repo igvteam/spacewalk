@@ -4,12 +4,12 @@ import { globalEventBus } from "./eventBus.js";
 import OrbitalCamera from "./orbitalCamera.js";
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
-import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 
-import { guiManager, ballAndStick, colorRampPanel } from "./main.js";
+import { guiManager, colorRampPanel } from './gui.js';
+import { dataValueMaterialProvider, noodle, ballAndStick } from "./main.js";
 import { getMouseXY } from "./utils.js";
-import {appleCrayonColorHexValue, appleCrayonColorThreeJS} from "./color.js";
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 
 let currentStructureCentroid = undefined;
 
@@ -204,6 +204,24 @@ class SceneManager {
         }
     }
 
+    render () {
+
+        if (this.scene && this.orbitalCamera) {
+
+            noodle.renderLoopHelper();
+
+            ballAndStick.renderLoopHelper();
+
+            dataValueMaterialProvider.renderLoopHelper();
+
+            this.materialProvider.renderLoopHelper();
+
+            this.renderer.render(this.scene, this.orbitalCamera.camera);
+
+        }
+
+    }
+
 }
 
 export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
@@ -220,7 +238,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
             ballRadius: 32,
             stickMaterial,
             // backgroundColor: appleCrayonColorThreeJS('mercury'),
-            backgroundColor: appleCrayonColorThreeJS('snow'),
+            backgroundColor: appleCrayonColorThreeJS('nickel'),
             groundPlaneColor: appleCrayonColorThreeJS('steel'),
             renderer: new THREE.WebGLRenderer({ antialias: true }),
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),

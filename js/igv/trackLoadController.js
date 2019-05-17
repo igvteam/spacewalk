@@ -58,8 +58,6 @@ class TrackLoadController {
             return true;
         });
 
-        this.updateTrackMenus(browser.genome.id);
-
     }
 
     async getTrackRegistry() {

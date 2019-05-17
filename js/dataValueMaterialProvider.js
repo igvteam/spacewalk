@@ -1,13 +1,14 @@
 import * as THREE from "./threejs_es6/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 import BallAndStick from "./ballAndStick.js";
-import { rgb255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, rgb255ToThreeJSColor } from './color.js';
+import { rgb255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, greyScale255 } from './color.js';
 import { sceneManager } from "./main.js";
 
 let rgbTexture;
 let alphaTexture;
 
 const alpha_visible = `rgb(${255},${255},${255})`;
+const rgb_missing_feature = rgb255String(greyScale255(250));
 
 const diagnosticColor = appleCrayonColorThreeJS('strawberry');
 class DataValueMaterialProvider {
@@ -105,6 +106,7 @@ class DataValueMaterialProvider {
     createFeatureRectList({ startBP, endBP, features, min, max }) {
 
         let list = [];
+        let hits = {};
         const bpp = (endBP - startBP) / this.rgb_ctx.canvas.width;
 
         for (let feature of features) {
@@ -132,7 +134,16 @@ class DataValueMaterialProvider {
             startPixel = Math.round(startPixel);
             widthPixel = Math.round(widthPixel);
 
-            list.push( { startPixel, widthPixel, fillStyle } )
+            const key = startPixel.toString();
+
+            if (undefined === hits[ key ]) {
+                hits[ key ] = value;
+                list.push( { startPixel, widthPixel, value, fillStyle } )
+
+            } else if (hits[ key ] && value > hits[ key ]) {
+                hits[ key ] = value;
+                list.push( { startPixel, widthPixel, value, fillStyle } )
+            }
 
         }
 
@@ -146,11 +157,17 @@ class DataValueMaterialProvider {
         }
 
         // Initialize rgb to transparent. Paint color where features exist.
-        this.rgb_ctx.clearRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
+        // this.rgb_ctx.clearRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
+
+        // Initialize rgb to rgb_missing_feature
+        this.rgb_ctx.fillStyle = rgb_missing_feature;
+        this.rgb_ctx.fillRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
+
+        this.alpha_ctx.fillStyle = alpha_visible;
+        this.alpha_ctx.fillRect(0, 0, this.alpha_ctx.canvas.width, this.alpha_ctx.canvas.height);
 
         // Initialize alpha to transparent. Make opaque where features exist.
-        this.alpha_ctx.fillStyle = alpha_visible;
-        this.alpha_ctx.clearRect(0, 0, this.alpha_ctx.canvas.width, this.alpha_ctx.canvas.height);
+        // this.alpha_ctx.clearRect(0, 0, this.alpha_ctx.canvas.width, this.alpha_ctx.canvas.height);
 
         for (let featureRect of featureRects) {
 
@@ -160,7 +177,7 @@ class DataValueMaterialProvider {
             this.rgb_ctx.fillRect(startPixel, 0, widthPixel, this.rgb_ctx.canvas.height);
 
             // fillStyle is alpha_visible
-            this.alpha_ctx.fillRect(startPixel, 0, widthPixel, this.alpha_ctx.canvas.height);
+            // this.alpha_ctx.fillRect(startPixel, 0, widthPixel, this.alpha_ctx.canvas.height);
 
         }
 
