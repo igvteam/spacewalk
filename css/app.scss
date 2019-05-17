@@ -1,4 +1,4 @@
-$trace3d_navbar_height: 36px;
+$spacewalk_navbar_height: 36px;
 
 @import "color";
 @import "navbar";
@@ -36,7 +36,7 @@ $trace3d_navbar_height: 36px;
   height: 14px !important;
 }
 
-#trace3d_canvas_container {
+#spacewalk_canvas_container {
 
   width: 100%;
   width: -moz-available;

@@ -21,9 +21,9 @@ class IGVPanel {
             this.layout();
         }
 
-        makeDraggable(panel, $(panel).find('.trace3d_card_drag_container').get(0));
+        makeDraggable(panel, $(panel).find('.spacewalk_card_drag_container').get(0));
 
-        $(window).on('resize.window.trace3d.trace3d_igv_panel', () => { this.onWindowResize() });
+        $(window).on('resize.window.trace3d.spacewalk_igv_panel', () => { this.onWindowResize() });
 
         addResizeListener(panel, () => {
 
@@ -33,33 +33,33 @@ class IGVPanel {
 
         });
 
-        this.$panel.on('mouseenter.trace3d.trace3d_igv_panel', (event) => {
+        this.$panel.on('mouseenter.trace3d.spacewalk_igv_panel', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidEnterGUI" });
         });
 
-        this.$panel.on('mouseleave.trace3d.trace3d_igv_panel', (event) => {
+        this.$panel.on('mouseleave.trace3d.spacewalk_igv_panel', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
         // URL
-        const $url_input = $('#trace3d_igv_panel_url_input');
+        const $url_input = $('#spacewalk_igv_panel_url_input');
         $url_input.val('');
 
-        const $url_button = $('#trace3d_igv_panel_url_button');
+        const $url_button = $('#spacewalk_igv_panel_url_button');
 
-        $url_input.on('change.trace3d_igv_panel_url_input', (event) => {
+        $url_input.on('change.spacewalk_igv_panel_url_input', (event) => {
             event.stopPropagation();
             // console.log('url on change - value ' + event.target.value);
             currentURL = event.target.value;
         });
 
-        const $url_container = $('#trace3d_igv_container');
+        const $url_container = $('#spacewalk_igv_container');
 
-        $url_button.on('click.trace3d_igv_panel_url_button', async (event) => {
+        $url_button.on('click.spacewalk_igv_panel_url_button', async (event) => {
             event.stopPropagation();
-            $url_input.trigger('change.trace3d_igv_panel_url_input');
+            $url_input.trigger('change.spacewalk_igv_panel_url_input');
             await this.loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border')});
 
             $url_input.val('');
@@ -88,7 +88,7 @@ class IGVPanel {
     async initialize(config) {
 
         try {
-            this.browser = await igv.createBrowser( this.$panel.find('#trace3d_igv_root_container').get(0), config );
+            this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
 
             // TODO: Make less fragile
             const [ chr, se ] = config.locus[ 0 ].split(':');

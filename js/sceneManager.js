@@ -1,4 +1,4 @@
-import * as THREE from "./threejs_es6/three.module.js";
+import * as THREE from "../node_modules/three/build/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 
 import OrbitalCamera from "./orbitalCamera.js";
@@ -245,7 +245,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
             // skyColor | groundColor | intensity
             hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 ),
             materialProvider: colorRampPanel.colorRampMaterialProvider,
-            isGroundplaneHidden: guiManager.isGroundplaneHidden($('#trace3d_ui_manager_panel')),
+            isGroundplaneHidden: guiManager.isGroundplaneHidden($('#spacewalk_ui_manager_panel')),
             renderStyle: guiManager.getRenderingStyle()
         };
 

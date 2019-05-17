@@ -1,24 +1,24 @@
 
 // structure select panel
-$trace3d_structure_select_panel_width: 160px;
-$trace3d_structure_select_panel_height: 108px;
-$trace3d_structure_select_panel_label_height: 24px;
+$spacewalk_structure_select_panel_width: 160px;
+$spacewalk_structure_select_panel_height: 108px;
+$spacewalk_structure_select_panel_label_height: 24px;
 
 // structure select panel
-#trace3d_structure_select_panel.card {
+#spacewalk_structure_select_panel.card {
 
-  width: $trace3d_structure_select_panel_width;
+  width: $spacewalk_structure_select_panel_width;
   height: auto;
 
   .card-body {
 
-    #trace3d_structure_select_header {
+    #spacewalk_structure_select_header {
 
       font-size: 14px;
 
-      line-height: $trace3d_structure_select_panel_label_height;
+      line-height: $spacewalk_structure_select_panel_label_height;
       vertical-align: center;
-      height: $trace3d_structure_select_panel_label_height;
+      height: $spacewalk_structure_select_panel_label_height;
 
       width: 100%;
 
@@ -29,7 +29,7 @@ $trace3d_structure_select_panel_label_height: 24px;
       width: 95%;
       margin-bottom: 0.25rem;
 
-      input#trace3d_structure_select_input {
+      input#spacewalk_structure_select_input {
         font-size: 16px;
       }
 

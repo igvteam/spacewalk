@@ -12,7 +12,7 @@
   line-height: inherit;
   white-space: nowrap; }
 
-#tracing3d-navbar-content #trace3d-file-name {
+#spacewalk-navbar-content #spacewalk-file-name {
   color: #ffffff;
   font-size: 1rem; }
 
@@ -32,7 +32,7 @@
     align-items: center;
     padding: 0.125rem;
     width: 100%; }
-    .card .card-body .trace3d_card_drag_container {
+    .card .card-body .spacewalk_card_drag_container {
       cursor: grab;
       display: flex;
       flex-direction: row;
@@ -42,111 +42,111 @@
       width: 100%;
       height: 32px;
       background-color: transparent; }
-      .card .card-body .trace3d_card_drag_container i.fa-grip-horizontal {
+      .card .card-body .spacewalk_card_drag_container i.fa-grip-horizontal {
         color: #6e6e6e;
         display: block; }
 
-#trace3d_data_file_load_select_container .form-control {
+#spacewalk_data_file_load_select_container .form-control {
   border-top-left-radius: .25rem;
   border-bottom-left-radius: .25rem; }
 
-#trace3d_data_file_load_url_container .form-control {
+#spacewalk_data_file_load_url_container .form-control {
   border-top-left-radius: .25rem;
   border-bottom-left-radius: .25rem; }
 
-#trace3d_structure_select_panel.card {
+#spacewalk_structure_select_panel.card {
   width: 160px;
   height: auto; }
-  #trace3d_structure_select_panel.card .card-body #trace3d_structure_select_header {
+  #spacewalk_structure_select_panel.card .card-body #spacewalk_structure_select_header {
     font-size: 14px;
     line-height: 24px;
     vertical-align: center;
     height: 24px;
     width: 100%;
     background-color: transparent; }
-  #trace3d_structure_select_panel.card .card-body .form-group {
+  #spacewalk_structure_select_panel.card .card-body .form-group {
     width: 95%;
     margin-bottom: 0.25rem; }
-    #trace3d_structure_select_panel.card .card-body .form-group input#trace3d_structure_select_input {
+    #spacewalk_structure_select_panel.card .card-body .form-group input#spacewalk_structure_select_input {
       font-size: 16px; }
 
-#trace3d_color_ramp_panel.card {
+#spacewalk_color_ramp_panel.card {
   width: auto;
   height: 600px;
   padding-left: 12px;
   padding-right: 12px; }
-  #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body {
+  #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body {
     width: 100%;
     height: 600px;
     font-size: 16px; }
-    #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_header {
+    #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_header {
       width: 100%;
       height: 32px;
       line-height: 32px;
       vertical-align: middle;
       text-align: center; }
-    #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_canvas_container {
+    #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_canvas_container {
       position: relative;
       cursor: pointer;
       width: 40px;
       height: calc(98% - 2 * 32px - 32px); }
-      #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_canvas_container canvas {
+      #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_canvas_container canvas {
         display: block;
         position: absolute;
         top: 0;
         left: 0; }
-      #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_canvas_container canvas#trace3d_color_ramp_canvas_highlight {
+      #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_canvas_container canvas#spacewalk_color_ramp_canvas_highlight {
         z-index: 128; }
-      #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_canvas_container canvas#trace3d_color_ramp_canvas_rgb {
+      #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_canvas_container canvas#spacewalk_color_ramp_canvas_rgb {
         z-index: inherit; }
-      #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_canvas_container canvas#trace3d_color_ramp_canvas_alpha {
+      #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_canvas_container canvas#spacewalk_color_ramp_canvas_alpha {
         z-index: -128; }
-    #trace3d_color_ramp_panel.card #trace3d_color_ramp_widget_container.card-body #trace3d_color_ramp_footer {
+    #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_footer {
       width: 100%;
       height: 32px;
       line-height: 32px;
       vertical-align: middle;
       text-align: center; }
 
-#trace3d_juicebox_panel.card {
+#spacewalk_juicebox_panel.card {
   width: auto;
   height: auto;
   align-items: center; }
-  #trace3d_juicebox_panel.card .card-body #trace3d_hic_url_form_group {
+  #spacewalk_juicebox_panel.card .card-body #spacewalk_hic_url_form_group {
     width: 95%;
     margin-top: 4px;
     margin-bottom: 4px; }
-  #trace3d_juicebox_panel.card .card-body #trace3d_juicebox_root_container {
+  #spacewalk_juicebox_panel.card .card-body #spacewalk_juicebox_root_container {
     width: 100%;
     height: 398px;
     overflow-y: auto; }
-    #trace3d_juicebox_panel.card .card-body #trace3d_juicebox_root_container .hic-root {
+    #spacewalk_juicebox_panel.card .card-body #spacewalk_juicebox_root_container .hic-root {
       margin: 0;
       border-color: transparent;
       border-width: thin;
       border-radius: .25rem; }
 
-#trace3d_thumbnail_panel.card {
+#spacewalk_thumbnail_panel.card {
   width: 160px;
   height: 192px; }
-  #trace3d_thumbnail_panel.card #trace3d_thumbnail_panel_body.card-body {
+  #spacewalk_thumbnail_panel.card #spacewalk_thumbnail_panel_body.card-body {
     width: 100%;
     height: 100%; }
-    #trace3d_thumbnail_panel.card #trace3d_thumbnail_panel_body.card-body #trace3d_thumbnail_container {
+    #spacewalk_thumbnail_panel.card #spacewalk_thumbnail_panel_body.card-body #spacewalk_thumbnail_container {
       width: 100%;
       height: calc(100% - 32px); }
 
-.trace3d_ui_manager_render_style_container {
+.spacewalk_ui_manager_render_style_container {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: space-evenly;
   align-items: flex-start; }
-  .trace3d_ui_manager_render_style_container > div {
+  .spacewalk_ui_manager_render_style_container > div {
     margin-top: 4px;
     margin-bottom: 4px; }
 
-#trace3d_ui_manager_button {
+#spacewalk_ui_manager_button {
   z-index: 2048;
   position: absolute;
   top: 68px;
@@ -156,26 +156,26 @@
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center; }
-  #trace3d_ui_manager_button i {
+  #spacewalk_ui_manager_button i {
     color: #a09fa0;
     display: block; }
-  #trace3d_ui_manager_button i:hover {
+  #spacewalk_ui_manager_button i:hover {
     cursor: pointer;
     color: #545453; }
 
-#trace3d_ui_manager_panel.card {
+#spacewalk_ui_manager_panel.card {
   z-index: 2048;
   top: 116px;
   left: 32px;
   width: 256px;
   height: auto; }
-  #trace3d_ui_manager_panel.card li {
+  #spacewalk_ui_manager_panel.card li {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: flex-start;
     align-items: center; }
-    #trace3d_ui_manager_panel.card li input {
+    #spacewalk_ui_manager_panel.card li input {
       cursor: pointer;
       display: block; }
 
@@ -193,17 +193,17 @@
   .igv-app-dropdown-item-cloud-storage div:last-child {
     margin-left: 4px; }
 
-#trace3d_igv_panel.card {
+#spacewalk_igv_panel.card {
   resize: both;
   overflow: scroll;
   width: 600px;
   height: auto;
   align-items: center;
   justify-content: flex-start; }
-  #trace3d_igv_panel.card #trace3d_igv_container.card-body {
+  #spacewalk_igv_panel.card #spacewalk_igv_container.card-body {
     height: 256px;
     overflow: auto; }
-    #trace3d_igv_panel.card #trace3d_igv_container.card-body #trace3d_igv_root_container {
+    #spacewalk_igv_panel.card #spacewalk_igv_container.card-body #spacewalk_igv_root_container {
       width: 100%;
       height: 100%;
       border-style: solid;
@@ -434,7 +434,7 @@
   width: 14px !important;
   height: 14px !important; }
 
-#trace3d_canvas_container {
+#spacewalk_canvas_container {
   width: 100%;
   width: -moz-available;
   width: -webkit-fill-available;

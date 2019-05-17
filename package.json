@@ -1,5 +1,5 @@
 {
-  "name": "tracing",
+  "name": "spacewalk",
   "version": "0.1.0",
   "description": "3D Chromosome Visualization Tool",
   "scripts": {
@@ -16,12 +16,13 @@
     "babel-loader": "^8.0.5",
     "copy-webpack-plugin": "^5.0.0",
     "http-server": "^0.11.1",
-    "three": "^0.100.0",
     "webpack": "^4.29.0",
     "webpack-cli": "^3.2.1"
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
-    "dataModal": "github:igvteam/data-modal#dat_modaltable"
+    "dataModal": "github:igvteam/data-modal",
+    "juicebox.js": "github:igvteam/juicebox.js#dat_tracing3d_edits",
+    "three": "^0.104.0"
   }
 }

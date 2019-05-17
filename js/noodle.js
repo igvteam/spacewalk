@@ -1,4 +1,4 @@
-import * as THREE from "./threejs_es6/three.module.js";
+import * as THREE from "../node_modules/three/build/three.module.js";
 import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "./threejs_es6/fatlines/fatLine.js";

@@ -1,6 +1,5 @@
-import * as THREE from "./threejs_es6/three.module.js";
+import * as THREE from "../node_modules/three/build/three.module.js";
 import { globalEventBus } from "./eventBus.js";
-import BallAndStick from "./ballAndStick.js";
 import { rgb255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, greyScale255 } from './color.js';
 import { sceneManager } from "./main.js";
 

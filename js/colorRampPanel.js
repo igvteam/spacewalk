@@ -18,10 +18,10 @@ class ColorRampPanel {
         this.isHidden = isHidden;
 
         // header
-        this.$header = this.$panel.find('#trace3d_color_ramp_header');
+        this.$header = this.$panel.find('#spacewalk_color_ramp_header');
 
         // footer
-        this.$footer = this.$panel.find('#trace3d_color_ramp_footer');
+        this.$footer = this.$panel.find('#spacewalk_color_ramp_footer');
 
         if (isHidden) {
             moveOffScreen(this);
@@ -29,7 +29,7 @@ class ColorRampPanel {
             this.layout();
         }
 
-        makeDraggable(panel, this.$panel.find('.trace3d_card_drag_container').get(0));
+        makeDraggable(panel, this.$panel.find('.spacewalk_card_drag_container').get(0));
 
         $(window).on('resize.trace3d.toolpanel', () => {
             this.onWindowResize();
@@ -113,13 +113,13 @@ export const colorRampPanelConfigurator = ({ container, highlightColor }) => {
         colorMapManager.addMap({name: key, path: colormaps[key]});
     }
 
-    const $canvasContainer = $('#trace3d_color_ramp_canvas_container');
+    const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
 
     return {
             container,
-            panel: $('#trace3d_color_ramp_panel').get(0),
+            panel: $('#spacewalk_color_ramp_panel').get(0),
             colorRampMaterialProvider: new ColorRampMaterialProvider( { $canvasContainer, namespace: 'colorRampMaterialProvider', colorMapManager, highlightColor } ),
-            isHidden: guiManager.isPanelHidden('trace3d_color_ramp_panel')
+            isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel')
         };
 
 };

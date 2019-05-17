@@ -1,7 +1,7 @@
 
 // igv panel
-$trace3d_igv_panel_width: 600px;
-$trace3d_igv_panel_heigth: 256px;
+$spacewalk_igv_panel_width: 600px;
+$spacewalk_igv_panel_heigth: 256px;
 
 .igv-app-dropdown-item-cloud-storage {
 
@@ -27,34 +27,34 @@ $trace3d_igv_panel_heigth: 256px;
 }
 
 // igvjs panel
-#trace3d_igv_panel.card {
+#spacewalk_igv_panel.card {
 
   resize: both;
   overflow: scroll;
 
-  width: $trace3d_igv_panel_width;
+  width: $spacewalk_igv_panel_width;
   height: auto;
 
   align-items: center;
   justify-content: flex-start;
 
   // igvjs container
-  #trace3d_igv_container.card-body {
+  #spacewalk_igv_container.card-body {
 
-    height: $trace3d_igv_panel_heigth;
+    height: $spacewalk_igv_panel_heigth;
     overflow: auto;
 
     // track container
-    #trace3d_igv_root_container {
+    #spacewalk_igv_root_container {
 
       width: 100%;
       height: 100%;
 
       border-style: solid;
       border-width: thin;
-      border-color: $trace3d_aluminum;
+      border-color: $spacewalk_aluminum;
 
-      background-color: $trace3d_snow;
+      background-color: $spacewalk_snow;
 
     }
   }

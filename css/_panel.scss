@@ -1,19 +1,19 @@
 
 // panel template
-$trace3d_tool_panel_width: 512px;
-$trace3d_tool_panel_height: 512px;
-$trace3d_card_drag_container_height: 32px;
+$spacewalk_tool_panel_width: 512px;
+$spacewalk_tool_panel_height: 512px;
+$spacewalk_card_drag_container_height: 32px;
 
 .card {
   position: absolute;
   z-index: 2048;
 
-  width: $trace3d_tool_panel_width;
-  height: $trace3d_tool_panel_height;
+  width: $spacewalk_tool_panel_width;
+  height: $spacewalk_tool_panel_height;
 
-  border-color: $trace3d_aluminum;
+  border-color: $spacewalk_aluminum;
   //background-color: rgba(255, 255, 255, 0.65);
-  background-color: $trace3d_snow;
+  background-color: $spacewalk_snow;
 
   user-select: none;
 
@@ -29,7 +29,7 @@ $trace3d_card_drag_container_height: 32px;
 
     width: 100%;
 
-    .trace3d_card_drag_container {
+    .spacewalk_card_drag_container {
 
       cursor: grab;
 
@@ -40,11 +40,11 @@ $trace3d_card_drag_container_height: 32px;
       align-items: center;
 
       width: 100%;
-      height: $trace3d_card_drag_container_height;
+      height: $spacewalk_card_drag_container_height;
       background-color: transparent;
 
       i.fa-grip-horizontal {
-        color: $trace3d_steel;
+        color: $spacewalk_steel;
         display: block;
       }
     }
