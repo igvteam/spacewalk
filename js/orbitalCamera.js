@@ -1,4 +1,4 @@
-import * as THREE from "./threejs_es6/three.module.js";
+import * as THREE from "../node_modules/three/build/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
 import { prettyVector3Print } from "./math.js";
 
