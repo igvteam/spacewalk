@@ -1,27 +1,20 @@
-import * as THREE from "./threejs_es6/three.module.js";
-import { globalEventBus } from './eventBus.js';
-import SceneManager from './sceneManager.js';
+import * as THREE from '../node_modules/three/build/three.module.js';
 import StructureManager from './structureManager.js';
-
 import { createGUI, thumbnailPanel, highlightColor } from './gui.js';
-
-import BallAndStick from './ballAndStick.js';
-import Noodle from './noodle.js';
-
+import SceneManager, { sceneManagerConfigurator } from './sceneManager.js';
 import DataValueMaterialProvider from './dataValueMaterialProvider.js';
+import Noodle from './noodle.js';
+import BallAndStick from './ballAndStick.js';
 
-import { sceneManagerConfigurator } from './sceneManager.js';
-
+import { globalEventBus } from './eventBus.js';
 import { mainEventListener } from './mainEventListener.js';
 import { appleCrayonColorThreeJS, appleCrayonColorRGB255 } from "./color.js";
 
-let sceneManager;
 let structureManager;
-
+let sceneManager;
+let dataValueMaterialProvider;
 let noodle;
 let ballAndStick;
-
-let dataValueMaterialProvider;
 
 let main = async container => {
 
@@ -35,15 +28,14 @@ let main = async container => {
     dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 
     noodle = new Noodle();
-
     ballAndStick = new BallAndStick();
-
-    renderLoop();
 
     globalEventBus.subscribe('DidSelectStructure', mainEventListener);
     globalEventBus.subscribe('DidLoadFile', mainEventListener);
     globalEventBus.subscribe('ToggleAllUIControls', mainEventListener);
     globalEventBus.subscribe('RenderStyleDidChange', mainEventListener);
+
+    renderLoop();
 
 };
 

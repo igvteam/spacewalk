@@ -16,8 +16,6 @@ let juiceboxPanel;
 let colorRampPanel;
 let thumbnailPanel;
 let igvPanel;
-let juiceboxBrowser;
-let igvBrowser;
 let trackLoadController;
 
 let structureFileLoadModal;
@@ -28,28 +26,27 @@ const highlightColor = appleCrayonColorThreeJS('honeydew');
 const createGUI = async container => {
 
     guiManager = new GUIManager({ $button: $('#trace3d_ui_manager_button'), $panel: $('#trace3d_ui_manager_panel') });
-
     structureSelectPanel = new StructureSelectPanel({ container, panel: $('#trace3d_structure_select_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_structure_select_panel') });
-
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_juicebox_panel') });
-
     colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, highlightColor }) );
-
     thumbnailPanel = new ThumbnailPanel(thumbnailPanelConfigurator(container));
 
+    //
     igvPanel = new IGVPanel({ container, panel: $('#trace3d_igv_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_igv_panel') });
+    await igvPanel.initialize(igvBrowserConfigurator(customIGVTrackHandler));
 
-    juiceboxBrowser = await juiceboxPanel.createBrowser({ container: $('#trace3d_juicebox_root_container'), width: 400, height: 400 });
-    juiceboxPanel.defaultConfiguration();
+    //
+    trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));
+    await trackLoadController.updateTrackMenus(igvPanel.browser.genome.id);
 
-    igvBrowser = await igvPanel.createBrowser(igvBrowserConfigurator(customIGVTrackHandler));
-
-    trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvBrowser, trackRegistryFile, $googleDriveButton: undefined } ));
+    //
+    // juiceboxPanel = new JuiceboxPanel({ container, panel: $('#trace3d_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('trace3d_juicebox_panel') });
+    // await juiceboxPanel.initialize({ container: $('#trace3d_juicebox_root_container'), width: 400, height: 400});
+    // await juiceboxPanel.defaultConfiguration();
 
     structureFileLoadModal = new DataFileLoadModal(structureFileLoadModalConfigurator());
 
-    juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator());
+    // juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator());
 
 };
 
-export { createGUI, trackLoadController, igvBrowser, juiceboxBrowser, guiManager, structureSelectPanel, juiceboxPanel, colorRampPanel, thumbnailPanel, igvPanel, highlightColor };
+export { createGUI, trackLoadController, guiManager, structureSelectPanel, juiceboxPanel, colorRampPanel, thumbnailPanel, igvPanel, highlightColor };

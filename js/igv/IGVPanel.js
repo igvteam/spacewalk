@@ -85,7 +85,7 @@ class IGVPanel {
         }
     }
 
-    async createBrowser (config) {
+    async initialize(config) {
 
         try {
             this.browser = await igv.createBrowser( this.$panel.find('#trace3d_igv_root_container').get(0), config );
@@ -94,11 +94,9 @@ class IGVPanel {
             const [ chr, se ] = config.locus[ 0 ].split(':');
             const [ start, end ] = se.split('-').map(str => parseInt(str, 10));
 
-            this.locus = { chr, start, end };
-            return this.browser;
+            this.locus = { chr, start, end }
         } catch (error) {
             console.warn(error.message);
-            return undefined;
         }
 
     }

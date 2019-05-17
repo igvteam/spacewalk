@@ -2,7 +2,7 @@ import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { IGVMouseHandler } from "./igv/IGVPanel.js";
 import { juiceboxMouseHandler } from "./juicebox/juiceboxPanel.js";
-import { colorRampPanel, thumbnailPanel, igvPanel, juiceboxPanel, structureSelectPanel, juiceboxBrowser, igvBrowser } from './gui.js';
+import { colorRampPanel, thumbnailPanel, igvPanel, juiceboxPanel, structureSelectPanel } from './gui.js';
 import { setup, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, structureManager } from "./main.js";
 
 export const mainEventListener =
@@ -33,11 +33,11 @@ export const mainEventListener =
 
                 structure = structureManager.structureWithName(data);
 
-                igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
+                igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
                     IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.length})
                 });
 
-                juiceboxBrowser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+                juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
                     juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.length });
                 });
 
@@ -81,11 +81,11 @@ export const mainEventListener =
                 igvPanel.trackDataHandler();
 
 
-                igvBrowser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
+                igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
                     IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.length})
                 });
 
-                juiceboxBrowser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+                juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
                     juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.length });
                 });
 
