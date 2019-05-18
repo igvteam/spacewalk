@@ -17,7 +17,7 @@ const disposableSet = new Set([ 'groundplane', 'noodle', 'ball' , 'stick' , 'noo
 
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, renderer, picker, hemisphereLight, materialProvider, isGroundplaneHidden, renderStyle }) {
+    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, renderer, cameraLightingRig, picker, hemisphereLight, materialProvider, isGroundplaneHidden, renderStyle }) {
 
         this.doUpdateCameraPose = true;
 
@@ -36,6 +36,8 @@ class SceneManager {
 
         // insert rendering canvas in DOM
         container.appendChild(renderer.domElement);
+
+        this.cameraLightingRig = cameraLightingRig;
 
         this.renderer = renderer;
 
@@ -89,12 +91,6 @@ class SceneManager {
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
         // this.scene.add(this.hemisphereLight);
-
-        const [ fov, near, far, domElement, aspectRatio ] = [ 35, 71, 22900, this.renderer.domElement, (window.innerWidth/window.innerHeight) ];
-        this.cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspectRatio });
-
-        let pointLight = new THREE.PointLight();
-        this.cameraLightingRig.camera.add(pointLight);
 
         // Nice numbers
         const position = new THREE.Vector3(134820, 55968, 5715);
@@ -233,6 +229,14 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
     stickMaterial.side = THREE.DoubleSide;
 
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+    const [ fov, near, far, domElement, aspectRatio ] = [ 35, 71, 22900, renderer.domElement, (window.innerWidth/window.innerHeight) ];
+    const cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspectRatio });
+
+    let pointLight = new THREE.PointLight();
+    cameraLightingRig.camera.add(pointLight);
+
     return {
             container,
             ballRadius: 32,
@@ -240,7 +244,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
             // backgroundColor: appleCrayonColorThreeJS('mercury'),
             backgroundColor: appleCrayonColorThreeJS('nickel'),
             groundPlaneColor: appleCrayonColorThreeJS('mercury'),
-            renderer: new THREE.WebGLRenderer({ antialias: true }),
+            renderer,
+            cameraLightingRig,
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
             // skyColor | groundColor | intensity
             hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 ),
