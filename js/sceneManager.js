@@ -59,7 +59,6 @@ class SceneManager {
         globalEventBus.subscribe("DidSelectSegmentIndex", this);
     }
 
-
     receiveEvent({ type, data }) {
 
         if ("DidSelectSegmentIndex" === type && BallAndStick.getRenderStyle() === this.renderStyle) {
@@ -89,10 +88,13 @@ class SceneManager {
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
-        this.scene.add(this.hemisphereLight);
+        // this.scene.add(this.hemisphereLight);
 
         const [ fov, near, far, domElement, aspectRatio ] = [ 35, 71, 22900, this.renderer.domElement, (window.innerWidth/window.innerHeight) ];
         this.cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspectRatio });
+
+        let pointLight = new THREE.PointLight();
+        this.cameraLightingRig.camera.add(pointLight);
 
         // Nice numbers
         const position = new THREE.Vector3(134820, 55968, 5715);
@@ -101,8 +103,6 @@ class SceneManager {
 
         // Add camera to scene. This is need to allow lights to be attached to camera
         this.scene.add( this.cameraLightingRig.camera );
-
-
 
         // Nice numbers
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
@@ -126,7 +126,7 @@ class SceneManager {
         this.scene = scene;
         this.scene.background = this.background;
 
-        this.scene.add(this.hemisphereLight);
+        // this.scene.add(this.hemisphereLight);
 
         if (true === this.doUpdateCameraPose) {
             this.cameraLightingRig.setPose({ position: cameraPosition, centroid: centroid });
@@ -145,7 +145,7 @@ class SceneManager {
 
         this.cameraLightingRig.setProjection({ fov, near, far, aspectRatio });
 
-        // Add camera to scene. This is need to allow lights to be attached to camera
+        // Add camera to scene. This is needed to allow lights to be attached to camera
         this.scene.add( this.cameraLightingRig.camera );
 
         // groundplane
