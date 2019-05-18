@@ -1,16 +1,19 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
-import { prettyVector3Print } from "./math.js";
 
-class OrbitalCamera {
+class CameraLightingRig extends OrbitControls {
 
-    constructor({ fov, near, far, domElement, aspectRatio }) {
-        this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
+    constructor ({ fov, near, far, domElement, aspectRatio }) {
+
+        let camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
+
+        super (camera, domElement);
+
+        this.camera = camera;
         this.camera.name = 'orbital_camera';
 
-        this.orbitControl = new OrbitControls(this.camera, domElement);
-        this.orbitControl.screenSpacePanning = false;
-        this.orbitControl.enableKeys = false;
+        this.screenSpacePanning = false;
+        this.enableKeys = false;
     }
 
     get name () {
@@ -21,8 +24,8 @@ class OrbitalCamera {
 
         // Update camera dolly range
         const delta = far - near;
-        this.orbitControl.minDistance = near + 1e-2 * delta;
-        this.orbitControl.maxDistance =  far - 4e-1 * delta;
+        this.minDistance = near + 1e-2 * delta;
+        this.maxDistance =  far - 4e-1 * delta;
 
         this.camera.fov = fov;
         this.camera.aspect = aspectRatio;
@@ -34,12 +37,12 @@ class OrbitalCamera {
 
     setPose({ position, centroid }) {
         const toCamera = position.clone().sub(centroid);
-        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this.orbitControl })
+        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this })
     }
 
     setTarget({ centroid }) {
-        const toCamera = this.camera.position.clone().sub(this.orbitControl.target);
-        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this.orbitControl })
+        const toCamera = this.camera.position.clone().sub(this.target);
+        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this })
     }
 
     dispose() {
@@ -47,11 +50,10 @@ class OrbitalCamera {
         delete this.camera;
 
         //
-        this.orbitControl.dispose();
-        delete this.orbitControl;
+        this.dispose();
     }
-}
 
+}
 
 let poseHelper = ({ toCamera, centroid, camera, orbitControl }) => {
 
@@ -71,4 +73,4 @@ let poseHelper = ({ toCamera, centroid, camera, orbitControl }) => {
 
 };
 
-export default OrbitalCamera;
+export default CameraLightingRig
