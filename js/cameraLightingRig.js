@@ -1,5 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
+import { appleCrayonColorHexValue } from "./color.js";
 
 class CameraLightingRig extends OrbitControls {
 
@@ -11,6 +12,16 @@ class CameraLightingRig extends OrbitControls {
 
         this.camera = camera;
         this.camera.name = 'orbital_camera';
+
+        // key
+        // this.camera.add(createLightSource({ x: -1000, y: 1000, z: -100, color: appleCrayonColorHexValue('snow'), intensity: (3.0/5.0) }));
+
+        // fill
+        // this.camera.add(createLightSource({ x: 3000, y: 100, z: 100, color: appleCrayonColorHexValue('snow'), intensity: (2.0/5.0) }));
+
+        // rim
+        // this.camera.add(createLightSource({ x: 0, y: 500, z: -10000, color: appleCrayonColorHexValue('snow'), intensity: (1.0) }));
+
 
         this.screenSpacePanning = false;
         this.enableKeys = false;
@@ -54,6 +65,15 @@ class CameraLightingRig extends OrbitControls {
     }
 
 }
+
+const createLightSource = ({ x, y, z, color, intensity }) => {
+
+    const [ distance, decay ] = [ 0, 1 ];
+    let lightSource = new THREE.PointLight(color, intensity, distance, decay);
+    lightSource.position.set(x, y, z);
+
+    return lightSource;
+};
 
 let poseHelper = ({ toCamera, centroid, camera, orbitControl }) => {
 

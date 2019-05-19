@@ -9,12 +9,19 @@ import BallAndStick from "./ballAndStick.js";
 import { guiManager, colorRampPanel } from './gui.js';
 import { dataValueMaterialProvider, noodle, ballAndStick } from "./main.js";
 import { getMouseXY } from "./utils.js";
+import { prettyVector3Print } from "./math.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 
 let currentStructureCentroid = undefined;
 
 const disposableSet = new Set([ 'groundplane', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 
+let cameraWorldDirection = new THREE.Vector3();
+
+let vector3factory = new THREE.Vector3();
+vector3factory.set(0, 0, 0);
+
+let crossed = new THREE.Vector3();
 class SceneManager {
 
     constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, renderer, cameraLightingRig, picker, hemisphereLight, materialProvider, isGroundplaneHidden, renderStyle }) {
@@ -90,7 +97,7 @@ class SceneManager {
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
-        // this.scene.add(this.hemisphereLight);
+        this.scene.add(this.hemisphereLight);
 
         // Nice numbers
         const position = new THREE.Vector3(134820, 55968, 5715);
@@ -121,8 +128,7 @@ class SceneManager {
 
         this.scene = scene;
         this.scene.background = this.background;
-
-        // this.scene.add(this.hemisphereLight);
+        this.scene.add(this.hemisphereLight);
 
         if (true === this.doUpdateCameraPose) {
             this.cameraLightingRig.setPose({ position: cameraPosition, centroid: centroid });
@@ -134,6 +140,7 @@ class SceneManager {
             const _centroid = centroid.clone().add(delta);
             this.cameraLightingRig.setTarget({ centroid: _centroid });
         }
+
 
         currentStructureCentroid = centroid.clone();
 
@@ -200,6 +207,15 @@ class SceneManager {
         }
     }
 
+    renderLoopHelper() {
+
+        // Keep hemisphere light directly above trace model by transforming with camera transform
+        this.cameraLightingRig.camera.getWorldDirection(cameraWorldDirection);
+        crossed.crossVectors(cameraWorldDirection, this.cameraLightingRig.camera.up);
+        this.hemisphereLight.position.crossVectors(crossed, cameraWorldDirection);
+
+    }
+
     render () {
 
         if (this.scene && this.cameraLightingRig) {
@@ -211,6 +227,8 @@ class SceneManager {
             dataValueMaterialProvider.renderLoopHelper();
 
             this.materialProvider.renderLoopHelper();
+
+            this.renderLoopHelper();
 
             this.renderer.render(this.scene, this.cameraLightingRig.camera);
 
@@ -231,11 +249,11 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
 
+    const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), (1) );
+    // hemisphereLight.position.set(0, -1, 0);
+
     const [ fov, near, far, domElement, aspectRatio ] = [ 35, 71, 22900, renderer.domElement, (window.innerWidth/window.innerHeight) ];
     const cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspectRatio });
-
-    let pointLight = new THREE.PointLight();
-    cameraLightingRig.camera.add(pointLight);
 
     return {
             container,
@@ -248,7 +266,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
             cameraLightingRig,
             picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
             // skyColor | groundColor | intensity
-            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 ),
+            hemisphereLight,
             materialProvider: colorRampPanel.colorRampMaterialProvider,
             isGroundplaneHidden: guiManager.isGroundplaneHidden($('#spacewalk_ui_manager_panel')),
             renderStyle: guiManager.getRenderingStyle()
