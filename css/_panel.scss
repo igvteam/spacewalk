@@ -6,6 +6,9 @@ $spacewalk_card_drag_container_height: 32px;
 
 .card {
   position: absolute;
+  top: -1000px;
+  left: -1000px;
+
   z-index: 2048;
 
   width: $spacewalk_tool_panel_width;
