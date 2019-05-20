@@ -17,6 +17,10 @@ $spacewalk_navbar_height: 36px;
 
 @import "encode/encode";
 
+.modal {
+  z-index:99999;
+}
+
 .igv-root-div {
   padding: 0 !important;
   margin: 0 !important;

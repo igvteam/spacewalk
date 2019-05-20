@@ -105,7 +105,7 @@ class DataValueMaterialProvider {
     createFeatureRectList({ startBP, endBP, features, min, max }) {
 
         let list = [];
-        let hits = {};
+        let hitList = {};
         const bpp = (endBP - startBP) / this.rgb_ctx.canvas.width;
 
         for (let feature of features) {
@@ -135,12 +135,12 @@ class DataValueMaterialProvider {
 
             const key = startPixel.toString();
 
-            if (undefined === hits[ key ]) {
-                hits[ key ] = value;
+            if (undefined === hitList[ key ]) {
+                hitList[ key ] = value;
                 list.push( { startPixel, widthPixel, value, fillStyle } )
 
-            } else if (hits[ key ] && value > hits[ key ]) {
-                hits[ key ] = value;
+            } else if (hitList[ key ] && Math.abs(value) > Math.abs(hitList[ key ])) {
+                hitList[ key ] = value;
                 list.push( { startPixel, widthPixel, value, fillStyle } )
             }
 

@@ -421,6 +421,9 @@
   justify-content: center;
   align-items: center; }
 
+.modal {
+  z-index: 99999; }
+
 .igv-root-div {
   padding: 0 !important;
   margin: 0 !important; }
