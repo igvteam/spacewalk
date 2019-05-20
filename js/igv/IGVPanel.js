@@ -75,8 +75,8 @@ class IGVPanel {
 
             if (true === this.isHidden) {
                 moveOnScreen(this);
-                const { chr, start, end } = this.locus;
-                await this.browser.goto(chr, start, end);
+                // const { chr, start, end } = this.locus;
+                await this.browser.search(this.locus);
             } else {
                 moveOffScreen(this);
             }
@@ -89,12 +89,7 @@ class IGVPanel {
 
         try {
             this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
-
-            // TODO: Make less fragile
-            const [ chr, se ] = config.locus[ 0 ].split(':');
-            const [ start, end ] = se.split('-').map(str => parseInt(str, 10));
-
-            this.locus = { chr, start, end }
+            this.locus = this.browser.genomicStateList[ 0 ].locusSearchString;
         } catch (error) {
             console.warn(error.message);
         }
@@ -189,6 +184,10 @@ class IGVPanel {
 
 }
 
+export const igvBrowserConfigurator = () => {
+    return { genome: 'hg38', customTrackHandler: customIGVTrackHandler };
+};
+
 export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
 
     const { genomicStart, genomicEnd } = structureManager.locus;
@@ -215,4 +214,6 @@ export let customIGVTrackHandler = async (track) => {
 
 };
 
+export const genomes = "resources/genomes.json";
+export const trackRegistryFile = "resources/tracks/trackRegistry.json";
 export default IGVPanel;

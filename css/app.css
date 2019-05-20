@@ -18,6 +18,8 @@
 
 .card {
   position: absolute;
+  top: -1000px;
+  left: -1000px;
   z-index: 2048;
   width: 512px;
   height: 512px;
@@ -443,6 +445,7 @@
   height: -moz-available;
   height: -webkit-fill-available;
   height: fill-available;
-  overflow: hidden; }
+  overflow: hidden;
+  background-color: #888787; }
 
 /*# sourceMappingURL=app.css.map */

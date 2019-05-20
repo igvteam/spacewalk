@@ -1,7 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 
-import OrbitalCamera from "./orbitalCamera.js";
+import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
@@ -9,6 +9,7 @@ import BallAndStick from "./ballAndStick.js";
 import { guiManager, colorRampPanel } from './gui.js';
 import { dataValueMaterialProvider, noodle, ballAndStick } from "./main.js";
 import { getMouseXY } from "./utils.js";
+import { prettyVector3Print } from "./math.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 
 let currentStructureCentroid = undefined;
@@ -17,7 +18,7 @@ const disposableSet = new Set([ 'groundplane', 'noodle', 'ball' , 'stick' , 'noo
 
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, backgroundColor, groundPlaneColor, renderer, picker, hemisphereLight, materialProvider, isGroundplaneHidden, renderStyle }) {
+    constructor({ container, ballRadius, stickMaterial, background, groundPlaneColor, renderer, cameraLightingRig, picker, materialProvider, isGroundplaneHidden, renderStyle }) {
 
         this.doUpdateCameraPose = true;
 
@@ -26,7 +27,7 @@ class SceneManager {
 
         this.stickMaterial = stickMaterial;
 
-        this.background = backgroundColor;
+        this.background = background;
         // this.background = specularCubicTexture;
 
         this.groundPlaneColor = groundPlaneColor;
@@ -37,11 +38,11 @@ class SceneManager {
         // insert rendering canvas in DOM
         container.appendChild(renderer.domElement);
 
+        this.cameraLightingRig = cameraLightingRig;
+
         this.renderer = renderer;
 
         this.picker = picker;
-
-        this.hemisphereLight = hemisphereLight;
 
         this.materialProvider = materialProvider;
 
@@ -58,7 +59,6 @@ class SceneManager {
         globalEventBus.subscribe("ToggleGroundplane", this);
         globalEventBus.subscribe("DidSelectSegmentIndex", this);
     }
-
 
     receiveEvent({ type, data }) {
 
@@ -89,20 +89,13 @@ class SceneManager {
 
         this.scene = new THREE.Scene();
         this.scene.background = this.background;
-        this.scene.add(this.hemisphereLight);
-
-        const [ fov, near, far, domElement, aspectRatio ] = [ 35, 71, 22900, this.renderer.domElement, (window.innerWidth/window.innerHeight) ];
-        this.orbitalCamera = new OrbitalCamera({ fov, near, far, domElement, aspectRatio });
 
         // Nice numbers
         const position = new THREE.Vector3(134820, 55968, 5715);
         const centroid = new THREE.Vector3(133394, 54542, 4288);
-        this.orbitalCamera.setPose({ position, centroid });
+        this.cameraLightingRig.setPose({ position, centroid });
 
-        // Add camera to scene. This is need to allow lights to be attached to camera
-        this.scene.add( this.orbitalCamera.camera );
-
-
+        this.cameraLightingRig.addToScene(this.scene);
 
         // Nice numbers
         const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
@@ -126,27 +119,23 @@ class SceneManager {
         this.scene = scene;
         this.scene.background = this.background;
 
-        this.scene.add(this.hemisphereLight);
-
         if (true === this.doUpdateCameraPose) {
-            this.orbitalCamera.setPose({ position: cameraPosition, centroid: centroid });
+            this.cameraLightingRig.setPose({ position: cameraPosition, centroid: centroid });
         } else {
 
             // maintain the pre-existing delta between camera target and groundplane beneath stucture
-            const delta = this.orbitalCamera.orbitControl.target.clone().sub(currentStructureCentroid);
+            const delta = this.cameraLightingRig.target.clone().sub(currentStructureCentroid);
 
             const _centroid = centroid.clone().add(delta);
-            this.orbitalCamera.setTarget({ centroid: _centroid });
+            this.cameraLightingRig.setTarget({ centroid: _centroid });
         }
 
         currentStructureCentroid = centroid.clone();
 
         const [ near, far, aspectRatio ] = [ 1e-1 * boundingDiameter, 3e1 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
+        this.cameraLightingRig.setProjection({ fov, near, far, aspectRatio });
 
-        this.orbitalCamera.setProjection({ fov, near, far, aspectRatio });
-
-        // Add camera to scene. This is need to allow lights to be attached to camera
-        this.scene.add( this.orbitalCamera.camera );
+        this.cameraLightingRig.addToScene(this.scene);
 
         // groundplane
         this.groundPlane.geometry.dispose();
@@ -171,20 +160,20 @@ class SceneManager {
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-        this.orbitalCamera.camera.aspect = window.innerWidth/window.innerHeight;
-        this.orbitalCamera.camera.updateProjectionMatrix();
+        this.cameraLightingRig.camera.aspect = window.innerWidth/window.innerHeight;
+        this.cameraLightingRig.camera.updateProjectionMatrix();
     };
 
     onContainerMouseMove(event){
 
-        if (this.orbitalCamera && this.orbitalCamera.camera && this.picker.isEnabled) {
+        if (this.cameraLightingRig && this.cameraLightingRig.camera && this.picker.isEnabled) {
 
             const xy = getMouseXY(this.renderer.domElement, event);
 
             const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
             const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
 
-            this.picker.intersect({ x, y, scene: this.scene, camera: this.orbitalCamera.camera, doTrackObject: true });
+            this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.camera, doTrackObject: true });
 
         }
     };
@@ -206,7 +195,7 @@ class SceneManager {
 
     render () {
 
-        if (this.scene && this.orbitalCamera) {
+        if (this.scene && this.cameraLightingRig) {
 
             noodle.renderLoopHelper();
 
@@ -216,7 +205,9 @@ class SceneManager {
 
             this.materialProvider.renderLoopHelper();
 
-            this.renderer.render(this.scene, this.orbitalCamera.camera);
+            this.cameraLightingRig.renderLoopHelper();
+
+            this.renderer.render(this.scene, this.cameraLightingRig.camera);
 
         }
 
@@ -233,17 +224,29 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
     stickMaterial.side = THREE.DoubleSide;
 
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+    const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), (1) );
+
+    const [ fov, near, far, domElement, aspectRatio ] = [ 35, 1e2, 3e3, renderer.domElement, (window.innerWidth/window.innerHeight) ];
+    const cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspectRatio, hemisphereLight });
+
+    // const background = appleCrayonColorThreeJS('nickel');
+    const background = new THREE.TextureLoader().load( 'texture/scene-background-grey-0.png' );
+
+    const groundPlaneColor = appleCrayonColorThreeJS('mercury');
+
+    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
+
     return {
             container,
             ballRadius: 32,
             stickMaterial,
-            // backgroundColor: appleCrayonColorThreeJS('mercury'),
-            backgroundColor: appleCrayonColorThreeJS('nickel'),
-            groundPlaneColor: appleCrayonColorThreeJS('steel'),
-            renderer: new THREE.WebGLRenderer({ antialias: true }),
-            picker: new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } ),
-            // skyColor | groundColor | intensity
-            hemisphereLight: new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), 1 ),
+            background,
+            groundPlaneColor,
+            renderer,
+            cameraLightingRig,
+            picker,
             materialProvider: colorRampPanel.colorRampMaterialProvider,
             isGroundplaneHidden: guiManager.isGroundplaneHidden($('#spacewalk_ui_manager_panel')),
             renderStyle: guiManager.getRenderingStyle()

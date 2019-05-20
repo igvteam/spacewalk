@@ -4,9 +4,7 @@ import StructureSelectPanel from "./structureSelectPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
 import ThumbnailPanel, {thumbnailPanelConfigurator} from "./thumbnailPanel.js";
-import IGVPanel from "./igv/IGVPanel.js";
-import {igvBrowserConfigurator, trackRegistryFile} from "./igv/igvConfigurator.js";
-import {customIGVTrackHandler} from "./igv/IGVPanel.js";
+import IGVPanel, { trackRegistryFile, igvBrowserConfigurator } from "./igv/IGVPanel.js";
 import TrackLoadController, { trackLoadControllerConfigurator } from "./igv/trackLoadController.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 
@@ -32,7 +30,7 @@ const createGUI = async container => {
 
     //
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
-    await igvPanel.initialize(igvBrowserConfigurator(customIGVTrackHandler));
+    await igvPanel.initialize(igvBrowserConfigurator());
 
     //
     trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));
@@ -40,8 +38,7 @@ const createGUI = async container => {
 
     //
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });
-    await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
-    await juiceboxPanel.defaultConfiguration();
+    await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
 
     structureFileLoadModal = new DataFileLoadModal(structureFileLoadModalConfigurator());
 
