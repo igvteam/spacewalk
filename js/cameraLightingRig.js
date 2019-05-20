@@ -2,9 +2,12 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
 import { appleCrayonColorHexValue } from "./color.js";
 
+let cameraWorldDirection = new THREE.Vector3();
+let crossed = new THREE.Vector3();
+
 class CameraLightingRig extends OrbitControls {
 
-    constructor ({ fov, near, far, domElement, aspectRatio }) {
+    constructor ({ fov, near, far, domElement, aspectRatio, hemisphereLight }) {
 
         let camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
 
@@ -13,15 +16,7 @@ class CameraLightingRig extends OrbitControls {
         this.camera = camera;
         this.camera.name = 'orbital_camera';
 
-        // key
-        // this.camera.add(createLightSource({ x: -1000, y: 1000, z: -100, color: appleCrayonColorHexValue('snow'), intensity: (3.0/5.0) }));
-
-        // fill
-        // this.camera.add(createLightSource({ x: 3000, y: 100, z: 100, color: appleCrayonColorHexValue('snow'), intensity: (2.0/5.0) }));
-
-        // rim
-        // this.camera.add(createLightSource({ x: 0, y: 500, z: -10000, color: appleCrayonColorHexValue('snow'), intensity: (1.0) }));
-
+        this.hemisphereLight = hemisphereLight;
 
         this.screenSpacePanning = false;
         this.enableKeys = false;
@@ -56,12 +51,23 @@ class CameraLightingRig extends OrbitControls {
         poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this })
     }
 
+    addToScene (scene) {
+        scene.add( this.camera );
+        scene.add( this.hemisphereLight );
+    };
+
+    renderLoopHelper() {
+
+        // Keep hemisphere light directly above trace model by transforming with camera transform
+        this.camera.getWorldDirection(cameraWorldDirection);
+        crossed.crossVectors(cameraWorldDirection, this.camera.up);
+        this.hemisphereLight.position.crossVectors(crossed, cameraWorldDirection);
+
+    }
+
     dispose() {
         //
         delete this.camera;
-
-        //
-        this.dispose();
     }
 
 }
