@@ -133,7 +133,7 @@ class EnsembleManager {
     }
 }
 
-const getDistanceMapCanvasWithTrack = (trace, rgbMin, rgbMax) => {
+export const getDistanceMapCanvasWithTrace = trace => {
 
     let { vertices } = trace.geometry;
     let { length } = vertices;

@@ -64,12 +64,8 @@ class DistanceMapPanel {
 
     }
 
-    configure (traceDistanceCanvas) {
-        // draw traceDistanceCanvas into this.ctx.canvas
-    }
-
-    render () {
-        // draw something
+    draw (traceDistanceCanvas) {
+        this.ctx.drawImage(traceDistanceCanvas, 0, 0, traceDistanceCanvas.width, traceDistanceCanvas.height, 0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
 
 }
