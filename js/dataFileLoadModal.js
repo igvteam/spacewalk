@@ -1,6 +1,6 @@
 import { globalEventBus } from "./eventBus.js";
 import { juiceboxPanel } from "./gui.js";
-import { structureManager } from "./main.js";
+import { ensembleManager } from "./main.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
 
 let currentURL = undefined;
@@ -119,7 +119,7 @@ const structureFileLoadModalConfigurator = () => {
         $selectModal: $('#spacewalk-file-load-select-modal'),
         $localFileInput: $('#spacewalk-file-load-local-input'),
         selectLoader: undefined,
-        fileLoader: structureManager
+        fileLoader: ensembleManager
     }
 };
 

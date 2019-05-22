@@ -1,6 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import StructureManager from './structureManager.js';
-import { createGUI, thumbnailPanel, highlightColor } from './gui.js';
+import EnsembleManager from './ensembleManager.js';
+import { createGUI, thumbnailPanel, distanceMapPanel, highlightColor } from './gui.js';
+import { getDistanceMapCanvasWithTrace } from './ensembleManager.js';
 import SceneManager, { sceneManagerConfigurator } from './sceneManager.js';
 import DataValueMaterialProvider from './dataValueMaterialProvider.js';
 import Noodle from './noodle.js';
@@ -10,7 +11,7 @@ import { globalEventBus } from './eventBus.js';
 import { mainEventListener } from './mainEventListener.js';
 import { appleCrayonColorThreeJS, appleCrayonColorRGB255 } from "./color.js";
 
-let structureManager;
+let ensembleManager;
 let sceneManager;
 let dataValueMaterialProvider;
 let noodle;
@@ -18,7 +19,7 @@ let ballAndStick;
 
 let main = async container => {
 
-    structureManager = new StructureManager();
+    ensembleManager = new EnsembleManager();
 
     await createGUI(container);
 
@@ -39,10 +40,10 @@ let main = async container => {
 
 };
 
-let setup = ({ structure }) => {
+let setup = ({ trace }) => {
 
-    noodle.configure(structure, sceneManager.materialProvider, sceneManager.renderStyle);
-    ballAndStick.configure(structure, sceneManager.materialProvider, sceneManager.renderStyle);
+    noodle.configure(ensembleManager.locus, trace, sceneManager.materialProvider, sceneManager.renderStyle);
+    ballAndStick.configure(trace, sceneManager.materialProvider, sceneManager.renderStyle);
 
     let scene = new THREE.Scene();
 
@@ -60,6 +61,8 @@ let setup = ({ structure }) => {
         thumbnailPanel.render();
     }
 
+    distanceMapPanel.draw(getDistanceMapCanvasWithTrace(trace));
+
 };
 
 let renderLoop = () => {
@@ -67,4 +70,4 @@ let renderLoop = () => {
     sceneManager.render();
 };
 
-export { main, setup, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, structureManager };
+export { main, setup, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, ensembleManager };

@@ -125,10 +125,10 @@ class StructureSelectPanel {
         globalEventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
     };
 
-    configure({ structures, initialStructureKey }) {
+    configure({ ensemble, initialStructureKey }) {
 
-        this.keys = Object.keys(structures);
-        this.$header.text(this.keys.length + ' structures');
+        this.keys = Object.keys(ensemble);
+        this.$header.text(this.keys.length + ' traces');
 
         currentStructureKey = initialStructureKey;
         this.$input.val(currentStructureKey);
