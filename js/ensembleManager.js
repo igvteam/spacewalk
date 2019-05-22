@@ -4,8 +4,8 @@ import { globalEventBus } from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
 import { rgb255String, rgb255Lerp, appleCrayonColorRGB255 } from './color.js';
 
-const rgbMin = appleCrayonColorRGB255('blueberry');
-const rgbMax = appleCrayonColorRGB255('strawberry');
+const rgbMin = appleCrayonColorRGB255('maraschino');
+const rgbMax = appleCrayonColorRGB255('midnight');
 class EnsembleManager {
 
     constructor () {
@@ -73,7 +73,6 @@ class EnsembleManager {
         for (trace of ensembleList) {
             trace.geometry.computeBoundingBox();
             trace.geometry.computeBoundingSphere();
-            // getDistanceMapCanvasWithTrack(trace, rgbMin, rgbMax)
         }
 
     }
@@ -186,8 +185,7 @@ export const getDistanceMapCanvasWithTrace = trace => {
         for(let j = 0; j < length; j++) {
 
             const ij = i * length + j;
-            const interpolant = (maxDistance - distances[ ij ]) / maxDistance;
-
+            const interpolant = distances[ ij ] / maxDistance;
             ctx.fillStyle = rgb255String( rgb255Lerp(rgbMin, rgbMax, interpolant) );
             ctx.fillRect(i, j, 1, 1);
         }
