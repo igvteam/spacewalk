@@ -2,7 +2,10 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import igv from '../vendor/igv.esm.js'
 import { globalEventBus } from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
+import { rgb255String, rgb255Lerp, appleCrayonColorRGB255 } from './color.js';
 
+const rgbMin = appleCrayonColorRGB255('blueberry');
+const rgbMax = appleCrayonColorRGB255('strawberry');
 class EnsembleManager {
 
     constructor () {
@@ -11,9 +14,6 @@ class EnsembleManager {
     }
 
     ingest(string){
-
-        let t;
-        let dt;
 
         this.ensemble = {};
 
@@ -26,8 +26,6 @@ class EnsembleManager {
         lines.shift();
 
         // chr-index ( 0-based)| segment-index (one-based) | Z | X | y
-
-        t = Date.now();
 
         let key;
         let trace;
@@ -69,79 +67,14 @@ class EnsembleManager {
 
         } // for (lines)
 
-        dt = Date.now() - t;
+        const ensembleList = Object.values(this.ensemble);
 
-        console.log('parse of ensemble file done ' + dt + ' msec.');
-
-        t = Date.now();
-
-        // let ensembleContainer = new THREE.Object3D();
-        Object.values(this.ensemble).forEach((trace, index) => {
-
-            let t;
-            let dt;
-
-            t = Date.now();
-
-            let { vertices } = trace.geometry;
-            let { length } = vertices;
-
-            let distances = new Array(length * length);
-
-            for (let i = 0; i < length; i++) {
-
-                const candidate = vertices[ i ];
-
-                for (let j = 0; j < length; j++) {
-
-                    const centroid = vertices[ j ];
-
-                    if (candidate === centroid) {
-                        // const i = trace.centroids.indexOf(candidate);
-                        // const j = trace.centroids.indexOf(centroid);
-                        // console.log('self intersection at ' + i + ' ' + j);
-                    } else {
-
-                        let ij = i * length + j;
-                        let ji = j * length + i;
-
-                        const distance = candidate.distanceTo(centroid);
-                        distances[ ij ] = distance;
-                        if (distances[ ji ]) {
-                            // no need to duplicate distance calculation
-                            // console.log('dupe');
-                        } else {
-                            distances[ ij ] = distance;
-                        }
-                    }
-                }
-            }
-
+        // compute and store bounds
+        for (trace of ensembleList) {
             trace.geometry.computeBoundingBox();
             trace.geometry.computeBoundingSphere();
-
-            // let texture = createDataTexture(512, 512, undefined);
-            // let json = texture.toJSON();
-            // let material = new THREE.MeshPhongMaterial({ map: texture });
-            //
-
-            // let mesh = new THREE.Mesh(traceGeometry, material);
-            // let mesh = new THREE.Mesh(trace.geometry);
-
-            // ensembleContainer.add( mesh );
-
-            dt = Date.now() - t;
-            // console.log('trace ' + index + '. pair-wise distance calc. ' + dt + ' msec.');
-
-
-        }); // foreach(trace)
-
-        dt = Date.now() - t;
-
-        const count = Object.values(this.ensemble).length;
-        console.log('ensemble pair-wise distance calculation for ' + count + ' traces: ' + dt + ' msec.');
-
-        // return ensembleContainer.toJSON();
+            // getDistanceMapCanvasWithTrack(trace, rgbMin, rgbMax)
+        }
 
     }
 
@@ -199,5 +132,68 @@ class EnsembleManager {
 
     }
 }
+
+const getDistanceMapCanvasWithTrack = (trace, rgbMin, rgbMax) => {
+
+    let { vertices } = trace.geometry;
+    let { length } = vertices;
+
+    let distances = new Array(length * length);
+    let maxDistance = Number.NEGATIVE_INFINITY;
+    for (let i = 0; i < length; i++) {
+
+        const candidate = vertices[ i ];
+
+        for (let j = 0; j < length; j++) {
+
+            const ij = i * length + j;
+            const ji = j * length + i;
+
+            const centroid = vertices[ j ];
+
+            if (i === j) {
+                distances[ ij ] = 0;
+            } else {
+
+                const distance = candidate.distanceTo(centroid);
+
+                maxDistance = Math.max(maxDistance, distance);
+
+                distances[ ij ] = distance;
+
+                if (distances[ ji ]) {
+                    // no need to duplicate distance calculation
+                    // console.log('dupe i' + i + ' j ' + j);
+                } else {
+                    distances[ ji ] = distance;
+                }
+            }
+
+        } // for (j)
+
+    } // for (i)
+
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    ctx.canvas.width = ctx.canvas.height = length;
+
+    // clear canvas
+    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('blueberry') );
+    ctx.fillRect(0, 0, length, length);
+
+    // paint distances as lerp'd color
+    for (let i = 0; i < length; i++) {
+        for(let j = 0; j < length; j++) {
+
+            const ij = i * length + j;
+            const interpolant = (maxDistance - distances[ ij ]) / maxDistance;
+
+            ctx.fillStyle = rgb255String( rgb255Lerp(rgbMin, rgbMax, interpolant) );
+            ctx.fillRect(i, j, 1, 1);
+        }
+    }
+
+    return canvas;
+};
 
 export default EnsembleManager;
