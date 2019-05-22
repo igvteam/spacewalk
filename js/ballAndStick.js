@@ -1,5 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { sceneManager, structureManager } from "./main.js";
+import { sceneManager, ensembleManager } from "./main.js";
 import { degrees } from './math.js';
 import { colorDescriptionRGBOrThreeJS } from './color.js';
 
@@ -13,11 +13,11 @@ class BallAndStick {
         return 'render-style-ball-stick';
     }
 
-    configure(structure, materialProvider, renderStyle) {
+    configure(trace, materialProvider, renderStyle) {
 
         this.dispose();
-        this.balls = this.createBalls(structure, materialProvider);
-        this.sticks = this.createSticks(structure);
+        this.balls = this.createBalls(trace, materialProvider);
+        this.sticks = this.createSticks(trace);
 
         if (renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
@@ -39,7 +39,7 @@ class BallAndStick {
         });
     }
 
-    createBalls(structure, materialProvider) {
+    createBalls(trace, materialProvider) {
 
         // 3D Object dictionary. Key is string-ified genomic location.
         this.genomicLocationObjectDictionary = {};
@@ -47,17 +47,12 @@ class BallAndStick {
         // segment-index dictionay. 3D Object UUID is key.
         this.indexDictionary = {};
 
-        // 3D Object Array. Indexed by structure list index.
+        // 3D Object Array. Indexed by trace index in ensemble array.
         this.objectList = [];
 
-        let meshList = structure.map(obj => {
+        let meshList = trace.geometry.vertices.map((vertex, index, array) => {
 
-            const index = structure.indexOf(obj);
-
-            const [ x, y, z ] = obj.xyz;
-
-            const color = materialProvider.colorForInterpolant(index / (structure.length - 1));
-            // console.log(' ball color ' + colorDescriptionThreeJS(color));
+            const color = materialProvider.colorForInterpolant(index / (array.length - 1));
 
             // const material = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
             const material = new THREE.MeshPhongMaterial({ color });
@@ -65,12 +60,13 @@ class BallAndStick {
             // const material = showTMaterial;
 
             const geometry = sceneManager.ballGeometry.clone();
+            const { x, y, z } = vertex;
             geometry.translate(x, y, z);
 
             const mesh = new THREE.Mesh(geometry, material);
             mesh.name = 'ball';
 
-            const genomicLocation = index * structureManager.stepSize + structureManager.locus.genomicStart;
+            const genomicLocation = index * ensembleManager.stepSize + ensembleManager.locus.genomicStart;
 
             this.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: mesh, centroid: mesh.position.clone() };
 
@@ -86,16 +82,13 @@ class BallAndStick {
 
     }
 
-    createSticks(structure) {
+    createSticks(trace) {
 
         let meshList = [];
 
-        for (let i = 0, j = 1; j < structure.length; ++i, ++j) {
+        for (let i = 0, j = 1; j < trace.geometry.vertices.length; ++i, ++j) {
 
-            const [ x0, y0, z0 ] = structure[i].xyz;
-            const [ x1, y1, z1 ] = structure[j].xyz;
-
-            const axis = new THREE.CatmullRomCurve3([ new THREE.Vector3( x0, y0, z0 ), new THREE.Vector3( x1, y1, z1 ) ]);
+            const axis = new THREE.CatmullRomCurve3([ trace.geometry.vertices[ i ].clone(), trace.geometry.vertices[ j ].clone() ]);
 
             const geometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/4, 16, false);
             const material = sceneManager.stickMaterial.clone();

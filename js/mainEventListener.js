@@ -3,13 +3,13 @@ import BallAndStick from "./ballAndStick.js";
 import { IGVMouseHandler } from "./igv/IGVPanel.js";
 import { juiceboxMouseHandler } from "./juicebox/juiceboxPanel.js";
 import { colorRampPanel, thumbnailPanel, igvPanel, juiceboxPanel, structureSelectPanel } from './gui.js';
-import { setup, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, structureManager } from "./main.js";
+import { setup, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, ensembleManager } from "./main.js";
 
 export const mainEventListener =
     {
         receiveEvent: ({ type, data }) => {
 
-            let structure;
+            let trace;
 
             if ('RenderStyleDidChange' === type) {
 
@@ -31,41 +31,37 @@ export const mainEventListener =
 
             } else if ('DidSelectStructure' === type) {
 
-                structure = structureManager.structureWithName(data);
+                trace = ensembleManager.traceWithName(data);
 
                 igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                    IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.length})
+                    IGVMouseHandler({bp, start, end, interpolant, structureLength: trace.geometry.vertices.length})
                 });
 
                 juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.length });
+                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: trace.geometry.vertices.length });
                 });
 
                 sceneManager.dispose();
 
-                const { chr, genomicStart, genomicEnd } = structureManager.locus;
-                // console.log('DidSelectStructure - chr ' + chr + ' s: ' + numberFormatter(genomicStart) + ' e: ' + numberFormatter(genomicEnd));
+                colorRampPanel.colorRampMaterialProvider.configure({ structureLength: trace.length });
 
-                colorRampPanel.colorRampMaterialProvider.configure({ structureLength: structure.length });
+                dataValueMaterialProvider.structureLength = trace.geometry.vertices.length;
 
-                dataValueMaterialProvider.structureLength = structure.length;
-
-                setup({ structure });
+                setup({ trace });
 
             } else if ('DidLoadFile' === type) {
 
                 let { name, payload } = data;
 
-                structureManager.path = name;
-                structureManager.ingest(payload);
+                ensembleManager.path = name;
+                ensembleManager.ingest(payload);
 
-                structureManager.parsePathEncodedGenomicLocation(structureManager.path);
+                ensembleManager.parsePathEncodedGenomicLocation(ensembleManager.path);
 
-                const { chr, genomicStart, genomicEnd } = structureManager.locus;
-                // console.log('DidLoadFile - chr ' + chr + ' s: ' + numberFormatter(genomicStart) + ' e: ' + numberFormatter(genomicEnd));
+                const { chr, genomicStart, genomicEnd } = ensembleManager.locus;
 
                 const initialStructureKey = '0';
-                structure = structureManager.structureWithName(initialStructureKey);
+                trace = ensembleManager.traceWithName(initialStructureKey);
 
                 const str = 'STRUCTURE: CHR ' + chr + ' ' + Math.floor(genomicStart/1e6) + 'MB to ' + Math.floor(genomicEnd/1e6) + 'MB';
                 $('.navbar').find('#spacewalk-file-name').text(str);
@@ -74,26 +70,26 @@ export const mainEventListener =
 
                 juiceboxPanel.goto({ chr, start: genomicStart, end: genomicEnd });
 
-                colorRampPanel.configure({ genomicStart, genomicEnd, structureLength: structure.length });
+                colorRampPanel.configure({genomicStart, genomicEnd, structureLength: trace.geometry.vertices.length});
 
-                dataValueMaterialProvider.structureLength = structure.length;
+                dataValueMaterialProvider.structureLength = trace.geometry.vertices.length;
 
                 igvPanel.trackDataHandler();
 
 
                 igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                    IGVMouseHandler({bp, start, end, interpolant, structureLength: structure.length})
+                    IGVMouseHandler({ bp, start, end, interpolant, structureLength: trace.geometry.vertices.length })
                 });
 
                 juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: structure.length });
+                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: trace.geometry.vertices.length });
                 });
 
-                structureSelectPanel.configure({structures: structureManager.structures, initialStructureKey});
+                structureSelectPanel.configure({ ensemble: ensembleManager.ensemble, initialStructureKey });
 
                 sceneManager.dispose();
 
-                setup({ structure });
+                setup({ trace });
 
                 sceneManager.doUpdateCameraPose = false;
 

@@ -4,7 +4,7 @@ import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
 import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
 import { igvPanel } from '../gui.js';
-import { noodle, ballAndStick, dataValueMaterialProvider, structureManager, sceneManager } from "../main.js";
+import { noodle, ballAndStick, dataValueMaterialProvider, ensembleManager, sceneManager } from "../main.js";
 
 let currentURL = undefined;
 class IGVPanel {
@@ -141,7 +141,7 @@ class IGVPanel {
 
             const { min, max } = this.currentDataTrack.dataRange;
 
-            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+            dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
         }
 
     };
@@ -190,7 +190,7 @@ export const igvBrowserConfigurator = () => {
 
 export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
 
-    const { genomicStart, genomicEnd } = structureManager.locus;
+    const { genomicStart, genomicEnd } = ensembleManager.locus;
 
     const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
 

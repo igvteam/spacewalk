@@ -2,7 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "./threejs_es6/fatlines/fatLine.js";
-import { sceneManager, structureManager } from "./main.js";
+import { sceneManager } from "./main.js";
 import { degrees, clamp, lerp } from './math.js';
 
 let fatLineMaterial;
@@ -16,15 +16,15 @@ class Noodle {
         return 'render-style-noodle';
     }
 
-    configure(structure, materialProvider, renderStyle) {
+    configure(locus, trace, materialProvider, renderStyle) {
 
         this.dispose();
 
         let { material } = materialProvider;
 
-        this.tube = this.createTube(structure, material);
+        this.tube = this.createTube(locus, trace, material);
 
-        this.spline = this.createFatSpline(structure, materialProvider);
+        this.spline = this.createFatSpline(locus, trace, materialProvider);
 
         if (renderStyle === Noodle.getRenderStyle()) {
             this.show();
@@ -49,15 +49,15 @@ class Noodle {
 
     }
 
-    createTube(structure, material) {
+    createTube(locus, trace, material) {
 
-        const knots = structure.map((obj) => {
-            let [ x, y, z ] = obj.xyz;
+        const tubularSegments = getTubularSegmentCount(locus);
+        const radialSegments = getRadialSegmentCount(locus);
+
+        const knots = trace.geometry.vertices.map((vertex) => {
+            let { x, y, z} = vertex;
             return new THREE.Vector3( x, y, z );
         });
-
-        const tubularSegments = getTubularSegmentCount(structureManager.locus);
-        const radialSegments = getRadialSegmentCount(structureManager.locus);
 
         const axis = new THREE.CatmullRomCurve3(knots);
         const geometry = new THREE.TubeBufferGeometry(axis, tubularSegments, sceneManager.ballRadius, radialSegments, false);
@@ -69,18 +69,16 @@ class Noodle {
 
     };
 
-    createFatSpline(structure, materialProvider){
+    createFatSpline(locus, trace, materialProvider){
 
-        const knots = structure.map((obj) => {
-            let [ x, y, z ] = obj.xyz;
+        const knots = trace.geometry.vertices.map((vertex) => {
+            let { x, y, z} = vertex;
             return new THREE.Vector3( x, y, z );
         });
 
         const curve = new THREE.CatmullRomCurve3(knots);
 
-        // const pointCount = 2048;
-        const pointCount = getFatSplinePointCount(structureManager.locus);
-
+        const pointCount = getFatSplinePointCount(locus);
         const xyzList = curve.getPoints( pointCount );
 
         let vertices = [];

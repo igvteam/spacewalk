@@ -3,7 +3,7 @@ import * as hic from '../../node_modules/juicebox.js/js/hic.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from '../math.js'
 import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
-import { structureManager } from "../main.js";
+import { ensembleManager } from "../main.js";
 
 let currentURL = undefined;
 class JuiceboxPanel {
@@ -129,7 +129,7 @@ class JuiceboxPanel {
 
 export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength }) => {
 
-    const { genomicStart, genomicEnd } = structureManager.locus;
+    const { genomicStart, genomicEnd } = ensembleManager.locus;
 
     const trivialRejection = startXBP > genomicEnd || endXBP < genomicStart || startYBP > genomicEnd || endYBP < genomicStart;
 
