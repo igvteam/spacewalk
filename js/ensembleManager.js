@@ -145,6 +145,12 @@ class EnsembleManager {
 
     }
 
+    getBoundsWithTrace(trace) {
+        const { center, radius } = trace.geometry.boundingSphere;
+        const { min, max } = trace.geometry.boundingBox;
+        return { min, max, center, radius }
+    }
+
     traceWithName(name) {
         // return this.ensemble[ name ] || undefined;
         return this.ensemble[ name ] || undefined;

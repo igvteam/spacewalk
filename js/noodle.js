@@ -2,7 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "./threejs_es6/fatlines/fatLine.js";
-import { sceneManager } from "./main.js";
+import { sceneManager, ensembleManager } from "./main.js";
 import { degrees, clamp, lerp } from './math.js';
 
 let fatLineMaterial;
@@ -21,6 +21,8 @@ class Noodle {
         this.dispose();
 
         let { material } = materialProvider;
+
+        this.trace = trace;
 
         this.tube = this.createTube(locus, trace, material);
 
@@ -144,16 +146,7 @@ class Noodle {
     }
 
     getBounds() {
-
-        let { geometry } = this.tube.mesh;
-
-        geometry.computeBoundingSphere();
-        const { center, radius } = geometry.boundingSphere;
-
-        geometry.computeBoundingBox();
-        const { min, max } = geometry.boundingBox;
-
-        return { min, max, center, radius }
+        return ensembleManager.getBoundsWithTrace(this.trace);
     }
 
     getCameraPoseAlongAxis ({ axis, scaleFactor }) {

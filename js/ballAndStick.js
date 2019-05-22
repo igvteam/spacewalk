@@ -16,6 +16,8 @@ class BallAndStick {
     configure(trace, materialProvider, renderStyle) {
 
         this.dispose();
+
+        this.trace = trace;
         this.balls = this.createBalls(trace, materialProvider);
         this.sticks = this.createSticks(trace);
 
@@ -151,25 +153,7 @@ class BallAndStick {
     }
 
     getBounds() {
-
-        let bbox = new THREE.Box3();
-        this.balls.mesh.forEach(m => {
-            bbox.expandByObject(m)
-        });
-
-        const { min, max } = bbox;
-
-        let sphere = new THREE.Sphere();
-        bbox.getBoundingSphere(sphere);
-        const { center, radius } = sphere;
-
-        // this.tube.geometry.computeBoundingSphere();
-        // const { center, radius } = this.tube.geometry.boundingSphere;
-        //
-        // this.tube.geometry.computeBoundingBox();
-        // const { min, max } = this.tube.geometry.boundingBox;
-
-        return { min, max, center, radius }
+        return ensembleManager.getBoundsWithTrace(this.trace);
     }
 
     getCameraPoseAlongAxis ({ axis, scaleFactor }) {
