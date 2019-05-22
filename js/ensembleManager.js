@@ -83,13 +83,16 @@ class EnsembleManager {
 
             t = Date.now();
 
-            let distances = [];
             let { vertices } = trace.geometry;
-            for (let i = 0; i < vertices.length; i++) {
+            let { length } = vertices;
+
+            let distances = new Array(length * length);
+
+            for (let i = 0; i < length; i++) {
 
                 const candidate = vertices[ i ];
 
-                for (let j = 0; j < vertices.length; j++) {
+                for (let j = 0; j < length; j++) {
 
                     const centroid = vertices[ j ];
 
@@ -98,8 +101,18 @@ class EnsembleManager {
                         // const j = trace.centroids.indexOf(centroid);
                         // console.log('self intersection at ' + i + ' ' + j);
                     } else {
+
+                        let ij = i * length + j;
+                        let ji = j * length + i;
+
                         const distance = candidate.distanceTo(centroid);
-                        distances.push({ i, j, distance });
+                        distances[ ij ] = distance;
+                        if (distances[ ji ]) {
+                            // no need to duplicate distance calculation
+                            // console.log('dupe');
+                        } else {
+                            distances[ ij ] = distance;
+                        }
                     }
                 }
             }
