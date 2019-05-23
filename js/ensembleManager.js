@@ -1,5 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import igv from '../vendor/igv.esm.js'
+import KDBush from '../node_modules/kdbush/js/index.js'
+
 import { globalEventBus } from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
 import { rgb255String, rgb255Lerp, appleCrayonColorRGB255 } from './color.js';
@@ -70,10 +72,12 @@ class EnsembleManager {
         const ensembleList = Object.values(this.ensemble);
 
         // compute and store bounds
-        for (trace of ensembleList) {
+        for (let trace of ensembleList) {
             trace.geometry.computeBoundingBox();
             trace.geometry.computeBoundingSphere();
         }
+
+        getContactMapCanvasWithEnsemble(this.ensemble);
 
     }
 
@@ -131,6 +135,35 @@ class EnsembleManager {
 
     }
 }
+
+export const getContactMapCanvasWithEnsemble = ensemble => {
+
+    const ensembleList = Object.values(ensemble);
+
+    console.time(`index ${ ensembleList.length } traces`);
+
+    // compute and store bounds
+    for (let trace of ensembleList) {
+
+        const config =
+            {
+                points: trace.geometry.vertices,
+                getX: p => p.x,
+                getY: p => p.y,
+                getZ: p => p.z,
+                nodeSize: 64,
+                ArrayType: Float64Array,
+                axisCount: 3
+            };
+
+        const index = new KDBush(config);
+
+
+    }
+
+    console.timeEnd(`index ${ ensembleList.length } traces`);
+
+};
 
 export const getDistanceMapCanvasWithTrace = trace => {
 
