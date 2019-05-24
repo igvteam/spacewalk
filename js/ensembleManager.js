@@ -81,11 +81,11 @@ class EnsembleManager {
 
     }
 
-    getBoundsWithTrace(trace) {
-        const { center, radius } = trace.geometry.boundingSphere;
-        const { min, max } = trace.geometry.boundingBox;
-        return { min, max, center, radius }
-    }
+    // getBoundsWithTrace(trace) {
+    //     const { center, radius } = trace.geometry.boundingSphere;
+    //     const { min, max } = trace.geometry.boundingBox;
+    //     return { min, max, center, radius }
+    // }
 
     traceWithName(name) {
         // return this.ensemble[ name ] || undefined;
@@ -136,6 +136,12 @@ class EnsembleManager {
     }
 }
 
+export const getBoundsWithTrace = (trace) => {
+    const { center, radius } = trace.geometry.boundingSphere;
+    const { min, max } = trace.geometry.boundingBox;
+    return { min, max, center, radius }
+};
+
 export const getContactMapCanvasWithEnsemble = ensemble => {
 
     const ensembleList = Object.values(ensemble);
@@ -156,8 +162,24 @@ export const getContactMapCanvasWithEnsemble = ensemble => {
                 axisCount: 3
             };
 
-        const index = new KDBush(config);
+        const spatialIndex = new KDBush(config);
 
+        const { radius } = getBoundsWithTrace(trace);
+
+        const threshold = radius/32.0;
+        for (let i = 0; i < trace.geometry.vertices.length; i++) {
+
+            const { x, y, z } = trace.geometry.vertices[ i ];
+            const ids = spatialIndex.within(x, y, z, threshold);
+
+            const results = ids
+                .filter(id => id !== i)
+                .map(id => spatialIndex.points[ id ]);
+
+            if (results.length > 0) {
+                const guard = 757;
+            }
+        }
 
     }
 
