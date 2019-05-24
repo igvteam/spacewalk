@@ -215,8 +215,6 @@ class SceneManager {
 
 }
 
-export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
-
 export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     // const stickMaterial = showSMaterial;

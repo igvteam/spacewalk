@@ -10,14 +10,28 @@ import BallAndStick from './ballAndStick.js';
 import { globalEventBus } from './eventBus.js';
 import { mainEventListener } from './mainEventListener.js';
 import { appleCrayonColorThreeJS, appleCrayonColorRGB255 } from "./color.js";
+import ColorMapManager from "./colorMapManager.js";
 
 let ensembleManager;
 let sceneManager;
 let dataValueMaterialProvider;
 let noodle;
 let ballAndStick;
+let colorMapManager;
 
 let main = async container => {
+
+    colorMapManager = new ColorMapManager();
+    await colorMapManager.configure();
+
+    const colormaps =
+        {
+            peter_kovesi_rainbow_bgyr_35_85_c72_n256: 'resources/colormaps/peter_kovesi/CET-R2.csv'
+        };
+
+    for (let key of Object.keys(colormaps)) {
+        colorMapManager.addMap({name: key, path: colormaps[key]});
+    }
 
     ensembleManager = new EnsembleManager();
 
@@ -70,4 +84,4 @@ let renderLoop = () => {
     sceneManager.render();
 };
 
-export { main, setup, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, ensembleManager };
+export { main, setup, colorMapManager, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, ensembleManager };
