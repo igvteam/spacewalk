@@ -19,13 +19,16 @@ class EnsembleManager {
 
         this.ensemble = {};
 
-        const lines = string.split(/\r?\n/);
+        const rawLines = string.split(/\r?\n/);
 
         // discard blurb
-        lines.shift();
+        rawLines.shift();
 
         // discard column titles
-        lines.shift();
+        rawLines.shift();
+
+        // discard blank lines
+        const lines = rawLines.filter(rawLine => "" !== rawLine);
 
         // chr-index ( 0-based)| segment-index (one-based) | Z | X | y
 
@@ -33,37 +36,40 @@ class EnsembleManager {
         let trace;
         for (let line of lines) {
 
-            if ("" !== line) {
+            let parts = line.split(',');
 
-                let parts = line.split(',');
+            if ('nan' === parts[ 2 ] || 'nan' === parts[ 3 ] || 'nan' === parts[ 4 ]) {
+                // do nothing
+            } else {
 
-                if ('nan' === parts[ 2 ] || 'nan' === parts[ 3 ] || 'nan' === parts[ 4 ]) {
-                    // do nothing
-                } else {
+                const index = parseInt(parts[ 0 ], 10) - 1;
 
-                    const index = parseInt(parts[ 0 ], 10) - 1;
+                if (undefined === key || key !== index.toString()) {
 
-                    if (undefined === key || key !== index.toString()) {
+                    key = index.toString();
 
-                        key = index.toString();
+                    this.ensemble[ key ] = trace =
+                        {
+                            segmentIDList: [],
+                            geometry: new THREE.Geometry(),
+                            material: new THREE.MeshPhongMaterial()
+                        };
 
-                        this.ensemble[ key ] = trace =
-                            {
-                                geometry: new THREE.Geometry(),
-                                material: new THREE.MeshPhongMaterial()
-                            };
-
-                    }
-
-                    // discard chr-index
-                    parts.shift();
-
-                    // discard segment-index
-                    parts.shift();
-
-                    let [ z, x, y ] = parts;
-                    trace.geometry.vertices.push( new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z)) );
                 }
+
+                // discard chr-index
+                parts.shift();
+
+                // discard segment-index
+                let segmentID = parts.shift();
+
+                // NOTE: Segment IDs are 1-based.
+                trace.segmentIDList.push( parseInt(segmentID, 10) );
+
+                let [ z, x, y ] = parts;
+                const centroid = new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z));
+                trace.geometry.vertices.push( centroid );
+
 
             }
 
@@ -138,11 +144,11 @@ export const getContactFrequencyCanvasWithEnsemble = ensemble => {
 
     const ensembleList = Object.values(ensemble);
 
+    const maxTraceLength = Math.max(...(ensembleList.map(ensemble => ensemble.geometry.vertices.length)));
+
     console.time(`index ${ ensembleList.length } traces`);
 
-    const firstTrace = ensembleList[ 0 ];
-
-    let frequencies = new Array(firstTrace.geometry.vertices.length * firstTrace.geometry.vertices.length);
+    let frequencies = new Array(maxTraceLength * maxTraceLength);
     for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
 
     let maxFrequency = Number.NEGATIVE_INFINITY;
@@ -156,14 +162,15 @@ export const getContactFrequencyCanvasWithEnsemble = ensemble => {
         // console.time(`index and process single traces`);
 
         let { vertices } = trace.geometry;
-        let { length } = vertices;
+        let { length: traceLength } = vertices;
 
         const config =
             {
-                points: vertices,
-                getX: vertex => vertex.x,
-                getY: vertex => vertex.y,
-                getZ: vertex => vertex.z,
+                idList: trace.segmentIDList.slice(0),
+                points: vertices.slice(0),
+                getX: pt => pt.x,
+                getY: pt => pt.y,
+                getZ: pt => pt.z,
                 nodeSize: 64,
                 ArrayType: Float64Array,
                 axisCount: 3
@@ -171,21 +178,36 @@ export const getContactFrequencyCanvasWithEnsemble = ensemble => {
 
         const spatialIndex = new KDBush(config);
 
-        for (let i = 0; i < length; i++) {
+        for (let i = 0; i < traceLength; i++) {
 
             const { x, y, z } = vertices[ i ];
 
-            const ids = spatialIndex
-                .within(x, y, z, contact_threshold)
-                .filter(id => id !== i);
+            const ids = spatialIndex.within(x, y, z, contact_threshold);
 
-            if (ids.length > 0) {
-                for (let id of ids) {
-                    const xy =  i * length + id;
-                    const yx = id * length +  i;
-                    ++frequencies[ xy ];
-                    ++frequencies[ yx ];
-                    maxFrequency = Math.max(maxFrequency, frequencies[ xy ]);
+            const traceSegmentID = trace.segmentIDList[ i ];
+            const ids_filtered = ids.filter(id => id !== traceSegmentID);
+
+            if (ids_filtered.length > 0) {
+                for (let id of ids_filtered) {
+
+                    // ids are segment indices which are 1-based. Decrement to use
+                    // as index into frequency array which is 0-based
+                    const id_freq = id - 1;
+                    const  i_freq = traceSegmentID - 1;
+
+                    const xy =  i_freq * maxTraceLength + id_freq;
+                    const yx = id_freq * maxTraceLength +  i_freq;
+
+                    if (xy < frequencies.length && yx < frequencies.length) {
+
+                        ++frequencies[ xy ];
+                        ++frequencies[ yx ];
+
+                        maxFrequency = Math.max(maxFrequency, frequencies[ xy ]);
+                    } else {
+                        console.log('whah?');
+                    }
+
                 }
             }
 
@@ -199,14 +221,14 @@ export const getContactFrequencyCanvasWithEnsemble = ensemble => {
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = firstTrace.geometry.vertices.length;
+    ctx.canvas.width = ctx.canvas.height = maxTraceLength;
 
     // clear canvas
     const { width: w, height: h } = ctx.canvas;
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
     ctx.fillRect(0, 0, w, h);
 
-    // paint distances as lerp'd color
+    // paint frequencies as lerp'd color
     for (let i = 0; i < w; i++) {
         for(let j = 0; j < h; j++) {
 
