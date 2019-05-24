@@ -77,15 +77,7 @@ class EnsembleManager {
             trace.geometry.computeBoundingSphere();
         }
 
-        getContactMapCanvasWithEnsemble(this.ensemble);
-
     }
-
-    // getBoundsWithTrace(trace) {
-    //     const { center, radius } = trace.geometry.boundingSphere;
-    //     const { min, max } = trace.geometry.boundingBox;
-    //     return { min, max, center, radius }
-    // }
 
     traceWithName(name) {
         // return this.ensemble[ name ] || undefined;
@@ -142,21 +134,36 @@ export const getBoundsWithTrace = (trace) => {
     return { min, max, center, radius }
 };
 
-export const getContactMapCanvasWithEnsemble = ensemble => {
+export const getContactFrequencyCanvasWithEnsemble = ensemble => {
 
     const ensembleList = Object.values(ensemble);
 
     console.time(`index ${ ensembleList.length } traces`);
 
+    const firstTrace = ensembleList[ 0 ];
+
+    let frequencies = new Array(firstTrace.geometry.vertices.length * firstTrace.geometry.vertices.length);
+    for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
+
+    let maxFrequency = Number.NEGATIVE_INFINITY;
+
+    // contact threshold
+    const contact_threshold = 128;
+
     // compute and store bounds
     for (let trace of ensembleList) {
 
+        // console.time(`index and process single traces`);
+
+        let { vertices } = trace.geometry;
+        let { length } = vertices;
+
         const config =
             {
-                points: trace.geometry.vertices,
-                getX: p => p.x,
-                getY: p => p.y,
-                getZ: p => p.z,
+                points: vertices,
+                getX: vertex => vertex.x,
+                getY: vertex => vertex.y,
+                getZ: vertex => vertex.z,
                 nodeSize: 64,
                 ArrayType: Float64Array,
                 axisCount: 3
@@ -164,26 +171,53 @@ export const getContactMapCanvasWithEnsemble = ensemble => {
 
         const spatialIndex = new KDBush(config);
 
-        const { radius } = getBoundsWithTrace(trace);
+        for (let i = 0; i < length; i++) {
 
-        const threshold = radius/32.0;
-        for (let i = 0; i < trace.geometry.vertices.length; i++) {
+            const { x, y, z } = vertices[ i ];
 
-            const { x, y, z } = trace.geometry.vertices[ i ];
-            const ids = spatialIndex.within(x, y, z, threshold);
+            const ids = spatialIndex
+                .within(x, y, z, contact_threshold)
+                .filter(id => id !== i);
 
-            const results = ids
-                .filter(id => id !== i)
-                .map(id => spatialIndex.points[ id ]);
-
-            if (results.length > 0) {
-                const guard = 757;
+            if (ids.length > 0) {
+                for (let id of ids) {
+                    const xy =  i * length + id;
+                    const yx = id * length +  i;
+                    ++frequencies[ xy ];
+                    ++frequencies[ yx ];
+                    maxFrequency = Math.max(maxFrequency, frequencies[ xy ]);
+                }
             }
+
         }
+
+        // console.timeEnd(`index and process single traces`);
 
     }
 
     console.timeEnd(`index ${ ensembleList.length } traces`);
+
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    ctx.canvas.width = ctx.canvas.height = firstTrace.geometry.vertices.length;
+
+    // clear canvas
+    const { width: w, height: h } = ctx.canvas;
+    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
+    ctx.fillRect(0, 0, w, h);
+
+    // paint distances as lerp'd color
+    for (let i = 0; i < w; i++) {
+        for(let j = 0; j < h; j++) {
+
+            const ij = i * w + j;
+            const interpolant = frequencies[ ij ] / maxFrequency;
+            ctx.fillStyle = rgb255String( rgb255Lerp(rgbMin, rgbMax, interpolant) );
+            ctx.fillRect(i, j, 1, 1);
+        }
+    }
+
+    return canvas;
 
 };
 
@@ -232,7 +266,7 @@ export const getDistanceMapCanvasWithTrace = trace => {
     ctx.canvas.width = ctx.canvas.height = length;
 
     // clear canvas
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('blueberry') );
+    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
     ctx.fillRect(0, 0, length, length);
 
     // paint distances as lerp'd color
@@ -247,6 +281,7 @@ export const getDistanceMapCanvasWithTrace = trace => {
     }
 
     return canvas;
+
 };
 
 export default EnsembleManager;
