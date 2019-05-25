@@ -154,7 +154,8 @@ export const getContactFrequencyCanvasWithEnsemble = ensemble => {
     let maxFrequency = Number.NEGATIVE_INFINITY;
 
     // contact threshold
-    const contact_threshold = 128;
+    // const contact_threshold = 2  *128;
+    const contact_threshold = 3  * 128;
 
     // compute and store bounds
     for (let trace of ensembleList) {
@@ -198,15 +199,10 @@ export const getContactFrequencyCanvasWithEnsemble = ensemble => {
                     const xy =  i_freq * maxTraceLength + id_freq;
                     const yx = id_freq * maxTraceLength +  i_freq;
 
-                    if (xy < frequencies.length && yx < frequencies.length) {
+                    ++frequencies[ xy ];
+                    ++frequencies[ yx ];
 
-                        ++frequencies[ xy ];
-                        ++frequencies[ yx ];
-
-                        maxFrequency = Math.max(maxFrequency, frequencies[ xy ]);
-                    } else {
-                        console.log('whah?');
-                    }
+                    maxFrequency = Math.max(maxFrequency, frequencies[ xy ]);
 
                 }
             }
