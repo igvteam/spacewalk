@@ -4,7 +4,7 @@ import { clamp } from './math.js'
 import { moveOffScreen, moveOnScreen } from './utils.js';
 
 let currentStructureKey = undefined;
-class StructureSelectPanel {
+class TraceSelectPanel {
 
     constructor({ container, panel, isHidden }) {
 
@@ -12,12 +12,12 @@ class StructureSelectPanel {
         this.$panel = $(panel);
         this.isHidden = isHidden;
 
-        this.$header = $('#spacewalk_structure_select_header');
+        this.$header = $('#spacewalk_trace_select_header');
 
-        this.$input = $('#spacewalk_structure_select_input');
+        this.$input = $('#spacewalk_trace_select_input');
 
-        this.$button_minus = $('#spacewalk_structure_select_button_minus');
-        this.$button_plus = $('#spacewalk_structure_select_button_plus');
+        this.$button_minus = $('#spacewalk_trace_select_button_minus');
+        this.$button_plus = $('#spacewalk_trace_select_button_plus');
 
         this.keys = undefined;
 
@@ -29,19 +29,19 @@ class StructureSelectPanel {
 
         makeDraggable(panel, $(panel).find('.spacewalk_card_drag_container').get(0));
 
-        $(window).on('resize.trace3d.structure_select', () => { this.onWindowResize(container, panel) });
+        $(window).on('resize.trace3d.trace_select', () => { this.onWindowResize(container, panel) });
 
-        $(panel).on('mouseenter.trace3d.structure_select', (event) => {
+        $(panel).on('mouseenter.trace3d.trace_select', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidEnterGUI" });
         });
 
-        $(panel).on('mouseleave.trace3d.structure_select', (event) => {
+        $(panel).on('mouseleave.trace3d.trace_select', (event) => {
             event.stopPropagation();
             globalEventBus.post({ type: "DidLeaveGUI" });
         });
 
-        this.$button_minus.on('click.spacewalk_structure_select_button_minus', (e) => {
+        this.$button_minus.on('click.spacewalk_trace_select_button_minus', (e) => {
 
             let number = parseInt(currentStructureKey);
             number = clamp(number - 1, 0, (this.keys.length - 1));
@@ -52,7 +52,7 @@ class StructureSelectPanel {
             globalEventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
         });
 
-        this.$button_plus.on('click.spacewalk_structure_select_button_plus', (e) => {
+        this.$button_plus.on('click.spacewalk_trace_select_button_plus', (e) => {
 
             let number = parseInt(currentStructureKey);
             number = clamp(number + 1, 0, (this.keys.length - 1));
@@ -63,7 +63,7 @@ class StructureSelectPanel {
             globalEventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
         });
 
-        this.$input.on('keyup.spacewalk_structure_select_input', (e) => {
+        this.$input.on('keyup.spacewalk_trace_select_input', (e) => {
 
             // enter (return) key pressed
             if (13 === e.keyCode) {
@@ -94,7 +94,7 @@ class StructureSelectPanel {
             }
         };
 
-        $(document).on('keyup.structure_select', handleKeyUp);
+        $(document).on('keyup.trace_select', handleKeyUp);
 
         globalEventBus.subscribe("ToggleUIControl", this);
 
@@ -155,4 +155,4 @@ class StructureSelectPanel {
 
 }
 
-export default StructureSelectPanel;
+export default TraceSelectPanel;

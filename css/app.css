@@ -56,20 +56,20 @@
   border-top-left-radius: .25rem;
   border-bottom-left-radius: .25rem; }
 
-#spacewalk_structure_select_panel.card {
+#spacewalk_trace_select_panel.card {
   width: 160px;
   height: auto; }
-  #spacewalk_structure_select_panel.card .card-body #spacewalk_structure_select_header {
+  #spacewalk_trace_select_panel.card .card-body #spacewalk_trace_select_header {
     font-size: 14px;
     line-height: 24px;
     vertical-align: center;
     height: 24px;
     width: 100%;
     background-color: transparent; }
-  #spacewalk_structure_select_panel.card .card-body .form-group {
+  #spacewalk_trace_select_panel.card .card-body .form-group {
     width: 95%;
     margin-bottom: 0.25rem; }
-    #spacewalk_structure_select_panel.card .card-body .form-group input#spacewalk_structure_select_input {
+    #spacewalk_trace_select_panel.card .card-body .form-group input#spacewalk_trace_select_input {
       font-size: 16px; }
 
 #spacewalk_color_ramp_panel.card {
@@ -432,7 +432,7 @@
   align-items: center; }
 
 .modal {
-  z-index: 99999; }
+  z-index: 99099; }
 
 .igv-root-div {
   padding: 0 !important;

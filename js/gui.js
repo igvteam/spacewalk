@@ -1,6 +1,6 @@
 import {appleCrayonColorThreeJS} from "./color.js";
 import GUIManager from "./guiManager.js";
-import StructureSelectPanel from "./structureSelectPanel.js";
+import TraceSelectPanel from "./traceSelectPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
 import ThumbnailPanel, {thumbnailPanelConfigurator} from "./thumbnailPanel.js";
@@ -10,7 +10,7 @@ import TrackLoadController, { trackLoadControllerConfigurator } from "./igv/trac
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 
 let guiManager;
-let structureSelectPanel;
+let traceSelectPanel;
 let juiceboxPanel;
 let colorRampPanel;
 let thumbnailPanel;
@@ -27,7 +27,7 @@ const createGUI = async container => {
 
     guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
-    structureSelectPanel = new StructureSelectPanel({ container, panel: $('#spacewalk_structure_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_structure_select_panel') });
+    traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
 
     colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, highlightColor }) );
 
@@ -53,4 +53,4 @@ const createGUI = async container => {
 
 };
 
-export { createGUI, trackLoadController, guiManager, structureSelectPanel, juiceboxPanel, colorRampPanel, thumbnailPanel, distanceMapPanel, igvPanel, highlightColor };
+export { createGUI, trackLoadController, guiManager, traceSelectPanel, juiceboxPanel, colorRampPanel, thumbnailPanel, distanceMapPanel, igvPanel, highlightColor };

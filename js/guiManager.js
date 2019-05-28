@@ -15,7 +15,7 @@ class GUIManager {
         [
             'spacewalk_ui_manager_groundplane',
             'spacewalk_ui_manager_ui_controls_color_ramp',
-            'spacewalk_ui_manager_ui_controls_structure_select',
+            'spacewalk_ui_manager_ui_controls_trace_select',
             'spacewalk_ui_manager_ui_controls_juicebox',
             'spacewalk_ui_manager_ui_controls_igv',
             'spacewalk_ui_manager_ui_controls_thumbnail',
