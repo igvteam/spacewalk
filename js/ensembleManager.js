@@ -306,7 +306,8 @@ export const getDistanceMapCanvasWithTrace = trace => {
 
             const ij = i * length + j;
             const interpolant = distances[ ij ] / maxDistance;
-            ctx.fillStyle = rgb255String( rgb255Lerp(rgbMin, rgbMax, interpolant) );
+            // ctx.fillStyle = rgb255String( rgb255Lerp(rgbMin, rgbMax, interpolant) );
+            ctx.fillStyle = colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
             ctx.fillRect(i, j, 1, 1);
         }
     }
