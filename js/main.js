@@ -75,8 +75,7 @@ let setup = ({ trace }) => {
         thumbnailPanel.render();
     }
 
-    // distanceMapPanel.draw(getDistanceMapCanvasWithTrace(trace));
-    distanceMapPanel.draw(getContactFrequencyCanvasWithEnsemble(ensembleManager.ensemble));
+    distanceMapPanel.draw(getDistanceMapCanvasWithTrace(trace));
 };
 
 let renderLoop = () => {

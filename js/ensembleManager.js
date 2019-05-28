@@ -5,9 +5,16 @@ import KDBush from '../node_modules/kdbush/js/index.js'
 import { globalEventBus } from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
 import { rgb255String, rgb255Lerp, appleCrayonColorRGB255 } from './color.js';
+import { contactFrequencyMapPanel } from './gui.js';
+
+export let contactFrequencyDistanceThreshold = 256;
+
+const rgbMinContactFrequeny = appleCrayonColorRGB255('honeydew');
+const rgbMaxContactFrequeny = appleCrayonColorRGB255('fern');
 
 const rgbMin = appleCrayonColorRGB255('maraschino');
 const rgbMax = appleCrayonColorRGB255('midnight');
+
 class EnsembleManager {
 
     constructor () {
@@ -83,6 +90,8 @@ class EnsembleManager {
             trace.geometry.computeBoundingSphere();
         }
 
+        contactFrequencyMapPanel.draw(getContactFrequencyCanvasWithEnsemble(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
+
     }
 
     traceWithName(name) {
@@ -140,7 +149,7 @@ export const getBoundsWithTrace = (trace) => {
     return { min, max, center, radius }
 };
 
-export const getContactFrequencyCanvasWithEnsemble = ensemble => {
+export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshold) => {
 
     const ensembleList = Object.values(ensemble);
 
@@ -152,10 +161,6 @@ export const getContactFrequencyCanvasWithEnsemble = ensemble => {
     for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
 
     let maxFrequency = Number.NEGATIVE_INFINITY;
-
-    // contact threshold
-    // const contact_threshold = 2  *128;
-    const contact_threshold = 3  * 128;
 
     // compute and store bounds
     for (let trace of ensembleList) {
@@ -183,7 +188,7 @@ export const getContactFrequencyCanvasWithEnsemble = ensemble => {
 
             const { x, y, z } = vertices[ i ];
 
-            const ids = spatialIndex.within(x, y, z, contact_threshold);
+            const ids = spatialIndex.within(x, y, z, distanceThreshold);
 
             const traceSegmentID = trace.segmentIDList[ i ];
             const ids_filtered = ids.filter(id => id !== traceSegmentID);
@@ -219,6 +224,7 @@ export const getContactFrequencyCanvasWithEnsemble = ensemble => {
     let ctx = canvas.getContext('2d');
     ctx.canvas.width = ctx.canvas.height = maxTraceLength;
 
+    console.log('Contact map size: ' + ctx.canvas.width + ' x ' + ctx.canvas.height);
     // clear canvas
     const { width: w, height: h } = ctx.canvas;
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
@@ -229,8 +235,8 @@ export const getContactFrequencyCanvasWithEnsemble = ensemble => {
         for(let j = 0; j < h; j++) {
 
             const ij = i * w + j;
-            const interpolant = frequencies[ ij ] / maxFrequency;
-            ctx.fillStyle = rgb255String( rgb255Lerp(rgbMin, rgbMax, interpolant) );
+            const interpolant = i === j ? 1 :  frequencies[ ij ] / maxFrequency;
+            ctx.fillStyle = rgb255String( rgb255Lerp(rgbMinContactFrequeny, rgbMaxContactFrequeny, interpolant) );
             ctx.fillRect(i, j, 1, 1);
         }
     }
@@ -240,6 +246,8 @@ export const getContactFrequencyCanvasWithEnsemble = ensemble => {
 };
 
 export const getDistanceMapCanvasWithTrace = trace => {
+
+    console.time('distance map for single trace');
 
     let { vertices } = trace.geometry;
     let { length } = vertices;
@@ -278,6 +286,8 @@ export const getDistanceMapCanvasWithTrace = trace => {
         } // for (j)
 
     } // for (i)
+
+    console.timeEnd('distance map for single trace');
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');

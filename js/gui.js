@@ -5,6 +5,7 @@ import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
 import ThumbnailPanel, {thumbnailPanelConfigurator} from "./thumbnailPanel.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
+import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
 import IGVPanel, { trackRegistryFile, igvBrowserConfigurator } from "./igv/IGVPanel.js";
 import TrackLoadController, { trackLoadControllerConfigurator } from "./igv/trackLoadController.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
@@ -15,6 +16,7 @@ let juiceboxPanel;
 let colorRampPanel;
 let thumbnailPanel;
 let distanceMapPanel;
+let contactFrequencyMapPanel;
 let igvPanel;
 let trackLoadController;
 
@@ -35,6 +37,8 @@ const createGUI = async container => {
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator(container));
 
+    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator(container));
+
     //
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
     await igvPanel.initialize(igvBrowserConfigurator());
@@ -53,4 +57,4 @@ const createGUI = async container => {
 
 };
 
-export { createGUI, trackLoadController, guiManager, traceSelectPanel, juiceboxPanel, colorRampPanel, thumbnailPanel, distanceMapPanel, igvPanel, highlightColor };
+export { createGUI, trackLoadController, guiManager, traceSelectPanel, juiceboxPanel, colorRampPanel, thumbnailPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, highlightColor };
