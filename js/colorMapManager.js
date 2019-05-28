@@ -16,6 +16,7 @@ class ColorMapManager {
         colormaps[ 'bintu_et_al' ] = 'resources/colormaps/bintu_et_al/bintu_et_al.png';
 
         await this.addMap({ name: defaultColormapName, path: colormaps[ defaultColormapName ] });
+
         await this.addMap({ name: 'bintu_et_al', path: colormaps[ 'bintu_et_al' ] });
 
         // for (let key of Object.keys(colormaps)) {
@@ -49,8 +50,8 @@ class ColorMapManager {
             const string = await response.text();
             this.handleString(obj, string);
         } else if ('png' === suffix) {
-            const arrayBuffer = await response.arrayBuffer();
-            this.handleImageData(obj, arrayBuffer);
+            const blob = await response.blob();
+            this.handleImageData(obj, blob);
         }
 
     }
@@ -81,28 +82,40 @@ class ColorMapManager {
 
     }
 
-    handleImageData(obj, arrayBuffer) {
+    handleImageData(obj, blob) {
 
-        let byteArray = new Uint8Array(arrayBuffer);
-        const guard = 373;
+        let image = new Image();
+        image.onload = () => {
 
-        // TODO: Load PNG image directly into canvas.
-        // TODO: See https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Using_images
-        /*
-         var ctx = document.getElementById('canvas').getContext('2d');
-        var img = new Image();
-        img.onload = function() {
-            ctx.drawImage(img, 0, 0);
-            ctx.beginPath();
-            ctx.moveTo(30, 96);
-            ctx.lineTo(70, 66);
-            ctx.lineTo(103, 76);
-            ctx.lineTo(170, 15);
-            ctx.stroke();
+            let canvas = document.createElement('canvas');
+            let ctx = canvas.getContext('2d');
+
+            ctx.canvas.width = image.width;
+            ctx.canvas.height = 1;
+            ctx.drawImage(image, 0, 0, ctx.canvas.width, ctx.canvas.height);
+
+            const rgbaList = ctx.getImageData(0,0, ctx.canvas.width, ctx.canvas.height).data;
+
+            let pixel = undefined;
+
+            obj.rgb = [];
+
+            for (let i = 0; i < rgbaList.length; i += 4) {
+                const [ r, g, b ] = [ rgbaList[ i ], rgbaList[ i+1 ], rgbaList[ i+2 ] ];
+                obj.rgb.push( { rgb255String: rgb255String({ r, g, b }), threejs: rgb255ToThreeJSColor(r, g, b) } );
+
+            }
+
         };
-        img.src = 'https://mdn.mozillademos.org/files/5395/backdrop.png';
 
-         */
+        let fileReader  = new FileReader();
+
+        fileReader.addEventListener("load",  () => {
+            image.src = fileReader.result;
+        }, false);
+
+        fileReader.readAsDataURL(blob);
+
     }
 
     retrieveRGB255String(name, interpolant) {

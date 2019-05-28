@@ -9,6 +9,8 @@ import { contactFrequencyMapPanel } from './gui.js';
 
 export let contactFrequencyDistanceThreshold = 256;
 
+import { colorMapManager } from "./main.js";
+
 const rgbMinContactFrequeny = appleCrayonColorRGB255('honeydew');
 const rgbMaxContactFrequeny = appleCrayonColorRGB255('fern');
 
@@ -236,7 +238,8 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
             const ij = i * w + j;
             const interpolant = i === j ? 1 :  frequencies[ ij ] / maxFrequency;
-            ctx.fillStyle = rgb255String( rgb255Lerp(rgbMinContactFrequeny, rgbMaxContactFrequeny, interpolant) );
+            // ctx.fillStyle = rgb255String( rgb255Lerp(rgbMinContactFrequeny, rgbMaxContactFrequeny, interpolant) );
+            ctx.fillStyle = colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
             ctx.fillRect(i, j, 1, 1);
         }
     }
