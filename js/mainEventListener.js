@@ -32,20 +32,21 @@ export const mainEventListener =
             } else if ('DidSelectStructure' === type) {
 
                 trace = ensembleManager.traceWithName(data);
+                const structureLength = trace.geometry.vertices.length;
 
                 igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                    IGVMouseHandler({bp, start, end, interpolant, structureLength: trace.geometry.vertices.length})
+                    IGVMouseHandler({bp, start, end, interpolant, structureLength })
                 });
 
                 juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: trace.geometry.vertices.length });
+                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength });
                 });
 
                 sceneManager.dispose();
 
-                colorRampPanel.colorRampMaterialProvider.configure({ structureLength: trace.length });
+                colorRampPanel.colorRampMaterialProvider.configure({ structureLength });
 
-                dataValueMaterialProvider.structureLength = trace.geometry.vertices.length;
+                dataValueMaterialProvider.structureLength = structureLength;
 
                 setup({ trace });
 
@@ -62,6 +63,7 @@ export const mainEventListener =
 
                 const initialStructureKey = '0';
                 trace = ensembleManager.traceWithName(initialStructureKey);
+                const structureLength = trace.geometry.vertices.length;
 
                 const str = 'STRUCTURE: CHR ' + chr + ' ' + Math.floor(genomicStart/1e6) + 'MB to ' + Math.floor(genomicEnd/1e6) + 'MB';
                 $('.navbar').find('#spacewalk-file-name').text(str);
@@ -70,19 +72,19 @@ export const mainEventListener =
 
                 juiceboxPanel.goto({ chr, start: genomicStart, end: genomicEnd });
 
-                colorRampPanel.configure({genomicStart, genomicEnd, structureLength: trace.geometry.vertices.length});
+                colorRampPanel.configure({genomicStart, genomicEnd, structureLength });
 
-                dataValueMaterialProvider.structureLength = trace.geometry.vertices.length;
+                dataValueMaterialProvider.structureLength = structureLength;
 
                 igvPanel.trackDataHandler();
 
 
                 igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                    IGVMouseHandler({ bp, start, end, interpolant, structureLength: trace.geometry.vertices.length })
+                    IGVMouseHandler({ bp, start, end, interpolant, structureLength })
                 });
 
                 juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: trace.geometry.vertices.length });
+                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength });
                 });
 
                 traceSelectPanel.configure({ ensemble: ensembleManager.ensemble, initialStructureKey });
