@@ -5,6 +5,7 @@ import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
+import Gnomon from './gnomon.js';
 
 import { guiManager, colorRampPanel } from './gui.js';
 import { dataValueMaterialProvider, noodle, ballAndStick } from "./main.js";
@@ -157,10 +158,21 @@ class SceneManager {
 
 
         // axes helper
-        const axesHelper = new THREE.AxesHelper( boundingDiameter );
-        axesHelper.position.set((centroid.x + dx), (centroid.y + dy), (centroid.z + dz));
-        this.scene.add( axesHelper );
+        // const axesHelper = new THREE.AxesHelper( boundingDiameter );
+        // axesHelper.position.set((centroid.x + dx), (centroid.y + dy), (centroid.z + dz));
+        // this.scene.add( axesHelper );
 
+        const config =
+            {
+                origin: new THREE.Vector3(min.x, min.y, min.z),
+                xLength: max.x - min.x,
+                yLength: max.y - min.y,
+                zLength: max.z - min.z,
+                color: appleCrayonColorThreeJS('magenta')
+            };
+        const gnomon = new Gnomon(config);
+
+        this.scene.add( gnomon );
     }
 
     onWindowResize() {
