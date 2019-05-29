@@ -1,4 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import { getBoundsWithTrace } from './ensembleManager.js';
 import { sceneManager, ensembleManager } from "./main.js";
 import { degrees } from './math.js';
 import { colorDescriptionRGBOrThreeJS } from './color.js';
@@ -153,7 +154,7 @@ class BallAndStick {
     }
 
     getBounds() {
-        return ensembleManager.getBoundsWithTrace(this.trace);
+        return getBoundsWithTrace(this.trace);
     }
 
     getCameraPoseAlongAxis ({ axis, scaleFactor }) {

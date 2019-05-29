@@ -1,7 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import EnsembleManager from './ensembleManager.js';
 import { createGUI, thumbnailPanel, distanceMapPanel, highlightColor } from './gui.js';
-import { getDistanceMapCanvasWithTrace } from './ensembleManager.js';
+import { getDistanceMapCanvasWithTrace, getContactFrequencyCanvasWithEnsemble } from './ensembleManager.js';
 import SceneManager, { sceneManagerConfigurator } from './sceneManager.js';
 import DataValueMaterialProvider from './dataValueMaterialProvider.js';
 import Noodle from './noodle.js';
@@ -10,14 +10,28 @@ import BallAndStick from './ballAndStick.js';
 import { globalEventBus } from './eventBus.js';
 import { mainEventListener } from './mainEventListener.js';
 import { appleCrayonColorThreeJS, appleCrayonColorRGB255 } from "./color.js";
+import ColorMapManager from "./colorMapManager.js";
 
 let ensembleManager;
 let sceneManager;
 let dataValueMaterialProvider;
 let noodle;
 let ballAndStick;
+let colorMapManager;
 
 let main = async container => {
+
+    colorMapManager = new ColorMapManager();
+    await colorMapManager.configure();
+
+    const colormaps =
+        {
+            peter_kovesi_rainbow_bgyr_35_85_c72_n256: 'resources/colormaps/peter_kovesi/CET-R2.csv'
+        };
+
+    for (let key of Object.keys(colormaps)) {
+        colorMapManager.addMap({name: key, path: colormaps[key]});
+    }
 
     ensembleManager = new EnsembleManager();
 
@@ -62,7 +76,6 @@ let setup = ({ trace }) => {
     }
 
     distanceMapPanel.draw(getDistanceMapCanvasWithTrace(trace));
-
 };
 
 let renderLoop = () => {
@@ -70,4 +83,4 @@ let renderLoop = () => {
     sceneManager.render();
 };
 
-export { main, setup, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, ensembleManager };
+export { main, setup, colorMapManager, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, ensembleManager };

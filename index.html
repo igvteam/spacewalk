@@ -295,10 +295,10 @@
                     <div>Color Ramp</div>
                 </li>
 
-                <!-- toggle structure select panel -->
+                <!-- toggle trace select panel -->
                 <li class="list-group-item">
-                    <input id="spacewalk_ui_manager_ui_controls_structure_select" data-target="spacewalk_structure_select_panel" class="mr-2" type="checkbox">
-                    <div>Structure Select</div>
+                    <input id="spacewalk_ui_manager_ui_controls_trace_select" data-target="spacewalk_trace_select_panel" class="mr-2" type="checkbox">
+                    <div>Trace Select</div>
                 </li>
 
                 <!-- toggle juicebox panel -->
@@ -323,6 +323,13 @@
                 <li class="list-group-item">
                     <input id="spacewalk_ui_manager_ui_controls_distance_map" data-target="spacewalk_distance_map_panel" class="mr-2" type="checkbox" checked>
                     <div>Distance Map</div>
+                </li>
+
+                <!-- toggle contact-frequency-map panel -->
+                <li class="list-group-item">
+
+                    <input id="spacewalk_ui_manager_ui_controls_contact_frequency_map" data-target="spacewalk_contact_frequency_map_panel" class="mr-2" type="checkbox" checked>
+                    <div>Contact Frequency Map</div>
                 </li>
 
                 <!-- toggle render style -->
@@ -370,8 +377,8 @@
 
         </div>
 
-        <!-- structure select panel -->
-        <div id="spacewalk_structure_select_panel" class="card">
+        <!-- trace select panel -->
+        <div id="spacewalk_trace_select_panel" class="card">
 
             <div class="card-body">
 
@@ -380,17 +387,17 @@
                 </div>
 
                 <!-- header -->
-                <div id="spacewalk_structure_select_header" class="text-center">
+                <div id="spacewalk_trace_select_header" class="text-center">
 
                 </div>
 
-                <!-- structure select widget -->
+                <!-- trace select widget -->
                 <div class="form-group">
                     <div class="input-group input-group-sm">
-                        <input id="spacewalk_structure_select_input" type="text" class="form-control text-center">
+                        <input id="spacewalk_trace_select_input" type="text" class="form-control text-center">
                         <div class="input-group-append">
-                            <button id="spacewalk_structure_select_button_minus" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
-                            <button id="spacewalk_structure_select_button_plus" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+                            <button id="spacewalk_trace_select_button_minus" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
+                            <button id="spacewalk_trace_select_button_plus" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                 </div>
@@ -423,9 +430,7 @@
 
                 <!-- drag handle -->
                 <div class="spacewalk_card_drag_container">
-
                     <i class="fas fa-sm fa-grip-horizontal"></i>
-
                 </div>
 
                 <!-- igv browser container -->
@@ -445,7 +450,7 @@
 
                 <!-- drag handle -->
                 <div class="spacewalk_card_drag_container">
-                    <i class="fas fa-grip-lines"></i>
+                    <i class="fas fa-sm fa-grip-horizontal"></i>
                 </div>
 
                 <!-- thumbnail container -->
@@ -461,16 +466,54 @@
         <!-- distance-map panel -->
         <div id="spacewalk_distance_map_panel" class="card">
 
-            <!-- thumbnail panel body -->
+            <!-- distance-map panel body -->
             <div id="spacewalk_distance_map_panel_body" class="card-body p-0">
 
                 <!-- drag handle -->
                 <div class="spacewalk_card_drag_container">
-                    <i class="fas fa-grip-lines"></i>
+                    <i class="fas fa-sm fa-grip-horizontal"></i>
                 </div>
 
-                <!-- thumbnail container -->
+                <!-- distance-map container -->
                 <div id="spacewalk_distance_map_panel_container">
+                    <canvas>
+                    </canvas>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- contact-frequency-map panel -->
+        <div id="spacewalk_contact_frequency_map_panel" class="card">
+
+            <!-- contact-frequency panel body -->
+            <div id="spacewalk_contact_frequency_map_panel_body" class="card-body p-0">
+
+                <!-- drag handle -->
+                <div class="spacewalk_card_drag_container">
+                    <i class="fas fa-sm fa-grip-horizontal"></i>
+                </div>
+
+                <!-- contact-frequency adjustment -->
+                <div class="form-group">
+                    <div class="input-group input-group-sm">
+
+                        <div class="input-group-prepend">
+                            <button id="spacewalk_contact_frequency_map_adjustment_select_button_minus" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
+                        </div>
+
+                        <input id="spacewalk_contact_frequency_map_adjustment_select_input" type="text" class="form-control text-center">
+
+                        <div class="input-group-append">
+                            <button id="spacewalk_contact_frequency_map_adjustment_select_button_plus" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- contact-frequency container -->
+                <div id="spacewalk_contact_frequency_map_panel_container">
                     <canvas>
                     </canvas>
                 </div>

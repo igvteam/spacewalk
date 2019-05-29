@@ -4,8 +4,8 @@ import { globalEventBus } from "./eventBus.js";
 import { segmentIndexForInterpolant, fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
-import { defaultColormapName } from "./sceneManager.js";
-import { sceneManager, ballAndStick } from "./main.js";
+import { defaultColormapName } from "./colorMapManager.js";
+import { sceneManager, ballAndStick, colorMapManager } from "./main.js";
 
 let currentSegmentIndex = undefined;
 
@@ -16,7 +16,7 @@ let rgbTexture;
 let alphaTexture;
 class ColorRampMaterialProvider {
 
-    constructor({ $canvasContainer, namespace, colorMapManager, highlightColor }) {
+    constructor({ $canvasContainer, namespace, highlightColor }) {
 
         let canvas;
 
@@ -74,9 +74,6 @@ class ColorRampMaterialProvider {
         $canvasContainer.on(('mouseup.trace3d.' + namespace), eventSink);
         $canvasContainer.on(('mousedown.trace3d.' + namespace), eventSink);
         $canvasContainer.on(('click.trace3d.' + namespace), eventSink);
-
-
-        this.colorMapManager = colorMapManager;
 
         const { r, g, b } = highlightColor;
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
@@ -164,7 +161,7 @@ class ColorRampMaterialProvider {
             interpolant = 1 - (y / (height - 1));
             quantizedInterpolant = quantize(interpolant, this.structureLength);
             segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
-            this.rgb_ctx.fillStyle = this.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
+            this.rgb_ctx.fillStyle = colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
             this.rgb_ctx.fillRect(0, y, width, 1);
         }
 
@@ -204,7 +201,7 @@ class ColorRampMaterialProvider {
     }
 
     colorForInterpolant(interpolant) {
-        return this.colorMapManager.retrieveThreeJS(defaultColormapName, interpolant)
+        return colorMapManager.retrieveThreeJS(defaultColormapName, interpolant)
     }
 
     renderLoopHelper () {

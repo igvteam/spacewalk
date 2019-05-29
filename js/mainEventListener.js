@@ -2,7 +2,7 @@ import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { IGVMouseHandler } from "./igv/IGVPanel.js";
 import { juiceboxMouseHandler } from "./juicebox/juiceboxPanel.js";
-import { colorRampPanel, thumbnailPanel, igvPanel, juiceboxPanel, structureSelectPanel } from './gui.js';
+import { colorRampPanel, thumbnailPanel, igvPanel, juiceboxPanel, traceSelectPanel } from './gui.js';
 import { setup, dataValueMaterialProvider, noodle, ballAndStick, sceneManager, ensembleManager } from "./main.js";
 
 export const mainEventListener =
@@ -85,7 +85,7 @@ export const mainEventListener =
                     juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: trace.geometry.vertices.length });
                 });
 
-                structureSelectPanel.configure({ ensemble: ensembleManager.ensemble, initialStructureKey });
+                traceSelectPanel.configure({ ensemble: ensembleManager.ensemble, initialStructureKey });
 
                 sceneManager.dispose();
 

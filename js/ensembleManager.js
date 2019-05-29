@@ -1,11 +1,22 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import igv from '../vendor/igv.esm.js'
+import KDBush from '../node_modules/kdbush/js/index.js'
+
 import { globalEventBus } from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
 import { rgb255String, rgb255Lerp, appleCrayonColorRGB255 } from './color.js';
+import { contactFrequencyMapPanel } from './gui.js';
 
-const rgbMin = appleCrayonColorRGB255('blueberry');
-const rgbMax = appleCrayonColorRGB255('strawberry');
+export let contactFrequencyDistanceThreshold = 256;
+
+import { colorMapManager } from "./main.js";
+
+const rgbMinContactFrequeny = appleCrayonColorRGB255('honeydew');
+const rgbMaxContactFrequeny = appleCrayonColorRGB255('fern');
+
+const rgbMin = appleCrayonColorRGB255('maraschino');
+const rgbMax = appleCrayonColorRGB255('midnight');
+
 class EnsembleManager {
 
     constructor () {
@@ -17,13 +28,16 @@ class EnsembleManager {
 
         this.ensemble = {};
 
-        const lines = string.split(/\r?\n/);
+        const rawLines = string.split(/\r?\n/);
 
         // discard blurb
-        lines.shift();
+        rawLines.shift();
 
         // discard column titles
-        lines.shift();
+        rawLines.shift();
+
+        // discard blank lines
+        const lines = rawLines.filter(rawLine => "" !== rawLine);
 
         // chr-index ( 0-based)| segment-index (one-based) | Z | X | y
 
@@ -31,37 +45,40 @@ class EnsembleManager {
         let trace;
         for (let line of lines) {
 
-            if ("" !== line) {
+            let parts = line.split(',');
 
-                let parts = line.split(',');
+            if ('nan' === parts[ 2 ] || 'nan' === parts[ 3 ] || 'nan' === parts[ 4 ]) {
+                // do nothing
+            } else {
 
-                if ('nan' === parts[ 2 ] || 'nan' === parts[ 3 ] || 'nan' === parts[ 4 ]) {
-                    // do nothing
-                } else {
+                const index = parseInt(parts[ 0 ], 10) - 1;
 
-                    const index = parseInt(parts[ 0 ], 10) - 1;
+                if (undefined === key || key !== index.toString()) {
 
-                    if (undefined === key || key !== index.toString()) {
+                    key = index.toString();
 
-                        key = index.toString();
+                    this.ensemble[ key ] = trace =
+                        {
+                            segmentIDList: [],
+                            geometry: new THREE.Geometry(),
+                            material: new THREE.MeshPhongMaterial()
+                        };
 
-                        this.ensemble[ key ] = trace =
-                            {
-                                geometry: new THREE.Geometry(),
-                                material: new THREE.MeshPhongMaterial()
-                            };
-
-                    }
-
-                    // discard chr-index
-                    parts.shift();
-
-                    // discard segment-index
-                    parts.shift();
-
-                    let [ z, x, y ] = parts;
-                    trace.geometry.vertices.push( new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z)) );
                 }
+
+                // discard chr-index
+                parts.shift();
+
+                // discard segment-index
+                let segmentID = parts.shift();
+
+                // NOTE: Segment IDs are 1-based.
+                trace.segmentIDList.push( parseInt(segmentID, 10) );
+
+                let [ z, x, y ] = parts;
+                const centroid = new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z));
+                trace.geometry.vertices.push( centroid );
+
 
             }
 
@@ -70,18 +87,13 @@ class EnsembleManager {
         const ensembleList = Object.values(this.ensemble);
 
         // compute and store bounds
-        for (trace of ensembleList) {
+        for (let trace of ensembleList) {
             trace.geometry.computeBoundingBox();
             trace.geometry.computeBoundingSphere();
-            // getDistanceMapCanvasWithTrack(trace, rgbMin, rgbMax)
         }
 
-    }
+        contactFrequencyMapPanel.draw(getContactFrequencyCanvasWithEnsemble(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
 
-    getBoundsWithTrace(trace) {
-        const { center, radius } = trace.geometry.boundingSphere;
-        const { min, max } = trace.geometry.boundingBox;
-        return { min, max, center, radius }
     }
 
     traceWithName(name) {
@@ -133,7 +145,112 @@ class EnsembleManager {
     }
 }
 
+export const getBoundsWithTrace = (trace) => {
+    const { center, radius } = trace.geometry.boundingSphere;
+    const { min, max } = trace.geometry.boundingBox;
+    return { min, max, center, radius }
+};
+
+export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshold) => {
+
+    const ensembleList = Object.values(ensemble);
+
+    const maxTraceLength = Math.max(...(ensembleList.map(ensemble => ensemble.geometry.vertices.length)));
+
+    console.time(`index ${ ensembleList.length } traces`);
+
+    let frequencies = new Array(maxTraceLength * maxTraceLength);
+    for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
+
+    let maxFrequency = Number.NEGATIVE_INFINITY;
+
+    // compute and store bounds
+    for (let trace of ensembleList) {
+
+        // console.time(`index and process single traces`);
+
+        let { vertices } = trace.geometry;
+        let { length: traceLength } = vertices;
+
+        const config =
+            {
+                idList: trace.segmentIDList,
+                points: vertices,
+                getX: pt => pt.x,
+                getY: pt => pt.y,
+                getZ: pt => pt.z,
+                nodeSize: 64,
+                ArrayType: Float64Array,
+                axisCount: 3
+            };
+
+        const spatialIndex = new KDBush(config);
+
+        for (let i = 0; i < traceLength; i++) {
+
+            const { x, y, z } = vertices[ i ];
+
+            const ids = spatialIndex.within(x, y, z, distanceThreshold);
+
+            const traceSegmentID = trace.segmentIDList[ i ];
+            const ids_filtered = ids.filter(id => id !== traceSegmentID);
+
+            if (ids_filtered.length > 0) {
+                for (let id of ids_filtered) {
+
+                    // ids are segment indices which are 1-based. Decrement to use
+                    // as index into frequency array which is 0-based
+                    const id_freq = id - 1;
+                    const  i_freq = traceSegmentID - 1;
+
+                    const xy =  i_freq * maxTraceLength + id_freq;
+                    const yx = id_freq * maxTraceLength +  i_freq;
+
+                    ++frequencies[ xy ];
+                    ++frequencies[ yx ];
+
+                    maxFrequency = Math.max(maxFrequency, frequencies[ xy ]);
+
+                }
+            }
+
+        }
+
+        // console.timeEnd(`index and process single traces`);
+
+    }
+
+    console.timeEnd(`index ${ ensembleList.length } traces`);
+
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    ctx.canvas.width = ctx.canvas.height = maxTraceLength;
+
+    console.log('Contact map size: ' + ctx.canvas.width + ' x ' + ctx.canvas.height);
+    // clear canvas
+    const { width: w, height: h } = ctx.canvas;
+    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
+    ctx.fillRect(0, 0, w, h);
+
+    // paint frequencies as lerp'd color
+    for (let i = 0; i < w; i++) {
+        for(let j = 0; j < h; j++) {
+
+            const ij = i * w + j;
+            const interpolant = i === j ? 1 :  frequencies[ ij ] / maxFrequency;
+            // ctx.fillStyle = rgb255String( rgb255Lerp(rgbMinContactFrequeny, rgbMaxContactFrequeny, interpolant) );
+            ctx.fillStyle = colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
+            ctx.fillRect(i, j, 1, 1);
+        }
+    }
+
+    return canvas;
+
+};
+
 export const getDistanceMapCanvasWithTrace = trace => {
+
+    console.time('distance map for single trace');
 
     let { vertices } = trace.geometry;
     let { length } = vertices;
@@ -173,12 +290,14 @@ export const getDistanceMapCanvasWithTrace = trace => {
 
     } // for (i)
 
+    console.timeEnd('distance map for single trace');
+
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
     ctx.canvas.width = ctx.canvas.height = length;
 
     // clear canvas
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('blueberry') );
+    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
     ctx.fillRect(0, 0, length, length);
 
     // paint distances as lerp'd color
@@ -186,14 +305,15 @@ export const getDistanceMapCanvasWithTrace = trace => {
         for(let j = 0; j < length; j++) {
 
             const ij = i * length + j;
-            const interpolant = (maxDistance - distances[ ij ]) / maxDistance;
-
-            ctx.fillStyle = rgb255String( rgb255Lerp(rgbMin, rgbMax, interpolant) );
+            const interpolant = distances[ ij ] / maxDistance;
+            // ctx.fillStyle = rgb255String( rgb255Lerp(rgbMin, rgbMax, interpolant) );
+            ctx.fillStyle = colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
             ctx.fillRect(i, j, 1, 1);
         }
     }
 
     return canvas;
+
 };
 
 export default EnsembleManager;

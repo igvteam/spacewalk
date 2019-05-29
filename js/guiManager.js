@@ -15,11 +15,12 @@ class GUIManager {
         [
             'spacewalk_ui_manager_groundplane',
             'spacewalk_ui_manager_ui_controls_color_ramp',
-            'spacewalk_ui_manager_ui_controls_structure_select',
+            'spacewalk_ui_manager_ui_controls_trace_select',
             'spacewalk_ui_manager_ui_controls_juicebox',
             'spacewalk_ui_manager_ui_controls_igv',
             'spacewalk_ui_manager_ui_controls_thumbnail',
-            'spacewalk_ui_manager_ui_controls_distance_map'
+            'spacewalk_ui_manager_ui_controls_distance_map',
+            'spacewalk_ui_manager_ui_controls_contact_frequency_map'
         ].forEach(input_id => configurePanelVisibility($panel, input_id));
 
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());

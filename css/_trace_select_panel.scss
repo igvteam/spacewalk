@@ -1,0 +1,40 @@
+
+// trace select panel
+$spacewalk_trace_select_panel_width: 160px;
+$spacewalk_trace_select_panel_height: 108px;
+$spacewalk_trace_select_panel_label_height: 24px;
+
+// trace select panel
+#spacewalk_trace_select_panel.card {
+
+  width: $spacewalk_trace_select_panel_width;
+  height: auto;
+
+  .card-body {
+
+    #spacewalk_trace_select_header {
+
+      font-size: 14px;
+
+      line-height: $spacewalk_trace_select_panel_label_height;
+      vertical-align: center;
+      height: $spacewalk_trace_select_panel_label_height;
+
+      width: 100%;
+
+      background-color: transparent;
+    }
+
+    .form-group {
+      width: 95%;
+      margin-bottom: 0.25rem;
+
+      input#spacewalk_trace_select_input {
+        font-size: 16px;
+      }
+
+    }
+
+  }
+
+}

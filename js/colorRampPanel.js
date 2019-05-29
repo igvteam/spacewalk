@@ -102,23 +102,12 @@ class ColorRampPanel {
 
 export const colorRampPanelConfigurator = ({ container, highlightColor }) => {
 
-    let colorMapManager = new ColorMapManager();
-
-    const colormaps =
-        {
-            peter_kovesi_rainbow_bgyr_35_85_c72_n256: 'resources/colormaps/peter_kovesi/CET-R2.csv'
-        };
-
-    for (let key of Object.keys(colormaps)) {
-        colorMapManager.addMap({name: key, path: colormaps[key]});
-    }
-
     const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
 
     return {
             container,
             panel: $('#spacewalk_color_ramp_panel').get(0),
-            colorRampMaterialProvider: new ColorRampMaterialProvider( { $canvasContainer, namespace: 'colorRampMaterialProvider', colorMapManager, highlightColor } ),
+            colorRampMaterialProvider: new ColorRampMaterialProvider( { $canvasContainer, namespace: 'colorRampMaterialProvider', highlightColor } ),
             isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel')
         };
 

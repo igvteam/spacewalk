@@ -5,11 +5,12 @@ $spacewalk_navbar_height: 36px;
 @import "panel";
 @import "data_file_load_modal";
 
-@import "structure_select_panel";
+@import "trace_select_panel";
 @import "color_ramp_panel";
 @import "juicebox_panel";
 @import "thumbnail_panel";
 @import "distance_map_panel";
+@import "contact_frequence_map_panel";
 
 @import "ui_manager";
 
@@ -19,7 +20,7 @@ $spacewalk_navbar_height: 36px;
 @import "encode/encode";
 
 .modal {
-  z-index:99999;
+  z-index:99099;
 }
 
 .igv-root-div {
