@@ -14,6 +14,7 @@ class GUIManager {
 
         [
             'spacewalk_ui_manager_groundplane',
+            'spacewalk_ui_manager_gnomon',
             'spacewalk_ui_manager_ui_controls_color_ramp',
             'spacewalk_ui_manager_ui_controls_trace_select',
             'spacewalk_ui_manager_ui_controls_juicebox',
@@ -37,6 +38,11 @@ class GUIManager {
         return $input.prop('checked');
     }
 
+    isGnomonHidden () {
+        const $input = this.$panel.find('#spacewalk_ui_manager_gnomon');
+        return $input.prop('checked');
+    }
+
     isPanelHidden (panelID) {
         return !(this.$panel.find(`[data-target='${panelID}']`).prop('checked'));
     }
@@ -50,9 +56,10 @@ const configurePanelVisibility = ($guiPanel, input_id) => {
     $input.on(change, (e) => {
 
         e.preventDefault();
-
         if ('spacewalk_ui_manager_groundplane' === input_id) {
             globalEventBus .post({ type: "ToggleGroundplane", data: $input.prop('checked') });
+        } else if ('spacewalk_ui_manager_gnomon' === input_id) {
+            globalEventBus .post({ type: "ToggleGnomon", data: $input.prop('checked') });
         } else {
             const payload = $input.data('target');
             globalEventBus .post({ type: "ToggleUIControl", data: { $input, payload } });

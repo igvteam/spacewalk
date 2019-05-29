@@ -1,7 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import EnsembleManager from './ensembleManager.js';
 import { createGUI, thumbnailPanel, distanceMapPanel, highlightColor } from './gui.js';
-import { getDistanceMapCanvasWithTrace, getContactFrequencyCanvasWithEnsemble } from './ensembleManager.js';
+import { getDistanceMapCanvasWithTrace } from './ensembleManager.js';
 import SceneManager, { sceneManagerConfigurator } from './sceneManager.js';
 import DataValueMaterialProvider from './dataValueMaterialProvider.js';
 import Noodle from './noodle.js';

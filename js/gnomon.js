@@ -1,10 +1,13 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import { appleCrayonColorThreeJS } from "./color.js";
 
 class Gnomon extends THREE.AxesHelper {
 
     constructor ({ origin, xLength, yLength, zLength, color }) {
 
         super(1);
+
+        this.name = 'gnomon';
 
         // const { x: ox, y: oy, z: oz } = origin;
         // this.geometry.scale(xLength, yLength, zLength);
@@ -15,6 +18,7 @@ class Gnomon extends THREE.AxesHelper {
 
         this.geometry.attributes.color = getColors(color);
         this.geometry.attributes.color.needsUpdate = true;
+
     }
 }
 
@@ -44,5 +48,17 @@ const getColors = (color) => {
     ];
 
     return new THREE.Float32BufferAttribute( colors, 3 )
+
+};
+
+export const gnomonConfigurator = (min, max) => {
+
+    return {
+            origin: new THREE.Vector3(min.x, min.y, min.z),
+            xLength: max.x - min.x,
+            yLength: max.y - min.y,
+            zLength: max.z - min.z,
+            color: appleCrayonColorThreeJS('snow')
+        }
 
 };

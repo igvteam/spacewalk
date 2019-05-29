@@ -5,12 +5,11 @@ import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
-import Gnomon from './gnomon.js';
+import Gnomon, { gnomonConfigurator } from './gnomon.js';
 
 import { guiManager, colorRampPanel } from './gui.js';
 import { dataValueMaterialProvider, noodle, ballAndStick } from "./main.js";
 import { getMouseXY } from "./utils.js";
-import { prettyVector3Print } from "./math.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 
 let currentStructureCentroid = undefined;
@@ -19,7 +18,7 @@ const disposableSet = new Set([ 'groundplane', 'noodle', 'ball' , 'stick' , 'noo
 
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, background, groundPlaneColor, renderer, cameraLightingRig, picker, materialProvider, isGroundplaneHidden, renderStyle }) {
+    constructor({ container, ballRadius, stickMaterial, background, groundPlaneColor, renderer, cameraLightingRig, picker, materialProvider, isGroundplaneHidden, isGnomonHidden, renderStyle }) {
 
         this.doUpdateCameraPose = true;
 
@@ -49,6 +48,8 @@ class SceneManager {
 
         this.isGroundplaneHidden = isGroundplaneHidden;
 
+        this.isGnomonHidden = isGnomonHidden;
+
         this.renderStyle = renderStyle;
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
@@ -58,6 +59,7 @@ class SceneManager {
         });
 
         globalEventBus.subscribe("ToggleGroundplane", this);
+        globalEventBus.subscribe("ToggleGnomon", this);
         globalEventBus.subscribe("DidSelectSegmentIndex", this);
     }
 
@@ -80,8 +82,20 @@ class SceneManager {
 
 
         } else if ("ToggleGroundplane" === type) {
+
             this.isGroundplaneHidden = data;
-            this.groundPlane.visible = this.isGroundplaneHidden;
+
+            if (this.groundPlane) {
+                this.groundPlane.visible = this.isGroundplaneHidden;
+            }
+
+        } else if ("ToggleGnomon" === type) {
+
+            this.isGnomonHidden = data;
+
+            if (this.gnomon) {
+                this.gnomon.visible = this.isGnomonHidden;
+            }
         }
 
     }
@@ -97,21 +111,6 @@ class SceneManager {
         this.cameraLightingRig.setPose({ position, centroid });
 
         this.cameraLightingRig.addToScene(this.scene);
-
-        // Nice numbers
-        const [ extentX, extentY, extentZ ] = [ 659, 797, 824 ];
-        const dimen = 2 * Math.max(extentX, extentY, extentZ);
-        this.groundPlane = new THREE.GridHelper(dimen, 16, this.groundPlaneColor, this.groundPlaneColor);
-
-        this.groundPlane.name = 'groundplane';
-        this.groundPlane.visible = this.isGroundplaneHidden;
-
-        this.groundPlane.material.opacity = 0.25;
-        this.groundPlane.material.transparent = true;
-
-        this.groundPlane.position.set(centroid.x, centroid.y, centroid.z);
-
-        this.scene.add( this.groundPlane );
 
     }
 
@@ -139,8 +138,10 @@ class SceneManager {
         this.cameraLightingRig.addToScene(this.scene);
 
         // groundplane
-        this.groundPlane.geometry.dispose();
-        this.groundPlane.material.dispose();
+        if (this.groundPlane) {
+            this.groundPlane.geometry.dispose();
+            this.groundPlane.material.dispose();
+        }
 
         this.groundPlane = new THREE.GridHelper(boundingDiameter, 16, this.groundPlaneColor, this.groundPlaneColor);
 
@@ -156,23 +157,16 @@ class SceneManager {
 
         this.scene.add( this.groundPlane );
 
+        // gnomon
+        if (this.gnomon) {
+            this.gnomon.geometry.dispose();
+            this.gnomon.material.dispose();
+        }
 
-        // axes helper
-        // const axesHelper = new THREE.AxesHelper( boundingDiameter );
-        // axesHelper.position.set((centroid.x + dx), (centroid.y + dy), (centroid.z + dz));
-        // this.scene.add( axesHelper );
+        this.gnomon = new Gnomon(gnomonConfigurator(min, max));
+        this.gnomon.visible = this.isGnomonHidden;
 
-        const config =
-            {
-                origin: new THREE.Vector3(min.x, min.y, min.z),
-                xLength: max.x - min.x,
-                yLength: max.y - min.y,
-                zLength: max.z - min.z,
-                color: appleCrayonColorThreeJS('magenta')
-            };
-        const gnomon = new Gnomon(config);
-
-        this.scene.add( gnomon );
+        this.scene.add( this.gnomon );
     }
 
     onWindowResize() {
@@ -255,19 +249,22 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
 
+    const $gui_panel = $('#spacewalk_ui_manager_panel');
+
     return {
-            container,
-            ballRadius: 32,
-            stickMaterial,
-            background,
-            groundPlaneColor,
-            renderer,
-            cameraLightingRig,
-            picker,
-            materialProvider: colorRampPanel.colorRampMaterialProvider,
-            isGroundplaneHidden: guiManager.isGroundplaneHidden($('#spacewalk_ui_manager_panel')),
-            renderStyle: guiManager.getRenderingStyle()
-        };
+        container,
+        ballRadius: 32,
+        stickMaterial,
+        background,
+        groundPlaneColor,
+        renderer,
+        cameraLightingRig,
+        picker,
+        materialProvider: colorRampPanel.colorRampMaterialProvider,
+        isGroundplaneHidden: guiManager.isGroundplaneHidden($gui_panel),
+        isGnomonHidden: guiManager.isGnomonHidden($gui_panel),
+        renderStyle: guiManager.getRenderingStyle()
+    };
 
 };
 
