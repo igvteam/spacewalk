@@ -11,12 +11,6 @@ export let contactFrequencyDistanceThreshold = 256;
 
 import { colorMapManager } from "./main.js";
 
-const rgbMinContactFrequeny = appleCrayonColorRGB255('honeydew');
-const rgbMaxContactFrequeny = appleCrayonColorRGB255('fern');
-
-const rgbMin = appleCrayonColorRGB255('maraschino');
-const rgbMax = appleCrayonColorRGB255('midnight');
-
 class EnsembleManager {
 
     constructor () {
@@ -169,24 +163,10 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
         // console.time(`index and process single traces`);
 
+        const spatialIndex = new KDBush(kdBushConfguratorWithTrace(trace));
+
         let { vertices } = trace.geometry;
-        let { length: traceLength } = vertices;
-
-        const config =
-            {
-                idList: trace.segmentIDList,
-                points: vertices,
-                getX: pt => pt.x,
-                getY: pt => pt.y,
-                getZ: pt => pt.z,
-                nodeSize: 64,
-                ArrayType: Float64Array,
-                axisCount: 3
-            };
-
-        const spatialIndex = new KDBush(config);
-
-        for (let i = 0; i < traceLength; i++) {
+        for (let i = 0; i < vertices.length; i++) {
 
             const { x, y, z } = vertices[ i ];
 
@@ -245,6 +225,21 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
     }
 
     return canvas;
+
+};
+
+const kdBushConfguratorWithTrace = trace => {
+
+    return {
+        idList: trace.segmentIDList,
+        points: trace.geometry.vertices,
+        getX: pt => pt.x,
+        getY: pt => pt.y,
+        getZ: pt => pt.z,
+        nodeSize: 64,
+        ArrayType: Float64Array,
+        axisCount: 3
+    }
 
 };
 
