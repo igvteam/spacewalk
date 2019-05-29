@@ -149,10 +149,17 @@ class SceneManager {
         this.groundPlane.material.opacity = 0.25;
         this.groundPlane.material.transparent = true;
 
-        const dy = (min.y - centroid.y);
+        // const dy = (min.y - centroid.y);
+        const [ dx, dy, dz ] = [ min.x - centroid.x, min.y - centroid.y, min.z - centroid.z ];
         this.groundPlane.position.set(centroid.x, (centroid.y + dy), centroid.z);
 
         this.scene.add( this.groundPlane );
+
+
+        // axes helper
+        const axesHelper = new THREE.AxesHelper( boundingDiameter );
+        axesHelper.position.set((centroid.x + dx), (centroid.y + dy), (centroid.z + dz));
+        this.scene.add( axesHelper );
 
     }
 

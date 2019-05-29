@@ -41,8 +41,7 @@ class Picker {
 
             if (doTrackObject || false === this.pickHighlighter.hasObject(object)) {
 
-                const { uv } = hit;
-                const { x: s } = uv;
+                // const { uv } = hit;
 
                 this.pickHighlighter.configureObjects([ object ]);
                 globalEventBus .post({ type: "PickerDidHitObject", data: object.uuid });
