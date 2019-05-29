@@ -174,8 +174,8 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
         const config =
             {
-                idList: trace.segmentIDList.slice(0),
-                points: vertices.slice(0),
+                idList: trace.segmentIDList,
+                points: vertices,
                 getX: pt => pt.x,
                 getY: pt => pt.y,
                 getZ: pt => pt.z,
