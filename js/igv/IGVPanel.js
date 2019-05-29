@@ -69,14 +69,17 @@ class IGVPanel {
         globalEventBus.subscribe("ToggleUIControl", this);
     }
 
-    async receiveEvent({ type, data }) {
+    receiveEvent({ type, data }) {
 
         if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
 
             if (true === this.isHidden) {
+
                 moveOnScreen(this);
-                // const { chr, start, end } = this.locus;
-                await this.browser.search(this.locus);
+
+                const { chromosome, start, end } = this.browser.genomicStateList[ 0 ];
+                const { name: chr } = chromosome;
+                this.browser.goto(chr, start, end);
             } else {
                 moveOffScreen(this);
             }
@@ -89,16 +92,14 @@ class IGVPanel {
 
         try {
             this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
-            this.locus = this.browser.genomicStateList[ 0 ].locusSearchString;
         } catch (error) {
             console.warn(error.message);
         }
 
     }
 
-    async goto({ chr, start, end }) {
-        this.locus = { chr, start, end };
-        await this.browser.goto(chr, start, end);
+    goto({ chr, start, end }) {
+        this.browser.goto(chr, start, end);
     }
 
     async loadTrack(url) {
@@ -133,10 +134,10 @@ class IGVPanel {
 
         if (this.currentDataTrack) {
 
-            const { referenceFrame } = this.browser.genomicStateList[ 0 ];
+            const { chromosome, start, end, referenceFrame } = this.browser.genomicStateList[ 0 ];
+            const { name: chr } = chromosome;
             const { bpPerPixel } = referenceFrame;
 
-            const { chr, start, end } = this.locus;
             const features = await this.currentDataTrack.getFeatures(chr, start, end, bpPerPixel);
 
             const { min, max } = this.currentDataTrack.dataRange;
