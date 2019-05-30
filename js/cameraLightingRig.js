@@ -18,8 +18,29 @@ class CameraLightingRig extends OrbitControls {
 
         this.hemisphereLight = hemisphereLight;
 
+        this.doUpdateCameraPose = true;
+
         this.screenSpacePanning = false;
         this.enableKeys = false;
+    }
+
+    configure ({ fov, position, centroid, currentStructureCentroid, boundingDiameter }) {
+
+        // Camera Lighting Rig
+        if (true === this.doUpdateCameraPose) {
+            this.setPose({ position, centroid, currentStructureCentroid });
+        } else {
+
+            // maintain the pre-existing delta between camera target and groundplane beneath stucture
+            const delta = this.target.clone().sub(currentStructureCentroid);
+
+            const _centroid = centroid.clone().add(delta);
+            this.setTarget({ centroid: _centroid });
+        }
+
+        const [ near, far, aspectRatio ] = [ 1e-1 * boundingDiameter, 3e1 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
+        this.setProjection({ fov, near, far, aspectRatio });
+
     }
 
     get name () {

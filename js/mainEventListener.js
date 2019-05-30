@@ -93,7 +93,7 @@ export const mainEventListener =
 
                 setup({ trace });
 
-                sceneManager.doUpdateCameraPose = false;
+                sceneManager.cameraLightingRig.doUpdateCameraPose = false;
 
             } else if ('ToggleAllUIControls' === type) {
                 // $('.navbar').toggle();

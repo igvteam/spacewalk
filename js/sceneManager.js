@@ -21,8 +21,6 @@ class SceneManager {
 
     constructor({ container, scene, ballRadius, stickMaterial, background, renderer, cameraLightingRig, picker, materialProvider, renderStyle }) {
 
-        this.doUpdateCameraPose = true;
-
         this.ballRadius = ballRadius;
         this.ballGeometry = new THREE.SphereBufferGeometry(ballRadius, 32, 16);
 
@@ -88,43 +86,19 @@ class SceneManager {
         this.scene = scene;
         this.scene.background = this.background;
 
-
         // Camera Lighting Rig
-        if (true === this.doUpdateCameraPose) {
-            this.cameraLightingRig.setPose({ position: cameraPosition, centroid: centroid });
-        } else {
-
-            // maintain the pre-existing delta between camera target and groundplane beneath stucture
-            const delta = this.cameraLightingRig.target.clone().sub(currentStructureCentroid);
-
-            const _centroid = centroid.clone().add(delta);
-            this.cameraLightingRig.setTarget({ centroid: _centroid });
-        }
-
+        this.cameraLightingRig.configure({ fov, position: cameraPosition, centroid, currentStructureCentroid, boundingDiameter });
         currentStructureCentroid = centroid.clone();
-
-        const [ near, far, aspectRatio ] = [ 1e-1 * boundingDiameter, 3e1 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
-        this.cameraLightingRig.setProjection({ fov, near, far, aspectRatio });
-
         this.cameraLightingRig.addToScene(this.scene);
 
-
         // Groundplane
-        if (this.groundPlane) {
-            this.groundPlane.dispose();
-        }
-
+        this.groundPlane.dispose();
         const position = new THREE.Vector3(centroid.x, min.y, centroid.z);
         this.groundPlane = new GroundPlane(groundPlaneConfigurator(position, boundingDiameter));
-
         this.scene.add( this.groundPlane );
 
-
         // Gnomon
-        if (this.gnomon) {
-            this.gnomon.dispose();
-        }
-
+        this.gnomon.dispose();
         this.gnomon = new Gnomon(gnomonConfigurator(min, max));
         this.gnomon.addToScene(this.scene);
     }
@@ -201,6 +175,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     const [ fov, near, far, domElement, aspectRatio ] = [ 35, 1e2, 3e3, renderer.domElement, (window.innerWidth/window.innerHeight) ];
     const cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspectRatio, hemisphereLight });
+
+
 
     // Nice numbers
     const position = new THREE.Vector3(134820, 55968, 5715);
