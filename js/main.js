@@ -38,7 +38,7 @@ let main = async container => {
     await createGUI(container);
 
     sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
-    sceneManager.defaultConfiguration();
+    // sceneManager.defaultConfiguration();
 
     dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 

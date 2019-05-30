@@ -14,11 +14,11 @@ import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 
 let currentStructureCentroid = undefined;
 
-const disposableSet = new Set([ 'groundplane', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
+const disposableSet = new Set([ 'gnomon', 'groundplane', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 
 class SceneManager {
 
-    constructor({ container, ballRadius, stickMaterial, background, groundPlaneColor, renderer, cameraLightingRig, picker, materialProvider, isGroundplaneHidden, isGnomonHidden, renderStyle }) {
+    constructor({ container, scene, ballRadius, stickMaterial, background, groundPlaneColor, renderer, cameraLightingRig, picker, materialProvider, isGroundplaneHidden, isGnomonHidden, renderStyle }) {
 
         this.doUpdateCameraPose = true;
 
@@ -38,8 +38,6 @@ class SceneManager {
         // insert rendering canvas in DOM
         container.appendChild(renderer.domElement);
 
-        this.cameraLightingRig = cameraLightingRig;
-
         this.renderer = renderer;
 
         this.picker = picker;
@@ -51,6 +49,13 @@ class SceneManager {
         this.isGnomonHidden = isGnomonHidden;
 
         this.renderStyle = renderStyle;
+
+        // stub configuration
+        this.scene = scene;
+        this.scene.background = this.background;
+
+        this.cameraLightingRig = cameraLightingRig;
+        this.cameraLightingRig.addToScene(this.scene);
 
         $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
 
@@ -100,25 +105,14 @@ class SceneManager {
 
     }
 
-    defaultConfiguration() {
-
-        this.scene = new THREE.Scene();
-        this.scene.background = this.background;
-
-        // Nice numbers
-        const position = new THREE.Vector3(134820, 55968, 5715);
-        const centroid = new THREE.Vector3(133394, 54542, 4288);
-        this.cameraLightingRig.setPose({ position, centroid });
-
-        this.cameraLightingRig.addToScene(this.scene);
-
-    }
-
     configure({ scene, min, max, boundingDiameter, cameraPosition, centroid, fov }) {
 
+        // Scene
         this.scene = scene;
         this.scene.background = this.background;
 
+
+        // Camera Lighting Rig
         if (true === this.doUpdateCameraPose) {
             this.cameraLightingRig.setPose({ position: cameraPosition, centroid: centroid });
         } else {
@@ -137,7 +131,8 @@ class SceneManager {
 
         this.cameraLightingRig.addToScene(this.scene);
 
-        // groundplane
+
+        // Groundplane
         if (this.groundPlane) {
             this.groundPlane.geometry.dispose();
             this.groundPlane.material.dispose();
@@ -151,13 +146,13 @@ class SceneManager {
         this.groundPlane.material.opacity = 0.25;
         this.groundPlane.material.transparent = true;
 
-        // const dy = (min.y - centroid.y);
         const [ dx, dy, dz ] = [ min.x - centroid.x, min.y - centroid.y, min.z - centroid.z ];
         this.groundPlane.position.set(centroid.x, (centroid.y + dy), centroid.z);
 
         this.scene.add( this.groundPlane );
 
-        // gnomon
+
+        // Gnomon
         if (this.gnomon) {
             this.gnomon.geometry.dispose();
             this.gnomon.material.dispose();
@@ -242,6 +237,11 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const [ fov, near, far, domElement, aspectRatio ] = [ 35, 1e2, 3e3, renderer.domElement, (window.innerWidth/window.innerHeight) ];
     const cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspectRatio, hemisphereLight });
 
+    // Nice numbers
+    const position = new THREE.Vector3(134820, 55968, 5715);
+    const centroid = new THREE.Vector3(133394, 54542, 4288);
+    cameraLightingRig.setPose({ position, centroid });
+
     // const background = appleCrayonColorThreeJS('nickel');
     const background = new THREE.TextureLoader().load( 'texture/scene-background-grey-0.png' );
 
@@ -253,6 +253,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     return {
         container,
+        scene: new THREE.Scene(),
         ballRadius: 32,
         stickMaterial,
         background,
