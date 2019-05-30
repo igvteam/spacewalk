@@ -149,11 +149,14 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
     const ensembleList = Object.values(ensemble);
 
-    const maxTraceLength = Math.max(...(ensembleList.map(ensemble => ensemble.geometry.vertices.length)));
+    let mapSize = Number.NEGATIVE_INFINITY;
+    for (let trace of ensembleList) {
+        mapSize = Math.max(mapSize, Math.max(...(trace.segmentIDList)));
+    }
 
     console.time(`index ${ ensembleList.length } traces`);
 
-    let frequencies = new Array(maxTraceLength * maxTraceLength);
+    let frequencies = new Array(mapSize * mapSize);
     for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
 
     let maxFrequency = Number.NEGATIVE_INFINITY;
@@ -183,8 +186,15 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
                     const id_freq = id - 1;
                     const  i_freq = traceSegmentID - 1;
 
-                    const xy =  i_freq * maxTraceLength + id_freq;
-                    const yx = id_freq * maxTraceLength +  i_freq;
+                    const xy =  i_freq * mapSize + id_freq;
+                    if (xy > frequencies.length) {
+                        console.log('xy is bogus index ' + xy);
+                    }
+                    const yx = id_freq * mapSize +  i_freq;
+
+                    if (yx > frequencies.length) {
+                        console.log('yx is bogus index ' + yx);
+                    }
 
                     ++frequencies[ xy ];
                     ++frequencies[ yx ];
@@ -204,7 +214,7 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = maxTraceLength;
+    ctx.canvas.width = ctx.canvas.height = mapSize;
 
     console.log('Contact map size: ' + ctx.canvas.width + ' x ' + ctx.canvas.height);
     // clear canvas
@@ -218,7 +228,6 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
             const ij = i * w + j;
             const interpolant = i === j ? 1 :  frequencies[ ij ] / maxFrequency;
-            // ctx.fillStyle = rgb255String( rgb255Lerp(rgbMinContactFrequeny, rgbMaxContactFrequeny, interpolant) );
             ctx.fillStyle = colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
             ctx.fillRect(i, j, 1, 1);
         }
