@@ -126,8 +126,7 @@ class SceneManager {
         }
 
         this.gnomon = new Gnomon(gnomonConfigurator(min, max));
-
-        this.scene.add( this.gnomon );
+        this.gnomon.addToScene(this.scene);
     }
 
     onWindowResize() {

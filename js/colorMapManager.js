@@ -33,7 +33,6 @@ class ColorMapManager {
 
         try {
             response = await fetch(path);
-            const guard = 353;
         } catch (error) {
             console.warn(error.message);
             return;
