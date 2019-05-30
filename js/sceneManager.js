@@ -76,7 +76,6 @@ class SceneManager {
                 this.picker.pickHighlighter.configureObjects(objects);
             }
 
-
         }
     }
 
@@ -92,13 +91,19 @@ class SceneManager {
         this.cameraLightingRig.addToScene(this.scene);
 
         // Groundplane
-        this.groundPlane.dispose();
+        if (this.groundPlane) {
+            this.groundPlane.dispose();
+        }
+
         const position = new THREE.Vector3(centroid.x, min.y, centroid.z);
         this.groundPlane = new GroundPlane(groundPlaneConfigurator(position, boundingDiameter));
         this.scene.add( this.groundPlane );
 
         // Gnomon
-        this.gnomon.dispose();
+        if (this.gnomon) {
+            this.gnomon.dispose();
+        }
+
         this.gnomon = new Gnomon(gnomonConfigurator(min, max));
         this.gnomon.addToScene(this.scene);
     }

@@ -1,6 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
-import { appleCrayonColorHexValue } from "./color.js";
 
 let cameraWorldDirection = new THREE.Vector3();
 let crossed = new THREE.Vector3();
@@ -26,9 +25,9 @@ class CameraLightingRig extends OrbitControls {
 
     configure ({ fov, position, centroid, currentStructureCentroid, boundingDiameter }) {
 
-        // Camera Lighting Rig
         if (true === this.doUpdateCameraPose) {
             this.setPose({ position, centroid, currentStructureCentroid });
+            this.doUpdateCameraPose = false;
         } else {
 
             // maintain the pre-existing delta between camera target and groundplane beneath stucture

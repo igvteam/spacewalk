@@ -78,7 +78,6 @@ export const mainEventListener =
 
                 igvPanel.trackDataHandler();
 
-
                 igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
                     IGVMouseHandler({ bp, start, end, interpolant, structureLength })
                 });
@@ -92,8 +91,6 @@ export const mainEventListener =
                 sceneManager.dispose();
 
                 setup({ trace });
-
-                sceneManager.cameraLightingRig.doUpdateCameraPose = false;
 
             } else if ('ToggleAllUIControls' === type) {
                 // $('.navbar').toggle();
