@@ -140,23 +140,23 @@
 
 #spacewalk_distance_map_panel.card {
   width: 256px;
-  height: 288px; }
+  height: unset; }
   #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body {
-    width: 100%;
-    height: 100%; }
+    width: 256px;
+    height: unset; }
     #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body #spacewalk_distance_map_panel_container {
-      width: 100%;
-      height: calc(100% - 32px); }
+      width: 256px;
+      height: 256px; }
 
 #spacewalk_contact_frequency_map_panel.card {
   width: 256px;
-  height: 288px; }
+  height: unset; }
   #spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body {
-    width: 100%;
-    height: 100%; }
+    width: 256px;
+    height: unset; }
     #spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body #spacewalk_contact_frequency_map_panel_container {
-      width: 100%;
-      height: calc(100% - 32px); }
+      width: 256px;
+      height: 256px; }
 
 .spacewalk_ui_manager_render_style_container {
   display: flex;
