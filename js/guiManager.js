@@ -57,7 +57,7 @@ const configurePanelVisibility = ($guiPanel, input_id) => {
 
         e.preventDefault();
         if ('spacewalk_ui_manager_groundplane' === input_id) {
-            globalEventBus .post({ type: "ToggleGroundplane", data: $input.prop('checked') });
+            globalEventBus .post({ type: "ToggleGroundPlane", data: $input.prop('checked') });
         } else if ('spacewalk_ui_manager_gnomon' === input_id) {
             globalEventBus .post({ type: "ToggleGnomon", data: $input.prop('checked') });
         } else {

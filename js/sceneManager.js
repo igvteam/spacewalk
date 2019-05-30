@@ -5,6 +5,7 @@ import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
+import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 
 import { guiManager, colorRampPanel } from './gui.js';
@@ -18,7 +19,7 @@ const disposableSet = new Set([ 'gnomon', 'groundplane', 'noodle', 'ball' , 'sti
 
 class SceneManager {
 
-    constructor({ container, scene, ballRadius, stickMaterial, background, groundPlaneColor, renderer, cameraLightingRig, picker, materialProvider, isGroundplaneHidden, isGnomonHidden, renderStyle }) {
+    constructor({ container, scene, ballRadius, stickMaterial, background, renderer, cameraLightingRig, picker, materialProvider, isGnomonHidden, renderStyle }) {
 
         this.doUpdateCameraPose = true;
 
@@ -29,8 +30,6 @@ class SceneManager {
 
         this.background = background;
         // this.background = specularCubicTexture;
-
-        this.groundPlaneColor = groundPlaneColor;
 
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -43,8 +42,6 @@ class SceneManager {
         this.picker = picker;
 
         this.materialProvider = materialProvider;
-
-        this.isGroundplaneHidden = isGroundplaneHidden;
 
         this.isGnomonHidden = isGnomonHidden;
 
@@ -63,7 +60,6 @@ class SceneManager {
             this.onContainerMouseMove(event)
         });
 
-        globalEventBus.subscribe("ToggleGroundplane", this);
         globalEventBus.subscribe("ToggleGnomon", this);
         globalEventBus.subscribe("DidSelectSegmentIndex", this);
     }
@@ -85,14 +81,6 @@ class SceneManager {
                 this.picker.pickHighlighter.configureObjects(objects);
             }
 
-
-        } else if ("ToggleGroundplane" === type) {
-
-            this.isGroundplaneHidden = data;
-
-            if (this.groundPlane) {
-                this.groundPlane.visible = this.isGroundplaneHidden;
-            }
 
         } else if ("ToggleGnomon" === type) {
 
@@ -134,20 +122,11 @@ class SceneManager {
 
         // Groundplane
         if (this.groundPlane) {
-            this.groundPlane.geometry.dispose();
-            this.groundPlane.material.dispose();
+            this.groundPlane.dispose();
         }
 
-        this.groundPlane = new THREE.GridHelper(boundingDiameter, 16, this.groundPlaneColor, this.groundPlaneColor);
-
-        this.groundPlane.name = 'groundplane';
-        this.groundPlane.visible = this.isGroundplaneHidden;
-
-        this.groundPlane.material.opacity = 0.25;
-        this.groundPlane.material.transparent = true;
-
-        const [ dx, dy, dz ] = [ min.x - centroid.x, min.y - centroid.y, min.z - centroid.z ];
-        this.groundPlane.position.set(centroid.x, (centroid.y + dy), centroid.z);
+        const position = new THREE.Vector3(centroid.x, min.y, centroid.z);
+        this.groundPlane = new GroundPlane(groundPlaneConfigurator(position, boundingDiameter));
 
         this.scene.add( this.groundPlane );
 
@@ -245,8 +224,6 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     // const background = appleCrayonColorThreeJS('nickel');
     const background = new THREE.TextureLoader().load( 'texture/scene-background-grey-0.png' );
 
-    const groundPlaneColor = appleCrayonColorThreeJS('mercury');
-
     const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
 
     const $gui_panel = $('#spacewalk_ui_manager_panel');
@@ -257,12 +234,10 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
         ballRadius: 32,
         stickMaterial,
         background,
-        groundPlaneColor,
         renderer,
         cameraLightingRig,
         picker,
         materialProvider: colorRampPanel.colorRampMaterialProvider,
-        isGroundplaneHidden: guiManager.isGroundplaneHidden($gui_panel),
         isGnomonHidden: guiManager.isGnomonHidden($gui_panel),
         renderStyle: guiManager.getRenderingStyle()
     };
