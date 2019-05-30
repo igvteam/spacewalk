@@ -1,22 +1,25 @@
 
 $spacewalk_thumbnail_panel_width: 256px;
-$spacewalk_thumbnail_panel_heigth: $spacewalk_thumbnail_panel_width + $spacewalk_card_drag_container_height;
 
 #spacewalk_contact_frequency_map_panel.card {
 
   width: $spacewalk_thumbnail_panel_width;
-  height: $spacewalk_thumbnail_panel_heigth;
+  height: unset;
 
   #spacewalk_contact_frequency_map_panel_body.card-body {
 
-    width: 100%;
-    height: 100%;
+    width: $spacewalk_thumbnail_panel_width;
+    height: unset;
 
     #spacewalk_contact_frequency_map_panel_container {
-      width: 100%;
-      height: calc(100% - #{ $spacewalk_card_drag_container_height });
-      
+      width: $spacewalk_thumbnail_panel_width;
+      height: $spacewalk_thumbnail_panel_width;
     }
+
+    //background-color: magenta;
+
   }
+
+  //background-color: greenyellow;
 
 }

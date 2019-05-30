@@ -13,7 +13,9 @@ class DistanceMapPanel {
         const $canvas = this.$panel.find('canvas');
         const canvas = $canvas.get(0);
 
-        fitToContainer(canvas);
+        const $canvas_container = $('#spacewalk_distance_map_panel_container');
+        canvas.width = $canvas_container.width();
+        canvas.height = $canvas_container.height();
 
         this.ctx = canvas.getContext('2d');
 

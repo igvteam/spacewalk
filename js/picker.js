@@ -1,6 +1,6 @@
 import { globalEventBus } from "./eventBus.js";
 
-const exclusionSet = new Set([ 'groundplane', 'noodle_spline', 'noodle', 'stick' ]);
+const exclusionSet = new Set([ 'gnomon', 'groundplane', 'noodle_spline', 'noodle', 'stick' ]);
 
 class Picker {
 
@@ -41,8 +41,7 @@ class Picker {
 
             if (doTrackObject || false === this.pickHighlighter.hasObject(object)) {
 
-                const { uv } = hit;
-                const { x: s } = uv;
+                // const { uv } = hit;
 
                 this.pickHighlighter.configureObjects([ object ]);
                 globalEventBus .post({ type: "PickerDidHitObject", data: object.uuid });
