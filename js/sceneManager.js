@@ -19,7 +19,7 @@ const disposableSet = new Set([ 'gnomon', 'groundplane', 'noodle', 'ball' , 'sti
 
 class SceneManager {
 
-    constructor({ container, scene, ballRadius, stickMaterial, background, renderer, cameraLightingRig, picker, materialProvider, isGnomonHidden, renderStyle }) {
+    constructor({ container, scene, ballRadius, stickMaterial, background, renderer, cameraLightingRig, picker, materialProvider, renderStyle }) {
 
         this.doUpdateCameraPose = true;
 
@@ -43,8 +43,6 @@ class SceneManager {
 
         this.materialProvider = materialProvider;
 
-        this.isGnomonHidden = isGnomonHidden;
-
         this.renderStyle = renderStyle;
 
         // stub configuration
@@ -60,7 +58,6 @@ class SceneManager {
             this.onContainerMouseMove(event)
         });
 
-        globalEventBus.subscribe("ToggleGnomon", this);
         globalEventBus.subscribe("DidSelectSegmentIndex", this);
     }
 
@@ -82,15 +79,7 @@ class SceneManager {
             }
 
 
-        } else if ("ToggleGnomon" === type) {
-
-            this.isGnomonHidden = data;
-
-            if (this.gnomon) {
-                this.gnomon.visible = this.isGnomonHidden;
-            }
         }
-
     }
 
     configure({ scene, min, max, boundingDiameter, cameraPosition, centroid, fov }) {
@@ -133,12 +122,10 @@ class SceneManager {
 
         // Gnomon
         if (this.gnomon) {
-            this.gnomon.geometry.dispose();
-            this.gnomon.material.dispose();
+            this.gnomon.dispose();
         }
 
         this.gnomon = new Gnomon(gnomonConfigurator(min, max));
-        this.gnomon.visible = this.isGnomonHidden;
 
         this.scene.add( this.gnomon );
     }
@@ -226,8 +213,6 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
 
-    const $gui_panel = $('#spacewalk_ui_manager_panel');
-
     return {
         container,
         scene: new THREE.Scene(),
@@ -238,7 +223,6 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
         cameraLightingRig,
         picker,
         materialProvider: colorRampPanel.colorRampMaterialProvider,
-        isGnomonHidden: guiManager.isGnomonHidden($gui_panel),
         renderStyle: guiManager.getRenderingStyle()
     };
 

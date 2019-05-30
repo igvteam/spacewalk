@@ -1,13 +1,16 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { appleCrayonColorThreeJS } from "./color.js";
+import { guiManager } from "./gui.js";
+import { globalEventBus } from "./eventBus.js";
 
 class Gnomon extends THREE.AxesHelper {
 
-    constructor ({ origin, xLength, yLength, zLength, color }) {
+    constructor ({ origin, xLength, yLength, zLength, color, isHidden }) {
 
         super(1);
 
         this.name = 'gnomon';
+        this.visible = isHidden;
 
         // const { x: ox, y: oy, z: oz } = origin;
         // this.geometry.scale(xLength, yLength, zLength);
@@ -19,7 +22,22 @@ class Gnomon extends THREE.AxesHelper {
         this.geometry.attributes.color = getColors(color);
         this.geometry.attributes.color.needsUpdate = true;
 
+        globalEventBus.subscribe("ToggleGnomon", this);
+
     }
+
+    receiveEvent({ type, data }) {
+
+        if ("ToggleGnomon" === type) {
+            this.visible = data;
+        }
+    }
+
+    dispose () {
+        this.geometry.dispose();
+        this.material.dispose();
+    }
+
 }
 
 export default Gnomon;
@@ -58,7 +76,8 @@ export const gnomonConfigurator = (min, max) => {
             xLength: max.x - min.x,
             yLength: max.y - min.y,
             zLength: max.z - min.z,
-            color: appleCrayonColorThreeJS('snow')
+            color: appleCrayonColorThreeJS('snow'),
+            isHidden: guiManager.isGnomonHidden($('#spacewalk_ui_manager_panel'))
         }
 
 };
