@@ -24,21 +24,11 @@ let main = async container => {
     colorMapManager = new ColorMapManager();
     await colorMapManager.configure();
 
-    const colormaps =
-        {
-            peter_kovesi_rainbow_bgyr_35_85_c72_n256: 'resources/colormaps/peter_kovesi/CET-R2.csv'
-        };
-
-    for (let key of Object.keys(colormaps)) {
-        colorMapManager.addMap({name: key, path: colormaps[key]});
-    }
-
     ensembleManager = new EnsembleManager();
 
     await createGUI(container);
 
     sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
-    // sceneManager.defaultConfiguration();
 
     dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 

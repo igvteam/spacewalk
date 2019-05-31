@@ -100,4 +100,34 @@ const readFileAsText = async file => {
     });
 };
 
-export { segmentIndexForInterpolant, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
+
+const readFileAsDataURL = async blob => {
+
+    const fileReader = new FileReader();
+
+    return new Promise((resolve, reject) => {
+        fileReader.onerror = () => {
+            fileReader.abort();
+            reject(new DOMException("Problem parsing input file."));
+        };
+
+        fileReader.onload = () => {
+            resolve(fileReader.result);
+        };
+
+        fileReader.readAsDataURL(blob);
+    });
+};
+
+const createImage = imageSource => {
+
+    return new Promise((resolve, reject) => {
+        let img = new Image();
+        img.addEventListener('load', e => resolve(img));
+        img.addEventListener('error', () => { reject(new Error(`Failed to load image's URL: ${imageSource}`)); });
+        img.src = imageSource;
+    });
+
+};
+
+export { segmentIndexForInterpolant, createImage, readFileAsDataURL, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };

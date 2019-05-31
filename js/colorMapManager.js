@@ -1,5 +1,6 @@
 
 import { rgba255, rgba255String, rgb255String, rgb255ToThreeJSColor } from "./color.js";
+import { createImage, readFileAsDataURL } from './utils.js';
 
 export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
 
@@ -10,19 +11,8 @@ class ColorMapManager {
     }
 
     async configure () {
-
-        let colormaps = {};
-        colormaps[ defaultColormapName ] = 'resources/colormaps/peter_kovesi/CET-R2.csv';
-        colormaps[ 'bintu_et_al' ] = 'resources/colormaps/bintu_et_al/bintu_et_al.png';
-
-        await this.addMap({ name: defaultColormapName, path: colormaps[ defaultColormapName ] });
-
-        await this.addMap({ name: 'bintu_et_al', path: colormaps[ 'bintu_et_al' ] });
-
-        // for (let key of Object.keys(colormaps)) {
-        //     await this.addMap({ name: key, path: colormaps[ key ] });
-        // }
-
+        await this.addMap({ name: defaultColormapName, path: 'resources/colormaps/peter_kovesi/CET-R2.csv' });
+        await this.addMap({ name: 'bintu_et_al',       path: 'resources/colormaps/bintu_et_al/bintu_et_al.png' });
     }
 
     async addMap({name, path}) {
@@ -44,92 +34,94 @@ class ColorMapManager {
 
         const suffix = path.split('.').pop();
 
-        let obj = this.dictionary[ name ];
         if ('csv' === suffix) {
+
             const string = await response.text();
-            this.handleString(obj, string);
+            this.dictionary[ name ] = rgbListWithString(string);
+
         } else if ('png' === suffix) {
+
             const blob = await response.blob();
-            this.handleImageData(obj, blob);
+            const imageSource = await readFileAsDataURL(blob);
+            const image = await createImage(imageSource);
+            this.dictionary[ name ] = rgbListWithImage(image);
+
         }
 
     }
 
-    handleString(obj, string) {
-
-        const lines = string.split(/\r?\n/);
-
-        if (isKennethMorland(name)) {
-            lines.shift(); // discard preamble
-        }
-
-        obj.rgb = lines
-            .filter((line) => { return "" !== line})
-            .map((line) => {
-
-                // scalar | red | green | blue
-                let parts = line.split(',');
-
-                if (isKennethMorland(name)) {
-                    parts.shift(); // discard scalar
-                }
-
-                let [ r, g, b ] = parts.map((f) => { return parseInt(f, 10)} );
-                return { rgb255String: rgb255String({ r, g, b }), threejs: rgb255ToThreeJSColor(r, g, b) }
-
-            });
-
+    retrieveRGB255String(colorMapName, interpolant) {
+        return retrieveRGB(this.dictionary[colorMapName], interpolant, 'rgb255String');
     }
 
-    handleImageData(obj, blob) {
-
-        let image = new Image();
-        image.onload = () => {
-
-            let canvas = document.createElement('canvas');
-            let ctx = canvas.getContext('2d');
-
-            ctx.canvas.width = image.width;
-            ctx.canvas.height = 1;
-            ctx.drawImage(image, 0, 0, ctx.canvas.width, ctx.canvas.height);
-
-            const rgbaList = ctx.getImageData(0,0, ctx.canvas.width, ctx.canvas.height).data;
-
-            let pixel = undefined;
-
-            obj.rgb = [];
-
-            for (let i = 0; i < rgbaList.length; i += 4) {
-                const [ r, g, b ] = [ rgbaList[ i ], rgbaList[ i+1 ], rgbaList[ i+2 ] ];
-                obj.rgb.push( { rgb255String: rgb255String({ r, g, b }), threejs: rgb255ToThreeJSColor(r, g, b) } );
-
-            }
-
-        };
-
-        let fileReader  = new FileReader();
-
-        fileReader.addEventListener("load",  () => {
-            image.src = fileReader.result;
-        }, false);
-
-        fileReader.readAsDataURL(blob);
-
-    }
-
-    retrieveRGB255String(name, interpolant) {
-        const rgb = this.dictionary[ name ].rgb;
-        const index = Math.floor(interpolant * (rgb.length - 1));
-        return rgb[ index ].rgb255String;
-    }
-
-    retrieveThreeJS(name, interpolant) {
-        const rgb = this.dictionary[ name ].rgb;
-        const index = Math.floor(interpolant * (rgb.length - 1));
-        return rgb[ index ].threejs;
+    retrieveRGBThreeJS(colorMapName, interpolant) {
+        return retrieveRGB(this.dictionary[colorMapName], interpolant, 'threejs');
     }
 
 }
+
+const retrieveRGB = (rgbList, interpolant, key) => {
+    const index = Math.floor(interpolant * (rgbList.length - 1));
+    return rgbList[ index ][ key ];
+};
+
+const rgbListWithImage = image => {
+
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+
+    ctx.canvas.width = image.width;
+    ctx.canvas.height = 1;
+
+    ctx.drawImage(image, 0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    const imageDataAsRGBAList = ctx.getImageData(0,0, ctx.canvas.width, ctx.canvas.height).data;
+
+    let rgbList = [];
+
+    for (let i = 0; i < imageDataAsRGBAList.length; i += 4) {
+
+        // grab r g b channels. ignore alpha channel.
+        const [ r, g, b ] = [ imageDataAsRGBAList[ i ], imageDataAsRGBAList[ i+1 ], imageDataAsRGBAList[ i+2 ] ];
+
+        rgbList.push( { rgb255String: rgb255String({ r, g, b }), threejs: rgb255ToThreeJSColor(r, g, b) } );
+    }
+
+    return rgbList;
+
+};
+
+const rgbListWithString = string => {
+
+    const lines = string.split(/\r?\n/);
+
+    if (isKennethMorland(name)) {
+        lines.shift(); // discard preamble
+    }
+
+    return lines
+        .filter((line) => {
+            return "" !== line
+        })
+        .map((line) => {
+
+            // scalar | red | green | blue
+            let parts = line.split(',');
+
+            if (isKennethMorland(name)) {
+                parts.shift(); // discard scalar
+            }
+
+            let [ r, g, b ] = parts.map((f) => { return parseInt(f, 10)} );
+
+            return {
+                rgb255String: rgb255String({ r, g, b }),
+                threejs: rgb255ToThreeJSColor(r, g, b)
+            }
+
+        });
+
+};
 
 let isKennethMorland = (name) => {
     return name.indexOf('kenneth_moreland') > 0;

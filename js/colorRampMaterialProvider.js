@@ -201,7 +201,7 @@ class ColorRampMaterialProvider {
     }
 
     colorForInterpolant(interpolant) {
-        return colorMapManager.retrieveThreeJS(defaultColormapName, interpolant)
+        return colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
     }
 
     renderLoopHelper () {
