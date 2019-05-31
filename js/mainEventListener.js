@@ -31,17 +31,16 @@ export const mainEventListener =
 
             }  else if ('DidLoadFile' === type) {
 
-                let { name, payload } = data;
+                let { name: path, payload: string } = data;
 
-                ensembleManager.path = name;
-                ensembleManager.ingest(payload);
-
-                ensembleManager.parsePathEncodedGenomicLocation(ensembleManager.path);
+                ensembleManager.ingest({ path, string });
 
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus;
 
                 const initialStructureKey = '0';
+
                 trace = ensembleManager.traceWithName(initialStructureKey);
+
                 const structureLength = trace.geometry.vertices.length;
 
                 const str = 'STRUCTURE: CHR ' + chr + ' ' + Math.floor(genomicStart/1e6) + 'MB to ' + Math.floor(genomicEnd/1e6) + 'MB';

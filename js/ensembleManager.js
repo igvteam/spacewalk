@@ -18,7 +18,11 @@ class EnsembleManager {
         this.path = undefined;
     }
 
-    ingest(string){
+    ingest({ path, string }){
+
+        this.path = path;
+
+        this.locus = parsePathEncodedGenomicLocation(path);
 
         this.ensemble = {};
 
@@ -95,23 +99,6 @@ class EnsembleManager {
         return this.ensemble[ name ] || undefined;
     }
 
-    parsePathEncodedGenomicLocation(path) {
-
-        let dev_null;
-        let parts = path.split('_');
-        dev_null = parts.shift();
-        let locus = parts[ 0 ];
-
-        let [ chr, start, end ] = locus.split('-');
-
-        dev_null = end.split(''); // 3 0 M b
-        dev_null.pop(); // 3 0 M
-        dev_null.pop(); // 3 0
-        end = dev_null.join(''); // 30
-
-        this.locus = { chr, genomicStart: parseInt(start) * 1e6, genomicEnd: parseInt(end) * 1e6 };
-    };
-
     async loadURL ({ url, name }) {
 
         try {
@@ -138,6 +125,27 @@ class EnsembleManager {
 
     }
 }
+
+const parsePathEncodedGenomicLocation = path => {
+
+    let dev_null;
+    let parts = path.split('_');
+    dev_null = parts.shift();
+    let locus = parts[ 0 ];
+
+    let [ chr, start, end ] = locus.split('-');
+
+    dev_null = end.split(''); // 3 0 M b
+    dev_null.pop(); // 3 0 M
+    dev_null.pop(); // 3 0
+    end = dev_null.join(''); // 30
+
+    return {
+        chr,
+        genomicStart: parseInt(start) * 1e6,
+        genomicEnd: parseInt(end) * 1e6
+    };
+};
 
 export const getBoundsWithTrace = (trace) => {
     const { center, radius } = trace.geometry.boundingSphere;
