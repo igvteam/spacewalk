@@ -9,7 +9,7 @@ import { contactFrequencyMapPanel } from './gui.js';
 
 export let contactFrequencyDistanceThreshold = 256;
 
-import { colorMapManager } from "./main.js";
+import { colorMapManager, ensembleManager } from "./main.js";
 
 class EnsembleManager {
 
@@ -237,42 +237,39 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
 };
 
-const kdBushConfguratorWithTrace = trace => {
-
-    return {
-        idList: trace.segmentIDList,
-        points: trace.geometry.vertices,
-        getX: pt => pt.x,
-        getY: pt => pt.y,
-        getZ: pt => pt.z,
-        nodeSize: 64,
-        ArrayType: Float64Array,
-        axisCount: 3
-    }
-
-};
-
 export const getDistanceMapCanvasWithTrace = trace => {
 
-    console.time('distance map for single trace');
+    let str = `distance map for trace with ${ trace.geometry.vertices.length } vertices`;
+    console.time(str);
+
+    const ensembleList = Object.values(ensembleManager.ensemble);
+
+    let mapSize = Number.NEGATIVE_INFINITY;
+    for (let trace of ensembleList) {
+        mapSize = Math.max(mapSize, Math.max(...(trace.segmentIDList)));
+    }
+
+    let distances = new Array(mapSize * mapSize);
+    for (let d = 0; d < distances.length; d++) distances[ d ] = 0;
+
+    let maxDistance = Number.NEGATIVE_INFINITY;
 
     let { vertices } = trace.geometry;
     let { length } = vertices;
-
-    let distances = new Array(length * length);
-    let maxDistance = Number.NEGATIVE_INFINITY;
     for (let i = 0; i < length; i++) {
 
         const candidate = vertices[ i ];
+        const i_segmentIDIndex = trace.segmentIDList[ i ] - 1;
 
         for (let j = 0; j < length; j++) {
 
-            const ij = i * length + j;
-            const ji = j * length + i;
-
             const centroid = vertices[ j ];
+            const j_segmentIDIndex = trace.segmentIDList[ j ] - 1;
 
-            if (i === j) {
+            const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
+            const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
+
+            if (i_segmentIDIndex === j_segmentIDIndex) {
                 distances[ ij ] = 0;
             } else {
 
@@ -292,31 +289,50 @@ export const getDistanceMapCanvasWithTrace = trace => {
 
         } // for (j)
 
-    } // for (i)
+    }
 
-    console.timeEnd('distance map for single trace');
+    console.timeEnd(str);
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = length;
+    ctx.canvas.width = ctx.canvas.height = mapSize;
+
+    console.log('Distance map size: ' + ctx.canvas.width + ' x ' + ctx.canvas.height);
 
     // clear canvas
+    const { width: w, height: h } = ctx.canvas;
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
-    ctx.fillRect(0, 0, length, length);
+    ctx.fillRect(0, 0, w, h);
 
     // paint distances as lerp'd color
-    for (let i = 0; i < length; i++) {
-        for(let j = 0; j < length; j++) {
+    for (let i = 0; i < w; i++) {
 
-            const ij = i * length + j;
+        for(let j = 0; j < h; j++) {
+
+            const ij = i * w + j;
             const interpolant = distances[ ij ] / maxDistance;
-            // ctx.fillStyle = rgb255String( rgb255Lerp(rgbMin, rgbMax, interpolant) );
             ctx.fillStyle = colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
             ctx.fillRect(i, j, 1, 1);
         }
+
     }
 
     return canvas;
+
+};
+
+const kdBushConfguratorWithTrace = trace => {
+
+    return {
+        idList: trace.segmentIDList,
+        points: trace.geometry.vertices,
+        getX: pt => pt.x,
+        getY: pt => pt.y,
+        getZ: pt => pt.z,
+        nodeSize: 64,
+        ArrayType: Float64Array,
+        axisCount: 3
+    }
 
 };
 
