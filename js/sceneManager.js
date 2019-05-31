@@ -13,8 +13,6 @@ import { dataValueMaterialProvider, noodle, ballAndStick } from "./main.js";
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 
-let currentStructureCentroid = undefined;
-
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 
 class SceneManager {
@@ -86,8 +84,7 @@ class SceneManager {
         this.scene.background = this.background;
 
         // Camera Lighting Rig
-        this.cameraLightingRig.configure({ fov, position: cameraPosition, centroid, currentStructureCentroid, boundingDiameter });
-        currentStructureCentroid = centroid.clone();
+        this.cameraLightingRig.configure({ fov, position: cameraPosition, centroid, boundingDiameter });
         this.cameraLightingRig.addToScene(this.scene);
 
         // Groundplane

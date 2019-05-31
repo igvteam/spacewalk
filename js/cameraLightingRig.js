@@ -4,6 +4,8 @@ import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
 let cameraWorldDirection = new THREE.Vector3();
 let crossed = new THREE.Vector3();
 
+let currentStructureCentroid = undefined;
+
 class CameraLightingRig extends OrbitControls {
 
     constructor ({ fov, near, far, domElement, aspectRatio, hemisphereLight }) {
@@ -19,14 +21,13 @@ class CameraLightingRig extends OrbitControls {
 
         this.doUpdateCameraPose = true;
 
-        this.screenSpacePanning = false;
         this.enableKeys = false;
     }
 
-    configure ({ fov, position, centroid, currentStructureCentroid, boundingDiameter }) {
+    configure ({ fov, position, centroid, boundingDiameter }) {
 
         if (true === this.doUpdateCameraPose) {
-            this.setPose({ position, centroid, currentStructureCentroid });
+            this.setPose({ position, centroid });
             this.doUpdateCameraPose = false;
         } else {
 
@@ -39,6 +40,8 @@ class CameraLightingRig extends OrbitControls {
 
         const [ near, far, aspectRatio ] = [ 1e-1 * boundingDiameter, 3e1 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
         this.setProjection({ fov, near, far, aspectRatio });
+
+        currentStructureCentroid = centroid.clone();
 
     }
 

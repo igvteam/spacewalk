@@ -99,11 +99,11 @@ class ColorRampMaterialProvider {
             this.repaint();
 
         } else if ("DidSelectSegmentIndex" === type) {
-            // console.log(Date.now() + ' highlight');
+
             this.highlight(data.segmentIndexList);
 
         } else if (sceneManager && "DidLeaveGUI" === type) {
-            // console.log(Date.now() + ' repaint');
+
             this.repaint();
 
         }

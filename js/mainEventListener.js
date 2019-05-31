@@ -29,28 +29,7 @@ export const mainEventListener =
                     thumbnailPanel.render();
                 }
 
-            } else if ('DidSelectStructure' === type) {
-
-                trace = ensembleManager.traceWithName(data);
-                const structureLength = trace.geometry.vertices.length;
-
-                igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                    IGVMouseHandler({bp, start, end, interpolant, structureLength })
-                });
-
-                juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength });
-                });
-
-                sceneManager.dispose();
-
-                colorRampPanel.colorRampMaterialProvider.configure({ structureLength });
-
-                dataValueMaterialProvider.structureLength = structureLength;
-
-                setup({ trace });
-
-            } else if ('DidLoadFile' === type) {
+            }  else if ('DidLoadFile' === type) {
 
                 let { name, payload } = data;
 
@@ -89,6 +68,27 @@ export const mainEventListener =
                 traceSelectPanel.configure({ ensemble: ensembleManager.ensemble, initialStructureKey });
 
                 sceneManager.dispose();
+
+                setup({ trace });
+
+            } else if ('DidSelectStructure' === type) {
+
+                trace = ensembleManager.traceWithName(data);
+                const structureLength = trace.geometry.vertices.length;
+
+                igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
+                    IGVMouseHandler({bp, start, end, interpolant, structureLength })
+                });
+
+                juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength });
+                });
+
+                sceneManager.dispose();
+
+                colorRampPanel.colorRampMaterialProvider.configure({ structureLength });
+
+                dataValueMaterialProvider.structureLength = structureLength;
 
                 setup({ trace });
 
