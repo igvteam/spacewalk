@@ -6,6 +6,7 @@ import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import { sceneManager, ballAndStick, colorMapManager } from "./main.js";
+import { currentStructureLength } from "./mainEventListener.js";
 
 let currentSegmentIndex = undefined;
 
@@ -109,27 +110,20 @@ class ColorRampMaterialProvider {
         }
     }
 
-    configure({ structureLength }) {
-
-        this.structureLength = structureLength;
-
-        this.paintQuantizedRamp(undefined);
-    }
-
     repaint () {
         this.paintQuantizedRamp(undefined);
     }
 
     onCanvasMouseMove(canvas, event) {
 
-        if (undefined === this.structureLength) {
+        if (undefined === currentStructureLength) {
             return;
         }
 
         let { yNormalized } = getMouseXY(canvas, event);
 
         // 0 to 1. Flip direction.
-        const segmentIndex = segmentIndexForInterpolant(1.0 - yNormalized, this.structureLength);
+        const segmentIndex = segmentIndexForInterpolant(1.0 - yNormalized, currentStructureLength);
 
         this.highlight([ segmentIndex ]);
 
@@ -146,7 +140,7 @@ class ColorRampMaterialProvider {
 
     paintQuantizedRamp(highlightedSegmentIndexSet){
 
-        if (undefined === this.structureLength) {
+        if (undefined === currentStructureLength) {
             return;
         }
 
@@ -159,8 +153,8 @@ class ColorRampMaterialProvider {
         // paint rgb ramp
         for (let y = 0;  y < height; y++) {
             interpolant = 1 - (y / (height - 1));
-            quantizedInterpolant = quantize(interpolant, this.structureLength);
-            segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
+            quantizedInterpolant = quantize(interpolant, currentStructureLength);
+            segmentIndex = segmentIndexForInterpolant(interpolant, currentStructureLength);
             this.rgb_ctx.fillStyle = colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
             this.rgb_ctx.fillRect(0, y, width, 1);
         }
@@ -186,8 +180,8 @@ class ColorRampMaterialProvider {
             for (let y = 0;  y < height; y++) {
 
                 interpolant = 1 - (y / (height - 1));
-                quantizedInterpolant = quantize(interpolant, this.structureLength);
-                segmentIndex = segmentIndexForInterpolant(interpolant, this.structureLength);
+                quantizedInterpolant = quantize(interpolant, currentStructureLength);
+                segmentIndex = segmentIndexForInterpolant(interpolant, currentStructureLength);
 
                 if (highlightedSegmentIndexSet.has(segmentIndex)) {
                     this.highlight_ctx.fillRect(0, y, width, 1);

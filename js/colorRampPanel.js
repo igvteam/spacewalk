@@ -1,7 +1,6 @@
 import { globalEventBus } from "./eventBus.js";
 
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
-import ColorMapManager from "./colorMapManager.js";
 
 import { makeDraggable } from "./draggable.js";
 import { moveOffScreen, moveOnScreen } from './utils.js';
@@ -70,13 +69,13 @@ class ColorRampPanel {
         }
     }
 
-    configure({ genomicStart, genomicEnd, structureLength }) {
+    configure({ genomicStart, genomicEnd }) {
 
         const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
         this.$footer.text(ss + 'Mb');
         this.$header.text(ee + 'Mb');
 
-        this.colorRampMaterialProvider.configure({structureLength});
+        this.colorRampMaterialProvider.repaint();
     }
 
     onWindowResize() {

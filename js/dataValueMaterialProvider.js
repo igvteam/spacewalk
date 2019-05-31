@@ -2,6 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { globalEventBus } from "./eventBus.js";
 import { rgb255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, greyScale255 } from './color.js';
 import { sceneManager } from "./main.js";
+import { currentStructureLength } from './mainEventListener.js';
 
 let rgbTexture;
 let alphaTexture;
@@ -74,7 +75,7 @@ class DataValueMaterialProvider {
 
     highlight(interpolantList) {
 
-        if (undefined === this.structureLength) {
+        if (undefined === currentStructureLength) {
             return;
         }
 
@@ -84,7 +85,7 @@ class DataValueMaterialProvider {
 
     configure({ startBP, endBP, features, min, max }) {
 
-        if (undefined === this.structureLength) {
+        if (undefined === currentStructureLength) {
             return;
         }
 
