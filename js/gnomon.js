@@ -2,6 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { guiManager } from "./gui.js";
 import { globalEventBus } from "./eventBus.js";
 import { appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255String } from "./color.js";
+import { numberFormatter } from "./utils.js";
 
 class Gnomon extends THREE.AxesHelper {
 
@@ -59,7 +60,7 @@ const getXAxisSprite = (min, max) => {
     const { x:bx, y:by, z:bz } = max;
 
     const length = bx - ax;
-    return getAxisSprite(bx, ay, az, length.toString());
+    return getAxisSprite(bx, ay, az, length);
 };
 
 const getYAxisSprite = (min, max) => {
@@ -80,7 +81,7 @@ const getZAxisSprite = (min, max) => {
     return getAxisSprite(ax, ay, bz, length.toString());
 };
 
-const getAxisSprite = (x, y, z, string) => {
+const getAxisSprite = (x, y, z, length) => {
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -90,7 +91,9 @@ const getAxisSprite = (x, y, z, string) => {
 
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
     ctx.font = 'bold 128px sans-serif';
-    string = string + 'nm';
+
+    length = numberFormatter( Math.round(length) );
+    const string = length + 'nm';
     ctx.fillText(string, ctx.canvas.width/2, ctx.canvas.height/2);
 
     const material = new THREE.SpriteMaterial( { map: new THREE.CanvasTexture(ctx.canvas) } );

@@ -219,12 +219,11 @@
   resize: both;
   overflow: scroll;
   width: 600px;
-  height: auto;
+  height: unset;
   align-items: center;
   justify-content: flex-start; }
   #spacewalk_igv_panel.card #spacewalk_igv_container.card-body {
-    height: 256px;
-    overflow: auto; }
+    height: unset; }
     #spacewalk_igv_panel.card #spacewalk_igv_container.card-body #spacewalk_igv_root_container {
       width: 100%;
       height: 100%;

@@ -33,7 +33,7 @@ $spacewalk_igv_panel_heigth: 256px;
   overflow: scroll;
 
   width: $spacewalk_igv_panel_width;
-  height: auto;
+  height: unset;
 
   align-items: center;
   justify-content: flex-start;
@@ -41,8 +41,8 @@ $spacewalk_igv_panel_heigth: 256px;
   // igvjs container
   #spacewalk_igv_container.card-body {
 
-    height: $spacewalk_igv_panel_heigth;
-    overflow: auto;
+    height: unset;
+    //overflow: auto;
 
     // track container
     #spacewalk_igv_root_container {
