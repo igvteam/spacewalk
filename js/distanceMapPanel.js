@@ -1,6 +1,6 @@
-import {globalEventBus} from "./eventBus.js";
+import Globals from './globals.js';
 import { makeDraggable } from "./draggable.js";
-import { fitToContainer, moveOffScreen, moveOnScreen } from "./utils.js";
+import { moveOffScreen, moveOnScreen } from "./utils.js";
 import { guiManager } from './gui.js';
 
 class DistanceMapPanel {
@@ -31,7 +31,7 @@ class DistanceMapPanel {
 
         $(window).on('resize.distance_map_panel', () => { this.onWindowResize(container, panel) });
 
-        globalEventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe("ToggleUIControl", this);
 
     }
 

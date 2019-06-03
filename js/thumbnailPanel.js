@@ -1,6 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
-import {globalEventBus} from "./eventBus.js";
 import { makeDraggable } from "./draggable.js";
 import { fitToContainer, moveOffScreen, moveOnScreen } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
@@ -54,7 +53,7 @@ class ThumbnailPanel {
 
         $(window).on('resize.thumbnail_panel', () => { this.onWindowResize(container, panel) });
 
-        globalEventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe("ToggleUIControl", this);
 
     }
 

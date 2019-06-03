@@ -1,5 +1,4 @@
 import Globals from './globals.js';
-import {globalEventBus} from "./eventBus.js";
 import { makeDraggable } from "./draggable.js";
 import { moveOffScreen, moveOnScreen } from "./utils.js";
 import { guiManager } from './gui.js';
@@ -68,7 +67,7 @@ class ContactFrequencyMapPanel {
 
         $(window).on('resize.contact_frequency_map_panel', () => { this.onWindowResize(container, panel) });
 
-        globalEventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe("ToggleUIControl", this);
 
     }
 

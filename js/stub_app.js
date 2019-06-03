@@ -1,5 +1,4 @@
 import Globals from "./globals.js";
-import {globalEventBus} from "./eventBus.js";
 import ColorMapManager from "./colorMapManager.js";
 import EnsembleManager from "./ensembleManager.js";
 import {createGUI, highlightColor } from "./gui.js";
@@ -28,10 +27,10 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     Globals.dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 
-    globalEventBus.subscribe('DidSelectStructure', mainEventListener);
-    globalEventBus.subscribe('DidLoadFile', mainEventListener);
-    globalEventBus.subscribe('ToggleAllUIControls', mainEventListener);
-    globalEventBus.subscribe('RenderStyleDidChange', mainEventListener);
+    Globals.eventBus.subscribe('DidSelectStructure', mainEventListener);
+    Globals.eventBus.subscribe('DidLoadFile', mainEventListener);
+    Globals.eventBus.subscribe('ToggleAllUIControls', mainEventListener);
+    Globals.eventBus.subscribe('RenderStyleDidChange', mainEventListener);
 
     renderLoop();
 

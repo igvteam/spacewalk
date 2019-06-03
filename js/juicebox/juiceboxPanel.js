@@ -1,5 +1,4 @@
 import Globals from './../globals.js';
-import { globalEventBus } from "../eventBus.js";
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from '../math.js'
@@ -26,15 +25,15 @@ class JuiceboxPanel {
 
         $(panel).on('mouseenter.trace3d.juicebox_panel', (event) => {
             event.stopPropagation();
-            globalEventBus.post({ type: "DidEnterGUI" });
+            Globals.eventBus.post({ type: "DidEnterGUI" });
         });
 
         $(panel).on('mouseleave.trace3d.juicebox_panel', (event) => {
             event.stopPropagation();
-            globalEventBus.post({ type: "DidLeaveGUI" });
+            Globals.eventBus.post({ type: "DidLeaveGUI" });
         });
 
-        globalEventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe("ToggleUIControl", this);
 
     }
 
@@ -155,7 +154,7 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
 
     const segmentIndexList = segmentIndexX === segmentIndexY ? [ segmentIndexX ] : [ segmentIndexX, segmentIndexY ];
 
-    globalEventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolantX, interpolantY ], segmentIndexList } });
+    Globals.eventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolantX, interpolantY ], segmentIndexList } });
 };
 
 export let juiceboxSelectLoader = async ($select) => {

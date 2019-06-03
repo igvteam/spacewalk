@@ -1,5 +1,5 @@
+import Globals from './globals.js';
 import { makeDraggable } from "./draggable.js";
-import {globalEventBus} from "./eventBus.js";
 import { clamp } from './math.js'
 import { moveOffScreen, moveOnScreen } from './utils.js';
 
@@ -33,12 +33,12 @@ class TraceSelectPanel {
 
         $(panel).on('mouseenter.trace3d.trace_select', (event) => {
             event.stopPropagation();
-            globalEventBus.post({ type: "DidEnterGUI" });
+            Globals.eventBus.post({ type: "DidEnterGUI" });
         });
 
         $(panel).on('mouseleave.trace3d.trace_select', (event) => {
             event.stopPropagation();
-            globalEventBus.post({ type: "DidLeaveGUI" });
+            Globals.eventBus.post({ type: "DidLeaveGUI" });
         });
 
         this.$button_minus.on('click.spacewalk_trace_select_button_minus', (e) => {
@@ -49,7 +49,7 @@ class TraceSelectPanel {
 
             this.$input.val(currentStructureKey);
 
-            globalEventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+            Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
         });
 
         this.$button_plus.on('click.spacewalk_trace_select_button_plus', (e) => {
@@ -60,7 +60,7 @@ class TraceSelectPanel {
 
             this.$input.val(currentStructureKey);
 
-            globalEventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+            Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
         });
 
         this.$input.on('keyup.spacewalk_trace_select_input', (e) => {
@@ -74,7 +74,7 @@ class TraceSelectPanel {
                 currentStructureKey = number.toString();
                 this.$input.val(currentStructureKey);
 
-                globalEventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+                Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
             }
 
         });
@@ -96,7 +96,7 @@ class TraceSelectPanel {
 
         $(document).on('keyup.trace_select', handleKeyUp);
 
-        globalEventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe("ToggleUIControl", this);
 
     }
 
@@ -122,7 +122,7 @@ class TraceSelectPanel {
 
         this.$input.val(currentStructureKey);
 
-        globalEventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+        Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
     };
 
     configure({ ensemble, initialStructureKey }) {

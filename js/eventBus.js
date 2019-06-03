@@ -38,7 +38,4 @@ class EventBus {
 
 }
 
-
-export let globalEventBus = new EventBus();
-
 export default EventBus;

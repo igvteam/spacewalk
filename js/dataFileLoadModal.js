@@ -1,4 +1,3 @@
-import { globalEventBus } from "./eventBus.js";
 import { juiceboxPanel } from "./gui.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
 import Globals from './globals.js';
@@ -101,7 +100,7 @@ const loadURL = async ({ url, name, fileLoader, $spinner, $modal }) => {
     $spinner.hide();
     $modal.modal('hide');
 
-    globalEventBus.post({ type: "DidLeaveGUI" });
+    Globals.eventBus.post({ type: "DidLeaveGUI" });
 
 };
 
@@ -109,7 +108,7 @@ const loadFile = async (file, fileLoader) => {
 
     await fileLoader.loadLocalFile({ file });
 
-    globalEventBus.post({ type: "DidLeaveGUI" });
+    Globals.eventBus.post({ type: "DidLeaveGUI" });
 };
 
 const structureFileLoadModalConfigurator = () => {

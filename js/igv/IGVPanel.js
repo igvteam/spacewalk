@@ -1,5 +1,4 @@
 import Globals from './../globals.js';
-import { globalEventBus } from "../eventBus.js";
 import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
@@ -35,12 +34,12 @@ class IGVPanel {
 
         this.$panel.on('mouseenter.trace3d.spacewalk_igv_panel', (event) => {
             event.stopPropagation();
-            globalEventBus.post({ type: "DidEnterGUI" });
+            Globals.eventBus.post({ type: "DidEnterGUI" });
         });
 
         this.$panel.on('mouseleave.trace3d.spacewalk_igv_panel', (event) => {
             event.stopPropagation();
-            globalEventBus.post({ type: "DidLeaveGUI" });
+            Globals.eventBus.post({ type: "DidLeaveGUI" });
         });
 
         // URL
@@ -66,7 +65,7 @@ class IGVPanel {
             currentURL = undefined;
         });
 
-        globalEventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe("ToggleUIControl", this);
     }
 
     receiveEvent({ type, data }) {
@@ -202,7 +201,7 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
     let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
     const segmentIndex = segmentIndexForInterpolant(lerp(a, b, interpolant), structureLength);
 
-    globalEventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolant ], segmentIndexList: [ segmentIndex ]} });
+    Globals.eventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolant ], segmentIndexList: [ segmentIndex ]} });
 };
 
 export let customIGVTrackHandler = async (track) => {

@@ -1,6 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
-import { globalEventBus } from "./eventBus.js";
 import { segmentIndexForInterpolant, fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
@@ -79,10 +78,10 @@ class ColorRampMaterialProvider {
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
 
-        globalEventBus.subscribe("DidLeaveGUI", this);
-        globalEventBus.subscribe("PickerDidLeaveObject", this);
-        globalEventBus.subscribe("PickerDidHitObject", this);
-        globalEventBus.subscribe("DidSelectSegmentIndex", this);
+        Globals.eventBus.subscribe("DidLeaveGUI", this);
+        Globals.eventBus.subscribe("PickerDidLeaveObject", this);
+        Globals.eventBus.subscribe("PickerDidHitObject", this);
+        Globals.eventBus.subscribe("DidSelectSegmentIndex", this);
     }
 
     receiveEvent({ type, data }) {
@@ -128,7 +127,7 @@ class ColorRampMaterialProvider {
 
         if (currentSegmentIndex !== segmentIndex) {
             currentSegmentIndex = segmentIndex;
-            globalEventBus.post({type: "DidSelectSegmentIndex", data: { segmentIndexList: [ segmentIndex ] } });
+            Globals.eventBus.post({type: "DidSelectSegmentIndex", data: { segmentIndexList: [ segmentIndex ] } });
         }
 
     };

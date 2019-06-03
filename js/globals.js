@@ -1,9 +1,9 @@
-
 export default {
-    ensembleManager: undefined,
-    sceneManager: undefined,
-    dataValueMaterialProvider: undefined,
-    noodle: undefined,
-    ballAndStick: undefined,
-    colorMapManager: undefined
+        ensembleManager: undefined,
+        sceneManager: undefined,
+        dataValueMaterialProvider: undefined,
+        noodle: undefined,
+        ballAndStick: undefined,
+        colorMapManager: undefined,
+        eventBus: undefined
 };
