@@ -7,11 +7,15 @@ process.env.INDEX_FILE_DST = '<script src="./bundle.js"></script>';
 module.exports =
     {
         mode: 'none',
+        // entry:
+        //     [
+        //         '@babel/polyfill',
+        //         './js/app.js'
+        //     ],
         entry:
-            [
-                '@babel/polyfill',
-                './js/app.js'
-            ],
+            {
+              main: './js/app.js'
+            },
         output:
             {
                 path: path.resolve(__dirname, 'dist'),
