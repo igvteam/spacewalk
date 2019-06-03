@@ -1,8 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import Globals from './globals.js';
 import { getBoundsWithTrace } from './ensembleManager.js';
-import { sceneManager, ensembleManager } from "./main.js";
 import { degrees } from './math.js';
-import { colorDescriptionRGBOrThreeJS } from './color.js';
 
 class BallAndStick {
 
@@ -62,14 +61,14 @@ class BallAndStick {
             // const material = new THREE.MeshBasicMaterial({ color });
             // const material = showTMaterial;
 
-            const geometry = sceneManager.ballGeometry.clone();
+            const geometry = Globals.sceneManager.ballGeometry.clone();
             const { x, y, z } = vertex;
             geometry.translate(x, y, z);
 
             const mesh = new THREE.Mesh(geometry, material);
             mesh.name = 'ball';
 
-            const genomicLocation = index * ensembleManager.stepSize + ensembleManager.locus.genomicStart;
+            const genomicLocation = index * Globals.ensembleManager.stepSize + Globals.ensembleManager.locus.genomicStart;
 
             this.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: mesh, centroid: mesh.position.clone() };
 
@@ -93,8 +92,8 @@ class BallAndStick {
 
             const axis = new THREE.CatmullRomCurve3([ trace.geometry.vertices[ i ].clone(), trace.geometry.vertices[ j ].clone() ]);
 
-            const geometry = new THREE.TubeBufferGeometry(axis, 8, sceneManager.ballRadius/4, 16, false);
-            const material = sceneManager.stickMaterial.clone();
+            const geometry = new THREE.TubeBufferGeometry(axis, 8, Globals.sceneManager.ballRadius/4, 16, false);
+            const material = Globals.sceneManager.stickMaterial.clone();
 
             const mesh = new THREE.Mesh(geometry, material);
 

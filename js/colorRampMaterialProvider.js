@@ -1,11 +1,10 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import Globals from './globals.js';
 import { globalEventBus } from "./eventBus.js";
-
 import { segmentIndexForInterpolant, fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
-import { sceneManager, ballAndStick, colorMapManager } from "./main.js";
 import { currentStructureLength } from "./mainEventListener.js";
 
 let currentSegmentIndex = undefined;
@@ -90,8 +89,8 @@ class ColorRampMaterialProvider {
 
         if ("PickerDidHitObject" === type) {
 
-            if (ballAndStick.indexDictionary[ data ]) {
-                const segmentIndex = 1 + ballAndStick.indexDictionary[ data ].index;
+            if (Globals.ballAndStick.indexDictionary[ data ]) {
+                const segmentIndex = 1 + Globals.ballAndStick.indexDictionary[ data ].index;
                 this.highlight([segmentIndex])
             }
 
@@ -103,7 +102,7 @@ class ColorRampMaterialProvider {
 
             this.highlight(data.segmentIndexList);
 
-        } else if (sceneManager && "DidLeaveGUI" === type) {
+        } else if (Globals.sceneManager && "DidLeaveGUI" === type) {
 
             this.repaint();
 
@@ -155,7 +154,7 @@ class ColorRampMaterialProvider {
             interpolant = 1 - (y / (height - 1));
             quantizedInterpolant = quantize(interpolant, currentStructureLength);
             segmentIndex = segmentIndexForInterpolant(interpolant, currentStructureLength);
-            this.rgb_ctx.fillStyle = colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
+            this.rgb_ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
             this.rgb_ctx.fillRect(0, y, width, 1);
         }
 
@@ -195,7 +194,7 @@ class ColorRampMaterialProvider {
     }
 
     colorForInterpolant(interpolant) {
-        return colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
+        return Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
     }
 
     renderLoopHelper () {

@@ -1,7 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import Globals from './globals.js';
 import { globalEventBus } from "./eventBus.js";
 import { rgb255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, greyScale255 } from './color.js';
-import { sceneManager } from "./main.js";
 import { currentStructureLength } from './mainEventListener.js';
 
 let rgbTexture;
@@ -65,7 +65,7 @@ class DataValueMaterialProvider {
             const { interpolantList } = data;
             this.highlight(interpolantList);
 
-        } else if (sceneManager && "DidLeaveGUI" === type) {
+        } else if (Globals.sceneManager && "DidLeaveGUI" === type) {
 
             let { featureRects } = this;
             this.paint({ featureRects, interpolantList: undefined });
@@ -197,8 +197,8 @@ class DataValueMaterialProvider {
 
     colorForInterpolant(interpolant) {
         // const { r, g, b } = this.colorMinimum;
-        // const color = BallAndStick.getRenderStyle() === sceneManager.renderStyle ? sceneManager.stickMaterial.color : rgb255ToThreeJSColor(r, g, b);
-        return sceneManager.stickMaterial.color;
+        // const color = BallAndStick.getRenderStyle() === Globals.sceneManager.renderStyle ? Globals.sceneManager.stickMaterial.color : rgb255ToThreeJSColor(r, g, b);
+        return Globals.sceneManager.stickMaterial.color;
     }
 
     renderLoopHelper () {

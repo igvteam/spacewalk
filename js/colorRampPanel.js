@@ -1,11 +1,9 @@
+import Globals from './globals.js';
 import { globalEventBus } from "./eventBus.js";
-
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
-
 import { makeDraggable } from "./draggable.js";
 import { moveOffScreen, moveOnScreen } from './utils.js';
 import { guiManager } from './gui.js';
-import { noodle, ballAndStick, sceneManager } from "./main.js";
 
 class ColorRampPanel {
 
@@ -46,9 +44,9 @@ class ColorRampPanel {
 
         this.$panel.on('click.trace3d.toolpanel', (event) => {
             event.stopPropagation();
-            sceneManager.materialProvider = this.colorRampMaterialProvider;
-            noodle.updateMaterialProvider(sceneManager.materialProvider);
-            ballAndStick.updateMaterialProvider(sceneManager.materialProvider);
+            Globals.sceneManager.materialProvider = this.colorRampMaterialProvider;
+            Globals.noodle.updateMaterialProvider(Globals.sceneManager.materialProvider);
+            Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
         });
 
         globalEventBus.subscribe("ToggleUIControl", this);

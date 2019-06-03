@@ -1,10 +1,10 @@
+import Globals from './../globals.js';
 import { globalEventBus } from "../eventBus.js";
 import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
 import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
 import { igvPanel } from '../gui.js';
-import { noodle, ballAndStick, dataValueMaterialProvider, ensembleManager, sceneManager } from "../main.js";
 
 let currentURL = undefined;
 class IGVPanel {
@@ -142,7 +142,7 @@ class IGVPanel {
 
             const { min, max } = this.currentDataTrack.dataRange;
 
-            dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
+            Globals.dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
         }
 
     };
@@ -191,7 +191,7 @@ export const igvBrowserConfigurator = () => {
 
 export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
 
-    const { genomicStart, genomicEnd } = ensembleManager.locus;
+    const { genomicStart, genomicEnd } = Globals.ensembleManager.locus;
 
     const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
 
@@ -209,9 +209,9 @@ export let customIGVTrackHandler = async (track) => {
 
     await igvPanel.trackDataHandler(track);
 
-    sceneManager.materialProvider = dataValueMaterialProvider;
-    noodle.updateMaterialProvider(sceneManager.materialProvider);
-    ballAndStick.updateMaterialProvider(sceneManager.materialProvider);
+    Globals.sceneManager.materialProvider = Globals.dataValueMaterialProvider;
+    Globals.noodle.updateMaterialProvider(Globals.sceneManager.materialProvider);
+    Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
 
 };
 

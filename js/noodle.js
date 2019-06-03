@@ -3,7 +3,7 @@ import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "./threejs_es6/fatlines/fatLine.js";
 import { getBoundsWithTrace } from './ensembleManager.js';
-import { sceneManager, ensembleManager } from "./main.js";
+import Globals from './globals.js';
 import { degrees, clamp, lerp } from './math.js';
 
 let fatLineMaterial;
@@ -63,7 +63,7 @@ class Noodle {
         });
 
         const axis = new THREE.CatmullRomCurve3(knots);
-        const geometry = new THREE.TubeBufferGeometry(axis, tubularSegments, sceneManager.ballRadius, radialSegments, false);
+        const geometry = new THREE.TubeBufferGeometry(axis, tubularSegments, Globals.sceneManager.ballRadius, radialSegments, false);
 
         const mesh = new THREE.Mesh(geometry, material);
         mesh.name = 'noodle';
@@ -275,7 +275,7 @@ const createThinSpline = (structure, colorRampMaterialProvider) => {
 
     const line = new THREE.Line( geometry, material );
 
-    sceneManager.scene.add( line );
+    Globals.sceneManager.scene.add( line );
 
 };
 
