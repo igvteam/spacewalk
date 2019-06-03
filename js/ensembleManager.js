@@ -1,6 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import igv from '../vendor/igv.esm.js'
-import KDBush from '../node_modules/kdbush/js/index.js'
+import KDBush from '../node_modules/kd3d/js/index.js'
 
 import { globalEventBus } from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
