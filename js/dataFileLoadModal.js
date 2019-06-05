@@ -111,6 +111,17 @@ const loadFile = async (file, fileLoader) => {
     Globals.eventBus.post({ type: "DidLeaveGUI" });
 };
 
+const pointCloudFileLoadModalConfigurator = () => {
+
+    return {
+        $urlModal: $('#spacewalk-point-cloud-file-load-url-modal'),
+        $selectModal: $('#spacewalk-point-cloud-file-load-select-modal'),
+        $localFileInput: $('#spacewalk-point-cloud-file-load-local-input'),
+        selectLoader: undefined,
+        fileLoader: Globals.pointCloudManager
+    }
+};
+
 const structureFileLoadModalConfigurator = () => {
 
     return {
@@ -134,6 +145,6 @@ const juiceboxFileLoadModalConfigurator = () => {
 };
 
 
-export { structureFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
+export { pointCloudFileLoadModalConfigurator, structureFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
 
 export default DataFileLoadModal;

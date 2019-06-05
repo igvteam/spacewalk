@@ -1,10 +1,12 @@
 import Globals from "./globals.js";
 import ColorMapManager from "./colorMapManager.js";
+import PointCloudManager from "./pointCloudManager.js";
 import EnsembleManager from "./ensembleManager.js";
 import {createGUI, highlightColor } from "./gui.js";
 import SceneManager, {sceneManagerConfigurator} from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import {appleCrayonColorRGB255, appleCrayonColorThreeJS} from "./color.js";
+import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import {mainEventListener} from "./mainEventListener.js";
@@ -13,6 +15,8 @@ import EventBus from "./eventBus.js";
 document.addEventListener("DOMContentLoaded", async (event) => {
 
     Globals.eventBus = new EventBus();
+
+    Globals.pointCloudManager = new PointCloudManager();
 
     Globals.ensembleManager = new EnsembleManager();
 
@@ -23,6 +27,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     await createGUI(container);
 
+    Globals.pointCloud = new PointCloud();
     Globals.noodle = new Noodle();
     Globals.ballAndStick = new BallAndStick();
 
@@ -32,6 +37,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     Globals.eventBus.subscribe('DidSelectStructure', mainEventListener);
     Globals.eventBus.subscribe('DidLoadFile', mainEventListener);
+    Globals.eventBus.subscribe('DidLoadPointCloudFile', mainEventListener);
     Globals.eventBus.subscribe('ToggleAllUIControls', mainEventListener);
     Globals.eventBus.subscribe('RenderStyleDidChange', mainEventListener);
 

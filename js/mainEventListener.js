@@ -32,7 +32,11 @@ export const mainEventListener =
                     thumbnailPanel.render();
                 }
 
-            }  else if ('DidLoadFile' === type) {
+            }  else if ('DidLoadPointCloudFile' === type) {
+
+                console.log('DidLoadPointCloudFile');
+
+            } else if ('DidLoadFile' === type) {
 
                 let { name: path, payload: string } = data;
 
@@ -95,6 +99,20 @@ export const mainEventListener =
 
         }
     };
+
+let setupPointCloud = ({ pointCloudGeometry }) => {
+
+    Globals.pointCloud.configure(pointCloudGeometry, Globals.sceneManager.renderStyle);
+
+    let scene = new THREE.Scene();
+    Globals.pointCloud.addToScene(scene);
+
+    const { min, max, center, radius } = Globals.pointCloud.getBounds();
+    const { position, fov } = Globals.pointCloud.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
+
+    Globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+
+};
 
 let setup = ({ trace }) => {
 
