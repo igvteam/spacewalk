@@ -4,30 +4,7 @@
 	<title>three.js webgl - marching cubes</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<style>
-		body {
-		  color: #fff;
-		  font-size: 13px;
-		  text-align: center;
-
-		  background-color: #000;
-		  margin: 0;
-		  overflow: hidden;
-		}
-
-		#info {
-		  color: #ffffff;
-		  position: absolute;
-		  top: 0;
-		  width: 100%;
-		  padding: 5px;
-		}
-
-		a {
-		  color: gold;
-		}
-
-	</style>
+	<link type="text/css" rel="stylesheet" href="main.css">
 </head>
 
 <body>
@@ -35,19 +12,21 @@
 	<div id="container"></div>
 	<div id="info">
 		<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> -
-		marching cubes -
-		[based on greggman's <a href="https://webglsamples.org/blob/blob.html">blob</a>, original code by Henrik Rydgård]
+		marching cubes<br/>
+		based on greggman's <a href="https://webglsamples.org/blob/blob.html">blob</a>, original code by Henrik Rydgård
 	</div>
 
-	<script src="js/three.js"></script>
+	<script src="./js/three.js"></script>
 	<script src="js/controls/OrbitControls.js"></script>
 	<script src="js/MarchingCubes.js"></script>
+	<script src="js/ShaderToon.js"></script>
+	<script src="js/libs/stats.min.js"></script>
 	<script src="js/libs/dat.gui.min.js"></script>
 
 
 	<script>
 
-		var container;
+		var container, stats;
 
 		var camera, scene, renderer;
 
@@ -127,6 +106,11 @@
 
 			var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
+			// STATS
+
+			stats = new Stats();
+			container.appendChild( stats.dom );
+
 			// GUI
 
 			setupGui();
@@ -165,6 +149,13 @@
 			var reflectionCube = cubeTextureLoader.load( urls );
 			var refractionCube = cubeTextureLoader.load( urls );
 			refractionCube.mapping = THREE.CubeRefractionMapping;
+
+			// toons
+
+			var toonMaterial1 = createShaderMaterial( "toon1", light, ambientLight );
+			var toonMaterial2 = createShaderMaterial( "toon2", light, ambientLight );
+			var hatchingMaterial = createShaderMaterial( "hatching", light, ambientLight );
+			var dottedMaterial = createShaderMaterial( "dotted", light, ambientLight );
 
 			var texture = new THREE.TextureLoader().load( "textures/UV_Grid_Sm.jpg" );
 			texture.wrapS = THREE.RepeatWrapping;
@@ -215,10 +206,51 @@
 				"plastic": {
 					m: new THREE.MeshPhongMaterial( { color: 0x000000, specular: 0x888888, shininess: 250 } ),
 					h: 0.6, s: 0.8, l: 0.1
+				},
+
+				"toon1": {
+					m: toonMaterial1,
+					h: 0.2, s: 1, l: 0.75
+				},
+
+				"toon2": {
+					m: toonMaterial2,
+					h: 0.4, s: 1, l: 0.75
+				},
+
+				"hatching": {
+					m: hatchingMaterial,
+					h: 0.2, s: 1, l: 0.9
+				},
+
+				"dotted": {
+					m: dottedMaterial,
+					h: 0.2, s: 1, l: 0.9
 				}
+
 			};
 
 			return materials;
+
+		}
+
+		function createShaderMaterial( id, light, ambientLight ) {
+
+			var shader = THREE.ShaderToon[ id ];
+
+			var u = THREE.UniformsUtils.clone( shader.uniforms );
+
+			var vs = shader.vertexShader;
+			var fs = shader.fragmentShader;
+
+			var material = new THREE.ShaderMaterial( { uniforms: u, vertexShader: vs, fragmentShader: fs } );
+
+			material.uniforms[ "uDirLightPos" ].value = light.position;
+			material.uniforms[ "uDirLightColor" ].value = light.color;
+
+			material.uniforms[ "uAmbientLightColor" ].value = ambientLight.color;
+
+			return material;
 
 		}
 
@@ -253,14 +285,14 @@
 
 			effectController = {
 
-				material: "shiny",
+				material: "textured",
 
-				speed: 1.0,
+				speed: 1e-1,
 				numBlobs: 10,
-				resolution: 28,
+				resolution: 64,
 				isolation: 80,
 
-				floor: true,
+				floor: false,
 				wallx: false,
 				wallz: false,
 
@@ -379,9 +411,15 @@
 
 		}
 
+		//
+
 		function animate() {
+
 			requestAnimationFrame( animate );
+
 			render();
+			stats.update();
+
 		}
 
 		function render() {
