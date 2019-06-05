@@ -26,6 +26,8 @@ class PointCloudManager {
 
         const lines = rawLines.filter(rawLine => "" !== rawLine);
 
+        console.time(`ingest point-cloud with ${ lines.length } points`);
+
         let xyzList = [];
         let rgbList = [];
         let sizeList = [];
@@ -47,6 +49,9 @@ class PointCloudManager {
 
         this.geometry.computeBoundingBox();
         this.geometry.computeBoundingSphere();
+
+        console.timeEnd(`ingest point-cloud with ${ lines.length } points`);
+
     }
 
     async loadURL ({ url, name }) {
