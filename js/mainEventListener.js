@@ -1,11 +1,13 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
+import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { IGVMouseHandler } from "./igv/IGVPanel.js";
 import { juiceboxMouseHandler } from "./juicebox/juiceboxPanel.js";
 import { distanceMapPanel, colorRampPanel, thumbnailPanel, igvPanel, juiceboxPanel, traceSelectPanel } from './gui.js';
 import { getDistanceMapCanvasWithTrace } from "./ensembleManager.js";
+import { guiManager } from "./gui.js";
 
 export let currentTrace;
 export let currentStructureLength;
@@ -34,9 +36,19 @@ export const mainEventListener =
 
             }  else if ('DidLoadPointCloudFile' === type) {
 
-                console.log('DidLoadPointCloudFile');
+                Globals.sceneManager.renderStyle = PointCloud.getRenderStyle();
+
+                let { name: path, payload: string } = data;
+
+                Globals.pointCloudManager.ingest({ path, string });
+
+                Globals.sceneManager.dispose();
+
+                setupPointCloud({ pointCloudGeometry: Globals.pointCloudManager.geometry });
 
             } else if ('DidLoadFile' === type) {
+
+                Globals.sceneManager.renderStyle = guiManager.getRenderingStyle();
 
                 let { name: path, payload: string } = data;
 
@@ -75,6 +87,8 @@ export const mainEventListener =
                 setup({ trace: currentTrace });
 
             } else if ('DidSelectStructure' === type) {
+
+                Globals.sceneManager.renderStyle = guiManager.getRenderingStyle();
 
                 currentTrace = Globals.ensembleManager.traceWithName(data);
                 currentStructureLength = currentTrace.geometry.vertices.length;
