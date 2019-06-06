@@ -32,7 +32,7 @@
 
 	var light, pointLight, ambientLight;
 
-	var marchingCubes, resolution;
+	var marchingCubes, _resolution, _numBlobs, _subtract;
 
 	var xlist;
 	var ylist;
@@ -42,6 +42,8 @@
 
 	var time = 0;
 	var clock = new THREE.Clock();
+
+	var letsGo = 1;
 
 	init();
 	animate();
@@ -81,9 +83,11 @@
 
 		// MARCHING CUBES
 
-		resolution = 28;
+		_resolution = 28;
 
-		marchingCubes = new THREE.MarchingCubes( resolution, materials[ current_material ].m, true, true );
+		_subtract = 12;
+
+		marchingCubes = new THREE.MarchingCubes( _resolution, materials[ current_material ].m, true, true );
 		marchingCubes.position.set( 0, 0, 0 );
 
 		const dimen = 512;
@@ -128,7 +132,141 @@
 
 	}
 
-	//
+	function setupGui() {
+
+		var createHandler = function ( id ) {
+
+			return function () {
+
+				var mat_old = materials[ current_material ];
+				mat_old.h = m_h.getValue();
+				mat_old.s = m_s.getValue();
+				mat_old.l = m_l.getValue();
+
+				current_material = id;
+
+				var mat = materials[ id ];
+				marchingCubes.material = mat.m;
+
+				m_h.setValue( mat.h );
+				m_s.setValue( mat.s );
+				m_l.setValue( mat.l );
+
+				marchingCubes.enableUvs    = ( current_material === "textured" );
+				marchingCubes.enableColors = ( current_material === "colors" || current_material === "multiColors" );
+
+			};
+
+		};
+
+		effectController =
+				{
+
+					material: "shiny",
+
+					speed: 1.0,
+					numBlobs: 4,
+					resolution: 28,
+					isolation: 80,
+					subtract: 12,
+
+					floor: true,
+					wallx: false,
+					wallz: false,
+
+					hue: 0.0,
+					saturation: 0.8,
+					lightness: 0.1,
+
+					lhue: 0.04,
+					lsaturation: 1.0,
+					llightness: 0.5,
+
+					lx: 0.5,
+					ly: 0.5,
+					lz: 1.0,
+
+					dummy: function () {}
+
+				};
+
+		var h, m_h, m_s, m_l;
+
+		var gui = new dat.GUI();
+
+		h = gui.addFolder( "Simulation" );
+
+		h.add( effectController, "speed", 0.1, 8.0, 0.05 );
+
+		const maxNumBlobs = 5e4;
+		h.add( effectController, "numBlobs", 64, maxNumBlobs, 1 );
+
+		xlist = [];
+		ylist = [];
+		zlist = [];
+		for (let i = 0; i < maxNumBlobs; i++) {
+
+			const delta = 0.45;
+			const x = 0.5 + delta * (2 * Math.random() - 1);
+			const y = 0.5 + delta * (2 * Math.random() - 1);
+			const z = 0.5 + delta * (2 * Math.random() - 1);
+			xlist.push(x);
+			ylist.push(y);
+			zlist.push(z);
+		}
+
+		// h.add( effectController, "resolution", 14, 100, 1 );
+		h.add( effectController, "resolution", 14, 256, 1 );
+
+		// h.add( effectController, "isolation", 10, 300, 1 );
+		h.add( effectController, "isolation", 10, 1024, 1 );
+
+		h.add( effectController, "subtract", 2, 64, 1 );
+
+		h = gui.addFolder( "Materials" );
+
+		for ( var m in materials ) {
+
+			effectController[ m ] = createHandler( m );
+			h.add( effectController, m ).name( m );
+
+		}
+
+		h = gui.addFolder( "Material color" );
+
+		m_h = h.add( effectController, "hue", 0.0, 1.0, 0.025 );
+		m_s = h.add( effectController, "saturation", 0.0, 1.0, 0.025 );
+		m_l = h.add( effectController, "lightness", 0.0, 1.0, 0.025 );
+
+		h = gui.addFolder( "Point light color" );
+
+		h.add( effectController, "lhue", 0.0, 1.0, 0.025 ).name( "hue" );
+		h.add( effectController, "lsaturation", 0.0, 1.0, 0.025 ).name( "saturation" );
+		h.add( effectController, "llightness", 0.0, 1.0, 0.025 ).name( "lightness" );
+
+		h = gui.addFolder( "Directional light orientation" );
+
+		h.add( effectController, "lx", - 1.0, 1.0, 0.025 ).name( "x" );
+		h.add( effectController, "ly", - 1.0, 1.0, 0.025 ).name( "y" );
+		h.add( effectController, "lz", - 1.0, 1.0, 0.025 ).name( "z" );
+
+	}
+
+	function updateCubes(marchingCubes, numblobs) {
+
+		marchingCubes.reset();
+
+		const strength = 1.2 / ( ( Math.sqrt( numblobs ) - 1 ) / 4 + 1 );
+
+		for ( i = 0; i < numblobs; i++ ) {
+			const x = xlist[ i ];
+			const y = ylist[ i ];
+			const z = zlist[ i ];
+
+			marchingCubes.addBall(x, y, z, strength, _subtract );
+		}
+
+	}
 
 	function onWindowResize() {
 
@@ -261,235 +399,55 @@
 
 	}
 
-	//
-
-	function setupGui() {
-
-		var createHandler = function ( id ) {
-
-			return function () {
-
-				var mat_old = materials[ current_material ];
-				mat_old.h = m_h.getValue();
-				mat_old.s = m_s.getValue();
-				mat_old.l = m_l.getValue();
-
-				current_material = id;
-
-				var mat = materials[ id ];
-				marchingCubes.material = mat.m;
-
-				m_h.setValue( mat.h );
-				m_s.setValue( mat.s );
-				m_l.setValue( mat.l );
-
-				marchingCubes.enableUvs    = ( current_material === "textured" );
-				marchingCubes.enableColors = ( current_material === "colors" || current_material === "multiColors" );
-
-			};
-
-		};
-
-		const numBlobs = 16;
-		effectController =
-				{
-
-					material: "shiny",
-
-					speed: 1.0,
-					numBlobs,
-					resolution: 28,
-					isolation: 80,
-
-					floor: true,
-					wallx: false,
-					wallz: false,
-
-					hue: 0.0,
-					saturation: 0.8,
-					lightness: 0.1,
-
-					lhue: 0.04,
-					lsaturation: 1.0,
-					llightness: 0.5,
-
-					lx: 0.5,
-					ly: 0.5,
-					lz: 1.0,
-
-					dummy: function () {}
-
-				};
-
-		var h, m_h, m_s, m_l;
-
-		var gui = new dat.GUI();
-
-		// material (type)
-
-		h = gui.addFolder( "Materials" );
-
-		for ( var m in materials ) {
-
-			effectController[ m ] = createHandler( m );
-			h.add( effectController, m ).name( m );
-
-		}
-
-		// material (color)
-
-		h = gui.addFolder( "Material color" );
-
-		m_h = h.add( effectController, "hue", 0.0, 1.0, 0.025 );
-		m_s = h.add( effectController, "saturation", 0.0, 1.0, 0.025 );
-		m_l = h.add( effectController, "lightness", 0.0, 1.0, 0.025 );
-
-		// light (point)
-
-		h = gui.addFolder( "Point light color" );
-
-		h.add( effectController, "lhue", 0.0, 1.0, 0.025 ).name( "hue" );
-		h.add( effectController, "lsaturation", 0.0, 1.0, 0.025 ).name( "saturation" );
-		h.add( effectController, "llightness", 0.0, 1.0, 0.025 ).name( "lightness" );
-
-		// light (directional)
-
-		h = gui.addFolder( "Directional light orientation" );
-
-		h.add( effectController, "lx", - 1.0, 1.0, 0.025 ).name( "x" );
-		h.add( effectController, "ly", - 1.0, 1.0, 0.025 ).name( "y" );
-		h.add( effectController, "lz", - 1.0, 1.0, 0.025 ).name( "z" );
-
-		// simulation
-
-		h = gui.addFolder( "Simulation" );
-
-		h.add( effectController, "speed", 0.1, 8.0, 0.05 );
-
-		const maxNumBlobs = 128;
-		h.add( effectController, "numBlobs", 1, maxNumBlobs, 1 );
-
-		xlist = [];
-		ylist = [];
-		zlist = [];
-		for (let i = 0; i < maxNumBlobs; i++) {
-			xlist.push(Math.random());
-			ylist.push(Math.random());
-			zlist.push(Math.random());
-		}
-
-		h.add( effectController, "resolution", 14, 100, 1 );
-		h.add( effectController, "isolation", 10, 300, 1 );
-
-		h.add( effectController, "floor" );
-		h.add( effectController, "wallx" );
-		h.add( effectController, "wallz" );
-
-	}
-
-	// this controls content of marching cubes voxel field
-
-	function updateCubes(marchingCubes, time, numblobs, floor, wallx, wallz) {
-
-		marchingCubes.reset();
-
-		// fill the field with some metaballs
-
-		var i, ballx, bally, ballz, subtract, strength;
-		var rainbow = [
-			new THREE.Color(0xff0000),
-			new THREE.Color(0xff7f00),
-			new THREE.Color(0xffff00),
-			new THREE.Color(0x00ff00),
-			new THREE.Color(0x0000ff),
-			new THREE.Color(0x4b0082),
-			new THREE.Color(0x9400d3)
-		];
-		subtract = 12;
-		strength = 1.2 / ( ( Math.sqrt( numblobs ) - 1 ) / 4 + 1 );
-
-		for ( i = 0; i < numblobs; i ++ ) {
-
-			// ballx = Math.sin( i + 1.26 * time * ( 1.03 + 0.5 * Math.cos( 0.21 * i ) ) ) * 0.27 + 0.5;
-			// bally = Math.abs( Math.cos( i + 1.12 * time * Math.cos( 1.22 + 0.1424 * i ) ) ) * 0.77; // dip into the floor
-			// ballz = Math.cos( i + 1.32 * time * 0.1 * Math.sin( ( 0.92 + 0.53 * i ) ) ) * 0.27 + 0.5;
-
-			ballx = xlist[ i ];
-			bally = ylist[ i ];
-			ballz = zlist[ i ];
-
-			if ( current_material === 'multiColors' ) {
-
-				marchingCubes.addBall( ballx, bally, ballz, strength, subtract, rainbow[i % 7] );
-
-			} else {
-
-				marchingCubes.addBall( ballx, bally, ballz, strength, subtract );
-
-			}
-
-		}
-
-		if ( floor ) marchingCubes.addPlaneY( 2, 12 );
-		if ( wallz ) marchingCubes.addPlaneZ( 2, 12 );
-		if ( wallx ) marchingCubes.addPlaneX( 2, 12 );
-
-	}
-
-	//
-
 	function animate() {
-
 		requestAnimationFrame( animate );
-
 		render();
 		stats.update();
-
 	}
 
 	function render() {
 
-		var delta = clock.getDelta();
+		if (
+				1 === letsGo ||
+				effectController.numBlobs !== _numBlobs ||
+				effectController.resolution !== _resolution ||
+				effectController.subtract !== _subtract ||
+				effectController.isolation !== marchingCubes.isolation
+		) {
 
-		time += delta * effectController.speed * 0.5;
+			letsGo = undefined;
 
-		// marching cubes
+			if ( effectController.numBlobs !== _numBlobs ) {
+				_numBlobs = effectController.numBlobs;
+			}
 
-		if ( effectController.resolution !== resolution ) {
+			if ( effectController.resolution !== _resolution ) {
+				_resolution = effectController.resolution;
+				marchingCubes.init( Math.floor( _resolution ) );
+			}
 
-			resolution = effectController.resolution;
-			marchingCubes.init( Math.floor( resolution ) );
+			if ( effectController.subtract !== _subtract ) {
+				_subtract = effectController.subtract;
+			}
+
+			if ( effectController.isolation !== marchingCubes.isolation ) {
+				marchingCubes.isolation = effectController.isolation;
+			}
+
+			updateCubes(marchingCubes, _numBlobs);
 
 		}
-
-		if ( effectController.isolation !== marchingCubes.isolation ) {
-
-			marchingCubes.isolation = effectController.isolation;
-
-		}
-
-		updateCubes(marchingCubes, time, effectController.numBlobs, effectController.floor, effectController.wallx, effectController.wallz);
-
-		// materials
 
 		if ( marchingCubes.material instanceof THREE.ShaderMaterial ) {
-
 			marchingCubes.material.uniforms[ "uBaseColor" ].value.setHSL( effectController.hue, effectController.saturation, effectController.lightness );
-
 		} else {
-
 			marchingCubes.material.color.setHSL( effectController.hue, effectController.saturation, effectController.lightness );
-
 		}
-
-		// lights
 
 		light.position.set( effectController.lx, effectController.ly, effectController.lz );
 		light.position.normalize();
 
 		pointLight.color.setHSL( effectController.lhue, effectController.lsaturation, effectController.llightness );
-
-		// render
 
 		renderer.render( scene, camera );
 
