@@ -577,21 +577,33 @@ THREE.MarchingCubes = function ( resolution, material, enableUvs, enableColors )
 		// radius^2 = strength / subtract
 		// radius = sqrt(strength / subtract)
 
-		var radius = this.size * Math.sqrt( strength / subtract ),
-			zs = ballz * this.size,
-			ys = bally * this.size,
-			xs = ballx * this.size;
+		let radius = this.size * Math.sqrt( strength / subtract );
+
+		let zs = ballz * this.size;
+		let ys = bally * this.size;
+		let xs = ballx * this.size;
+
+		// const min = Math.min(xs, ys, zs);
+		// const max = Math.max(xs, ys, zs);
+
+		// console.log(`size ${ this.size } radius ${ radius } x ${ xs } y ${ ys } z ${ zs }`);
+		// console.log(`size ${ this.size } min ${ min } max ${ max } radius ${ radius }`);
 
 		var min_z = Math.floor( zs - radius );
 		if ( min_z < 1 ) min_z = 1;
+
 		var max_z = Math.floor( zs + radius );
 		if ( max_z > this.size - 1 ) max_z = this.size - 1;
+
 		var min_y = Math.floor( ys - radius );
 		if ( min_y < 1 ) min_y = 1;
+
 		var max_y = Math.floor( ys + radius );
 		if ( max_y > this.size - 1 ) max_y = this.size - 1;
+
 		var min_x = Math.floor( xs - radius );
 		if ( min_x < 1 ) min_x = 1;
+
 		var max_x = Math.floor( xs + radius );
 		if ( max_x > this.size - 1 ) max_x = this.size - 1;
 
