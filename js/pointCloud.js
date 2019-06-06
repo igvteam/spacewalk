@@ -30,11 +30,23 @@ class PointCloud {
 
     createPointCloud(geometry){
 
+        // const pointsMaterialConfig =
+        //     {
+        //         size: 32,
+        //         vertexColors: THREE.VertexColors
+        //     };
+
+        const map = new THREE.TextureLoader().load( "texture/dot_dugla.png" );
         const pointsMaterialConfig =
             {
-                size: 32,
-                vertexColors: THREE.VertexColors
+                size: 64,
+                vertexColors: THREE.VertexColors,
+                map,
+                transparent: true,
+                depthTest: false,
+                side: THREE.DoubleSide
             };
+
         let material = new THREE.PointsMaterial( pointsMaterialConfig );
 
         const uniforms = THREE.UniformsUtils.clone( THREE.ShaderLib.points.uniforms );
