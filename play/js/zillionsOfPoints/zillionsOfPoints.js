@@ -1,4 +1,4 @@
-import * as THREE from '../../../js/threejs_es6/three.module.js';
+import * as THREE from '../es6/three.module.js';
 import OrbitControls from '../../../js/threejs_es6/orbit-controls-es6.js';
 import { appleCrayonColorThreeJS } from '../../../js/color.js';
 
@@ -42,7 +42,7 @@ let setup = (scene, renderer, camera, orbitControl) => {
     const _c = new THREE.Color();
     const n = 1e3;
 
-    const particles = 1e5;
+    const particles = 7.5e5;
     for ( let i = 0; i < particles; i++ ) {
 
         const x = n * (Math.random() - 0.5);
