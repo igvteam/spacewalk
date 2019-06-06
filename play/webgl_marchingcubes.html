@@ -32,7 +32,7 @@
 
 	var light, pointLight, ambientLight;
 
-	var marchingCubes, _resolution, _numBlobs, _subtract;
+	var marchingCubes, _geometry, _resolution, _numBlobs, _subtract;
 
 	var xlist;
 	var ylist;
@@ -86,6 +86,8 @@
 		_resolution = 28;
 
 		_subtract = 12;
+
+		_numBlobs = 9;
 
 		marchingCubes = new THREE.MarchingCubes( _resolution, materials[ current_material ].m, true, true );
 		marchingCubes.position.set( 0, 0, 0 );
@@ -165,10 +167,10 @@
 					material: "shiny",
 
 					speed: 1.0,
-					numBlobs: 4,
-					resolution: 28,
+					numBlobs: _numBlobs,
+					resolution: _resolution,
 					isolation: 80,
-					subtract: 12,
+					subtract: _subtract,
 
 					floor: true,
 					wallx: false,
@@ -262,10 +264,13 @@
 			const x = xlist[ i ];
 			const y = ylist[ i ];
 			const z = zlist[ i ];
-
 			marchingCubes.addBall(x, y, z, strength, _subtract );
 		}
 
+		_geometry = marchingCubes.generateGeometry();
+
+		const { count, itemSize } = _geometry.attributes.position;
+		console.log(`points ${ count / itemSize }`);
 	}
 
 	function onWindowResize() {

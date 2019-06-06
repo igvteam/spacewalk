@@ -24,7 +24,7 @@ THREE.MarchingCubes = function ( resolution, material, enableUvs, enableColors )
 	// prototype functions kill performance
 	// (tested and it was 4x slower !!!)
 
-	this.init = function ( resolution ) {
+	this.init = resolution => {
 
 		this.resolution = resolution;
 
@@ -86,12 +86,12 @@ THREE.MarchingCubes = function ( resolution, material, enableUvs, enableColors )
 
 	}
 
-	function VIntX( q, offset, isol, x, y, z, valp1, valp2, c_offset1, c_offset2 ) {
+	const VIntX = ( q, offset, isol, x, y, z, valp1, valp2, c_offset1, c_offset2 ) => {
 
 		var mu = ( isol - valp1 ) / ( valp2 - valp1 ),
-			nc = scope.normal_cache;
+			nc = this.normal_cache;
 
-		vlist[ offset + 0 ] = x + mu * scope.delta;
+		vlist[ offset + 0 ] = x + mu * this.delta;
 		vlist[ offset + 1 ] = y;
 		vlist[ offset + 2 ] = z;
 
@@ -99,93 +99,93 @@ THREE.MarchingCubes = function ( resolution, material, enableUvs, enableColors )
 		nlist[ offset + 1 ] = lerp( nc[ q + 1 ], nc[ q + 4 ], mu );
 		nlist[ offset + 2 ] = lerp( nc[ q + 2 ], nc[ q + 5 ], mu );
 
-		clist[ offset + 0 ] = lerp( scope.palette[ c_offset1 * 3 + 0 ], scope.palette[ c_offset2 * 3 + 0 ], mu );
-		clist[ offset + 1 ] = lerp( scope.palette[ c_offset1 * 3 + 1 ], scope.palette[ c_offset2 * 3 + 1 ], mu );
-		clist[ offset + 2 ] = lerp( scope.palette[ c_offset1 * 3 + 2 ], scope.palette[ c_offset2 * 3 + 2 ], mu );
+		clist[ offset + 0 ] = lerp( this.palette[ c_offset1 * 3 + 0 ], this.palette[ c_offset2 * 3 + 0 ], mu );
+		clist[ offset + 1 ] = lerp( this.palette[ c_offset1 * 3 + 1 ], this.palette[ c_offset2 * 3 + 1 ], mu );
+		clist[ offset + 2 ] = lerp( this.palette[ c_offset1 * 3 + 2 ], this.palette[ c_offset2 * 3 + 2 ], mu );
 
-	}
+	};
 
-	function VIntY( q, offset, isol, x, y, z, valp1, valp2, c_offset1, c_offset2 ) {
+	const VIntY = ( q, offset, isol, x, y, z, valp1, valp2, c_offset1, c_offset2 ) => {
 
 		var mu = ( isol - valp1 ) / ( valp2 - valp1 ),
-			nc = scope.normal_cache;
+			nc = this.normal_cache;
 
 		vlist[ offset + 0 ] = x;
-		vlist[ offset + 1 ] = y + mu * scope.delta;
+		vlist[ offset + 1 ] = y + mu * this.delta;
 		vlist[ offset + 2 ] = z;
 
-		var q2 = q + scope.yd * 3;
+		var q2 = q + this.yd * 3;
 
 		nlist[ offset + 0 ] = lerp( nc[ q + 0 ], nc[ q2 + 0 ], mu );
 		nlist[ offset + 1 ] = lerp( nc[ q + 1 ], nc[ q2 + 1 ], mu );
 		nlist[ offset + 2 ] = lerp( nc[ q + 2 ], nc[ q2 + 2 ], mu );
 
-		clist[ offset + 0 ] = lerp( scope.palette[ c_offset1 * 3 + 0 ], scope.palette[ c_offset2 * 3 + 0 ], mu );
-		clist[ offset + 1 ] = lerp( scope.palette[ c_offset1 * 3 + 1 ], scope.palette[ c_offset2 * 3 + 1 ], mu );
-		clist[ offset + 2 ] = lerp( scope.palette[ c_offset1 * 3 + 2 ], scope.palette[ c_offset2 * 3 + 2 ], mu );
+		clist[ offset + 0 ] = lerp( this.palette[ c_offset1 * 3 + 0 ], this.palette[ c_offset2 * 3 + 0 ], mu );
+		clist[ offset + 1 ] = lerp( this.palette[ c_offset1 * 3 + 1 ], this.palette[ c_offset2 * 3 + 1 ], mu );
+		clist[ offset + 2 ] = lerp( this.palette[ c_offset1 * 3 + 2 ], this.palette[ c_offset2 * 3 + 2 ], mu );
 
-	}
+	};
 
-	function VIntZ( q, offset, isol, x, y, z, valp1, valp2, c_offset1, c_offset2 ) {
+	const VIntZ = ( q, offset, isol, x, y, z, valp1, valp2, c_offset1, c_offset2 ) => {
 
 		var mu = ( isol - valp1 ) / ( valp2 - valp1 ),
-			nc = scope.normal_cache;
+			nc = this.normal_cache;
 
 		vlist[ offset + 0 ] = x;
 		vlist[ offset + 1 ] = y;
-		vlist[ offset + 2 ] = z + mu * scope.delta;
+		vlist[ offset + 2 ] = z + mu * this.delta;
 
-		var q2 = q + scope.zd * 3;
+		var q2 = q + this.zd * 3;
 
 		nlist[ offset + 0 ] = lerp( nc[ q + 0 ], nc[ q2 + 0 ], mu );
 		nlist[ offset + 1 ] = lerp( nc[ q + 1 ], nc[ q2 + 1 ], mu );
 		nlist[ offset + 2 ] = lerp( nc[ q + 2 ], nc[ q2 + 2 ], mu );
 
-		clist[ offset + 0 ] = lerp( scope.palette[ c_offset1 * 3 + 0 ], scope.palette[ c_offset2 * 3 + 0 ], mu );
-		clist[ offset + 1 ] = lerp( scope.palette[ c_offset1 * 3 + 1 ], scope.palette[ c_offset2 * 3 + 1 ], mu );
-		clist[ offset + 2 ] = lerp( scope.palette[ c_offset1 * 3 + 2 ], scope.palette[ c_offset2 * 3 + 2 ], mu );
+		clist[ offset + 0 ] = lerp( this.palette[ c_offset1 * 3 + 0 ], this.palette[ c_offset2 * 3 + 0 ], mu );
+		clist[ offset + 1 ] = lerp( this.palette[ c_offset1 * 3 + 1 ], this.palette[ c_offset2 * 3 + 1 ], mu );
+		clist[ offset + 2 ] = lerp( this.palette[ c_offset1 * 3 + 2 ], this.palette[ c_offset2 * 3 + 2 ], mu );
 
-	}
+	};
 
-	function compNorm( q ) {
+	const compNorm = q => {
 
 		var q3 = q * 3;
 
-		if ( scope.normal_cache[ q3 ] === 0.0 ) {
+		if ( this.normal_cache[ q3 ] === 0.0 ) {
 
-			scope.normal_cache[ q3 + 0 ] = scope.field[ q - 1 ] - scope.field[ q + 1 ];
-			scope.normal_cache[ q3 + 1 ] =
-				scope.field[ q - scope.yd ] - scope.field[ q + scope.yd ];
-			scope.normal_cache[ q3 + 2 ] =
-				scope.field[ q - scope.zd ] - scope.field[ q + scope.zd ];
+			this.normal_cache[ q3 + 0 ] = this.field[ q - 1 ] - this.field[ q + 1 ];
+			this.normal_cache[ q3 + 1 ] =
+				this.field[ q - this.yd ] - this.field[ q + this.yd ];
+			this.normal_cache[ q3 + 2 ] =
+				this.field[ q - this.zd ] - this.field[ q + this.zd ];
 
 		}
 
-	}
+	};
 
 	// Returns total number of triangles. Fills triangles.
 	// (this is where most of time is spent - it's inner work of O(n3) loop )
 
-	function polygonize( fx, fy, fz, q, isol, renderCallback ) {
+	const polygonize = ( fx, fy, fz, q, isol, renderCallback ) => {
 
 		// cache indices
 		var q1 = q + 1,
-			qy = q + scope.yd,
-			qz = q + scope.zd,
-			q1y = q1 + scope.yd,
-			q1z = q1 + scope.zd,
-			qyz = q + scope.yd + scope.zd,
-			q1yz = q1 + scope.yd + scope.zd;
+			qy = q + this.yd,
+			qz = q + this.zd,
+			q1y = q1 + this.yd,
+			q1z = q1 + this.zd,
+			qyz = q + this.yd + this.zd,
+			q1yz = q1 + this.yd + this.zd;
 
 		var cubeindex = 0,
-			field0 = scope.field[ q ],
-			field1 = scope.field[ q1 ],
-			field2 = scope.field[ qy ],
-			field3 = scope.field[ q1y ],
-			field4 = scope.field[ qz ],
-			field5 = scope.field[ q1z ],
-			field6 = scope.field[ qyz ],
-			field7 = scope.field[ q1yz ];
+			field0 = this.field[ q ],
+			field1 = this.field[ q1 ],
+			field2 = this.field[ qy ],
+			field3 = this.field[ q1y ],
+			field4 = this.field[ qz ],
+			field5 = this.field[ q1z ],
+			field6 = this.field[ qyz ],
+			field7 = this.field[ q1yz ];
 
 		if ( field0 < isol ) cubeindex |= 1;
 		if ( field1 < isol ) cubeindex |= 2;
@@ -201,7 +201,7 @@ THREE.MarchingCubes = function ( resolution, material, enableUvs, enableColors )
 		var bits = THREE.edgeTable[ cubeindex ];
 		if ( bits === 0 ) return 0;
 
-		var d = scope.delta,
+		var d = this.delta,
 			fx2 = fx + d,
 			fy2 = fy + d,
 			fz2 = fz + d;
@@ -373,117 +373,117 @@ THREE.MarchingCubes = function ( resolution, material, enableUvs, enableColors )
 
 		return numtris;
 
-	}
+	};
 
 	/////////////////////////////////////
 	// Immediate render mode simulator
 	/////////////////////////////////////
 
-	function posnormtriv( pos, norm, colors, o1, o2, o3, renderCallback ) {
+	const posnormtriv = ( pos, norm, colors, o1, o2, o3, renderCallback ) => {
 
-		var c = scope.count * 3;
+		var c = this.count * 3;
 
 		// positions
 
-		scope.positionArray[ c + 0 ] = pos[ o1 ];
-		scope.positionArray[ c + 1 ] = pos[ o1 + 1 ];
-		scope.positionArray[ c + 2 ] = pos[ o1 + 2 ];
+		this.positionArray[ c + 0 ] = pos[ o1 ];
+		this.positionArray[ c + 1 ] = pos[ o1 + 1 ];
+		this.positionArray[ c + 2 ] = pos[ o1 + 2 ];
 
-		scope.positionArray[ c + 3 ] = pos[ o2 ];
-		scope.positionArray[ c + 4 ] = pos[ o2 + 1 ];
-		scope.positionArray[ c + 5 ] = pos[ o2 + 2 ];
+		this.positionArray[ c + 3 ] = pos[ o2 ];
+		this.positionArray[ c + 4 ] = pos[ o2 + 1 ];
+		this.positionArray[ c + 5 ] = pos[ o2 + 2 ];
 
-		scope.positionArray[ c + 6 ] = pos[ o3 ];
-		scope.positionArray[ c + 7 ] = pos[ o3 + 1 ];
-		scope.positionArray[ c + 8 ] = pos[ o3 + 2 ];
+		this.positionArray[ c + 6 ] = pos[ o3 ];
+		this.positionArray[ c + 7 ] = pos[ o3 + 1 ];
+		this.positionArray[ c + 8 ] = pos[ o3 + 2 ];
 
 		// normals
 
-		if ( scope.material.flatShading === true ) {
+		if ( this.material.flatShading === true ) {
 
 			var nx = ( norm[ o1 + 0 ] + norm[ o2 + 0 ] + norm[ o3 + 0 ] ) / 3;
 			var ny = ( norm[ o1 + 1 ] + norm[ o2 + 1 ] + norm[ o3 + 1 ] ) / 3;
 			var nz = ( norm[ o1 + 2 ] + norm[ o2 + 2 ] + norm[ o3 + 2 ] ) / 3;
 
-			scope.normalArray[ c + 0 ] = nx;
-			scope.normalArray[ c + 1 ] = ny;
-			scope.normalArray[ c + 2 ] = nz;
+			this.normalArray[ c + 0 ] = nx;
+			this.normalArray[ c + 1 ] = ny;
+			this.normalArray[ c + 2 ] = nz;
 
-			scope.normalArray[ c + 3 ] = nx;
-			scope.normalArray[ c + 4 ] = ny;
-			scope.normalArray[ c + 5 ] = nz;
+			this.normalArray[ c + 3 ] = nx;
+			this.normalArray[ c + 4 ] = ny;
+			this.normalArray[ c + 5 ] = nz;
 
-			scope.normalArray[ c + 6 ] = nx;
-			scope.normalArray[ c + 7 ] = ny;
-			scope.normalArray[ c + 8 ] = nz;
+			this.normalArray[ c + 6 ] = nx;
+			this.normalArray[ c + 7 ] = ny;
+			this.normalArray[ c + 8 ] = nz;
 
 		} else {
 
-			scope.normalArray[ c + 0 ] = norm[ o1 + 0 ];
-			scope.normalArray[ c + 1 ] = norm[ o1 + 1 ];
-			scope.normalArray[ c + 2 ] = norm[ o1 + 2 ];
+			this.normalArray[ c + 0 ] = norm[ o1 + 0 ];
+			this.normalArray[ c + 1 ] = norm[ o1 + 1 ];
+			this.normalArray[ c + 2 ] = norm[ o1 + 2 ];
 
-			scope.normalArray[ c + 3 ] = norm[ o2 + 0 ];
-			scope.normalArray[ c + 4 ] = norm[ o2 + 1 ];
-			scope.normalArray[ c + 5 ] = norm[ o2 + 2 ];
+			this.normalArray[ c + 3 ] = norm[ o2 + 0 ];
+			this.normalArray[ c + 4 ] = norm[ o2 + 1 ];
+			this.normalArray[ c + 5 ] = norm[ o2 + 2 ];
 
-			scope.normalArray[ c + 6 ] = norm[ o3 + 0 ];
-			scope.normalArray[ c + 7 ] = norm[ o3 + 1 ];
-			scope.normalArray[ c + 8 ] = norm[ o3 + 2 ];
+			this.normalArray[ c + 6 ] = norm[ o3 + 0 ];
+			this.normalArray[ c + 7 ] = norm[ o3 + 1 ];
+			this.normalArray[ c + 8 ] = norm[ o3 + 2 ];
 
 		}
 
 		// uvs
 
-		if ( scope.enableUvs ) {
+		if ( this.enableUvs ) {
 
-			var d = scope.count * 2;
+			var d = this.count * 2;
 
-			scope.uvArray[ d + 0 ] = pos[ o1 + 0 ];
-			scope.uvArray[ d + 1 ] = pos[ o1 + 2 ];
+			this.uvArray[ d + 0 ] = pos[ o1 + 0 ];
+			this.uvArray[ d + 1 ] = pos[ o1 + 2 ];
 
-			scope.uvArray[ d + 2 ] = pos[ o2 + 0 ];
-			scope.uvArray[ d + 3 ] = pos[ o2 + 2 ];
+			this.uvArray[ d + 2 ] = pos[ o2 + 0 ];
+			this.uvArray[ d + 3 ] = pos[ o2 + 2 ];
 
-			scope.uvArray[ d + 4 ] = pos[ o3 + 0 ];
-			scope.uvArray[ d + 5 ] = pos[ o3 + 2 ];
+			this.uvArray[ d + 4 ] = pos[ o3 + 0 ];
+			this.uvArray[ d + 5 ] = pos[ o3 + 2 ];
 
 		}
 
 		// colors
 
-		if ( scope.enableColors ) {
+		if ( this.enableColors ) {
 
-			scope.colorArray[ c + 0 ] = colors[ o1 + 0 ];
-			scope.colorArray[ c + 1 ] = colors[ o1 + 1 ];
-			scope.colorArray[ c + 2 ] = colors[ o1 + 2 ];
+			this.colorArray[ c + 0 ] = colors[ o1 + 0 ];
+			this.colorArray[ c + 1 ] = colors[ o1 + 1 ];
+			this.colorArray[ c + 2 ] = colors[ o1 + 2 ];
 
-			scope.colorArray[ c + 3 ] = colors[ o2 + 0 ];
-			scope.colorArray[ c + 4 ] = colors[ o2 + 1 ];
-			scope.colorArray[ c + 5 ] = colors[ o2 + 2 ];
+			this.colorArray[ c + 3 ] = colors[ o2 + 0 ];
+			this.colorArray[ c + 4 ] = colors[ o2 + 1 ];
+			this.colorArray[ c + 5 ] = colors[ o2 + 2 ];
 
-			scope.colorArray[ c + 6 ] = colors[ o3 + 0 ];
-			scope.colorArray[ c + 7 ] = colors[ o3 + 1 ];
-			scope.colorArray[ c + 8 ] = colors[ o3 + 2 ];
+			this.colorArray[ c + 6 ] = colors[ o3 + 0 ];
+			this.colorArray[ c + 7 ] = colors[ o3 + 1 ];
+			this.colorArray[ c + 8 ] = colors[ o3 + 2 ];
 
 		}
 
-		scope.count += 3;
+		this.count += 3;
 
-		if ( scope.count >= scope.maxCount - 3 ) {
+		if ( this.count >= this.maxCount - 3 ) {
 
-			scope.hasPositions = true;
-			scope.hasNormals = true;
+			this.hasPositions = true;
+			this.hasNormals = true;
 
-			if ( scope.enableUvs ) {
+			if ( this.enableUvs ) {
 
-				scope.hasUvs = true;
+				this.hasUvs = true;
 
 			}
 
-			if ( scope.enableColors ) {
+			if ( this.enableColors ) {
 
-				scope.hasColors = true;
+				this.hasColors = true;
 
 			}
 
@@ -491,9 +491,9 @@ THREE.MarchingCubes = function ( resolution, material, enableUvs, enableColors )
 
 		}
 
-	}
+	};
 
-	this.begin = function () {
+	const begin = () => {
 
 		this.count = 0;
 
@@ -504,7 +504,7 @@ THREE.MarchingCubes = function ( resolution, material, enableUvs, enableColors )
 
 	};
 
-	this.end = function ( renderCallback ) {
+	const end = renderCallback => {
 
 		if ( this.count === 0 ) return;
 
@@ -876,7 +876,7 @@ THREE.MarchingCubes = function ( resolution, material, enableUvs, enableColors )
 
 	this.render = function ( renderCallback ) {
 
-		this.begin();
+		begin();
 
 		// Triangulate. Yeah, this is slow.
 
@@ -905,62 +905,24 @@ THREE.MarchingCubes = function ( resolution, material, enableUvs, enableColors )
 
 		}
 
-		this.end( renderCallback );
+		end( renderCallback );
 
 	};
 
 	this.generateGeometry = function () {
-
-		console.warn(
-			"THREE.MarchingCubes: generateGeometry() now returns THREE.BufferGeometry"
-		);
-		return this.generateBufferGeometry();
-
-	};
-
-	function concatenate( a, b, length ) {
-
-		var result = new Float32Array( a.length + length );
-		result.set( a, 0 );
-		result.set( b.slice( 0, length ), a.length );
-		return result;
-
-	}
-
-	this.generateBufferGeometry = function () {
 
 		var geo = new THREE.BufferGeometry();
 		var posArray = new Float32Array();
 		var normArray = new Float32Array();
 		var colorArray = new Float32Array();
 		var uvArray = new Float32Array();
-		var scope = this;
 
-		var geo_callback = function ( object ) {
-
-			if ( scope.hasPositions )
-				posArray = concatenate(
-					posArray,
-					object.positionArray,
-					object.count * 3
-				);
-			if ( scope.hasNormals )
-				normArray = concatenate(
-					normArray,
-					object.normalArray,
-					object.count * 3
-				);
-			if ( scope.hasColors )
-				colorArray = concatenate(
-					colorArray,
-					object.colorArray,
-					object.count * 3
-				);
-			if ( scope.hasUvs )
-				uvArray = concatenate( uvArray, object.uvArray, object.count * 2 );
-
+		const geo_callback = object => {
+			if ( this.hasPositions )   posArray = concatenate(  posArray, object.positionArray, object.count * 3);
+			if ( this.hasNormals   )  normArray = concatenate( normArray,   object.normalArray, object.count * 3);
+			if ( this.hasColors    ) colorArray = concatenate(colorArray,    object.colorArray, object.count * 3);
+			if ( this.hasUvs       )    uvArray = concatenate(   uvArray,       object.uvArray, object.count * 2);
 			object.count = 0;
-
 		};
 
 		this.render( geo_callback );
@@ -975,6 +937,14 @@ THREE.MarchingCubes = function ( resolution, material, enableUvs, enableColors )
 			geo.addAttribute( "uv", new THREE.BufferAttribute( uvArray, 2 ) );
 
 		return geo;
+	};
+
+	const concatenate = ( a, b, length ) => {
+
+		var result = new Float32Array( a.length + length );
+		result.set( a, 0 );
+		result.set( b.slice( 0, length ), a.length );
+		return result;
 
 	};
 
