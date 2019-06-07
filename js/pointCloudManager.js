@@ -1,4 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import ConvexBufferGeometry from "./threejs_es6/convexGeometry/convexGeometry.js";
 import Globals from './globals.js';
 import { readFileAsText } from "./utils.js";
 import { appleCrayonRandomBrightColorThreeJS, rgbRandom255, rgb255ToThreeJSColor } from "./color.js";
@@ -30,16 +31,19 @@ class PointCloudManager {
 
         let xyzList = [];
         let rgbList = [];
-        let sizeList = [];
+        let points = [];
         lines.forEach(line => {
 
             const tokens = line.split(',');
-            xyzList.push(parseFloat(tokens[ index + 0 ]), parseFloat(tokens[ index + 1 ]), parseFloat(tokens[ index + 2 ]));
 
-            // const { r:r255, g:g255, b:b255 } = rgbRandom255(128, 192);
-            // const { r, g, b } = rgb255ToThreeJSColor(r255, g255, b255);
+            const [ x, y, z ] = [ parseFloat(tokens[ index + 0 ]), parseFloat(tokens[ index + 1 ]), parseFloat(tokens[ index + 2 ]) ];
+
+            xyzList.push(x, y, z);
+
+            points.push(new THREE.Vector3(x, y, z));
 
             const { r, g, b } = appleCrayonRandomBrightColorThreeJS();
+
             rgbList.push(r, g, b);
 
         });
@@ -49,6 +53,8 @@ class PointCloudManager {
 
         this.geometry.computeBoundingBox();
         this.geometry.computeBoundingSphere();
+
+        this.convexHullGeometry = new ConvexBufferGeometry(points);
 
         console.timeEnd(`ingest point-cloud with ${ lines.length } points`);
 
