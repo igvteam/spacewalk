@@ -49,19 +49,6 @@ class PointCloud {
 
         let material = new THREE.PointsMaterial( pointsMaterialConfig );
 
-        const uniforms = THREE.UniformsUtils.clone( THREE.ShaderLib.points.uniforms );
-        // const { vertexShader, fragmentShader } = THREE.ShaderLib.points;
-        //
-        // const shaderMaterialConfig =
-        //     {
-        //         uniforms,
-        //         vertexShader,
-        //         fragmentShader,
-        //         vertexColors: true
-        //     };
-        //
-        // let material = new THREE.ShaderMaterial( shaderMaterialConfig );
-
         material.side = THREE.DoubleSide;
 
         let mesh = new THREE.Points( geometry, material );
