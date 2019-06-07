@@ -50,11 +50,12 @@ class PointCloudManager {
 
         this.geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( xyzList, 3 ) );
         this.geometry.addAttribute(    'color', new THREE.Float32BufferAttribute( rgbList, 3 ) );
-
         this.geometry.computeBoundingBox();
         this.geometry.computeBoundingSphere();
 
         this.convexHullGeometry = new ConvexBufferGeometry(points);
+        this.convexHullGeometry.computeBoundingBox();
+        this.convexHullGeometry.computeBoundingSphere();
 
         console.timeEnd(`ingest point-cloud with ${ lines.length } points`);
 

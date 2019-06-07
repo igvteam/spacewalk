@@ -44,7 +44,8 @@ export const mainEventListener =
 
                 Globals.sceneManager.dispose();
 
-                setupPointCloud({ pointCloudGeometry: Globals.pointCloudManager.geometry });
+                // setupPointCloud({ pointCloudGeometry: Globals.pointCloudManager.geometry });
+                setupPointCloud({ pointCloudGeometry: Globals.pointCloudManager.convexHullGeometry });
 
             } else if ('DidLoadFile' === type) {
 

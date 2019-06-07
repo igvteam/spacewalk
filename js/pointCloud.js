@@ -14,7 +14,8 @@ class PointCloud {
 
         this.dispose();
 
-        this.pc = this.createPointCloud(geometry);
+        // this.pc = this.createPointCloud(geometry);
+        this.pc = this.createConvexHull(geometry);
 
         if (renderStyle === PointCloud.getRenderStyle()) {
             this.show();
@@ -26,6 +27,17 @@ class PointCloud {
 
     updateMaterialProvider (materialProvider) {
         // do stuff
+    }
+
+    createConvexHull(convexHullGeometry) {
+
+        let material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+
+        let mesh = new THREE.Mesh( convexHullGeometry, material );
+        mesh.name = 'point_cloud';
+
+        return { mesh };
+
     }
 
     createPointCloud(geometry){
