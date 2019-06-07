@@ -2,7 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import ConvexBufferGeometry from "./threejs_es6/convexGeometry/convexGeometry.js";
 import Globals from './globals.js';
 import { readFileAsText } from "./utils.js";
-import { appleCrayonRandomBrightColorThreeJS, rgbRandom255, rgb255ToThreeJSColor } from "./color.js";
+import { appleCrayonRandomBrightColorThreeJS } from "./color.js";
 
 class PointCloudManager {
 

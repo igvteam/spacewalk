@@ -1,7 +1,8 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { getBoundsWithPointCloud } from './pointCloudManager.js';
 import { degrees } from './math.js';
-import {appleCrayonColorThreeJS} from "./color.js";
+import { appleCrayonColorThreeJS } from "./color.js";
+
 class PointCloud {
 
     constructor () {
@@ -17,9 +18,9 @@ class PointCloud {
 
         this.pc = { points: undefined, convexHull: undefined };
 
-        this.pc.points = this.createPointCloud(pointCloudGeometry);
+        this.pc.points = createPointCloud(pointCloudGeometry);
 
-        this.pc.convexHull = this.createConvexHull(pointCloudConvexHullGeometry);
+        this.pc.convexHull = createConvexHull(pointCloudConvexHullGeometry);
 
         if (renderStyle === PointCloud.getRenderStyle()) {
             this.show();
@@ -28,47 +29,6 @@ class PointCloud {
         }
 
     }
-
-    createConvexHull(convexHullGeometry) {
-
-        let material = new THREE.MeshLambertMaterial( { wireframe: true, color: appleCrayonColorThreeJS('nickel') } );
-
-        let mesh = new THREE.Mesh( convexHullGeometry, material );
-        mesh.name = 'point_cloud_convex_hull';
-
-        return { mesh };
-
-    }
-
-    createPointCloud(pointCloudGeometry){
-
-        // const pointsMaterialConfig =
-        //     {
-        //         size: 32,
-        //         vertexColors: THREE.VertexColors
-        //     };
-
-        const map = new THREE.TextureLoader().load( "texture/dot_dugla.png" );
-        const pointsMaterialConfig =
-            {
-                size: 64,
-                vertexColors: THREE.VertexColors,
-                map,
-                transparent: true,
-                depthTest: false,
-                side: THREE.DoubleSide
-            };
-
-        let material = new THREE.PointsMaterial( pointsMaterialConfig );
-
-        material.side = THREE.DoubleSide;
-
-        let mesh = new THREE.Points( pointCloudGeometry, material );
-        mesh.name = 'point_cloud';
-
-        return { mesh };
-
-    };
 
     updateMaterialProvider (materialProvider) {
         // do stuff
@@ -155,5 +115,46 @@ class PointCloud {
     }
 
 }
+
+const createConvexHull = convexHullGeometry => {
+
+    let material = new THREE.MeshLambertMaterial( { wireframe: true, color: appleCrayonColorThreeJS('nickel') } );
+
+    let mesh = new THREE.Mesh( convexHullGeometry, material );
+    mesh.name = 'point_cloud_convex_hull';
+
+    return { mesh };
+
+};
+
+const createPointCloud = pointCloudGeometry => {
+
+    // const pointsMaterialConfig =
+    //     {
+    //         size: 32,
+    //         vertexColors: THREE.VertexColors
+    //     };
+
+    const map = new THREE.TextureLoader().load( "texture/dot_dugla.png" );
+    const pointsMaterialConfig =
+        {
+            size: 64,
+            vertexColors: THREE.VertexColors,
+            map,
+            transparent: true,
+            depthTest: false,
+            side: THREE.DoubleSide
+        };
+
+    let material = new THREE.PointsMaterial( pointsMaterialConfig );
+
+    material.side = THREE.DoubleSide;
+
+    let mesh = new THREE.Points( pointCloudGeometry, material );
+    mesh.name = 'point_cloud';
+
+    return { mesh };
+
+};
 
 export default PointCloud;
