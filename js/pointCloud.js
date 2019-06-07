@@ -1,6 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { getBoundsWithPointCloud } from './pointCloudManager.js';
 import { degrees } from './math.js';
+import {appleCrayonColorThreeJS} from "./color.js";
 class PointCloud {
 
     constructor () {
@@ -10,12 +11,15 @@ class PointCloud {
         return 'render-style-point-cloud';
     }
 
-    configure(geometry, renderStyle) {
+    configure(pointCloudGeometry, pointCloudConvexHullGeometry, renderStyle) {
 
         this.dispose();
 
-        // this.pc = this.createPointCloud(geometry);
-        this.pc = this.createConvexHull(geometry);
+        this.pc = { points: undefined, convexHull: undefined };
+
+        this.pc.points = this.createPointCloud(pointCloudGeometry);
+
+        this.pc.convexHull = this.createConvexHull(pointCloudConvexHullGeometry);
 
         if (renderStyle === PointCloud.getRenderStyle()) {
             this.show();
@@ -25,22 +29,18 @@ class PointCloud {
 
     }
 
-    updateMaterialProvider (materialProvider) {
-        // do stuff
-    }
-
     createConvexHull(convexHullGeometry) {
 
-        let material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        let material = new THREE.MeshLambertMaterial( { wireframe: true, color: appleCrayonColorThreeJS('nickel') } );
 
         let mesh = new THREE.Mesh( convexHullGeometry, material );
-        mesh.name = 'point_cloud';
+        mesh.name = 'point_cloud_convex_hull';
 
         return { mesh };
 
     }
 
-    createPointCloud(geometry){
+    createPointCloud(pointCloudGeometry){
 
         // const pointsMaterialConfig =
         //     {
@@ -63,15 +63,20 @@ class PointCloud {
 
         material.side = THREE.DoubleSide;
 
-        let mesh = new THREE.Points( geometry, material );
+        let mesh = new THREE.Points( pointCloudGeometry, material );
         mesh.name = 'point_cloud';
 
         return { mesh };
 
     };
 
+    updateMaterialProvider (materialProvider) {
+        // do stuff
+    }
+
     addToScene (scene) {
-        scene.add( this.pc.mesh );
+        scene.add( this.pc.points.mesh );
+        scene.add( this.pc.convexHull.mesh );
     }
 
     renderLoopHelper () {
@@ -79,18 +84,25 @@ class PointCloud {
     }
 
     hide () {
-        this.pc.mesh.visible = false;
+        this.pc.points.mesh.visible = false;
+        this.pc.convexHull.mesh.visible = false;
     }
 
     show () {
-        this.pc.mesh.visible = true;
+        this.pc.points.mesh.visible = true;
+        this.pc.convexHull.mesh.visible = true;
     }
 
     dispose () {
 
         if (this.pc) {
-            let { material, geometry } = this.pc.mesh;
-            [ material, geometry ].forEach(item => item.dispose());
+
+            this.pc.points.mesh.material.dispose();
+            this.pc.points.mesh.geometry.dispose();
+
+            this.pc.convexHull.mesh.material.dispose();
+            this.pc.convexHull.mesh.geometry.dispose();
+
         }
 
     }
@@ -100,7 +112,7 @@ class PointCloud {
     }
 
     getBounds() {
-        return getBoundsWithPointCloud(this.pc.mesh);
+        return getBoundsWithPointCloud(this.pc.convexHull.mesh);
     }
 
     getCameraPoseAlongAxis ({ axis, scaleFactor }) {

@@ -45,7 +45,7 @@ export const mainEventListener =
                 Globals.sceneManager.dispose();
 
                 // setupPointCloud({ pointCloudGeometry: Globals.pointCloudManager.geometry });
-                setupPointCloud({ pointCloudGeometry: Globals.pointCloudManager.convexHullGeometry });
+                setupPointCloud({ pointCloudGeometry: Globals.pointCloudManager.geometry, pointCloudConvexHullGeometry: Globals.pointCloudManager.convexHullGeometry });
 
             } else if ('DidLoadFile' === type) {
 
@@ -115,9 +115,9 @@ export const mainEventListener =
         }
     };
 
-let setupPointCloud = ({ pointCloudGeometry }) => {
+let setupPointCloud = ({ pointCloudGeometry, pointCloudConvexHullGeometry }) => {
 
-    Globals.pointCloud.configure(pointCloudGeometry, Globals.sceneManager.renderStyle);
+    Globals.pointCloud.configure(pointCloudGeometry, pointCloudConvexHullGeometry, Globals.sceneManager.renderStyle);
 
     let scene = new THREE.Scene();
     Globals.pointCloud.addToScene(scene);

@@ -10,7 +10,7 @@ import { guiManager, colorRampPanel } from './gui.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 
-const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
+const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 
 class SceneManager {
 
