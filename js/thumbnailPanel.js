@@ -1,10 +1,9 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import {globalEventBus} from "./eventBus.js";
+import Globals from './globals.js';
 import { makeDraggable } from "./draggable.js";
 import { fitToContainer, moveOffScreen, moveOnScreen } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import { guiManager } from './gui.js';
-import { ballAndStick, noodle, sceneManager } from "./main.js";
 import Noodle from "./noodle.js";
 
 class ThumbnailPanel {
@@ -54,7 +53,7 @@ class ThumbnailPanel {
 
         $(window).on('resize.thumbnail_panel', () => { this.onWindowResize(container, panel) });
 
-        globalEventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe("ToggleUIControl", this);
 
     }
 
@@ -111,7 +110,7 @@ class ThumbnailPanel {
 
             if (this.isHidden) {
                 moveOnScreen(this);
-                const model = sceneManager.renderStyle === Noodle.getRenderStyle() ? noodle : ballAndStick;
+                const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;
                 this.configure(model);
                 this.render();
             } else {

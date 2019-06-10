@@ -1,15 +1,12 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import Globals from './globals.js';
 import igv from '../vendor/igv.esm.js'
 import KDBush from '../node_modules/kd3d/js/index.js'
-
-import { globalEventBus } from "./eventBus.js";
 import { readFileAsText } from "./utils.js";
 import { rgb255String, rgb255Lerp, appleCrayonColorRGB255 } from './color.js';
 import { contactFrequencyMapPanel } from './gui.js';
 
 export let contactFrequencyDistanceThreshold = 256;
-
-import { colorMapManager, ensembleManager } from "./main.js";
 
 class EnsembleManager {
 
@@ -106,7 +103,7 @@ class EnsembleManager {
             let urlContents = await igv.xhr.load(url);
             const { file } = igv.parseUri(url);
 
-            globalEventBus.post({ type: "DidLoadFile", data: { name: file, payload: urlContents } });
+            Globals.eventBus.post({ type: "DidLoadFile", data: { name: file, payload: urlContents } });
 
         } catch (error) {
             console.warn(error.message);
@@ -118,7 +115,7 @@ class EnsembleManager {
 
         try {
             const fileContents = await readFileAsText(file);
-            globalEventBus.post({ type: "DidLoadFile", data: { name: file.name, payload: fileContents } });
+            Globals.eventBus.post({ type: "DidLoadFile", data: { name: file.name, payload: fileContents } });
         } catch (e) {
             console.warn(e.message)
         }
@@ -236,7 +233,7 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
             const ij = i * w + j;
             const interpolant = i === j ? 1 :  frequencies[ ij ] / maxFrequency;
-            ctx.fillStyle = colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
+            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
             ctx.fillRect(i, j, 1, 1);
         }
     }
@@ -250,7 +247,7 @@ export const getDistanceMapCanvasWithTrace = trace => {
     let str = `distance map for trace with ${ trace.geometry.vertices.length } vertices`;
     console.time(str);
 
-    const ensembleList = Object.values(ensembleManager.ensemble);
+    const ensembleList = Object.values(Globals.ensembleManager.ensemble);
 
     let mapSize = Number.NEGATIVE_INFINITY;
     for (let trace of ensembleList) {
@@ -319,7 +316,7 @@ export const getDistanceMapCanvasWithTrace = trace => {
 
             const ij = i * w + j;
             const interpolant = distances[ ij ] / maxDistance;
-            ctx.fillStyle = colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
+            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
             ctx.fillRect(i, j, 1, 1);
         }
 

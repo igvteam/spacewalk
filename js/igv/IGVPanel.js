@@ -1,10 +1,9 @@
-import { globalEventBus } from "../eventBus.js";
+import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
 import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
 import { igvPanel } from '../gui.js';
-import { noodle, ballAndStick, dataValueMaterialProvider, ensembleManager, sceneManager } from "../main.js";
 
 let currentURL = undefined;
 class IGVPanel {
@@ -35,12 +34,12 @@ class IGVPanel {
 
         this.$panel.on('mouseenter.trace3d.spacewalk_igv_panel', (event) => {
             event.stopPropagation();
-            globalEventBus.post({ type: "DidEnterGUI" });
+            Globals.eventBus.post({ type: "DidEnterGUI" });
         });
 
         this.$panel.on('mouseleave.trace3d.spacewalk_igv_panel', (event) => {
             event.stopPropagation();
-            globalEventBus.post({ type: "DidLeaveGUI" });
+            Globals.eventBus.post({ type: "DidLeaveGUI" });
         });
 
         // URL
@@ -66,7 +65,7 @@ class IGVPanel {
             currentURL = undefined;
         });
 
-        globalEventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe("ToggleUIControl", this);
     }
 
     receiveEvent({ type, data }) {
@@ -142,7 +141,7 @@ class IGVPanel {
 
             const { min, max } = this.currentDataTrack.dataRange;
 
-            dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
+            Globals.dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
         }
 
     };
@@ -191,7 +190,7 @@ export const igvBrowserConfigurator = () => {
 
 export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
 
-    const { genomicStart, genomicEnd } = ensembleManager.locus;
+    const { genomicStart, genomicEnd } = Globals.ensembleManager.locus;
 
     const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
 
@@ -202,16 +201,16 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
     let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
     const segmentIndex = segmentIndexForInterpolant(lerp(a, b, interpolant), structureLength);
 
-    globalEventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolant ], segmentIndexList: [ segmentIndex ]} });
+    Globals.eventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolant ], segmentIndexList: [ segmentIndex ]} });
 };
 
 export let customIGVTrackHandler = async (track) => {
 
     await igvPanel.trackDataHandler(track);
 
-    sceneManager.materialProvider = dataValueMaterialProvider;
-    noodle.updateMaterialProvider(sceneManager.materialProvider);
-    ballAndStick.updateMaterialProvider(sceneManager.materialProvider);
+    Globals.sceneManager.materialProvider = Globals.dataValueMaterialProvider;
+    Globals.noodle.updateMaterialProvider(Globals.sceneManager.materialProvider);
+    Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
 
 };
 

@@ -8,7 +8,7 @@ import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel
 import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
 import IGVPanel, { trackRegistryFile, igvBrowserConfigurator } from "./igv/IGVPanel.js";
 import TrackLoadController, { trackLoadControllerConfigurator } from "./igv/trackLoadController.js";
-import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
+import DataFileLoadModal, { pointCloudFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 
 let guiManager;
 let traceSelectPanel;
@@ -20,6 +20,7 @@ let contactFrequencyMapPanel;
 let igvPanel;
 let trackLoadController;
 
+let pointCloudFileLoadModal;
 let structureFileLoadModal;
 let juiceboxFileLoadModal;
 
@@ -50,6 +51,8 @@ const createGUI = async container => {
     //
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });
     await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
+
+    pointCloudFileLoadModal = new DataFileLoadModal(pointCloudFileLoadModalConfigurator());
 
     structureFileLoadModal = new DataFileLoadModal(structureFileLoadModalConfigurator());
 

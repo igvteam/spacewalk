@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
-    "dataModal": "github:igvteam/data-modal",
+    "data-modal": "github:igvteam/data-modal",
     "juicebox.js": "github:igvteam/juicebox.js#dat_tracing3d_edits",
     "kd3d": "github:turner/kd3d",
     "three": "^0.105.1"

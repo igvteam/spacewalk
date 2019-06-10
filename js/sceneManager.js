@@ -1,19 +1,16 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { globalEventBus } from "./eventBus.js";
-
+import Globals from './globals.js';
 import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
-
 import { guiManager, colorRampPanel } from './gui.js';
-import { dataValueMaterialProvider, noodle, ballAndStick } from "./main.js";
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 
-const disposableSet = new Set([ 'gnomon', 'groundplane', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
+const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 
 class SceneManager {
 
@@ -54,7 +51,7 @@ class SceneManager {
             this.onContainerMouseMove(event)
         });
 
-        globalEventBus.subscribe("DidSelectSegmentIndex", this);
+        Globals.eventBus.subscribe("DidSelectSegmentIndex", this);
     }
 
     receiveEvent({ type, data }) {
@@ -64,8 +61,8 @@ class SceneManager {
             let objects = [];
             data.segmentIndexList.forEach(item => {
                 const index = item - 1;
-                if (ballAndStick.objectList[ index ]) {
-                    let { object } = ballAndStick.objectList[ index ];
+                if (Globals.ballAndStick.objectList[ index ]) {
+                    let { object } = Globals.ballAndStick.objectList[ index ];
                     objects.push(object);
                 }
             });
@@ -146,11 +143,11 @@ class SceneManager {
 
         if (this.scene && this.cameraLightingRig) {
 
-            noodle.renderLoopHelper();
+            Globals.noodle.renderLoopHelper();
 
-            ballAndStick.renderLoopHelper();
+            Globals.ballAndStick.renderLoopHelper();
 
-            dataValueMaterialProvider.renderLoopHelper();
+            Globals.dataValueMaterialProvider.renderLoopHelper();
 
             this.materialProvider.renderLoopHelper();
 

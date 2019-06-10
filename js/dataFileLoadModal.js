@@ -1,7 +1,6 @@
-import { globalEventBus } from "./eventBus.js";
 import { juiceboxPanel } from "./gui.js";
-import { ensembleManager } from "./main.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
+import Globals from './globals.js';
 
 let currentURL = undefined;
 
@@ -101,7 +100,7 @@ const loadURL = async ({ url, name, fileLoader, $spinner, $modal }) => {
     $spinner.hide();
     $modal.modal('hide');
 
-    globalEventBus.post({ type: "DidLeaveGUI" });
+    Globals.eventBus.post({ type: "DidLeaveGUI" });
 
 };
 
@@ -109,7 +108,18 @@ const loadFile = async (file, fileLoader) => {
 
     await fileLoader.loadLocalFile({ file });
 
-    globalEventBus.post({ type: "DidLeaveGUI" });
+    Globals.eventBus.post({ type: "DidLeaveGUI" });
+};
+
+const pointCloudFileLoadModalConfigurator = () => {
+
+    return {
+        $urlModal: $('#spacewalk-point-cloud-file-load-url-modal'),
+        $selectModal: $('#spacewalk-point-cloud-file-load-select-modal'),
+        $localFileInput: $('#spacewalk-point-cloud-file-load-local-input'),
+        selectLoader: undefined,
+        fileLoader: Globals.pointCloudManager
+    }
 };
 
 const structureFileLoadModalConfigurator = () => {
@@ -119,7 +129,7 @@ const structureFileLoadModalConfigurator = () => {
         $selectModal: $('#spacewalk-file-load-select-modal'),
         $localFileInput: $('#spacewalk-file-load-local-input'),
         selectLoader: undefined,
-        fileLoader: ensembleManager
+        fileLoader: Globals.ensembleManager
     }
 };
 
@@ -135,6 +145,6 @@ const juiceboxFileLoadModalConfigurator = () => {
 };
 
 
-export { structureFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
+export { pointCloudFileLoadModalConfigurator, structureFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
 
 export default DataFileLoadModal;

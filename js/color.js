@@ -212,12 +212,49 @@ let appleCrayonPaletteNoGreyDictionary =
 
 let appleCrayonNamesNoGrey = Object.keys(appleCrayonPaletteNoGreyDictionary);
 
+let appleCrayonPaletteBrightDictionary =
+    {
+        maraschino: "#ff2101",
+        tangerine: "#ff8802",
+        lemon: "#fffa03",
+        lime: "#83f902",
+        spring: "#05f802",
+        seam_foam: "#03f987",
+        turquoise: "#00fdff",
+        aqua: "#008cff",
+        blueberry: "#002eff",
+        grape: "#8931ff",
+        magenta: "#ff39ff",
+        strawberry: "#ff2987",
+        //
+        salmon: "#ff726e",
+        cantaloupe: "#ffce6e",
+        banana: "#fffb6d",
+        honeydew: "#cefa6e",
+        flora: "#68f96e",
+        spindrift: "#68fbd0",
+        ice: "#68fdff",
+        sky: "#6acfff",
+        orchid: "#6e76ff",
+        lavender: "#d278ff",
+        bubblegum: "#ff7aff",
+        carnation: "#ff7fd3"
+    };
+
+let appleCrayonNamesBright = Object.keys(appleCrayonPaletteBrightDictionary);
+
 let appleCrayonColorHexValue = name => {
     let string = appleCrayonPaletteDictionary[ name ];
     let tokens = string.split('');
     tokens.shift();
     let hexString = tokens.join('');
     return parseInt(hexString, 16);
+};
+
+let appleCrayonRandomBrightColorThreeJS = () => {
+    const index = Math.floor(Math.random() * Math.floor(appleCrayonNamesBright.length));
+    const name = appleCrayonNamesBright[ index ];
+    return appleCrayonColorThreeJS(name);
 };
 
 let appleCrayonRandomColorHexValue = () => {
@@ -240,5 +277,5 @@ let appleCrayonColorRGB255 = name => {
     return rgb255;
 };
 
-export { appleCrayonNames, appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomColorHexValue, appleCrayonColorRGB255 };
+export { appleCrayonNames, appleCrayonRandomBrightColorThreeJS, appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomColorHexValue, appleCrayonColorRGB255 };
 

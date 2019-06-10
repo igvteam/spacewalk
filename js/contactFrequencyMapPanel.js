@@ -1,9 +1,8 @@
-import {globalEventBus} from "./eventBus.js";
+import Globals from './globals.js';
 import { makeDraggable } from "./draggable.js";
-import { fitToContainer, moveOffScreen, moveOnScreen } from "./utils.js";
+import { moveOffScreen, moveOnScreen } from "./utils.js";
 import { guiManager } from './gui.js';
 import { contactFrequencyDistanceThreshold, getContactFrequencyCanvasWithEnsemble } from './ensembleManager.js';
-import { ensembleManager } from './main.js';
 import { clamp } from "./math.js";
 
 const maxDistanceThreshold = 4096;
@@ -43,7 +42,7 @@ class ContactFrequencyMapPanel {
             if (13 === e.keyCode) {
                 let number = parseInt( $input.val() );
                 this.distanceThreshold = clamp(number, 0, maxDistanceThreshold);
-                this.draw(getContactFrequencyCanvasWithEnsemble(ensembleManager.ensemble, this.distanceThreshold));
+                this.draw(getContactFrequencyCanvasWithEnsemble(Globals.ensembleManager.ensemble, this.distanceThreshold));
             }
 
         });
@@ -54,13 +53,13 @@ class ContactFrequencyMapPanel {
         $button_minus.on('click.spacewalk_trace_select_button_minus', (e) => {
             this.distanceThreshold = Math.max(this.distanceThreshold - 1, 0);
             $input.val(this.distanceThreshold);
-            this.draw(getContactFrequencyCanvasWithEnsemble(ensembleManager.ensemble, this.distanceThreshold));
+            this.draw(getContactFrequencyCanvasWithEnsemble(Globals.ensembleManager.ensemble, this.distanceThreshold));
         });
 
         $button_plus.on('click.spacewalk_trace_select_button_plus', (e) => {
             this.distanceThreshold = Math.min(this.distanceThreshold + 1, maxDistanceThreshold);
             $input.val(this.distanceThreshold);
-            this.draw(getContactFrequencyCanvasWithEnsemble(ensembleManager.ensemble, this.distanceThreshold));
+            this.draw(getContactFrequencyCanvasWithEnsemble(Globals.ensembleManager.ensemble, this.distanceThreshold));
         });
 
 
@@ -68,7 +67,7 @@ class ContactFrequencyMapPanel {
 
         $(window).on('resize.contact_frequency_map_panel', () => { this.onWindowResize(container, panel) });
 
-        globalEventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe("ToggleUIControl", this);
 
     }
 

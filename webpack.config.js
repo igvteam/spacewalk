@@ -1,8 +1,11 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 
+process.env.STUB_FILE_SRC = '<script type="module" src="js/stub_app.js"></script>';
+process.env.STUB_FILE_DST = '<script src="./stub_bundle.js"></script>';
+
 process.env.INDEX_FILE_SRC = '<script type="module" src="js/app.js"></script>';
-process.env.INDEX_FILE_DST = '<script src="./bundle.js"></script>';
+process.env.INDEX_FILE_DST = '<script src="./app_bundle.js"></script>';
 
 module.exports =
     {
@@ -14,12 +17,14 @@ module.exports =
         //     ],
         entry:
             {
-              main: './js/app.js'
+                app_bundle: './js/app.js',
+                stub_bundle: './js/stub_app.js'
             },
         output:
             {
                 path: path.resolve(__dirname, 'dist'),
-                filename: 'bundle.js'
+                // filename: 'bundle.js',
+                filename: '[name].js'
             },
         module: {
             rules:
@@ -52,13 +57,21 @@ module.exports =
                     { from:'vendor/*'       },
                     { from:'favicon.ico'    },
                     {
+                        from: 'stub.html',
+                        transform: (content) => {
+                            return content
+                                .toString()
+                                .replace(process.env.STUB_FILE_SRC, process.env.STUB_FILE_DST);
+                        }
+                    },
+                    {
                         from: 'index.html',
                         transform: (content) => {
                             return content
                                 .toString()
                                 .replace(process.env.INDEX_FILE_SRC, process.env.INDEX_FILE_DST);
                         }
-                    }
+                    },
                 ])
 
             ]

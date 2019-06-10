@@ -1,4 +1,4 @@
-import {globalEventBus} from "./eventBus.js";
+import Globals from "./globals.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 
@@ -57,12 +57,12 @@ const configurePanelVisibility = ($guiPanel, input_id) => {
 
         e.preventDefault();
         if ('spacewalk_ui_manager_groundplane' === input_id) {
-            globalEventBus .post({ type: "ToggleGroundPlane", data: $input.prop('checked') });
+            Globals.eventBus .post({ type: "ToggleGroundPlane", data: $input.prop('checked') });
         } else if ('spacewalk_ui_manager_gnomon' === input_id) {
-            globalEventBus .post({ type: "ToggleGnomon", data: $input.prop('checked') });
+            Globals.eventBus .post({ type: "ToggleGnomon", data: $input.prop('checked') });
         } else {
             const payload = $input.data('target');
-            globalEventBus .post({ type: "ToggleUIControl", data: { $input, payload } });
+            Globals.eventBus .post({ type: "ToggleUIControl", data: { $input, payload } });
         }
     });
 
@@ -74,7 +74,7 @@ const configureRenderStyleRadioButton = ($input, renderStyle) => {
 
     $input.on('change.gui_manager.render_style_ball_stick', (e) => {
         e.preventDefault();
-        globalEventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
+        Globals.eventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
     });
 
 };
