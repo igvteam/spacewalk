@@ -54,9 +54,9 @@ class PointCloudManager {
         this.geometry.computeBoundingBox();
         this.geometry.computeBoundingSphere();
 
-        this.convexHullGeometry = new ConvexBufferGeometry(points);
-        this.convexHullGeometry.computeBoundingBox();
-        this.convexHullGeometry.computeBoundingSphere();
+        // this.convexHullGeometry = new ConvexBufferGeometry(points);
+        // this.convexHullGeometry.computeBoundingBox();
+        // this.convexHullGeometry.computeBoundingSphere();
 
         console.timeEnd(`ingest point-cloud with ${ lines.length } points`);
 
