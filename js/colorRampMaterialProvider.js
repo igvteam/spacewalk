@@ -4,7 +4,7 @@ import { segmentIndexForInterpolant, fitToContainer, getMouseXY } from "./utils.
 import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
-import { currentStructureLength } from "./mainEventListener.js";
+import { currentStructureLength } from "./appEventListener.js";
 
 let currentSegmentIndex = undefined;
 

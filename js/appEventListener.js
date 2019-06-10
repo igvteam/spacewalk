@@ -12,7 +12,7 @@ import { guiManager } from "./gui.js";
 export let currentTrace;
 export let currentStructureLength;
 
-export const mainEventListener =
+export const appEventListener =
     {
         receiveEvent: async ({ type, data }) => {
 
@@ -117,22 +117,21 @@ export const mainEventListener =
 
 let setupPointCloud = ({ pointCloudGeometry, pointCloudConvexHullGeometry }) => {
 
-    Globals.pointCloud.configure(pointCloudGeometry, pointCloudConvexHullGeometry, Globals.sceneManager.renderStyle);
+    Globals.pointCloud.configure(pointCloudGeometry, pointCloudConvexHullGeometry);
 
     let scene = new THREE.Scene();
     Globals.pointCloud.addToScene(scene);
 
     const { min, max, center, radius } = Globals.pointCloud.getBounds();
     const { position, fov } = Globals.pointCloud.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
-
     Globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
 
 };
 
 let setup = ({ trace }) => {
 
-    Globals.noodle.configure(Globals.ensembleManager.locus, trace, Globals.sceneManager.materialProvider, Globals.sceneManager.renderStyle);
-    Globals.ballAndStick.configure(trace, Globals.sceneManager.materialProvider, Globals.sceneManager.renderStyle);
+    Globals.noodle.configure(trace);
+    Globals.ballAndStick.configure(trace);
 
     let scene = new THREE.Scene();
 
@@ -141,7 +140,6 @@ let setup = ({ trace }) => {
 
     const { min, max, center, radius } = Globals.ballAndStick.getBounds();
     const { position, fov } = Globals.ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
-
     Globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
 
     if (false === thumbnailPanel.isHidden) {

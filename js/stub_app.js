@@ -7,7 +7,7 @@ import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import {appleCrayonColorRGB255, appleCrayonColorThreeJS} from "./color.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import {mainEventListener} from "./mainEventListener.js";
+import {appEventListener} from "./appEventListener.js";
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
@@ -27,10 +27,10 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     Globals.dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 
-    Globals.eventBus.subscribe('DidSelectStructure', mainEventListener);
-    Globals.eventBus.subscribe('DidLoadFile', mainEventListener);
-    Globals.eventBus.subscribe('ToggleAllUIControls', mainEventListener);
-    Globals.eventBus.subscribe('RenderStyleDidChange', mainEventListener);
+    Globals.eventBus.subscribe('DidSelectStructure', appEventListener);
+    Globals.eventBus.subscribe('DidLoadFile', appEventListener);
+    Globals.eventBus.subscribe('ToggleAllUIControls', appEventListener);
+    Globals.eventBus.subscribe('RenderStyleDidChange', appEventListener);
 
     renderLoop();
 

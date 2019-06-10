@@ -13,15 +13,15 @@ class BallAndStick {
         return 'render-style-ball-stick';
     }
 
-    configure(trace, materialProvider, renderStyle) {
+    configure(trace) {
 
         this.dispose();
 
         this.trace = trace;
-        this.balls = this.createBalls(trace, materialProvider);
+        this.balls = this.createBalls(trace);
         this.sticks = this.createSticks(trace);
 
-        if (renderStyle === BallAndStick.getRenderStyle()) {
+        if (Globals.sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
         } else {
             this.hide();
@@ -41,7 +41,7 @@ class BallAndStick {
         });
     }
 
-    createBalls(trace, materialProvider) {
+    createBalls(trace) {
 
         // 3D Object dictionary. Key is string-ified genomic location.
         this.genomicLocationObjectDictionary = {};
@@ -54,7 +54,7 @@ class BallAndStick {
 
         let meshList = trace.geometry.vertices.map((vertex, index, array) => {
 
-            const color = materialProvider.colorForInterpolant(index / (array.length - 1));
+            const color = Globals.sceneManager.materialProvider.colorForInterpolant(index / (array.length - 1));
 
             // const material = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
             const material = new THREE.MeshPhongMaterial({ color });

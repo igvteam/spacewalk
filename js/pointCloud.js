@@ -2,6 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { getBoundsWithPointCloud } from './pointCloudManager.js';
 import { degrees } from './math.js';
 import { appleCrayonColorThreeJS } from "./color.js";
+import Globals from "./globals.js";
 
 class PointCloud {
 
@@ -12,7 +13,7 @@ class PointCloud {
         return 'render-style-point-cloud';
     }
 
-    configure(pointCloudGeometry, pointCloudConvexHullGeometry, renderStyle) {
+    configure(pointCloudGeometry, pointCloudConvexHullGeometry) {
 
         this.dispose();
 
@@ -22,7 +23,7 @@ class PointCloud {
 
         // this.pc.convexHull = createConvexHull(pointCloudConvexHullGeometry);
 
-        if (renderStyle === PointCloud.getRenderStyle()) {
+        if (Globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
             this.show();
         } else {
             this.hide();
