@@ -201,6 +201,26 @@
       cursor: pointer;
       display: block; }
 
+.igv-left-hand-gutter > div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff; }
+  .igv-left-hand-gutter > div > input {
+    display: block; }
+.igv-left-hand-gutter > div:hover {
+  background-color: #a09fa0; }
+
+.igv-left-hand-gutter-active {
+  background-color: #878687; }
+
+.igv-left-hand-gutter-inactive {
+  background-color: #ffffff; }
+
 .igv-app-dropdown-item-cloud-storage {
   display: flex;
   flex-direction: row;

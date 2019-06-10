@@ -28190,12 +28190,17 @@ var igv = (function (igv) {
                     for (let line of samHeader) {
 
                         if ('SQ' === line.tag) {
-                            const seq = line.data[0].value;
-                            chrToIndex[seq] = chrNames.length;
-                            chrNames.push(seq);
-                            if (genome) {
-                                const alias = genome.getChromosomeName(seq);
-                                chrAliasTable[alias] = seq;
+                            for(let d of line.data) {
+                                if(d.tag === "SN") {
+                                    const seq = d.value;
+                                    chrToIndex[seq] = chrNames.length;
+                                    chrNames.push(seq);
+                                    if (genome) {
+                                        const alias = genome.getChromosomeName(seq);
+                                        chrAliasTable[alias] = seq;
+                                    }
+                                    break;
+                                }
                             }
                         }
                         else if ('RG' === line.tag) {
@@ -35895,14 +35900,29 @@ var igv = (function (igv) {
     igv.setApiKey = function (key) {
         igv.google.setApiKey(key);
     }
-
-    igv.google = {
+   igv.google = {
 
         fileInfoCache: {},
 
         // Crude test, this is conservative, nothing bad happens for a false positive
         isGoogleURL: function (url) {
-            return (url.includes("googleapis") && !url.includes("urlshortener")) || (url.startsWith("gs://"));
+            return (url.includes("googleapis") && !url.includes("urlshortener")) ||
+                this.isGoogleCloudURL(url) ||
+                this.isGoogleStorageURL(url) ||
+                this.isGoogleDrive(url)
+        },
+
+        isGoogleStorageURL: function (url) {
+            return url.startsWith("https://www.googleapis.com/storage") ||
+                url.startsWith("https://storage.cloud.google.com")
+        },
+
+        isGoogleCloudURL: function(url) {
+           return url.startsWith("gs://")
+        },
+
+        isGoogleDrive: function (url) {
+            return url.indexOf("drive.google.com") >= 0 || url.indexOf("www.googleapis.com/drive") > 0
         },
 
         setApiKey: function (key) {
@@ -39813,12 +39833,11 @@ var igv = (function (igv) {
 
 
         function loadSession(config) {
-            if(config.sessionURL) {
+            if (config.sessionURL) {
                 return browser.loadSession({
                     url: config.sessionURL
                 })
-            }
-            else {
+            } else {
                 return browser.loadSessionObject(config)
             }
         }
@@ -40096,6 +40115,8 @@ var igv = (function (igv) {
         i1 = uri.indexOf("?");
         i2 = uri.lastIndexOf("#");
 
+        let files
+        let indexURLs
         if (i1 >= 0) {
             if (i2 < 0) i2 = uri.length;
             for (i = i1 + 1; i < i2;) {
@@ -40111,20 +40132,30 @@ var igv = (function (igv) {
 
                     if ('file' === key) {
                         // IGV desktop style file parameter
-                        if (!config.tracks) config.tracks = [];
-                        value.split(',').forEach(function (t) {
-                            config.tracks.push({
-                                url: t
-                            })
-                        });
-                    }
-                    else {
+                        files = value.split(',')
+                    } else if ('index' === key) {
+                        // IGV desktop style index parameter
+                        indexURLs = value.split(',')
+                    } else {
                         config[key] = value;
                     }
                     i = j + 1;
                 }
             }
         }
+
+        if (files) {
+
+            if (!config.tracks) config.tracks = []
+            for (let i = 0; i < files.length; i++) {
+                const trackConfig = {url: files[i]}
+                if (indexURLs && indexURLs.length < i) {
+                    trackConfig.indexURL = indexURLs[i]
+                }
+                config.tracks.push(trackConfig)
+            }
+        }
+
         return query;
     }
 
@@ -41924,18 +41955,22 @@ var igv = (function (igv) {
 
                         var header_keys, key, value, i;
 
-                        // Support for GCS paths.
-                        url = url.startsWith("gs://") ? igv.google.translateGoogleCloudURL(url) : url;
-
-                        const headers = options.headers || {};
-
-
-                        if (options.token) {
-                            addOauthHeaders(headers, options.token);
+                        // Various Google tansformations
+                        if (igv.google.isGoogleURL(url)) {
+                            if(url.startsWith("gs://")){
+                                url = igv.google.translateGoogleCloudURL(url)
+                            } else if(igv.google.isGoogleStorageURL(url)) {
+                                if(!url.includes("altMedia=")) {
+                                    url += (url.includes("?") ? "&altMedia=true" : "?altMedia=true")
+                                }
+                            }
+                            url = igv.google.addApiKey(url);
                         }
 
-                        if (isGoogleURL(url)) {
-                            url = igv.google.addApiKey(url);
+
+                        const headers = options.headers || {};
+                        if (options.token) {
+                            addOauthHeaders(headers, options.token);
                         }
 
                         const range = options.range;
@@ -41998,7 +42033,7 @@ var igv = (function (igv) {
                                     fullfill(xhr.response);
                                 }
                             } else if ((typeof gapi !== "undefined") &&
-                                ((xhr.status === 404 || xhr.status === 401) && isGoogleURL(url)) &&
+                                ((xhr.status === 404 || xhr.status === 401) && igv.google.isGoogleURL(url)) &&
                                 !options.retries) {
 
                                 options.retries = 1;
@@ -42241,20 +42276,8 @@ var igv = (function (igv) {
 
     }
 
-    function isCrossDomain(url) {
-
-        var origin = window.location.origin;
-
-        return !url.startsWith(origin);
-
-    }
-
     function isAmazonV4Signed(url) {
         return url.indexOf("X-Amz-Signature") > -1;
-    }
-
-    function isGoogleDrive(url) {
-        return url.indexOf("drive.google.com") >= 0 || url.indexOf("www.googleapis.com/drive") > 0
     }
 
     function getOauthToken(url) {
@@ -42333,13 +42356,6 @@ var igv = (function (igv) {
         }
 
     };
-
-    /**
-     * Crude test for google urls.
-     */
-    function isGoogleURL(url) {
-        return igv.google.isGoogleURL(url);
-    }
 
     function isGoogleDrive(url) {
         return url.indexOf("drive.google.com") >= 0 || url.indexOf("www.googleapis.com/drive") > 0

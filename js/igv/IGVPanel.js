@@ -184,6 +184,35 @@ class IGVPanel {
 
 }
 
+export const encodeTrackListLoader = async (browser, trackConfigurations) => {
+
+    const loadedTracks = await browser.loadTrackList(trackConfigurations);
+
+    for (let track of loadedTracks) {
+
+        if ('wig' === track.type) {
+
+            const { trackDiv } = track.trackView;
+
+            const $container = $(trackDiv).find('.igv-left-hand-gutter');
+
+            const $div = $('<div>', { class: 'input-group' });
+            $container.append($div);
+
+            const $input = $('<input>', { type: 'checkbox' });
+            $div.append($input);
+
+            $input.on('click.encode-loader', (event) => {
+                const isChecked = $input.prop('checked') ? 'check': 'un-check';
+                console.log(`roger. that's a ${ isChecked }`)
+            });
+
+
+        }
+    }
+
+};
+
 export const igvBrowserConfigurator = () => {
     return { genome: 'hg38', customTrackHandler: customIGVTrackHandler };
 };
