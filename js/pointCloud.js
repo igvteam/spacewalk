@@ -20,7 +20,7 @@ class PointCloud {
 
         this.pc.points = createPointCloud(pointCloudGeometry);
 
-        this.pc.convexHull = createConvexHull(pointCloudConvexHullGeometry);
+        // this.pc.convexHull = createConvexHull(pointCloudConvexHullGeometry);
 
         if (renderStyle === PointCloud.getRenderStyle()) {
             this.show();
@@ -36,7 +36,7 @@ class PointCloud {
 
     addToScene (scene) {
         scene.add( this.pc.points.mesh );
-        scene.add( this.pc.convexHull.mesh );
+        // scene.add( this.pc.convexHull.mesh );
     }
 
     renderLoopHelper () {
@@ -45,12 +45,12 @@ class PointCloud {
 
     hide () {
         this.pc.points.mesh.visible = false;
-        this.pc.convexHull.mesh.visible = false;
+        // this.pc.convexHull.mesh.visible = false;
     }
 
     show () {
         this.pc.points.mesh.visible = true;
-        this.pc.convexHull.mesh.visible = true;
+        // this.pc.convexHull.mesh.visible = true;
     }
 
     dispose () {
@@ -60,8 +60,8 @@ class PointCloud {
             this.pc.points.mesh.material.dispose();
             this.pc.points.mesh.geometry.dispose();
 
-            this.pc.convexHull.mesh.material.dispose();
-            this.pc.convexHull.mesh.geometry.dispose();
+            // this.pc.convexHull.mesh.material.dispose();
+            // this.pc.convexHull.mesh.geometry.dispose();
 
         }
 
@@ -72,7 +72,7 @@ class PointCloud {
     }
 
     getBounds() {
-        return getBoundsWithPointCloud(this.pc.convexHull.mesh);
+        return getBoundsWithPointCloud(this.pc.points.mesh);
     }
 
     getCameraPoseAlongAxis ({ axis, scaleFactor }) {

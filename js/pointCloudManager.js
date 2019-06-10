@@ -2,7 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import ConvexBufferGeometry from "./threejs_es6/convexGeometry/convexGeometry.js";
 import Globals from './globals.js';
 import { readFileAsText } from "./utils.js";
-import { appleCrayonRandomBrightColorThreeJS } from "./color.js";
+import { appleCrayonRandomBrightColorThreeJS, appleCrayonColorThreeJS } from "./color.js";
 
 class PointCloudManager {
 
@@ -42,7 +42,8 @@ class PointCloudManager {
 
             points.push(new THREE.Vector3(x, y, z));
 
-            const { r, g, b } = appleCrayonRandomBrightColorThreeJS();
+            // const { r, g, b } = appleCrayonRandomBrightColorThreeJS();
+            const { r, g, b } = appleCrayonColorThreeJS('aqua');
 
             rgbList.push(r, g, b);
 
