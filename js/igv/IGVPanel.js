@@ -2,7 +2,8 @@ import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
-import { setMaterialProvider, segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
+import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
+import { igvPanel } from '../gui.js';
 
 let currentURL = undefined;
 class IGVPanel {
@@ -65,7 +66,6 @@ class IGVPanel {
         });
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
-        Globals.eventBus.subscribe("DidChangeMaterialProvider", this);
     }
 
     receiveEvent({ type, data }) {
@@ -84,9 +84,6 @@ class IGVPanel {
             }
 
             this.isHidden = !this.isHidden;
-        } else if ("DidChangeMaterialProvider" === type) {
-            const { trackContainerDiv } = igv.browser;
-            $(trackContainerDiv).find('.input-group input').prop('checked', false);
         }
     }
 
@@ -94,8 +91,6 @@ class IGVPanel {
 
         try {
             this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
-            // const tracks = this.browser.findTracks('featureType', 'numeric');
-            addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
         } catch (error) {
             console.warn(error.message);
         }
@@ -110,7 +105,6 @@ class IGVPanel {
 
         try {
             const track = await igv.browser.loadTrack({ url });
-            addDataValueMaterialProviderGUI([track]);
             return track;
         } catch (error) {
             console.warn(error.message);
@@ -125,8 +119,29 @@ class IGVPanel {
 
         if ('' !== url) {
             $spinner.show();
-            await this.loadTrack(url);
+            let track = await this.loadTrack(url);
             $spinner.hide();
+        }
+
+    };
+
+    async trackDataHandler (track) {
+
+        if (track) {
+            this.currentDataTrack = track;
+        }
+
+        if (this.currentDataTrack) {
+
+            const { chromosome, start, end, referenceFrame } = this.browser.genomicStateList[ 0 ];
+            const { name: chr } = chromosome;
+            const { bpPerPixel } = referenceFrame;
+
+            const features = await this.currentDataTrack.getFeatures(chr, start, end, bpPerPixel);
+
+            const { min, max } = this.currentDataTrack.dataRange;
+
+            Globals.dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
         }
 
     };
@@ -171,15 +186,11 @@ class IGVPanel {
 
 export const encodeTrackListLoader = async (browser, trackConfigurations) => {
 
-    const tracks = await browser.loadTrackList(trackConfigurations);
-    addDataValueMaterialProviderGUI(tracks);
-};
+    const loadedTracks = await browser.loadTrackList(trackConfigurations);
 
-const addDataValueMaterialProviderGUI = tracks => {
+    for (let track of loadedTracks) {
 
-    for (let track of tracks) {
-
-        if (track.featureType && 'numeric' === track.featureType) {
+        if ('wig' === track.type) {
 
             const { trackDiv } = track.trackView;
 
@@ -191,39 +202,11 @@ const addDataValueMaterialProviderGUI = tracks => {
             const $input = $('<input>', { type: 'checkbox' });
             $div.append($input);
 
-            $input.on('click.igv-panel.encode-loader', async (e) => {
-
-                e.stopPropagation();
-
-                const { trackContainerDiv } = track.browser;
-
-                // unselect  checkboxes
-                const $otherInputs = $(trackContainerDiv).find('.input-group input').not($input.get(0));
-                $otherInputs.prop('checked', false);
-
-                if ($input.prop('checked')) {
-
-                    const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
-
-                    const { name: chr } = chromosome;
-
-                    const { bpPerPixel } = referenceFrame;
-
-                    const features = await track.getFeatures(chr, start, end, bpPerPixel);
-
-                    const { min, max } = track.dataRange;
-
-                    Globals.dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
-
-                    setMaterialProvider(Globals.dataValueMaterialProvider);
-
-                } else {
-
-                    setMaterialProvider(Globals.colorRampMaterialProvider);
-
-                }
-
+            $input.on('click.encode-loader', (event) => {
+                const isChecked = $input.prop('checked') ? 'check': 'un-check';
+                console.log(`roger. that's a ${ isChecked }`)
             });
+
 
         }
     }
@@ -231,97 +214,7 @@ const addDataValueMaterialProviderGUI = tracks => {
 };
 
 export const igvBrowserConfigurator = () => {
-    return { genome: 'hg38' };
-};
-
-export const igvBrowserConfiguratorBigWig = () => {
-
-    const config =
-        {
-            genome: 'hg38',
-            tracks:
-                [
-
-                    {
-                        "Assembly": "GRCh38",
-                        "ExperimentID": "/experiments/ENCSR580GSX/",
-                        "Experiment": "ENCSR580GSX",
-                        "Biosample": "A172",
-                        "Assay Type": "RNA-seq",
-                        "Target": "",
-                        "Format": "bigWig",
-                        "Output Type": "minus strand signal of all reads",
-                        "Lab": "Thomas Gingeras, CSHL",
-                        "url": "https://www.encodeproject.org/files/ENCFF439GUL/@@download/ENCFF439GUL.bigWig",
-                        "Bio Rep": "1",
-                        "Tech Rep": "1_1",
-                        "Accession": "ENCFF439GUL",
-                        "Name": " RNA-seq 1:1_1 minus strand signal of all reads ENCSR580GSX",
-                        "filename": "ENCFF439GUL.bigWig",
-                        "sourceType": "file",
-                        "format": "bigwig",
-                        "type": "wig",
-                        "color": "rgb(150,150,150)",
-                        "height": 50,
-                        "name": "https://www.encodeproject.org/files/ENCFF439GUL/@@download/ENCFF439GUL.bigWig",
-                        "autoscale": true,
-                        "order": 3
-                    },
-                    {
-                        "Assembly": "GRCh38",
-                        "ExperimentID": "/experiments/ENCSR000DND/",
-                        "Experiment": "ENCSR000DND",
-                        "Biosample": "pancreas male adult (54 years) and male adult (60 years)",
-                        "Assay Type": "ChIP-seq",
-                        "Target": "CTCF ",
-                        "Format": "bigWig",
-                        "Output Type": "signal p-value",
-                        "Lab": "Vishwanath Iyer, UTA",
-                        "url": "https://www.encodeproject.org/files/ENCFF741SLO/@@download/ENCFF741SLO.bigWig",
-                        "Bio Rep": "1",
-                        "Tech Rep": "1_1",
-                        "Accession": "ENCFF741SLO",
-                        "Name": " CTCF  1:1_1 signal p-value ENCSR000DND",
-                        "filename": "ENCFF741SLO.bigWig",
-                        "sourceType": "file",
-                        "format": "bigwig",
-                        "type": "wig",
-                        "color": "rgb(150,150,150)",
-                        "height": 50,
-                        "name": "https://www.encodeproject.org/files/ENCFF741SLO/@@download/ENCFF741SLO.bigWig",
-                        "autoscale": true,
-                        "order": 4
-                    },
-                    {
-                        "Assembly": "GRCh38",
-                        "ExperimentID": "/experiments/ENCSR000DXZ/",
-                        "Experiment": "ENCSR000DXZ",
-                        "Biosample": "WI38",
-                        "Assay Type": "ChIP-seq",
-                        "Target": "H3K4me3 ",
-                        "Format": "bigWig",
-                        "Output Type": "fold change over control",
-                        "Lab": "John Stamatoyannopoulos, UW",
-                        "url": "https://www.encodeproject.org/files/ENCFF319QVY/@@download/ENCFF319QVY.bigWig",
-                        "Bio Rep": "1,2",
-                        "Tech Rep": "1_1,2_1",
-                        "Accession": "ENCFF319QVY",
-                        "Name": " H3K4me3  1,2:1_1,2_1 fold change over control ENCSR000DXZ",
-                        "filename": "ENCFF319QVY.bigWig",
-                        "sourceType": "file",
-                        "format": "bigwig",
-                        "type": "wig",
-                        "color": "rgb(150,150,150)",
-                        "height": 50,
-                        "name": "https://www.encodeproject.org/files/ENCFF319QVY/@@download/ENCFF319QVY.bigWig",
-                        "autoscale": true,
-                        "order": 5
-                    }
-
-                ]
-        };
-
-    return config;
+    return { genome: 'hg38', customTrackHandler: customIGVTrackHandler };
 };
 
 export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
@@ -338,6 +231,16 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
     const segmentIndex = segmentIndexForInterpolant(lerp(a, b, interpolant), structureLength);
 
     Globals.eventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolant ], segmentIndexList: [ segmentIndex ]} });
+};
+
+export let customIGVTrackHandler = async (track) => {
+
+    await igvPanel.trackDataHandler(track);
+
+    Globals.sceneManager.materialProvider = Globals.dataValueMaterialProvider;
+    Globals.noodle.updateMaterialProvider(Globals.sceneManager.materialProvider);
+    Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
+
 };
 
 export const genomes = "resources/genomes.json";

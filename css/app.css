@@ -140,8 +140,7 @@
 
 #spacewalk_distance_map_panel.card {
   width: 256px;
-  height: unset;
-  border: 0; }
+  height: unset; }
   #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body {
     width: 256px;
     height: unset; }
@@ -151,8 +150,7 @@
 
 #spacewalk_contact_frequency_map_panel.card {
   width: 256px;
-  height: unset;
-  border: 0; }
+  height: unset; }
   #spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body {
     width: 256px;
     height: unset; }
@@ -215,7 +213,13 @@
   .igv-left-hand-gutter > div > input {
     display: block; }
 .igv-left-hand-gutter > div:hover {
-  background-color: #e8e8e8; }
+  background-color: #a09fa0; }
+
+.igv-left-hand-gutter-active {
+  background-color: #878687; }
+
+.igv-left-hand-gutter-inactive {
+  background-color: #ffffff; }
 
 .igv-app-dropdown-item-cloud-storage {
   display: flex;

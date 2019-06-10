@@ -22,10 +22,18 @@ $spacewalk_igv_panel_heigth: 256px;
   }
 
   >div:hover {
-    background-color: $spacewalk_mercury;
+    background-color: $spacewalk_aluminum;
   }
 
 };
+
+.igv-left-hand-gutter-active {
+  background-color: $spacewalk_tin;
+}
+
+.igv-left-hand-gutter-inactive {
+  background-color: $spacewalk_snow;
+}
 
 .igv-app-dropdown-item-cloud-storage {
 
