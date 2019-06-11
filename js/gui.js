@@ -6,7 +6,7 @@ import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
 import ThumbnailPanel, {thumbnailPanelConfigurator} from "./thumbnailPanel.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
 import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
-import IGVPanel, { trackRegistryFile, igvBrowserConfigurator } from "./igv/IGVPanel.js";
+import IGVPanel, { trackRegistryFile, igvBrowserConfigurator, igvBrowserConfiguratorBigWig } from "./igv/IGVPanel.js";
 import TrackLoadController, { trackLoadControllerConfigurator } from "./igv/trackLoadController.js";
 import DataFileLoadModal, { pointCloudFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 
@@ -42,7 +42,8 @@ const createGUI = async container => {
 
     //
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
-    await igvPanel.initialize(igvBrowserConfigurator());
+    // await igvPanel.initialize(igvBrowserConfigurator());
+    await igvPanel.initialize(igvBrowserConfiguratorBigWig());
 
     //
     trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));

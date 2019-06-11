@@ -91,6 +91,8 @@ class IGVPanel {
 
         try {
             this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
+            const tracks = this.browser.findTracks('type', 'wig');
+            addDataValueMaterialProviderGUI(tracks);
         } catch (error) {
             console.warn(error.message);
         }
@@ -186,9 +188,13 @@ class IGVPanel {
 
 export const encodeTrackListLoader = async (browser, trackConfigurations) => {
 
-    const loadedTracks = await browser.loadTrackList(trackConfigurations);
+    const tracks = await browser.loadTrackList(trackConfigurations);
+    addDataValueMaterialProviderGUI(tracks);
+};
 
-    for (let track of loadedTracks) {
+const addDataValueMaterialProviderGUI = tracks => {
+
+    for (let track of tracks) {
 
         if ('wig' === track.type) {
 
@@ -207,7 +213,6 @@ export const encodeTrackListLoader = async (browser, trackConfigurations) => {
                 console.log(`roger. that's a ${ isChecked }`)
             });
 
-
         }
     }
 
@@ -215,6 +220,97 @@ export const encodeTrackListLoader = async (browser, trackConfigurations) => {
 
 export const igvBrowserConfigurator = () => {
     return { genome: 'hg38', customTrackHandler: customIGVTrackHandler };
+};
+
+export const igvBrowserConfiguratorBigWig = () => {
+
+    const config =
+        {
+            genome: 'hg38',
+            customTrackHandler: customIGVTrackHandler,
+            tracks:
+                [
+
+                    {
+                        "Assembly": "GRCh38",
+                        "ExperimentID": "/experiments/ENCSR580GSX/",
+                        "Experiment": "ENCSR580GSX",
+                        "Biosample": "A172",
+                        "Assay Type": "RNA-seq",
+                        "Target": "",
+                        "Format": "bigWig",
+                        "Output Type": "minus strand signal of all reads",
+                        "Lab": "Thomas Gingeras, CSHL",
+                        "url": "https://www.encodeproject.org/files/ENCFF439GUL/@@download/ENCFF439GUL.bigWig",
+                        "Bio Rep": "1",
+                        "Tech Rep": "1_1",
+                        "Accession": "ENCFF439GUL",
+                        "Name": " RNA-seq 1:1_1 minus strand signal of all reads ENCSR580GSX",
+                        "filename": "ENCFF439GUL.bigWig",
+                        "sourceType": "file",
+                        "format": "bigwig",
+                        "type": "wig",
+                        "color": "rgb(150,150,150)",
+                        "height": 50,
+                        "name": "https://www.encodeproject.org/files/ENCFF439GUL/@@download/ENCFF439GUL.bigWig",
+                        "autoscale": true,
+                        "order": 3
+                    },
+                    {
+                        "Assembly": "GRCh38",
+                        "ExperimentID": "/experiments/ENCSR000DND/",
+                        "Experiment": "ENCSR000DND",
+                        "Biosample": "pancreas male adult (54 years) and male adult (60 years)",
+                        "Assay Type": "ChIP-seq",
+                        "Target": "CTCF ",
+                        "Format": "bigWig",
+                        "Output Type": "signal p-value",
+                        "Lab": "Vishwanath Iyer, UTA",
+                        "url": "https://www.encodeproject.org/files/ENCFF741SLO/@@download/ENCFF741SLO.bigWig",
+                        "Bio Rep": "1",
+                        "Tech Rep": "1_1",
+                        "Accession": "ENCFF741SLO",
+                        "Name": " CTCF  1:1_1 signal p-value ENCSR000DND",
+                        "filename": "ENCFF741SLO.bigWig",
+                        "sourceType": "file",
+                        "format": "bigwig",
+                        "type": "wig",
+                        "color": "rgb(150,150,150)",
+                        "height": 50,
+                        "name": "https://www.encodeproject.org/files/ENCFF741SLO/@@download/ENCFF741SLO.bigWig",
+                        "autoscale": true,
+                        "order": 4
+                    },
+                    {
+                        "Assembly": "GRCh38",
+                        "ExperimentID": "/experiments/ENCSR000DXZ/",
+                        "Experiment": "ENCSR000DXZ",
+                        "Biosample": "WI38",
+                        "Assay Type": "ChIP-seq",
+                        "Target": "H3K4me3 ",
+                        "Format": "bigWig",
+                        "Output Type": "fold change over control",
+                        "Lab": "John Stamatoyannopoulos, UW",
+                        "url": "https://www.encodeproject.org/files/ENCFF319QVY/@@download/ENCFF319QVY.bigWig",
+                        "Bio Rep": "1,2",
+                        "Tech Rep": "1_1,2_1",
+                        "Accession": "ENCFF319QVY",
+                        "Name": " H3K4me3  1,2:1_1,2_1 fold change over control ENCSR000DXZ",
+                        "filename": "ENCFF319QVY.bigWig",
+                        "sourceType": "file",
+                        "format": "bigwig",
+                        "type": "wig",
+                        "color": "rgb(150,150,150)",
+                        "height": 50,
+                        "name": "https://www.encodeproject.org/files/ENCFF319QVY/@@download/ENCFF319QVY.bigWig",
+                        "autoscale": true,
+                        "order": 5
+                    }
+
+                ]
+        };
+
+    return config;
 };
 
 export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
