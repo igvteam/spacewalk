@@ -215,13 +215,7 @@
   .igv-left-hand-gutter > div > input {
     display: block; }
 .igv-left-hand-gutter > div:hover {
-  background-color: #a09fa0; }
-
-.igv-left-hand-gutter-active {
-  background-color: #878687; }
-
-.igv-left-hand-gutter-inactive {
-  background-color: #ffffff; }
+  background-color: #e8e8e8; }
 
 .igv-app-dropdown-item-cloud-storage {
   display: flex;

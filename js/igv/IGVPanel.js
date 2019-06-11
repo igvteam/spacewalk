@@ -107,6 +107,7 @@ class IGVPanel {
 
         try {
             const track = await igv.browser.loadTrack({ url });
+            addDataValueMaterialProviderGUI([track]);
             return track;
         } catch (error) {
             console.warn(error.message);
@@ -121,29 +122,8 @@ class IGVPanel {
 
         if ('' !== url) {
             $spinner.show();
-            let track = await this.loadTrack(url);
+            await this.loadTrack(url);
             $spinner.hide();
-        }
-
-    };
-
-    async trackDataHandler (track) {
-
-        if (track) {
-            this.currentDataTrack = track;
-        }
-
-        if (this.currentDataTrack) {
-
-            const { chromosome, start, end, referenceFrame } = this.browser.genomicStateList[ 0 ];
-            const { name: chr } = chromosome;
-            const { bpPerPixel } = referenceFrame;
-
-            const features = await this.currentDataTrack.getFeatures(chr, start, end, bpPerPixel);
-
-            const { min, max } = this.currentDataTrack.dataRange;
-
-            Globals.dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
         }
 
     };
@@ -208,9 +188,37 @@ const addDataValueMaterialProviderGUI = tracks => {
             const $input = $('<input>', { type: 'checkbox' });
             $div.append($input);
 
-            $input.on('click.encode-loader', (event) => {
-                const isChecked = $input.prop('checked') ? 'check': 'un-check';
-                console.log(`roger. that's a ${ isChecked }`)
+            $input.on('click.encode-loader', async () => {
+
+                const { trackContainerDiv } = track.browser;
+
+                const $inputs = $(trackContainerDiv).find('.input-group input');
+                const value = $inputs.prop('checked');
+                const $otherInputs = $(trackContainerDiv).find('.input-group input').not($input.get(0));
+
+                $otherInputs.prop('checked', false);
+
+                // const isChecked = $input.prop('checked') ? 'check': 'un-check';
+                // console.log(`roger. that's a ${ isChecked }`)
+
+                const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
+
+                const { name: chr } = chromosome;
+
+                const { bpPerPixel } = referenceFrame;
+
+                const features = await track.getFeatures(chr, start, end, bpPerPixel);
+
+                const { min, max } = track.dataRange;
+
+                Globals.dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
+
+                Globals.sceneManager.materialProvider = Globals.dataValueMaterialProvider;
+
+                Globals.noodle.updateMaterialProvider(Globals.sceneManager.materialProvider);
+
+                Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
+
             });
 
         }
@@ -219,7 +227,7 @@ const addDataValueMaterialProviderGUI = tracks => {
 };
 
 export const igvBrowserConfigurator = () => {
-    return { genome: 'hg38', customTrackHandler: customIGVTrackHandler };
+    return { genome: 'hg38' };
 };
 
 export const igvBrowserConfiguratorBigWig = () => {
@@ -227,7 +235,6 @@ export const igvBrowserConfiguratorBigWig = () => {
     const config =
         {
             genome: 'hg38',
-            customTrackHandler: customIGVTrackHandler,
             tracks:
                 [
 
@@ -327,16 +334,6 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
     const segmentIndex = segmentIndexForInterpolant(lerp(a, b, interpolant), structureLength);
 
     Globals.eventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolant ], segmentIndexList: [ segmentIndex ]} });
-};
-
-export let customIGVTrackHandler = async (track) => {
-
-    await igvPanel.trackDataHandler(track);
-
-    Globals.sceneManager.materialProvider = Globals.dataValueMaterialProvider;
-    Globals.noodle.updateMaterialProvider(Globals.sceneManager.materialProvider);
-    Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
-
 };
 
 export const genomes = "resources/genomes.json";

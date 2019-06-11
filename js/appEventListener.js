@@ -71,8 +71,6 @@ export const appEventListener =
 
                 colorRampPanel.configure({ genomicStart, genomicEnd });
 
-                await igvPanel.trackDataHandler();
-
                 igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
                     IGVMouseHandler({ bp, start, end, interpolant, structureLength: currentStructureLength })
                 });
