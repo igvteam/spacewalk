@@ -335,7 +335,7 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
     }
 
     let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentID = segmentIDForInterpolant(lerp(a, b, interpolant), structureLength);
+    const segmentID = segmentIDForInterpolant(lerp(a, b, interpolant));
 
     Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
 };

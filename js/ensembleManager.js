@@ -5,6 +5,7 @@ import KDBush from '../node_modules/kd3d/js/index.js'
 import { readFileAsText } from "./utils.js";
 import { rgb255String, appleCrayonColorRGB255 } from './color.js';
 import { contactFrequencyMapPanel } from './gui.js';
+import { segmentIDForInterpolant } from './utils.js';
 
 export let contactFrequencyDistanceThreshold = 256;
 
@@ -38,28 +39,36 @@ class EnsembleManager {
 
         let key;
         let trace;
+        let counter;
         for (let line of lines) {
 
             let parts = line.split(',');
 
+            const index = parseInt(parts[ 0 ], 10) - 1;
+
+            if (undefined === key || key !== index.toString()) {
+
+                key = index.toString();
+
+                this.ensemble[ key ] = trace =
+                    {
+                        segmentList:[],
+                        geometry: new THREE.Geometry(),
+                        material: new THREE.MeshPhongMaterial()
+                    };
+
+                // capture the nominal trace length by recording the maximum possible number of segments
+                if (counter && undefined === this.maximumSegmentID) {
+                    this.maximumSegmentID = counter;
+                }
+
+                counter = 0;
+
+            }
+
             if ('nan' === parts[ 2 ] || 'nan' === parts[ 3 ] || 'nan' === parts[ 4 ]) {
                 // do nothing
             } else {
-
-                const index = parseInt(parts[ 0 ], 10) - 1;
-
-                if (undefined === key || key !== index.toString()) {
-
-                    key = index.toString();
-
-                    this.ensemble[ key ] = trace =
-                        {
-                            segmentList:[],
-                            geometry: new THREE.Geometry(),
-                            material: new THREE.MeshPhongMaterial()
-                        };
-
-                }
 
                 // discard chr-index
                 parts.shift();
@@ -70,15 +79,16 @@ class EnsembleManager {
                 // NOTE: Segment ID is 1-based.
                 const segmentID = parseInt(token, 10);
                 const segmentIDIndex = segmentID - 1;
-                const genomicLocation = this.locus.genomicStart + this.stepSize * (0.5 * segmentIDIndex);
+                const genomicLocation = this.locus.genomicStart + this.stepSize * (0.5 + segmentIDIndex);
                 trace.segmentList.push( { segmentID, genomicLocation } );
 
                 let [ z, x, y ] = parts;
                 const centroid = new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z));
                 trace.geometry.vertices.push( centroid );
 
-
             }
+
+            ++counter;
 
         } // for (lines)
 
@@ -88,15 +98,6 @@ class EnsembleManager {
         for (let trace of ensembleList) {
             trace.geometry.computeBoundingBox();
             trace.geometry.computeBoundingSphere();
-        }
-
-        // Note: Some traces have missing data. We decide on the
-        //       correct number here for use in the distance/contact
-        //       maps and elsewhere
-        this.maximumSegmentID = Number.NEGATIVE_INFINITY;
-        for (let trace of ensembleList) {
-            const id = Math.max(...(trace.segmentList.map(segment => segment.segmentID)));
-            this.maximumSegmentID = Math.max(this.maximumSegmentID, id);
         }
 
         contactFrequencyMapPanel.draw(getContactFrequencyCanvasWithEnsemble(this.ensemble, contactFrequencyMapPanel.distanceThreshold));

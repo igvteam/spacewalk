@@ -73,7 +73,7 @@ class BallAndStick {
 
             this.objectSegmentDictionary[ mesh.uuid ] = { segmentID, genomicLocation };
 
-            this.segmentObjectDictionary[ segmentID ] = { object: mesh, genomicLocation };
+            this.segmentObjectDictionary[ segmentID.toString() ] = { object: mesh, genomicLocation };
 
             return mesh;
 

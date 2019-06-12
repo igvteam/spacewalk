@@ -147,10 +147,10 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
     let b;
 
     [ a, b ] = [ (startXBP - genomicStart)/(genomicEnd - genomicStart), (endXBP - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentIDX = segmentIDForInterpolant(lerp(a, b, interpolantX), structureLength);
+    const segmentIDX = segmentIDForInterpolant(lerp(a, b, interpolantX));
 
     [ a, b ] = [ (startYBP - genomicStart)/(genomicEnd - genomicStart), (endYBP - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentIDY = segmentIDForInterpolant(lerp(a, b, interpolantY), structureLength);
+    const segmentIDY = segmentIDForInterpolant(lerp(a, b, interpolantY));
 
     const segmentIDList = segmentIDX === segmentIDY ? [ segmentIDX ] : [ segmentIDX, segmentIDY ];
 

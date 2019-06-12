@@ -7,14 +7,14 @@ const setMaterialProvider = materialProvider => {
     Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
 };
 
-const segmentIDForInterpolant = (interpolant, structureLength) => {
+const segmentIDForInterpolant = interpolant => {
 
-    // find bucket. 0 based.
-    let quantized = quantize(interpolant, Globals.ensembleManager.maximumSegmentID);
+    // find bucket for interpolant
+    const howmany = Globals.ensembleManager.maximumSegmentID;
+    let quantized = quantize(interpolant, howmany);
 
-    // Scale to structure length. Convert to discrete value (integer-ize).
-    // Add one. Segment index is 1-based.
-    return 1 + Math.ceil(quantized * (Globals.ensembleManager.maximumSegmentID - 1));
+    // return the segmentID
+    return 1 + Math.ceil(quantized * (howmany - 1));
 };
 
 let moveOnScreen = (panelHost) => {

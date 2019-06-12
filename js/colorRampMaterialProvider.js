@@ -120,13 +120,13 @@ class ColorRampMaterialProvider {
         let { yNormalized } = getMouseXY(canvas, event);
 
         // 0 to 1. Flip direction.
-        const segmentIndex = segmentIDForInterpolant(1.0 - yNormalized, Globals.ensembleManager.maximumSegmentID);
+        const segmentID = segmentIDForInterpolant(1.0 - yNormalized);
 
-        this.highlight([ segmentIndex ]);
+        this.highlight([ segmentID ]);
 
-        if (currentSegmentIndex !== segmentIndex) {
-            currentSegmentIndex = segmentIndex;
-            Globals.eventBus.post({type: "DidSelectSegmentID", data: { segmentIDList: [ segmentIndex ] } });
+        if (currentSegmentIndex !== segmentID) {
+            currentSegmentIndex = segmentID;
+            Globals.eventBus.post({type: "DidSelectSegmentID", data: { segmentIDList: [ segmentID ] } });
         }
 
     };
@@ -145,13 +145,11 @@ class ColorRampMaterialProvider {
 
         let interpolant;
         let quantizedInterpolant;
-        let segmentIndex;
 
         // paint rgb ramp
         for (let y = 0;  y < height; y++) {
             interpolant = 1 - (y / (height - 1));
             quantizedInterpolant = quantize(interpolant, Globals.ensembleManager.maximumSegmentID);
-            segmentIndex = segmentIDForInterpolant(interpolant, Globals.ensembleManager.maximumSegmentID);
             this.rgb_ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
             this.rgb_ctx.fillRect(0, y, width, 1);
         }
@@ -178,9 +176,9 @@ class ColorRampMaterialProvider {
 
                 interpolant = 1 - (y / (height - 1));
                 quantizedInterpolant = quantize(interpolant, Globals.ensembleManager.maximumSegmentID);
-                segmentIndex = segmentIDForInterpolant(interpolant, Globals.ensembleManager.maximumSegmentID);
+                const segmentID = segmentIDForInterpolant(interpolant);
 
-                if (highlightedSegmentIndexSet.has(segmentIndex)) {
+                if (highlightedSegmentIndexSet.has(segmentID)) {
                     this.highlight_ctx.fillRect(0, y, width, 1);
                     this.alphamap_ctx.fillRect(0, y, width, 1);
                 }
