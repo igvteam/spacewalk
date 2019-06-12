@@ -3,6 +3,30 @@
 $spacewalk_igv_panel_width: 600px;
 $spacewalk_igv_panel_heigth: 256px;
 
+.igv-left-hand-gutter {
+
+  > div {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    background-color: $spacewalk_snow;
+
+    > input {
+      display: block;
+    }
+
+  }
+
+  >div:hover {
+    background-color: $spacewalk_mercury;
+  }
+
+};
+
 .igv-app-dropdown-item-cloud-storage {
 
   display: flex;

@@ -13,6 +13,7 @@ class ColorMapManager {
     async configure () {
         await this.addMap({ name: defaultColormapName, path: 'resources/colormaps/peter_kovesi/CET-R2.csv' });
         await this.addMap({ name: 'bintu_et_al',       path: 'resources/colormaps/bintu_et_al/bintu_et_al.png' });
+        await this.addMap({ name: 'juicebox_default',  path: 'resources/colormaps/juicebox_default/juicebox_default.png' });
     }
 
     async addMap({name, path}) {

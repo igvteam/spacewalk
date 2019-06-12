@@ -1,4 +1,11 @@
 import { quantize } from "./math.js";
+import Globals from "./globals.js";
+
+const setMaterialProvider = materialProvider => {
+    Globals.sceneManager.materialProvider = materialProvider;
+    Globals.noodle.updateMaterialProvider(Globals.sceneManager.materialProvider);
+    Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
+};
 
 const segmentIndexForInterpolant = (interpolant, structureLength) => {
 
@@ -130,4 +137,4 @@ const createImage = imageSource => {
 
 };
 
-export { segmentIndexForInterpolant, createImage, readFileAsDataURL, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
+export { setMaterialProvider, segmentIndexForInterpolant, createImage, readFileAsDataURL, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };

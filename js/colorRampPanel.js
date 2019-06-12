@@ -1,7 +1,7 @@
 import Globals from './globals.js';
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import { makeDraggable } from "./draggable.js";
-import { moveOffScreen, moveOnScreen } from './utils.js';
+import { setMaterialProvider, moveOffScreen, moveOnScreen } from './utils.js';
 import { guiManager } from './gui.js';
 
 class ColorRampPanel {
@@ -27,25 +27,24 @@ class ColorRampPanel {
 
         makeDraggable(panel, this.$panel.find('.spacewalk_card_drag_container').get(0));
 
-        $(window).on('resize.trace3d.toolpanel', () => {
+        $(window).on('resize.color-ramp-panel', () => {
             this.onWindowResize();
         });
 
-        this.$panel.on('mouseenter.trace3d.toolpanel', (event) => {
+        this.$panel.on('mouseenter.color-ramp-panel', (event) => {
             event.stopPropagation();
             Globals.eventBus.post({type: "DidEnterGUI" });
         });
 
-        this.$panel.on('mouseleave.trace3d.toolpanel', (event) => {
+        this.$panel.on('mouseleave.color-ramp-panel', (event) => {
             event.stopPropagation();
             Globals.eventBus.post({ type: "DidLeaveGUI" });
         });
 
-        this.$panel.on('click.trace3d.toolpanel', (event) => {
+        this.$panel.on('click.color-ramp-panel', (event) => {
             event.stopPropagation();
-            Globals.sceneManager.materialProvider = this.colorRampMaterialProvider;
-            Globals.noodle.updateMaterialProvider(Globals.sceneManager.materialProvider);
-            Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
+            setMaterialProvider(colorRampMaterialProvider);
+            Globals.eventBus.post({ type: "DidChangeMaterialProvider" });
         });
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
@@ -103,7 +102,7 @@ export const colorRampPanelConfigurator = ({ container, highlightColor }) => {
     return {
             container,
             panel: $('#spacewalk_color_ramp_panel').get(0),
-            colorRampMaterialProvider: new ColorRampMaterialProvider( { $canvasContainer, namespace: 'colorRampMaterialProvider', highlightColor } ),
+            colorRampMaterialProvider: new ColorRampMaterialProvider( { $canvasContainer, namespace: 'color-ramp-material-provider', highlightColor } ),
             isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel')
         };
 

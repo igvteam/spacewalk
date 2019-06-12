@@ -196,7 +196,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
         renderer,
         cameraLightingRig,
         picker,
-        materialProvider: colorRampPanel.colorRampMaterialProvider,
+        materialProvider: Globals.colorRampMaterialProvider,
         renderStyle: guiManager.getRenderingStyle()
     };
 

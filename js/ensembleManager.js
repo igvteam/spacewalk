@@ -3,7 +3,7 @@ import Globals from './globals.js';
 import igv from '../vendor/igv.esm.js'
 import KDBush from '../node_modules/kd3d/js/index.js'
 import { readFileAsText } from "./utils.js";
-import { rgb255String, rgb255Lerp, appleCrayonColorRGB255 } from './color.js';
+import { rgb255String, appleCrayonColorRGB255 } from './color.js';
 import { contactFrequencyMapPanel } from './gui.js';
 
 export let contactFrequencyDistanceThreshold = 256;
@@ -233,7 +233,8 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
             const ij = i * w + j;
             const interpolant = i === j ? 1 :  frequencies[ ij ] / maxFrequency;
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
+            // ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
+            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
             ctx.fillRect(i, j, 1, 1);
         }
     }
@@ -316,7 +317,8 @@ export const getDistanceMapCanvasWithTrace = trace => {
 
             const ij = i * w + j;
             const interpolant = distances[ ij ] / maxDistance;
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
+            // ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
+            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
             ctx.fillRect(i, j, 1, 1);
         }
 

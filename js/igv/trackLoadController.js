@@ -26,7 +26,7 @@ import FileLoadWidget from './fileLoadWidget.js';
 import FileLoadManager from './fileLoadManager.js';
 import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.js'
 import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
-
+import { encodeTrackListLoader } from './IGVPanel.js';
 import MultipleFileLoadController from "./multipleFileLoadController.js";
 
 class TrackLoadController {
@@ -210,9 +210,7 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
         {
             id: "igv-app-encode-modal",
             title: "ENCODE",
-            selectHandler: trackConfigurations => {
-                browser.loadTrackList(trackConfigurations);
-            }
+            selectHandler: trackConfigurations => { encodeTrackListLoader(browser, trackConfigurations); }
         };
 
     return {
