@@ -2,8 +2,7 @@ import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
-import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
-import { igvPanel } from '../gui.js';
+import { setMaterialProvider, segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
 
 let currentURL = undefined;
 class IGVPanel {
@@ -66,6 +65,7 @@ class IGVPanel {
         });
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe("DidChangeMaterialProvider", this);
     }
 
     receiveEvent({ type, data }) {
@@ -84,6 +84,9 @@ class IGVPanel {
             }
 
             this.isHidden = !this.isHidden;
+        } else if ("DidChangeMaterialProvider" === type) {
+            const { trackContainerDiv } = igv.browser;
+            $(trackContainerDiv).find('.input-group input').prop('checked', false);
         }
     }
 
@@ -91,8 +94,8 @@ class IGVPanel {
 
         try {
             this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
-            const tracks = this.browser.findTracks('type', 'wig');
-            addDataValueMaterialProviderGUI(tracks);
+            // const tracks = this.browser.findTracks('featureType', 'numeric');
+            addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
         } catch (error) {
             console.warn(error.message);
         }
@@ -176,7 +179,7 @@ const addDataValueMaterialProviderGUI = tracks => {
 
     for (let track of tracks) {
 
-        if ('wig' === track.type) {
+        if (track.featureType && 'numeric' === track.featureType) {
 
             const { trackDiv } = track.trackView;
 
@@ -188,36 +191,37 @@ const addDataValueMaterialProviderGUI = tracks => {
             const $input = $('<input>', { type: 'checkbox' });
             $div.append($input);
 
-            $input.on('click.encode-loader', async () => {
+            $input.on('click.igv-panel.encode-loader', async (e) => {
+
+                e.stopPropagation();
 
                 const { trackContainerDiv } = track.browser;
 
-                const $inputs = $(trackContainerDiv).find('.input-group input');
-                const value = $inputs.prop('checked');
+                // unselect  checkboxes
                 const $otherInputs = $(trackContainerDiv).find('.input-group input').not($input.get(0));
-
                 $otherInputs.prop('checked', false);
 
-                // const isChecked = $input.prop('checked') ? 'check': 'un-check';
-                // console.log(`roger. that's a ${ isChecked }`)
+                if ($input.prop('checked')) {
 
-                const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
+                    const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
 
-                const { name: chr } = chromosome;
+                    const { name: chr } = chromosome;
 
-                const { bpPerPixel } = referenceFrame;
+                    const { bpPerPixel } = referenceFrame;
 
-                const features = await track.getFeatures(chr, start, end, bpPerPixel);
+                    const features = await track.getFeatures(chr, start, end, bpPerPixel);
 
-                const { min, max } = track.dataRange;
+                    const { min, max } = track.dataRange;
 
-                Globals.dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
+                    Globals.dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
 
-                Globals.sceneManager.materialProvider = Globals.dataValueMaterialProvider;
+                    setMaterialProvider(Globals.dataValueMaterialProvider);
 
-                Globals.noodle.updateMaterialProvider(Globals.sceneManager.materialProvider);
+                } else {
 
-                Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
+                    setMaterialProvider(Globals.colorRampMaterialProvider);
+
+                }
 
             });
 

@@ -9,6 +9,7 @@ import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./
 import IGVPanel, { trackRegistryFile, igvBrowserConfigurator, igvBrowserConfiguratorBigWig } from "./igv/IGVPanel.js";
 import TrackLoadController, { trackLoadControllerConfigurator } from "./igv/trackLoadController.js";
 import DataFileLoadModal, { pointCloudFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
+import Globals from './globals.js';
 
 let guiManager;
 let traceSelectPanel;
@@ -33,6 +34,7 @@ const createGUI = async container => {
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
 
     colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, highlightColor }) );
+    Globals.colorRampMaterialProvider = colorRampPanel.colorRampMaterialProvider;
 
     thumbnailPanel = new ThumbnailPanel(thumbnailPanelConfigurator(container));
 
