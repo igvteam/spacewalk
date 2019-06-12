@@ -53,26 +53,26 @@ class ColorRampMaterialProvider {
 
         this.material = material;
 
-        $canvasContainer.on(('mousemove.trace3d.' + namespace), (event) => {
+        $canvasContainer.on(('mousemove.' + namespace), (event) => {
             event.stopPropagation();
             this.onCanvasMouseMove(canvas, event)
         });
 
-        $canvasContainer.on(('mouseenter.trace3d.' + namespace), (event) => {
+        $canvasContainer.on(('mouseenter.' + namespace), (event) => {
             event.stopPropagation();
             currentSegmentIndex = undefined;
         });
 
-        $canvasContainer.on(('mouseleave.trace3d.' + namespace), (event) => {
+        $canvasContainer.on(('mouseleave.' + namespace), (event) => {
             event.stopPropagation();
             currentSegmentIndex = undefined;
         });
 
         // soak up misc events
         let eventSink = e => { e.stopPropagation(); };
-        $canvasContainer.on(('mouseup.trace3d.' + namespace), eventSink);
-        $canvasContainer.on(('mousedown.trace3d.' + namespace), eventSink);
-        $canvasContainer.on(('click.trace3d.' + namespace), eventSink);
+        $canvasContainer.on(('mouseup.' + namespace), eventSink);
+        $canvasContainer.on(('mousedown.' + namespace), eventSink);
+        $canvasContainer.on(('click.' + namespace), eventSink);
 
         const { r, g, b } = highlightColor;
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
