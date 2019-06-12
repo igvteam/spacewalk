@@ -54,7 +54,7 @@ class EnsembleManager {
 
                     this.ensemble[ key ] = trace =
                         {
-                            segmentIDList: [],
+                            segmentList:[],
                             geometry: new THREE.Geometry(),
                             material: new THREE.MeshPhongMaterial()
                         };
@@ -64,11 +64,14 @@ class EnsembleManager {
                 // discard chr-index
                 parts.shift();
 
-                // discard segment-index
-                let segmentID = parts.shift();
+                // capture segment-index
+                let token = parts.shift();
 
-                // NOTE: Segment IDs are 1-based.
-                trace.segmentIDList.push( parseInt(segmentID, 10) );
+                // NOTE: Segment ID is 1-based.
+                const segmentID = parseInt(token, 10);
+                const segmentIDIndex = segmentID - 1;
+                const genomicLocation = this.locus.genomicStart + this.stepSize * (0.5 * segmentIDIndex);
+                trace.segmentList.push( { segmentID, genomicLocation } );
 
                 let [ z, x, y ] = parts;
                 const centroid = new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z));
@@ -85,6 +88,15 @@ class EnsembleManager {
         for (let trace of ensembleList) {
             trace.geometry.computeBoundingBox();
             trace.geometry.computeBoundingSphere();
+        }
+
+        // Note: Some traces have missing data. We decide on the
+        //       correct number here for use in the distance/contact
+        //       maps and elsewhere
+        this.maximumSegmentID = Number.NEGATIVE_INFINITY;
+        for (let trace of ensembleList) {
+            const id = Math.max(...(trace.segmentList.map(segment => segment.segmentID)));
+            this.maximumSegmentID = Math.max(this.maximumSegmentID, id);
         }
 
         contactFrequencyMapPanel.draw(getContactFrequencyCanvasWithEnsemble(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
@@ -154,10 +166,7 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
     const ensembleList = Object.values(ensemble);
 
-    let mapSize = Number.NEGATIVE_INFINITY;
-    for (let trace of ensembleList) {
-        mapSize = Math.max(mapSize, Math.max(...(trace.segmentIDList)));
-    }
+    let mapSize = Globals.ensembleManager.maximumSegmentID;
 
     console.time(`index ${ ensembleList.length } traces`);
 
@@ -180,7 +189,7 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
             const ids = spatialIndex.within(x, y, z, distanceThreshold);
 
-            const traceSegmentID = trace.segmentIDList[ i ];
+            const traceSegmentID = trace.segmentList[ i ].segmentID;
             const ids_filtered = ids.filter(id => id !== traceSegmentID);
 
             if (ids_filtered.length > 0) {
@@ -250,10 +259,7 @@ export const getDistanceMapCanvasWithTrace = trace => {
 
     const ensembleList = Object.values(Globals.ensembleManager.ensemble);
 
-    let mapSize = Number.NEGATIVE_INFINITY;
-    for (let trace of ensembleList) {
-        mapSize = Math.max(mapSize, Math.max(...(trace.segmentIDList)));
-    }
+    let mapSize = Globals.ensembleManager.maximumSegmentID;
 
     let distances = new Array(mapSize * mapSize);
     for (let d = 0; d < distances.length; d++) distances[ d ] = 0;
@@ -265,12 +271,12 @@ export const getDistanceMapCanvasWithTrace = trace => {
     for (let i = 0; i < length; i++) {
 
         const candidate = vertices[ i ];
-        const i_segmentIDIndex = trace.segmentIDList[ i ] - 1;
+        const i_segmentIDIndex = trace.segmentList[ i ].segmentID - 1;
 
         for (let j = 0; j < length; j++) {
 
             const centroid = vertices[ j ];
-            const j_segmentIDIndex = trace.segmentIDList[ j ] - 1;
+            const j_segmentIDIndex = trace.segmentList[ j ].segmentID - 1;
 
             const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
             const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
@@ -331,7 +337,7 @@ export const getDistanceMapCanvasWithTrace = trace => {
 const kdBushConfguratorWithTrace = trace => {
 
     return {
-        idList: trace.segmentIDList,
+        idList: trace.segmentList.map(segment => segment.segmentID),
         points: trace.geometry.vertices,
         getX: pt => pt.x,
         getY: pt => pt.y,

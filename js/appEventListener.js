@@ -55,9 +55,16 @@ export const appEventListener =
 
                 Globals.ensembleManager.ingest({ path, string });
 
-                const initialStructureKey = '0';
+                // const initialStructureKey = '0';
+                const initialStructureKey = '555';
 
                 currentTrace = Globals.ensembleManager.traceWithName(initialStructureKey);
+                for (let segment of currentTrace.segmentList) {
+                    const star = segment.segmentID !== 1 + currentTrace.segmentList.indexOf(segment) ? '(*)' : '';
+                    const str = `index ${ currentTrace.segmentList.indexOf(segment) } segmentID ${ segment.segmentID } ${ star }`
+                    console.log(str);
+                }
+
                 currentStructureLength = currentTrace.geometry.vertices.length;
 
                 const { chr, genomicStart, genomicEnd } = Globals.ensembleManager.locus;
@@ -90,6 +97,13 @@ export const appEventListener =
                 Globals.sceneManager.renderStyle = guiManager.getRenderingStyle();
 
                 currentTrace = Globals.ensembleManager.traceWithName(data);
+
+                for (let segment of currentTrace.segmentList) {
+                    const star = segment.segmentID !== 1 + currentTrace.segmentList.indexOf(segment) ? '(*)' : '';
+                    const str = `index ${ currentTrace.segmentList.indexOf(segment) } segmentID ${ segment.segmentID } ${ star }`
+                    console.log(str);
+                }
+
                 currentStructureLength = currentTrace.geometry.vertices.length;
 
                 igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {

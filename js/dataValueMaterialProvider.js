@@ -200,6 +200,10 @@ class DataValueMaterialProvider {
         return Globals.sceneManager.stickMaterial.color;
     }
 
+    colorForSegmentID(segmentID) {
+        return appleCrayonColorThreeJS('strawberry');
+    }
+
     renderLoopHelper () {
 
         if (rgbTexture) {

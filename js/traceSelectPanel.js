@@ -144,12 +144,15 @@ class TraceSelectPanel {
     layout() {
 
         // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-        const { height: c_h } = this.container.getBoundingClientRect();
+        const { width:c_w, height: c_h } = this.container.getBoundingClientRect();
         const { width: w, height: h } = this.$panel.get(0).getBoundingClientRect();
 
-        const left = 0.125 * w;
-        // const top = (c_h - h)/2;
-        const top = 0.5 * c_h;
+        // const left = 0.125 * w;
+        const left = (c_w - w)/2;
+
+        // const top = 0.5 * c_h;
+        const top = c_h - 2 * h;
+
         this.$panel.offset( { left, top } );
     }
 
