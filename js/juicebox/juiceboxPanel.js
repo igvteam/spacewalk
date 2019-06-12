@@ -2,7 +2,7 @@ import Globals from './../globals.js';
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from '../math.js'
-import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
+import { segmentIDForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
 
 let currentURL = undefined;
 class JuiceboxPanel {
@@ -147,14 +147,14 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
     let b;
 
     [ a, b ] = [ (startXBP - genomicStart)/(genomicEnd - genomicStart), (endXBP - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentIndexX = segmentIndexForInterpolant(lerp(a, b, interpolantX), structureLength);
+    const segmentIDX = segmentIDForInterpolant(lerp(a, b, interpolantX), structureLength);
 
     [ a, b ] = [ (startYBP - genomicStart)/(genomicEnd - genomicStart), (endYBP - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentIndexY = segmentIndexForInterpolant(lerp(a, b, interpolantY), structureLength);
+    const segmentIDY = segmentIDForInterpolant(lerp(a, b, interpolantY), structureLength);
 
-    const segmentIndexList = segmentIndexX === segmentIndexY ? [ segmentIndexX ] : [ segmentIndexX, segmentIndexY ];
+    const segmentIDList = segmentIDX === segmentIDY ? [ segmentIDX ] : [ segmentIDX, segmentIDY ];
 
-    Globals.eventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolantX, interpolantY ], segmentIndexList } });
+    Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ], segmentIDList } });
 };
 
 export let juiceboxSelectLoader = async ($select) => {

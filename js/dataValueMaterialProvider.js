@@ -54,12 +54,12 @@ class DataValueMaterialProvider {
         this.featureRects = undefined;
 
         Globals.eventBus.subscribe("DidLeaveGUI", this);
-        Globals.eventBus.subscribe("DidSelectSegmentIndex", this);
+        Globals.eventBus.subscribe("DidSelectSegmentID", this);
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidSelectSegmentIndex" === type) {
+        if ("DidSelectSegmentID" === type) {
 
             const { interpolantList } = data;
             this.highlight(interpolantList);

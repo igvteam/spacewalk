@@ -51,15 +51,15 @@ class SceneManager {
             this.onContainerMouseMove(event)
         });
 
-        Globals.eventBus.subscribe("DidSelectSegmentIndex", this);
+        Globals.eventBus.subscribe("DidSelectSegmentID", this);
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidSelectSegmentIndex" === type && BallAndStick.getRenderStyle() === this.renderStyle) {
+        if ("DidSelectSegmentID" === type && BallAndStick.getRenderStyle() === this.renderStyle) {
 
             let objects = [];
-            data.segmentIndexList.forEach(segmentIndex => {
+            data.segmentIDList.forEach(segmentIndex => {
                 const segmentID = segmentIndex.toString();
                 if (Globals.ballAndStick.segmentObjectDictionary[ segmentID ]) {
                     let { object } = Globals.ballAndStick.segmentObjectDictionary[ segmentID ];

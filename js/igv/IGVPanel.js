@@ -2,7 +2,7 @@ import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
-import { setMaterialProvider, segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
+import { setMaterialProvider, segmentIDForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
 
 let currentURL = undefined;
 class IGVPanel {
@@ -335,9 +335,9 @@ export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) 
     }
 
     let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentIndex = segmentIndexForInterpolant(lerp(a, b, interpolant), structureLength);
+    const segmentID = segmentIDForInterpolant(lerp(a, b, interpolant), structureLength);
 
-    Globals.eventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolant ], segmentIndexList: [ segmentIndex ]} });
+    Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
 };
 
 export const genomes = "resources/genomes.json";

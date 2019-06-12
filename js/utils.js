@@ -7,14 +7,14 @@ const setMaterialProvider = materialProvider => {
     Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
 };
 
-const segmentIndexForInterpolant = (interpolant, structureLength) => {
+const segmentIDForInterpolant = (interpolant, structureLength) => {
 
     // find bucket. 0 based.
-    let quantized = quantize(interpolant, structureLength);
+    let quantized = quantize(interpolant, Globals.ensembleManager.maximumSegmentID);
 
     // Scale to structure length. Convert to discrete value (integer-ize).
-    // Segment index is 1-based.
-    return 1 + Math.ceil(quantized * (structureLength - 1));
+    // Add one. Segment index is 1-based.
+    return 1 + Math.ceil(quantized * (Globals.ensembleManager.maximumSegmentID - 1));
 };
 
 let moveOnScreen = (panelHost) => {
@@ -137,4 +137,4 @@ const createImage = imageSource => {
 
 };
 
-export { setMaterialProvider, segmentIndexForInterpolant, createImage, readFileAsDataURL, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
+export { setMaterialProvider, segmentIDForInterpolant, createImage, readFileAsDataURL, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
