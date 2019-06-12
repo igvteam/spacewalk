@@ -35,10 +35,6 @@ class BallAndStick {
         }
 
         this.balls.mesh.forEach((m, i, array) => {
-
-            // const interpolant = i / (array.length - 1);
-            // const color = materialProvider.colorForInterpolant(interpolant);
-
             const { segmentID } = this.objectSegmentDictionary[ m.uuid ];
             const color = materialProvider.colorForSegmentID(segmentID);
 
@@ -54,12 +50,10 @@ class BallAndStick {
         // 3D Object dictionary. Segment ID is key.
         this.segmentObjectDictionary = {};
 
-        let meshList = trace.geometry.vertices.map((vertex, index, array) => {
+        let meshList = trace.geometry.vertices.map((vertex, index) => {
 
-            // const genomicLocation = index * Globals.ensembleManager.stepSize + Globals.ensembleManager.locus.genomicStart;
             const { segmentID, genomicLocation } = trace.segmentList[ index ];
 
-            // const color = Globals.sceneManager.materialProvider.colorForInterpolant(index / (array.length - 1));
             const color = Globals.sceneManager.materialProvider.colorForSegmentID(segmentID);
             const material = new THREE.MeshPhongMaterial({ color });
 

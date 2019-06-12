@@ -194,7 +194,8 @@ class ColorRampMaterialProvider {
     }
 
     colorForSegmentID(segmentID) {
-        return appleCrayonColorThreeJS('strawberry');
+        const interpolant = (segmentID - 1) / (Globals.ensembleManager.maximumSegmentID - 1);
+        return Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
     }
 
     renderLoopHelper () {
