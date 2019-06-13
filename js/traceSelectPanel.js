@@ -147,8 +147,8 @@ class TraceSelectPanel {
         const { width:c_w, height: c_h } = this.container.getBoundingClientRect();
         const { width: w, height: h } = this.$panel.get(0).getBoundingClientRect();
 
-        // const left = 0.125 * w;
-        const left = (c_w - w)/2;
+        const left = w;
+        // const left = (c_w - w)/2;
 
         // const top = 0.5 * c_h;
         const top = c_h - 2 * h;

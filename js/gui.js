@@ -44,8 +44,8 @@ const createGUI = async container => {
 
     //
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
-    await igvPanel.initialize(igvBrowserConfigurator());
-    // await igvPanel.initialize(igvBrowserConfiguratorBigWig());
+    // await igvPanel.initialize(igvBrowserConfigurator());
+    await igvPanel.initialize(igvBrowserConfiguratorBigWig());
 
     //
     trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));

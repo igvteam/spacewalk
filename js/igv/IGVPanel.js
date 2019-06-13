@@ -173,10 +173,24 @@ class IGVPanel {
 
 }
 
-export const encodeTrackListLoader = async (browser, trackConfigurations) => {
+const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
-    const tracks = await browser.loadTrackList(trackConfigurations);
-    addDataValueMaterialProviderGUI(tracks);
+    if (undefined === Globals.ensembleManager || undefined === Globals.ensembleManager.locus) {
+        return;
+    }
+
+    const { genomicStart, genomicEnd } = Globals.ensembleManager.locus;
+
+    const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
+
+    if (xRejection) {
+        return;
+    }
+
+    let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
+    const segmentID = segmentIDForInterpolant(lerp(a, b, interpolant));
+
+    Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
 };
 
 const addDataValueMaterialProviderGUI = tracks => {
@@ -232,6 +246,12 @@ const addDataValueMaterialProviderGUI = tracks => {
         }
     }
 
+};
+
+export const encodeTrackListLoader = async (browser, trackConfigurations) => {
+
+    const tracks = await browser.loadTrackList(trackConfigurations);
+    addDataValueMaterialProviderGUI(tracks);
 };
 
 export const igvBrowserConfigurator = () => {
@@ -326,26 +346,6 @@ export const igvBrowserConfiguratorBigWig = () => {
         };
 
     return config;
-};
-
-export let IGVMouseHandler = ({ bp, start, end, interpolant }) => {
-
-    if (undefined === Globals.ensembleManager || undefined === Globals.ensembleManager.locus) {
-        return;
-    }
-
-    const { genomicStart, genomicEnd } = Globals.ensembleManager.locus;
-
-    const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
-
-    if (xRejection) {
-        return;
-    }
-
-    let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentID = segmentIDForInterpolant(lerp(a, b, interpolant));
-
-    Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
 };
 
 export const genomes = "resources/genomes.json";

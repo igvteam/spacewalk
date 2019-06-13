@@ -130,7 +130,7 @@ class JuiceboxPanel {
 
 }
 
-export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
 
     if (undefined === Globals.ensembleManager || undefined === Globals.ensembleManager.locus) {
         return;
