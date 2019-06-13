@@ -1,6 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
-import { rgb255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, greyScale255 } from './color.js';
+import { rgb255ToThreeJSColor, rgb255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, greyScale255 } from './color.js';
 
 let rgbTexture;
 let alphaTexture;
@@ -199,8 +199,46 @@ class DataValueMaterialProvider {
         return Globals.sceneManager.stickMaterial.color;
     }
 
-    colorForSegmentID(segmentID) {
-        return appleCrayonColorThreeJS('strawberry');
+    colorForSegment({ segmentID, genomicLocation }) {
+
+        const { features, min, max } = this;
+
+        const { r, g, b } = this.colorForGenomicLocation({bp: genomicLocation, features, min, max});
+
+        return rgb255ToThreeJSColor(r, g, b);
+    }
+
+    colorForGenomicLocation({bp, features, min, max}) {
+
+        let rgb255 = undefined;
+        let hit = undefined;
+
+        for (let feature of features) {
+
+            let { start: fsBP, end: feBP, value } = feature;
+
+            if (feBP < bp) {
+                continue;
+            } else if (fsBP > bp) {
+                continue;
+            }
+
+            fsBP = Math.max(bp, fsBP);
+            feBP = Math.min(bp, feBP);
+
+            let interpolant = (value - min) / (max - min);
+
+            if (undefined === hit) {
+                hit = value;
+                rgb255 = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolant);
+            } else if (hit && Math.abs(value) > Math.abs(hit)) {
+                hit = value;
+                rgb255 = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolant);
+            }
+
+        }
+
+        return rgb255;
     }
 
     renderLoopHelper () {

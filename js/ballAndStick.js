@@ -35,8 +35,8 @@ class BallAndStick {
         }
 
         this.balls.mesh.forEach((m, i, array) => {
-            const { segmentID } = this.objectSegmentDictionary[ m.uuid ];
-            const color = materialProvider.colorForSegmentID(segmentID);
+            const { segmentID, genomicLocation } = this.objectSegmentDictionary[ m.uuid ];
+            const color = materialProvider.colorForSegment({ segmentID, genomicLocation });
 
             m.material = new THREE.MeshPhongMaterial({ color });
         });
@@ -54,7 +54,7 @@ class BallAndStick {
 
             const { segmentID, genomicLocation } = trace.segmentList[ index ];
 
-            const color = Globals.sceneManager.materialProvider.colorForSegmentID(segmentID);
+            const color = Globals.sceneManager.materialProvider.colorForSegment({ segmentID, genomicLocation });
             const material = new THREE.MeshPhongMaterial({ color });
 
             const geometry = Globals.sceneManager.ballGeometry.clone();

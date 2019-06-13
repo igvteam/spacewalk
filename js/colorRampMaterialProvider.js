@@ -193,7 +193,7 @@ class ColorRampMaterialProvider {
         return Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
     }
 
-    colorForSegmentID(segmentID) {
+    colorForSegment({ segmentID, genomicLocation }) {
         const interpolant = (segmentID - 1) / (Globals.ensembleManager.maximumSegmentID - 1);
         return Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
     }
