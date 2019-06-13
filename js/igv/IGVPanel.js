@@ -100,6 +100,10 @@ class IGVPanel {
             console.warn(error.message);
         }
 
+        this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
+            IGVMouseHandler({ bp, start, end, interpolant })
+        });
+
     }
 
     goto({ chr, start, end }) {
@@ -324,7 +328,11 @@ export const igvBrowserConfiguratorBigWig = () => {
     return config;
 };
 
-export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
+export let IGVMouseHandler = ({ bp, start, end, interpolant }) => {
+
+    if (undefined === Globals.ensembleManager || undefined === Globals.ensembleManager.locus) {
+        return;
+    }
 
     const { genomicStart, genomicEnd } = Globals.ensembleManager.locus;
 

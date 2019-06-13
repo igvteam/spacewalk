@@ -3,14 +3,11 @@ import Globals from './globals.js';
 import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { IGVMouseHandler } from "./igv/IGVPanel.js";
-import { juiceboxMouseHandler } from "./juicebox/juiceboxPanel.js";
 import { distanceMapPanel, colorRampPanel, thumbnailPanel, igvPanel, juiceboxPanel, traceSelectPanel } from './gui.js';
 import { getDistanceMapCanvasWithTrace } from "./ensembleManager.js";
 import { guiManager } from "./gui.js";
 
 export let currentTrace;
-export let currentStructureLength;
 
 export const appEventListener =
     {
@@ -44,7 +41,6 @@ export const appEventListener =
 
                 Globals.sceneManager.dispose();
 
-                // setupPointCloud({ pointCloudGeometry: Globals.pointCloudManager.geometry });
                 setupPointCloud({ pointCloudGeometry: Globals.pointCloudManager.geometry, pointCloudConvexHullGeometry: Globals.pointCloudManager.convexHullGeometry });
 
             } else if ('DidLoadFile' === type) {
@@ -55,17 +51,10 @@ export const appEventListener =
 
                 Globals.ensembleManager.ingest({ path, string });
 
-                // const initialStructureKey = '0';
-                const initialStructureKey = '555';
+                const initialStructureKey = '0';
 
                 currentTrace = Globals.ensembleManager.traceWithName(initialStructureKey);
-                for (let segment of currentTrace.segmentList) {
-                    const star = segment.segmentID !== 1 + currentTrace.segmentList.indexOf(segment) ? '(*)' : '';
-                    const str = `index ${ currentTrace.segmentList.indexOf(segment) } segmentID ${ segment.segmentID } ${ star }`
-                    console.log(str);
-                }
-
-                currentStructureLength = currentTrace.geometry.vertices.length;
+                // Globals.ensembleManager.describeTraceWithName(initialStructureKey);
 
                 const { chr, genomicStart, genomicEnd } = Globals.ensembleManager.locus;
 
@@ -77,14 +66,6 @@ export const appEventListener =
                 juiceboxPanel.goto({ chr, start: genomicStart, end: genomicEnd });
 
                 colorRampPanel.configure({ genomicStart, genomicEnd });
-
-                igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                    IGVMouseHandler({ bp, start, end, interpolant, structureLength: currentStructureLength })
-                });
-
-                juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: currentStructureLength });
-                });
 
                 traceSelectPanel.configure({ ensemble: Globals.ensembleManager.ensemble, initialStructureKey });
 
@@ -98,21 +79,7 @@ export const appEventListener =
 
                 currentTrace = Globals.ensembleManager.traceWithName(data);
 
-                for (let segment of currentTrace.segmentList) {
-                    const star = segment.segmentID !== 1 + currentTrace.segmentList.indexOf(segment) ? '(*)' : '';
-                    const str = `index ${ currentTrace.segmentList.indexOf(segment) } segmentID ${ segment.segmentID } ${ star }`
-                    console.log(str);
-                }
-
-                currentStructureLength = currentTrace.geometry.vertices.length;
-
-                igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                    IGVMouseHandler({bp, start, end, interpolant, structureLength: currentStructureLength })
-                });
-
-                juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: currentStructureLength });
-                });
+                // Globals.ensembleManager.describeTraceWithName(data);
 
                 Globals.sceneManager.dispose();
 

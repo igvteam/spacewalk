@@ -70,6 +70,10 @@ class JuiceboxPanel {
         this.locus = 'all';
         await this.browser.parseGotoInput(this.locus);
 
+        this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+            juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
+        });
+
     }
 
     async goto({ chr, start, end }) {
@@ -126,7 +130,11 @@ class JuiceboxPanel {
 
 }
 
-export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength }) => {
+export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+
+    if (undefined === Globals.ensembleManager || undefined === Globals.ensembleManager.locus) {
+        return;
+    }
 
     const { genomicStart, genomicEnd } = Globals.ensembleManager.locus;
 

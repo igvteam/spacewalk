@@ -5,7 +5,6 @@ import KDBush from '../node_modules/kd3d/js/index.js'
 import { readFileAsText } from "./utils.js";
 import { rgb255String, appleCrayonColorRGB255 } from './color.js';
 import { contactFrequencyMapPanel } from './gui.js';
-import { segmentIDForInterpolant } from './utils.js';
 
 export let contactFrequencyDistanceThreshold = 256;
 
@@ -107,6 +106,18 @@ class EnsembleManager {
     traceWithName(name) {
         // return this.ensemble[ name ] || undefined;
         return this.ensemble[ name ] || undefined;
+    }
+
+    describeTraceWithName(name) {
+
+        const trace = this.traceWithName(name);
+
+        for (let segment of trace.segmentList) {
+            const star = segment.segmentID !== 1 + trace.segmentList.indexOf(segment) ? '(*)' : '';
+            const str = `index ${ trace.segmentList.indexOf(segment) } segmentID ${ segment.segmentID } ${ star }`;
+            console.log(str);
+        }
+
     }
 
     async loadURL ({ url, name }) {
