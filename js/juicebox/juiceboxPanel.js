@@ -4,7 +4,6 @@ import { makeDraggable } from "../draggable.js";
 import { lerp } from '../math.js'
 import { segmentIDForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
 
-let currentURL = undefined;
 class JuiceboxPanel {
 
     constructor ({ container, panel, isHidden }) {
@@ -34,6 +33,7 @@ class JuiceboxPanel {
         });
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe('DidLoadFile', this);
 
     }
 
@@ -49,6 +49,10 @@ class JuiceboxPanel {
             }
 
             this.isHidden = !this.isHidden;
+        } else if ("DidLoadFile" === type) {
+
+            const { chr, genomicStart, genomicEnd } = data;
+            this.goto({ chr, start: genomicStart, end: genomicEnd });
         }
     }
 

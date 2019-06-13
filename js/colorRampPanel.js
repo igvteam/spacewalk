@@ -48,6 +48,9 @@ class ColorRampPanel {
         });
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe('DidSelectStructure', this);
+        Globals.eventBus.subscribe('DidLoadFile', this);
+
     }
 
     receiveEvent({ type, data }) {
@@ -62,6 +65,13 @@ class ColorRampPanel {
 
             this.isHidden = !this.isHidden;
 
+        } else if ("DidSelectStructure" === type) {
+
+            this.colorRampMaterialProvider.repaint();
+        } else if ("DidLoadFile" === type) {
+
+            const { genomicStart, genomicEnd } = data;
+            this.configure({ genomicStart, genomicEnd });
         }
     }
 

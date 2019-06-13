@@ -12,12 +12,9 @@ class EnsembleManager {
 
     constructor () {
         this.stepSize = 3e4;
-        this.path = undefined;
     }
 
     ingest({ path, string }){
-
-        this.path = path;
 
         this.locus = parsePathEncodedGenomicLocation(path);
 
@@ -103,14 +100,14 @@ class EnsembleManager {
 
     }
 
-    traceWithName(name) {
+    getTraceWithName(name) {
         // return this.ensemble[ name ] || undefined;
         return this.ensemble[ name ] || undefined;
     }
 
     describeTraceWithName(name) {
 
-        const trace = this.traceWithName(name);
+        const trace = this.getTraceWithName(name);
 
         for (let segment of trace.segmentList) {
             const star = segment.segmentID !== 1 + trace.segmentList.indexOf(segment) ? '(*)' : '';
@@ -127,7 +124,8 @@ class EnsembleManager {
             let urlContents = await igv.xhr.load(url);
             const { file } = igv.parseUri(url);
 
-            Globals.eventBus.post({ type: "DidLoadFile", data: { name: file, payload: urlContents } });
+            const { chr, genomicStart, genomicEnd } = parsePathEncodedGenomicLocation(file);
+            Globals.eventBus.post({ type: "DidLoadFile", data: { name: file, payload: urlContents, chr, genomicStart, genomicEnd } });
 
         } catch (error) {
             console.warn(error.message);
@@ -139,7 +137,8 @@ class EnsembleManager {
 
         try {
             const fileContents = await readFileAsText(file);
-            Globals.eventBus.post({ type: "DidLoadFile", data: { name: file.name, payload: fileContents } });
+            const { chr, genomicStart, genomicEnd } = parsePathEncodedGenomicLocation(file.name);
+            Globals.eventBus.post({ type: "DidLoadFile", data: { name: file.name, payload: fileContents, chr, genomicStart, genomicEnd } });
         } catch (e) {
             console.warn(e.message)
         }
@@ -147,7 +146,7 @@ class EnsembleManager {
     }
 }
 
-const parsePathEncodedGenomicLocation = path => {
+export const parsePathEncodedGenomicLocation = path => {
 
     let dev_null;
     let parts = path.split('_');
@@ -161,11 +160,7 @@ const parsePathEncodedGenomicLocation = path => {
     dev_null.pop(); // 3 0
     end = dev_null.join(''); // 30
 
-    return {
-        chr,
-        genomicStart: parseInt(start) * 1e6,
-        genomicEnd: parseInt(end) * 1e6
-    };
+    return { chr, genomicStart: parseInt(start) * 1e6, genomicEnd: parseInt(end) * 1e6 };
 };
 
 export const getBoundsWithTrace = (trace) => {

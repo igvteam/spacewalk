@@ -66,6 +66,8 @@ class IGVPanel {
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe("DidChangeMaterialProvider", this);
+        Globals.eventBus.subscribe('DidLoadFile', this);
+
     }
 
     receiveEvent({ type, data }) {
@@ -85,10 +87,16 @@ class IGVPanel {
 
             this.isHidden = !this.isHidden;
         } else if ("DidChangeMaterialProvider" === type) {
+
             const { trackContainerDiv } = igv.browser;
             $(trackContainerDiv).find('.input-group input').prop('checked', false);
+        } else if ("DidLoadFile" === type) {
+
+            const { chr, genomicStart, genomicEnd } = data;
+            this.goto({ chr, start: genomicStart, end: genomicEnd });
         }
-    }
+
+}
 
     async initialize(config) {
 
