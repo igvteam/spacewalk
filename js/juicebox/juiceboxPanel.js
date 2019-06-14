@@ -155,15 +155,8 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
         return;
     }
 
-    let a;
-    let b;
-
-    [ a, b ] = [ (startXBP - genomicStart)/(genomicEnd - genomicStart), (endXBP - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentIDX = segmentIDForInterpolant(lerp(a, b, interpolantX));
-
-    [ a, b ] = [ (startYBP - genomicStart)/(genomicEnd - genomicStart), (endYBP - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentIDY = segmentIDForInterpolant(lerp(a, b, interpolantY));
-
+    const segmentIDX = Globals.ensembleManager.segmentIDForGenomicLocation(xBP);
+    const segmentIDY = Globals.ensembleManager.segmentIDForGenomicLocation(yBP);
     const segmentIDList = segmentIDX === segmentIDY ? [ segmentIDX ] : [ segmentIDX, segmentIDY ];
 
     Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ], segmentIDList } });

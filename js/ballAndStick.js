@@ -34,7 +34,7 @@ class BallAndStick {
             return;
         }
 
-        this.balls.mesh.forEach((m, i, array) => {
+        this.balls.mesh.forEach(m => {
             const { segmentID, genomicLocation } = this.objectSegmentDictionary[ m.uuid ];
             const color = materialProvider.colorForSegment({ segmentID, genomicLocation });
 

@@ -195,8 +195,7 @@ const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
         return;
     }
 
-    let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentID = segmentIDForInterpolant(lerp(a, b, interpolant));
+    const segmentID = Globals.ensembleManager.segmentIDForGenomicLocation(bp);
 
     Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
 };

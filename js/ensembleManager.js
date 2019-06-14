@@ -117,6 +117,13 @@ class EnsembleManager {
 
     }
 
+    segmentIDForGenomicLocation(bp) {
+
+        let delta = Math.round(bp - this.locus.genomicStart);
+        let segmentID = 1 + Math.floor(delta / this.stepSize);
+        return segmentID;
+    }
+
     async loadURL ({ url, name }) {
 
         try {
