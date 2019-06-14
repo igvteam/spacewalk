@@ -24,11 +24,11 @@ export const appEventListener =
                     Globals.ballAndStick.show();
                 }
 
-                if (false === thumbnailPanel.isHidden) {
-                    const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;
-                    thumbnailPanel.configure(model);
-                    thumbnailPanel.render();
-                }
+                // if (false === thumbnailPanel.isHidden) {
+                //     const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;
+                //     thumbnailPanel.configure(model);
+                //     thumbnailPanel.render();
+                // }
 
             }  else if ('DidLoadPointCloudFile' === type) {
 
@@ -101,11 +101,11 @@ let setup = ({ trace }) => {
     const { position, fov } = Globals.ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
     Globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
 
-    if (false === thumbnailPanel.isHidden) {
-        const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;
-        thumbnailPanel.configure(model);
-        thumbnailPanel.render();
-    }
+    // if (false === thumbnailPanel.isHidden) {
+    //     const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;
+    //     thumbnailPanel.configure(model);
+    //     thumbnailPanel.render();
+    // }
 
     distanceMapPanel.draw(getDistanceMapCanvasWithTrace(trace));
 };

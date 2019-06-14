@@ -36,7 +36,7 @@ const createGUI = async container => {
     colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, highlightColor }) );
     Globals.colorRampMaterialProvider = colorRampPanel.colorRampMaterialProvider;
 
-    thumbnailPanel = new ThumbnailPanel(thumbnailPanelConfigurator(container));
+    // thumbnailPanel = new ThumbnailPanel(thumbnailPanelConfigurator(container));
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator(container));
 
