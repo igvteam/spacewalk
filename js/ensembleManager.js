@@ -121,11 +121,11 @@ class EnsembleManager {
 
         try {
 
-            let urlContents = await igv.xhr.load(url);
-            const { file } = igv.parseUri(url);
+            let string = await igv.xhr.load(url);
+            const { file:path } = igv.parseUri(url);
 
-            const { chr, genomicStart, genomicEnd } = parsePathEncodedGenomicLocation(file);
-            Globals.eventBus.post({ type: "DidLoadFile", data: { name: file, payload: urlContents, chr, genomicStart, genomicEnd } });
+            const { chr, genomicStart, genomicEnd } = parsePathEncodedGenomicLocation(path);
+            Globals.eventBus.post({ type: "DidLoadFile", data: { path, string, chr, genomicStart, genomicEnd } });
 
         } catch (error) {
             console.warn(error.message);
@@ -136,9 +136,10 @@ class EnsembleManager {
     async loadLocalFile ({ file }) {
 
         try {
-            const fileContents = await readFileAsText(file);
-            const { chr, genomicStart, genomicEnd } = parsePathEncodedGenomicLocation(file.name);
-            Globals.eventBus.post({ type: "DidLoadFile", data: { name: file.name, payload: fileContents, chr, genomicStart, genomicEnd } });
+            const string = await readFileAsText(file);
+            const { name: path } = file;
+            const { chr, genomicStart, genomicEnd } = parsePathEncodedGenomicLocation(path);
+            Globals.eventBus.post({ type: "DidLoadFile", data: { path, string, chr, genomicStart, genomicEnd } });
         } catch (e) {
             console.warn(e.message)
         }

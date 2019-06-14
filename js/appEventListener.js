@@ -40,7 +40,7 @@ export const appEventListener =
 
             } else if ('DidLoadFile' === type) {
 
-                const { name: path, payload: string, chr, genomicStart, genomicEnd } = data;
+                const { path, string, chr, genomicStart, genomicEnd } = data;
 
                 const str = 'STRUCTURE: CHR ' + chr + ' ' + Math.floor(genomicStart/1e6) + 'MB to ' + Math.floor(genomicEnd/1e6) + 'MB';
                 $('.navbar').find('#spacewalk-file-name').text(str);
