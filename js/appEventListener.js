@@ -32,7 +32,7 @@ export const appEventListener =
 
             }  else if ('DidLoadPointCloudFile' === type) {
 
-                const { name: path, payload: string } = data;
+                const { path, string } = data;
 
                 Globals.pointCloudManager.ingest({ path, string });
 

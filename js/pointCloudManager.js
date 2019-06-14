@@ -66,11 +66,10 @@ class PointCloudManager {
 
         try {
 
-            let urlContents = await igv.xhr.load(url);
-            const { file } = igv.parseUri(url);
+            const string = await igv.xhr.load(url);
+            const { file: path } = igv.parseUri(url);
 
-            Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { name: file, payload: urlContents } });
-
+            Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { path, string } });
         } catch (error) {
             console.warn(error.message);
         }
@@ -80,8 +79,10 @@ class PointCloudManager {
     async loadLocalFile ({ file }) {
 
         try {
-            const fileContents = await readFileAsText(file);
-            Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { name: file.name, payload: fileContents } });
+            const string = await readFileAsText(file);
+            const { name: path } = file;
+
+            Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { path, string } });
         } catch (e) {
             console.warn(e.message)
         }
