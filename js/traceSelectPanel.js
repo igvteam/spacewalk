@@ -3,7 +3,7 @@ import { makeDraggable } from "./draggable.js";
 import { clamp } from './math.js'
 import { moveOffScreen, moveOnScreen } from './utils.js';
 
-let currentStructureKey = undefined;
+let currentNumber = undefined;
 class TraceSelectPanel {
 
     constructor({ container, panel, isHidden }) {
@@ -18,8 +18,6 @@ class TraceSelectPanel {
 
         this.$button_minus = $('#spacewalk_trace_select_button_minus');
         this.$button_plus = $('#spacewalk_trace_select_button_plus');
-
-        this.keys = undefined;
 
         if (isHidden) {
             moveOffScreen(this);
@@ -42,39 +40,18 @@ class TraceSelectPanel {
         });
 
         this.$button_minus.on('click.spacewalk_trace_select_button_minus', (e) => {
-
-            let number = parseInt(currentStructureKey);
-            number = clamp(number - 1, 0, (this.keys.length - 1));
-            currentStructureKey = number.toString();
-
-            this.$input.val(currentStructureKey);
-
-            Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+            this.broadcastUpdate( clamp(currentNumber - 1, 0, this.howmany - 1) );
         });
 
         this.$button_plus.on('click.spacewalk_trace_select_button_plus', (e) => {
-
-            let number = parseInt(currentStructureKey);
-            number = clamp(number + 1, 0, (this.keys.length - 1));
-            currentStructureKey = number.toString();
-
-            this.$input.val(currentStructureKey);
-
-            Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+            this.broadcastUpdate( clamp(currentNumber + 1, 0, this.howmany - 1));
         });
 
         this.$input.on('keyup.spacewalk_trace_select_input', (e) => {
 
             // enter (return) key pressed
             if (13 === e.keyCode) {
-
-                let number = parseInt( this.$input.val() );
-                number = clamp(number, 0, (this.keys.length - 1));
-
-                currentStructureKey = number.toString();
-                this.$input.val(currentStructureKey);
-
-                Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+                this.broadcastUpdate( clamp(parseInt(this.$input.val(), 10), 0, this.howmany - 1) );
             }
 
         });
@@ -97,6 +74,8 @@ class TraceSelectPanel {
         $(document).on('keyup.trace_select', handleKeyUp);
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe("DidLoadPointCloudFile", this);
+        Globals.eventBus.subscribe("DidLoadFile", this);
 
     }
 
@@ -110,28 +89,49 @@ class TraceSelectPanel {
                 moveOffScreen(this);
             }
             this.isHidden = !this.isHidden;
+        }  else if ('DidLoadPointCloudFile' === type) {
+            this.datatype = 'point-cloud';
+        } else if ('DidLoadFile' === type) {
+            this.datatype = 'traces';
         }
     }
 
     updateStructureKey(value) {
-
-        let number = parseInt(currentStructureKey);
-        number = clamp(number + value, 0, (this.keys.length - 1));
-
-        currentStructureKey = number.toString();
-
-        this.$input.val(currentStructureKey);
-
-        Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+        this.broadcastUpdate( clamp(currentNumber + value, 0, this.howmany - 1) );
     };
 
-    configure({ ensemble, initialStructureKey }) {
+    broadcastUpdate(number) {
 
-        this.keys = Object.keys(ensemble);
-        this.$header.text(this.keys.length + ' traces');
+        currentNumber = number;
+        this.$input.val(currentNumber);
 
-        currentStructureKey = initialStructureKey;
-        this.$input.val(currentStructureKey);
+        if ('traces' === this.datatype) {
+            Globals.eventBus.post({ type: "DidSelectStructure", data: currentNumber.toString() });
+        } else if ('point-cloud' === this.datatype) {
+            Globals.eventBus.post({ type: "DidSelectPointCloud", data: currentNumber });
+        }
+
+    }
+
+    configureWithPointCloudList({ pointCloudList, index }) {
+
+        this.howmany = pointCloudList.length;
+        const str = this.howmany + ' ' + this.datatype;
+        this.$header.text(str);
+
+        currentNumber = index;
+        this.$input.val(currentNumber);
+
+    }
+
+    configureWithEnsemble({ ensemble, key }) {
+
+        this.howmany = Object.keys(ensemble).length;
+        const str = this.howmany + ' ' + this.datatype;
+        this.$header.text(str);
+
+        currentNumber = parseInt(key, 10);
+        this.$input.val(currentNumber);
 
     }
 

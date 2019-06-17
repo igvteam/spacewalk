@@ -6,8 +6,6 @@ import BallAndStick from "./ballAndStick.js";
 import { distanceMapPanel, guiManager, thumbnailPanel, traceSelectPanel } from './gui.js';
 import { getDistanceMapCanvasWithTrace } from "./ensembleManager.js";
 
-export let trace;
-
 export const appEventListener =
     {
         receiveEvent: async ({ type, data }) => {
@@ -36,7 +34,11 @@ export const appEventListener =
 
                 Globals.pointCloudManager.ingest({ path, string });
 
-                const pc = Globals.pointCloudManager.list[ 0 ];
+                const index = 0;
+
+                traceSelectPanel.configureWithPointCloudList({ pointCloudList: Globals.pointCloudManager.list, index });
+
+                let pc = Globals.pointCloudManager.list[ index ];
                 setupPointCloud(pc);
 
             } else if ('DidLoadFile' === type) {
@@ -48,17 +50,23 @@ export const appEventListener =
 
                 Globals.ensembleManager.ingest({ path, string });
 
-                const initialStructureKey = '0';
-                trace = Globals.ensembleManager.getTraceWithName(initialStructureKey);
+                const key = '0';
 
-                traceSelectPanel.configure({ ensemble: Globals.ensembleManager.ensemble, initialStructureKey });
+                traceSelectPanel.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key });
+
+                let trace = Globals.ensembleManager.getTraceWithName(key);
 
                 setup({ trace });
 
             } else if ('DidSelectStructure' === type) {
 
-                trace = Globals.ensembleManager.getTraceWithName(data);
+                let trace = Globals.ensembleManager.getTraceWithName(data);
                 setup({ trace });
+
+            } else if ('DidSelectPointCloud' === type) {
+
+                let pc = Globals.pointCloudManager.list[ data ];
+                setupPointCloud(pc);
 
             } else if ('ToggleAllUIControls' === type) {
                 // $('.navbar').toggle();
