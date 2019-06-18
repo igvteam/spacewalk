@@ -12,14 +12,12 @@ class EnsembleManager {
 
     constructor () {
         this.stepSize = 3e4;
-        this.path = undefined;
     }
 
     ingest({ path, string }){
 
-        this.path = path;
-
         this.locus = parsePathEncodedGenomicLocation(path);
+        this.path = path;
 
         this.ensemble = {};
 
@@ -38,44 +36,56 @@ class EnsembleManager {
 
         let key;
         let trace;
+        let counter;
         for (let line of lines) {
 
             let parts = line.split(',');
+
+            const index = parseInt(parts[ 0 ], 10) - 1;
+
+            if (undefined === key || key !== index.toString()) {
+
+                key = index.toString();
+
+                this.ensemble[ key ] = trace =
+                    {
+                        segmentList:[],
+                        geometry: new THREE.Geometry(),
+                        material: new THREE.MeshPhongMaterial()
+                    };
+
+                // capture the nominal trace length by recording the maximum possible number of segments
+                if (counter && undefined === this.maximumSegmentID) {
+                    this.maximumSegmentID = counter;
+                }
+
+                counter = 0;
+
+            }
 
             if ('nan' === parts[ 2 ] || 'nan' === parts[ 3 ] || 'nan' === parts[ 4 ]) {
                 // do nothing
             } else {
 
-                const index = parseInt(parts[ 0 ], 10) - 1;
-
-                if (undefined === key || key !== index.toString()) {
-
-                    key = index.toString();
-
-                    this.ensemble[ key ] = trace =
-                        {
-                            segmentIDList: [],
-                            geometry: new THREE.Geometry(),
-                            material: new THREE.MeshPhongMaterial()
-                        };
-
-                }
-
                 // discard chr-index
                 parts.shift();
 
-                // discard segment-index
-                let segmentID = parts.shift();
+                // capture segment-index
+                let token = parts.shift();
 
-                // NOTE: Segment IDs are 1-based.
-                trace.segmentIDList.push( parseInt(segmentID, 10) );
+                // NOTE: Segment ID is 1-based.
+                const segmentID = parseInt(token, 10);
+                const segmentIDIndex = segmentID - 1;
+                const genomicLocation = this.locus.genomicStart + this.stepSize * (0.5 + segmentIDIndex);
+                trace.segmentList.push( { segmentID, genomicLocation } );
 
                 let [ z, x, y ] = parts;
                 const centroid = new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z));
                 trace.geometry.vertices.push( centroid );
 
-
             }
+
+            ++counter;
 
         } // for (lines)
 
@@ -91,19 +101,39 @@ class EnsembleManager {
 
     }
 
-    traceWithName(name) {
+    getTraceWithName(name) {
         // return this.ensemble[ name ] || undefined;
         return this.ensemble[ name ] || undefined;
+    }
+
+    describeTraceWithName(name) {
+
+        const trace = this.getTraceWithName(name);
+
+        for (let segment of trace.segmentList) {
+            const star = segment.segmentID !== 1 + trace.segmentList.indexOf(segment) ? '(*)' : '';
+            const str = `index ${ trace.segmentList.indexOf(segment) } segmentID ${ segment.segmentID } ${ star }`;
+            console.log(str);
+        }
+
+    }
+
+    segmentIDForGenomicLocation(bp) {
+
+        let delta = Math.round(bp - this.locus.genomicStart);
+        let segmentID = 1 + Math.floor(delta / this.stepSize);
+        return segmentID;
     }
 
     async loadURL ({ url, name }) {
 
         try {
 
-            let urlContents = await igv.xhr.load(url);
-            const { file } = igv.parseUri(url);
+            let string = await igv.xhr.load(url);
+            const { file:path } = igv.parseUri(url);
 
-            Globals.eventBus.post({ type: "DidLoadFile", data: { name: file, payload: urlContents } });
+            const { chr, genomicStart, genomicEnd } = parsePathEncodedGenomicLocation(path);
+            Globals.eventBus.post({ type: "DidLoadFile", data: { path, string, chr, genomicStart, genomicEnd } });
 
         } catch (error) {
             console.warn(error.message);
@@ -114,16 +144,23 @@ class EnsembleManager {
     async loadLocalFile ({ file }) {
 
         try {
-            const fileContents = await readFileAsText(file);
-            Globals.eventBus.post({ type: "DidLoadFile", data: { name: file.name, payload: fileContents } });
+            const string = await readFileAsText(file);
+            const { name: path } = file;
+            const { chr, genomicStart, genomicEnd } = parsePathEncodedGenomicLocation(path);
+            Globals.eventBus.post({ type: "DidLoadFile", data: { path, string, chr, genomicStart, genomicEnd } });
         } catch (e) {
             console.warn(e.message)
         }
 
     }
+
+    blurb() {
+        const cellLine = this.path.split('_').shift();
+        const str = `Cell Line ${ cellLine } `
+    }
 }
 
-const parsePathEncodedGenomicLocation = path => {
+export const parsePathEncodedGenomicLocation = path => {
 
     let dev_null;
     let parts = path.split('_');
@@ -137,11 +174,7 @@ const parsePathEncodedGenomicLocation = path => {
     dev_null.pop(); // 3 0
     end = dev_null.join(''); // 30
 
-    return {
-        chr,
-        genomicStart: parseInt(start) * 1e6,
-        genomicEnd: parseInt(end) * 1e6
-    };
+    return { chr, genomicStart: parseInt(start) * 1e6, genomicEnd: parseInt(end) * 1e6 };
 };
 
 export const getBoundsWithTrace = (trace) => {
@@ -154,10 +187,7 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
     const ensembleList = Object.values(ensemble);
 
-    let mapSize = Number.NEGATIVE_INFINITY;
-    for (let trace of ensembleList) {
-        mapSize = Math.max(mapSize, Math.max(...(trace.segmentIDList)));
-    }
+    let mapSize = Globals.ensembleManager.maximumSegmentID;
 
     console.time(`index ${ ensembleList.length } traces`);
 
@@ -180,7 +210,7 @@ export const getContactFrequencyCanvasWithEnsemble = (ensemble, distanceThreshol
 
             const ids = spatialIndex.within(x, y, z, distanceThreshold);
 
-            const traceSegmentID = trace.segmentIDList[ i ];
+            const traceSegmentID = trace.segmentList[ i ].segmentID;
             const ids_filtered = ids.filter(id => id !== traceSegmentID);
 
             if (ids_filtered.length > 0) {
@@ -250,10 +280,7 @@ export const getDistanceMapCanvasWithTrace = trace => {
 
     const ensembleList = Object.values(Globals.ensembleManager.ensemble);
 
-    let mapSize = Number.NEGATIVE_INFINITY;
-    for (let trace of ensembleList) {
-        mapSize = Math.max(mapSize, Math.max(...(trace.segmentIDList)));
-    }
+    let mapSize = Globals.ensembleManager.maximumSegmentID;
 
     let distances = new Array(mapSize * mapSize);
     for (let d = 0; d < distances.length; d++) distances[ d ] = 0;
@@ -265,12 +292,12 @@ export const getDistanceMapCanvasWithTrace = trace => {
     for (let i = 0; i < length; i++) {
 
         const candidate = vertices[ i ];
-        const i_segmentIDIndex = trace.segmentIDList[ i ] - 1;
+        const i_segmentIDIndex = trace.segmentList[ i ].segmentID - 1;
 
         for (let j = 0; j < length; j++) {
 
             const centroid = vertices[ j ];
-            const j_segmentIDIndex = trace.segmentIDList[ j ] - 1;
+            const j_segmentIDIndex = trace.segmentList[ j ].segmentID - 1;
 
             const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
             const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
@@ -331,7 +358,7 @@ export const getDistanceMapCanvasWithTrace = trace => {
 const kdBushConfguratorWithTrace = trace => {
 
     return {
-        idList: trace.segmentIDList,
+        idList: trace.segmentList.map(segment => segment.segmentID),
         points: trace.geometry.vertices,
         getX: pt => pt.x,
         getY: pt => pt.y,

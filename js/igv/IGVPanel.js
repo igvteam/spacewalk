@@ -2,7 +2,7 @@ import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from "../math.js";
-import { setMaterialProvider, segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
+import { setMaterialProvider, segmentIDForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
 
 let currentURL = undefined;
 class IGVPanel {
@@ -66,6 +66,8 @@ class IGVPanel {
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe("DidChangeMaterialProvider", this);
+        Globals.eventBus.subscribe('DidLoadFile', this);
+
     }
 
     receiveEvent({ type, data }) {
@@ -85,10 +87,16 @@ class IGVPanel {
 
             this.isHidden = !this.isHidden;
         } else if ("DidChangeMaterialProvider" === type) {
+
             const { trackContainerDiv } = igv.browser;
             $(trackContainerDiv).find('.input-group input').prop('checked', false);
+        } else if ("DidLoadFile" === type) {
+
+            const { chr, genomicStart, genomicEnd } = data;
+            this.goto({ chr, start: genomicStart, end: genomicEnd });
         }
-    }
+
+}
 
     async initialize(config) {
 
@@ -99,6 +107,10 @@ class IGVPanel {
         } catch (error) {
             console.warn(error.message);
         }
+
+        this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
+            IGVMouseHandler({ bp, start, end, interpolant })
+        });
 
     }
 
@@ -169,10 +181,23 @@ class IGVPanel {
 
 }
 
-export const encodeTrackListLoader = async (browser, trackConfigurations) => {
+const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
-    const tracks = await browser.loadTrackList(trackConfigurations);
-    addDataValueMaterialProviderGUI(tracks);
+    if (undefined === Globals.ensembleManager || undefined === Globals.ensembleManager.locus) {
+        return;
+    }
+
+    const { genomicStart, genomicEnd } = Globals.ensembleManager.locus;
+
+    const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
+
+    if (xRejection) {
+        return;
+    }
+
+    const segmentID = Globals.ensembleManager.segmentIDForGenomicLocation(bp);
+
+    Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
 };
 
 const addDataValueMaterialProviderGUI = tracks => {
@@ -228,6 +253,12 @@ const addDataValueMaterialProviderGUI = tracks => {
         }
     }
 
+};
+
+export const encodeTrackListLoader = async (browser, trackConfigurations) => {
+
+    const tracks = await browser.loadTrackList(trackConfigurations);
+    addDataValueMaterialProviderGUI(tracks);
 };
 
 export const igvBrowserConfigurator = () => {
@@ -322,22 +353,6 @@ export const igvBrowserConfiguratorBigWig = () => {
         };
 
     return config;
-};
-
-export let IGVMouseHandler = ({ bp, start, end, interpolant, structureLength }) => {
-
-    const { genomicStart, genomicEnd } = Globals.ensembleManager.locus;
-
-    const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
-
-    if (xRejection) {
-        return;
-    }
-
-    let [ a, b ] = [ (start - genomicStart)/(genomicEnd - genomicStart), (end - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentIndex = segmentIndexForInterpolant(lerp(a, b, interpolant), structureLength);
-
-    Globals.eventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolant ], segmentIndexList: [ segmentIndex ]} });
 };
 
 export const genomes = "resources/genomes.json";

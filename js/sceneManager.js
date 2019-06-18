@@ -51,18 +51,18 @@ class SceneManager {
             this.onContainerMouseMove(event)
         });
 
-        Globals.eventBus.subscribe("DidSelectSegmentIndex", this);
+        Globals.eventBus.subscribe("DidSelectSegmentID", this);
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidSelectSegmentIndex" === type && BallAndStick.getRenderStyle() === this.renderStyle) {
+        if ("DidSelectSegmentID" === type && BallAndStick.getRenderStyle() === this.renderStyle) {
 
             let objects = [];
-            data.segmentIndexList.forEach(item => {
-                const index = item - 1;
-                if (Globals.ballAndStick.objectList[ index ]) {
-                    let { object } = Globals.ballAndStick.objectList[ index ];
+            data.segmentIDList.forEach(id => {
+                const segmentID = id.toString();
+                if (Globals.ballAndStick.segmentObjectDictionary[ segmentID ]) {
+                    let { object } = Globals.ballAndStick.segmentObjectDictionary[ segmentID ];
                     objects.push(object);
                 }
             });

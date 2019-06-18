@@ -3,7 +3,7 @@ import { makeDraggable } from "./draggable.js";
 import { clamp } from './math.js'
 import { moveOffScreen, moveOnScreen } from './utils.js';
 
-let currentStructureKey = undefined;
+let currentNumber = undefined;
 class TraceSelectPanel {
 
     constructor({ container, panel, isHidden }) {
@@ -18,8 +18,6 @@ class TraceSelectPanel {
 
         this.$button_minus = $('#spacewalk_trace_select_button_minus');
         this.$button_plus = $('#spacewalk_trace_select_button_plus');
-
-        this.keys = undefined;
 
         if (isHidden) {
             moveOffScreen(this);
@@ -42,39 +40,18 @@ class TraceSelectPanel {
         });
 
         this.$button_minus.on('click.spacewalk_trace_select_button_minus', (e) => {
-
-            let number = parseInt(currentStructureKey);
-            number = clamp(number - 1, 0, (this.keys.length - 1));
-            currentStructureKey = number.toString();
-
-            this.$input.val(currentStructureKey);
-
-            Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+            this.broadcastUpdate( clamp(currentNumber - 1, 0, this.howmany - 1) );
         });
 
         this.$button_plus.on('click.spacewalk_trace_select_button_plus', (e) => {
-
-            let number = parseInt(currentStructureKey);
-            number = clamp(number + 1, 0, (this.keys.length - 1));
-            currentStructureKey = number.toString();
-
-            this.$input.val(currentStructureKey);
-
-            Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+            this.broadcastUpdate( clamp(currentNumber + 1, 0, this.howmany - 1));
         });
 
         this.$input.on('keyup.spacewalk_trace_select_input', (e) => {
 
             // enter (return) key pressed
             if (13 === e.keyCode) {
-
-                let number = parseInt( this.$input.val() );
-                number = clamp(number, 0, (this.keys.length - 1));
-
-                currentStructureKey = number.toString();
-                this.$input.val(currentStructureKey);
-
-                Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+                this.broadcastUpdate( clamp(parseInt(this.$input.val(), 10), 0, this.howmany - 1) );
             }
 
         });
@@ -114,24 +91,23 @@ class TraceSelectPanel {
     }
 
     updateStructureKey(value) {
-
-        let number = parseInt(currentStructureKey);
-        number = clamp(number + value, 0, (this.keys.length - 1));
-
-        currentStructureKey = number.toString();
-
-        this.$input.val(currentStructureKey);
-
-        Globals.eventBus.post({ type: "DidSelectStructure", data: currentStructureKey });
+        this.broadcastUpdate( clamp(currentNumber + value, 0, this.howmany - 1) );
     };
 
-    configure({ ensemble, initialStructureKey }) {
+    broadcastUpdate(number) {
+        currentNumber = number;
+        this.$input.val(currentNumber);
+        Globals.eventBus.post({ type: "DidSelectStructure", data: currentNumber.toString() });
+    }
 
-        this.keys = Object.keys(ensemble);
-        this.$header.text(this.keys.length + ' traces');
+    configureWithEnsemble({ ensemble, key }) {
 
-        currentStructureKey = initialStructureKey;
-        this.$input.val(currentStructureKey);
+        this.howmany = Object.keys(ensemble).length;
+        const str = this.howmany + ' traces';
+        this.$header.text(str);
+
+        currentNumber = parseInt(key, 10);
+        this.$input.val(currentNumber);
 
     }
 
@@ -144,12 +120,15 @@ class TraceSelectPanel {
     layout() {
 
         // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-        const { height: c_h } = this.container.getBoundingClientRect();
+        const { width:c_w, height: c_h } = this.container.getBoundingClientRect();
         const { width: w, height: h } = this.$panel.get(0).getBoundingClientRect();
 
-        const left = 0.125 * w;
-        // const top = (c_h - h)/2;
-        const top = 0.5 * c_h;
+        const left = w;
+        // const left = (c_w - w)/2;
+
+        // const top = 0.5 * c_h;
+        const top = c_h - 2 * h;
+
         this.$panel.offset( { left, top } );
     }
 

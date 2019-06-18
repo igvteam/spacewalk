@@ -1,15 +1,13 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
-import { rgb255, rgb255Lerp, rgb255String, appleCrayonColorThreeJS, greyScale255 } from './color.js';
-import { currentStructureLength } from './appEventListener.js';
+import { rgb255ToThreeJSColor, rgb255, rgb255Lerp, rgb255String, greyScale255 } from './color.js';
 
 let rgbTexture;
 let alphaTexture;
 
 const alpha_visible = `rgb(${255},${255},${255})`;
-const rgb_missing_feature = rgb255String(greyScale255(250));
+const rgb255MissingFeature = greyScale255(250);
 
-const diagnosticColor = appleCrayonColorThreeJS('strawberry');
 class DataValueMaterialProvider {
 
     constructor ({ width, height, colorMinimum, colorMaximum, highlightColor }) {
@@ -54,12 +52,12 @@ class DataValueMaterialProvider {
         this.featureRects = undefined;
 
         Globals.eventBus.subscribe("DidLeaveGUI", this);
-        Globals.eventBus.subscribe("DidSelectSegmentIndex", this);
+        Globals.eventBus.subscribe("DidSelectSegmentID", this);
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidSelectSegmentIndex" === type) {
+        if ("DidSelectSegmentID" === type) {
 
             const { interpolantList } = data;
             this.highlight(interpolantList);
@@ -74,7 +72,7 @@ class DataValueMaterialProvider {
 
     highlight(interpolantList) {
 
-        if (undefined === currentStructureLength) {
+        if (undefined === Globals.ensembleManager.maximumSegmentID) {
             return;
         }
 
@@ -84,7 +82,7 @@ class DataValueMaterialProvider {
 
     configure({ startBP, endBP, features, min, max }) {
 
-        if (undefined === currentStructureLength) {
+        if (undefined === Globals.ensembleManager.maximumSegmentID) {
             return;
         }
 
@@ -158,8 +156,8 @@ class DataValueMaterialProvider {
         // Initialize rgb to transparent. Paint color where features exist.
         // this.rgb_ctx.clearRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
 
-        // Initialize rgb to rgb_missing_feature
-        this.rgb_ctx.fillStyle = rgb_missing_feature;
+        // Initialize rgb to rgb255MissingFeature
+        this.rgb_ctx.fillStyle = rgb255String(rgb255MissingFeature);
         this.rgb_ctx.fillRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
 
         this.alpha_ctx.fillStyle = alpha_visible;
@@ -195,9 +193,19 @@ class DataValueMaterialProvider {
     }
 
     colorForInterpolant(interpolant) {
-        // const { r, g, b } = this.colorMinimum;
-        // const color = BallAndStick.getRenderStyle() === Globals.sceneManager.renderStyle ? Globals.sceneManager.stickMaterial.color : rgb255ToThreeJSColor(r, g, b);
         return Globals.sceneManager.stickMaterial.color;
+    }
+
+    colorForSegment({ segmentID, genomicLocation }) {
+
+        const { features, min, max, colorMinimum, colorMaximum } = this;
+
+        const startBP = genomicLocation - 0.5 * Globals.ensembleManager.stepSize;
+        const endBP = genomicLocation + 0.5 * Globals.ensembleManager.stepSize;
+
+        const { r, g, b } = colorForGenomicLocation({ startBP, endBP, features, min, max, colorMinimum, colorMaximum });
+
+        return rgb255ToThreeJSColor(r, g, b);
     }
 
     renderLoopHelper () {
@@ -214,13 +222,44 @@ class DataValueMaterialProvider {
 
 }
 
-let configureCanvas = (ctx, width, height) => {
+const colorForGenomicLocation = ({ startBP, endBP, features, min, max, colorMinimum, colorMaximum }) => {
 
-    ctx.canvas.width = width * window.devicePixelRatio;
-    ctx.canvas.height = height * window.devicePixelRatio;
+    let rgb255 = undefined;
+    let maxValue = 0;
+    for (let feature of features) {
 
-    ctx.canvas.style.width = width + 'px';
-    ctx.canvas.style.height = height + 'px';
+        let { start: fsBP, end: feBP, value } = feature;
+
+        if (feBP < startBP) {
+            continue;
+        } else if (fsBP > endBP) {
+            continue;
+        }
+
+        fsBP = Math.max(startBP, fsBP);
+        feBP = Math.min(  endBP, feBP);
+
+        if (Math.abs(value) > Math.abs(maxValue)) {
+            maxValue = value;
+            const interpolant = (value - min) / (max - min);
+            rgb255 = rgb255Lerp(colorMinimum, colorMaximum, interpolant);
+        }
+
+    }
+
+    return rgb255 || rgb255MissingFeature;
+};
+
+const configureCanvas = (ctx, width, height) => {
+
+    ctx.canvas.width = width;
+    ctx.canvas.height = height;
+
+    // ctx.canvas.width = width * window.devicePixelRatio;
+    // ctx.canvas.height = height * window.devicePixelRatio;
+
+    // ctx.canvas.style.width = width + 'px';
+    // ctx.canvas.style.height = height + 'px';
 
 };
 

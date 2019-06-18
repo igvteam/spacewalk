@@ -242,38 +242,4 @@ const getColorListWithXYZList = (materialProvider, xyzList) =>  {
     return colorList;
 };
 
-const createThinSpline = (structure, colorRampMaterialProvider) => {
-
-    const knots = structure.map((obj) => {
-        let [ x, y, z ] = obj.xyz;
-        return new THREE.Vector3( x, y, z );
-    });
-
-    const curve = new THREE.CatmullRomCurve3(knots);
-
-    const howmany = 2048;
-    const vertices = curve.getPoints( howmany );
-
-    const colors = vertices.map((vertex, index) => {
-
-        let interpolant = index / (vertices.length - 1);
-
-        // flip direction
-        interpolant = 1 - interpolant;
-
-        return colorRampMaterialProvider.colorForInterpolant(interpolant);
-    });
-
-    const geometry = new THREE.Geometry();
-    geometry.vertices = vertices;
-    geometry.colors = colors;
-
-    const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
-
-    const line = new THREE.Line( geometry, material );
-
-    Globals.sceneManager.scene.add( line );
-
-};
-
 export default Noodle;

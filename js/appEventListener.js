@@ -3,14 +3,8 @@ import Globals from './globals.js';
 import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { IGVMouseHandler } from "./igv/IGVPanel.js";
-import { juiceboxMouseHandler } from "./juicebox/juiceboxPanel.js";
-import { distanceMapPanel, colorRampPanel, thumbnailPanel, igvPanel, juiceboxPanel, traceSelectPanel } from './gui.js';
+import { distanceMapPanel, guiManager, thumbnailPanel, traceSelectPanel } from './gui.js';
 import { getDistanceMapCanvasWithTrace } from "./ensembleManager.js";
-import { guiManager } from "./gui.js";
-
-export let currentTrace;
-export let currentStructureLength;
 
 export const appEventListener =
     {
@@ -28,83 +22,41 @@ export const appEventListener =
                     Globals.ballAndStick.show();
                 }
 
-                if (false === thumbnailPanel.isHidden) {
-                    const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;
-                    thumbnailPanel.configure(model);
-                    thumbnailPanel.render();
-                }
+                // if (false === thumbnailPanel.isHidden) {
+                //     const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;
+                //     thumbnailPanel.configure(model);
+                //     thumbnailPanel.render();
+                // }
 
             }  else if ('DidLoadPointCloudFile' === type) {
 
-                Globals.sceneManager.renderStyle = PointCloud.getRenderStyle();
-
-                let { name: path, payload: string } = data;
+                const { path, string } = data;
 
                 Globals.pointCloudManager.ingest({ path, string });
 
-                Globals.sceneManager.dispose();
-
-                // setupPointCloud({ pointCloudGeometry: Globals.pointCloudManager.geometry });
-                setupPointCloud({ pointCloudGeometry: Globals.pointCloudManager.geometry, pointCloudConvexHullGeometry: Globals.pointCloudManager.convexHullGeometry });
+                setupPointCloud(Globals.pointCloudManager.list.map(o => o.geometry));
 
             } else if ('DidLoadFile' === type) {
 
-                Globals.sceneManager.renderStyle = guiManager.getRenderingStyle();
-
-                let { name: path, payload: string } = data;
-
-                Globals.ensembleManager.ingest({ path, string });
-
-                const initialStructureKey = '0';
-
-                currentTrace = Globals.ensembleManager.traceWithName(initialStructureKey);
-                currentStructureLength = currentTrace.geometry.vertices.length;
-
-                const { chr, genomicStart, genomicEnd } = Globals.ensembleManager.locus;
+                const { path, string, chr, genomicStart, genomicEnd } = data;
 
                 const str = 'STRUCTURE: CHR ' + chr + ' ' + Math.floor(genomicStart/1e6) + 'MB to ' + Math.floor(genomicEnd/1e6) + 'MB';
                 $('.navbar').find('#spacewalk-file-name').text(str);
 
-                igvPanel.goto({ chr, start: genomicStart, end: genomicEnd });
+                Globals.ensembleManager.ingest({ path, string });
 
-                juiceboxPanel.goto({ chr, start: genomicStart, end: genomicEnd });
+                const key = '0';
 
-                colorRampPanel.configure({ genomicStart, genomicEnd });
+                traceSelectPanel.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key });
 
-                igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                    IGVMouseHandler({ bp, start, end, interpolant, structureLength: currentStructureLength })
-                });
+                let trace = Globals.ensembleManager.getTraceWithName(key);
 
-                juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: currentStructureLength });
-                });
-
-                traceSelectPanel.configure({ ensemble: Globals.ensembleManager.ensemble, initialStructureKey });
-
-                Globals.sceneManager.dispose();
-
-                setup({ trace: currentTrace });
+                setup({ trace });
 
             } else if ('DidSelectStructure' === type) {
 
-                Globals.sceneManager.renderStyle = guiManager.getRenderingStyle();
-
-                currentTrace = Globals.ensembleManager.traceWithName(data);
-                currentStructureLength = currentTrace.geometry.vertices.length;
-
-                igvPanel.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                    IGVMouseHandler({bp, start, end, interpolant, structureLength: currentStructureLength })
-                });
-
-                juiceboxPanel.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                    juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength: currentStructureLength });
-                });
-
-                Globals.sceneManager.dispose();
-
-                colorRampPanel.colorRampMaterialProvider.repaint();
-
-                setup({ trace: currentTrace });
+                let trace = Globals.ensembleManager.getTraceWithName(data);
+                setup({ trace });
 
             } else if ('ToggleAllUIControls' === type) {
                 // $('.navbar').toggle();
@@ -113,20 +65,28 @@ export const appEventListener =
         }
     };
 
-let setupPointCloud = ({ pointCloudGeometry, pointCloudConvexHullGeometry }) => {
+let setupPointCloud = (geometryList) => {
 
-    Globals.pointCloud.configure(pointCloudGeometry, pointCloudConvexHullGeometry);
+    Globals.sceneManager.dispose();
+
+    Globals.sceneManager.renderStyle = PointCloud.getRenderStyle();
+
+    Globals.pointCloud.configure(geometryList);
 
     let scene = new THREE.Scene();
     Globals.pointCloud.addToScene(scene);
 
     const { min, max, center, radius } = Globals.pointCloud.getBounds();
     const { position, fov } = Globals.pointCloud.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
-    Globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+    Globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
 
 };
 
 let setup = ({ trace }) => {
+
+    Globals.sceneManager.dispose();
+
+    Globals.sceneManager.renderStyle = guiManager.getRenderingStyle();
 
     Globals.noodle.configure(trace);
     Globals.ballAndStick.configure(trace);
@@ -138,13 +98,13 @@ let setup = ({ trace }) => {
 
     const { min, max, center, radius } = Globals.ballAndStick.getBounds();
     const { position, fov } = Globals.ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
-    Globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+    Globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
 
-    if (false === thumbnailPanel.isHidden) {
-        const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;
-        thumbnailPanel.configure(model);
-        thumbnailPanel.render();
-    }
+    // if (false === thumbnailPanel.isHidden) {
+    //     const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;
+    //     thumbnailPanel.configure(model);
+    //     thumbnailPanel.render();
+    // }
 
     distanceMapPanel.draw(getDistanceMapCanvasWithTrace(trace));
 };

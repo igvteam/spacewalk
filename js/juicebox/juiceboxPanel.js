@@ -2,9 +2,8 @@ import Globals from './../globals.js';
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
 import { makeDraggable } from "../draggable.js";
 import { lerp } from '../math.js'
-import { segmentIndexForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
+import { segmentIDForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
 
-let currentURL = undefined;
 class JuiceboxPanel {
 
     constructor ({ container, panel, isHidden }) {
@@ -34,6 +33,7 @@ class JuiceboxPanel {
         });
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe('DidLoadFile', this);
 
     }
 
@@ -49,6 +49,10 @@ class JuiceboxPanel {
             }
 
             this.isHidden = !this.isHidden;
+        } else if ("DidLoadFile" === type) {
+
+            const { chr, genomicStart, genomicEnd } = data;
+            this.goto({ chr, start: genomicStart, end: genomicEnd });
         }
     }
 
@@ -69,6 +73,10 @@ class JuiceboxPanel {
 
         this.locus = 'all';
         await this.browser.parseGotoInput(this.locus);
+
+        this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+            juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
+        });
 
     }
 
@@ -126,7 +134,11 @@ class JuiceboxPanel {
 
 }
 
-export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY, structureLength }) => {
+const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+
+    if (undefined === Globals.ensembleManager || undefined === Globals.ensembleManager.locus) {
+        return;
+    }
 
     const { genomicStart, genomicEnd } = Globals.ensembleManager.locus;
 
@@ -143,18 +155,11 @@ export let juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYB
         return;
     }
 
-    let a;
-    let b;
+    const segmentIDX = Globals.ensembleManager.segmentIDForGenomicLocation(xBP);
+    const segmentIDY = Globals.ensembleManager.segmentIDForGenomicLocation(yBP);
+    const segmentIDList = segmentIDX === segmentIDY ? [ segmentIDX ] : [ segmentIDX, segmentIDY ];
 
-    [ a, b ] = [ (startXBP - genomicStart)/(genomicEnd - genomicStart), (endXBP - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentIndexX = segmentIndexForInterpolant(lerp(a, b, interpolantX), structureLength);
-
-    [ a, b ] = [ (startYBP - genomicStart)/(genomicEnd - genomicStart), (endYBP - genomicStart)/(genomicEnd - genomicStart) ];
-    const segmentIndexY = segmentIndexForInterpolant(lerp(a, b, interpolantY), structureLength);
-
-    const segmentIndexList = segmentIndexX === segmentIndexY ? [ segmentIndexX ] : [ segmentIndexX, segmentIndexY ];
-
-    Globals.eventBus.post({ type: 'DidSelectSegmentIndex', data: { interpolantList: [ interpolantX, interpolantY ], segmentIndexList } });
+    Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ], segmentIDList } });
 };
 
 export let juiceboxSelectLoader = async ($select) => {

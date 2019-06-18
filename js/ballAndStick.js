@@ -34,47 +34,40 @@ class BallAndStick {
             return;
         }
 
-        this.balls.mesh.forEach((m, i, array) => {
-            const interpolant = i / (array.length - 1);
-            const color = materialProvider.colorForInterpolant(interpolant);
+        this.balls.mesh.forEach(m => {
+            const { segmentID, genomicLocation } = this.objectSegmentDictionary[ m.uuid ];
+            const color = materialProvider.colorForSegment({ segmentID, genomicLocation });
+
             m.material = new THREE.MeshPhongMaterial({ color });
         });
     }
 
     createBalls(trace) {
 
-        // 3D Object dictionary. Key is string-ified genomic location.
-        this.genomicLocationObjectDictionary = {};
+        // Segment ID dictionay. 3D Object UUID is key.
+        this.objectSegmentDictionary = {};
 
-        // segment-index dictionay. 3D Object UUID is key.
-        this.indexDictionary = {};
+        // 3D Object dictionary. Segment ID is key.
+        this.segmentObjectDictionary = {};
 
-        // 3D Object Array. Indexed by trace index in ensemble array.
-        this.objectList = [];
+        let meshList = trace.geometry.vertices.map((vertex, index) => {
 
-        let meshList = trace.geometry.vertices.map((vertex, index, array) => {
+            const { segmentID, genomicLocation } = trace.segmentList[ index ];
 
-            const color = Globals.sceneManager.materialProvider.colorForInterpolant(index / (array.length - 1));
-
-            // const material = new THREE.MeshPhongMaterial({ color, envMap: specularCubicTexture });
+            const color = Globals.sceneManager.materialProvider.colorForSegment({ segmentID, genomicLocation });
             const material = new THREE.MeshPhongMaterial({ color });
-            // const material = new THREE.MeshBasicMaterial({ color });
-            // const material = showTMaterial;
 
             const geometry = Globals.sceneManager.ballGeometry.clone();
             const { x, y, z } = vertex;
             geometry.translate(x, y, z);
 
             const mesh = new THREE.Mesh(geometry, material);
+
             mesh.name = 'ball';
 
-            const genomicLocation = index * Globals.ensembleManager.stepSize + Globals.ensembleManager.locus.genomicStart;
+            this.objectSegmentDictionary[ mesh.uuid ] = { segmentID, genomicLocation };
 
-            this.genomicLocationObjectDictionary[ genomicLocation.toString() ] = { object: mesh, centroid: mesh.position.clone() };
-
-            this.indexDictionary[ mesh.uuid ] = { index, genomicLocation };
-
-            this.objectList[ index ] = { object: mesh, genomicLocation };
+            this.segmentObjectDictionary[ segmentID.toString() ] = { object: mesh, genomicLocation };
 
             return mesh;
 

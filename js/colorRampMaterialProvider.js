@@ -1,21 +1,19 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
-import { segmentIndexForInterpolant, fitToContainer, getMouseXY } from "./utils.js";
+import { segmentIDForInterpolant, fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
-import { rgb255, rgb255String } from "./color.js";
+import { appleCrayonColorThreeJS, rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
-import { currentStructureLength } from "./appEventListener.js";
 
 let currentSegmentIndex = undefined;
 
-const alpha_hidden = `rgb(${32},${32},${32})`;
 const alpha_visible = `rgb(${255},${255},${255})`;
 
 let rgbTexture;
 let alphaTexture;
 class ColorRampMaterialProvider {
 
-    constructor({ $canvasContainer, namespace, highlightColor }) {
+    constructor({ $canvasContainer, highlightColor }) {
 
         let canvas;
 
@@ -53,6 +51,8 @@ class ColorRampMaterialProvider {
 
         this.material = material;
 
+        const namespace = 'color-ramp-material-provider';
+
         $canvasContainer.on(('mousemove.' + namespace), (event) => {
             event.stopPropagation();
             this.onCanvasMouseMove(canvas, event)
@@ -81,15 +81,16 @@ class ColorRampMaterialProvider {
         Globals.eventBus.subscribe("DidLeaveGUI", this);
         Globals.eventBus.subscribe("PickerDidLeaveObject", this);
         Globals.eventBus.subscribe("PickerDidHitObject", this);
-        Globals.eventBus.subscribe("DidSelectSegmentIndex", this);
+        Globals.eventBus.subscribe("DidSelectSegmentID", this);
     }
 
     receiveEvent({ type, data }) {
 
         if ("PickerDidHitObject" === type) {
 
-            if (Globals.ballAndStick.indexDictionary[ data ]) {
-                const segmentIndex = 1 + Globals.ballAndStick.indexDictionary[ data ].index;
+            const objectUUID = data;
+            if (Globals.ballAndStick.objectSegmentDictionary[ objectUUID ]) {
+                const segmentIndex = Globals.ballAndStick.objectSegmentDictionary[ objectUUID ].segmentID;
                 this.highlight([segmentIndex])
             }
 
@@ -97,9 +98,9 @@ class ColorRampMaterialProvider {
 
             this.repaint();
 
-        } else if ("DidSelectSegmentIndex" === type) {
+        } else if ("DidSelectSegmentID" === type) {
 
-            this.highlight(data.segmentIndexList);
+            this.highlight(data.segmentIDList);
 
         } else if (Globals.sceneManager && "DidLeaveGUI" === type) {
 
@@ -114,31 +115,31 @@ class ColorRampMaterialProvider {
 
     onCanvasMouseMove(canvas, event) {
 
-        if (undefined === currentStructureLength) {
+        if (undefined === Globals.ensembleManager.maximumSegmentID) {
             return;
         }
 
         let { yNormalized } = getMouseXY(canvas, event);
 
         // 0 to 1. Flip direction.
-        const segmentIndex = segmentIndexForInterpolant(1.0 - yNormalized, currentStructureLength);
+        const segmentID = segmentIDForInterpolant(1.0 - yNormalized);
 
-        this.highlight([ segmentIndex ]);
+        this.highlight([ segmentID ]);
 
-        if (currentSegmentIndex !== segmentIndex) {
-            currentSegmentIndex = segmentIndex;
-            Globals.eventBus.post({type: "DidSelectSegmentIndex", data: { segmentIndexList: [ segmentIndex ] } });
+        if (currentSegmentIndex !== segmentID) {
+            currentSegmentIndex = segmentID;
+            Globals.eventBus.post({type: "DidSelectSegmentID", data: { segmentIDList: [ segmentID ] } });
         }
 
     };
 
-    highlight(segmentIndexList) {
-        this.paintQuantizedRamp(new Set(segmentIndexList))
+    highlight(segmentIDList) {
+        this.paintQuantizedRamp(new Set(segmentIDList))
     }
 
     paintQuantizedRamp(highlightedSegmentIndexSet){
 
-        if (undefined === currentStructureLength) {
+        if (undefined === Globals.ensembleManager.maximumSegmentID) {
             return;
         }
 
@@ -146,13 +147,11 @@ class ColorRampMaterialProvider {
 
         let interpolant;
         let quantizedInterpolant;
-        let segmentIndex;
 
         // paint rgb ramp
         for (let y = 0;  y < height; y++) {
             interpolant = 1 - (y / (height - 1));
-            quantizedInterpolant = quantize(interpolant, currentStructureLength);
-            segmentIndex = segmentIndexForInterpolant(interpolant, currentStructureLength);
+            quantizedInterpolant = quantize(interpolant, Globals.ensembleManager.maximumSegmentID);
             this.rgb_ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
             this.rgb_ctx.fillRect(0, y, width, 1);
         }
@@ -178,10 +177,10 @@ class ColorRampMaterialProvider {
             for (let y = 0;  y < height; y++) {
 
                 interpolant = 1 - (y / (height - 1));
-                quantizedInterpolant = quantize(interpolant, currentStructureLength);
-                segmentIndex = segmentIndexForInterpolant(interpolant, currentStructureLength);
+                quantizedInterpolant = quantize(interpolant, Globals.ensembleManager.maximumSegmentID);
+                const segmentID = segmentIDForInterpolant(interpolant);
 
-                if (highlightedSegmentIndexSet.has(segmentIndex)) {
+                if (highlightedSegmentIndexSet.has(segmentID)) {
                     this.highlight_ctx.fillRect(0, y, width, 1);
                     this.alphamap_ctx.fillRect(0, y, width, 1);
                 }
@@ -193,6 +192,11 @@ class ColorRampMaterialProvider {
     }
 
     colorForInterpolant(interpolant) {
+        return Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
+    }
+
+    colorForSegment({ segmentID, genomicLocation }) {
+        const interpolant = (segmentID - 1) / (Globals.ensembleManager.maximumSegmentID - 1);
         return Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
     }
 

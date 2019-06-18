@@ -140,7 +140,8 @@
 
 #spacewalk_distance_map_panel.card {
   width: 256px;
-  height: unset; }
+  height: unset;
+  border: 0; }
   #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body {
     width: 256px;
     height: unset; }
@@ -150,7 +151,8 @@
 
 #spacewalk_contact_frequency_map_panel.card {
   width: 256px;
-  height: unset; }
+  height: unset;
+  border: 0; }
   #spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body {
     width: 256px;
     height: unset; }
@@ -200,6 +202,20 @@
     #spacewalk_ui_manager_panel.card li input {
       cursor: pointer;
       display: block; }
+
+.igv-left-hand-gutter > div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff; }
+  .igv-left-hand-gutter > div > input {
+    display: block; }
+.igv-left-hand-gutter > div:hover {
+  background-color: #e8e8e8; }
 
 .igv-app-dropdown-item-cloud-storage {
   display: flex;
