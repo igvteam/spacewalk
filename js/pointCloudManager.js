@@ -2,6 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
 import { readFileAsText } from "./utils.js";
 import { appleCrayonRandomBrightColorThreeJS } from "./color.js";
+import { defaultColormapName } from "./colorMapManager.js";
 
 class PointCloudManager {
 
@@ -38,13 +39,32 @@ class PointCloudManager {
             segments[ key ].push(line);
         }
 
+        const keys = Object.keys(segments);
+        const [ startBP, endBP ] = keys.reduce((accumulator, key) => {
+
+            const [ startBP, endBP, sizeKB ] = key.split('%');
+
+            const ss = Math.min(accumulator[ 0 ], parseInt(startBP, 10));
+            const ee = Math.max(accumulator[ 1 ], parseInt(  endBP, 10));
+            accumulator = [ ss, ee ];
+
+            return accumulator;
+
+        }, [ Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY ]);
+
+        // const startBP = keys[ 0 ].split('%')[ 0 ];
+        // const endBP = keys[ keys.length - 1 ].split('%')[ 1 ];
+
+        this.locus =  { chr: 'chr21', genomicStart: parseInt(startBP, 10), genomicEnd: parseInt(endBP, 10) };
+
         this.list = [];
         this.boundingBox = new THREE.Box3();
         this.boundingSphere = new THREE.Sphere();
 
         let xyz = new THREE.Vector3();
 
-        const keys = Object.keys(segments);
+        const { genomicStart, genomicEnd } = this.locus;
+
         for (let key of keys) {
 
             const segment = segments[ key ];
@@ -53,14 +73,19 @@ class PointCloudManager {
             let obj =
                 {
                     geometry: new THREE.BufferGeometry(),
-                    startBP: parseFloat(startBP),
-                    endBP: parseFloat(endBP),
+                    startBP: parseInt(startBP, 10),
+                    endBP: parseInt(endBP, 10),
                     sizeBP: parseFloat(sizeKB) / 1e3
                 };
 
             let xyzList = [];
             let rgbList = [];
-            let color = appleCrayonRandomBrightColorThreeJS();
+
+            let bp = (obj.startBP + obj.endBP) / 2.0;
+            let interpolant = (bp - genomicStart) / (genomicEnd - genomicStart);
+
+            let color = Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant);
+            // let color = appleCrayonRandomBrightColorThreeJS();
 
             for (let line of segment) {
 
@@ -87,9 +112,6 @@ class PointCloudManager {
         }
 
         this.boundingBox.getBoundingSphere(this.boundingSphere);
-
-        this.startBP = this.list[ 0 ].startBP;
-        this.endBP = this.list[ (this.list.length - 1) ].endBP;
 
         console.timeEnd(`ingest point-cloud with ${ lines.length } points`);
 

@@ -17,6 +17,7 @@ class EnsembleManager {
     ingest({ path, string }){
 
         this.locus = parsePathEncodedGenomicLocation(path);
+        this.path = path;
 
         this.ensemble = {};
 
@@ -151,6 +152,11 @@ class EnsembleManager {
             console.warn(e.message)
         }
 
+    }
+
+    blurb() {
+        const cellLine = this.path.split('_').shift();
+        const str = `Cell Line ${ cellLine } `
     }
 }
 
