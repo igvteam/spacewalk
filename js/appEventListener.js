@@ -38,19 +38,11 @@ export const appEventListener =
 
             } else if ('DidLoadFile' === type) {
 
-                const { path, string, chr, genomicStart, genomicEnd } = data;
+                // const str = 'STRUCTURE: CHR ' + chr + ' ' + Math.floor(genomicStart/1e6) + 'MB to ' + Math.floor(genomicEnd/1e6) + 'MB';
+                // $('.navbar').find('#spacewalk-file-name').text(str);
 
-                const str = 'STRUCTURE: CHR ' + chr + ' ' + Math.floor(genomicStart/1e6) + 'MB to ' + Math.floor(genomicEnd/1e6) + 'MB';
-                $('.navbar').find('#spacewalk-file-name').text(str);
-
-                Globals.ensembleManager.ingest({ path, string });
-
-                const key = '0';
-
-                traceSelectPanel.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key });
-
-                let trace = Globals.ensembleManager.getTraceWithName(key);
-
+                const { initialKey } = data;
+                let trace = Globals.ensembleManager.getTraceWithName(initialKey);
                 setup({ trace });
 
             } else if ('DidSelectStructure' === type) {

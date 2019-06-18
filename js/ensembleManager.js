@@ -99,6 +99,10 @@ class EnsembleManager {
 
         contactFrequencyMapPanel.draw(getContactFrequencyCanvasWithEnsemble(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
 
+        const { chr, genomicStart, genomicEnd } = this.locus;
+
+        Globals.eventBus.post({ type: "DidLoadFile", data: { path, string, chr, genomicStart, genomicEnd, initialKey: '0' } });
+
     }
 
     getTraceWithName(name) {
@@ -132,8 +136,7 @@ class EnsembleManager {
             let string = await igv.xhr.load(url);
             const { file:path } = igv.parseUri(url);
 
-            const { chr, genomicStart, genomicEnd } = parsePathEncodedGenomicLocation(path);
-            Globals.eventBus.post({ type: "DidLoadFile", data: { path, string, chr, genomicStart, genomicEnd } });
+            this.ingest({ path, string });
 
         } catch (error) {
             console.warn(error.message);
@@ -146,13 +149,16 @@ class EnsembleManager {
         try {
             const string = await readFileAsText(file);
             const { name: path } = file;
-            const { chr, genomicStart, genomicEnd } = parsePathEncodedGenomicLocation(path);
-            Globals.eventBus.post({ type: "DidLoadFile", data: { path, string, chr, genomicStart, genomicEnd } });
+
+            this.ingest({ path, string });
+
         } catch (e) {
             console.warn(e.message)
         }
 
     }
+
+
 
     blurb() {
         const cellLine = this.path.split('_').shift();
