@@ -112,7 +112,7 @@ export const colorRampPanelConfigurator = ({ container, highlightColor }) => {
     return {
             container,
             panel: $('#spacewalk_color_ramp_panel').get(0),
-            colorRampMaterialProvider: new ColorRampMaterialProvider( { $canvasContainer, namespace: 'color-ramp-material-provider', highlightColor } ),
+            colorRampMaterialProvider: new ColorRampMaterialProvider( { $canvasContainer, highlightColor } ),
             isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel')
         };
 

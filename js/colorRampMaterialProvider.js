@@ -13,7 +13,7 @@ let rgbTexture;
 let alphaTexture;
 class ColorRampMaterialProvider {
 
-    constructor({ $canvasContainer, namespace, highlightColor }) {
+    constructor({ $canvasContainer, highlightColor }) {
 
         let canvas;
 
@@ -50,6 +50,8 @@ class ColorRampMaterialProvider {
         material.transparent = true;
 
         this.material = material;
+
+        const namespace = 'color-ramp-material-provider';
 
         $canvasContainer.on(('mousemove.' + namespace), (event) => {
             event.stopPropagation();

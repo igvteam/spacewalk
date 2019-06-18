@@ -39,23 +39,26 @@ class PointCloudManager {
             segments[ key ].push(line);
         }
 
-        const keys = Object.keys(segments);
+        // sorted key list
+        const keys = Object
+            .keys(segments)
+            .sort((a, b) => {
+                const aa = a.split('%')[ 0 ];
+                const bb = b.split('%')[ 0 ];
+                return parseInt(aa, 10) - parseInt(bb, 10);
+            });
+
+        // genomic extent
         const [ startBP, endBP ] = keys.reduce((accumulator, key) => {
-
             const [ startBP, endBP, sizeKB ] = key.split('%');
-
             const ss = Math.min(accumulator[ 0 ], parseInt(startBP, 10));
             const ee = Math.max(accumulator[ 1 ], parseInt(  endBP, 10));
             accumulator = [ ss, ee ];
-
             return accumulator;
-
         }, [ Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY ]);
 
-        // const startBP = keys[ 0 ].split('%')[ 0 ];
-        // const endBP = keys[ keys.length - 1 ].split('%')[ 1 ];
-
-        this.locus =  { chr: 'chr21', genomicStart: parseInt(startBP, 10), genomicEnd: parseInt(endBP, 10) };
+        // TODO: Ask Erez about chromosome info in file. Hard code to 'chr21' for now
+        this.locus =  { chr: 'chr21', genomicStart: startBP, genomicEnd: endBP };
 
         this.list = [];
         this.boundingBox = new THREE.Box3();
@@ -78,14 +81,18 @@ class PointCloudManager {
                     sizeBP: parseFloat(sizeKB) / 1e3
                 };
 
+            let a = (obj.startBP - genomicStart) / (genomicEnd - genomicStart);
+            let b = (obj.endBP - genomicStart) / (genomicEnd - genomicStart);
+            obj.colorRampInterpolantWindow = { start: a, end: b };
+
+            obj.bp = (obj.startBP + obj.endBP) / 2.0;
+            obj.interpolant = (obj.bp - genomicStart) / (genomicEnd - genomicStart);
+
+            let color = Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, obj.interpolant);
+            // let color = appleCrayonRandomBrightColorThreeJS();
+
             let xyzList = [];
             let rgbList = [];
-
-            let bp = (obj.startBP + obj.endBP) / 2.0;
-            let interpolant = (bp - genomicStart) / (genomicEnd - genomicStart);
-
-            let color = Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant);
-            // let color = appleCrayonRandomBrightColorThreeJS();
 
             for (let line of segment) {
 
