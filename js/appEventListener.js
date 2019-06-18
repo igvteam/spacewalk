@@ -34,12 +34,7 @@ export const appEventListener =
 
                 Globals.pointCloudManager.ingest({ path, string });
 
-                const index = 0;
-
-                traceSelectPanel.configureWithPointCloudList({ pointCloudList: Globals.pointCloudManager.list, index });
-
-                let pc = Globals.pointCloudManager.list[ index ];
-                setupPointCloud(pc);
+                setupPointCloud(Globals.pointCloudManager.list.map(o => o.geometry));
 
             } else if ('DidLoadFile' === type) {
 
@@ -63,11 +58,6 @@ export const appEventListener =
                 let trace = Globals.ensembleManager.getTraceWithName(data);
                 setup({ trace });
 
-            } else if ('DidSelectPointCloud' === type) {
-
-                let pc = Globals.pointCloudManager.list[ data ];
-                setupPointCloud(pc);
-
             } else if ('ToggleAllUIControls' === type) {
                 // $('.navbar').toggle();
             }
@@ -75,20 +65,20 @@ export const appEventListener =
         }
     };
 
-let setupPointCloud = (pc) => {
+let setupPointCloud = (geometryList) => {
 
     Globals.sceneManager.dispose();
 
     Globals.sceneManager.renderStyle = PointCloud.getRenderStyle();
 
-    Globals.pointCloud.configure(pc.geometry);
+    Globals.pointCloud.configure(geometryList);
 
     let scene = new THREE.Scene();
     Globals.pointCloud.addToScene(scene);
 
     const { min, max, center, radius } = Globals.pointCloud.getBounds();
     const { position, fov } = Globals.pointCloud.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
-    Globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+    Globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
 
 };
 
@@ -108,7 +98,7 @@ let setup = ({ trace }) => {
 
     const { min, max, center, radius } = Globals.ballAndStick.getBounds();
     const { position, fov } = Globals.ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
-    Globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+    Globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
 
     // if (false === thumbnailPanel.isHidden) {
     //     const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;

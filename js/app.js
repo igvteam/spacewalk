@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     Globals.dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 
     Globals.eventBus.subscribe('DidSelectStructure', appEventListener);
-    Globals.eventBus.subscribe('DidSelectPointCloud', appEventListener);
     Globals.eventBus.subscribe('DidLoadFile', appEventListener);
     Globals.eventBus.subscribe('DidLoadPointCloudFile', appEventListener);
     Globals.eventBus.subscribe('ToggleAllUIControls', appEventListener);

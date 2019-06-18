@@ -4,7 +4,7 @@ import { degrees } from './math.js';
 import { appleCrayonColorThreeJS } from "./color.js";
 import Globals from "./globals.js";
 
-class PointCloud {
+class DEPRICATED_PointCloud {
 
     constructor () {
     }
@@ -158,4 +158,4 @@ const createPointCloud = pointCloudGeometry => {
 
 };
 
-export default PointCloud;
+export default DEPRICATED_PointCloud;

@@ -1,7 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { getBoundsWithPointCloud } from './pointCloudManager.js';
 import { degrees } from './math.js';
-import { appleCrayonColorThreeJS } from "./color.js";
 import Globals from "./globals.js";
 
 class PointCloud {
@@ -13,11 +11,11 @@ class PointCloud {
         return 'render-style-point-cloud';
     }
 
-    configure(geometry) {
+    configure(geometryList) {
 
         this.dispose();
 
-        this.mesh = createPointCloud(geometry);
+        this.meshList = createPointCloud(geometryList);
 
         if (Globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
             this.show();
@@ -32,7 +30,9 @@ class PointCloud {
     }
 
     addToScene (scene) {
-        scene.add( this.mesh );
+        for (let mesh of this.meshList) {
+            scene.add( mesh );
+        }
     }
 
     renderLoopHelper () {
@@ -40,18 +40,24 @@ class PointCloud {
     }
 
     hide () {
-        this.mesh.visible = false;
+        for (let mesh of this.meshList) {
+            mesh.visible = false;
+        }
     }
 
     show () {
-        this.mesh.visible = true;
+        for (let mesh of this.meshList) {
+            mesh.visible = true;
+        }
     }
 
     dispose () {
 
-        if (this.mesh) {
-            this.mesh.material.dispose();
-            this.mesh.geometry.dispose();
+        if (this.meshList) {
+            for (let mesh of this.meshList) {
+                mesh.material.dispose();
+                mesh.geometry.dispose();
+            }
         }
 
     }
@@ -61,9 +67,7 @@ class PointCloud {
     }
 
     getBounds() {
-        const { center, radius } = this.mesh.geometry.boundingSphere;
-        const { min, max } = this.mesh.geometry.boundingBox;
-        return { min, max, center, radius }
+        return Globals.pointCloudManager.getBounds();
     }
 
     getCameraPoseAlongAxis ({ axis, scaleFactor }) {
@@ -107,7 +111,7 @@ class PointCloud {
 
 }
 
-const createPointCloud = geometry => {
+const createPointCloud = geometryList => {
 
     // const pointsMaterialConfig =
     //     {
@@ -127,12 +131,14 @@ const createPointCloud = geometry => {
         };
 
     let material = new THREE.PointsMaterial( pointsMaterialConfig );
-
     material.side = THREE.DoubleSide;
 
-    let mesh = new THREE.Points( geometry, material );
-    mesh.name = 'point_cloud';
-    return mesh;
+    return geometryList
+        .map(geometry => {
+            let mesh = new THREE.Points( geometry, material );
+            mesh.name = 'point_cloud';
+            return mesh;
+        });
 
 };
 

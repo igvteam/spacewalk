@@ -74,8 +74,6 @@ class TraceSelectPanel {
         $(document).on('keyup.trace_select', handleKeyUp);
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
-        Globals.eventBus.subscribe("DidLoadPointCloudFile", this);
-        Globals.eventBus.subscribe("DidLoadFile", this);
 
     }
 
@@ -89,10 +87,6 @@ class TraceSelectPanel {
                 moveOffScreen(this);
             }
             this.isHidden = !this.isHidden;
-        }  else if ('DidLoadPointCloudFile' === type) {
-            this.datatype = 'point-cloud';
-        } else if ('DidLoadFile' === type) {
-            this.datatype = 'traces';
         }
     }
 
@@ -101,33 +95,15 @@ class TraceSelectPanel {
     };
 
     broadcastUpdate(number) {
-
         currentNumber = number;
         this.$input.val(currentNumber);
-
-        if ('traces' === this.datatype) {
-            Globals.eventBus.post({ type: "DidSelectStructure", data: currentNumber.toString() });
-        } else if ('point-cloud' === this.datatype) {
-            Globals.eventBus.post({ type: "DidSelectPointCloud", data: currentNumber });
-        }
-
-    }
-
-    configureWithPointCloudList({ pointCloudList, index }) {
-
-        this.howmany = pointCloudList.length;
-        const str = this.howmany + ' ' + this.datatype;
-        this.$header.text(str);
-
-        currentNumber = index;
-        this.$input.val(currentNumber);
-
+        Globals.eventBus.post({ type: "DidSelectStructure", data: currentNumber.toString() });
     }
 
     configureWithEnsemble({ ensemble, key }) {
 
         this.howmany = Object.keys(ensemble).length;
-        const str = this.howmany + ' ' + this.datatype;
+        const str = this.howmany + ' traces';
         this.$header.text(str);
 
         currentNumber = parseInt(key, 10);

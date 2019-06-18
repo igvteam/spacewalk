@@ -1,8 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import ConvexBufferGeometry from "./threejs_es6/convexGeometry/convexGeometry.js";
 import Globals from './globals.js';
 import { readFileAsText } from "./utils.js";
-import { appleCrayonRandomBrightColorThreeJS, appleCrayonColorThreeJS } from "./color.js";
+import { appleCrayonRandomBrightColorThreeJS } from "./color.js";
 
 class PointCloudManager {
 
@@ -96,8 +95,10 @@ class PointCloudManager {
 
     }
 
-    getGeometryList() {
-        return this.list.map(obj => obj.geometry);
+    getBounds() {
+        const { center, radius } = this.boundingSphere;
+        const { min, max } = this.boundingBox;
+        return { min, max, center, radius }
     };
 
     async loadURL ({ url, name }) {
