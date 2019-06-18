@@ -30,10 +30,6 @@ export const appEventListener =
 
             }  else if ('DidLoadPointCloudFile' === type) {
 
-                const { path, string } = data;
-
-                Globals.pointCloudManager.ingest({ path, string });
-
                 setupPointCloud(Globals.pointCloudManager.list.map(o => o.geometry));
 
             } else if ('DidLoadFile' === type) {

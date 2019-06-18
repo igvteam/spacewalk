@@ -2,7 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
 import { segmentIDForInterpolant, fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
-import { appleCrayonColorThreeJS, rgb255, rgb255String } from "./color.js";
+import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 
 let currentSegmentIndex = undefined;
@@ -11,7 +11,7 @@ const alpha_visible = `rgb(${255},${255},${255})`;
 
 let rgbTexture;
 let alphaTexture;
-class ColorRampMaterialProvider {
+class ColorRampTraceMaterialProvider {
 
     constructor({ $canvasContainer, highlightColor }) {
 
@@ -212,6 +212,15 @@ class ColorRampMaterialProvider {
 
     }
 
+    show() {
+        $(this.highlight_ctx.canvas).show();
+        $(this.rgb_ctx.canvas).show();
+    }
+
+    hide() {
+        $(this.highlight_ctx.canvas).hide();
+        $(this.rgb_ctx.canvas).hide();
+    }
 }
 
-export default ColorRampMaterialProvider;
+export default ColorRampTraceMaterialProvider;

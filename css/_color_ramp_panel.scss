@@ -47,8 +47,16 @@ $spacewalk_color_ramp_panel_padding: 12px;
         left: 0;
       }
 
+      canvas#spacewalk_color_ramp_point_cloud_canvas_highlight {
+        z-index: 192;
+      }
+
       canvas#spacewalk_color_ramp_canvas_highlight {
         z-index: 128;
+      }
+
+      canvas#spacewalk_color_ramp_point_cloud_canvas_rgb {
+        z-index: 64;
       }
 
       canvas#spacewalk_color_ramp_canvas_rgb {

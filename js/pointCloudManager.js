@@ -1,7 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
 import { readFileAsText } from "./utils.js";
-import { appleCrayonRandomBrightColorThreeJS } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 
 class PointCloudManager {
@@ -67,7 +66,7 @@ class PointCloudManager {
         let xyz = new THREE.Vector3();
 
         const { genomicStart, genomicEnd } = this.locus;
-
+        this.colorRampInterpolantWindowList = [];
         for (let key of keys) {
 
             const segment = segments[ key ];
@@ -81,15 +80,15 @@ class PointCloudManager {
                     sizeBP: parseFloat(sizeKB) / 1e3
                 };
 
+            const bp = (obj.startBP + obj.endBP) / 2.0;
+            const interpolant = (bp - genomicStart) / (genomicEnd - genomicStart);
+
             let a = (obj.startBP - genomicStart) / (genomicEnd - genomicStart);
             let b = (obj.endBP - genomicStart) / (genomicEnd - genomicStart);
-            obj.colorRampInterpolantWindow = { start: a, end: b };
 
-            obj.bp = (obj.startBP + obj.endBP) / 2.0;
-            obj.interpolant = (obj.bp - genomicStart) / (genomicEnd - genomicStart);
+            this.colorRampInterpolantWindowList.push({ start: a, end: b, interpolant });
 
-            let color = Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, obj.interpolant);
-            // let color = appleCrayonRandomBrightColorThreeJS();
+            let color = Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant);
 
             let xyzList = [];
             let rgbList = [];
@@ -137,6 +136,8 @@ class PointCloudManager {
             const string = await igv.xhr.load(url);
             const { file: path } = igv.parseUri(url);
 
+            this.ingest({ path, string });
+
             Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { path, string } });
         } catch (error) {
             console.warn(error.message);
@@ -149,6 +150,8 @@ class PointCloudManager {
         try {
             const string = await readFileAsText(file);
             const { name: path } = file;
+
+            this.ingest({ path, string });
 
             Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { path, string } });
         } catch (e) {

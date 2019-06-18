@@ -4,7 +4,7 @@ export default {
         ensembleManager: undefined,
         sceneManager: undefined,
         dataValueMaterialProvider: undefined,
-        colorRampMaterialProvider: undefined,
+        colorRampTraceMaterialProvider: undefined,
         noodle: undefined,
         ballAndStick: undefined,
         colorMapManager: undefined,
