@@ -7,6 +7,25 @@ class PointCloud {
     constructor () {
     }
 
+    highlight(geometryUUID) {
+
+        if (this.meshList) {
+            for (let mesh of this.meshList) {
+                mesh.visible = geometryUUID === mesh.geometry.uuid;
+            }
+        }
+
+    }
+
+    unHighlight() {
+        if (this.meshList) {
+            for (let mesh of this.meshList) {
+                mesh.visible = true;
+            }
+        }
+
+    }
+
     static getRenderStyle() {
         return 'render-style-point-cloud';
     }
@@ -120,6 +139,7 @@ const createPointCloud = geometryList => {
     //     };
 
     const map = new THREE.TextureLoader().load( "texture/dot_dugla.png" );
+    // const map = new THREE.TextureLoader().load( "texture/dot_dugla_translucent.png" );
     const pointsMaterialConfig =
         {
             size: 64,

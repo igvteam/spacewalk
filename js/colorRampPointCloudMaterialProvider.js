@@ -1,14 +1,10 @@
 import Globals from './globals.js';
 import { fitToContainer, getMouseXY } from "./utils.js";
-import { rgb255, rgb255String } from "./color.js";
+import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 
-let currentSegmentIndex = undefined;
+let currentInterpolantWindow = undefined;
 
-const alpha_visible = `rgb(${255},${255},${255})`;
-
-let rgbTexture;
-let alphaTexture;
 class ColorRampPointCloudMaterialProvider {
 
     constructor({ $canvasContainer, highlightColor }) {
@@ -34,12 +30,16 @@ class ColorRampPointCloudMaterialProvider {
 
         $canvasContainer.on(('mouseenter.' + namespace), (event) => {
             event.stopPropagation();
-            currentSegmentIndex = undefined;
+            currentInterpolantWindow = undefined;
         });
 
         $canvasContainer.on(('mouseleave.' + namespace), (event) => {
             event.stopPropagation();
-            currentSegmentIndex = undefined;
+
+            currentInterpolantWindow = undefined;
+            this.repaint();
+            Globals.pointCloud.unHighlight();
+
         });
 
         // soak up misc events
@@ -51,66 +51,81 @@ class ColorRampPointCloudMaterialProvider {
         const { r, g, b } = highlightColor;
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
-        Globals.eventBus.subscribe("DidLeaveGUI", this);
-    }
-
-    receiveEvent({ type, data }) {
-
-        if (Globals.sceneManager && "DidLeaveGUI" === type) {
-            this.repaint();
-        }
     }
 
     configureWithInterpolantWindowList(interpolantWindowList) {
         this.interpolantWindowList = interpolantWindowList;
-        this.paintQuantizedRamp(undefined);
+        this.repaint();
     }
 
     repaint () {
 
-        if (this.interpolantWindowList) {
-            this.paintQuantizedRamp(undefined);
+        const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
+
+        this.highlight_ctx.clearRect(0, 0, width, height);
+
+        this.rgb_ctx.fillStyle = rgb255String(appleCrayonColorRGB255('snow'));
+        this.rgb_ctx.fillRect(0, 0, width, height);
+
+        for (let y = 0; y < height; y++) {
+
+            const interpolant = 1 - (y / (height - 1));
+            this.rgb_ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
+            this.rgb_ctx.fillRect(0, y, width, 1);
         }
 
     }
 
     onCanvasMouseMove(canvas, event) {
-
         let { yNormalized } = getMouseXY(canvas, event);
-
         this.highlight(1 - yNormalized);
-
     };
 
     highlight(interpolant) {
-        this.paintQuantizedRamp(interpolant)
-    }
 
-    paintQuantizedRamp(highlightInterpolant){
+        let minimalWindow = undefined;
+        for (let interpolantWindow of this.interpolantWindowList) {
 
-        const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
+            const { start, end, sizeBP } = interpolantWindow;
 
-        // paint rgb ramp
-        for (let y = 0;  y < height; y++) {
+            if (interpolant < start || interpolant > end) {
+                // do nothing
+            } else {
 
-            const percent = 1 - (y / (height - 1));
-
-            for (let interpolantWindow of this.interpolantWindowList) {
-
-                const { start, end, interpolant } = interpolantWindow;
-
-                if (percent < start || percent > end) {
-                    // do nothing
-                } else {
-                    this.rgb_ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
-                    this.rgb_ctx.fillRect(0, y, width, 1);
+                if (undefined === minimalWindow) {
+                    minimalWindow = interpolantWindow;
+                } else if (sizeBP < minimalWindow.sizeBP) {
+                    minimalWindow = interpolantWindow;
                 }
+
             }
 
         }
 
-    }
+        if (minimalWindow && currentInterpolantWindow !== minimalWindow) {
 
+            currentInterpolantWindow = minimalWindow;
+
+            const { start, end, geometryUUID } = minimalWindow;
+
+            const { offsetHeight: height, offsetWidth: width } = this.highlight_ctx.canvas;
+
+            this.highlight_ctx.clearRect(0, 0, width, height);
+
+            this.highlight_ctx.fillStyle = this.highlightColor;
+
+            const h = Math.round((end - start) * height);
+            const y = Math.round(start * height);
+
+            const yy = height - (h + y);
+
+            this.highlight_ctx.fillRect(0, yy, width, h);
+
+            Globals.pointCloud.highlight(geometryUUID);
+
+        }
+
+    }
 
     show() {
         $(this.highlight_ctx.canvas).show();

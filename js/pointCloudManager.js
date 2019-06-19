@@ -86,7 +86,7 @@ class PointCloudManager {
             let a = (obj.startBP - genomicStart) / (genomicEnd - genomicStart);
             let b = (obj.endBP - genomicStart) / (genomicEnd - genomicStart);
 
-            this.colorRampInterpolantWindowList.push({ start: a, end: b, interpolant });
+            this.colorRampInterpolantWindowList.push({ start: a, end: b, sizeBP:(obj.endBP - obj.startBP), interpolant, geometryUUID: obj.geometry.uuid });
 
             let color = Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant);
 

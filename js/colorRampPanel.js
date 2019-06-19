@@ -4,6 +4,7 @@ import ColorRampPointCloudMaterialProvider from "./colorRampPointCloudMaterialPr
 import { makeDraggable } from "./draggable.js";
 import { setMaterialProvider, moveOffScreen, moveOnScreen } from './utils.js';
 import { guiManager } from './gui.js';
+import PointCloud from "./pointCloud.js";
 
 class ColorRampPanel {
 
