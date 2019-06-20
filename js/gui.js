@@ -34,7 +34,7 @@ const createGUI = async container => {
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
 
     colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, highlightColor }) );
-    Globals.colorRampMaterialProvider = colorRampPanel.colorRampMaterialProvider;
+    Globals.colorRampTraceMaterialProvider = colorRampPanel.colorRampTraceMaterialProvider;
 
     // thumbnailPanel = new ThumbnailPanel(thumbnailPanelConfigurator(container));
 

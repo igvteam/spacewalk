@@ -1,16 +1,19 @@
 import Globals from './globals.js';
-import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
+import ColorRampTraceMaterialProvider from "./colorRampTraceMaterialProvider.js";
+import ColorRampPointCloudMaterialProvider from "./colorRampPointCloudMaterialProvider.js";
 import { makeDraggable } from "./draggable.js";
 import { setMaterialProvider, moveOffScreen, moveOnScreen } from './utils.js';
 import { guiManager } from './gui.js';
+import PointCloud from "./pointCloud.js";
 
 class ColorRampPanel {
 
-    constructor({ container, panel, colorRampMaterialProvider, isHidden }) {
+    constructor({ container, panel, colorRampTraceMaterialProvider, colorRampPointCloudMaterialProvider, isHidden }) {
 
         this.container = container;
         this.$panel = $(panel);
-        this.colorRampMaterialProvider = colorRampMaterialProvider;
+        this.colorRampTraceMaterialProvider = colorRampTraceMaterialProvider;
+        this.colorRampPointCloudMaterialProvider = colorRampPointCloudMaterialProvider;
         this.isHidden = isHidden;
 
         // header
@@ -43,13 +46,14 @@ class ColorRampPanel {
 
         this.$panel.on('click.color-ramp-panel', (event) => {
             event.stopPropagation();
-            setMaterialProvider(colorRampMaterialProvider);
+            setMaterialProvider(colorRampTraceMaterialProvider);
             Globals.eventBus.post({ type: "DidChangeMaterialProvider" });
         });
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe('DidSelectStructure', this);
         Globals.eventBus.subscribe('DidLoadFile', this);
+        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
 
@@ -67,21 +71,31 @@ class ColorRampPanel {
 
         } else if ("DidSelectStructure" === type) {
 
-            this.colorRampMaterialProvider.repaint();
+            this.colorRampTraceMaterialProvider.repaint();
         } else if ("DidLoadFile" === type) {
 
+            this.colorRampPointCloudMaterialProvider.hide();
+            this.colorRampTraceMaterialProvider.show();
+
             const { genomicStart, genomicEnd } = data;
-            this.configure({ genomicStart, genomicEnd });
+
+            this.$footer.text(Math.round(genomicStart / 1e6) + 'Mb');
+            this.$header.text(Math.round(genomicEnd   / 1e6) + 'Mb');
+
+            this.colorRampTraceMaterialProvider.repaint();
+
+        } else if ("DidLoadPointCloudFile" === type) {
+
+            this.colorRampTraceMaterialProvider.hide();
+            this.colorRampPointCloudMaterialProvider.show();
+
+            const { genomicStart, genomicEnd } = data;
+
+            this.$footer.text(Math.round(genomicStart / 1e6) + 'Mb');
+            this.$header.text(Math.round(genomicEnd   / 1e6) + 'Mb');
+
+            this.colorRampPointCloudMaterialProvider.configureWithInterpolantWindowList(Globals.pointCloudManager.getColorRampInterpolantWindowList());
         }
-    }
-
-    configure({ genomicStart, genomicEnd }) {
-
-        const [ ss, ee ] = [ genomicStart / 1e6, genomicEnd / 1e6 ];
-        this.$footer.text(ss + 'Mb');
-        this.$header.text(ee + 'Mb');
-
-        this.colorRampMaterialProvider.repaint();
     }
 
     onWindowResize() {
@@ -112,7 +126,8 @@ export const colorRampPanelConfigurator = ({ container, highlightColor }) => {
     return {
             container,
             panel: $('#spacewalk_color_ramp_panel').get(0),
-            colorRampMaterialProvider: new ColorRampMaterialProvider( { $canvasContainer, highlightColor } ),
+            colorRampTraceMaterialProvider: new ColorRampTraceMaterialProvider( { $canvasContainer, highlightColor } ),
+            colorRampPointCloudMaterialProvider: new ColorRampPointCloudMaterialProvider( { $canvasContainer, highlightColor } ),
             isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel')
         };
 

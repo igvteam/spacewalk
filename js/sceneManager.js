@@ -143,6 +143,8 @@ class SceneManager {
 
         if (this.scene && this.cameraLightingRig) {
 
+            Globals.pointCloud.renderLoopHelper();
+
             Globals.noodle.renderLoopHelper();
 
             Globals.ballAndStick.renderLoopHelper();
@@ -196,7 +198,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
         renderer,
         cameraLightingRig,
         picker,
-        materialProvider: Globals.colorRampMaterialProvider,
+        materialProvider: Globals.colorRampTraceMaterialProvider,
         renderStyle: guiManager.getRenderingStyle()
     };
 

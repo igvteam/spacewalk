@@ -74,6 +74,7 @@ class TraceSelectPanel {
         $(document).on('keyup.trace_select', handleKeyUp);
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe('DidLoadFile', this);
 
     }
 
@@ -87,6 +88,9 @@ class TraceSelectPanel {
                 moveOffScreen(this);
             }
             this.isHidden = !this.isHidden;
+        } else if ('DidLoadFile' === type) {
+            const { initialKey } = data;
+            this.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key: initialKey });
         }
     }
 

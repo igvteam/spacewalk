@@ -97,8 +97,12 @@
         position: absolute;
         top: 0;
         left: 0; }
+      #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_canvas_container canvas#spacewalk_color_ramp_point_cloud_canvas_highlight {
+        z-index: 192; }
       #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_canvas_container canvas#spacewalk_color_ramp_canvas_highlight {
         z-index: 128; }
+      #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_canvas_container canvas#spacewalk_color_ramp_point_cloud_canvas_rgb {
+        z-index: 64; }
       #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_canvas_container canvas#spacewalk_color_ramp_canvas_rgb {
         z-index: inherit; }
       #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body #spacewalk_color_ramp_canvas_container canvas#spacewalk_color_ramp_canvas_alpha {
