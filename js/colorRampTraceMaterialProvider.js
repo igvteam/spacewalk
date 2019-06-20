@@ -4,6 +4,7 @@ import { segmentIDForInterpolant, fitToContainer, getMouseXY } from "./utils.js"
 import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
+import PointCloud from "./pointCloud.js";
 
 let currentSegmentIndex = undefined;
 
@@ -54,8 +55,13 @@ class ColorRampTraceMaterialProvider {
         const namespace = 'color-ramp-material-provider';
 
         $canvasContainer.on(('mousemove.' + namespace), (event) => {
+
             event.stopPropagation();
-            this.onCanvasMouseMove(canvas, event)
+
+            if (Globals.sceneManager.renderStyle !== PointCloud.getRenderStyle()) {
+                this.onCanvasMouseMove(canvas, event)
+            }
+
         });
 
         $canvasContainer.on(('mouseenter.' + namespace), (event) => {
@@ -64,8 +70,13 @@ class ColorRampTraceMaterialProvider {
         });
 
         $canvasContainer.on(('mouseleave.' + namespace), (event) => {
+
             event.stopPropagation();
-            currentSegmentIndex = undefined;
+
+            if (Globals.sceneManager.renderStyle !== PointCloud.getRenderStyle()) {
+                currentSegmentIndex = undefined;
+                this.repaint();
+            }
         });
 
         // soak up misc events

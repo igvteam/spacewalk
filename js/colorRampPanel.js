@@ -89,7 +89,12 @@ class ColorRampPanel {
             this.colorRampTraceMaterialProvider.hide();
             this.colorRampPointCloudMaterialProvider.show();
 
-            this.colorRampPointCloudMaterialProvider.configureWithInterpolantWindowList(Globals.pointCloudManager.colorRampInterpolantWindowList);
+            const { genomicStart, genomicEnd } = data;
+
+            this.$footer.text(Math.round(genomicStart / 1e6) + 'Mb');
+            this.$header.text(Math.round(genomicEnd   / 1e6) + 'Mb');
+
+            this.colorRampPointCloudMaterialProvider.configureWithInterpolantWindowList(Globals.pointCloudManager.getColorRampInterpolantWindowList());
         }
     }
 

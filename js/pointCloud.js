@@ -1,29 +1,60 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { degrees } from './math.js';
 import Globals from "./globals.js";
+import { setGeometryAttributeColorListWithColorThreeJS } from './color.js';
 
 class PointCloud {
 
     constructor () {
+
+        const materialConfig =
+            {
+                size: 64,
+                vertexColors: THREE.VertexColors,
+                map: new THREE.TextureLoader().load( "texture/dot_dugla.png" ),
+                transparent: true,
+                depthTest: false
+            };
+
+        this.material = new THREE.PointsMaterial( materialConfig );
+        this.material.side = THREE.DoubleSide;
+
+        const deemphasizedConfig =
+            {
+                size: 64,
+                vertexColors: THREE.VertexColors,
+                map: new THREE.TextureLoader().load( "texture/dot_dugla_translucent.png" ),
+                transparent: true,
+                depthTest: false
+            };
+
+        this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );
+        this.deemphasizedMaterial.side = THREE.DoubleSide;
+
     }
 
     highlight(geometryUUID) {
 
         if (this.meshList) {
+
             for (let mesh of this.meshList) {
-                mesh.visible = geometryUUID === mesh.geometry.uuid;
+                if (geometryUUID === mesh.geometry.uuid) {
+                    mesh.material = this.material;
+                    setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
+                } else {
+                    mesh.material = this.deemphasizedMaterial;
+                    setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.deemphasizedColor)
+                }
             }
         }
 
     }
 
     unHighlight() {
-        if (this.meshList) {
-            for (let mesh of this.meshList) {
-                mesh.visible = true;
-            }
+        for (let mesh of this.meshList) {
+            mesh.material = this.material;
+            setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
         }
-
     }
 
     static getRenderStyle() {
@@ -34,7 +65,7 @@ class PointCloud {
 
         this.dispose();
 
-        this.meshList = createPointCloud(geometryList);
+        this.meshList = this.createPointCloud(geometryList);
 
         if (Globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
             this.show();
@@ -43,6 +74,17 @@ class PointCloud {
         }
 
     }
+
+    createPointCloud(geometryList) {
+
+        return geometryList
+            .map(geometry => {
+                let mesh = new THREE.Points( geometry, this.material );
+                mesh.name = 'point_cloud';
+                return mesh;
+            });
+
+    };
 
     updateMaterialProvider (materialProvider) {
         // do stuff
@@ -55,7 +97,13 @@ class PointCloud {
     }
 
     renderLoopHelper () {
-        // do stuff
+
+        if (this.meshList) {
+            for (let mesh of this.meshList) {
+                mesh.geometry.attributes.color.needsUpdate = true;
+            }
+        }
+
     }
 
     hide () {
@@ -74,7 +122,7 @@ class PointCloud {
 
         if (this.meshList) {
             for (let mesh of this.meshList) {
-                mesh.material.dispose();
+                // mesh.material.dispose();
                 mesh.geometry.dispose();
             }
         }
@@ -129,37 +177,5 @@ class PointCloud {
     }
 
 }
-
-const createPointCloud = geometryList => {
-
-    // const pointsMaterialConfig =
-    //     {
-    //         size: 32,
-    //         vertexColors: THREE.VertexColors
-    //     };
-
-    const map = new THREE.TextureLoader().load( "texture/dot_dugla.png" );
-    // const map = new THREE.TextureLoader().load( "texture/dot_dugla_translucent.png" );
-    const pointsMaterialConfig =
-        {
-            size: 64,
-            vertexColors: THREE.VertexColors,
-            map,
-            transparent: true,
-            depthTest: false,
-            side: THREE.DoubleSide
-        };
-
-    let material = new THREE.PointsMaterial( pointsMaterialConfig );
-    material.side = THREE.DoubleSide;
-
-    return geometryList
-        .map(geometry => {
-            let mesh = new THREE.Points( geometry, material );
-            mesh.name = 'point_cloud';
-            return mesh;
-        });
-
-};
 
 export default PointCloud;

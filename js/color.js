@@ -1,6 +1,15 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { lerp, clamp, random } from './math.js';
 
+export const setGeometryAttributeColorListWithColorThreeJS = (colorList, colorThreeJS) => {
+    const { r, g, b } = colorThreeJS;
+    const rgb = [ r, g, b ];
+
+    for (let i = 0, j = 0; i < colorList.length; i++, j = (j + 1) % 3) {
+        colorList[ i ] = rgb[ j ];
+    }
+};
+
 export const colorDescriptionRGBOrThreeJS = color => {
     const { r, g, b } = color;
     return `rgb(${r.toFixed(3)},${g.toFixed(3)},${b.toFixed(3)})`

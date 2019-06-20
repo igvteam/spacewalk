@@ -143,6 +143,8 @@ class SceneManager {
 
         if (this.scene && this.cameraLightingRig) {
 
+            Globals.pointCloud.renderLoopHelper();
+
             Globals.noodle.renderLoopHelper();
 
             Globals.ballAndStick.renderLoopHelper();
