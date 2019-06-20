@@ -21,7 +21,8 @@ class PointCloud {
 
         const deemphasizedConfig =
             {
-                size: 64,
+                // size: 64,
+                size: 32,
                 vertexColors: THREE.VertexColors,
                 map: new THREE.TextureLoader().load( "texture/dot_dugla_translucent.png" ),
                 transparent: true,

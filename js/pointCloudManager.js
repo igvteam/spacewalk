@@ -89,7 +89,7 @@ class PointCloudManager {
 
             obj.geometry.userData.colorRampInterpolantWindow = { start: a, end: b, sizeBP:obj.sizeBP, interpolant, geometryUUID: obj.geometry.uuid };
             obj.geometry.userData.color = Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant);
-            obj.geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('mercury');
+            obj.geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('snow');
 
             let xyzList = [];
             let rgbList = [];
