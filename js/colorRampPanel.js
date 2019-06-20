@@ -1,19 +1,18 @@
 import Globals from './globals.js';
-import ColorRampTraceMaterialProvider from "./colorRampTraceMaterialProvider.js";
-import ColorRampPointCloudMaterialProvider from "./colorRampPointCloudMaterialProvider.js";
+import TraceColorRampMaterialProvider from "./traceColorRampMaterialProvider.js";
+import PointCloudColorRampMaterialProvider from "./pointCloudColorRampMaterialProvider.js";
 import { makeDraggable } from "./draggable.js";
 import { setMaterialProvider, moveOffScreen, moveOnScreen } from './utils.js';
 import { guiManager } from './gui.js';
-import PointCloud from "./pointCloud.js";
 
 class ColorRampPanel {
 
-    constructor({ container, panel, colorRampTraceMaterialProvider, colorRampPointCloudMaterialProvider, isHidden }) {
+    constructor({ container, panel, traceColorRampMaterialProvider, pointCloudColorRampMaterialProvider, isHidden }) {
 
         this.container = container;
         this.$panel = $(panel);
-        this.colorRampTraceMaterialProvider = colorRampTraceMaterialProvider;
-        this.colorRampPointCloudMaterialProvider = colorRampPointCloudMaterialProvider;
+        this.traceColorRampMaterialProvider = traceColorRampMaterialProvider;
+        this.pointCloudColorRampMaterialProvider = pointCloudColorRampMaterialProvider;
         this.isHidden = isHidden;
 
         // header
@@ -46,7 +45,7 @@ class ColorRampPanel {
 
         this.$panel.on('click.color-ramp-panel', (event) => {
             event.stopPropagation();
-            setMaterialProvider(colorRampTraceMaterialProvider);
+            setMaterialProvider(traceColorRampMaterialProvider);
             Globals.eventBus.post({ type: "DidChangeMaterialProvider" });
         });
 
@@ -71,30 +70,30 @@ class ColorRampPanel {
 
         } else if ("DidSelectStructure" === type) {
 
-            this.colorRampTraceMaterialProvider.repaint();
+            this.traceColorRampMaterialProvider.repaint();
         } else if ("DidLoadFile" === type) {
 
-            this.colorRampPointCloudMaterialProvider.hide();
-            this.colorRampTraceMaterialProvider.show();
+            this.pointCloudColorRampMaterialProvider.hide();
+            this.traceColorRampMaterialProvider.show();
 
             const { genomicStart, genomicEnd } = data;
 
             this.$footer.text(Math.round(genomicStart / 1e6) + 'Mb');
             this.$header.text(Math.round(genomicEnd   / 1e6) + 'Mb');
 
-            this.colorRampTraceMaterialProvider.repaint();
+            this.traceColorRampMaterialProvider.repaint();
 
         } else if ("DidLoadPointCloudFile" === type) {
 
-            this.colorRampTraceMaterialProvider.hide();
-            this.colorRampPointCloudMaterialProvider.show();
+            this.traceColorRampMaterialProvider.hide();
+            this.pointCloudColorRampMaterialProvider.show();
 
             const { genomicStart, genomicEnd } = data;
 
             this.$footer.text(Math.round(genomicStart / 1e6) + 'Mb');
             this.$header.text(Math.round(genomicEnd   / 1e6) + 'Mb');
 
-            this.colorRampPointCloudMaterialProvider.configureWithInterpolantWindowList(Globals.pointCloudManager.getColorRampInterpolantWindowList());
+            this.pointCloudColorRampMaterialProvider.configureWithInterpolantWindowList(Globals.pointCloudManager.getColorRampInterpolantWindowList());
         }
     }
 
@@ -126,8 +125,8 @@ export const colorRampPanelConfigurator = ({ container, highlightColor }) => {
     return {
             container,
             panel: $('#spacewalk_color_ramp_panel').get(0),
-            colorRampTraceMaterialProvider: new ColorRampTraceMaterialProvider( { $canvasContainer, highlightColor } ),
-            colorRampPointCloudMaterialProvider: new ColorRampPointCloudMaterialProvider( { $canvasContainer, highlightColor } ),
+            traceColorRampMaterialProvider: new TraceColorRampMaterialProvider( { $canvasContainer, highlightColor } ),
+            pointCloudColorRampMaterialProvider: new PointCloudColorRampMaterialProvider( { $canvasContainer, highlightColor } ),
             isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel')
         };
 

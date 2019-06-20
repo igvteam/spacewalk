@@ -6,7 +6,7 @@ import PointCloud from './pointCloud.js';
 
 let currentInterpolantWindow = undefined;
 
-class ColorRampPointCloudMaterialProvider {
+class PointCloudColorRampMaterialProvider {
 
     constructor({ $canvasContainer, highlightColor }) {
 
@@ -149,4 +149,4 @@ class ColorRampPointCloudMaterialProvider {
     }
 }
 
-export default ColorRampPointCloudMaterialProvider;
+export default PointCloudColorRampMaterialProvider;
