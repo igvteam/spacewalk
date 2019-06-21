@@ -19,83 +19,77 @@ class EnsembleManager {
         this.locus = parsePathEncodedGenomicLocation(path);
         this.path = path;
 
-        this.ensemble = {};
-
-        const rawLines = string.split(/\r?\n/);
+        const raw = string.split(/\r?\n/);
 
         // discard blurb
-        rawLines.shift();
+        raw.shift();
 
         // discard column titles
-        rawLines.shift();
+        raw.shift();
 
         // discard blank lines
-        const lines = rawLines.filter(rawLine => "" !== rawLine);
+        const lines = raw.filter(rawLine => "" !== rawLine);
 
-        // chr-index ( 0-based)| segment-index (one-based) | Z | X | y
+        console.time(`ingest ensemble data with ${ lines.length } lines`);
 
-        let key;
-        let trace;
-        let counter;
+        let dictionary = {};
         for (let line of lines) {
 
-            let parts = line.split(',');
+            const tokens = line.split(',');
 
-            const index = parseInt(parts[ 0 ], 10) - 1;
+            // chr-index (1-based) | segment-index (1-based) | Z | X | Y
+            const [ index, segmentID, z, x, y ] = [ tokens[ 0 ], tokens[ 1 ], tokens[ 2 ], tokens[ 3 ], tokens[ 4 ] ];
 
-            if (undefined === key || key !== index.toString()) {
+            // key will be 0-based
+            let number = parseInt(index, 10) - 1;
+            let key = number.toString();
 
-                key = index.toString();
-
-                this.ensemble[ key ] = trace =
-                    {
-                        segmentList:[],
-                        geometry: new THREE.Geometry(),
-                        material: new THREE.MeshPhongMaterial()
-                    };
-
-                // capture the nominal trace length by recording the maximum possible number of segments
-                if (counter && undefined === this.maximumSegmentID) {
-                    this.maximumSegmentID = counter;
-                }
-
-                counter = 0;
-
+            if (undefined === dictionary[ key ]) {
+                dictionary[ key ] = [];
             }
 
-            if ('nan' === parts[ 2 ] || 'nan' === parts[ 3 ] || 'nan' === parts[ 4 ]) {
+            if ('nan' === x || 'nan' === y || 'nan' === z) {
                 // do nothing
             } else {
-
-                // discard chr-index
-                parts.shift();
-
-                // capture segment-index
-                let token = parts.shift();
-
-                // NOTE: Segment ID is 1-based.
-                const segmentID = parseInt(token, 10);
-                const segmentIDIndex = segmentID - 1;
-                const genomicLocation = this.locus.genomicStart + this.stepSize * (0.5 + segmentIDIndex);
-                trace.segmentList.push( { segmentID, genomicLocation } );
-
-                let [ z, x, y ] = parts;
-                const centroid = new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z));
-                trace.geometry.vertices.push( centroid );
-
+                const genomicLocation = this.locus.genomicStart + this.stepSize * (0.5 + (parseInt(segmentID, 10) - 1));
+                dictionary[ key ].push({ segmentID, genomicLocation, x: parseFloat(x), y: parseFloat(y), z: parseFloat(z) })
             }
-
-            ++counter;
-
-        } // for (lines)
-
-        const ensembleList = Object.values(this.ensemble);
-
-        // compute and store bounds
-        for (let trace of ensembleList) {
-            trace.geometry.computeBoundingBox();
-            trace.geometry.computeBoundingSphere();
         }
+
+        this.maximumSegmentID = Number.NEGATIVE_INFINITY;
+
+        // transform dictionary
+        let keys = Object.keys(dictionary);
+
+        this.ensemble = {};
+        for (let key of keys) {
+
+            let list = dictionary[ key ];
+
+            // find the longest list. this will be the edge length of the distance and contact maps
+            this.maximumSegmentID = Math.max(this.maximumSegmentID, list.length);
+
+            let segmentList = list.map(o => {
+                let { segmentID, genomicLocation } = o;
+                return { segmentID, genomicLocation }
+            });
+
+            let geometry = new THREE.Geometry();
+
+            geometry.vertices = list.map(o => {
+                let { x, y, z } = o;
+                return new THREE.Vector3(x, y, z);
+            });
+
+            geometry.computeBoundingBox();
+            geometry.computeBoundingSphere();
+
+            let material = new THREE.MeshPhongMaterial();
+
+            this.ensemble[ key ] = { segmentList, geometry, material };
+        }
+
+        console.timeEnd(`ingest ensemble data with ${ lines.length } lines`);
 
         contactFrequencyMapPanel.draw(getContactFrequencyCanvasWithEnsemble(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
 
@@ -106,20 +100,7 @@ class EnsembleManager {
     }
 
     getTraceWithName(name) {
-        // return this.ensemble[ name ] || undefined;
         return this.ensemble[ name ] || undefined;
-    }
-
-    describeTraceWithName(name) {
-
-        const trace = this.getTraceWithName(name);
-
-        for (let segment of trace.segmentList) {
-            const star = segment.segmentID !== 1 + trace.segmentList.indexOf(segment) ? '(*)' : '';
-            const str = `index ${ trace.segmentList.indexOf(segment) } segmentID ${ segment.segmentID } ${ star }`;
-            console.log(str);
-        }
-
     }
 
     segmentIDForGenomicLocation(bp) {

@@ -12,7 +12,7 @@ const alpha_visible = `rgb(${255},${255},${255})`;
 
 let rgbTexture;
 let alphaTexture;
-class ColorRampTraceMaterialProvider {
+class TraceColorRampMaterialProvider {
 
     constructor({ $canvasContainer, highlightColor }) {
 
@@ -234,4 +234,4 @@ class ColorRampTraceMaterialProvider {
     }
 }
 
-export default ColorRampTraceMaterialProvider;
+export default TraceColorRampMaterialProvider;

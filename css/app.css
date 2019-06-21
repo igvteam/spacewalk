@@ -70,7 +70,7 @@
     width: 95%;
     margin-bottom: 0.25rem; }
     #spacewalk_trace_select_panel.card .card-body .form-group input#spacewalk_trace_select_input {
-      font-size: 16px; }
+      font-size: 1.25rem; }
 
 #spacewalk_color_ramp_panel.card {
   width: auto;
@@ -160,6 +160,8 @@
   #spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body {
     width: 256px;
     height: unset; }
+    #spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body input#spacewalk_contact_frequency_map_adjustment_select_input {
+      font-size: 1.25rem; }
     #spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body #spacewalk_contact_frequency_map_panel_container {
       width: 256px;
       height: 256px; }

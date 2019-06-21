@@ -12,6 +12,10 @@ $spacewalk_thumbnail_panel_width: 256px;
     width: $spacewalk_thumbnail_panel_width;
     height: unset;
 
+    input#spacewalk_contact_frequency_map_adjustment_select_input {
+      font-size: 1.25rem;
+    }
+
     #spacewalk_contact_frequency_map_panel_container {
       width: $spacewalk_thumbnail_panel_width;
       height: $spacewalk_thumbnail_panel_width;

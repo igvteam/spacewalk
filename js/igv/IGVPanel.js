@@ -244,7 +244,7 @@ const addDataValueMaterialProviderGUI = tracks => {
 
                 } else {
 
-                    setMaterialProvider(Globals.colorRampTraceMaterialProvider);
+                    setMaterialProvider(Globals.traceColorRampMaterialProvider);
 
                 }
 

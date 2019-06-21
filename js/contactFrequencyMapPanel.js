@@ -36,29 +36,10 @@ class ContactFrequencyMapPanel {
         let $input = this.$panel.find('#spacewalk_contact_frequency_map_adjustment_select_input');
         $input.val(distanceThreshold);
 
-        $input.on('keyup.spacewalk_contact_frequency_map_input', (e) => {
-
-            // enter (return) key pressed
-            if (13 === e.keyCode) {
-                let number = parseInt( $input.val() );
-                this.distanceThreshold = clamp(number, 0, maxDistanceThreshold);
-                this.draw(getContactFrequencyCanvasWithEnsemble(Globals.ensembleManager.ensemble, this.distanceThreshold));
-            }
-
-        });
-
-        let $button_minus = this.$panel.find('#spacewalk_contact_frequency_map_adjustment_select_button_minus');
-        let $button_plus = this.$panel.find('#spacewalk_contact_frequency_map_adjustment_select_button_plus');
-
-        $button_minus.on('click.spacewalk_trace_select_button_minus', (e) => {
-            this.distanceThreshold = Math.max(this.distanceThreshold - 1, 0);
-            $input.val(this.distanceThreshold);
-            this.draw(getContactFrequencyCanvasWithEnsemble(Globals.ensembleManager.ensemble, this.distanceThreshold));
-        });
-
-        $button_plus.on('click.spacewalk_trace_select_button_plus', (e) => {
-            this.distanceThreshold = Math.min(this.distanceThreshold + 1, maxDistanceThreshold);
-            $input.val(this.distanceThreshold);
+        let $button = this.$panel.find('#spacewalk_contact_frequency_map__button');
+        $button.on('click.spacewalk_contact_frequency_map__button', (e) => {
+            const value = $input.val();
+            this.distanceThreshold = clamp(parseInt(value, 10), 0, maxDistanceThreshold);
             this.draw(getContactFrequencyCanvasWithEnsemble(Globals.ensembleManager.ensemble, this.distanceThreshold));
         });
 
