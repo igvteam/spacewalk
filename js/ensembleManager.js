@@ -37,11 +37,10 @@ class EnsembleManager {
 
             const tokens = line.split(',');
 
-            // chr-index ( 1-based) | segment-index (1-based) | Z | X | Y
-
+            // chr-index (1-based) | segment-index (1-based) | Z | X | Y
             const [ index, segmentID, z, x, y ] = [ tokens[ 0 ], tokens[ 1 ], tokens[ 2 ], tokens[ 3 ], tokens[ 4 ] ];
 
-            // keys will be zero-based
+            // key will be 0-based
             let number = parseInt(index, 10) - 1;
             let key = number.toString();
 
@@ -102,18 +101,6 @@ class EnsembleManager {
 
     getTraceWithName(name) {
         return this.ensemble[ name ] || undefined;
-    }
-
-    describeTraceWithName(name) {
-
-        const trace = this.getTraceWithName(name);
-
-        for (let segment of trace.segmentList) {
-            const star = segment.segmentID !== 1 + trace.segmentList.indexOf(segment) ? '(*)' : '';
-            const str = `index ${ trace.segmentList.indexOf(segment) } segmentID ${ segment.segmentID } ${ star }`;
-            console.log(str);
-        }
-
     }
 
     segmentIDForGenomicLocation(bp) {
