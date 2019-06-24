@@ -7,7 +7,39 @@ $spacewalk_thumbnail_panel_width: 256px;
   height: unset;
   border: 0;
 
+  .card-header {
+
+    .spacewalk_card_drag_container {
+
+      cursor: grab;
+
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+
+      width: 100%;
+      height: $spacewalk_card_drag_container_height;
+      background-color: transparent;
+
+      i.fa-grip-horizontal {
+        color: $spacewalk_steel;
+        display: block;
+      }
+    }
+
+  }
+
   #spacewalk_distance_map_panel_body.card-body {
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0.125rem;
 
     width: $spacewalk_thumbnail_panel_width;
     height: unset;
@@ -17,9 +49,7 @@ $spacewalk_thumbnail_panel_width: 256px;
       height: $spacewalk_thumbnail_panel_width;
     }
 
-    //background-color: magenta;
   }
 
-  //background-color: greenyellow;
 
 }
