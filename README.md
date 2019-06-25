@@ -1,6 +1,8 @@
-# Tracing3D
+# SpaceWalk
 
-Tracing3D (index.html) is an app that presents super-resolution chromatin tracing data in 3D using a ball and stick representation. In addition and igvjs instance is provided for rapid and intuitive visual comparison between the 3D data and 1D genomic data.
+SpaceWalk (index.html) is an application for displaying and interacting with super-resolution chromatin tracing data in 3D. 
+SpaceWalk includes [igv.js](https://github.com/igvteam/igv.js) and [juicebox.js](https://github.com/igvteam/juicebox.js) instances for rapid and intuitive visual comparison and interaction between 3D data 
+and 1D genomic data.
 
 
 ## Requirements
