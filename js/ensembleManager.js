@@ -20,7 +20,7 @@ class EnsembleManager {
         this.locus = parsePathEncodedGenomicLocation(path);
         this.path = path;
 
-        const raw = string.split(/\r?\n/);
+        let raw = string.split(/\r?\n/);
 
         // discard blurb
         raw.shift();
@@ -30,6 +30,7 @@ class EnsembleManager {
 
         // discard blank lines
         const lines = raw.filter(rawLine => "" !== rawLine);
+        raw = null;
 
         console.time(`ingest ensemble data with ${ lines.length } lines`);
 
@@ -90,6 +91,8 @@ class EnsembleManager {
 
             this.ensemble[ key ] = { segmentList, geometry, material };
         }
+
+        dictionary = null;
 
         console.timeEnd(`ingest ensemble data with ${ lines.length } lines`);
 
@@ -219,7 +222,10 @@ export const getTraceContactFrequenceCanvas = (trace, distanceThreshold) => {
 
     }
 
-    const maxFrequency = Math.max(...frequencies);
+    let maxFrequency = Number.NEGATIVE_INFINITY;
+    for (let freq of frequencies) {
+        maxFrequency = Math.max(maxFrequency, freq);
+    }
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -394,8 +400,11 @@ export const getEnsembleDistanceMapCanvas = ensemble => {
 
     } // for (trace)
 
-    const maxAverageDistance = Math.max(...averageDistance);
-    const minAverageDistance = Math.min(...averageDistance);
+    let [ minAverageDistance, maxAverageDistance ] = [ Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY ];
+    for (let avgd of averageDistance) {
+        minAverageDistance = Math.min(minAverageDistance, avgd);
+        maxAverageDistance = Math.max(maxAverageDistance, avgd);
+    }
 
     console.timeEnd(`getEnsembleDistanceMapCanvas. ${ ensembleList.length } traces.`);
 
