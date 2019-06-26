@@ -36,8 +36,17 @@ localhost:8080/index.html
 ````
 
 ## Getting Started
-SpaceWalk consists of a single 3D canvas for displaying a 3D model of chromatin data. Various task-specific panels are presented atop this 3D space
-for interaction with the 3D data. Each panel can be dragged and/or hidden.
+SpaceWalk is an application for displaying and analysing 3D models of chromatin data.  
+
+Here is a screenshot:
+
+![spacewalk ](readme_img/spacewalk-screenshot.png)
+
+Task-specific interaction panels augment the 3D model to support analysis. 
+Panels can be dragged and/or hidden to tailor the interface for the type of analysis required:
+
+![spacewalk ](readme_img/spacewalk-panels-screenshot.png)
+
 
 There are three rendering styles for 3D data. All rendering styles involve using a color ramp to map genomic location to 3D. For details on this color ramp see Color Ramp Genomic Navigator below
 
