@@ -2,10 +2,8 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
 import igv from '../vendor/igv.esm.js'
 import KDBush from '../node_modules/kd3d/js/index.js'
-import { readFileAsText } from "./utils.js";
 import { rgb255String, appleCrayonColorRGB255 } from './color.js';
 import { distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
-import { lerp } from './math.js';
 
 export let contactFrequencyDistanceThreshold = 256;
 
@@ -119,32 +117,15 @@ class EnsembleManager {
         return segmentID;
     }
 
-    async loadURL ({ url, name }) {
-
-        try {
-
-            let string = await igv.xhr.load(url);
-            const { file:path } = igv.parseUri(url);
-
-            this.ingest({ path, string });
-
-        } catch (error) {
-            console.warn(error.message);
-        }
-
+    loadURL ({ url, name, string }) {
+        const { file: path } = igv.parseUri(url);
+        this.ingest({ path, string });
     }
 
-    async loadLocalFile ({ file }) {
+    loadLocalFile ({ file, string }) {
 
-        try {
-            const string = await readFileAsText(file);
-            const { name: path } = file;
-
-            this.ingest({ path, string });
-
-        } catch (e) {
-            console.warn(e.message)
-        }
+        const { name: path } = file;
+        this.ingest({ path, string });
 
     }
 

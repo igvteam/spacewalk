@@ -102,11 +102,11 @@ class IGVPanel {
 
         try {
             this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
-            // const tracks = this.browser.findTracks('featureType', 'numeric');
-            addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
         } catch (error) {
             console.warn(error.message);
         }
+
+        addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
 
         this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
             IGVMouseHandler({ bp, start, end, interpolant })
@@ -120,14 +120,15 @@ class IGVPanel {
 
     async loadTrack(url) {
 
+        let track = undefined;
         try {
-            const track = await igv.browser.loadTrack({ url });
-            addDataValueMaterialProviderGUI([track]);
-            return track;
+            track = await igv.browser.loadTrack({ url });
         } catch (error) {
             console.warn(error.message);
-            return undefined;
         }
+
+        addDataValueMaterialProviderGUI([track]);
+        return track;
 
     }
 
@@ -135,10 +136,21 @@ class IGVPanel {
 
         url = url || '';
 
+        let track = undefined;
         if ('' !== url) {
             $spinner.show();
-            await this.loadTrack(url);
-            $spinner.hide();
+            try {
+                track = await this.loadTrack(url);
+                $spinner.hide();
+            } catch (e) {
+                $spinner.hide();
+                console.warn(e.message);
+            }
+
+            return track;
+
+        } else {
+            return track;
         }
 
     };
@@ -160,26 +172,7 @@ class IGVPanel {
         this.$panel.offset( { left, top } );
     }
 
-    // Each segment "ball" is point in genomic space. Find features (genomic range) that overlap that point.
-    async buildFeatureSegmentIndices({ chr, start, end, stepSize }) {
-
-        this.featureSegmentIndices = new Set();
-
-        const features = await this.track.getFeatures(chr, start, end, this.bpp);
-
-        for (let feature of features) {
-
-            const index = Math.floor((feature.start - start) / stepSize);
-
-            const one_based = 1 + index;
-            if(index >= 0) {
-                this.featureSegmentIndices.add(one_based);
-            }
-        }
-
-    }
-
-}
+ }
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
