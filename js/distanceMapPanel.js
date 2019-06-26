@@ -2,6 +2,7 @@ import Globals from './globals.js';
 import { makeDraggable } from "./draggable.js";
 import { moveOffScreen, moveOnScreen } from "./utils.js";
 import { guiManager } from './gui.js';
+import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 
 class DistanceMapPanel {
 
@@ -10,14 +11,28 @@ class DistanceMapPanel {
         this.container = container;
         this.$panel = $(panel);
 
-        const $canvas = this.$panel.find('canvas');
-        const canvas = $canvas.get(0);
+        const $canvas_container = this.$panel.find('#spacewalk_distance_map_panel_container');
 
-        const $canvas_container = $('#spacewalk_distance_map_panel_container');
+        let canvas;
+
+        // trace canvas and context
+        canvas = $canvas_container.find('#spacewalk_distance_map_canvas_trace').get(0);
         canvas.width = $canvas_container.width();
         canvas.height = $canvas_container.height();
 
-        this.ctx = canvas.getContext('2d');
+        this.ctx_trace = canvas.getContext('2d');
+
+        // ensemble canvas and context
+        canvas = $canvas_container.find('#spacewalk_distance_map_canvas_ensemble').get(0);
+        canvas.width = $canvas_container.width();
+        canvas.height = $canvas_container.height();
+
+        this.ctx_ensemble = canvas.getContext('2d');
+
+        const { width: w, height: h } = this.ctx_ensemble.canvas;
+        this.ctx_ensemble.fillStyle = rgb255String( appleCrayonColorRGB255('honeydew') );
+        this.ctx_ensemble.fillRect(0, 0, w, h);
+
 
         this.isHidden = isHidden;
 
@@ -66,8 +81,12 @@ class DistanceMapPanel {
 
     }
 
-    draw (traceDistanceCanvas) {
-        this.ctx.drawImage(traceDistanceCanvas, 0, 0, traceDistanceCanvas.width, traceDistanceCanvas.height, 0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    drawTraceDistanceCanvas(traceDistanceCanvas) {
+        this.ctx_trace.drawImage(traceDistanceCanvas, 0, 0, traceDistanceCanvas.width, traceDistanceCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+    }
+
+    drawEnsembleDistanceCanvas(ensembleDistanceCanvas) {
+        this.ctx_ensemble.drawImage(ensembleDistanceCanvas, 0, 0, ensembleDistanceCanvas.width, ensembleDistanceCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
     }
 
 }

@@ -355,10 +355,10 @@
                 </li>
 
                 <!-- toggle thumbnail panel -->
-                <li class="list-group-item">
-                    <input id="spacewalk_ui_manager_ui_controls_thumbnail" data-target="spacewalk_thumbnail_panel" class="mr-2" type="checkbox" disabled>
-                    <div>Thumbnail</div>
-                </li>
+<!--                <li class="list-group-item">-->
+<!--                    <input id="spacewalk_ui_manager_ui_controls_thumbnail" data-target="spacewalk_thumbnail_panel" class="mr-2" type="checkbox" disabled>-->
+<!--                    <div>Thumbnail</div>-->
+<!--                </li>-->
 
                 <!-- toggle distance-map panel -->
                 <li class="list-group-item">
@@ -512,17 +512,36 @@
         <!-- distance-map panel -->
         <div id="spacewalk_distance_map_panel" class="card">
 
-            <!-- distance-map panel body -->
-            <div id="spacewalk_distance_map_panel_body" class="card-body p-0">
+            <div class="card-header">
 
                 <!-- drag handle -->
                 <div class="spacewalk_card_drag_container">
                     <i class="fas fa-sm fa-grip-horizontal"></i>
                 </div>
 
+                <div class="text-center">
+                    Distance Map
+                </div>
+
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#spacewalk_distance_map_canvas_trace">Trace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#spacewalk_distance_map_canvas_ensemble">Ensemble</a>
+                    </li>
+                 </ul>
+
+            </div>
+
+            <!-- distance-map panel body -->
+            <div id="spacewalk_distance_map_panel_body" class="card-body p-0">
+
                 <!-- distance-map container -->
-                <div id="spacewalk_distance_map_panel_container">
-                    <canvas>
+                <div id="spacewalk_distance_map_panel_container" class="tab-content">
+                    <canvas id="spacewalk_distance_map_canvas_trace" class="tab-pane active">
+                    </canvas>
+                    <canvas id="spacewalk_distance_map_canvas_ensemble" class="tab-pane">
                     </canvas>
                 </div>
 
@@ -533,12 +552,15 @@
         <!-- contact-frequency-map panel -->
         <div id="spacewalk_contact_frequency_map_panel" class="card">
 
-            <!-- contact-frequency panel body -->
-            <div id="spacewalk_contact_frequency_map_panel_body" class="card-body p-0">
+            <div class="card-header">
 
                 <!-- drag handle -->
                 <div class="spacewalk_card_drag_container">
                     <i class="fas fa-sm fa-grip-horizontal"></i>
+                </div>
+
+                <div class="text-center">
+                    Contact Frequency Map
                 </div>
 
                 <!-- contact-frequency adjustment -->
@@ -558,9 +580,25 @@
                     </div>
                 </div>
 
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#spacewalk_contact_frequency_map_canvas_trace">Trace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#spacewalk_contact_frequency_map_canvas_ensemble">Ensemble</a>
+                    </li>
+                </ul>
+
+            </div>
+
+            <!-- contact-frequency panel body -->
+            <div id="spacewalk_contact_frequency_map_panel_body" class="card-body p-0">
+
                 <!-- contact-frequency container -->
-                <div id="spacewalk_contact_frequency_map_panel_container">
-                    <canvas>
+                <div id="spacewalk_contact_frequency_map_panel_container" class="tab-content">
+                    <canvas id="spacewalk_contact_frequency_map_canvas_trace" class="tab-pane">
+                    </canvas>
+                    <canvas id="spacewalk_contact_frequency_map_canvas_ensemble" class="tab-pane active">
                     </canvas>
                 </div>
 

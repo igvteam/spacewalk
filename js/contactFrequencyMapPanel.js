@@ -2,7 +2,7 @@ import Globals from './globals.js';
 import { makeDraggable } from "./draggable.js";
 import { moveOffScreen, moveOnScreen } from "./utils.js";
 import { guiManager } from './gui.js';
-import { contactFrequencyDistanceThreshold, getContactFrequencyCanvasWithEnsemble } from './ensembleManager.js';
+import { contactFrequencyDistanceThreshold, getEnsembleContactFrequencyCanvas, getTraceContactFrequenceCanvas } from './ensembleManager.js';
 import { clamp } from "./math.js";
 
 const maxDistanceThreshold = 4096;
@@ -14,14 +14,26 @@ class ContactFrequencyMapPanel {
         this.container = container;
         this.$panel = $(panel);
 
-        const $canvas = this.$panel.find('canvas');
-        const canvas = $canvas.get(0);
+        const $canvas_container = this.$panel.find('#spacewalk_contact_frequency_map_panel_container');
 
-        const $canvas_container = $('#spacewalk_contact_frequency_map_panel_container');
+        let canvas;
+
+        // ensemble canvas and context
+        canvas = $canvas_container.find('#spacewalk_contact_frequency_map_canvas_ensemble').get(0);
         canvas.width = $canvas_container.width();
         canvas.height = $canvas_container.height();
+        this.ctx_ensemble = canvas.getContext('2d');
 
-        this.ctx = canvas.getContext('2d');
+        // trace canvas and context
+        canvas = $canvas_container.find('#spacewalk_contact_frequency_map_canvas_trace').get(0);
+        canvas.width = $canvas_container.width();
+        canvas.height = $canvas_container.height();
+        this.ctx_trace = canvas.getContext('2d');
+
+        // test
+        // const { width: w, height: h } = this.ctx_trace.canvas;
+        // this.ctx_trace.fillStyle = rgb255String( appleCrayonColorRGB255('bubblegum') );
+        // this.ctx_trace.fillRect(0, 0, w, h);
 
         this.isHidden = isHidden;
 
@@ -40,7 +52,8 @@ class ContactFrequencyMapPanel {
         $button.on('click.spacewalk_contact_frequency_map__button', (e) => {
             const value = $input.val();
             this.distanceThreshold = clamp(parseInt(value, 10), 0, maxDistanceThreshold);
-            this.draw(getContactFrequencyCanvasWithEnsemble(Globals.ensembleManager.ensemble, this.distanceThreshold));
+            this.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble, this.distanceThreshold));
+            this.drawTraceContactFrequency(getTraceContactFrequenceCanvas(Globals.ensembleManager.currentTrace, this.distanceThreshold));
         });
 
 
@@ -83,8 +96,12 @@ class ContactFrequencyMapPanel {
 
     }
 
-    draw(contactFrequencyCanvas) {
-        this.ctx.drawImage(contactFrequencyCanvas, 0, 0, contactFrequencyCanvas.width, contactFrequencyCanvas.height, 0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    drawEnsembleContactFrequency(ensembleContactFrequencyCanvas) {
+        this.ctx_ensemble.drawImage(ensembleContactFrequencyCanvas, 0, 0, ensembleContactFrequencyCanvas.width, ensembleContactFrequencyCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+    }
+
+    drawTraceContactFrequency(traceContactFrequencyCanvas) {
+        this.ctx_trace.drawImage(traceContactFrequencyCanvas, 0, 0, traceContactFrequencyCanvas.width, traceContactFrequencyCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
     }
 
 }

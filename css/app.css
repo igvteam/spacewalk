@@ -146,7 +146,26 @@
   width: 256px;
   height: unset;
   border: 0; }
+  #spacewalk_distance_map_panel.card .card-header .spacewalk_card_drag_container {
+    cursor: grab;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 32px;
+    background-color: transparent; }
+    #spacewalk_distance_map_panel.card .card-header .spacewalk_card_drag_container i.fa-grip-horizontal {
+      color: #6e6e6e;
+      display: block; }
   #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.125rem;
     width: 256px;
     height: unset; }
     #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body #spacewalk_distance_map_panel_container {
@@ -157,11 +176,33 @@
   width: 256px;
   height: unset;
   border: 0; }
+  #spacewalk_contact_frequency_map_panel.card .card-header .spacewalk_card_drag_container {
+    cursor: grab;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 32px;
+    background-color: transparent; }
+    #spacewalk_contact_frequency_map_panel.card .card-header .spacewalk_card_drag_container i.fa-grip-horizontal {
+      color: #6e6e6e;
+      display: block; }
+  #spacewalk_contact_frequency_map_panel.card .card-header .form-group {
+    /* margin-bottom: 1rem; */
+    margin-bottom: 0; }
+  #spacewalk_contact_frequency_map_panel.card .card-header input#spacewalk_contact_frequency_map_adjustment_select_input {
+    font-size: 1.25rem; }
   #spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.125rem;
     width: 256px;
     height: unset; }
-    #spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body input#spacewalk_contact_frequency_map_adjustment_select_input {
-      font-size: 1.25rem; }
     #spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body #spacewalk_contact_frequency_map_panel_container {
       width: 256px;
       height: 256px; }

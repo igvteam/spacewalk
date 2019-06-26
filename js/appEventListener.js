@@ -3,8 +3,8 @@ import Globals from './globals.js';
 import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { distanceMapPanel, guiManager, thumbnailPanel, traceSelectPanel } from './gui.js';
-import { getDistanceMapCanvasWithTrace } from "./ensembleManager.js";
+import { contactFrequencyMapPanel, distanceMapPanel, guiManager, thumbnailPanel, traceSelectPanel } from './gui.js';
+import { getTraceDistanceMapCanvas, getTraceContactFrequenceCanvas } from "./ensembleManager.js";
 
 export const appEventListener =
     {
@@ -39,11 +39,13 @@ export const appEventListener =
 
                 const { initialKey } = data;
                 let trace = Globals.ensembleManager.getTraceWithName(initialKey);
+                Globals.ensembleManager.currentTrace = trace;
                 setup({ trace });
 
             } else if ('DidSelectStructure' === type) {
 
                 let trace = Globals.ensembleManager.getTraceWithName(data);
+                Globals.ensembleManager.currentTrace = trace;
                 setup({ trace });
 
             } else if ('ToggleAllUIControls' === type) {
@@ -94,5 +96,6 @@ let setup = ({ trace }) => {
     //     thumbnailPanel.render();
     // }
 
-    distanceMapPanel.draw(getDistanceMapCanvasWithTrace(trace));
+    distanceMapPanel.drawTraceDistanceCanvas(getTraceDistanceMapCanvas(trace));
+    contactFrequencyMapPanel.drawTraceContactFrequency(getTraceContactFrequenceCanvas(trace, contactFrequencyMapPanel.distanceThreshold));
 };
