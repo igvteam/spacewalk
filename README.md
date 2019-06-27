@@ -47,24 +47,6 @@ SpaceWalk supports loading files of various types:
 - IGV Tracks - Track files consumed by the IGV panel. Refer to the track section of the [igv.js wiki](https://github.com/igvteam/igv.js/wiki/Tracks-2.0)
 - Juicebox Contact Maps - Refer to the [Aiden Lab](http://www.aidenlab.org/index.html) website for details.
 
-Click the gear icon at upper left to show/hide a panel. Panels can be repositioned by dragging. 
-
-![spacewalk panels](readme_img/spacewalk-gear-icon-and-panel.png)
- 
- These task-specific interaction panels support analysis of the 3D data. 
- 
-![spacewalk panels](readme_img/spacewalk-panels-screenshot.png)
-
-The panels include:
-- Genomic Navigator. The genomic range for a given trace is represented by a color ramp.
-Mouse over this color ramp to highlight the corresponding genomic location in the 3D trace structure.
-- Trace Select. A widget to navigate between the set of traces that comprise an ensemble.
-- IGV. A fully functional IGV.js application that has be extended to interact with the 3D model.
-- Juicebox. A fully functional Juicebox.js that has be extended to interact with the 3D model.
-- Distance Map. An ensemble level and trace level distance map created on the fly when an ensemble file is loaded.
-- Contact Frequency Map. An ensemble level and trace level contact frequency map created on the fly when an ensemble file is loaded.
-
-
 Three rendering styles are supported. All rely on the use of color to map genomic location to 3D.
 
 #### Noodle
@@ -87,4 +69,49 @@ Centroid point clouds are rendered as 3D points. Points associated with a partic
 Mouse over the genomic navigator to isolate clusters of points for that genomic range. 
 
 ![point cloud render style](readme_img/render-style-point-cloud.png)
+
+
+Click the gear icon at upper left to show/hide a panel. Panels can be repositioned by dragging. 
+
+![spacewalk panels](readme_img/spacewalk-gear-icon-and-panel.png)
+ 
+ These task-specific interaction panels support analysis of the 3D data. 
+ 
+![spacewalk panels](readme_img/spacewalk-panels-screenshot.png)
+
+The panels include:
+- Trace Select. A widget to navigate between the set of traces that comprise an ensemble.
+
+- Genomic Navigator. The genomic range for a given trace is represented by a color ramp.
+Mouse over this color ramp to highlight the corresponding genomic location in the 3D trace structure.
+
+    - Noodle highlighting. A sub-section of the noodle corresponding to the genomic region is isolated
+
+    ![genomic navigator noodle](readme_img/spacewalk-genomic-navigator-noodle.png)
+
+    - Ball & Stick highlighting. The ball corresponding to the genomic region is highlighted.
+
+    ![genomic navigator ball & stick](readme_img/spacewalk-genomic-navigator-ball-stick.png)
+
+    - Point Cloud highlighting. The point cloud cluster corresponding to the genomic region remains colored all other
+    clusters are deemphasized. The size of the highlight in the genomic navigator corresponds to the relative size of
+    the genomic region.
+
+    ![genomic navigator point cloud](readme_img/spacewalk-genomic-navigator-point-cloud.png)
+
+- IGV. A fully functional IGV.js application. The app has been extended to enable interaction with the 3D model.
+On the left, mousing across a track behaves similar to the genomic navigator. On the right we have selected a track. The
+features are automatically mapped to the 3D model. Now mousing across the mapped track shows a sliding red ring on the 3D
+model indicating genomic location.
+
+![igv genomic navigator](readme_img/spacewalk-igv-genomic-navigation.png)
+
+- Juicebox. A fully functional Juicebox.js application. The app has been extended to enable interaction with the 3D model.
+Mouse over the contact map to highlight the corresponding genomic locations on the 3D model.
+
+![juicebox genomic navigator](readme_img/spacewalk-juicebox-genomic-navigation.png)
+
+- Distance Map. An ensemble level and trace level distance map created on the fly when an ensemble file is loaded.
+
+- Contact Frequency Map. An ensemble level and trace level contact frequency map created on the fly when an ensemble file is loaded.
 

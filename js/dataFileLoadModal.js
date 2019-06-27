@@ -1,6 +1,7 @@
 import { juiceboxPanel } from "./gui.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
 import Globals from './globals.js';
+import { readFileAsText } from "./utils.js";
 
 let currentURL = undefined;
 
@@ -94,21 +95,45 @@ const loadURL = async ({ url, name, fileLoader, $spinner, $modal }) => {
     url = url || '';
 
     if ('' !== url) {
-        await fileLoader.loadURL({ url, name });
+
+        let string;
+        try {
+
+            string = await igv.xhr.load(url);
+
+            $spinner.hide();
+            $modal.modal('hide');
+            Globals.eventBus.post({ type: "DidLeaveGUI" });
+
+        } catch (error) {
+
+            $spinner.hide();
+            $modal.modal('hide');
+            Globals.eventBus.post({ type: "DidLeaveGUI" });
+
+            console.warn(error.message);
+        }
+
+        fileLoader.loadURL({ url, name, string });
+
     }
 
-    $spinner.hide();
-    $modal.modal('hide');
-
-    Globals.eventBus.post({ type: "DidLeaveGUI" });
 
 };
 
 const loadFile = async (file, fileLoader) => {
 
-    await fileLoader.loadLocalFile({ file });
+    let string;
+    try {
+        string = await readFileAsText(file);
+        Globals.eventBus.post({ type: "DidLeaveGUI" });
+    } catch (e) {
+        Globals.eventBus.post({ type: "DidLeaveGUI" });
+        console.warn(e.message)
+    }
 
-    Globals.eventBus.post({ type: "DidLeaveGUI" });
+    fileLoader.loadLocalFile({ file, string });
+
 };
 
 const pointCloudFileLoadModalConfigurator = () => {

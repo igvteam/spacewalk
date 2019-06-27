@@ -58,21 +58,34 @@ class JuiceboxPanel {
 
     async initialize(browserConfig) {
 
-        const { container, width, height } = browserConfig;
+        try {
+            const { container, width, height } = browserConfig;
+            this.browser = await hic.createBrowser(container, { width, height });
+        } catch (error) {
+            console.warn(error.message);
+        }
 
-        this.browser = await hic.createBrowser(container, { width, height });
+        try {
 
-        const hicConfig =
-            {
-                url: "https://hicfiles.s3.amazonaws.com/hiseq/gm12878/in-situ/HIC010.hic",
-                name: "Rao and Huntley et al. | Cell 2014 GM12878 (human) in situ MboI HIC010 (47M)",
-                isControl: false
-            };
+            const hicConfig =
+                {
+                    url: "https://hicfiles.s3.amazonaws.com/hiseq/gm12878/in-situ/HIC010.hic",
+                    name: "Rao and Huntley et al. | Cell 2014 GM12878 (human) in situ MboI HIC010 (47M)",
+                    isControl: false
+                };
 
-        await this.browser.loadHicFile(hicConfig);
+            await this.browser.loadHicFile(hicConfig);
+        } catch (error) {
+            console.warn(error.message);
+        }
 
         this.locus = 'all';
-        await this.browser.parseGotoInput(this.locus);
+
+        try {
+            await this.browser.parseGotoInput(this.locus);
+        } catch (error) {
+            console.warn(error.message);
+        }
 
         this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
@@ -81,21 +94,15 @@ class JuiceboxPanel {
     }
 
     async goto({ chr, start, end }) {
+
         this.locus = chr + ':' + start + '-' + end;
-        await this.browser.parseGotoInput(this.locus);
-    }
 
-    async defaultConfiguration () {
+        try {
+            await this.browser.parseGotoInput(this.locus);
+        } catch (error) {
+            console.warn(error.message);
+        }
 
-        const config =
-            {
-                url: "https://hicfiles.s3.amazonaws.com/hiseq/gm12878/in-situ/HIC010.hic",
-                name: "Rao and Huntley et al. | Cell 2014 GM12878 (human) in situ MboI HIC010 (47M)",
-                isControl: false
-            };
-
-        await this.browser.loadHicFile(config);
-        await this.goto({ chr:'chr21', start:28e6, end:30e6 });
     }
 
     async loadURL({ url, name }){
@@ -106,12 +113,20 @@ class JuiceboxPanel {
             console.warn(error.message);
         }
 
-        await this.browser.parseGotoInput(this.locus);
+        try {
+            await this.browser.parseGotoInput(this.locus);
+        } catch (error) {
+            console.warn(error.message);
+        }
     }
 
     async loadLocalFile({ file }){
 
-        await this.loadURL({ url: file, name: file.name });
+        try {
+            await this.loadURL({ url: file, name: file.name });
+        } catch (error) {
+            console.warn(error.message);
+        }
 
     }
 

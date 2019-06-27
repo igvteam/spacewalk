@@ -1,6 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
-import { readFileAsText } from "./utils.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import { appleCrayonColorThreeJS } from "./color.js";
 
@@ -134,36 +133,22 @@ class PointCloudManager {
         return { min, max, center, radius }
     };
 
-    async loadURL ({ url, name }) {
+    loadURL ({ url, name, string }) {
 
-        try {
+        const { file: path } = igv.parseUri(url);
+        this.ingest({ path, string });
 
-            const string = await igv.xhr.load(url);
-            const { file: path } = igv.parseUri(url);
-
-            this.ingest({ path, string });
-
-            Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { path, string } });
-        } catch (error) {
-            console.warn(error.message);
-        }
+        Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { path, string } });
 
     }
 
-    async loadLocalFile ({ file }) {
+    loadLocalFile ({ file, string }) {
 
-        try {
-            const string = await readFileAsText(file);
-            const { name: path } = file;
+        const { name: path } = file;
+        this.ingest({ path, string });
 
-            this.ingest({ path, string });
-
-            const { chr, genomicStart, genomicEnd } = this.locus;
-
-            Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { path, string, chr, genomicStart, genomicEnd } });
-        } catch (e) {
-            console.warn(e.message)
-        }
+        const { chr, genomicStart, genomicEnd } = this.locus;
+        Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { path, string, chr, genomicStart, genomicEnd } });
 
     }
 

@@ -2,10 +2,8 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
 import igv from '../vendor/igv.esm.js'
 import KDBush from '../node_modules/kd3d/js/index.js'
-import { readFileAsText } from "./utils.js";
 import { rgb255String, appleCrayonColorRGB255 } from './color.js';
 import { distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
-import { lerp } from './math.js';
 
 export let contactFrequencyDistanceThreshold = 256;
 
@@ -34,6 +32,14 @@ class EnsembleManager {
 
         console.time(`ingest ensemble data with ${ lines.length } lines`);
 
+        // maximumSegmentID is used to size the distance and contact maps which
+        // are N by N where N = maximumSegmentID.
+        // Because trace data often has missing xyz values the total number of
+        // segments cannot be assumed to be the same for each trace in the ensemble.
+        // We use  maximumSegmentID to ensure all traces will map to the contact
+        // and distance maps.
+        this.maximumSegmentID = Number.NEGATIVE_INFINITY;
+
         // build scratch dictionary
         let dictionary = {};
         for (let line of lines) {
@@ -54,12 +60,13 @@ class EnsembleManager {
             if ('nan' === x || 'nan' === y || 'nan' === z) {
                 // do nothing
             } else {
+
+                this.maximumSegmentID = Math.max(this.maximumSegmentID, parseInt(segmentID, 10));
+
                 const genomicLocation = this.locus.genomicStart + this.stepSize * (0.5 + (parseInt(segmentID, 10) - 1));
                 dictionary[ key ].push({ segmentID, genomicLocation, x: parseFloat(x), y: parseFloat(y), z: parseFloat(z) })
             }
         }
-
-        this.maximumSegmentID = Number.NEGATIVE_INFINITY;
 
         let keys = Object.keys(dictionary);
 
@@ -68,9 +75,6 @@ class EnsembleManager {
         for (let key of keys) {
 
             let list = dictionary[ key ];
-
-            // find the longest list. this will be the edge length of the distance and contact maps
-            this.maximumSegmentID = Math.max(this.maximumSegmentID, list.length);
 
             let segmentList = list.map(o => {
                 let { segmentID, genomicLocation } = o;
@@ -98,6 +102,7 @@ class EnsembleManager {
 
         // update ensemble level contact frequency map
         contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
+        // segmentIDSanityCheck(this.ensemble);
 
         // update ensemble level distance map
         distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleDistanceMapCanvas(this.ensemble));
@@ -119,32 +124,15 @@ class EnsembleManager {
         return segmentID;
     }
 
-    async loadURL ({ url, name }) {
-
-        try {
-
-            let string = await igv.xhr.load(url);
-            const { file:path } = igv.parseUri(url);
-
-            this.ingest({ path, string });
-
-        } catch (error) {
-            console.warn(error.message);
-        }
-
+    loadURL ({ url, name, string }) {
+        const { file: path } = igv.parseUri(url);
+        this.ingest({ path, string });
     }
 
-    async loadLocalFile ({ file }) {
+    loadLocalFile ({ file, string }) {
 
-        try {
-            const string = await readFileAsText(file);
-            const { name: path } = file;
-
-            this.ingest({ path, string });
-
-        } catch (e) {
-            console.warn(e.message)
-        }
+        const { name: path } = file;
+        this.ingest({ path, string });
 
     }
 
@@ -175,6 +163,41 @@ export const getBoundsWithTrace = (trace) => {
     const { center, radius } = trace.geometry.boundingSphere;
     const { min, max } = trace.geometry.boundingBox;
     return { min, max, center, radius }
+};
+
+const segmentIDSanityCheck = ensemble => {
+
+    const ensembleList = Object.values(ensemble);
+
+    let mapSize = Globals.ensembleManager.maximumSegmentID;
+
+    let matrix = new Array(mapSize * mapSize);
+    for (let f = 0; f < matrix.length; f++) matrix[ f ] = 0;
+
+    console.time(`segmentIDSanityCheck. ${ ensembleList.length } traces.`);
+
+    for (let trace of ensembleList) {
+
+        let { vertices } = trace.geometry;
+        for (let i = 0; i < vertices.length; i++) {
+
+            if (trace.segmentList[ i ].segmentID > Globals.ensembleManager.maximumSegmentID) {
+                console.log(`Bogus Segment ID. trace ${ ensembleList.indexOf(trace) } vertex ${ i } segmentID ${ trace.segmentList[ i ].segmentID } maximumSegmentID ${ Globals.ensembleManager.maximumSegmentID }`);
+            }
+            const segmentID = trace.segmentList[ i ].segmentID;
+            const  index = segmentID - 1;
+
+            const xy = index * mapSize + index;
+            if (xy > matrix.length) {
+                console.log('xy is bogus index ' + xy);
+            }
+
+        }
+
+    }
+
+    console.timeEnd(`segmentIDSanityCheck. ${ ensembleList.length } traces.`);
+
 };
 
 export const getTraceContactFrequenceCanvas = (trace, distanceThreshold) => {
