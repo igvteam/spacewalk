@@ -128,8 +128,6 @@ class IGVPanel {
         }
 
         addDataValueMaterialProviderGUI([track]);
-        return track;
-
     }
 
     async loadURL({ url, $spinner }){
@@ -138,19 +136,17 @@ class IGVPanel {
 
         let track = undefined;
         if ('' !== url) {
+
             $spinner.show();
             try {
-                track = await this.loadTrack(url);
+                track = await igv.browser.loadTrack({ url });
                 $spinner.hide();
             } catch (e) {
                 $spinner.hide();
                 console.warn(e.message);
             }
 
-            return track;
-
-        } else {
-            return track;
+            addDataValueMaterialProviderGUI([track]);
         }
 
     };
@@ -248,10 +244,19 @@ const addDataValueMaterialProviderGUI = tracks => {
 
 };
 
-export const encodeTrackListLoader = async (browser, trackConfigurations) => {
+export const encodeTrackListLoader = (browser, trackConfigurations) => {
 
-    const tracks = await browser.loadTrackList(trackConfigurations);
-    addDataValueMaterialProviderGUI(tracks);
+    browser
+        .loadTrackList(trackConfigurations)
+        .then(tracks => {
+
+            for (let track of tracks) {
+                track.name = track.config.Name;
+            }
+
+            addDataValueMaterialProviderGUI(tracks);
+
+        });
 };
 
 export const igvBrowserConfigurator = () => {

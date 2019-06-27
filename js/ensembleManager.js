@@ -4,6 +4,7 @@ import igv from '../vendor/igv.esm.js'
 import KDBush from '../node_modules/kd3d/js/index.js'
 import { rgb255String, appleCrayonColorRGB255 } from './color.js';
 import { distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
+import {readFileAsText} from "./utils.js";
 
 export let contactFrequencyDistanceThreshold = 256;
 
@@ -124,12 +125,27 @@ class EnsembleManager {
         return segmentID;
     }
 
-    loadURL ({ url, name, string }) {
+    async loadURL ({ url, name }) {
+
+        let string = undefined;
+        try {
+            string = await igv.xhr.load(url);
+        } catch (e) {
+            console.warn(e.message)
+        }
+
         const { file: path } = igv.parseUri(url);
         this.ingest({ path, string });
     }
 
-    loadLocalFile ({ file, string }) {
+    async loadLocalFile ({ file }) {
+
+        let string = undefined;
+        try {
+            string = await readFileAsText(file);
+        } catch (e) {
+            console.warn(e.message)
+        }
 
         const { name: path } = file;
         this.ingest({ path, string });
