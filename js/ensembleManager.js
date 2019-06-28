@@ -4,7 +4,7 @@ import igv from '../vendor/igv.esm.js'
 import KDBush from '../node_modules/kd3d/js/index.js'
 import { rgb255String, appleCrayonColorRGB255 } from './color.js';
 import { distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
-import {readFileAsText} from "./utils.js";
+import { numberFormatter, readFileAsText } from "./utils.js";
 
 export let contactFrequencyDistanceThreshold = 256;
 
@@ -152,9 +152,14 @@ class EnsembleManager {
 
     }
 
-    blurb() {
+    blurbLocus () {
+        const { chr, genomicStart, genomicEnd } = this.locus;
+        return `${ chr } : ${ numberFormatter(genomicStart) } - ${ numberFormatter(genomicEnd) }`;
+    }
+
+    blurbCellLine() {
         const cellLine = this.path.split('_').shift();
-        const str = `Cell Line ${ cellLine } `
+        return `Cell Line ${ cellLine }`;
     }
 }
 

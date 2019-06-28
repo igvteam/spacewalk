@@ -251,7 +251,6 @@
       display: block; }
 
 #spacewalk_info_panel {
-  z-index: 2048;
   font-size: 0.85rem;
   font-weight: 200;
   color: #3a3a3a;
