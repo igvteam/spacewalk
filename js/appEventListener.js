@@ -30,12 +30,15 @@ export const appEventListener =
 
             }  else if ('DidLoadPointCloudFile' === type) {
 
+                $('#spacewalk_info_panel_locus').text( '-' );
+                $('#spacewalk_info_panel_ensemble').text( '-' );
+
                 setupPointCloud(Globals.pointCloudManager.list.map(o => o.geometry));
 
             } else if ('DidLoadFile' === type) {
 
-                // const str = 'STRUCTURE: CHR ' + chr + ' ' + Math.floor(genomicStart/1e6) + 'MB to ' + Math.floor(genomicEnd/1e6) + 'MB';
-                // $('.navbar').find('#spacewalk-file-name').text(str);
+                $('#spacewalk_info_panel_locus').text( Globals.ensembleManager.blurbLocus() );
+                $('#spacewalk_info_panel_ensemble').text( Globals.ensembleManager.blurbCellLine() );
 
                 const { initialKey } = data;
                 let trace = Globals.ensembleManager.getTraceWithName(initialKey);
