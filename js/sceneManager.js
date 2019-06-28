@@ -59,10 +59,10 @@ class SceneManager {
         if ("DidSelectSegmentID" === type && BallAndStick.getRenderStyle() === this.renderStyle) {
 
             let objects = [];
-            data.segmentIDList.forEach(id => {
-                const segmentID = id.toString();
-                if (Globals.ballAndStick.segmentObjectDictionary[ segmentID ]) {
-                    let { object } = Globals.ballAndStick.segmentObjectDictionary[ segmentID ];
+            data.segmentIDList.forEach(segmentID => {
+                const key = segmentID.toString();
+                if (Globals.ballAndStick.segmentObjectDictionary[ key ]) {
+                    let { object } = Globals.ballAndStick.segmentObjectDictionary[ key ];
                     objects.push(object);
                 }
             });
