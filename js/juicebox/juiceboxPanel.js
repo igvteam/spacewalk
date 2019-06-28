@@ -105,7 +105,7 @@ class JuiceboxPanel {
 
     }
 
-    async loadURL({ url, name }){
+    async loadURL({ url, name, string }){
 
         try {
             await this.browser.loadHicFile({ url, name, isControl: false });
@@ -123,7 +123,13 @@ class JuiceboxPanel {
     async loadLocalFile({ file }){
 
         try {
-            await this.loadURL({ url: file, name: file.name });
+            await this.browser.loadHicFile({ url: file, name: file.name, isControl: false });
+        } catch (error) {
+            console.warn(error.message);
+        }
+
+        try {
+            await this.browser.parseGotoInput(this.locus);
         } catch (error) {
             console.warn(error.message);
         }

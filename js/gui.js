@@ -6,8 +6,7 @@ import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
 import ThumbnailPanel, {thumbnailPanelConfigurator} from "./thumbnailPanel.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
 import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
-import IGVPanel, { trackRegistryFile, igvBrowserConfigurator, igvBrowserConfiguratorBigWig } from "./igv/IGVPanel.js";
-import TrackLoadController, { trackLoadControllerConfigurator } from "./igv/trackLoadController.js";
+import IGVPanel, { igvBrowserConfigurator, igvBrowserConfiguratorBigWig } from "./igv/IGVPanel.js";
 import DataFileLoadModal, { pointCloudFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import Globals from './globals.js';
 
@@ -19,7 +18,6 @@ let thumbnailPanel;
 let distanceMapPanel;
 let contactFrequencyMapPanel;
 let igvPanel;
-let trackLoadController;
 
 let pointCloudFileLoadModal;
 let structureFileLoadModal;
@@ -27,7 +25,7 @@ let juiceboxFileLoadModal;
 
 const highlightColor = appleCrayonColorThreeJS('honeydew');
 
-const createGUI = async container => {
+const createGUI = container => {
 
     guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
@@ -42,18 +40,12 @@ const createGUI = async container => {
 
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator(container));
 
-    //
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
-    // await igvPanel.initialize(igvBrowserConfigurator());
-    await igvPanel.initialize(igvBrowserConfiguratorBigWig());
+    igvPanel.initialize(igvBrowserConfigurator());
+    // igvPanel.initialize(igvBrowserConfiguratorBigWig());
 
-    //
-    trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));
-    await trackLoadController.updateTrackMenus(igvPanel.browser.genome.id);
-
-    //
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });
-    await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
+    juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
 
     pointCloudFileLoadModal = new DataFileLoadModal(pointCloudFileLoadModalConfigurator());
 
@@ -63,4 +55,4 @@ const createGUI = async container => {
 
 };
 
-export { createGUI, trackLoadController, guiManager, traceSelectPanel, juiceboxPanel, colorRampPanel, thumbnailPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, highlightColor };
+export { createGUI, guiManager, traceSelectPanel, juiceboxPanel, colorRampPanel, thumbnailPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, highlightColor };

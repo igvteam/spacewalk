@@ -2,6 +2,8 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
 import { defaultColormapName } from "./colorMapManager.js";
 import { appleCrayonColorThreeJS } from "./color.js";
+import igv from "../vendor/igv.esm.js";
+import {readFileAsText} from "./utils.js";
 
 class PointCloudManager {
 
@@ -133,7 +135,14 @@ class PointCloudManager {
         return { min, max, center, radius }
     };
 
-    loadURL ({ url, name, string }) {
+    async loadURL ({ url, name }) {
+
+        let string = undefined;
+        try {
+            string = await igv.xhr.load(url);
+        } catch (e) {
+            console.warn(e.message)
+        }
 
         const { file: path } = igv.parseUri(url);
         this.ingest({ path, string });
@@ -142,7 +151,14 @@ class PointCloudManager {
 
     }
 
-    loadLocalFile ({ file, string }) {
+    async loadLocalFile ({ file }) {
+
+        let string = undefined;
+        try {
+            string = await readFileAsText(file);
+        } catch (e) {
+            console.warn(e.message)
+        }
 
         const { name: path } = file;
         this.ingest({ path, string });

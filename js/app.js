@@ -12,7 +12,7 @@ import BallAndStick from "./ballAndStick.js";
 import { appEventListener } from "./appEventListener.js";
 import EventBus from "./eventBus.js";
 
-document.addEventListener("DOMContentLoaded", async (event) => {
+document.addEventListener("DOMContentLoaded", event => {
 
     Globals.eventBus = new EventBus();
 
@@ -21,11 +21,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     Globals.ensembleManager = new EnsembleManager();
 
     Globals.colorMapManager = new ColorMapManager();
-    await Globals.colorMapManager.configure();
+    Globals.colorMapManager.configure();
 
     const container = document.getElementById('spacewalk_canvas_container');
 
-    await createGUI(container);
+    createGUI(container);
 
     Globals.pointCloud = new PointCloud();
     Globals.noodle = new Noodle();

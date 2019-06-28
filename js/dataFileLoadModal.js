@@ -1,7 +1,6 @@
 import { juiceboxPanel } from "./gui.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
 import Globals from './globals.js';
-import { readFileAsText } from "./utils.js";
 
 let currentURL = undefined;
 
@@ -18,7 +17,7 @@ class DataFileLoadModal {
             selectLoader($select);
         }
 
-        $select.on('change.spacewalk_data_file_load_select', async (event) => {
+        $select.on('change.spacewalk_data_file_load_select', event => {
             event.stopPropagation();
 
             //
@@ -29,7 +28,7 @@ class DataFileLoadModal {
             //
             const name = $(option).text();
 
-            await loadURL({ url, name, fileLoader, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
+            loadURL({ url, name, fileLoader, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
 
             const $option = $select.find('option:first');
             $select.val( $option.val() );
@@ -56,10 +55,10 @@ class DataFileLoadModal {
             $url_ok_button.prop('disabled', false);
         });
 
-        $url_ok_button.on('click.spacewalk_data_file_load_url_button', async (event) => {
+        $url_ok_button.on('click.spacewalk_data_file_load_url_button', event => {
             event.stopPropagation();
             $url_input.trigger('change.spacewalk_data_file_load_url_input');
-            await loadURL({ url: currentURL, name: 'unnamed', fileLoader, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
+            loadURL({ url: currentURL, name: 'unnamed', fileLoader, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
 
             $url_input.val('');
             currentURL = undefined;
@@ -79,7 +78,7 @@ class DataFileLoadModal {
         $url_cancel_button.on('click', doCancel);
 
         // local file
-        $localFileInput.on('change.spacewalk-file-load-local', (event) => {
+        $localFileInput.on('change.spacewalk-file-load-local', event => {
             event.stopPropagation();
             loadFile(event.target.files[0], fileLoader);
         });
@@ -88,51 +87,42 @@ class DataFileLoadModal {
 
 }
 
-const loadURL = async ({ url, name, fileLoader, $spinner, $modal }) => {
+const loadURL = ({ url, name, fileLoader, $spinner, $modal }) => {
+
+    url = url || '';
+    if ('' === url) {
+        return;
+    }
 
     $spinner.show();
 
-    url = url || '';
-
-    if ('' !== url) {
-
-        let string;
-        try {
-
-            string = await igv.xhr.load(url);
-
+    fileLoader
+        .loadURL({ url, name })
+        .then(() => {
             $spinner.hide();
             $modal.modal('hide');
             Globals.eventBus.post({ type: "DidLeaveGUI" });
-
-        } catch (error) {
-
+        })
+        .catch(e => {
             $spinner.hide();
             $modal.modal('hide');
             Globals.eventBus.post({ type: "DidLeaveGUI" });
-
-            console.warn(error.message);
-        }
-
-        fileLoader.loadURL({ url, name, string });
-
-    }
-
+            console.warn(e);
+        });
 
 };
 
-const loadFile = async (file, fileLoader) => {
+const loadFile = (file, fileLoader) => {
 
-    let string;
-    try {
-        string = await readFileAsText(file);
-        Globals.eventBus.post({ type: "DidLeaveGUI" });
-    } catch (e) {
-        Globals.eventBus.post({ type: "DidLeaveGUI" });
-        console.warn(e.message)
-    }
-
-    fileLoader.loadLocalFile({ file, string });
+    fileLoader
+        .loadLocalFile({ file })
+        .then(() => {
+            Globals.eventBus.post({ type: "DidLeaveGUI" });
+        })
+        .catch(e => {
+            Globals.eventBus.post({ type: "DidLeaveGUI" });
+            console.warn(e);
+        });
 
 };
 
