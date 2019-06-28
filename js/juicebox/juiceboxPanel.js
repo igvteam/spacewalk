@@ -75,6 +75,9 @@ class JuiceboxPanel {
                 };
 
             await this.browser.loadHicFile(hicConfig);
+
+            $('#spacewalk_info_panel_juicebox').text(hicConfig.name);
+
         } catch (error) {
             console.warn(error.message);
         }
@@ -109,6 +112,9 @@ class JuiceboxPanel {
 
         try {
             await this.browser.loadHicFile({ url, name, isControl: false });
+
+            $('#spacewalk_info_panel_juicebox').text(name);
+
         } catch (error) {
             console.warn(error.message);
         }

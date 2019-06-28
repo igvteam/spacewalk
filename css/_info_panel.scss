@@ -38,6 +38,11 @@ $spacewalk_info_panel_width: 768px;
       font-weight: 400;
     }
     >div:last-child {
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
       margin-left: 8px;
       font-weight: 200;
     }
