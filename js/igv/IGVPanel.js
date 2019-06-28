@@ -1,8 +1,11 @@
 import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
-import { lerp } from "../math.js";
 import { setMaterialProvider, segmentIDForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
+import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
+import {igvPanel } from "../gui.js";
+
+let trackLoadController;
 
 let currentURL = undefined;
 class IGVPanel {
@@ -112,6 +115,9 @@ class IGVPanel {
             IGVMouseHandler({ bp, start, end, interpolant })
         });
 
+        trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));
+        trackLoadController.updateTrackMenus(igvPanel.browser.genome.id);
+
     }
 
     goto({ chr, start, end }) {
@@ -132,22 +138,18 @@ class IGVPanel {
 
     async loadURL({ url, $spinner }){
 
-        url = url || '';
-
         let track = undefined;
-        if ('' !== url) {
 
-            $spinner.show();
-            try {
-                track = await igv.browser.loadTrack({ url });
-                $spinner.hide();
-            } catch (e) {
-                $spinner.hide();
-                console.warn(e.message);
-            }
-
-            addDataValueMaterialProviderGUI([track]);
+        $spinner.show();
+        try {
+            track = await igv.browser.loadTrack({ url });
+            $spinner.hide();
+        } catch (e) {
+            $spinner.hide();
+            console.warn(e.message);
         }
+
+        addDataValueMaterialProviderGUI([track]);
 
     };
 
@@ -244,7 +246,7 @@ const addDataValueMaterialProviderGUI = tracks => {
 
 };
 
-export const encodeTrackListLoader = (browser, trackConfigurations) => {
+const encodeTrackListLoader = (browser, trackConfigurations) => {
 
     browser
         .loadTrackList(trackConfigurations)
@@ -259,11 +261,11 @@ export const encodeTrackListLoader = (browser, trackConfigurations) => {
         });
 };
 
-export const igvBrowserConfigurator = () => {
+const igvBrowserConfigurator = () => {
     return { genome: 'hg38' };
 };
 
-export const igvBrowserConfiguratorBigWig = () => {
+const igvBrowserConfiguratorBigWig = () => {
 
     const config =
         {
@@ -353,6 +355,10 @@ export const igvBrowserConfiguratorBigWig = () => {
     return config;
 };
 
-export const genomes = "resources/genomes.json";
-export const trackRegistryFile = "resources/tracks/trackRegistry.json";
+const genomes = "resources/genomes.json";
+
+const trackRegistryFile = "resources/tracks/trackRegistry.json";
+
+export { trackLoadController, encodeTrackListLoader, igvBrowserConfigurator, igvBrowserConfiguratorBigWig, genomes, trackRegistryFile };
+
 export default IGVPanel;
