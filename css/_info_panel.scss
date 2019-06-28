@@ -1,0 +1,48 @@
+$spacewalk_info_panel_top: 2px + $spacewalk_navbar_height;
+$spacewalk_info_panel_right: 0;
+$spacewalk_info_panel_height: 24px;
+$spacewalk_info_panel_width: 768px;
+
+#spacewalk_info_panel {
+
+  z-index: 2048;
+
+  font-size: 0.85rem;
+  font-weight: 200;
+
+  color: $spacewalk_tungsten;
+  background-color: white;
+
+  position: absolute;
+  top: $spacewalk_info_panel_top;
+  right: $spacewalk_info_panel_right;
+
+  //width: $spacewalk_info_panel_width;
+  width: 100%;
+  height: $spacewalk_info_panel_height;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+
+  >div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+
+    margin-left: 8px;
+    >div:first-child {
+      color: $spacewalk_licorice;
+      font-weight: 400;
+    }
+    >div:last-child {
+      margin-left: 8px;
+      font-weight: 200;
+    }
+  }
+
+}
