@@ -248,17 +248,18 @@ const addDataValueMaterialProviderGUI = tracks => {
 
 const encodeTrackListLoader = (browser, trackConfigurations) => {
 
-    browser
-        .loadTrackList(trackConfigurations)
-        .then(tracks => {
+    (async () => {
 
-            for (let track of tracks) {
-                track.name = track.config.Name;
-            }
+        let tracks = await browser.loadTrackList(trackConfigurations);
 
-            addDataValueMaterialProviderGUI(tracks);
+        for (let track of tracks) {
+            browser.setTrackLabelName(track.trackView, track.config.Name)
+        }
 
-        });
+        addDataValueMaterialProviderGUI(tracks);
+
+    })();
+
 };
 
 const igvBrowserConfigurator = () => {
