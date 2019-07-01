@@ -48,7 +48,9 @@ class EnsembleManager {
             const tokens = line.split(',');
 
             // chr-index (1-based) | segment-index (1-based) | Z | X | Y
-            const [ index, segmentID, z, x, y ] = [ tokens[ 0 ], tokens[ 1 ], tokens[ 2 ], tokens[ 3 ], tokens[ 4 ] ];
+            let [ index, segmentID, z, x, y ] = [ tokens[ 0 ], tokens[ 1 ], tokens[ 2 ], tokens[ 3 ], tokens[ 4 ] ];
+
+            segmentID = parseInt(segmentID, 10);
 
             // key will be 0-based
             let number = parseInt(index, 10) - 1;
@@ -62,9 +64,9 @@ class EnsembleManager {
                 // do nothing
             } else {
 
-                this.maximumSegmentID = Math.max(this.maximumSegmentID, parseInt(segmentID, 10));
+                this.maximumSegmentID = Math.max(this.maximumSegmentID, segmentID);
 
-                const genomicLocation = this.locus.genomicStart + this.stepSize * (0.5 + (parseInt(segmentID, 10) - 1));
+                const genomicLocation = this.locus.genomicStart + this.stepSize * (0.5 + (segmentID - 1));
                 dictionary[ key ].push({ segmentID, genomicLocation, x: parseFloat(x), y: parseFloat(y), z: parseFloat(z) })
             }
         }
