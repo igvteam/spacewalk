@@ -315,28 +315,27 @@ export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) =
         const spatialIndex = new KDBush(kdBushConfguratorWithTrace(trace));
 
         let { vertices } = trace.geometry;
+        let { segmentList } = trace;
+
         for (let i = 0; i < vertices.length; i++) {
 
-            const { x, y, z } = vertices[ i ];
+            let { x, y, z } = vertices[ i ];
+            let { segmentID } = segmentList[ i ];
 
-            const ids = spatialIndex.within(x, y, z, distanceThreshold);
+            let idList = spatialIndex.within(x, y, z, distanceThreshold).filter(id => id !== segmentID);
 
-            const traceSegmentID = trace.segmentList[ i ].segmentID;
-            const ids_filtered = ids.filter(id => id !== traceSegmentID);
-
-            if (ids_filtered.length > 0) {
-                for (let id of ids_filtered) {
+            if (idList.length > 0) {
+                for (let id of idList) {
 
                     // ids are segment indices which are 1-based. Decrement to use
                     // as index into frequency array which is 0-based
-                    const id_freq = id - 1;
-                    const  i_freq = traceSegmentID - 1;
 
-                    const xy =  i_freq * mapSize + id_freq;
+                    const xy = (segmentID - 1) * mapSize + (id - 1);
+                    const yx =        (id - 1) * mapSize + (segmentID - 1);
+
                     if (xy > frequencies.length) {
                         console.log('xy is bogus index ' + xy);
                     }
-                    const yx = id_freq * mapSize +  i_freq;
 
                     if (yx > frequencies.length) {
                         console.log('yx is bogus index ' + yx);
