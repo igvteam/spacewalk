@@ -48,12 +48,12 @@ class EnsembleManager {
             const tokens = line.split(',');
 
             // chr-index (1-based) | segment-index (1-based) | Z | X | Y
-            let [ index, segmentID, z, x, y ] = [ tokens[ 0 ], tokens[ 1 ], tokens[ 2 ], tokens[ 3 ], tokens[ 4 ] ];
+            let [ chromosomeID, segmentIDString, z, x, y ] = [ tokens[ 0 ], tokens[ 1 ], tokens[ 2 ], tokens[ 3 ], tokens[ 4 ] ];
 
-            segmentID = parseInt(segmentID, 10);
+            let segmentID = parseInt(segmentIDString, 10);
 
-            // key will be 0-based
-            let number = parseInt(index, 10) - 1;
+            // The chromosome id is 1-based. We use it for a key but make it 0-based.
+            let number = parseInt(chromosomeID, 10) - 1;
             let key = number.toString();
 
             if (undefined === dictionary[ key ]) {
