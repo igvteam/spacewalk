@@ -276,6 +276,9 @@
       color: #000000;
       font-weight: 400; }
     #spacewalk_info_panel > div > div:last-child {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       margin-left: 8px;
       font-weight: 200; }
 

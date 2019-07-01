@@ -23,8 +23,8 @@
     "data-modal": "github:igvteam/data-modal",
     "juicebox.js": "github:igvteam/juicebox.js#dat_tracing3d_edits",
     "kd3d": "github:turner/kd3d",
-    "three": "^0.105.2",
-    "webpack": "^4.35.0",
+    "three": "^0.106.2",
+    "webpack": "^4.35.2",
     "webpack-cli": "^3.3.5"
   }
 }
