@@ -4,7 +4,7 @@ import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { contactFrequencyMapPanel, distanceMapPanel, guiManager, thumbnailPanel, traceSelectPanel } from './gui.js';
-import { getTraceDistanceMapCanvas, getTraceContactFrequenceCanvas } from "./ensembleManager.js";
+import { getTraceDistanceMapCanvas, getTraceContactFrequencyCanvas } from "./ensembleManager.js";
 
 export const appEventListener =
     {
@@ -100,5 +100,5 @@ let setup = ({ trace }) => {
     // }
 
     distanceMapPanel.drawTraceDistanceCanvas(getTraceDistanceMapCanvas(trace));
-    contactFrequencyMapPanel.drawTraceContactFrequency(getTraceContactFrequenceCanvas(trace, contactFrequencyMapPanel.distanceThreshold));
+    contactFrequencyMapPanel.drawTraceContactFrequency(getTraceContactFrequencyCanvas(trace, contactFrequencyMapPanel.distanceThreshold));
 };

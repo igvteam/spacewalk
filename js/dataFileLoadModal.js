@@ -20,15 +20,16 @@ class DataFileLoadModal {
         $select.on('change.spacewalk_data_file_load_select', event => {
             event.stopPropagation();
 
-            //
-            const url = $select.val();
+            let url = $select.val();
+            url = url || '';
+
             const index = $select.get(0).selectedIndex;
             const option = $select.get(0)[ index ];
-
-            //
             const name = $(option).text();
 
-            loadURL({ url, name, fileLoader, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
+            if ('' !== url) {
+                loadURL({ url, name, fileLoader, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
+            }
 
             const $option = $select.find('option:first');
             $select.val( $option.val() );
@@ -89,40 +90,43 @@ class DataFileLoadModal {
 
 const loadURL = ({ url, name, fileLoader, $spinner, $modal }) => {
 
-    url = url || '';
-    if ('' === url) {
-        return;
-    }
+    (async () => {
 
-    $spinner.show();
+        $spinner.show();
 
-    fileLoader
-        .loadURL({ url, name })
-        .then(() => {
+        try {
+
+            await fileLoader.loadURL({ url, name });
+
             $spinner.hide();
             $modal.modal('hide');
             Globals.eventBus.post({ type: "DidLeaveGUI" });
-        })
-        .catch(e => {
+
+        } catch (e) {
             $spinner.hide();
             $modal.modal('hide');
             Globals.eventBus.post({ type: "DidLeaveGUI" });
             console.warn(e);
-        });
+        }
+
+    })();
+
 
 };
 
 const loadFile = (file, fileLoader) => {
 
-    fileLoader
-        .loadLocalFile({ file })
-        .then(() => {
+    (async () => {
+
+        try {
+            await fileLoader.loadLocalFile({ file });
             Globals.eventBus.post({ type: "DidLeaveGUI" });
-        })
-        .catch(e => {
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
+        } catch (e) {
             console.warn(e);
-        });
+            Globals.eventBus.post({ type: "DidLeaveGUI" });
+        }
+
+    })();
 
 };
 

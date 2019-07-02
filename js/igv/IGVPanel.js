@@ -44,29 +44,6 @@ class IGVPanel {
             Globals.eventBus.post({ type: "DidLeaveGUI" });
         });
 
-        // URL
-        const $url_input = $('#spacewalk_igv_panel_url_input');
-        $url_input.val('');
-
-        const $url_button = $('#spacewalk_igv_panel_url_button');
-
-        $url_input.on('change.spacewalk_igv_panel_url_input', (event) => {
-            event.stopPropagation();
-            // console.log('url on change - value ' + event.target.value);
-            currentURL = event.target.value;
-        });
-
-        const $url_container = $('#spacewalk_igv_container');
-
-        $url_button.on('click.spacewalk_igv_panel_url_button', async (event) => {
-            event.stopPropagation();
-            $url_input.trigger('change.spacewalk_igv_panel_url_input');
-            await this.loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border')});
-
-            $url_input.val('');
-            currentURL = undefined;
-        });
-
         Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe("DidChangeMaterialProvider", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
@@ -135,23 +112,6 @@ class IGVPanel {
 
         addDataValueMaterialProviderGUI([track]);
     }
-
-    async loadURL({ url, $spinner }){
-
-        let track = undefined;
-
-        $spinner.show();
-        try {
-            track = await igv.browser.loadTrack({ url });
-            $spinner.hide();
-        } catch (e) {
-            $spinner.hide();
-            console.warn(e.message);
-        }
-
-        addDataValueMaterialProviderGUI([track]);
-
-    };
 
     onWindowResize() {
         if (false === this.isHidden) {

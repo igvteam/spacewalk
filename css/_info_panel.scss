@@ -8,9 +8,9 @@ $spacewalk_info_panel_width: 768px;
   font-size: 0.90rem;
   font-weight: 200;
 
-  //color: $spacewalk_tungsten;
-  color: $spacewalk_mercury;
-  //background-color: white;
+  //color: $spacewalk_mercury;
+  color: $spacewalk_sky;
+
   background-color: transparent;
 
   position: absolute;
@@ -36,8 +36,8 @@ $spacewalk_info_panel_width: 768px;
 
     margin-left: 8px;
     >div:first-child {
-      //color: $spacewalk_licorice;
-      color: $spacewalk_tungsten;
+      //color: $spacewalk_tungsten;
+      color: white;
       font-weight: 400;
     }
     >div:last-child {

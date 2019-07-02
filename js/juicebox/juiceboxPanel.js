@@ -108,7 +108,7 @@ class JuiceboxPanel {
 
     }
 
-    async loadURL({ url, name, string }){
+    async loadURL({ url, name }){
 
         try {
             await this.browser.loadHicFile({ url, name, isControl: false });
@@ -130,6 +130,9 @@ class JuiceboxPanel {
 
         try {
             await this.browser.loadHicFile({ url: file, name: file.name, isControl: false });
+
+            $('#spacewalk_info_panel_juicebox').text(file.name);
+
         } catch (error) {
             console.warn(error.message);
         }

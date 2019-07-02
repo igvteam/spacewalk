@@ -223,7 +223,7 @@ const segmentIDSanityCheck = ensemble => {
 
 };
 
-export const getTraceContactFrequenceCanvas = (trace, distanceThreshold) => {
+export const getTraceContactFrequencyCanvas = (trace, distanceThreshold) => {
 
     const spatialIndex = new KDBush(kdBushConfguratorWithTrace(trace));
 
