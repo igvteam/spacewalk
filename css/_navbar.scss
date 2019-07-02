@@ -13,10 +13,10 @@
 
 .navbar-brand {
   display: inline-block;
-  //padding-top: .3125rem;
-  //padding-bottom: .3125rem;
+  padding-top: unset;
+  padding-bottom: unset;
   margin-right: 1rem;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   line-height: inherit;
   white-space: nowrap;
 }
@@ -26,5 +26,16 @@
   #spacewalk-file-name {
     color: $spacewalk_snow;
     font-size: 1rem;
+  }
+}
+
+.navbar-dark {
+  .navbar-nav {
+    .nav-link {
+      text-transform: uppercase;
+      font-size: 0.95rem;
+      //color: rgba(255,255,255,.5);
+      color: $spacewalk_snow;
+    }
   }
 }

@@ -7,14 +7,21 @@
 
 .navbar-brand {
   display: inline-block;
+  padding-top: unset;
+  padding-bottom: unset;
   margin-right: 1rem;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   line-height: inherit;
   white-space: nowrap; }
 
 #spacewalk-navbar-content #spacewalk-file-name {
   color: #ffffff;
   font-size: 1rem; }
+
+.navbar-dark .navbar-nav .nav-link {
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  color: #ffffff; }
 
 .card {
   position: absolute;
