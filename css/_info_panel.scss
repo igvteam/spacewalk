@@ -5,11 +5,11 @@ $spacewalk_info_panel_width: 768px;
 
 #spacewalk_info_panel {
 
-  font-size: 0.90rem;
-  font-weight: 200;
+  font-size: 0.85rem;
+  font-weight: 400;
 
-  //color: $spacewalk_mercury;
-  color: $spacewalk_sky;
+  //color: $spacewalk_sky;
+  color: white;
 
   background-color: transparent;
 
@@ -38,7 +38,7 @@ $spacewalk_info_panel_width: 768px;
     >div:first-child {
       //color: $spacewalk_tungsten;
       color: white;
-      font-weight: 400;
+      font-weight: 800;
     }
     >div:last-child {
 
@@ -47,7 +47,7 @@ $spacewalk_info_panel_width: 768px;
       text-overflow: ellipsis;
 
       margin-left: 8px;
-      font-weight: 200;
+      font-weight: 400;
     }
   }
 
