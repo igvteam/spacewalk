@@ -8,7 +8,7 @@ import { getTraceDistanceMapCanvas, getTraceContactFrequencyCanvas } from "./ens
 
 export const appEventListener =
     {
-        receiveEvent: async ({ type, data }) => {
+        receiveEvent: ({ type, data }) => {
 
             if ('RenderStyleDidChange' === type) {
 
@@ -50,9 +50,6 @@ export const appEventListener =
                 let trace = Globals.ensembleManager.getTraceWithName(data);
                 Globals.ensembleManager.currentTrace = trace;
                 setup({ trace });
-
-            } else if ('ToggleAllUIControls' === type) {
-                // $('.navbar').toggle();
             }
 
         }

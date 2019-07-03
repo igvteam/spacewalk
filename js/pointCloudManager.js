@@ -168,6 +168,10 @@ class PointCloudManager {
 
     }
 
+    reportFileLoadError(name) {
+        return `PointCloudManager: Error loading ${ name }`
+    }
+
 }
 
 export const getBoundsWithPointCloud = mesh => {

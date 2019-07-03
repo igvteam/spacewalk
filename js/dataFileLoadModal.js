@@ -106,6 +106,7 @@ const loadURL = ({ url, name, fileLoader, $spinner, $modal }) => {
             $spinner.hide();
             $modal.modal('hide');
             Globals.eventBus.post({ type: "DidLeaveGUI" });
+            window.alert( fileLoader.reportFileLoadError(name) );
             console.warn(e);
         }
 
@@ -123,6 +124,7 @@ const loadFile = (file, fileLoader) => {
             Globals.eventBus.post({ type: "DidLeaveGUI" });
         } catch (e) {
             console.warn(e);
+            window.alert( fileLoader.reportFileLoadError(file.name) );
             Globals.eventBus.post({ type: "DidLeaveGUI" });
         }
 

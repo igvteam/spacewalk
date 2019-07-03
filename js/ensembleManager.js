@@ -163,6 +163,10 @@ class EnsembleManager {
         const cellLine = this.path.split('_').shift();
         return `Cell Line ${ cellLine }`;
     }
+
+    reportFileLoadError(name) {
+        return `EnsembleManager: Error loading ${ name }`
+    }
 }
 
 export const parsePathEncodedGenomicLocation = path => {
