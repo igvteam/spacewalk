@@ -28,6 +28,7 @@ import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.
 import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
 import { encodeTrackListLoader } from './IGVPanel.js';
 import MultipleFileLoadController from "./multipleFileLoadController.js";
+import { igvPanel } from '../gui.js';
 
 class TrackLoadController {
 
@@ -201,8 +202,8 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
             configurationHandler: MultipleFileLoadController.trackConfigurator,
             jsonFileValidator: MultipleFileLoadController.trackJSONValidator,
             pathValidator: MultipleFileLoadController.trackPathValidator,
-            fileLoadHandler: (configurations) => {
-                browser.loadTrackList( configurations );
+            fileLoadHandler: (trackConfigurations) => {
+                igvPanel.loadTrackList(trackConfigurations);
             }
         };
 
@@ -210,7 +211,9 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
         {
             id: "igv-app-encode-modal",
             title: "ENCODE",
-            selectHandler: trackConfigurations => { encodeTrackListLoader(browser, trackConfigurations); }
+            selectHandler: trackConfigurations => {
+                encodeTrackListLoader(browser, trackConfigurations);
+            }
         };
 
     return {
@@ -264,9 +267,7 @@ function configureModalSelectList(browser, $modal, configurations) {
         } else {
             trackConfiguration = $option.data('track');
             $option.removeAttr("selected");
-
-            browser.loadTrack(trackConfiguration);
-
+            igvPanel.loadTrack(trackConfiguration);
         }
 
         $modal.modal('hide');

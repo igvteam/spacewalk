@@ -104,16 +104,25 @@ class IGVPanel {
         this.browser.goto(chr, start, end);
     }
 
-    async loadTrack(url) {
+    loadTrackList(configurations) {
 
-        let track = undefined;
-        try {
-            track = await igv.browser.loadTrack({ url });
-        } catch (error) {
-            console.warn(error.message);
-        }
+        (async () => {
 
-        addDataValueMaterialProviderGUI([track]);
+            let tracks = undefined;
+            try {
+                tracks = await this.browser.loadTrackList( configurations );
+            } catch (error) {
+                console.warn(error.message);
+            }
+
+            addDataValueMaterialProviderGUI(tracks);
+
+        })();
+
+    }
+
+    loadTrack(trackConfiguration) {
+        this.loadTrackList([trackConfiguration]);
     }
 
     onWindowResize() {
@@ -134,6 +143,22 @@ class IGVPanel {
     }
 
  }
+
+const encodeTrackListLoader = (browser, trackConfigurations) => {
+
+    (async () => {
+
+        let tracks = await browser.loadTrackList(trackConfigurations);
+
+        for (let track of tracks) {
+            browser.setTrackLabelName(track.trackView, track.config.Name)
+        }
+
+        addDataValueMaterialProviderGUI(tracks);
+
+    })();
+
+};
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
@@ -206,22 +231,6 @@ const addDataValueMaterialProviderGUI = tracks => {
 
         }
     }
-
-};
-
-const encodeTrackListLoader = (browser, trackConfigurations) => {
-
-    (async () => {
-
-        let tracks = await browser.loadTrackList(trackConfigurations);
-
-        for (let track of tracks) {
-            browser.setTrackLabelName(track.trackView, track.config.Name)
-        }
-
-        addDataValueMaterialProviderGUI(tracks);
-
-    })();
 
 };
 

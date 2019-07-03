@@ -3,22 +3,24 @@
   padding-top:   0.25rem;
   padding-bottom: 0.25rem;
 
-  padding-right:  0.50rem;
-  padding-left:   0.50rem;
+  padding-left: unset;
+  padding-right: unset;
 
   height: $spacewalk_navbar_height;
 
-  //background-color: $spacewalk_iron;
 }
 
-.navbar-brand {
-  display: inline-block;
-  padding-top: unset;
-  padding-bottom: unset;
-  margin-right: 1rem;
+div.navbar-brand {
+  color: $spacewalk_snow;
+  background-color: #4A90E2;
+  height: $spacewalk_navbar_height;
   font-size: 1.5rem;
-  line-height: inherit;
-  white-space: nowrap;
+  line-height: $spacewalk_navbar_height;
+  font-weight: 200;
+  padding: unset;
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+  margin: unset;
 }
 
 #spacewalk-navbar-content {
@@ -34,6 +36,7 @@
     .nav-link {
       text-transform: uppercase;
       font-size: 0.95rem;
+      font-weight: 600;
       //color: rgba(255,255,255,.5);
       color: $spacewalk_snow;
     }
