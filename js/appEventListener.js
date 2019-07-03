@@ -30,7 +30,7 @@ export const appEventListener =
 
             }  else if ('DidLoadPointCloudFile' === type) {
 
-                $('#spacewalk_info_panel_locus').text( '-' );
+                $('#spacewalk_info_panel_locus').text( Globals.pointCloudManager.blurbLocus() );
                 $('#spacewalk_info_panel_ensemble').text( '-' );
 
                 setupPointCloud(Globals.pointCloudManager.list.map(o => o.geometry));

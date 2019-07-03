@@ -263,7 +263,7 @@ div.navbar-brand {
 
 #spacewalk_info_panel {
   font-size: 0.85rem;
-  font-weight: 400;
+  font-weight: 200;
   color: white;
   background-color: transparent;
   position: absolute;
@@ -285,13 +285,12 @@ div.navbar-brand {
     margin-left: 8px; }
     #spacewalk_info_panel > div > div:first-child {
       color: white;
-      font-weight: 800; }
+      font-weight: 700; }
     #spacewalk_info_panel > div > div:last-child {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-left: 8px;
-      font-weight: 400; }
+      margin-left: 8px; }
 
 .igv-left-hand-gutter > div {
   width: 100%;

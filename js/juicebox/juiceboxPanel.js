@@ -1,8 +1,7 @@
 import Globals from './../globals.js';
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
 import { makeDraggable } from "../draggable.js";
-import { lerp } from '../math.js'
-import { segmentIDForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
+import { moveOffScreen, moveOnScreen } from "../utils.js";
 
 class JuiceboxPanel {
 
@@ -34,7 +33,7 @@ class JuiceboxPanel {
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
-
+        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }
 
     receiveEvent({ type, data }) {
@@ -53,7 +52,7 @@ class JuiceboxPanel {
                 this.isHidden = !this.isHidden;
             })();
 
-        } else if ("DidLoadFile" === type) {
+        } else if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
