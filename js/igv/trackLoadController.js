@@ -177,7 +177,7 @@ class TrackLoadController {
 
                 this.$modal.find('#igv-app-generic-track-select-modal-label').html(markup);
 
-                configureModalSelectList(this.$modal, config.tracks, config.label);
+                configureModalSelectList(this.browser, this.$modal, config.tracks, config.label);
                 this.$modal.modal('show');
 
             });
@@ -225,7 +225,7 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
 
 };
 
-function configureModalSelectList($modal, configurations) {
+function configureModalSelectList(browser, $modal, configurations) {
 
     $modal.find('select').remove();
 
@@ -265,7 +265,7 @@ function configureModalSelectList($modal, configurations) {
             trackConfiguration = $option.data('track');
             $option.removeAttr("selected");
 
-            igv.browser.loadTrack(trackConfiguration);
+            browser.loadTrack(trackConfiguration);
 
         }
 
