@@ -78,22 +78,25 @@ class IGVPanel {
 
 }
 
-    async initialize(config) {
+    initialize(config) {
 
-        try {
-            this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
-        } catch (error) {
-            console.warn(error.message);
-        }
+        (async () => {
+            try {
+                this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
+            } catch (error) {
+                console.warn(error.message);
+            }
 
-        addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
+            addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
 
-        this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-            IGVMouseHandler({ bp, start, end, interpolant })
-        });
+            this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
+                IGVMouseHandler({ bp, start, end, interpolant })
+            });
 
-        trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));
-        trackLoadController.updateTrackMenus(igvPanel.browser.genome.id);
+            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));
+            trackLoadController.updateTrackMenus(igvPanel.browser.genome.id);
+
+        })();
 
     }
 
