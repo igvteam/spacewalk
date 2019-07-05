@@ -427,7 +427,7 @@ export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) =
 
 export const getTraceDistanceMapCanvas = trace => {
 
-    const { distanceMapArray, maxDistance, minDistance } = createTraceDistanceMapArray(trace);
+    const { distanceMapArray, maxDistance } = createTraceDistanceMapArray(trace);
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -436,6 +436,7 @@ export const getTraceDistanceMapCanvas = trace => {
     const { width: w, height: h } = ctx.canvas;
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
     ctx.fillRect(0, 0, w, h);
+
     for (let i = 0; i < w; i++) {
         for(let j = 0; j < h; j++) {
             const ij = i * w + j;
@@ -463,17 +464,17 @@ export const getEnsembleDistanceMapCanvas = ensemble => {
 
     for (let trace of ensembleList) {
 
-        const { distanceMapArray, maxDistance } = createTraceDistanceMapArray(trace);
+        const { distanceMapArray } = createTraceDistanceMapArray(trace);
 
         let { vertices } = trace.geometry;
         let { length } = vertices;
-
+        let { segmentList } = trace;
         for (let i = 0; i < length; i++) {
 
-            const i_segmentIDIndex = trace.segmentList[ i ].segmentID - 1;
+            const i_segmentIDIndex = segmentList[ i ].segmentID - 1;
             for (let j = 0; j < length; j++) {
 
-                const j_segmentIDIndex = trace.segmentList[ j ].segmentID - 1;
+                const j_segmentIDIndex = segmentList[ j ].segmentID - 1;
 
                 const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
                 const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
@@ -528,46 +529,44 @@ export const createTraceDistanceMapArray = trace => {
     for (let d = 0; d < distanceMapArray.length; d++) distanceMapArray[ d ] = 0;
 
     let maxDistance = Number.NEGATIVE_INFINITY;
-    let minDistance = Number.POSITIVE_INFINITY;
 
     let { vertices } = trace.geometry;
+    let { segmentList } = trace;
     let { length } = vertices;
+
+    let exclusionSet = new Set();
+
     for (let i = 0; i < length; i++) {
 
-        const candidate = vertices[ i ];
-        const i_segmentIDIndex = trace.segmentList[ i ].segmentID - 1;
+        const i_segmentIDIndex = segmentList[ i ].segmentID - 1;
+
+        const xy_diagonal = i_segmentIDIndex * mapSize + i_segmentIDIndex;
+        distanceMapArray[ xy_diagonal ] = 0;
+
+        exclusionSet.add(i);
 
         for (let j = 0; j < length; j++) {
 
-            const centroid = vertices[ j ];
-            const j_segmentIDIndex = trace.segmentList[ j ].segmentID - 1;
+            if (!exclusionSet.has(j)) {
 
-            const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
-            const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
+                const distance = vertices[ i ].distanceTo(vertices[ j ]);
 
-            if (i_segmentIDIndex === j_segmentIDIndex) {
-                distanceMapArray[ ij ] = 0;
-            } else {
+                const j_segmentIDIndex = segmentList[ j ].segmentID - 1;
 
-                const distance = candidate.distanceTo(centroid);
+                const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
+                const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
+
+                distanceMapArray[ ij ] = distanceMapArray[ ji ] = distance;
 
                 maxDistance = Math.max(maxDistance, distance);
-                minDistance = Math.min(minDistance, distance);
 
-                distanceMapArray[ ij ] = distance;
-
-                if (distanceMapArray[ ji ]) {
-                    // do nothing
-                } else {
-                    distanceMapArray[ ji ] = distance;
-                }
             }
 
         } // for (j)
 
     }
 
-    return { distanceMapArray, maxDistance, minDistance };
+    return { distanceMapArray, maxDistance };
 
 };
 
