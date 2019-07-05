@@ -109,7 +109,7 @@ class EnsembleManager {
         // segmentIDSanityCheck(this.ensemble);
 
         // update ensemble level distance map
-        distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleDistanceMapCanvas(this.ensemble));
+        // distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleDistanceMapCanvas(this.ensemble));
 
         const { chr, genomicStart, genomicEnd } = this.locus;
 
@@ -347,7 +347,7 @@ const createContactFrequencyMap = frequencies => {
                 interpolant = frequencies[ ij ] / maxFrequency;
             }
 
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('bintu_et_al', interpolant);
             ctx.fillRect(i, j, 1, 1);
         }
     }
@@ -371,7 +371,7 @@ export const getEnsembleDistanceMapCanvas = ensemble => {
 
     for (let trace of ensembleList) {
 
-        const { distanceMapArray } = createDistanceArray(trace);
+        const { distanceMapArray, minDistance, maxDistance } = createDistanceArray(trace);
 
         let { vertices } = trace.geometry;
         let { length } = vertices;
@@ -397,22 +397,24 @@ export const getEnsembleDistanceMapCanvas = ensemble => {
 
     } // for (trace)
 
+    let minAverageDistance = Number.POSITIVE_INFINITY;
     let maxAverageDistance = Number.NEGATIVE_INFINITY;
     for (let averageDistance of averageDistances) {
+        minAverageDistance = Math.min(minAverageDistance, averageDistance);
         maxAverageDistance = Math.max(maxAverageDistance, averageDistance);
     }
 
     console.timeEnd(`getEnsembleDistanceMapCanvas. ${ ensembleList.length } traces.`);
 
-    return createAverageDistanceMap(averageDistances, maxAverageDistance);
+    return createAverageDistanceMap(averageDistances, minAverageDistance, maxAverageDistance);
 
 };
 
 export const getTraceDistanceMapCanvas = trace => {
 
-    const { distanceMapArray, maxDistance } = createDistanceArray(trace);
+    const { distanceMapArray, minDistance, maxDistance } = createDistanceArray(trace);
 
-    return createAverageDistanceMap(distanceMapArray, maxDistance);
+    return createAverageDistanceMap(distanceMapArray, minDistance, maxDistance);
 
 };
 
@@ -421,9 +423,10 @@ const createDistanceArray = trace => {
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
     let distanceMapArray = new Array(mapSize * mapSize);
-    for (let d = 0; d < distanceMapArray.length; d++) distanceMapArray[ d ] = 0;
+    for (let d = 0; d < distanceMapArray.length; d++) distanceMapArray[ d ] = -1;
 
     let maxDistance = Number.NEGATIVE_INFINITY;
+    let minDistance = Number.POSITIVE_INFINITY;
 
     let { vertices } = trace.geometry;
     let { segmentList } = trace;
@@ -454,6 +457,7 @@ const createDistanceArray = trace => {
                 distanceMapArray[ ij ] = distanceMapArray[ ji ] = distance;
 
                 maxDistance = Math.max(maxDistance, distance);
+                minDistance = Math.min(minDistance, distance);
 
             }
 
@@ -461,26 +465,40 @@ const createDistanceArray = trace => {
 
     }
 
-    return { distanceMapArray, maxDistance };
+    return { distanceMapArray, minDistance, maxDistance };
 
 };
 
-const createAverageDistanceMap = (averageDistances, maxAverageDistance) => {
+const createAverageDistanceMap = (averageDistances, minAverageDistance, maxAverageDistance) => {
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
     ctx.canvas.width = ctx.canvas.height = Globals.ensembleManager.maximumSegmentID;
 
     const { width: w, height: h } = ctx.canvas;
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
+    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
     ctx.fillRect(0, 0, w, h);
 
     for (let i = 0; i < w; i++) {
         for(let j = 0; j < h; j++) {
+
             const ij = i * w + j;
-            const interpolant = 1.0 - averageDistances[ ij ] / maxAverageDistance;
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-            ctx.fillRect(i, j, 1, 1);
+
+            let interpolant;
+
+            if (i === j && -1 !== averageDistances[ ij ]) {
+                interpolant = 0;
+                ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+                ctx.fillRect(i, j, 1, 1);
+            } else if (-1 === averageDistances[ ij ]) {
+                // do nothing
+                // console.log('ignore');
+            } else {
+                interpolant = (averageDistances[ ij ] - minAverageDistance) / (maxAverageDistance - minAverageDistance);
+                ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+                ctx.fillRect(i, j, 1, 1);
+            }
+
         }
 
     }
