@@ -104,7 +104,7 @@ class EnsembleManager {
         console.timeEnd(`ingest ensemble data with ${ lines.length } lines`);
 
         // update ensemble level contact frequency map
-        contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
+        // contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
         // segmentIDSanityCheck(this.ensemble);
 
         // update ensemble level distance map
@@ -237,35 +237,39 @@ export const getTraceContactFrequencyCanvas = (trace, distanceThreshold) => {
     for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
 
     let { vertices } = trace.geometry;
+    let { segmentList } = trace;
+    const exclusionSet = new Set();
     for (let i = 0; i < vertices.length; i++) {
 
         const { x, y, z } = vertices[ i ];
 
-        const ids = spatialIndex.within(x, y, z, distanceThreshold);
+        exclusionSet.add(i);
 
-        const traceSegmentID = trace.segmentList[ i ].segmentID;
-        const ids_filtered = ids.filter(id => id !== traceSegmentID);
+        const xy_diagonal = (segmentList[ i ].segmentID - 1) * mapSize + (segmentList[ i ].segmentID - 1);
+        frequencies[ xy_diagonal ]++;
 
-        if (ids_filtered.length > 0) {
-            for (let id of ids_filtered) {
+        const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
 
-                // ids are segment indices which are 1-based. Decrement to use
-                // as index into frequency array which is 0-based
-                const id_freq = id - 1;
-                const  i_freq = traceSegmentID - 1;
+        if (contact_indices.length > 0) {
+            for (let contact_i of contact_indices) {
 
-                const xy =  i_freq * mapSize + id_freq;
+                const         i_frequency = segmentList[         i ].segmentID - 1;
+                const contact_i_frequency = segmentList[ contact_i ].segmentID - 1;
+
+                const xy =         i_frequency * mapSize + contact_i_frequency;
+                const yx = contact_i_frequency * mapSize +         i_frequency;
+
                 if (xy > frequencies.length) {
                     console.log('xy is bogus index ' + xy);
                 }
-                const yx = id_freq * mapSize +  i_freq;
 
                 if (yx > frequencies.length) {
                     console.log('yx is bogus index ' + yx);
                 }
 
                 ++frequencies[ xy ];
-                ++frequencies[ yx ];
+
+                frequencies[ yx ] = frequencies[ xy ];
 
             }
         }
@@ -273,9 +277,14 @@ export const getTraceContactFrequencyCanvas = (trace, distanceThreshold) => {
     }
 
     let maxFrequency = Number.NEGATIVE_INFINITY;
-    for (let freq of frequencies) {
-        maxFrequency = Math.max(maxFrequency, freq);
+
+    // Calculate max
+    for (let m = 0; m < mapSize; m++) {
+        const xy = m * mapSize + m;
+        const frequency = frequencies[ xy ];
+        maxFrequency = Math.max(maxFrequency, frequency);
     }
+
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -289,7 +298,16 @@ export const getTraceContactFrequencyCanvas = (trace, distanceThreshold) => {
         for(let j = 0; j < h; j++) {
 
             const ij = i * w + j;
-            const interpolant = i === j ? 1 :  frequencies[ ij ] / maxFrequency;
+
+            let interpolant;
+
+            if (frequencies[ ij ] > maxFrequency) {
+                console.log(`ERROR! At i ${ i } j ${ j } frequencies ${ frequencies[ ij ] } should NOT exceed the max ${ maxFrequency }`);
+                interpolant = maxFrequency / maxFrequency;
+            } else {
+                interpolant = frequencies[ ij ] / maxFrequency;
+            }
+
             ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
             ctx.fillRect(i, j, 1, 1);
         }
@@ -310,8 +328,6 @@ export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) =
     // the 2D contact frequency map is implemented as a 1D array.
     let frequencies = new Array(mapSize * mapSize);
     for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
-
-    let maxFrequency = Number.NEGATIVE_INFINITY;
 
     for (let trace of ensembleList) {
 
@@ -370,6 +386,7 @@ export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) =
     }
 
     // Calculate max
+    let maxFrequency = Number.NEGATIVE_INFINITY;
     for (let m = 0; m < mapSize; m++) {
         const xy = m * mapSize + m;
         const frequency = frequencies[ xy ];
@@ -558,7 +575,7 @@ export const createTraceDistanceMapArray = trace => {
 const kdBushConfguratorWithTrace = trace => {
 
     return {
-        idList: trace.segmentList.map(segment => segment.segmentID),
+        idList: trace.geometry.vertices.map((vertex, index) => index),
         points: trace.geometry.vertices,
         getX: pt => pt.x,
         getY: pt => pt.y,
