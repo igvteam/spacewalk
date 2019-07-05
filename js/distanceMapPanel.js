@@ -94,10 +94,151 @@ class DistanceMapPanel {
 export let distanceMapPanelConfigurator = (container) => {
 
     return {
-            container,
-            panel: $('#spacewalk_distance_map_panel').get(0),
-            isHidden: guiManager.isPanelHidden('spacewalk_distance_map_panel')
-        };
+        container,
+        panel: $('#spacewalk_distance_map_panel').get(0),
+        isHidden: guiManager.isPanelHidden('spacewalk_distance_map_panel')
+    };
+
+};
+
+export const getEnsembleAverageDistanceMapCanvas = ensemble => {
+
+    const ensembleList = Object.values(ensemble);
+
+    console.time(`getEnsembleDistanceMapCanvas. ${ ensembleList.length } traces.`);
+
+    let mapSize = Globals.ensembleManager.maximumSegmentID;
+
+    let averageDistanceArray = new Array(mapSize * mapSize);
+    let previous = undefined;
+    for (let d = 0; d < averageDistanceArray.length; d++) averageDistanceArray[ d ] = 0.0;
+
+    for (let t = 0; t < ensembleList.length; t++) {
+
+        const { distanceArray } = createDistanceArray(ensembleList[ t ]);
+
+        if (undefined === previous) {
+
+            previous = new Array(mapSize * mapSize);
+            for (let a = 0; a < previous.length; a++) {
+                previous[ a ] = distanceArray[ a ];
+            }
+
+        } else {
+            for (let d = 0; d < distanceArray.length; d++) {
+
+                if (-1 === distanceArray[ d ]) {
+                    // do nothing
+                } else {
+                    averageDistanceArray[ d ] = previous[ d ] + (distanceArray[ d ] - previous[ d ]) / (t + 1);
+                    previous[ d ] = averageDistanceArray[ d ];
+                }
+            }
+
+            previous = undefined;
+        }
+    }
+
+    let minAverageDistance = Number.POSITIVE_INFINITY;
+    let maxAverageDistance = Number.NEGATIVE_INFINITY;
+    for (let averageDistance of averageDistanceArray) {
+        minAverageDistance = Math.min(minAverageDistance, averageDistance);
+        maxAverageDistance = Math.max(maxAverageDistance, averageDistance);
+    }
+
+    console.timeEnd(`getEnsembleDistanceMapCanvas. ${ ensembleList.length } traces.`);
+
+    return createAverageDistanceMap(averageDistanceArray, minAverageDistance, maxAverageDistance);
+
+};
+
+export const getTraceDistanceMapCanvas = trace => {
+
+    const { distanceArray, minDistance, maxDistance } = createDistanceArray(trace);
+
+    return createAverageDistanceMap(distanceArray, minDistance, maxDistance);
+
+};
+
+const createDistanceArray = trace => {
+
+    let mapSize = Globals.ensembleManager.maximumSegmentID;
+
+    let distanceArray = new Array(mapSize * mapSize);
+    for (let d = 0; d < distanceArray.length; d++) distanceArray[ d ] = -1;
+
+    let maxDistance = Number.NEGATIVE_INFINITY;
+    let minDistance = Number.POSITIVE_INFINITY;
+
+    let { vertices } = trace.geometry;
+    let { segmentList } = trace;
+    let { length } = vertices;
+
+    let exclusionSet = new Set();
+
+    for (let i = 0; i < length; i++) {
+
+        const i_segmentIDIndex = segmentList[ i ].segmentID - 1;
+
+        const xy_diagonal = i_segmentIDIndex * mapSize + i_segmentIDIndex;
+        distanceArray[ xy_diagonal ] = 0;
+
+        exclusionSet.add(i);
+
+        for (let j = 0; j < length; j++) {
+
+            if (!exclusionSet.has(j)) {
+
+                const distance = vertices[ i ].distanceTo(vertices[ j ]);
+
+                const j_segmentIDIndex = segmentList[ j ].segmentID - 1;
+
+                const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
+                const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
+
+                distanceArray[ ij ] = distanceArray[ ji ] = distance;
+
+                maxDistance = Math.max(maxDistance, distance);
+                minDistance = Math.min(minDistance, distance);
+
+            }
+
+        } // for (j)
+
+    }
+
+    return { distanceArray, minDistance, maxDistance };
+
+};
+
+const createAverageDistanceMap = (averageDistances, minAverageDistance, maxAverageDistance) => {
+
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    ctx.canvas.width = ctx.canvas.height = Globals.ensembleManager.maximumSegmentID;
+
+    const { width: w, height: h } = ctx.canvas;
+    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
+    ctx.fillRect(0, 0, w, h);
+
+    for (let i = 0; i < w; i++) {
+        for(let j = 0; j < h; j++) {
+
+            const ij = i * w + j;
+
+            if (-1 === averageDistances[ ij ]) {
+                // do nothing
+            } else {
+                const interpolant = 1.0 - averageDistances[ ij ] / maxAverageDistance;
+                ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+                ctx.fillRect(i, j, 1, 1);
+            }
+
+        }
+
+    }
+
+    return canvas;
 
 };
 
