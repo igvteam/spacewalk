@@ -104,7 +104,7 @@ class EnsembleManager {
         console.timeEnd(`ingest ensemble data with ${ lines.length } lines`);
 
         // update ensemble level contact frequency map
-        // contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
+        contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
         // segmentIDSanityCheck(this.ensemble);
 
         // update ensemble level distance map
@@ -343,26 +343,24 @@ export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) =
 
             let { x, y, z } = vertices[ i ];
 
-            // the segmentID corresponds to the genomic segment of the vertex
-            let { segmentID } = segmentList[ i ];
+            exclusionSet.add(i);
 
-            exclusionSet.add(segmentID);
+            let { segmentID } = segmentList[ i ];
 
             const xy_diagonal = (segmentID - 1) * mapSize + (segmentID - 1);
             frequencies[ xy_diagonal ]++;
 
             // all genomic regions - segmentIDs - that fall within the spatial distance threshold for the given vertex/segmentID
-            let contact_segmentIDs = spatialIndex.within(x, y, z, distanceThreshold).filter(id => !exclusionSet.has(id));
+            const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
 
-            if (contact_segmentIDs.length > 0) {
-                for (let contactSegmentID of contact_segmentIDs) {
+            if (contact_indices.length > 0) {
+                for (let contact_i of contact_indices) {
 
-                    // ids are segment indices which are 1-based. Decrement to use
-                    // as index into frequency array which is 0-based
+                    let { segmentID:contact_segmentID } = segmentList[ contact_i ];
 
                     // the x,y map location converted to a 1D-array index
-                    const xy = (       segmentID - 1) * mapSize + (contactSegmentID - 1);
-                    const yx = (contactSegmentID - 1) * mapSize + (       segmentID - 1);
+                    const xy = (        segmentID - 1) * mapSize + (contact_segmentID - 1);
+                    const yx = (contact_segmentID - 1) * mapSize + (        segmentID - 1);
 
                     if (xy > frequencies.length) {
                         console.log('xy is bogus index ' + xy);
