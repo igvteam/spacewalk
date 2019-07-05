@@ -228,18 +228,49 @@ const segmentIDSanityCheck = ensemble => {
 
 };
 
-export const getTraceContactFrequencyCanvas = (trace, distanceThreshold) => {
-
-    const spatialIndex = new KDBush(kdBushConfguratorWithTrace(trace));
+export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) => {
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
     let frequencies = new Array(mapSize * mapSize);
     for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
 
+    const ensembleList = Object.values(ensemble);
+    console.time(`getEnsembleContactFrequencyCanvas. ${ ensembleList.length } traces.`);
+
+    for (let trace of ensembleList) {
+        updateContactFrequencyArray(trace, frequencies, distanceThreshold);
+    }
+
+    console.timeEnd(`getEnsembleContactFrequencyCanvas. ${ ensembleList.length } traces.`);
+
+    return createContactFrequencyMap(frequencies);
+
+};
+
+export const getTraceContactFrequencyCanvas = (trace, distanceThreshold) => {
+
+    let mapSize = Globals.ensembleManager.maximumSegmentID;
+
+    let frequencies = new Array(mapSize * mapSize);
+    for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
+
+    updateContactFrequencyArray(trace, frequencies, distanceThreshold);
+
+    return createContactFrequencyMap(frequencies);
+
+};
+
+const updateContactFrequencyArray = (trace, frequencies, distanceThreshold) => {
+
     let { vertices } = trace.geometry;
     let { segmentList } = trace;
     const exclusionSet = new Set();
+
+    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(trace));
+
+    const mapSize = Globals.ensembleManager.maximumSegmentID;
+
     for (let i = 0; i < vertices.length; i++) {
 
         const { x, y, z } = vertices[ i ];
@@ -277,138 +308,38 @@ export const getTraceContactFrequencyCanvas = (trace, distanceThreshold) => {
 
     }
 
-    let maxFrequency = Number.NEGATIVE_INFINITY;
-
-    // Calculate max
-    for (let m = 0; m < mapSize; m++) {
-        const xy = m * mapSize + m;
-        const frequency = frequencies[ xy ];
-        maxFrequency = Math.max(maxFrequency, frequency);
-    }
-
-
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = mapSize;
-
-    const { width: w, height: h } = ctx.canvas;
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
-    ctx.fillRect(0, 0, w, h);
-
-    for (let i = 0; i < w; i++) {
-        for(let j = 0; j < h; j++) {
-
-            const ij = i * w + j;
-
-            let interpolant;
-
-            if (frequencies[ ij ] > maxFrequency) {
-                console.log(`ERROR! At i ${ i } j ${ j } frequencies ${ frequencies[ ij ] } should NOT exceed the max ${ maxFrequency }`);
-                interpolant = maxFrequency / maxFrequency;
-            } else {
-                interpolant = frequencies[ ij ] / maxFrequency;
-            }
-
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-            ctx.fillRect(i, j, 1, 1);
-        }
-    }
-
-    return canvas;
-
 };
 
-export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) => {
-
-    const ensembleList = Object.values(ensemble);
+const createContactFrequencyMap = frequencies => {
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
-    console.time(`getEnsembleContactFrequencyCanvas. ${ ensembleList.length } traces.`);
+    console.time(`Create ${ mapSize } x ${ mapSize } contact map`);
 
-    // the 2D contact frequency map is implemented as a 1D array.
-    let frequencies = new Array(mapSize * mapSize);
-    for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
-
-    for (let trace of ensembleList) {
-
-        // console.time(`index and process single traces`);
-
-        const spatialIndex = new KDBush(kdBushConfguratorWithTrace(trace));
-
-        let { vertices } = trace.geometry;
-        let { segmentList } = trace;
-
-        const exclusionSet = new Set();
-        for (let i = 0; i < vertices.length; i++) {
-
-            let { x, y, z } = vertices[ i ];
-
-            exclusionSet.add(i);
-
-            let { segmentID } = segmentList[ i ];
-
-            const xy_diagonal = (segmentID - 1) * mapSize + (segmentID - 1);
-            frequencies[ xy_diagonal ]++;
-
-            // all genomic regions - segmentIDs - that fall within the spatial distance threshold for the given vertex/segmentID
-            const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
-
-            if (contact_indices.length > 0) {
-                for (let contact_i of contact_indices) {
-
-                    let { segmentID:contact_segmentID } = segmentList[ contact_i ];
-
-                    // the x,y map location converted to a 1D-array index
-                    const xy = (        segmentID - 1) * mapSize + (contact_segmentID - 1);
-                    const yx = (contact_segmentID - 1) * mapSize + (        segmentID - 1);
-
-                    if (xy > frequencies.length) {
-                        console.log('xy is bogus index ' + xy);
-                    }
-
-                    if (yx > frequencies.length) {
-                        console.log('yx is bogus index ' + yx);
-                    }
-
-                    // increment the map frequency
-                    ++frequencies[ xy ];
-                    frequencies[ yx ] = frequencies[ xy ];
-
-                }
-            }
-
-        }
-
-        // console.timeEnd(`index and process single traces`);
-
-    }
+    let maxFrequency = Number.NEGATIVE_INFINITY;
 
     // Calculate max
-    let maxFrequency = Number.NEGATIVE_INFINITY;
     for (let m = 0; m < mapSize; m++) {
         const xy = m * mapSize + m;
         const frequency = frequencies[ xy ];
         maxFrequency = Math.max(maxFrequency, frequency);
     }
 
-    console.timeEnd(`getEnsembleContactFrequencyCanvas. ${ ensembleList.length } traces.`);
-
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
     ctx.canvas.width = ctx.canvas.height = mapSize;
 
-    // clear canvas
     const { width: w, height: h } = ctx.canvas;
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
     ctx.fillRect(0, 0, w, h);
 
-    // paint frequencies as lerp'd color
     for (let i = 0; i < w; i++) {
         for(let j = 0; j < h; j++) {
 
             const ij = i * w + j;
+
             let interpolant;
+
             if (frequencies[ ij ] > maxFrequency) {
                 console.log(`ERROR! At i ${ i } j ${ j } frequencies ${ frequencies[ ij ] } should NOT exceed the max ${ maxFrequency }`);
                 interpolant = maxFrequency / maxFrequency;
@@ -421,31 +352,7 @@ export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) =
         }
     }
 
-    return canvas;
-
-};
-
-export const getTraceDistanceMapCanvas = trace => {
-
-    const { distanceMapArray, maxDistance } = createTraceDistanceMapArray(trace);
-
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = Globals.ensembleManager.maximumSegmentID;
-
-    const { width: w, height: h } = ctx.canvas;
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
-    ctx.fillRect(0, 0, w, h);
-
-    for (let i = 0; i < w; i++) {
-        for(let j = 0; j < h; j++) {
-            const ij = i * w + j;
-            const interpolant = 1.0 - distanceMapArray[ ij ] / maxDistance;
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-            ctx.fillRect(i, j, 1, 1);
-        }
-
-    }
+    console.timeEnd(`Create ${ mapSize } x ${ mapSize } contact map`);
 
     return canvas;
 
@@ -459,12 +366,12 @@ export const getEnsembleDistanceMapCanvas = ensemble => {
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
-    let averageDistance = new Array(mapSize * mapSize);
-    for (let d = 0; d < averageDistance.length; d++) averageDistance[ d ] = 0.0;
+    let averageDistances = new Array(mapSize * mapSize);
+    for (let d = 0; d < averageDistances.length; d++) averageDistances[ d ] = 0.0;
 
     for (let trace of ensembleList) {
 
-        const { distanceMapArray } = createTraceDistanceMapArray(trace);
+        const { distanceMapArray } = createDistanceArray(trace);
 
         let { vertices } = trace.geometry;
         let { length } = vertices;
@@ -480,9 +387,9 @@ export const getEnsembleDistanceMapCanvas = ensemble => {
                 const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
 
                 // Incrementally build running average
-                averageDistance[ ij ] = averageDistance[ ij ] + (distanceMapArray[ ij ] - averageDistance[ ij ]) / (1 + i);
+                averageDistances[ ij ] = averageDistances[ ij ] + (distanceMapArray[ ij ] - averageDistances[ ij ]) / (1 + i);
 
-                averageDistance[ ji ] = averageDistance[ ij ];
+                averageDistances[ ji ] = averageDistances[ ij ];
 
             } // for (trace.length)
 
@@ -490,38 +397,26 @@ export const getEnsembleDistanceMapCanvas = ensemble => {
 
     } // for (trace)
 
-    let [ minAverageDistance, maxAverageDistance ] = [ Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY ];
-    for (let avgd of averageDistance) {
-        minAverageDistance = Math.min(minAverageDistance, avgd);
-        maxAverageDistance = Math.max(maxAverageDistance, avgd);
+    let maxAverageDistance = Number.NEGATIVE_INFINITY;
+    for (let averageDistance of averageDistances) {
+        maxAverageDistance = Math.max(maxAverageDistance, averageDistance);
     }
 
     console.timeEnd(`getEnsembleDistanceMapCanvas. ${ ensembleList.length } traces.`);
 
-
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = mapSize;
-
-    const { width: w, height: h } = ctx.canvas;
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
-    ctx.fillRect(0, 0, w, h);
-    // paint average distances as lerp'd color
-    for (let i = 0; i < w; i++) {
-        for(let j = 0; j < h; j++) {
-            const ij = i * w + j;
-            const interpolant = 1.0 - averageDistance[ ij ] / maxAverageDistance;
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-            ctx.fillRect(i, j, 1, 1);
-        }
-    }
-
-    return canvas;
-
+    return createAverageDistanceMap(averageDistances, maxAverageDistance);
 
 };
 
-export const createTraceDistanceMapArray = trace => {
+export const getTraceDistanceMapCanvas = trace => {
+
+    const { distanceMapArray, maxDistance } = createDistanceArray(trace);
+
+    return createAverageDistanceMap(distanceMapArray, maxDistance);
+
+};
+
+const createDistanceArray = trace => {
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
@@ -570,7 +465,31 @@ export const createTraceDistanceMapArray = trace => {
 
 };
 
-const kdBushConfguratorWithTrace = trace => {
+const createAverageDistanceMap = (averageDistances, maxAverageDistance) => {
+
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    ctx.canvas.width = ctx.canvas.height = Globals.ensembleManager.maximumSegmentID;
+
+    const { width: w, height: h } = ctx.canvas;
+    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
+    ctx.fillRect(0, 0, w, h);
+
+    for (let i = 0; i < w; i++) {
+        for(let j = 0; j < h; j++) {
+            const ij = i * w + j;
+            const interpolant = 1.0 - averageDistances[ ij ] / maxAverageDistance;
+            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+            ctx.fillRect(i, j, 1, 1);
+        }
+
+    }
+
+    return canvas;
+
+};
+
+const kdBushConfiguratorWithTrace = trace => {
 
     return {
         idList: trace.geometry.vertices.map((vertex, index) => index),
