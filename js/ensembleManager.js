@@ -7,6 +7,7 @@ import { distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
 import { numberFormatter, readFileAsText } from "./utils.js";
 
 export let contactFrequencyDistanceThreshold = 256;
+// export let contactFrequencyDistanceThreshold = 3 * 1024;
 
 class EnsembleManager {
 
