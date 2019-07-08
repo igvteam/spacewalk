@@ -1,8 +1,8 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import igv from "../vendor/igv.esm.js";
 import Globals from './globals.js';
 import { defaultColormapName } from "./colorMapManager.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import igv from "../vendor/igv.esm.js";
 import { readFileAsText, numberFormatter } from "./utils.js";
 
 class PointCloudManager {
@@ -34,6 +34,7 @@ class PointCloudManager {
             const key = startBP + '%' + endBP + '%' + sizeKB;
 
             if (undefined === segments[ key ]) {
+                // console.log(`point cloud manager step size ${ numberFormatter( parseInt(sizeKB, 10) )} kb.`);
                 segments[ key ] = [];
             }
 
