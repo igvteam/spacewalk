@@ -2,7 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
 import igv from '../vendor/igv.esm.js'
 import { distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
-import { getEnsembleAverageDistanceMapCanvas } from './distanceMapPanel.js';
+import { getEnsembleAverageDistanceCanvas } from './distanceMapPanel.js';
 import { getEnsembleContactFrequencyCanvas } from './contactFrequencyMapPanel.js';
 import { numberFormatter, readFileAsText } from "./utils.js";
 
@@ -106,7 +106,7 @@ class EnsembleManager {
         // segmentIDSanityCheck(this.ensemble);
 
         // update ensemble level distance map
-        distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceMapCanvas(this.ensemble));
+        distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
 
         const { chr, genomicStart, genomicEnd } = this.locus;
 

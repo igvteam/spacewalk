@@ -4,6 +4,8 @@ import { moveOffScreen, moveOnScreen } from "./utils.js";
 import { guiManager } from './gui.js';
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 
+const kDistanceUndefined = -1;
+
 class DistanceMapPanel {
 
     constructor ({ container, panel, isHidden }) {
@@ -101,63 +103,68 @@ export let distanceMapPanelConfigurator = (container) => {
 
 };
 
-export const getEnsembleAverageDistanceMapCanvas = ensemble => {
+export const getEnsembleAverageDistanceCanvas = ensemble => {
 
-    const ensembleList = Object.values(ensemble);
+    const traces = Object.values(ensemble);
 
-    console.time(`getEnsembleDistanceMapCanvas. ${ ensembleList.length } traces.`);
+    console.time(`getEnsembleDistanceMapCanvas. ${ traces.length } traces.`);
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
-    let averageDistanceArray = new Array(mapSize * mapSize);
-    let previous = undefined;
-    for (let d = 0; d < averageDistanceArray.length; d++) averageDistanceArray[ d ] = 0.0;
+    let counter = new Array(mapSize * mapSize);
+    counter.fill(0);
 
-    for (let t = 0; t < ensembleList.length; t++) {
+    let average = new Array(mapSize * mapSize);
+    average.fill(kDistanceUndefined);
 
-        const { distanceArray } = createDistanceArray(ensembleList[ t ]);
+    for (let trace of traces) {
 
-        if (undefined === previous) {
+        const { distanceArray } = createDistanceArray(trace);
 
-            previous = new Array(mapSize * mapSize);
-            for (let a = 0; a < previous.length; a++) {
-                previous[ a ] = distanceArray[ a ];
-            }
+        // We need to calculate an array of averages where the input data
+        // can have missing - kDistanceUndefined - values
 
-        } else {
-            for (let d = 0; d < distanceArray.length; d++) {
+        // loop of the distance array
+        for (let d = 0; d < distanceArray.length; d++) {
 
-                if (-1 === distanceArray[ d ]) {
-                    // do nothing
+            // ignore missing data values. they do not participate in the average
+            if (kDistanceUndefined === distanceArray[ d ]) {
+                // do nothing
+            } else {
+
+                // keep track of how many samples we have at this array index
+                ++counter[ d ];
+
+                if (kDistanceUndefined === average[ d ]) {
+
+                    // If this is the first data value at this array index copy it to average.
+                    average[ d ] = distanceArray[ d ];
                 } else {
-                    averageDistanceArray[ d ] = previous[ d ] + (distanceArray[ d ] - previous[ d ]) / (t + 1);
-                    previous[ d ] = averageDistanceArray[ d ];
+
+                    // when there is data AND a pre-existing average value at this array index
+                    // use an incremental averaging approach.
+
+                    // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
+                    // https://math.stackexchange.com/questions/106700/incremental-averageing
+                    average[ d ] = average[ d ] + (distanceArray[ d ] - average[ d ]) / counter[ d ];
                 }
+
             }
-
-            previous = undefined;
         }
+
     }
 
-    let minAverageDistance = Number.POSITIVE_INFINITY;
-    let maxAverageDistance = Number.NEGATIVE_INFINITY;
-    for (let averageDistance of averageDistanceArray) {
-        minAverageDistance = Math.min(minAverageDistance, averageDistance);
-        maxAverageDistance = Math.max(maxAverageDistance, averageDistance);
-    }
+    const maxAverageDistance = Math.max(...average);
 
-    console.timeEnd(`getEnsembleDistanceMapCanvas. ${ ensembleList.length } traces.`);
+    console.timeEnd(`getEnsembleDistanceMapCanvas. ${ traces.length } traces.`);
 
-    return createAverageDistanceMap(averageDistanceArray, minAverageDistance, maxAverageDistance);
+    return createDistanceCanvas(average, maxAverageDistance);
 
 };
 
-export const getTraceDistanceMapCanvas = trace => {
-
-    const { distanceArray, minDistance, maxDistance } = createDistanceArray(trace);
-
-    return createAverageDistanceMap(distanceArray, minDistance, maxDistance);
-
+export const getTraceDistanceCanvas = trace => {
+    const { distanceArray, maxDistance } = createDistanceArray(trace);
+    return createDistanceCanvas(distanceArray, maxDistance);
 };
 
 const createDistanceArray = trace => {
@@ -165,10 +172,9 @@ const createDistanceArray = trace => {
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
     let distanceArray = new Array(mapSize * mapSize);
-    for (let d = 0; d < distanceArray.length; d++) distanceArray[ d ] = -1;
+    distanceArray.fill(kDistanceUndefined);
 
     let maxDistance = Number.NEGATIVE_INFINITY;
-    let minDistance = Number.POSITIVE_INFINITY;
 
     let { vertices } = trace.geometry;
     let { segmentList } = trace;
@@ -199,19 +205,17 @@ const createDistanceArray = trace => {
                 distanceArray[ ij ] = distanceArray[ ji ] = distance;
 
                 maxDistance = Math.max(maxDistance, distance);
-                minDistance = Math.min(minDistance, distance);
-
             }
 
         } // for (j)
 
     }
 
-    return { distanceArray, minDistance, maxDistance };
+    return { distanceArray, maxDistance };
 
 };
 
-const createAverageDistanceMap = (averageDistances, minAverageDistance, maxAverageDistance) => {
+const createDistanceCanvas = (distances, maximumDistance) => {
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -226,10 +230,10 @@ const createAverageDistanceMap = (averageDistances, minAverageDistance, maxAvera
 
             const ij = i * w + j;
 
-            if (-1 === averageDistances[ ij ]) {
+            if (kDistanceUndefined === distances[ ij ]) {
                 // do nothing
             } else {
-                const interpolant = 1.0 - averageDistances[ ij ] / maxAverageDistance;
+                const interpolant = 1.0 - distances[ ij ] / maximumDistance;
                 ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
                 ctx.fillRect(i, j, 1, 1);
             }
