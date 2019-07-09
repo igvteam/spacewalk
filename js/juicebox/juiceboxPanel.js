@@ -1,8 +1,7 @@
 import Globals from './../globals.js';
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
 import { makeDraggable } from "../draggable.js";
-import { lerp } from '../math.js'
-import { segmentIDForInterpolant, moveOffScreen, moveOnScreen } from "../utils.js";
+import { moveOffScreen, moveOnScreen } from "../utils.js";
 
 class JuiceboxPanel {
 
@@ -34,81 +33,94 @@ class JuiceboxPanel {
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
-
+        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }
 
-    async receiveEvent({ type, data }) {
+    receiveEvent({ type, data }) {
 
         if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
 
-            if (true === this.isHidden) {
-                moveOnScreen(this);
-                await this.browser.parseGotoInput(this.locus);
-            } else {
-                moveOffScreen(this);
-            }
+            (async () => {
 
-            this.isHidden = !this.isHidden;
-        } else if ("DidLoadFile" === type) {
+                if (true === this.isHidden) {
+                    moveOnScreen(this);
+                    await this.browser.parseGotoInput(this.locus);
+                } else {
+                    moveOffScreen(this);
+                }
+
+                this.isHidden = !this.isHidden;
+            })();
+
+        } else if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
         }
     }
 
-    async initialize(browserConfig) {
+    initialize(browserConfig) {
 
-        try {
-            const { container, width, height } = browserConfig;
-            this.browser = await hic.createBrowser(container, { width, height });
-        } catch (error) {
-            console.warn(error.message);
-        }
+        (async () => {
 
-        try {
+            try {
+                const { container, width, height } = browserConfig;
+                this.browser = await hic.createBrowser(container, { width, height });
+            } catch (error) {
+                console.warn(error.message);
+            }
 
-            const hicConfig =
-                {
-                    url: "https://hicfiles.s3.amazonaws.com/hiseq/gm12878/in-situ/HIC010.hic",
-                    name: "Rao and Huntley et al. | Cell 2014 GM12878 (human) in situ MboI HIC010 (47M)",
-                    isControl: false
-                };
+            try {
 
-            await this.browser.loadHicFile(hicConfig);
+                const hicConfig =
+                    {
+                        url: "https://hicfiles.s3.amazonaws.com/hiseq/gm12878/in-situ/HIC010.hic",
+                        name: "Rao and Huntley et al. | Cell 2014 GM12878 (human) in situ MboI HIC010 (47M)",
+                        isControl: false
+                    };
 
-            $('#spacewalk_info_panel_juicebox').text(hicConfig.name);
+                await this.browser.loadHicFile(hicConfig);
 
-        } catch (error) {
-            console.warn(error.message);
-        }
+                $('#spacewalk_info_panel_juicebox').text(hicConfig.name);
 
-        this.locus = 'all';
+            } catch (error) {
+                console.warn(error.message);
+            }
 
-        try {
-            await this.browser.parseGotoInput(this.locus);
-        } catch (error) {
-            console.warn(error.message);
-        }
+            this.locus = 'all';
 
-        this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-            juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
-        });
+            try {
+                await this.browser.parseGotoInput(this.locus);
+            } catch (error) {
+                console.warn(error.message);
+            }
 
-    }
+            this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+                juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
+            });
 
-    async goto({ chr, start, end }) {
-
-        this.locus = chr + ':' + start + '-' + end;
-
-        try {
-            await this.browser.parseGotoInput(this.locus);
-        } catch (error) {
-            console.warn(error.message);
-        }
+        })();
 
     }
 
-    async loadURL({ url, name, string }){
+    goto({ chr, start, end }) {
+
+        (async () => {
+
+            this.locus = chr + ':' + start + '-' + end;
+
+            try {
+                await this.browser.parseGotoInput(this.locus);
+            } catch (error) {
+                console.warn(error.message);
+            }
+
+        })();
+
+
+    }
+
+    async loadURL({ url, name }){
 
         try {
             await this.browser.loadHicFile({ url, name, isControl: false });
@@ -130,6 +142,9 @@ class JuiceboxPanel {
 
         try {
             await this.browser.loadHicFile({ url: file, name: file.name, isControl: false });
+
+            $('#spacewalk_info_panel_juicebox').text(file.name);
+
         } catch (error) {
             console.warn(error.message);
         }

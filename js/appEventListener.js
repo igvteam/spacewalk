@@ -4,11 +4,12 @@ import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { contactFrequencyMapPanel, distanceMapPanel, guiManager, thumbnailPanel, traceSelectPanel } from './gui.js';
-import { getTraceDistanceMapCanvas, getTraceContactFrequenceCanvas } from "./ensembleManager.js";
+import { getTraceDistanceCanvas } from "./distanceMapPanel.js";
+import { getTraceContactFrequencyCanvas } from "./contactFrequencyMapPanel.js";
 
 export const appEventListener =
     {
-        receiveEvent: async ({ type, data }) => {
+        receiveEvent: ({ type, data }) => {
 
             if ('RenderStyleDidChange' === type) {
 
@@ -30,7 +31,7 @@ export const appEventListener =
 
             }  else if ('DidLoadPointCloudFile' === type) {
 
-                $('#spacewalk_info_panel_locus').text( '-' );
+                $('#spacewalk_info_panel_locus').text( Globals.pointCloudManager.blurbLocus() );
                 $('#spacewalk_info_panel_ensemble').text( '-' );
 
                 setupPointCloud(Globals.pointCloudManager.list.map(o => o.geometry));
@@ -50,9 +51,6 @@ export const appEventListener =
                 let trace = Globals.ensembleManager.getTraceWithName(data);
                 Globals.ensembleManager.currentTrace = trace;
                 setup({ trace });
-
-            } else if ('ToggleAllUIControls' === type) {
-                // $('.navbar').toggle();
             }
 
         }
@@ -99,6 +97,6 @@ let setup = ({ trace }) => {
     //     thumbnailPanel.render();
     // }
 
-    distanceMapPanel.drawTraceDistanceCanvas(getTraceDistanceMapCanvas(trace));
-    contactFrequencyMapPanel.drawTraceContactFrequency(getTraceContactFrequenceCanvas(trace, contactFrequencyMapPanel.distanceThreshold));
+    distanceMapPanel.drawTraceDistanceCanvas(getTraceDistanceCanvas(trace));
+    contactFrequencyMapPanel.drawTraceContactFrequency(getTraceContactFrequencyCanvas(trace, contactFrequencyMapPanel.distanceThreshold));
 };

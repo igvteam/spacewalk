@@ -1,12 +1,10 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
 import igv from '../vendor/igv.esm.js'
-import KDBush from '../node_modules/kd3d/js/index.js'
-import { rgb255String, appleCrayonColorRGB255 } from './color.js';
 import { distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
+import { getEnsembleAverageDistanceCanvas } from './distanceMapPanel.js';
+import { getEnsembleContactFrequencyCanvas } from './contactFrequencyMapPanel.js';
 import { numberFormatter, readFileAsText } from "./utils.js";
-
-export let contactFrequencyDistanceThreshold = 256;
 
 class EnsembleManager {
 
@@ -48,12 +46,12 @@ class EnsembleManager {
             const tokens = line.split(',');
 
             // chr-index (1-based) | segment-index (1-based) | Z | X | Y
-            let [ index, segmentID, z, x, y ] = [ tokens[ 0 ], tokens[ 1 ], tokens[ 2 ], tokens[ 3 ], tokens[ 4 ] ];
+            let [ chromosomeID, segmentIDString, z, x, y ] = [ tokens[ 0 ], tokens[ 1 ], tokens[ 2 ], tokens[ 3 ], tokens[ 4 ] ];
 
-            segmentID = parseInt(segmentID, 10);
+            let segmentID = parseInt(segmentIDString, 10);
 
-            // key will be 0-based
-            let number = parseInt(index, 10) - 1;
+            // The chromosome id is 1-based. We use it for a key but make it 0-based.
+            let number = parseInt(chromosomeID, 10) - 1;
             let key = number.toString();
 
             if (undefined === dictionary[ key ]) {
@@ -108,7 +106,7 @@ class EnsembleManager {
         // segmentIDSanityCheck(this.ensemble);
 
         // update ensemble level distance map
-        distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleDistanceMapCanvas(this.ensemble));
+        distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
 
         const { chr, genomicStart, genomicEnd } = this.locus;
 
@@ -162,6 +160,10 @@ class EnsembleManager {
     blurbCellLine() {
         const cellLine = this.path.split('_').shift();
         return `Cell Line ${ cellLine }`;
+    }
+
+    reportFileLoadError(name) {
+        return `EnsembleManager: Error loading ${ name }`
     }
 }
 
@@ -220,326 +222,6 @@ const segmentIDSanityCheck = ensemble => {
     }
 
     console.timeEnd(`segmentIDSanityCheck. ${ ensembleList.length } traces.`);
-
-};
-
-export const getTraceContactFrequenceCanvas = (trace, distanceThreshold) => {
-
-    const spatialIndex = new KDBush(kdBushConfguratorWithTrace(trace));
-
-    let mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    let frequencies = new Array(mapSize * mapSize);
-    for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
-
-    let { vertices } = trace.geometry;
-    for (let i = 0; i < vertices.length; i++) {
-
-        const { x, y, z } = vertices[ i ];
-
-        const ids = spatialIndex.within(x, y, z, distanceThreshold);
-
-        const traceSegmentID = trace.segmentList[ i ].segmentID;
-        const ids_filtered = ids.filter(id => id !== traceSegmentID);
-
-        if (ids_filtered.length > 0) {
-            for (let id of ids_filtered) {
-
-                // ids are segment indices which are 1-based. Decrement to use
-                // as index into frequency array which is 0-based
-                const id_freq = id - 1;
-                const  i_freq = traceSegmentID - 1;
-
-                const xy =  i_freq * mapSize + id_freq;
-                if (xy > frequencies.length) {
-                    console.log('xy is bogus index ' + xy);
-                }
-                const yx = id_freq * mapSize +  i_freq;
-
-                if (yx > frequencies.length) {
-                    console.log('yx is bogus index ' + yx);
-                }
-
-                ++frequencies[ xy ];
-                ++frequencies[ yx ];
-
-            }
-        }
-
-    }
-
-    let maxFrequency = Number.NEGATIVE_INFINITY;
-    for (let freq of frequencies) {
-        maxFrequency = Math.max(maxFrequency, freq);
-    }
-
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = mapSize;
-
-    const { width: w, height: h } = ctx.canvas;
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
-    ctx.fillRect(0, 0, w, h);
-
-    for (let i = 0; i < w; i++) {
-        for(let j = 0; j < h; j++) {
-
-            const ij = i * w + j;
-            const interpolant = i === j ? 1 :  frequencies[ ij ] / maxFrequency;
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-            ctx.fillRect(i, j, 1, 1);
-        }
-    }
-
-    return canvas;
-
-};
-
-export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) => {
-
-    const ensembleList = Object.values(ensemble);
-
-    let mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    console.time(`getEnsembleContactFrequencyCanvas. ${ ensembleList.length } traces.`);
-
-    let frequencies = new Array(mapSize * mapSize);
-    for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
-
-    let maxFrequency = Number.NEGATIVE_INFINITY;
-
-    for (let trace of ensembleList) {
-
-        // console.time(`index and process single traces`);
-
-        const spatialIndex = new KDBush(kdBushConfguratorWithTrace(trace));
-
-        let { vertices } = trace.geometry;
-        for (let i = 0; i < vertices.length; i++) {
-
-            const { x, y, z } = vertices[ i ];
-
-            const ids = spatialIndex.within(x, y, z, distanceThreshold);
-
-            const traceSegmentID = trace.segmentList[ i ].segmentID;
-            const ids_filtered = ids.filter(id => id !== traceSegmentID);
-
-            if (ids_filtered.length > 0) {
-                for (let id of ids_filtered) {
-
-                    // ids are segment indices which are 1-based. Decrement to use
-                    // as index into frequency array which is 0-based
-                    const id_freq = id - 1;
-                    const  i_freq = traceSegmentID - 1;
-
-                    const xy =  i_freq * mapSize + id_freq;
-                    if (xy > frequencies.length) {
-                        console.log('xy is bogus index ' + xy);
-                    }
-                    const yx = id_freq * mapSize +  i_freq;
-
-                    if (yx > frequencies.length) {
-                        console.log('yx is bogus index ' + yx);
-                    }
-
-                    ++frequencies[ xy ];
-                    ++frequencies[ yx ];
-
-                    maxFrequency = Math.max(maxFrequency, frequencies[ xy ]);
-
-                }
-            }
-
-        }
-
-        // console.timeEnd(`index and process single traces`);
-
-    }
-
-    console.timeEnd(`getEnsembleContactFrequencyCanvas. ${ ensembleList.length } traces.`);
-
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = mapSize;
-
-    // clear canvas
-    const { width: w, height: h } = ctx.canvas;
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
-    ctx.fillRect(0, 0, w, h);
-
-    // paint frequencies as lerp'd color
-    for (let i = 0; i < w; i++) {
-        for(let j = 0; j < h; j++) {
-
-            const ij = i * w + j;
-            const interpolant = i === j ? 1 :  frequencies[ ij ] / maxFrequency;
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-            ctx.fillRect(i, j, 1, 1);
-        }
-    }
-
-    return canvas;
-
-};
-
-export const getTraceDistanceMapCanvas = trace => {
-
-    const { distanceMapArray, maxDistance, minDistance } = createTraceDistanceMapArray(trace);
-
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = Globals.ensembleManager.maximumSegmentID;
-
-    const { width: w, height: h } = ctx.canvas;
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
-    ctx.fillRect(0, 0, w, h);
-    for (let i = 0; i < w; i++) {
-        for(let j = 0; j < h; j++) {
-            const ij = i * w + j;
-            const interpolant = distanceMapArray[ ij ] / maxDistance;
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-            ctx.fillRect(i, j, 1, 1);
-        }
-
-    }
-
-    return canvas;
-
-};
-
-export const getEnsembleDistanceMapCanvas = ensemble => {
-
-    const ensembleList = Object.values(ensemble);
-
-    console.time(`getEnsembleDistanceMapCanvas. ${ ensembleList.length } traces.`);
-
-    let mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    let averageDistance = new Array(mapSize * mapSize);
-    for (let d = 0; d < averageDistance.length; d++) averageDistance[ d ] = 0.0;
-
-    for (let trace of ensembleList) {
-
-        const { distanceMapArray, maxDistance } = createTraceDistanceMapArray(trace);
-
-        let { vertices } = trace.geometry;
-        let { length } = vertices;
-
-        for (let i = 0; i < length; i++) {
-
-            const i_segmentIDIndex = trace.segmentList[ i ].segmentID - 1;
-            for (let j = 0; j < length; j++) {
-
-                const j_segmentIDIndex = trace.segmentList[ j ].segmentID - 1;
-
-                const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
-                const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
-
-                // Incrementally build running average
-                averageDistance[ ij ] = averageDistance[ ij ] + (distanceMapArray[ ij ] - averageDistance[ ij ]) / (1 + i);
-
-                averageDistance[ ji ] = averageDistance[ ij ];
-
-            } // for (trace.length)
-
-        } // for (trace.length)
-
-    } // for (trace)
-
-    let [ minAverageDistance, maxAverageDistance ] = [ Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY ];
-    for (let avgd of averageDistance) {
-        minAverageDistance = Math.min(minAverageDistance, avgd);
-        maxAverageDistance = Math.max(maxAverageDistance, avgd);
-    }
-
-    console.timeEnd(`getEnsembleDistanceMapCanvas. ${ ensembleList.length } traces.`);
-
-
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = mapSize;
-
-    const { width: w, height: h } = ctx.canvas;
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
-    ctx.fillRect(0, 0, w, h);
-    // paint average distances as lerp'd color
-    for (let i = 0; i < w; i++) {
-        for(let j = 0; j < h; j++) {
-            const ij = i * w + j;
-            const interpolant = averageDistance[ ij ] / maxAverageDistance;
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-            ctx.fillRect(i, j, 1, 1);
-        }
-    }
-
-    return canvas;
-
-
-};
-
-export const createTraceDistanceMapArray = trace => {
-
-    let mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    let distanceMapArray = new Array(mapSize * mapSize);
-    for (let d = 0; d < distanceMapArray.length; d++) distanceMapArray[ d ] = 0;
-
-    let maxDistance = Number.NEGATIVE_INFINITY;
-    let minDistance = Number.POSITIVE_INFINITY;
-
-    let { vertices } = trace.geometry;
-    let { length } = vertices;
-    for (let i = 0; i < length; i++) {
-
-        const candidate = vertices[ i ];
-        const i_segmentIDIndex = trace.segmentList[ i ].segmentID - 1;
-
-        for (let j = 0; j < length; j++) {
-
-            const centroid = vertices[ j ];
-            const j_segmentIDIndex = trace.segmentList[ j ].segmentID - 1;
-
-            const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
-            const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
-
-            if (i_segmentIDIndex === j_segmentIDIndex) {
-                distanceMapArray[ ij ] = 0;
-            } else {
-
-                const distance = candidate.distanceTo(centroid);
-
-                maxDistance = Math.max(maxDistance, distance);
-                minDistance = Math.min(minDistance, distance);
-
-                distanceMapArray[ ij ] = distance;
-
-                if (distanceMapArray[ ji ]) {
-                    // do nothing
-                } else {
-                    distanceMapArray[ ji ] = distance;
-                }
-            }
-
-        } // for (j)
-
-    }
-
-    return { distanceMapArray, maxDistance, minDistance };
-
-};
-
-const kdBushConfguratorWithTrace = trace => {
-
-    return {
-        idList: trace.segmentList.map(segment => segment.segmentID),
-        points: trace.geometry.vertices,
-        getX: pt => pt.x,
-        getY: pt => pt.y,
-        getZ: pt => pt.z,
-        nodeSize: 64,
-        ArrayType: Float64Array,
-        axisCount: 3
-    }
 
 };
 

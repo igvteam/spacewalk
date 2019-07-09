@@ -1,20 +1,30 @@
 .navbar {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
-  padding-right: 0.50rem;
-  padding-left: 0.50rem;
-  height: 36px; }
+  padding-left: unset;
+  padding-right: unset;
+  height: 42px; }
 
-.navbar-brand {
-  display: inline-block;
-  margin-right: 1rem;
-  font-size: 1.25rem;
-  line-height: inherit;
-  white-space: nowrap; }
+div.navbar-brand {
+  color: #ffffff;
+  background-color: #4A90E2;
+  height: 42px;
+  font-size: 1.5rem;
+  line-height: 42px;
+  font-weight: 200;
+  padding: unset;
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+  margin: unset; }
 
 #spacewalk-navbar-content #spacewalk-file-name {
   color: #ffffff;
   font-size: 1rem; }
+
+.navbar-dark .navbar-nav .nav-link {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff; }
 
 .card {
   position: absolute;
@@ -220,7 +230,7 @@
 #spacewalk_ui_manager_button {
   z-index: 2048;
   position: absolute;
-  top: 100px;
+  top: 106px;
   left: 32px;
   display: flex;
   flex-direction: row;
@@ -236,7 +246,7 @@
 
 #spacewalk_ui_manager_panel.card {
   z-index: 2048;
-  top: 148px;
+  top: 154px;
   left: 32px;
   width: 256px;
   height: auto; }
@@ -253,10 +263,10 @@
 #spacewalk_info_panel {
   font-size: 0.85rem;
   font-weight: 200;
-  color: #3a3a3a;
-  background-color: white;
+  color: white;
+  background-color: transparent;
   position: absolute;
-  top: 38px;
+  top: 44px;
   right: 0;
   width: 100%;
   height: 24px;
@@ -273,14 +283,13 @@
     align-items: center;
     margin-left: 8px; }
     #spacewalk_info_panel > div > div:first-child {
-      color: #000000;
-      font-weight: 400; }
+      color: white;
+      font-weight: 700; }
     #spacewalk_info_panel > div > div:last-child {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-left: 8px;
-      font-weight: 200; }
+      margin-left: 8px; }
 
 .igv-left-hand-gutter > div {
   width: 100%;

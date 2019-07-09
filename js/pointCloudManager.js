@@ -1,9 +1,9 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import igv from "../vendor/igv.esm.js";
 import Globals from './globals.js';
 import { defaultColormapName } from "./colorMapManager.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import igv from "../vendor/igv.esm.js";
-import {readFileAsText} from "./utils.js";
+import { readFileAsText, numberFormatter } from "./utils.js";
 
 class PointCloudManager {
 
@@ -34,6 +34,7 @@ class PointCloudManager {
             const key = startBP + '%' + endBP + '%' + sizeKB;
 
             if (undefined === segments[ key ]) {
+                // console.log(`point cloud manager step size ${ numberFormatter( parseInt(sizeKB, 10) )} kb.`);
                 segments[ key ] = [];
             }
 
@@ -58,8 +59,8 @@ class PointCloudManager {
             return accumulator;
         }, [ Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY ]);
 
-        // TODO: Ask Erez about chromosome info in file. Hard code to 'chr21' for now
-        this.locus =  { chr: 'chr21', genomicStart: startBP, genomicEnd: endBP };
+        // TODO: Erez says assume point clouds are all for chr19
+        this.locus =  { chr: 'chr19', genomicStart: startBP, genomicEnd: endBP };
 
         this.list = [];
         this.boundingBox = new THREE.Box3();
@@ -67,7 +68,7 @@ class PointCloudManager {
 
         let xyz = new THREE.Vector3();
 
-        const { genomicStart, genomicEnd } = this.locus;
+        const { chr, genomicStart, genomicEnd } = this.locus;
         for (let key of keys) {
 
             const segment = segments[ key ];
@@ -123,6 +124,8 @@ class PointCloudManager {
 
         console.timeEnd(`ingest point-cloud with ${ lines.length } points`);
 
+        Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { chr, genomicStart, genomicEnd } });
+
     }
 
     getColorRampInterpolantWindowList() {
@@ -147,8 +150,6 @@ class PointCloudManager {
         const { file: path } = igv.parseUri(url);
         this.ingest({ path, string });
 
-        Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { path, string } });
-
     }
 
     async loadLocalFile ({ file }) {
@@ -163,9 +164,15 @@ class PointCloudManager {
         const { name: path } = file;
         this.ingest({ path, string });
 
-        const { chr, genomicStart, genomicEnd } = this.locus;
-        Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { path, string, chr, genomicStart, genomicEnd } });
+    }
 
+    reportFileLoadError(name) {
+        return `PointCloudManager: Error loading ${ name }`
+    }
+
+    blurbLocus () {
+        const { chr, genomicStart, genomicEnd } = this.locus;
+        return `${ chr } : ${ numberFormatter(genomicStart) } - ${ numberFormatter(genomicEnd) }`;
     }
 
 }

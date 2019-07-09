@@ -10,16 +10,16 @@
   "author": "Douglass Turner and Jim Robinson",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/node": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
     "babel-loader": "^8.0.5",
     "copy-webpack-plugin": "^5.0.0",
     "http-server": "^0.11.1"
   },
   "dependencies": {
+    "@babel/cli": "^7.5.0",
+    "@babel/core": "^7.5.0",
+    "@babel/node": "^7.5.0",
     "@babel/polyfill": "^7.2.5",
+    "@babel/preset-env": "^7.5.0",
     "data-modal": "github:igvteam/data-modal",
     "juicebox.js": "github:igvteam/juicebox.js#dat_tracing3d_edits",
     "kd3d": "github:turner/kd3d",

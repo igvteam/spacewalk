@@ -1,7 +1,7 @@
 import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
-import { setMaterialProvider, segmentIDForInterpolant, moveOffScreen, moveOnScreen } from '../utils.js';
+import { setMaterialProvider, moveOffScreen, moveOnScreen } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import {igvPanel } from "../gui.js";
 
@@ -44,33 +44,10 @@ class IGVPanel {
             Globals.eventBus.post({ type: "DidLeaveGUI" });
         });
 
-        // URL
-        const $url_input = $('#spacewalk_igv_panel_url_input');
-        $url_input.val('');
-
-        const $url_button = $('#spacewalk_igv_panel_url_button');
-
-        $url_input.on('change.spacewalk_igv_panel_url_input', (event) => {
-            event.stopPropagation();
-            // console.log('url on change - value ' + event.target.value);
-            currentURL = event.target.value;
-        });
-
-        const $url_container = $('#spacewalk_igv_container');
-
-        $url_button.on('click.spacewalk_igv_panel_url_button', async (event) => {
-            event.stopPropagation();
-            $url_input.trigger('change.spacewalk_igv_panel_url_input');
-            await this.loadURL({ url: currentURL, $spinner: $url_container.find('.spinner-border')});
-
-            $url_input.val('');
-            currentURL = undefined;
-        });
-
         Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe("DidChangeMaterialProvider", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
-
+        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }
 
     receiveEvent({ type, data }) {
@@ -93,7 +70,7 @@ class IGVPanel {
 
             const { trackContainerDiv } = igv.browser;
             $(trackContainerDiv).find('.input-group input').prop('checked', false);
-        } else if ("DidLoadFile" === type) {
+        } else if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
@@ -101,22 +78,25 @@ class IGVPanel {
 
 }
 
-    async initialize(config) {
+    initialize(config) {
 
-        try {
-            this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
-        } catch (error) {
-            console.warn(error.message);
-        }
+        (async () => {
+            try {
+                this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
+            } catch (error) {
+                console.warn(error.message);
+            }
 
-        addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
+            addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
 
-        this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-            IGVMouseHandler({ bp, start, end, interpolant })
-        });
+            this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
+                IGVMouseHandler({ bp, start, end, interpolant })
+            });
 
-        trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));
-        trackLoadController.updateTrackMenus(igvPanel.browser.genome.id);
+            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));
+            trackLoadController.updateTrackMenus(igvPanel.browser.genome.id);
+
+        })();
 
     }
 
@@ -124,34 +104,26 @@ class IGVPanel {
         this.browser.goto(chr, start, end);
     }
 
-    async loadTrack(url) {
+    loadTrackList(configurations) {
 
-        let track = undefined;
-        try {
-            track = await igv.browser.loadTrack({ url });
-        } catch (error) {
-            console.warn(error.message);
-        }
+        (async () => {
 
-        addDataValueMaterialProviderGUI([track]);
+            let tracks = undefined;
+            try {
+                tracks = await this.browser.loadTrackList( configurations );
+            } catch (error) {
+                console.warn(error.message);
+            }
+
+            addDataValueMaterialProviderGUI(tracks);
+
+        })();
+
     }
 
-    async loadURL({ url, $spinner }){
-
-        let track = undefined;
-
-        $spinner.show();
-        try {
-            track = await igv.browser.loadTrack({ url });
-            $spinner.hide();
-        } catch (e) {
-            $spinner.hide();
-            console.warn(e.message);
-        }
-
-        addDataValueMaterialProviderGUI([track]);
-
-    };
+    loadTrack(trackConfiguration) {
+        this.loadTrackList([trackConfiguration]);
+    }
 
     onWindowResize() {
         if (false === this.isHidden) {
@@ -171,6 +143,22 @@ class IGVPanel {
     }
 
  }
+
+const encodeTrackListLoader = (browser, trackConfigurations) => {
+
+    (async () => {
+
+        let tracks = await browser.loadTrackList(trackConfigurations);
+
+        for (let track of tracks) {
+            browser.setTrackLabelName(track.trackView, track.config.Name)
+        }
+
+        addDataValueMaterialProviderGUI(tracks);
+
+    })();
+
+};
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
@@ -243,22 +231,6 @@ const addDataValueMaterialProviderGUI = tracks => {
 
         }
     }
-
-};
-
-const encodeTrackListLoader = (browser, trackConfigurations) => {
-
-    (async () => {
-
-        let tracks = await browser.loadTrackList(trackConfigurations);
-
-        for (let track of tracks) {
-            browser.setTrackLabelName(track.trackView, track.config.Name)
-        }
-
-        addDataValueMaterialProviderGUI(tracks);
-
-    })();
 
 };
 
