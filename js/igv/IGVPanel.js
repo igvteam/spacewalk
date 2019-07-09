@@ -3,20 +3,21 @@ import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
 import { setMaterialProvider, moveOffScreen, moveOnScreen } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
-import {igvPanel } from "../gui.js";
+import { igvPanel, guiManager } from "../gui.js";
 
 let trackLoadController;
 
 let currentURL = undefined;
 class IGVPanel {
 
-    constructor ({ container, panel, isHidden }) {
+    constructor ({ container, panel }) {
 
         this.container = container;
-        this.$panel = $(panel);
-        this.isHidden = isHidden;
 
-        if (isHidden) {
+        this.$panel = $(panel);
+        this.isHidden = guiManager.isPanelHidden(this.$panel.attr('id'));
+
+        if (this.isHidden) {
             moveOffScreen(this);
         } else {
             this.layout();
@@ -66,6 +67,7 @@ class IGVPanel {
             }
 
             this.isHidden = !this.isHidden;
+
         } else if ("DidChangeMaterialProvider" === type) {
 
             const { trackContainerDiv } = igv.browser;
@@ -93,8 +95,8 @@ class IGVPanel {
                 IGVMouseHandler({ bp, start, end, interpolant })
             });
 
-            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));
-            trackLoadController.updateTrackMenus(igvPanel.browser.genome.id);
+            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: this.browser, trackRegistryFile, $googleDriveButton: undefined } ));
+            trackLoadController.updateTrackMenus(this.browser.genome.id);
 
         })();
 
@@ -117,12 +119,31 @@ class IGVPanel {
 
             addDataValueMaterialProviderGUI(tracks);
 
+            this.presentPanel();
+
         })();
 
     }
 
     loadTrack(trackConfiguration) {
         this.loadTrackList([trackConfiguration]);
+    }
+
+    presentPanel () {
+
+        if (this.isHidden) {
+
+            this.layout();
+
+            const { chromosome, start, end } = this.browser.genomicStateList[ 0 ];
+            const { name: chr } = chromosome;
+            this.browser.goto(chr, start, end);
+
+            guiManager.panelIsVisible(this.$panel.attr('id'));
+
+            this.isHidden = false;
+        }
+
     }
 
     onWindowResize() {
@@ -156,6 +177,7 @@ const encodeTrackListLoader = (browser, trackConfigurations) => {
 
         addDataValueMaterialProviderGUI(tracks);
 
+        igvPanel.presentPanel();
     })();
 
 };

@@ -2,16 +2,18 @@ import Globals from './../globals.js';
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
 import { makeDraggable } from "../draggable.js";
 import { moveOffScreen, moveOnScreen } from "../utils.js";
+import { guiManager } from "../gui.js";
 
 class JuiceboxPanel {
 
-    constructor ({ container, panel, isHidden }) {
+    constructor ({ container, panel }) {
 
         this.$panel = $(panel);
         this.container = container;
-        this.isHidden = isHidden;
 
-        if (isHidden) {
+        this.isHidden = guiManager.isPanelHidden(this.$panel.attr('id'));
+
+        if (this.isHidden) {
             moveOffScreen(this);
         } else {
             this.layout();
@@ -136,6 +138,8 @@ class JuiceboxPanel {
         } catch (error) {
             console.warn(error.message);
         }
+
+        this.presentPanel();
     }
 
     async loadLocalFile({ file }){
@@ -153,6 +157,26 @@ class JuiceboxPanel {
             await this.browser.parseGotoInput(this.locus);
         } catch (error) {
             console.warn(error.message);
+        }
+
+        this.presentPanel();
+    }
+
+    presentPanel () {
+
+        if (this.isHidden) {
+
+            (async () => {
+
+                this.layout();
+
+                await this.browser.parseGotoInput(this.locus);
+
+                guiManager.panelIsVisible(this.$panel.attr('id'));
+
+                this.isHidden = false;
+
+            })();
         }
 
     }

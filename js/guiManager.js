@@ -46,6 +46,12 @@ class GUIManager {
     isPanelHidden (panelID) {
         return !(this.$panel.find(`[data-target='${panelID}']`).prop('checked'));
     }
+
+    panelIsVisible(panelID) {
+        const $found = this.$panel.find(`[data-target='${ panelID }']`);
+        $found.attr('checked', true);
+        console.log(`panel ${ $found.attr('id') }`);
+    }
 }
 
 const configurePanelVisibility = ($guiPanel, input_id) => {
