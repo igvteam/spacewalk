@@ -178,7 +178,7 @@ class TrackLoadController {
 
                 this.$modal.find('#igv-app-generic-track-select-modal-label').html(markup);
 
-                configureModalSelectList(this.browser, this.$modal, config.tracks, config.label);
+                configureModalSelectList(this.$modal, config.tracks);
                 this.$modal.modal('show');
 
             });
@@ -228,44 +228,28 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
 
 };
 
-function configureModalSelectList(browser, $modal, configurations) {
+function configureModalSelectList($modal, configurations) {
 
-    $modal.find('select').remove();
+    let $select = $modal.find('.form-control');
+    $select.empty();
 
-    let $select = $('<select>', {class: 'form-control'});
-    $modal.find('.form-group').append($select);
+    for (let config of configurations) {
 
-    let $option = $('<option>', {text: 'Select...'});
-    $select.append($option);
+        let $option = $('<option>', { value: config.name, text: config.name });
+        $select.append($option);
 
-    $option.attr('selected', 'selected');
-    $option.val(undefined);
-
-    configurations
-        .reduce(function ($accumulator, trackConfiguration) {
-
-            $option = $('<option>', {value: trackConfiguration.name, text: trackConfiguration.name});
-            $select.append($option);
-
-            $option.data('track', trackConfiguration);
-
-            $accumulator.append($option);
-
-            return $accumulator;
-        }, $select);
+        $option.data('track', config);
+    }
 
     $select.on('change', function (e) {
-        let $option,
-            trackConfiguration,
-            value;
 
-        $option = $(this).find('option:selected');
-        value = $option.val();
+        const $option = $(this).find('option:selected');
+        const value = $option.val();
 
         if ('' === value) {
             // do nothing
         } else {
-            trackConfiguration = $option.data('track');
+            const trackConfiguration = $option.data('track');
             $option.removeAttr("selected");
             igvPanel.loadTrack(trackConfiguration);
         }
