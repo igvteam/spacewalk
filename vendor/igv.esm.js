@@ -19989,9 +19989,10 @@ var igv = (function (igv) {
         this.alignmentContainer = undefined;
         this.maxRows = config.maxRows || 1000;
 
-        if (igv.isFilePath(config.url)) {
-            // do nothing
-        } else if (igv.isString(config.url) && config.url.startsWith("data:")) {
+        if (igv.isString(config.url) && config.url.startsWith("data:")) {
+            if("cram" === config.format) {
+                throw "CRAM data uris are not supported"
+            }
             this.config.indexed = false;
         }
 
@@ -33283,10 +33284,10 @@ var igv = (function (igv) {
 /**
  * Created by jrobinso on 7/5/18.
  */
+"use strict";
+
 
 var igv = (function (igv) {
-
-    "use strict";
 
     if (!igv.trackFactory) {
         igv.trackFactory = {};
