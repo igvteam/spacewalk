@@ -1,5 +1,6 @@
 import Globals from './../globals.js';
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
+import HICBrowser from '../../node_modules/juicebox.js/js/hicBrowser.js';
 import { makeDraggable } from "../draggable.js";
 import { moveOffScreen, moveOnScreen } from "../utils.js";
 import { guiManager } from "../gui.js";
@@ -46,7 +47,6 @@ class JuiceboxPanel {
 
                 if (true === this.isHidden) {
                     moveOnScreen(this);
-                    await this.browser.parseGotoInput(this.locus);
                 } else {
                     moveOffScreen(this);
                 }
@@ -63,6 +63,8 @@ class JuiceboxPanel {
 
     initialize(browserConfig) {
 
+        this.locus = 'all';
+
         (async () => {
 
             try {
@@ -72,30 +74,28 @@ class JuiceboxPanel {
                 console.warn(error.message);
             }
 
-            try {
+            // try {
+            //
+            //     const hicConfig =
+            //         {
+            //             url: "https://hicfiles.s3.amazonaws.com/hiseq/gm12878/in-situ/HIC010.hic",
+            //             name: "Rao and Huntley et al. | Cell 2014 GM12878 (human) in situ MboI HIC010 (47M)",
+            //             isControl: false
+            //         };
+            //
+            //     await this.browser.loadHicFile(hicConfig);
+            //
+            //     $('#spacewalk_info_panel_juicebox').text(hicConfig.name);
+            //
+            // } catch (error) {
+            //     console.warn(error.message);
+            // }
 
-                const hicConfig =
-                    {
-                        url: "https://hicfiles.s3.amazonaws.com/hiseq/gm12878/in-situ/HIC010.hic",
-                        name: "Rao and Huntley et al. | Cell 2014 GM12878 (human) in situ MboI HIC010 (47M)",
-                        isControl: false
-                    };
-
-                await this.browser.loadHicFile(hicConfig);
-
-                $('#spacewalk_info_panel_juicebox').text(hicConfig.name);
-
-            } catch (error) {
-                console.warn(error.message);
-            }
-
-            this.locus = 'all';
-
-            try {
-                await this.browser.parseGotoInput(this.locus);
-            } catch (error) {
-                console.warn(error.message);
-            }
+            // try {
+            //     await this.browser.parseGotoInput(this.locus);
+            // } catch (error) {
+            //     console.warn(error.message);
+            // }
 
             this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
                 juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
@@ -107,18 +107,19 @@ class JuiceboxPanel {
 
     goto({ chr, start, end }) {
 
-        (async () => {
+        this.locus = chr + ':' + start + '-' + end;
 
-            this.locus = chr + ':' + start + '-' + end;
+        if (this.isContactMapLoaded()) {
+            (async () => {
 
-            try {
-                await this.browser.parseGotoInput(this.locus);
-            } catch (error) {
-                console.warn(error.message);
-            }
+                try {
+                    await this.browser.parseGotoInput(this.locus);
+                } catch (error) {
+                    console.warn(error.message);
+                }
 
-        })();
-
+            })();
+        }
 
     }
 
@@ -129,12 +130,6 @@ class JuiceboxPanel {
 
             $('#spacewalk_info_panel_juicebox').text(name);
 
-        } catch (error) {
-            console.warn(error.message);
-        }
-
-        try {
-            await this.browser.parseGotoInput(this.locus);
         } catch (error) {
             console.warn(error.message);
         }
@@ -153,14 +148,12 @@ class JuiceboxPanel {
             console.warn(error.message);
         }
 
-        try {
-            await this.browser.parseGotoInput(this.locus);
-        } catch (error) {
-            console.warn(error.message);
-        }
-
         this.presentPanel();
     }
+
+    isContactMapLoaded() {
+        return (this.browser && this.browser.dataset);
+    };
 
     presentPanel () {
 
@@ -170,7 +163,9 @@ class JuiceboxPanel {
 
                 this.layout();
 
-                await this.browser.parseGotoInput(this.locus);
+                if (this.isContactMapLoaded()) {
+                    await this.browser.parseGotoInput(this.locus);
+                }
 
                 guiManager.panelIsVisible(this.$panel.attr('id'));
 
