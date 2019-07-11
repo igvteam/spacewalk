@@ -123,7 +123,7 @@ class JuiceboxPanel {
 
     }
 
-    load({ url, name, isControl }) {
+    loadPath({ url, name, isControl }) {
 
         (async () => {
 
@@ -136,8 +136,10 @@ class JuiceboxPanel {
 
             this.presentPanel();
 
-            if (this.isContactMapLoaded()) {
+            try {
                 await this.browser.parseGotoInput(this.locus);
+            } catch (e) {
+                console.warn(e.message);
             }
 
         })();
@@ -145,11 +147,11 @@ class JuiceboxPanel {
     }
 
     loadURL({ url, name }){
-        this.load({ url, name, isControl: false });
+        this.loadPath({ url, name, isControl: false });
     }
 
     loadLocalFile({ file }){
-        this.load({ url: file, name: file.name, isControl: false });
+        this.loadPath({ url: file, name: file.name, isControl: false });
     }
 
     isContactMapLoaded() {
@@ -157,13 +159,11 @@ class JuiceboxPanel {
     };
 
     presentPanel () {
-
         if (this.isHidden) {
             this.layout();
             guiManager.panelIsVisible(this.$panel.attr('id'));
             this.isHidden = false;
         }
-
     }
 
     onWindowResize() {

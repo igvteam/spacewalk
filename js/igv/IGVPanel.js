@@ -113,6 +113,11 @@ class IGVPanel {
             let tracks = undefined;
             try {
                 tracks = await this.browser.loadTrackList( configurations );
+
+                for (let track of tracks) {
+                    this.browser.setTrackLabelName(track.trackView, track.config.Name)
+                }
+
             } catch (error) {
                 console.warn(error.message);
             }
@@ -120,6 +125,10 @@ class IGVPanel {
             addDataValueMaterialProviderGUI(tracks);
 
             this.presentPanel();
+
+            const { chromosome, start, end } = this.browser.genomicStateList[ 0 ];
+            const { name: chr } = chromosome;
+            this.goto(chr, start, end);
 
         })();
 
@@ -130,20 +139,11 @@ class IGVPanel {
     }
 
     presentPanel () {
-
         if (this.isHidden) {
-
             this.layout();
-
-            const { chromosome, start, end } = this.browser.genomicStateList[ 0 ];
-            const { name: chr } = chromosome;
-            this.browser.goto(chr, start, end);
-
             guiManager.panelIsVisible(this.$panel.attr('id'));
-
             this.isHidden = false;
         }
-
     }
 
     onWindowResize() {
@@ -166,20 +166,7 @@ class IGVPanel {
  }
 
 const encodeTrackListLoader = (browser, trackConfigurations) => {
-
-    (async () => {
-
-        let tracks = await browser.loadTrackList(trackConfigurations);
-
-        for (let track of tracks) {
-            browser.setTrackLabelName(track.trackView, track.config.Name)
-        }
-
-        addDataValueMaterialProviderGUI(tracks);
-
-        igvPanel.presentPanel();
-    })();
-
+    igvPanel.loadTrackList(trackConfigurations);
 };
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
