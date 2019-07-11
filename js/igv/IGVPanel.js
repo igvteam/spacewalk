@@ -1,7 +1,7 @@
 import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
-import { setMaterialProvider, moveOffScreen, moveOnScreen } from '../utils.js';
+import { presentPanel, setMaterialProvider, moveOffScreen, moveOnScreen } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import { igvPanel, guiManager } from "../gui.js";
 
@@ -130,7 +130,7 @@ class IGVPanel {
 
             addDataValueMaterialProviderGUI(tracks);
 
-            this.presentPanel();
+            presentPanel(this);
 
         })();
 
@@ -138,14 +138,6 @@ class IGVPanel {
 
     loadTrack(trackConfiguration) {
         this.loadTrackList([trackConfiguration]);
-    }
-
-    presentPanel () {
-        if (this.isHidden) {
-            this.layout();
-            guiManager.panelIsVisible(this.$panel.attr('id'));
-            this.isHidden = false;
-        }
     }
 
     onWindowResize() {

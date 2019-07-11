@@ -2,7 +2,7 @@ import Globals from './globals.js';
 import TraceColorRampMaterialProvider from "./traceColorRampMaterialProvider.js";
 import PointCloudColorRampMaterialProvider from "./pointCloudColorRampMaterialProvider.js";
 import { makeDraggable } from "./draggable.js";
-import { setMaterialProvider, moveOffScreen, moveOnScreen } from './utils.js';
+import { presentPanel, setMaterialProvider, moveOffScreen, moveOnScreen } from './utils.js';
 import { guiManager } from './gui.js';
 
 class ColorRampPanel {
@@ -83,6 +83,7 @@ class ColorRampPanel {
 
             this.traceColorRampMaterialProvider.repaint();
 
+            presentPanel(this);
         } else if ("DidLoadPointCloudFile" === type) {
 
             this.traceColorRampMaterialProvider.hide();
@@ -94,6 +95,8 @@ class ColorRampPanel {
             this.$header.text(Math.round(genomicEnd   / 1e6) + 'Mb');
 
             this.pointCloudColorRampMaterialProvider.configureWithInterpolantWindowList(Globals.pointCloudManager.getColorRampInterpolantWindowList());
+
+            presentPanel(this);
         }
     }
 

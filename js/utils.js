@@ -1,5 +1,15 @@
 import { quantize } from "./math.js";
 import Globals from "./globals.js";
+import { guiManager } from "./gui.js";
+
+const presentPanel = panel => {
+
+    if (panel.isHidden) {
+        panel.layout();
+        guiManager.panelIsVisible(panel.$panel.attr('id'));
+        panel.isHidden = false;
+    }
+};
 
 const setMaterialProvider = materialProvider => {
     Globals.sceneManager.materialProvider = materialProvider;
@@ -137,4 +147,4 @@ const createImage = imageSource => {
 
 };
 
-export { setMaterialProvider, segmentIDForInterpolant, createImage, readFileAsDataURL, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
+export { presentPanel, setMaterialProvider, segmentIDForInterpolant, createImage, readFileAsDataURL, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };

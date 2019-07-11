@@ -1,7 +1,7 @@
 import Globals from './globals.js';
 import { makeDraggable } from "./draggable.js";
 import { clamp } from './math.js'
-import { moveOffScreen, moveOnScreen } from './utils.js';
+import { presentPanel, moveOffScreen, moveOnScreen } from './utils.js';
 
 let currentNumber = undefined;
 class TraceSelectPanel {
@@ -75,6 +75,7 @@ class TraceSelectPanel {
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
+        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
 
@@ -88,9 +89,13 @@ class TraceSelectPanel {
                 moveOffScreen(this);
             }
             this.isHidden = !this.isHidden;
-        } else if ('DidLoadFile' === type) {
-            const { initialKey } = data;
-            this.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key: initialKey });
+        } else if ('DidLoadFile' === type || 'DidLoadPointCloudFile' === type) {
+
+            if ('DidLoadFile' === type) {
+                const { initialKey } = data;
+                this.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key: initialKey });
+                presentPanel(this);
+            }
         }
     }
 

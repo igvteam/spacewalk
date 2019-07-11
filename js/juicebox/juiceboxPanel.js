@@ -1,8 +1,7 @@
 import Globals from './../globals.js';
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
-import HICBrowser from '../../node_modules/juicebox.js/js/hicBrowser.js';
 import { makeDraggable } from "../draggable.js";
-import { moveOffScreen, moveOnScreen } from "../utils.js";
+import { presentPanel, moveOffScreen, moveOnScreen } from "../utils.js";
 import { guiManager } from "../gui.js";
 
 class JuiceboxPanel {
@@ -134,7 +133,7 @@ class JuiceboxPanel {
                 console.warn(error.message);
             }
 
-            this.presentPanel();
+            presentPanel(this);
 
             try {
                 await this.browser.parseGotoInput(this.locus);
@@ -157,14 +156,6 @@ class JuiceboxPanel {
     isContactMapLoaded() {
         return (this.browser && this.browser.dataset);
     };
-
-    presentPanel () {
-        if (this.isHidden) {
-            this.layout();
-            guiManager.panelIsVisible(this.$panel.attr('id'));
-            this.isHidden = false;
-        }
-    }
 
     onWindowResize() {
         if (false === this.isHidden) {

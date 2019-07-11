@@ -1,6 +1,6 @@
 import Globals from './globals.js';
 import { makeDraggable } from "./draggable.js";
-import { moveOffScreen, moveOnScreen } from "./utils.js";
+import { presentPanel, moveOffScreen, moveOnScreen } from "./utils.js";
 import { guiManager } from './gui.js';
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 
@@ -49,6 +49,8 @@ class DistanceMapPanel {
         $(window).on('resize.distance_map_panel', () => { this.onWindowResize(container, panel) });
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
+        Globals.eventBus.subscribe('DidLoadFile', this);
+        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
 
@@ -62,6 +64,8 @@ class DistanceMapPanel {
                 moveOffScreen(this);
             }
             this.isHidden = !this.isHidden;
+        } else if ('DidLoadFile' === type || 'DidLoadPointCloudFile' === type) {
+            presentPanel(this);
         }
     }
 
