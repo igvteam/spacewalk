@@ -304,7 +304,7 @@ div.navbar-brand {
 .igv-left-hand-gutter > div:hover {
   background-color: #e8e8e8; }
 
-.igv-app-dropdown-item-cloud-storage {
+.spacewalk-igv-app-dropdown-item-cloud-storage {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -313,9 +313,9 @@ div.navbar-brand {
   height: 18px;
   margin-top: 4px;
   margin-bottom: 4px; }
-  .igv-app-dropdown-item-cloud-storage div:first-child {
+  .spacewalk-igv-app-dropdown-item-cloud-storage div:first-child {
     margin-right: 4px; }
-  .igv-app-dropdown-item-cloud-storage div:last-child {
+  .spacewalk-igv-app-dropdown-item-cloud-storage div:last-child {
     margin-left: 4px; }
 
 #spacewalk_igv_panel.card {

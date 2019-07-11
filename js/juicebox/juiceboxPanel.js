@@ -123,32 +123,33 @@ class JuiceboxPanel {
 
     }
 
-    async loadURL({ url, name }){
+    load({ url, name, isControl }) {
 
-        try {
-            await this.browser.loadHicFile({ url, name, isControl: false });
+        (async () => {
 
-            $('#spacewalk_info_panel_juicebox').text(name);
+            try {
+                await this.browser.loadHicFile({ url, name, isControl });
+                $('#spacewalk_info_panel_juicebox').text(name);
+            } catch (error) {
+                console.warn(error.message);
+            }
 
-        } catch (error) {
-            console.warn(error.message);
-        }
+            this.presentPanel();
 
-        this.presentPanel();
+            if (this.isContactMapLoaded()) {
+                await this.browser.parseGotoInput(this.locus);
+            }
+
+        })();
+
     }
 
-    async loadLocalFile({ file }){
+    loadURL({ url, name }){
+        this.load({ url, name, isControl: false });
+    }
 
-        try {
-            await this.browser.loadHicFile({ url: file, name: file.name, isControl: false });
-
-            $('#spacewalk_info_panel_juicebox').text(file.name);
-
-        } catch (error) {
-            console.warn(error.message);
-        }
-
-        this.presentPanel();
+    loadLocalFile({ file }){
+        this.load({ url: file, name: file.name, isControl: false });
     }
 
     isContactMapLoaded() {
@@ -158,20 +159,9 @@ class JuiceboxPanel {
     presentPanel () {
 
         if (this.isHidden) {
-
-            (async () => {
-
-                this.layout();
-
-                if (this.isContactMapLoaded()) {
-                    await this.browser.parseGotoInput(this.locus);
-                }
-
-                guiManager.panelIsVisible(this.$panel.attr('id'));
-
-                this.isHidden = false;
-
-            })();
+            this.layout();
+            guiManager.panelIsVisible(this.$panel.attr('id'));
+            this.isHidden = false;
         }
 
     }

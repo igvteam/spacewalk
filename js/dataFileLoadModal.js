@@ -79,7 +79,7 @@ class DataFileLoadModal {
         $url_cancel_button.on('click', doCancel);
 
         // local file
-        $localFileInput.on('change.spacewalk-file-load-local', event => {
+        $localFileInput.on('change.spacewalk-ensemble-load-local', event => {
             event.stopPropagation();
             loadFile(event.target.files[0], fileLoader);
         });
@@ -146,9 +146,9 @@ const pointCloudFileLoadModalConfigurator = () => {
 const structureFileLoadModalConfigurator = () => {
 
     return {
-        $urlModal: $('#spacewalk-file-load-url-modal'),
-        $selectModal: $('#spacewalk-file-load-select-modal'),
-        $localFileInput: $('#spacewalk-file-load-local-input'),
+        $urlModal: $('#spacewalk-ensemble-load-url-modal'),
+        $selectModal: $('#spacewalk-ensemble-load-select-modal'),
+        $localFileInput: $('#spacewalk-ensemble-load-local-input'),
         selectLoader: undefined,
         fileLoader: Globals.ensembleManager
     }
