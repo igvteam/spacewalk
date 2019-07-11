@@ -78,7 +78,7 @@ class IGVPanel {
             this.goto({ chr, start: genomicStart, end: genomicEnd });
         }
 
-}
+    }
 
     initialize(config) {
 
@@ -103,7 +103,13 @@ class IGVPanel {
     }
 
     goto({ chr, start, end }) {
-        this.browser.goto(chr, start, end);
+
+        if ('all' === chr) {
+            this.browser.search(chr);
+        } else {
+            this.browser.goto(chr, start, end);
+        }
+
     }
 
     loadTrackList(configurations) {
@@ -114,9 +120,9 @@ class IGVPanel {
             try {
                 tracks = await this.browser.loadTrackList( configurations );
 
-                for (let track of tracks) {
-                    this.browser.setTrackLabelName(track.trackView, track.config.Name)
-                }
+                // for (let track of tracks) {
+                //     this.browser.setTrackLabelName(track.trackView, track.config.Name)
+                // }
 
             } catch (error) {
                 console.warn(error.message);
@@ -125,10 +131,6 @@ class IGVPanel {
             addDataValueMaterialProviderGUI(tracks);
 
             this.presentPanel();
-
-            const { chromosome, start, end } = this.browser.genomicStateList[ 0 ];
-            const { name: chr } = chromosome;
-            this.goto(chr, start, end);
 
         })();
 
@@ -163,7 +165,7 @@ class IGVPanel {
         this.$panel.offset( { left, top } );
     }
 
- }
+}
 
 const encodeTrackListLoader = (browser, trackConfigurations) => {
     igvPanel.loadTrackList(trackConfigurations);
