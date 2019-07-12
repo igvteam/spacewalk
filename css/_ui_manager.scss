@@ -5,21 +5,6 @@ $spacewalk_ui_manager_panel_top: 48px + $spacewalk_ui_manager_button_top;
 $spacewalk_ui_manager_left: 32px;
 $spacewalk_ui_manager_render_style_container_margin: 4px;
 
-.spacewalk_ui_manager_render_style_container {
-
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: space-evenly;
-  align-items: flex-start;
-
-  > div {
-    margin-top: $spacewalk_ui_manager_render_style_container_margin;
-    margin-bottom: $spacewalk_ui_manager_render_style_container_margin;
-  }
-
-}
-
 // ui manager
 #spacewalk_ui_manager_button {
 
@@ -67,4 +52,19 @@ $spacewalk_ui_manager_render_style_container_margin: 4px;
       display: block;
     }
   }
+}
+
+.spacewalk_ui_manager_render_style_container {
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  align-items: flex-start;
+
+  > div {
+    margin-top: $spacewalk_ui_manager_render_style_container_margin;
+    margin-bottom: $spacewalk_ui_manager_render_style_container_margin;
+  }
+
 }
