@@ -2,6 +2,9 @@ import { quantize } from "./math.js";
 import Globals from "./globals.js";
 import { guiManager } from "./gui.js";
 
+const zIndexPanelSelected = 1124;
+const zIndexPanelUnselected = 1024;
+
 const presentPanel = panel => {
 
     if (panel.isHidden) {
@@ -147,4 +150,4 @@ const createImage = imageSource => {
 
 };
 
-export { presentPanel, setMaterialProvider, segmentIDForInterpolant, createImage, readFileAsDataURL, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
+export { zIndexPanelSelected, zIndexPanelUnselected, presentPanel, setMaterialProvider, segmentIDForInterpolant, createImage, readFileAsDataURL, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };

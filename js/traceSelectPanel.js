@@ -25,29 +25,33 @@ class TraceSelectPanel {
             this.layout();
         }
 
-        makeDraggable(panel, $(panel).find('.spacewalk_card_drag_container').get(0));
+        makeDraggable(panel, this.$panel.find('.spacewalk_card_drag_container').get(0));
 
-        $(window).on('resize.trace3d.trace_select', () => { this.onWindowResize(container, panel) });
+        $(window).on('resize.trace_select', () => { this.onWindowResize(container, panel) });
 
-        $(panel).on('mouseenter.trace3d.trace_select', (event) => {
+        this.$panel.on('click.trace_select', event => {
+            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
+        });
+
+        this.$panel.on('mouseenter.trace_select', (event) => {
             event.stopPropagation();
             Globals.eventBus.post({ type: "DidEnterGUI" });
         });
 
-        $(panel).on('mouseleave.trace3d.trace_select', (event) => {
+        this.$panel.on('mouseleave.trace_select', (event) => {
             event.stopPropagation();
             Globals.eventBus.post({ type: "DidLeaveGUI" });
         });
 
-        this.$button_minus.on('click.spacewalk_trace_select_button_minus', (e) => {
+        this.$button_minus.on('click.trace_select_button_minus', (e) => {
             this.broadcastUpdate( clamp(currentNumber - 1, 0, this.howmany - 1) );
         });
 
-        this.$button_plus.on('click.spacewalk_trace_select_button_plus', (e) => {
+        this.$button_plus.on('click.trace_select_button_plus', (e) => {
             this.broadcastUpdate( clamp(currentNumber + 1, 0, this.howmany - 1));
         });
 
-        this.$input.on('keyup.spacewalk_trace_select_input', (e) => {
+        this.$input.on('keyup.trace_select_input', (e) => {
 
             // enter (return) key pressed
             if (13 === e.keyCode) {

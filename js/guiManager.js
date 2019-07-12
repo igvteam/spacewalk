@@ -1,6 +1,7 @@
 import Globals from "./globals.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
+import { zIndexPanelUnselected, zIndexPanelSelected } from './utils.js';
 
 class GUIManager {
     constructor ({ $button, $panel }) {
@@ -11,6 +12,26 @@ class GUIManager {
             e.preventDefault();
             $panel.toggle();
         });
+
+        let $widgetPanels = undefined;
+        $panel.find('input').each(function(unused) {
+
+            const id = $(this).attr('data-target');
+
+            if (undefined !== id) {
+
+                const selectionString = `#${id}`;
+
+                if (undefined === $widgetPanels) {
+                    $widgetPanels = $(selectionString)
+                } else {
+                    $widgetPanels = $widgetPanels.add($(selectionString));
+                }
+
+            }
+        });
+
+        this.$widgetPanels = $widgetPanels;
 
         [
             'spacewalk_ui_manager_groundplane',
@@ -26,6 +47,21 @@ class GUIManager {
 
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
+
+        Globals.eventBus.subscribe("DidSelectPanel", this);
+
+    }
+
+    receiveEvent({ type, data }) {
+
+        if ('DidSelectPanel' === type) {
+
+            const $selected = data;
+            const $unselected = this.$widgetPanels.not($selected);
+
+            $selected.css('zIndex', zIndexPanelSelected);
+            $unselected.css('zIndex', zIndexPanelUnselected);
+        }
     }
 
     getRenderingStyle () {

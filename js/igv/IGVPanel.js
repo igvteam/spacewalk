@@ -25,7 +25,7 @@ class IGVPanel {
 
         makeDraggable(panel, $(panel).find('.spacewalk_card_drag_container').get(0));
 
-        $(window).on('resize.window.trace3d.spacewalk_igv_panel', () => { this.onWindowResize() });
+        $(window).on('resize.window.spacewalk.spacewalk_igv_panel', () => { this.onWindowResize() });
 
         addResizeListener(panel, () => {
 
@@ -35,12 +35,16 @@ class IGVPanel {
 
         });
 
-        this.$panel.on('mouseenter.trace3d.spacewalk_igv_panel', (event) => {
+        this.$panel.on('click.spacewalk_igv_panel', event => {
+            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
+        });
+
+        this.$panel.on('mouseenter.spacewalk.spacewalk_igv_panel', (event) => {
             event.stopPropagation();
             Globals.eventBus.post({ type: "DidEnterGUI" });
         });
 
-        this.$panel.on('mouseleave.trace3d.spacewalk_igv_panel', (event) => {
+        this.$panel.on('mouseleave.spacewalk.spacewalk_igv_panel', (event) => {
             event.stopPropagation();
             Globals.eventBus.post({ type: "DidLeaveGUI" });
         });

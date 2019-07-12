@@ -21,14 +21,18 @@ class JuiceboxPanel {
 
         makeDraggable(panel, $(panel).find('.spacewalk_card_drag_container').get(0));
 
-        $(window).on('resize.trace3d.juicebox_panel', () => { this.onWindowResize(container, panel) });
+        $(window).on('resize.spacewalk.juicebox_panel', () => { this.onWindowResize(container, panel) });
 
-        $(panel).on('mouseenter.trace3d.juicebox_panel', (event) => {
+        this.$panel.on('click.juicebox_panel', event => {
+            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
+        });
+
+        $(panel).on('mouseenter.spacewalk.juicebox_panel', (event) => {
             event.stopPropagation();
             Globals.eventBus.post({ type: "DidEnterGUI" });
         });
 
-        $(panel).on('mouseleave.trace3d.juicebox_panel', (event) => {
+        $(panel).on('mouseleave.spacewalk.juicebox_panel', (event) => {
             event.stopPropagation();
             Globals.eventBus.post({ type: "DidLeaveGUI" });
         });

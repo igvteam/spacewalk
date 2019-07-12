@@ -48,6 +48,10 @@ class DistanceMapPanel {
 
         $(window).on('resize.distance_map_panel', () => { this.onWindowResize(container, panel) });
 
+        this.$panel.on('click.distance_map_panel', event => {
+            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
+        });
+
         Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);

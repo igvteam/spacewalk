@@ -60,10 +60,13 @@ class ContactFrequencyMapPanel {
             this.drawTraceContactFrequency(getTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace, this.distanceThreshold));
         });
 
-
         makeDraggable(panel, this.$panel.find('.spacewalk_card_drag_container').get(0));
 
         $(window).on('resize.contact_frequency_map_panel', () => { this.onWindowResize(container, panel) });
+
+        this.$panel.on('click.contact_frequency_map_panel', event => {
+            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
+        });
 
         Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
