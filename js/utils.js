@@ -5,6 +5,21 @@ import { guiManager } from "./gui.js";
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
 
+const panelLayout = ($container, $panel, xFunction, yFunction) => {
+
+    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
+    const { width: width_container, height: height_container } = $container.get(0).getBoundingClientRect();
+    const { width: width_panel,     height: height_panel     } =     $panel.get(0).getBoundingClientRect();
+
+
+    const left = xFunction(width_container, width_panel);
+    const top = yFunction(height_container, height_panel);
+
+    $panel.offset( { left, top } );
+    // const { left: x, top: y } = this.$panel.offset();
+    // console.log(`color ramp panel. xy ${ x } ${ y }`);
+};
+
 const presentPanel = panel => {
 
     if (panel.isHidden) {
@@ -31,10 +46,18 @@ const segmentIDForInterpolant = interpolant => {
 };
 
 let moveOnScreen = (panelHost) => {
-    panelHost.layout(panelHost.container, panelHost.$panel.get(0));
+
+    if (panelHost.previousOffset) {
+        panelHost.$panel.offset(panelHost.previousOffset)
+    } else {
+        panelHost.layout();
+    }
+
 };
 
 let moveOffScreen = (panelHost) => {
+
+    panelHost.previousOffset = panelHost.$panel.offset();
 
     // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
     const { x: c_x, y:c_y, width: c_w, height: c_h } = panelHost.container.getBoundingClientRect();
@@ -120,7 +143,6 @@ const readFileAsText = async file => {
     });
 };
 
-
 const readFileAsDataURL = async blob => {
 
     const fileReader = new FileReader();
@@ -150,4 +172,21 @@ const createImage = imageSource => {
 
 };
 
-export { zIndexPanelSelected, zIndexPanelUnselected, presentPanel, setMaterialProvider, segmentIDForInterpolant, createImage, readFileAsDataURL, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
+export {
+    panelLayout,
+    zIndexPanelSelected,
+    zIndexPanelUnselected,
+    presentPanel,
+    setMaterialProvider,
+    segmentIDForInterpolant,
+    createImage,
+    readFileAsDataURL,
+    readFileAsText,
+    moveOnScreen,
+    moveOffScreen,
+    fitToContainer,
+    getMouseXY,
+    throttle,
+    numberFormatter,
+    fillCanvasContextRect
+};

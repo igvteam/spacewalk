@@ -1,7 +1,7 @@
 import KDBush from '../node_modules/kd3d/js/index.js'
 import Globals from './globals.js';
 import { makeDraggable } from "./draggable.js";
-import { presentPanel, moveOffScreen, moveOnScreen } from "./utils.js";
+import { panelLayout, moveOffScreen, moveOnScreen } from "./utils.js";
 import { guiManager } from './gui.js';
 import { clamp } from "./math.js";
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
@@ -95,16 +95,17 @@ class ContactFrequencyMapPanel {
         }
     }
 
-    layout() {
+    layout () {
 
-        const { width: cw, height: ch } = this.container.getBoundingClientRect();
-        const { width: pw, height: ph } = this.$panel.get(0).getBoundingClientRect();
+        const xFunction = (cw, w) => {
+            return w * 0.1;
+        };
 
-        const left = 0.1 * pw;
-        const  top = ch - 1.1 * ph;
+        const yFunction = (ch, h) => {
+            return ch - (h * 1.1);
+        };
 
-        this.$panel.offset( { left, top } );
-
+        panelLayout($(this.container), this.$panel, xFunction, yFunction);
     }
 
     drawEnsembleContactFrequency(ensembleContactFrequencyCanvas) {

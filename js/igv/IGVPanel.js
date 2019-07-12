@@ -1,7 +1,7 @@
 import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { makeDraggable } from "../draggable.js";
-import { presentPanel, setMaterialProvider, moveOffScreen, moveOnScreen } from '../utils.js';
+import { panelLayout, presentPanel, setMaterialProvider, moveOffScreen, moveOnScreen } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import { igvPanel, guiManager } from "../gui.js";
 
@@ -150,15 +150,17 @@ class IGVPanel {
         }
     }
 
-    layout() {
+    layout () {
 
-        // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-        const { width: c_w, height: c_h } = this.container.getBoundingClientRect();
-        const { width:   w, height:   h } = this.$panel.get(0).getBoundingClientRect();
+        const xFunction = (cw, w) => {
+            return (cw - w)/2;
+        };
 
-        const left = (c_w - w)/2;
-        const top = c_h - 1.1 * h;
-        this.$panel.offset( { left, top } );
+        const yFunction = (ch, h) => {
+            return ch - (h * 1.1);
+        };
+
+        panelLayout($(this.container), this.$panel, xFunction, yFunction);
     }
 
 }

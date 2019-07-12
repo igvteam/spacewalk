@@ -1,7 +1,7 @@
 import Globals from './../globals.js';
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
 import { makeDraggable } from "../draggable.js";
-import { presentPanel, moveOffScreen, moveOnScreen } from "../utils.js";
+import { panelLayout, presentPanel, moveOffScreen, moveOnScreen } from "../utils.js";
 import { guiManager } from "../gui.js";
 
 class JuiceboxPanel {
@@ -167,15 +167,17 @@ class JuiceboxPanel {
         }
     }
 
-    layout() {
+    layout () {
 
-        // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-        const { width: c_w, height: c_h } = this.container.getBoundingClientRect();
-        const { width:   w, height:   h } = this.$panel.get(0).getBoundingClientRect();
+        const xFunction = (cw, w) => {
+            return (cw - w)/2;
+        };
 
-        const left = (c_w - w)/2;
-        const top = c_h - 1.05 * h;
-        this.$panel.offset( { left, top } );
+        const yFunction = (ch, h) => {
+            return ch - (h * 1.05);
+        };
+
+        panelLayout($(this.container), this.$panel, xFunction, yFunction);
     }
 
 }

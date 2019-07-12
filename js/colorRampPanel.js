@@ -2,7 +2,7 @@ import Globals from './globals.js';
 import TraceColorRampMaterialProvider from "./traceColorRampMaterialProvider.js";
 import PointCloudColorRampMaterialProvider from "./pointCloudColorRampMaterialProvider.js";
 import { makeDraggable } from "./draggable.js";
-import { presentPanel, setMaterialProvider, moveOffScreen, moveOnScreen } from './utils.js';
+import { panelLayout, presentPanel, setMaterialProvider, moveOffScreen, moveOnScreen } from './utils.js';
 import { guiManager } from './gui.js';
 
 class ColorRampPanel {
@@ -109,15 +109,16 @@ class ColorRampPanel {
 
     layout () {
 
-        // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-        const { width: c_w, height: c_h } = this.container.getBoundingClientRect();
-        const { width:   w, height:   h } = this.$panel.get(0).getBoundingClientRect();
+        const xFunction = (cw, w) => {
+            const multiple = 5/4;
+            return (cw - multiple * w);
+        };
 
-        const multiple = 5/4;
-        const left = (c_w - multiple * w);
-        const top = ((c_h - h)/2);
+        const yFunction = (ch, h) => {
+            return (ch - h) / 2;
+        };
 
-        this.$panel.offset( { left, top } );
+        panelLayout($(this.container), this.$panel, xFunction, yFunction);
     }
 
 }

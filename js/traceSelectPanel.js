@@ -1,7 +1,7 @@
 import Globals from './globals.js';
 import { makeDraggable } from "./draggable.js";
 import { clamp } from './math.js'
-import { presentPanel, moveOffScreen, moveOnScreen } from './utils.js';
+import { panelLayout, presentPanel, moveOffScreen, moveOnScreen } from './utils.js';
 
 let currentNumber = undefined;
 class TraceSelectPanel {
@@ -130,7 +130,7 @@ class TraceSelectPanel {
         }
     }
 
-    layout() {
+    __layout() {
 
         // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
         const { width:container_width, height: container_height } = this.container.getBoundingClientRect();
@@ -143,6 +143,20 @@ class TraceSelectPanel {
         const top = container_height - 2 * h;
 
         this.$panel.offset( { left, top } );
+    }
+
+    layout () {
+
+        const xFunction = (cw, w) => {
+            const multiple = 5/4;
+            return (cw - multiple * w);
+        };
+
+        const yFunction = (ch, h) => {
+            return h * 2;
+        };
+
+        panelLayout($(this.container), this.$panel, xFunction, yFunction);
     }
 
 }

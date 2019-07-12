@@ -208,6 +208,44 @@
 
             </li>
 
+            <!-- Contact Maps -->
+            <li class="nav-item">
+
+                <div class="dropdown">
+
+                    <a id="spacewalk-juicebox-load-dropdown-button" data-toggle="dropdown" href="#" class="nav-link dropdown-toggle">
+                        Load Contact Map
+                    </a>
+
+                    <div id="spacewalk-juicebox-load-dropdown-menu"  class="dropdown-menu">
+
+                        <!-- select -->
+                        <button id="spacewalk-juicebox-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#hic-contact-map-select-modal">
+                            Select File ...
+                        </button>
+
+                        <!-- local file -->
+                        <label class="dropdown-item btn btn-default btn-file">
+                            <div>
+                                <div>
+                                    Local File ...
+                                </div>
+                                <div>
+                                    <input id="spacewalk-juicebox-load-local-input" type="file" name="file" style="display: none;">
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- url -->
+                        <button id="spacewalk-juicebox-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#hic-load-url-modal">Map URL ...
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </li>
+
             <!-- IGV Track Files -->
             <li class="nav-item">
 
@@ -260,44 +298,6 @@
                         </button>
 
                         <div id="spacewalk-igv-app-annotations-section" class="dropdown-divider"></div>
-
-                    </div>
-
-                </div>
-
-            </li>
-
-            <!-- Contact Maps -->
-            <li class="nav-item">
-
-                <div class="dropdown">
-
-                    <a id="spacewalk-juicebox-load-dropdown-button" data-toggle="dropdown" href="#" class="nav-link dropdown-toggle">
-                        Load Contact Map
-                    </a>
-
-                    <div id="spacewalk-juicebox-load-dropdown-menu"  class="dropdown-menu">
-
-                        <!-- select -->
-                        <button id="spacewalk-juicebox-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#hic-contact-map-select-modal">
-                            Select File ...
-                        </button>
-
-                        <!-- local file -->
-                        <label class="dropdown-item btn btn-default btn-file">
-                            <div>
-                                <div>
-                                    Local File ...
-                                </div>
-                                <div>
-                                    <input id="spacewalk-juicebox-load-local-input" type="file" name="file" style="display: none;">
-                                </div>
-                            </div>
-                        </label>
-
-                        <!-- url -->
-                        <button id="spacewalk-juicebox-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#hic-load-url-modal">Map URL ...
-                        </button>
 
                     </div>
 

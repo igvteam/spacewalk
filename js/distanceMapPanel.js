@@ -1,6 +1,6 @@
 import Globals from './globals.js';
 import { makeDraggable } from "./draggable.js";
-import { presentPanel, moveOffScreen, moveOnScreen } from "./utils.js";
+import { panelLayout, moveOffScreen, moveOnScreen } from "./utils.js";
 import { guiManager } from './gui.js';
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 
@@ -79,16 +79,17 @@ class DistanceMapPanel {
         }
     }
 
-    layout() {
+    layout () {
 
-        const { width: cw, height: ch } = this.container.getBoundingClientRect();
-        const { width: pw, height: ph } = this.$panel.get(0).getBoundingClientRect();
+        const xFunction = (cw, w) => {
+            return cw - w * 1.1;
+        };
 
-        const left = cw - 1.1 * pw;
-        const  top = ch - 1.1 * ph;
+        const yFunction = (ch, h) => {
+            return ch - (h * 1.1);
+        };
 
-        this.$panel.offset( { left, top } );
-
+        panelLayout($(this.container), this.$panel, xFunction, yFunction);
     }
 
     drawTraceDistanceCanvas(traceDistanceCanvas) {
