@@ -85,7 +85,7 @@ class ContactFrequencyMapPanel {
             }
             this.isHidden = !this.isHidden;
         } else if ('DidLoadFile' === type || 'DidLoadPointCloudFile' === type) {
-            presentPanel(this);
+            // presentPanel(this);
         }
     }
 
