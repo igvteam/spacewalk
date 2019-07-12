@@ -43,7 +43,10 @@ export const appEventListener =
 
                 const { initialKey } = data;
                 let trace = Globals.ensembleManager.getTraceWithName(initialKey);
+
                 Globals.ensembleManager.currentTrace = trace;
+                Globals.sceneManager.cameraLightingRig.doUpdateCameraPose = true;
+
                 setup({ trace });
 
             } else if ('DidSelectStructure' === type) {
