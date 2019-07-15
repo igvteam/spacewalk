@@ -1,29 +1,8 @@
 import { quantize } from "./math.js";
 import Globals from "./globals.js";
-import { guiManager } from "./gui.js";
 
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
-
-const panelLayout = ($container, $panel, xFunction, yFunction) => {
-
-    const { width: width_container, height: height_container } = $container.get(0).getBoundingClientRect();
-    const { width: width_panel,     height: height_panel     } =     $panel.get(0).getBoundingClientRect();
-
-    const left = xFunction(width_container, width_panel);
-    const top = yFunction(height_container, height_panel);
-
-    $panel.offset( { left, top } );
-};
-
-const presentPanel = panel => {
-
-    if (panel.isHidden) {
-        panel.layout();
-        guiManager.panelIsVisible(panel.$panel.attr('id'));
-        panel.isHidden = false;
-    }
-};
 
 const setMaterialProvider = materialProvider => {
     Globals.sceneManager.materialProvider = materialProvider;
@@ -39,34 +18,6 @@ const segmentIDForInterpolant = interpolant => {
 
     // return the segmentID
     return 1 + Math.ceil(quantized * (howmany - 1));
-};
-
-let moveOnScreen = (panelHost) => {
-
-    if (panelHost.layoutState) {
-
-        const { topPercent, leftPercent } = panelHost.layoutState;
-
-        const top = topPercent * Globals.appWindowHeight;
-        const left = leftPercent * Globals.appWindowWidth;
-
-        panelHost.$panel.offset({ top, left })
-    } else {
-        panelHost.layout();
-    }
-
-};
-
-let moveOffScreen = (panelHost) => {
-
-    const { top, left } = panelHost.$panel.offset();
-
-    const topPercent = top / Globals.appWindowHeight;
-    const leftPercent = left / Globals.appWindowWidth;
-
-    panelHost.layoutState = { top, left, topPercent, leftPercent };
-
-    panelHost.$panel.offset( { left: -1000, top: -1000 } );
 };
 
 let fitToContainer = (canvas, devicePixelRatio) => {
@@ -170,17 +121,13 @@ const createImage = imageSource => {
 };
 
 export {
-    panelLayout,
     zIndexPanelSelected,
     zIndexPanelUnselected,
-    presentPanel,
     setMaterialProvider,
     segmentIDForInterpolant,
     createImage,
     readFileAsDataURL,
     readFileAsText,
-    moveOnScreen,
-    moveOffScreen,
     fitToContainer,
     getMouseXY,
     throttle,

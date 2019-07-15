@@ -1,7 +1,6 @@
 import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
-import { makeDraggable } from "../draggable.js";
-import { panelLayout, presentPanel, setMaterialProvider, moveOffScreen, moveOnScreen } from '../utils.js';
+import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import { igvPanel, guiManager } from "../gui.js";
 import Panel from "../panel.js";

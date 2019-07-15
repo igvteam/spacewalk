@@ -12,6 +12,8 @@ class Panel {
         this.xFunction = xFunction;
         this.yFunction = yFunction;
 
+        this.layoutState = undefined;
+
         if (false === this.isHidden) {
             this.initializeLayout(xFunction, yFunction);
         }
@@ -39,7 +41,7 @@ class Panel {
         if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
 
             if (this.isHidden) {
-                this.moveOnScreen();
+                this.layout();
             } else {
                 this.moveOffScreen();
             }
@@ -49,7 +51,7 @@ class Panel {
         } else if ('AppWindowDidResize' === type) {
 
             if (false === this.isHidden) {
-                this.moveOnScreen();
+                this.layout();
             }
 
         } else if ('DidDragEnd' === type) {
@@ -58,19 +60,19 @@ class Panel {
     }
 
     initializeLayout(xFunction, yFunction) {
+
         const { width: width_container, height: height_container } = $(this.container).get(0).getBoundingClientRect();
         const { width: width_panel,     height: height_panel     } =       this.$panel.get(0).getBoundingClientRect();
+
         const left = xFunction(width_container,   width_panel);
         const  top = yFunction(height_container, height_panel);
-        this.layout(left, top);
-    }
 
-    layout (left, top) {
         this.$panel.offset( { left, top } );
+
         this.updateLayoutState();
     }
 
-    moveOnScreen(){
+    layout(){
 
         if (this.layoutState) {
             const { topPercent, leftPercent } = this.layoutState;
@@ -91,10 +93,12 @@ class Panel {
     presentPanel() {
 
         if (this.isHidden) {
-            this.moveOnScreen();
-            guiManager.panelIsVisible(this.$panel.attr('id'));
+            this.layout();
             this.isHidden = false;
         }
+
+        guiManager.panelIsVisible(this.$panel.attr('id'));
+
     };
 
     updateLayoutState() {

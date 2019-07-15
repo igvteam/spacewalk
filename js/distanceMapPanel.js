@@ -1,18 +1,23 @@
 import Globals from './globals.js';
-import { makeDraggable } from "./draggable.js";
-import { panelLayout, moveOffScreen, moveOnScreen } from "./utils.js";
 import { guiManager } from './gui.js';
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
+import Panel from "./panel.js";
 
 const kDistanceUndefined = -1;
 
-class DistanceMapPanel {
+class DistanceMapPanel extends Panel {
 
     constructor ({ container, panel, isHidden }) {
 
-        this.container = container;
-        this.$panel = $(panel);
-        this.isHidden = isHidden;
+        const xFunction = (cw, w) => {
+            return cw - w * 1.1;
+        };
+
+        const yFunction = (ch, h) => {
+            return ch - (h * 1.1);
+        };
+
+        super({ container, panel, isHidden, xFunction, yFunction });
 
         const $canvas_container = this.$panel.find('#spacewalk_distance_map_panel_container');
 
@@ -36,56 +41,14 @@ class DistanceMapPanel {
         this.ctx_ensemble.fillStyle = rgb255String( appleCrayonColorRGB255('honeydew') );
         this.ctx_ensemble.fillRect(0, 0, w, h);
 
-        if (false === this.isHidden) {
-            this.layout();
-        }
-
-        makeDraggable(panel, this.$panel.find('.spacewalk_card_drag_container').get(0));
-
-        $(window).on('resize.distance_map_panel', () => { this.onWindowResize(container, panel) });
-
         this.$panel.on('click.distance_map_panel', event => {
             Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
-        Globals.eventBus.subscribe("ToggleUIControl", this);
-        Globals.eventBus.subscribe('DidLoadFile', this);
-        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
-
     }
 
     receiveEvent({ type, data }) {
-
-        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
-
-            if (this.isHidden) {
-                moveOnScreen(this);
-            } else {
-                moveOffScreen(this);
-            }
-            this.isHidden = !this.isHidden;
-        } else if ('DidLoadFile' === type || 'DidLoadPointCloudFile' === type) {
-            // presentPanel(this);
-        }
-    }
-
-    onWindowResize() {
-        if (false === this.isHidden) {
-            this.layout();
-        }
-    }
-
-    layout () {
-
-        const xFunction = (cw, w) => {
-            return cw - w * 1.1;
-        };
-
-        const yFunction = (ch, h) => {
-            return ch - (h * 1.1);
-        };
-
-        panelLayout($(this.container), this.$panel, xFunction, yFunction);
+        super.receiveEvent({ type, data });
     }
 
     drawTraceDistanceCanvas(traceDistanceCanvas) {

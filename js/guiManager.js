@@ -88,7 +88,7 @@ class GUIManager {
 
     panelIsVisible(panelID) {
         const $found = this.$panel.find(`[data-target='${ panelID }']`);
-        $found.attr('checked', true);
+        $found.prop('checked', true);
     }
 }
 

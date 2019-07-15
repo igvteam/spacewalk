@@ -1,6 +1,5 @@
 import Globals from './../globals.js';
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
-import { presentPanel } from "../utils.js";
 import { guiManager } from "../gui.js";
 import Panel from "../panel.js";
 
