@@ -10,12 +10,9 @@ class JuiceboxPanel {
 
         this.$panel = $(panel);
         this.container = container;
-
         this.isHidden = guiManager.isPanelHidden(this.$panel.attr('id'));
 
-        if (this.isHidden) {
-            moveOffScreen(this);
-        } else {
+        if (false === this.isHidden) {
             this.layout();
         }
 
@@ -46,16 +43,12 @@ class JuiceboxPanel {
 
         if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
 
-            (async () => {
-
-                if (true === this.isHidden) {
-                    moveOnScreen(this);
-                } else {
-                    moveOffScreen(this);
-                }
-
-                this.isHidden = !this.isHidden;
-            })();
+            if (true === this.isHidden) {
+                moveOnScreen(this);
+            } else {
+                moveOffScreen(this);
+            }
+            this.isHidden = !this.isHidden;
 
         } else if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
 

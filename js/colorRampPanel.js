@@ -21,9 +21,7 @@ class ColorRampPanel {
         // footer
         this.$footer = this.$panel.find('#spacewalk_color_ramp_footer');
 
-        if (isHidden) {
-            moveOffScreen(this);
-        } else {
+        if (false === this.isHidden) {
             this.layout();
         }
 

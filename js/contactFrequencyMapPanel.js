@@ -15,6 +15,7 @@ class ContactFrequencyMapPanel {
 
         this.container = container;
         this.$panel = $(panel);
+        this.isHidden = isHidden;
 
         const $canvas_container = this.$panel.find('#spacewalk_contact_frequency_map_panel_container');
 
@@ -37,11 +38,7 @@ class ContactFrequencyMapPanel {
         // this.ctx_trace.fillStyle = rgb255String( appleCrayonColorRGB255('bubblegum') );
         // this.ctx_trace.fillRect(0, 0, w, h);
 
-        this.isHidden = isHidden;
-
-        if (isHidden) {
-            moveOffScreen(this);
-        } else {
+        if (false === this.isHidden) {
             this.layout();
         }
 

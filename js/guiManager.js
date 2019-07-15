@@ -33,17 +33,20 @@ class GUIManager {
 
         this.$widgetPanels = $widgetPanels;
 
-        [
-            'spacewalk_ui_manager_groundplane',
-            'spacewalk_ui_manager_gnomon',
-            'spacewalk_ui_manager_ui_controls_color_ramp',
-            'spacewalk_ui_manager_ui_controls_trace_select',
-            'spacewalk_ui_manager_ui_controls_juicebox',
-            'spacewalk_ui_manager_ui_controls_igv',
-            'spacewalk_ui_manager_ui_controls_thumbnail',
-            'spacewalk_ui_manager_ui_controls_distance_map',
-            'spacewalk_ui_manager_ui_controls_contact_frequency_map'
-        ].forEach(input_id => configurePanelVisibility($panel, input_id));
+        const input_id_list =
+            [
+                'spacewalk_ui_manager_groundplane',
+                'spacewalk_ui_manager_gnomon',
+                'spacewalk_ui_manager_ui_controls_color_ramp',
+                'spacewalk_ui_manager_ui_controls_trace_select',
+                'spacewalk_ui_manager_ui_controls_juicebox',
+                'spacewalk_ui_manager_ui_controls_igv',
+                'spacewalk_ui_manager_ui_controls_thumbnail',
+                'spacewalk_ui_manager_ui_controls_distance_map',
+                'spacewalk_ui_manager_ui_controls_contact_frequency_map'
+            ];
+
+        configureWidgetVisibility(input_id_list, $panel);
 
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
@@ -89,23 +92,29 @@ class GUIManager {
     }
 }
 
-const configurePanelVisibility = ($guiPanel, input_id) => {
+const configureWidgetVisibility = (input_id_list, $panel) => {
 
-    const selector = '#' + input_id;
-    const $input = $guiPanel.find(selector);
-    const change = 'change.' + input_id;
-    $input.on(change, (e) => {
+    for (let input_id of input_id_list) {
 
-        e.preventDefault();
-        if ('spacewalk_ui_manager_groundplane' === input_id) {
-            Globals.eventBus .post({ type: "ToggleGroundPlane", data: $input.prop('checked') });
-        } else if ('spacewalk_ui_manager_gnomon' === input_id) {
-            Globals.eventBus .post({ type: "ToggleGnomon", data: $input.prop('checked') });
-        } else {
-            const payload = $input.data('target');
-            Globals.eventBus .post({ type: "ToggleUIControl", data: { $input, payload } });
-        }
-    });
+        const selector = '#' + input_id;
+        const $input = $panel.find(selector);
+        const change = 'change.' + input_id;
+
+        $input.on(change, (e) => {
+
+            e.preventDefault();
+
+            if ('spacewalk_ui_manager_groundplane' === input_id) {
+                Globals.eventBus .post({ type: "ToggleGroundPlane", data: $input.prop('checked') });
+            } else if ('spacewalk_ui_manager_gnomon' === input_id) {
+                Globals.eventBus .post({ type: "ToggleGnomon", data: $input.prop('checked') });
+            } else {
+                const payload = $input.data('target');
+                Globals.eventBus .post({ type: "ToggleUIControl", data: { $input, payload } });
+            }
+        });
+
+    }
 
 };
 

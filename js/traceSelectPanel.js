@@ -19,9 +19,7 @@ class TraceSelectPanel {
         this.$button_minus = $('#spacewalk_trace_select_button_minus');
         this.$button_plus = $('#spacewalk_trace_select_button_plus');
 
-        if (isHidden) {
-            moveOffScreen(this);
-        } else {
+        if (false === this.isHidden) {
             this.layout();
         }
 

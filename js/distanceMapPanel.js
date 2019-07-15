@@ -12,6 +12,7 @@ class DistanceMapPanel {
 
         this.container = container;
         this.$panel = $(panel);
+        this.isHidden = isHidden;
 
         const $canvas_container = this.$panel.find('#spacewalk_distance_map_panel_container');
 
@@ -35,12 +36,7 @@ class DistanceMapPanel {
         this.ctx_ensemble.fillStyle = rgb255String( appleCrayonColorRGB255('honeydew') );
         this.ctx_ensemble.fillRect(0, 0, w, h);
 
-
-        this.isHidden = isHidden;
-
-        if (isHidden) {
-            moveOffScreen(this);
-        } else {
+        if (false === this.isHidden) {
             this.layout();
         }
 

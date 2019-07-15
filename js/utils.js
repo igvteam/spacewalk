@@ -59,12 +59,7 @@ let moveOffScreen = (panelHost) => {
 
     panelHost.previousOffset = panelHost.$panel.offset();
 
-    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const { x: c_x, y:c_y, width: c_w, height: c_h } = panelHost.container.getBoundingClientRect();
-
-    const left = c_x - c_w;
-    const top = c_y - c_y;
-    panelHost.$panel.offset( { left, top } );
+    panelHost.$panel.offset( { left: -1000, top: -1000 } );
 };
 
 let fitToContainer = (canvas, devicePixelRatio) => {

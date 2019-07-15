@@ -13,13 +13,10 @@ class IGVPanel {
     constructor ({ container, panel }) {
 
         this.container = container;
-
         this.$panel = $(panel);
         this.isHidden = guiManager.isPanelHidden(this.$panel.attr('id'));
 
-        if (this.isHidden) {
-            moveOffScreen(this);
-        } else {
+        if (false === this.isHidden) {
             this.layout();
         }
 
