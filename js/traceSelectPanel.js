@@ -1,16 +1,22 @@
 import Globals from './globals.js';
-import { makeDraggable } from "./draggable.js";
 import { clamp } from './math.js'
-import { panelLayout, presentPanel, moveOffScreen, moveOnScreen } from './utils.js';
+import Panel from "./panel.js";
 
 let currentNumber = undefined;
-class TraceSelectPanel {
+class TraceSelectPanel extends Panel {
 
     constructor({ container, panel, isHidden }) {
 
-        this.container = container;
-        this.$panel = $(panel);
-        this.isHidden = isHidden;
+        const xFunction = (cw, w) => {
+            const multiple = 5/4;
+            return (cw - multiple * w);
+        };
+
+        const yFunction = (ch, h) => {
+            return h * 1.5;
+        };
+
+        super({ container, panel, isHidden, xFunction, yFunction });
 
         this.$header = $('#spacewalk_trace_select_header');
 
@@ -19,26 +25,8 @@ class TraceSelectPanel {
         this.$button_minus = $('#spacewalk_trace_select_button_minus');
         this.$button_plus = $('#spacewalk_trace_select_button_plus');
 
-        if (false === this.isHidden) {
-            this.layout();
-        }
-
-        makeDraggable(panel, this.$panel.find('.spacewalk_card_drag_container').get(0));
-
-        $(window).on('resize.trace_select', () => { this.onWindowResize(container, panel) });
-
         this.$panel.on('click.trace_select', event => {
             Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
-        });
-
-        this.$panel.on('mouseenter.trace_select', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({ type: "DidEnterGUI" });
-        });
-
-        this.$panel.on('mouseleave.trace_select', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
         });
 
         this.$button_minus.on('click.trace_select_button_minus', (e) => {
@@ -75,7 +63,6 @@ class TraceSelectPanel {
 
         $(document).on('keyup.trace_select', handleKeyUp);
 
-        Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
@@ -83,21 +70,16 @@ class TraceSelectPanel {
 
     receiveEvent({ type, data }) {
 
-        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
+        super.receiveEvent({ type, data });
 
-            if (this.isHidden) {
-                moveOnScreen(this);
-            } else {
-                moveOffScreen(this);
-            }
-            this.isHidden = !this.isHidden;
-        } else if ('DidLoadFile' === type || 'DidLoadPointCloudFile' === type) {
+        if ('DidLoadFile' === type || 'DidLoadPointCloudFile' === type) {
 
             if ('DidLoadFile' === type) {
                 const { initialKey } = data;
                 this.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key: initialKey });
-                presentPanel(this);
+                this.presentPanel();
             }
+
         }
     }
 
@@ -120,41 +102,6 @@ class TraceSelectPanel {
         currentNumber = parseInt(key, 10);
         this.$input.val(currentNumber);
 
-    }
-
-    onWindowResize() {
-        if (false === this.isHidden) {
-            this.layout();
-        }
-    }
-
-    __layout() {
-
-        // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-        const { width:container_width, height: container_height } = this.container.getBoundingClientRect();
-        const { width: w, height: h } = this.$panel.get(0).getBoundingClientRect();
-
-        // const left = w;
-        const left = (container_width - w)/2;
-
-        // const top = 0.5 * container_height;
-        const top = container_height - 2 * h;
-
-        this.$panel.offset( { left, top } );
-    }
-
-    layout () {
-
-        const xFunction = (cw, w) => {
-            const multiple = 5/4;
-            return (cw - multiple * w);
-        };
-
-        const yFunction = (ch, h) => {
-            return h * 2;
-        };
-
-        panelLayout($(this.container), this.$panel, xFunction, yFunction);
     }
 
 }

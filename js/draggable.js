@@ -1,3 +1,5 @@
+import Globals from "./globals.js";
+
 const namespace = '.spacewalk_drag';
 let dragData;
 
@@ -38,7 +40,6 @@ function drag(event) {
     }
 
     event.stopPropagation();
-    // event.preventDefault();
 
     const styleX = dragData.dx + event.screenX;
     const styleY = dragData.dy + event.screenY;
@@ -56,7 +57,6 @@ function dragEnd(event) {
     }
 
     event.stopPropagation();
-    // event.preventDefault();
 
     const styleX = dragData.dx + event.screenX;
     const styleY = dragData.dy + event.screenY;
@@ -66,6 +66,9 @@ function dragEnd(event) {
 
     $(document).off(namespace);
     dragData = undefined;
+
+    Globals.eventBus.post({ type: "DidDragEnd" });
+
 }
 
 export { makeDraggable };

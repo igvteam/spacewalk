@@ -8,5 +8,7 @@ export default {
         noodle: undefined,
         ballAndStick: undefined,
         colorMapManager: undefined,
-        eventBus: undefined
+        eventBus: undefined,
+        appWindowWidth: undefined,
+        appWindowHeight: undefined
 };

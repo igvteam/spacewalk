@@ -7,17 +7,13 @@ const zIndexPanelUnselected = 1024;
 
 const panelLayout = ($container, $panel, xFunction, yFunction) => {
 
-    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
     const { width: width_container, height: height_container } = $container.get(0).getBoundingClientRect();
     const { width: width_panel,     height: height_panel     } =     $panel.get(0).getBoundingClientRect();
-
 
     const left = xFunction(width_container, width_panel);
     const top = yFunction(height_container, height_panel);
 
     $panel.offset( { left, top } );
-    // const { left: x, top: y } = this.$panel.offset();
-    // console.log(`color ramp panel. xy ${ x } ${ y }`);
 };
 
 const presentPanel = panel => {
@@ -47,8 +43,14 @@ const segmentIDForInterpolant = interpolant => {
 
 let moveOnScreen = (panelHost) => {
 
-    if (panelHost.previousOffset) {
-        panelHost.$panel.offset(panelHost.previousOffset)
+    if (panelHost.layoutState) {
+
+        const { topPercent, leftPercent } = panelHost.layoutState;
+
+        const top = topPercent * Globals.appWindowHeight;
+        const left = leftPercent * Globals.appWindowWidth;
+
+        panelHost.$panel.offset({ top, left })
     } else {
         panelHost.layout();
     }
@@ -57,7 +59,12 @@ let moveOnScreen = (panelHost) => {
 
 let moveOffScreen = (panelHost) => {
 
-    panelHost.previousOffset = panelHost.$panel.offset();
+    const { top, left } = panelHost.$panel.offset();
+
+    const topPercent = top / Globals.appWindowHeight;
+    const leftPercent = left / Globals.appWindowWidth;
+
+    panelHost.layoutState = { top, left, topPercent, leftPercent };
 
     panelHost.$panel.offset( { left: -1000, top: -1000 } );
 };
@@ -69,11 +76,6 @@ let fitToContainer = (canvas, devicePixelRatio) => {
 
     canvas.width  = devicePixelRatio ? devicePixelRatio * canvas.offsetWidth : canvas.offsetWidth;
     canvas.height = devicePixelRatio ? devicePixelRatio * canvas.offsetHeight : canvas.offsetHeight;
-};
-
-let fillCanvasContextRect = (ctx, colorString) => {
-    ctx.fillStyle = colorString;
-    ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
 };
 
 let getMouseXY = (domElement, { clientX, clientY }) => {
@@ -182,6 +184,5 @@ export {
     fitToContainer,
     getMouseXY,
     throttle,
-    numberFormatter,
-    fillCanvasContextRect
+    numberFormatter
 };

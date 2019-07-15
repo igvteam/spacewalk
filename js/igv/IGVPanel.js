@@ -4,25 +4,26 @@ import { makeDraggable } from "../draggable.js";
 import { panelLayout, presentPanel, setMaterialProvider, moveOffScreen, moveOnScreen } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import { igvPanel, guiManager } from "../gui.js";
+import Panel from "../panel.js";
 
 let trackLoadController;
 
 let currentURL = undefined;
-class IGVPanel {
+class IGVPanel extends Panel {
 
     constructor ({ container, panel }) {
 
-        this.container = container;
-        this.$panel = $(panel);
-        this.isHidden = guiManager.isPanelHidden(this.$panel.attr('id'));
+        const isHidden = guiManager.isPanelHidden($(panel).attr('id'));
 
-        if (false === this.isHidden) {
-            this.layout();
-        }
+        const xFunction = (cw, w) => {
+            return (cw - w)/2;
+        };
 
-        makeDraggable(panel, $(panel).find('.spacewalk_card_drag_container').get(0));
+        const yFunction = (ch, h) => {
+            return ch - (h * 1.1);
+        };
 
-        $(window).on('resize.window.spacewalk.spacewalk_igv_panel', () => { this.onWindowResize() });
+        super({ container, panel, isHidden, xFunction, yFunction });
 
         addResizeListener(panel, () => {
 
@@ -36,17 +37,6 @@ class IGVPanel {
             Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
-        this.$panel.on('mouseenter.spacewalk.spacewalk_igv_panel', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({ type: "DidEnterGUI" });
-        });
-
-        this.$panel.on('mouseleave.spacewalk.spacewalk_igv_panel', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-        });
-
-        Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe("DidChangeMaterialProvider", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
@@ -54,29 +44,18 @@ class IGVPanel {
 
     receiveEvent({ type, data }) {
 
-        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
+        super.receiveEvent({ type, data });
 
-            if (true === this.isHidden) {
-
-                moveOnScreen(this);
-
-                const { chromosome, start, end } = this.browser.genomicStateList[ 0 ];
-                const { name: chr } = chromosome;
-                this.browser.goto(chr, start, end);
-            } else {
-                moveOffScreen(this);
-            }
-
-            this.isHidden = !this.isHidden;
-
-        } else if ("DidChangeMaterialProvider" === type) {
+        if ("DidChangeMaterialProvider" === type) {
 
             const { trackContainerDiv } = igv.browser;
             $(trackContainerDiv).find('.input-group input').prop('checked', false);
+
         } else if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
+
         }
 
     }
@@ -131,7 +110,7 @@ class IGVPanel {
 
             addDataValueMaterialProviderGUI(tracks);
 
-            presentPanel(this);
+           this.presentPanel();
 
         })();
 
@@ -139,25 +118,6 @@ class IGVPanel {
 
     loadTrack(trackConfiguration) {
         this.loadTrackList([trackConfiguration]);
-    }
-
-    onWindowResize() {
-        if (false === this.isHidden) {
-            this.layout();
-        }
-    }
-
-    layout () {
-
-        const xFunction = (cw, w) => {
-            return (cw - w)/2;
-        };
-
-        const yFunction = (ch, h) => {
-            return ch - (h * 1.1);
-        };
-
-        panelLayout($(this.container), this.$panel, xFunction, yFunction);
     }
 
 }

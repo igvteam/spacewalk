@@ -1,59 +1,42 @@
 import Globals from './../globals.js';
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
-import { makeDraggable } from "../draggable.js";
-import { panelLayout, presentPanel, moveOffScreen, moveOnScreen } from "../utils.js";
+import { presentPanel } from "../utils.js";
 import { guiManager } from "../gui.js";
+import Panel from "../panel.js";
 
-class JuiceboxPanel {
+class JuiceboxPanel extends Panel {
 
     constructor ({ container, panel }) {
 
-        this.$panel = $(panel);
-        this.container = container;
-        this.isHidden = guiManager.isPanelHidden(this.$panel.attr('id'));
+        const isHidden = guiManager.isPanelHidden($(panel).attr('id'));
 
-        if (false === this.isHidden) {
-            this.layout();
-        }
+        const xFunction = (cw, w) => {
+            return (cw - w)/2;
+        };
 
-        makeDraggable(panel, $(panel).find('.spacewalk_card_drag_container').get(0));
+        const yFunction = (ch, h) => {
+            return ch - (h * 1.05);
+        };
 
-        $(window).on('resize.spacewalk.juicebox_panel', () => { this.onWindowResize(container, panel) });
+        super({ container, panel, isHidden, xFunction, yFunction });
 
         this.$panel.on('click.juicebox_panel', event => {
             Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
-        $(panel).on('mouseenter.spacewalk.juicebox_panel', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({ type: "DidEnterGUI" });
-        });
-
-        $(panel).on('mouseleave.spacewalk.juicebox_panel', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-        });
-
-        Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }
 
     receiveEvent({ type, data }) {
 
-        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
+        super.receiveEvent({ type, data });
 
-            if (true === this.isHidden) {
-                moveOnScreen(this);
-            } else {
-                moveOffScreen(this);
-            }
-            this.isHidden = !this.isHidden;
-
-        } else if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
+        if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
+
         }
     }
 
@@ -69,29 +52,6 @@ class JuiceboxPanel {
             } catch (error) {
                 console.warn(error.message);
             }
-
-            // try {
-            //
-            //     const hicConfig =
-            //         {
-            //             url: "https://hicfiles.s3.amazonaws.com/hiseq/gm12878/in-situ/HIC010.hic",
-            //             name: "Rao and Huntley et al. | Cell 2014 GM12878 (human) in situ MboI HIC010 (47M)",
-            //             isControl: false
-            //         };
-            //
-            //     await this.browser.loadHicFile(hicConfig);
-            //
-            //     $('#spacewalk_info_panel_juicebox').text(hicConfig.name);
-            //
-            // } catch (error) {
-            //     console.warn(error.message);
-            // }
-
-            // try {
-            //     await this.browser.parseGotoInput(this.locus);
-            // } catch (error) {
-            //     console.warn(error.message);
-            // }
 
             this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
                 juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
@@ -130,7 +90,7 @@ class JuiceboxPanel {
                 console.warn(error.message);
             }
 
-            presentPanel(this);
+            this.presentPanel();
 
             try {
                 await this.browser.parseGotoInput(this.locus);
@@ -153,25 +113,6 @@ class JuiceboxPanel {
     isContactMapLoaded() {
         return (this.browser && this.browser.dataset);
     };
-
-    onWindowResize() {
-        if (false === this.isHidden) {
-            this.layout();
-        }
-    }
-
-    layout () {
-
-        const xFunction = (cw, w) => {
-            return (cw - w)/2;
-        };
-
-        const yFunction = (ch, h) => {
-            return ch - (h * 1.05);
-        };
-
-        panelLayout($(this.container), this.$panel, xFunction, yFunction);
-    }
 
 }
 
