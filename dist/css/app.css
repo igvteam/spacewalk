@@ -5,6 +5,11 @@
   padding-right: unset;
   height: 42px; }
 
+.navbar-dark .navbar-nav .nav-link {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff; }
+
 div.navbar-brand {
   color: #ffffff;
   background-color: #4A90E2;
@@ -21,16 +26,25 @@ div.navbar-brand {
   color: #ffffff;
   font-size: 1rem; }
 
-.navbar-dark .navbar-nav .nav-link {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #ffffff; }
+#spacewalk-help-icon-container {
+  width: 42px;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center; }
+  #spacewalk-help-icon-container a {
+    color: white; }
+    #spacewalk-help-icon-container a i {
+      cursor: pointer;
+      display: block; }
 
 .card {
   position: absolute;
   top: -1000px;
   left: -1000px;
-  z-index: 2048;
+  z-index: 1024;
   width: 512px;
   height: 512px;
   border-color: #a09fa0;
@@ -134,8 +148,7 @@ div.navbar-brand {
     margin-bottom: 4px; }
   #spacewalk_juicebox_panel.card .card-body #spacewalk_juicebox_root_container {
     width: 100%;
-    height: 398px;
-    overflow-y: auto; }
+    height: 548px; }
     #spacewalk_juicebox_panel.card .card-body #spacewalk_juicebox_root_container .hic-root {
       margin: 0;
       border-color: transparent;
@@ -217,16 +230,6 @@ div.navbar-brand {
       width: 256px;
       height: 256px; }
 
-.spacewalk_ui_manager_render_style_container {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: space-evenly;
-  align-items: flex-start; }
-  .spacewalk_ui_manager_render_style_container > div {
-    margin-top: 4px;
-    margin-bottom: 4px; }
-
 #spacewalk_ui_manager_button {
   z-index: 2048;
   position: absolute;
@@ -259,6 +262,16 @@ div.navbar-brand {
     #spacewalk_ui_manager_panel.card li input {
       cursor: pointer;
       display: block; }
+
+.spacewalk_ui_manager_render_style_container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  align-items: flex-start; }
+  .spacewalk_ui_manager_render_style_container > div {
+    margin-top: 4px;
+    margin-bottom: 4px; }
 
 #spacewalk_info_panel {
   font-size: 0.85rem;
@@ -305,7 +318,7 @@ div.navbar-brand {
 .igv-left-hand-gutter > div:hover {
   background-color: #e8e8e8; }
 
-.igv-app-dropdown-item-cloud-storage {
+.spacewalk-igv-app-dropdown-item-cloud-storage {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -314,9 +327,9 @@ div.navbar-brand {
   height: 18px;
   margin-top: 4px;
   margin-bottom: 4px; }
-  .igv-app-dropdown-item-cloud-storage div:first-child {
+  .spacewalk-igv-app-dropdown-item-cloud-storage div:first-child {
     margin-right: 4px; }
-  .igv-app-dropdown-item-cloud-storage div:last-child {
+  .spacewalk-igv-app-dropdown-item-cloud-storage div:last-child {
     margin-left: 4px; }
 
 #spacewalk_igv_panel.card {
