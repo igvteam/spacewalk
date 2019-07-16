@@ -19,10 +19,6 @@ class JuiceboxPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
-        this.$panel.on('click.juicebox_panel', event => {
-            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
-        });
-
         Globals.eventBus.subscribe('DidLoadFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }

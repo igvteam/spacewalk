@@ -32,10 +32,6 @@ class IGVPanel extends Panel {
 
         });
 
-        this.$panel.on('click.spacewalk_igv_panel', event => {
-            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
-        });
-
         Globals.eventBus.subscribe("DidChangeMaterialProvider", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);

@@ -25,10 +25,6 @@ class TraceSelectPanel extends Panel {
         this.$button_minus = $('#spacewalk_trace_select_button_minus');
         this.$button_plus = $('#spacewalk_trace_select_button_plus');
 
-        this.$panel.on('click.trace_select', event => {
-            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
-        });
-
         this.$button_minus.on('click.trace_select_button_minus', (e) => {
             this.broadcastUpdate( clamp(currentNumber - 1, 0, this.howmany - 1) );
         });
