@@ -67,7 +67,8 @@ function dragEnd(event) {
     $(document).off(namespace);
     dragData = undefined;
 
-    Globals.eventBus.post({ type: "DidDragEnd" });
+    const id = $(this).attr('id');
+    Globals.eventBus.post({ type: "DidDragEnd", data: id });
 
 }
 

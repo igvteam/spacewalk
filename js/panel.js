@@ -54,7 +54,7 @@ class Panel {
                 this.layout();
             }
 
-        } else if ('DidDragEnd' === type) {
+        } else if ('DidDragEnd' === type && data && data === this.$panel.attr('id')) {
             this.updateLayoutState();
         }
     }
