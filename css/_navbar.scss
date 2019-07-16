@@ -10,6 +10,18 @@
 
 }
 
+.navbar-dark {
+  .navbar-nav {
+    .nav-link {
+      //text-transform: uppercase;
+      font-size: 0.95rem;
+      font-weight: 600;
+      //color: rgba(255,255,255,.5);
+      color: $spacewalk_snow;
+    }
+  }
+}
+
 div.navbar-brand {
   color: $spacewalk_snow;
   background-color: #4A90E2;
@@ -31,14 +43,25 @@ div.navbar-brand {
   }
 }
 
-.navbar-dark {
-  .navbar-nav {
-    .nav-link {
-      //text-transform: uppercase;
-      font-size: 0.95rem;
-      font-weight: 600;
-      //color: rgba(255,255,255,.5);
-      color: $spacewalk_snow;
+#spacewalk-help-icon-container {
+
+  width: $spacewalk_navbar_height;
+  height: 100%;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+
+  a {
+
+    color: white;
+
+    i {
+      cursor: pointer;
+      display: block;
     }
+
   }
 }

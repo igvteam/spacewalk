@@ -1,19 +1,27 @@
 import Globals from './globals.js';
 import TraceColorRampMaterialProvider from "./traceColorRampMaterialProvider.js";
 import PointCloudColorRampMaterialProvider from "./pointCloudColorRampMaterialProvider.js";
-import { makeDraggable } from "./draggable.js";
-import { setMaterialProvider, moveOffScreen, moveOnScreen } from './utils.js';
+import { setMaterialProvider } from './utils.js';
 import { guiManager } from './gui.js';
+import Panel from './panel.js';
 
-class ColorRampPanel {
+class ColorRampPanel extends Panel {
 
     constructor({ container, panel, traceColorRampMaterialProvider, pointCloudColorRampMaterialProvider, isHidden }) {
 
-        this.container = container;
-        this.$panel = $(panel);
+        const xFunction = (cw, w) => {
+            const multiple = 5/4;
+            return (cw - multiple * w);
+        };
+
+        const yFunction = (ch, h) => {
+            return (ch - h) / 2;
+        };
+
+        super({ container, panel, isHidden, xFunction, yFunction });
+
         this.traceColorRampMaterialProvider = traceColorRampMaterialProvider;
         this.pointCloudColorRampMaterialProvider = pointCloudColorRampMaterialProvider;
-        this.isHidden = isHidden;
 
         // header
         this.$header = this.$panel.find('#spacewalk_color_ramp_header');
@@ -21,35 +29,13 @@ class ColorRampPanel {
         // footer
         this.$footer = this.$panel.find('#spacewalk_color_ramp_footer');
 
-        if (isHidden) {
-            moveOffScreen(this);
-        } else {
-            this.layout();
-        }
-
-        makeDraggable(panel, this.$panel.find('.spacewalk_card_drag_container').get(0));
-
-        $(window).on('resize.color-ramp-panel', () => {
-            this.onWindowResize();
-        });
-
-        this.$panel.on('mouseenter.color-ramp-panel', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({type: "DidEnterGUI" });
-        });
-
-        this.$panel.on('mouseleave.color-ramp-panel', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-        });
-
         this.$panel.on('click.color-ramp-panel', (event) => {
             event.stopPropagation();
             setMaterialProvider(traceColorRampMaterialProvider);
             Globals.eventBus.post({ type: "DidChangeMaterialProvider" });
+            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
-        Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe('DidSelectStructure', this);
         Globals.eventBus.subscribe('DidLoadFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
@@ -58,17 +44,9 @@ class ColorRampPanel {
 
     receiveEvent({ type, data }) {
 
-        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
+        super.receiveEvent({ type, data });
 
-            if (true === this.isHidden) {
-                moveOnScreen(this);
-            } else {
-                moveOffScreen(this);
-            }
-
-            this.isHidden = !this.isHidden;
-
-        } else if ("DidSelectStructure" === type) {
+        if ("DidSelectStructure" === type) {
 
             this.traceColorRampMaterialProvider.repaint();
         } else if ("DidLoadFile" === type) {
@@ -83,6 +61,7 @@ class ColorRampPanel {
 
             this.traceColorRampMaterialProvider.repaint();
 
+            this.presentPanel();
         } else if ("DidLoadPointCloudFile" === type) {
 
             this.traceColorRampMaterialProvider.hide();
@@ -94,26 +73,9 @@ class ColorRampPanel {
             this.$header.text(Math.round(genomicEnd   / 1e6) + 'Mb');
 
             this.pointCloudColorRampMaterialProvider.configureWithInterpolantWindowList(Globals.pointCloudManager.getColorRampInterpolantWindowList());
+
+            this.presentPanel();
         }
-    }
-
-    onWindowResize() {
-        if (false === this.isHidden) {
-            this.layout();
-        }
-    }
-
-    layout () {
-
-        // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-        const { width: c_w, height: c_h } = this.container.getBoundingClientRect();
-        const { width:   w, height:   h } = this.$panel.get(0).getBoundingClientRect();
-
-        const multiple = 5/4;
-        const left = (c_w - multiple * w);
-        const top = ((c_h - h)/2);
-
-        this.$panel.offset( { left, top } );
     }
 
 }

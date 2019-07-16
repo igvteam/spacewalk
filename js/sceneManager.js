@@ -45,9 +45,9 @@ class SceneManager {
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
 
-        $(window).on('resize.trace3d.scenemanager', () => { this.onWindowResize() });
+        $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
 
-        $(container).on('mousemove.trace3d.picker', (event) => {
+        $(container).on('mousemove.spacewalk.picker', (event) => {
             this.onContainerMouseMove(event)
         });
 

@@ -19707,9 +19707,14 @@ var igv = (function (igv) {
 
             const promises = [];
             for (let c of chunks) {
-                var fetchMin = c.minv.block,
-                    fetchMax = c.maxv.block + MAX_GZIP_BLOCK_SIZE,   // Make sure we get the whole block.
-                    range = {start: fetchMin, size: fetchMax - fetchMin + 1};
+
+                const bsizeOptions = igv.buildOptions(this.config, {range: {start: c.maxv.block, size: 26}});
+                const abuffer = await igv.xhr.loadArrayBuffer(this.bamPath, bsizeOptions)
+                const lastBlockSize = igv.bgzBlockSize(abuffer)
+
+                const fetchMin = c.minv.block
+                const fetchMax = c.maxv.block + lastBlockSize
+                const range = {start: fetchMin, size: fetchMax - fetchMin + 1};
                 promises.push(igv.xhr.loadArrayBuffer(this.bamPath, igv.buildOptions(this.config, {range: range})))
             }
 
@@ -19734,24 +19739,21 @@ var igv = (function (igv) {
     }
 
 
-    function readHeader() {
+    async function readHeader() {
 
-        const self = this;
         const genome = this.genome;
 
-        return getIndex.call(self)
+        const index = await getIndex.call(this)
 
-            .then(function (index) {
+        const bsizeOptions = igv.buildOptions(this.config, {range: {start: index.firstAlignmentBlock, size: 26}});
+        const abuffer = await igv.xhr.loadArrayBuffer(this.bamPath, bsizeOptions)
+        const bsize = igv.bgzBlockSize(abuffer)
 
-                const len = index.firstAlignmentBlock + MAX_GZIP_BLOCK_SIZE;   // Insure we get the complete compressed block containing the header
+        const len = index.firstAlignmentBlock + bsize;   // Insure we get the complete compressed block containing the header
+        const options = igv.buildOptions(this.config, {range: {start: 0, size: len}});
+        const header = igv.BamUtils.readHeader(this.bamPath, options, genome);
 
-                const options = igv.buildOptions(self.config, {range: {start: 0, size: len}});
-
-                return igv.BamUtils.readHeader(self.bamPath, options, genome);
-            })
-            .then(function (header) {
-                return header;
-            });
+        return header
     };
 
     async function getIndex() {
@@ -19989,9 +19991,10 @@ var igv = (function (igv) {
         this.alignmentContainer = undefined;
         this.maxRows = config.maxRows || 1000;
 
-        if (igv.isFilePath(config.url)) {
-            // do nothing
-        } else if (igv.isString(config.url) && config.url.startsWith("data:")) {
+        if (igv.isString(config.url) && config.url.startsWith("data:")) {
+            if("cram" === config.format) {
+                throw "CRAM data uris are not supported"
+            }
             this.config.indexed = false;
         }
 
@@ -22415,26 +22418,34 @@ var igv = (function (igv) {
 
         while (ptr < lim) {
 
-            var ba = new Uint8Array(data, ptr, 18);
+            try {
+                var ba = new Uint8Array(data, ptr, 18);
 
-            var xlen = (ba[11] << 8) | (ba[10]);
-            var si1 = ba[12];
-            var si2 = ba[13];
-            var slen = (ba[15] << 8) | (ba[14]);
-            var bsize = (ba[17] << 8) | (ba[16]) + 1;
+                var xlen = (ba[11] << 8) | (ba[10]);
+                var si1 = ba[12];
+                var si2 = ba[13];
+                var slen = (ba[15] << 8) | (ba[14]);
+                var bsize = (ba[17] << 8) | (ba[16]) + 1;
 
-            var start = 12 + xlen + ptr;    // Start of CDATA
-            var length = data.byteLength - start;
+                var start = 12 + xlen + ptr;    // Start of CDATA
+                var bytesLeft = data.byteLength - start;
+                var cDataSize = bsize - xlen - 19;
+                if(bytesLeft < cDataSize) break;
 
-            if (length < (bsize + 8)) break;
+                const a = new Uint8Array(data, start, bytesLeft);
+                var inflate = new Zlib.RawInflate(a);
+                var unc = inflate.decompress();
 
-            const a = new Uint8Array(data, start, length)
-            var inflate = new Zlib.RawInflate(a);
-            var unc = inflate.decompress();
-            ptr += inflate.ip + 26
 
-            totalSize += unc.byteLength;
-            oBlockList.push(unc);
+                ptr += inflate.ip + 26
+
+                totalSize += unc.byteLength;
+                oBlockList.push(unc);
+
+            } catch (e) {
+                console.error(e)
+                break;
+            }
         }
 
         // Concatenate decompressed blocks
@@ -22452,51 +22463,15 @@ var igv = (function (igv) {
         }
     }
 
-    // Uncompress data,  assumed to be series of bgzipped blocks
-    // igv.unbgzf = function (data, lim) {
-    //
-    //     var oBlockList = [],
-    //         ptr = [0],
-    //         totalSize = 0;
-    //
-    //     lim = lim || data.byteLength - 18;
-    //
-    //     while (ptr[0] < lim) {
-    //
-    //         var ba = new Uint8Array(data, ptr[0], 18);
-    //
-    //         var xlen = (ba[11] << 8) | (ba[10]);
-    //         var si1 = ba[12];
-    //         var si2 = ba[13];
-    //         var slen = (ba[15] << 8) | (ba[14]);
-    //         var bsize = (ba[17] << 8) | (ba[16]) + 1;
-    //
-    //         var start = 12 + xlen + ptr[0];    // Start of CDATA
-    //         var length = data.byteLength - start;
-    //
-    //         if (length < (bsize + 8)) break;
-    //
-    //         var unc = jszlib_inflate_buffer(data, start, length, ptr);
-    //         ptr[0] += 8;    // Skipping CRC-32 and size of uncompressed data
-    //
-    //         totalSize += unc.byteLength;
-    //         oBlockList.push(unc);
-    //     }
-    //
-    //     // Concatenate decompressed blocks
-    //     if (oBlockList.length == 1) {
-    //         return oBlockList[0];
-    //     } else {
-    //         var out = new Uint8Array(totalSize);
-    //         var cursor = 0;
-    //         for (var i = 0; i < oBlockList.length; ++i) {
-    //             var b = new Uint8Array(oBlockList[i]);
-    //             arrayCopy(b, 0, out, cursor, b.length);
-    //             cursor += b.length;
-    //         }
-    //         return out.buffer;
-    //     }
-    // }
+    igv.bgzBlockSize = function (data) {
+
+        const ba = new Uint8Array(data);
+        const bsize = (ba[17] << 8) | (ba[16]) + 1;
+        return bsize;
+
+
+    }
+
 
     return igv;
 
@@ -29595,7 +29570,7 @@ var igv = (function (igv) {
 
             return self.getIndex()
 
-                .then(function (index) {
+                .then(async function (index) {
 
                     var options,
                         success;
@@ -29610,9 +29585,17 @@ var igv = (function (igv) {
                     } else if (index) {
 
                         // Load the file header (not HTTP header) for an indexed file.
-                        // TODO -- we need a better solution here, this will fail if header exceeds max size.   This however is unlikely.
-                        let maxSize = "vcf" === self.config.format ? 65000 : 1000;
-                        if(self.config.filename && self.config.filename.endsWith(".gz")) maxSize /= 2;
+
+                        let maxSize = "vcf" === self.config.format ? 65000 : 1000
+                        if (index.tabix) {
+                            const bsizeOptions = igv.buildOptions(self.config,  {range: {start: index.firstAlignmentBlock, size: 26}});
+                            const abuffer = await igv.xhr.loadArrayBuffer(self.config.url, bsizeOptions)
+                            const bsize = igv.bgzBlockSize(abuffer)
+                            maxSize = index.firstAlignmentBlock + bsize;
+                        } else {
+
+                        }
+
                         options = igv.buildOptions(self.config, {bgz: index.tabix, range: {start: 0, size: maxSize}});
 
                         return igv.xhr.loadString(self.config.url, options)
@@ -29713,7 +29696,7 @@ var igv = (function (igv) {
 
             blocks.forEach(function (block) {
 
-                promises.push(new Promise(function (fullfill, reject) {
+                promises.push(new Promise(async function (fullfill, reject) {
 
                     var startPos = block.minv.block,
                         startOffset = block.minv.offset,
@@ -29721,7 +29704,19 @@ var igv = (function (igv) {
                         options,
                         success;
 
-                    endPos = block.maxv.block + MAX_GZIP_BLOCK_SIZE;
+                    if (self.index.tabix) {
+                        const bsizeOptions = igv.buildOptions(self.config, {
+                            range: {
+                                start: block.maxv.block,
+                                size: 26
+                            }
+                        });
+                        const abuffer = await igv.xhr.loadArrayBuffer(self.config.url, bsizeOptions)
+                        const lastBlockSize = igv.bgzBlockSize(abuffer)
+                        endPos = block.maxv.block + lastBlockSize;
+                    } else {
+                        endPos = block.maxv.block;
+                    }
 
                     options = igv.buildOptions(self.config, {
                         range: {
@@ -33283,10 +33278,10 @@ var igv = (function (igv) {
 /**
  * Created by jrobinso on 7/5/18.
  */
+"use strict";
+
 
 var igv = (function (igv) {
-
-    "use strict";
 
     if (!igv.trackFactory) {
         igv.trackFactory = {};
@@ -37303,7 +37298,7 @@ var igv = (function (igv) {
             return igv.xhr.loadJson(url, {})
         },
 
-        //https://gtexportal.org/rest/v1/association/singleTissueEqtlByLocation?chromosome=7&start=98358766&end=101523798&tissueName=Liver&datasetId=gtex_v7
+        //https://gtexportal.org/rest/v1/association/singleTissueEqtlByLocation?chromosome=7&start=98358766&end=101523798&tissueSiteDetailId=Liver&datasetId=gtex_v8
         trackConfiguration: function (tissueSummary, baseURL) {
 
             baseURL = baseURL || 'https://gtexportal.org/rest/v1';
@@ -37312,7 +37307,7 @@ var igv = (function (igv) {
                 type: "eqtl",
                 sourceType: "gtex-ws",
                 url: baseURL + '/association/singleTissueEqtlByLocation',
-                tissueName: tissueSummary.tissueSiteDetailId,
+                tissueSiteDetailId: tissueSummary.tissueSiteDetailId,
                 name: (tissueSummary.tissueSiteDetailId.split('_').join(' ')),
                 visibilityWindow: 250000
             }
@@ -37367,9 +37362,9 @@ var igv = (function (igv) {
 
         this.config = config;
         this.url = config.url;
-        this.tissueName = config.tissueName;
+        this.tissueId = config.tissueSiteDetailId;
         this.indexed = true;
-        this.datasetId = config.datasetId || "gtex_v7"
+        this.datasetId = config.datasetId || "gtex_v8"
     };
 
     //{
@@ -37405,12 +37400,12 @@ var igv = (function (igv) {
         igv.GtexReader.prototype.readFeatures = function (chr, bpStart, bpEnd) {
 
             let self=this,
-                queryChr = chr.startsWith("chr") ? chr.substr(3) : chr,
+                queryChr = chr.startsWith("chr") ? chr : "chr" + chr,
                 queryStart = Math.floor(bpStart),
                 queryEnd = Math.ceil(bpEnd),
                 datasetId = this.datasetId,
                 queryURL = this.url + "?chromosome=" + queryChr + "&start=" + queryStart + "&end=" + queryEnd +
-                    "&tissueName=" + this.tissueName + "&datasetId=" + datasetId;
+                    "&tissueSiteDetailId=" + this.tissueId + "&datasetId=" + datasetId;
 
             return new Promise(function (fulfill, reject) {
 
@@ -37428,7 +37423,7 @@ var igv = (function (igv) {
                         //source.cache = new FeatureCache(chr, queryStart, queryEnd, variants);
 
                         json.singleTissueEqtl.forEach(function (eqtl) {
-                            eqtl.chr = "chr" + eqtl.chromosome;
+                            eqtl.chr = eqtl.chromosome;
                             eqtl.position = eqtl.pos;
                             eqtl.start = eqtl.pos - 1;
                             eqtl.end = eqtl.start + 1;

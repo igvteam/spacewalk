@@ -1,17 +1,22 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import Globals from './globals.js';
-import { makeDraggable } from "./draggable.js";
-import { fitToContainer, moveOffScreen, moveOnScreen } from "./utils.js";
+import { fitToContainer, } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import { guiManager } from './gui.js';
-import Noodle from "./noodle.js";
+import Panel from "./panel.js";
 
-class ThumbnailPanel {
+class ThumbnailPanel extends Panel {
 
     constructor ({ container, panel, renderer, material, isHidden }) {
 
-        this.container = container;
-        this.$panel = $(panel);
+        const xFunction = (cw, w) => {
+            return w * 0.1;
+        };
+
+        const yFunction = (ch, h) => {
+            return ch - (h * 1.1);
+        };
+
+        super({ container, panel, isHidden, xFunction, yFunction });
 
         const $canvas = this.$panel.find('canvas');
         const canvas = $canvas.get(0);
@@ -42,19 +47,10 @@ class ThumbnailPanel {
 
         this.meshList = [];
 
-        this.isHidden = isHidden;
-        if (isHidden) {
-            moveOffScreen(this);
-        } else {
-            this.layout();
-        }
+    }
 
-        makeDraggable(panel, this.$panel.find('.spacewalk_card_drag_container').get(0));
-
-        $(window).on('resize.thumbnail_panel', () => { this.onWindowResize(container, panel) });
-
-        Globals.eventBus.subscribe("ToggleUIControl", this);
-
+    receiveEvent({ type, data }) {
+        super.receiveEvent({ type, data });
     }
 
     configure (model) {
@@ -102,40 +98,6 @@ class ThumbnailPanel {
         }
 
         this.meshList = [];
-    }
-
-    receiveEvent({ type, data }) {
-
-        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
-
-            if (this.isHidden) {
-                moveOnScreen(this);
-                const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;
-                this.configure(model);
-                this.render();
-            } else {
-                moveOffScreen(this);
-            }
-            this.isHidden = !this.isHidden;
-        }
-    }
-
-    onWindowResize() {
-        if (false === this.isHidden) {
-            this.layout();
-        }
-    }
-
-    layout() {
-
-        const { width: cw, height: ch } = this.container.getBoundingClientRect();
-        const { width: pw, height: ph } = this.$panel.get(0).getBoundingClientRect();
-
-        const left = cw - 1.1 * pw;
-        const  top = ch - 1.1 * ph;
-
-        this.$panel.offset( { left, top } );
-
     }
 
 }

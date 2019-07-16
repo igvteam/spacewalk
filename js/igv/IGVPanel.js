@@ -1,30 +1,28 @@
 import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
-import { makeDraggable } from "../draggable.js";
-import { setMaterialProvider, moveOffScreen, moveOnScreen } from '../utils.js';
+import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
-import {igvPanel } from "../gui.js";
+import { igvPanel, guiManager } from "../gui.js";
+import Panel from "../panel.js";
 
 let trackLoadController;
 
 let currentURL = undefined;
-class IGVPanel {
+class IGVPanel extends Panel {
 
-    constructor ({ container, panel, isHidden }) {
+    constructor ({ container, panel }) {
 
-        this.container = container;
-        this.$panel = $(panel);
-        this.isHidden = isHidden;
+        const isHidden = guiManager.isPanelHidden($(panel).attr('id'));
 
-        if (isHidden) {
-            moveOffScreen(this);
-        } else {
-            this.layout();
-        }
+        const xFunction = (cw, w) => {
+            return (cw - w)/2;
+        };
 
-        makeDraggable(panel, $(panel).find('.spacewalk_card_drag_container').get(0));
+        const yFunction = (ch, h) => {
+            return ch - (h * 1.1);
+        };
 
-        $(window).on('resize.window.trace3d.spacewalk_igv_panel', () => { this.onWindowResize() });
+        super({ container, panel, isHidden, xFunction, yFunction });
 
         addResizeListener(panel, () => {
 
@@ -34,17 +32,10 @@ class IGVPanel {
 
         });
 
-        this.$panel.on('mouseenter.trace3d.spacewalk_igv_panel', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({ type: "DidEnterGUI" });
+        this.$panel.on('click.spacewalk_igv_panel', event => {
+            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
-        this.$panel.on('mouseleave.trace3d.spacewalk_igv_panel', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-        });
-
-        Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe("DidChangeMaterialProvider", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
@@ -52,31 +43,21 @@ class IGVPanel {
 
     receiveEvent({ type, data }) {
 
-        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
+        super.receiveEvent({ type, data });
 
-            if (true === this.isHidden) {
-
-                moveOnScreen(this);
-
-                const { chromosome, start, end } = this.browser.genomicStateList[ 0 ];
-                const { name: chr } = chromosome;
-                this.browser.goto(chr, start, end);
-            } else {
-                moveOffScreen(this);
-            }
-
-            this.isHidden = !this.isHidden;
-        } else if ("DidChangeMaterialProvider" === type) {
+        if ("DidChangeMaterialProvider" === type) {
 
             const { trackContainerDiv } = igv.browser;
             $(trackContainerDiv).find('.input-group input').prop('checked', false);
+
         } else if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
+
         }
 
-}
+    }
 
     initialize(config) {
 
@@ -93,15 +74,21 @@ class IGVPanel {
                 IGVMouseHandler({ bp, start, end, interpolant })
             });
 
-            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: igvPanel.browser, trackRegistryFile, $googleDriveButton: undefined } ));
-            trackLoadController.updateTrackMenus(igvPanel.browser.genome.id);
+            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: this.browser, trackRegistryFile, $googleDriveButton: undefined } ));
+            trackLoadController.updateTrackMenus(this.browser.genome.id);
 
         })();
 
     }
 
     goto({ chr, start, end }) {
-        this.browser.goto(chr, start, end);
+
+        if ('all' === chr) {
+            this.browser.search(chr);
+        } else {
+            this.browser.goto(chr, start, end);
+        }
+
     }
 
     loadTrackList(configurations) {
@@ -111,11 +98,18 @@ class IGVPanel {
             let tracks = undefined;
             try {
                 tracks = await this.browser.loadTrackList( configurations );
+
+                // for (let track of tracks) {
+                //     this.browser.setTrackLabelName(track.trackView, track.config.Name)
+                // }
+
             } catch (error) {
                 console.warn(error.message);
             }
 
             addDataValueMaterialProviderGUI(tracks);
+
+           this.presentPanel();
 
         })();
 
@@ -125,39 +119,10 @@ class IGVPanel {
         this.loadTrackList([trackConfiguration]);
     }
 
-    onWindowResize() {
-        if (false === this.isHidden) {
-            this.layout();
-        }
-    }
-
-    layout() {
-
-        // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-        const { width: c_w, height: c_h } = this.container.getBoundingClientRect();
-        const { width:   w, height:   h } = this.$panel.get(0).getBoundingClientRect();
-
-        const left = (c_w - w)/2;
-        const top = c_h - 1.1 * h;
-        this.$panel.offset( { left, top } );
-    }
-
- }
+}
 
 const encodeTrackListLoader = (browser, trackConfigurations) => {
-
-    (async () => {
-
-        let tracks = await browser.loadTrackList(trackConfigurations);
-
-        for (let track of tracks) {
-            browser.setTrackLabelName(track.trackView, track.config.Name)
-        }
-
-        addDataValueMaterialProviderGUI(tracks);
-
-    })();
-
+    igvPanel.loadTrackList(trackConfigurations);
 };
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {

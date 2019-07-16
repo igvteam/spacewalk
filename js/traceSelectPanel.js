@@ -1,16 +1,22 @@
 import Globals from './globals.js';
-import { makeDraggable } from "./draggable.js";
 import { clamp } from './math.js'
-import { moveOffScreen, moveOnScreen } from './utils.js';
+import Panel from "./panel.js";
 
 let currentNumber = undefined;
-class TraceSelectPanel {
+class TraceSelectPanel extends Panel {
 
     constructor({ container, panel, isHidden }) {
 
-        this.container = container;
-        this.$panel = $(panel);
-        this.isHidden = isHidden;
+        const xFunction = (cw, w) => {
+            const multiple = 5/4;
+            return (cw - multiple * w);
+        };
+
+        const yFunction = (ch, h) => {
+            return h * 1.5;
+        };
+
+        super({ container, panel, isHidden, xFunction, yFunction });
 
         this.$header = $('#spacewalk_trace_select_header');
 
@@ -19,35 +25,19 @@ class TraceSelectPanel {
         this.$button_minus = $('#spacewalk_trace_select_button_minus');
         this.$button_plus = $('#spacewalk_trace_select_button_plus');
 
-        if (isHidden) {
-            moveOffScreen(this);
-        } else {
-            this.layout();
-        }
-
-        makeDraggable(panel, $(panel).find('.spacewalk_card_drag_container').get(0));
-
-        $(window).on('resize.trace3d.trace_select', () => { this.onWindowResize(container, panel) });
-
-        $(panel).on('mouseenter.trace3d.trace_select', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({ type: "DidEnterGUI" });
+        this.$panel.on('click.trace_select', event => {
+            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
-        $(panel).on('mouseleave.trace3d.trace_select', (event) => {
-            event.stopPropagation();
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-        });
-
-        this.$button_minus.on('click.spacewalk_trace_select_button_minus', (e) => {
+        this.$button_minus.on('click.trace_select_button_minus', (e) => {
             this.broadcastUpdate( clamp(currentNumber - 1, 0, this.howmany - 1) );
         });
 
-        this.$button_plus.on('click.spacewalk_trace_select_button_plus', (e) => {
+        this.$button_plus.on('click.trace_select_button_plus', (e) => {
             this.broadcastUpdate( clamp(currentNumber + 1, 0, this.howmany - 1));
         });
 
-        this.$input.on('keyup.spacewalk_trace_select_input', (e) => {
+        this.$input.on('keyup.trace_select_input', (e) => {
 
             // enter (return) key pressed
             if (13 === e.keyCode) {
@@ -73,24 +63,23 @@ class TraceSelectPanel {
 
         $(document).on('keyup.trace_select', handleKeyUp);
 
-        Globals.eventBus.subscribe("ToggleUIControl", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
+        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
 
     receiveEvent({ type, data }) {
 
-        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
+        super.receiveEvent({ type, data });
 
-            if (this.isHidden) {
-                moveOnScreen(this);
-            } else {
-                moveOffScreen(this);
+        if ('DidLoadFile' === type || 'DidLoadPointCloudFile' === type) {
+
+            if ('DidLoadFile' === type) {
+                const { initialKey } = data;
+                this.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key: initialKey });
+                this.presentPanel();
             }
-            this.isHidden = !this.isHidden;
-        } else if ('DidLoadFile' === type) {
-            const { initialKey } = data;
-            this.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key: initialKey });
+
         }
     }
 
@@ -113,27 +102,6 @@ class TraceSelectPanel {
         currentNumber = parseInt(key, 10);
         this.$input.val(currentNumber);
 
-    }
-
-    onWindowResize() {
-        if (false === this.isHidden) {
-            this.layout();
-        }
-    }
-
-    layout() {
-
-        // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-        const { width:c_w, height: c_h } = this.container.getBoundingClientRect();
-        const { width: w, height: h } = this.$panel.get(0).getBoundingClientRect();
-
-        const left = w;
-        // const left = (c_w - w)/2;
-
-        // const top = 0.5 * c_h;
-        const top = c_h - 2 * h;
-
-        this.$panel.offset( { left, top } );
     }
 
 }

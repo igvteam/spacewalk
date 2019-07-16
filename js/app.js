@@ -25,7 +25,23 @@ document.addEventListener("DOMContentLoaded", event => {
 
     const container = document.getElementById('spacewalk_canvas_container');
 
+    let { width, height } = container.getBoundingClientRect();
+
+    Globals.appWindowWidth = width;
+    Globals.appWindowHeight = height;
+    // console.log(`app window size ${ Globals.appWindowWidth } x ${ Globals.appWindowHeight }`);
+
     createGUI(container);
+
+    $(window).on('resize.app', () => {
+
+        let { width, height } = container.getBoundingClientRect();
+
+        Globals.appWindowWidth = width;
+        Globals.appWindowHeight = height;
+        // console.log(`app window size ${ Globals.appWindowWidth } x ${ Globals.appWindowHeight }`);
+        Globals.eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
+    });
 
     Globals.pointCloud = new PointCloud();
     Globals.noodle = new Noodle();

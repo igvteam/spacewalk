@@ -92,7 +92,7 @@ class TrackLoadController {
 
         const id_prefix = 'genome_specific_';
 
-        const $divider = this.$dropdownMenu.find('#igv-app-annotations-section');
+        const $divider = this.$dropdownMenu.find('#spacewalk-igv-app-annotations-section');
 
         const searchString = '[id^=' + id_prefix + ']';
         const $found = this.$dropdownMenu.find(searchString);
@@ -132,7 +132,7 @@ class TrackLoadController {
 
             this.createEncodeTable(encodeConfiguration[ 0 ].genomeID);
 
-            const $button = $('<button>', { 'class':'dropdown-item', 'type':'button', 'data-toggle':'modal', 'data-target':'#igv-app-encode-modal' });
+            const $button = $('<button>', { 'class':'dropdown-item', 'type':'button', 'data-toggle':'modal', 'data-target':'#spacewalk-encode-modal' });
             $button.insertAfter($divider);
 
             const { label } = encodeConfiguration[ 0 ];
@@ -176,9 +176,9 @@ class TrackLoadController {
                     markup += '<div>' + config.description + '</div>';
                 }
 
-                this.$modal.find('#igv-app-generic-track-select-modal-label').html(markup);
+                this.$modal.find('#spacewalk-igv-app-generic-track-select-modal-label').html(markup);
 
-                configureModalSelectList(this.browser, this.$modal, config.tracks, config.label);
+                configureModalSelectList(this.$modal, config.tracks);
                 this.$modal.modal('show');
 
             });
@@ -194,10 +194,10 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
 
     const multipleFileTrackConfig =
         {
-            $modal: $('#igv-app-multiple-file-load-modal'),
+            $modal: $('#spacewalk-igv-app-multiple-file-load-modal'),
             modalTitle: 'Track File Error',
-            $localFileInput: $('#igv-app-dropdown-local-track-file-input'),
-            $dropboxButton: $('#igv-app-dropdown-dropbox-track-file-button'),
+            $localFileInput: $('#spacewalk-igv-app-dropdown-local-track-file-input'),
+            $dropboxButton: $('#spacewalk-igv-app-dropdown-dropbox-track-file-button'),
             $googleDriveButton,
             configurationHandler: MultipleFileLoadController.trackConfigurator,
             jsonFileValidator: MultipleFileLoadController.trackJSONValidator,
@@ -209,7 +209,7 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
 
     const encodeModalTableConfig =
         {
-            id: "igv-app-encode-modal",
+            id: "spacewalk-encode-modal",
             title: "ENCODE",
             selectHandler: trackConfigurations => {
                 encodeTrackListLoader(browser, trackConfigurations);
@@ -219,53 +219,37 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
     return {
         browser,
         trackRegistryFile,
-        $urlModal: $('#igv-app-track-from-url-modal'),
+        $urlModal: $('#spacewalk-igv-app-track-from-url-modal'),
         encodeModalTable: new ModalTable(encodeModalTableConfig),
-        $dropdownMenu: $('#igv-app-track-dropdown-menu'),
-        $genericTrackSelectModal: $('#igv-app-generic-track-select-modal'),
+        $dropdownMenu: $('#spacewalk-igv-app-track-dropdown-menu'),
+        $genericTrackSelectModal: $('#spacewalk-igv-app-generic-track-select-modal'),
         uberFileLoader: new MultipleFileLoadController(browser, multipleFileTrackConfig)
     }
 
 };
 
-function configureModalSelectList(browser, $modal, configurations) {
+function configureModalSelectList($modal, configurations) {
 
-    $modal.find('select').remove();
+    let $select = $modal.find('.form-control');
+    $select.empty();
 
-    let $select = $('<select>', {class: 'form-control'});
-    $modal.find('.form-group').append($select);
+    for (let config of configurations) {
 
-    let $option = $('<option>', {text: 'Select...'});
-    $select.append($option);
+        let $option = $('<option>', { value: config.name, text: config.name });
+        $select.append($option);
 
-    $option.attr('selected', 'selected');
-    $option.val(undefined);
-
-    configurations
-        .reduce(function ($accumulator, trackConfiguration) {
-
-            $option = $('<option>', {value: trackConfiguration.name, text: trackConfiguration.name});
-            $select.append($option);
-
-            $option.data('track', trackConfiguration);
-
-            $accumulator.append($option);
-
-            return $accumulator;
-        }, $select);
+        $option.data('track', config);
+    }
 
     $select.on('change', function (e) {
-        let $option,
-            trackConfiguration,
-            value;
 
-        $option = $(this).find('option:selected');
-        value = $option.val();
+        const $option = $(this).find('option:selected');
+        const value = $option.val();
 
         if ('' === value) {
             // do nothing
         } else {
-            trackConfiguration = $option.data('track');
+            const trackConfiguration = $option.data('track');
             $option.removeAttr("selected");
             igvPanel.loadTrack(trackConfiguration);
         }

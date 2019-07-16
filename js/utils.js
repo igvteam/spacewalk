@@ -1,6 +1,9 @@
 import { quantize } from "./math.js";
 import Globals from "./globals.js";
 
+const zIndexPanelSelected = 1124;
+const zIndexPanelUnselected = 1024;
+
 const setMaterialProvider = materialProvider => {
     Globals.sceneManager.materialProvider = materialProvider;
     Globals.noodle.updateMaterialProvider(Globals.sceneManager.materialProvider);
@@ -17,20 +20,6 @@ const segmentIDForInterpolant = interpolant => {
     return 1 + Math.ceil(quantized * (howmany - 1));
 };
 
-let moveOnScreen = (panelHost) => {
-    panelHost.layout(panelHost.container, panelHost.$panel.get(0));
-};
-
-let moveOffScreen = (panelHost) => {
-
-    // const { left, top, right, bottom, x, y, width, height } = container.getBoundingClientRect();
-    const { x: c_x, y:c_y, width: c_w, height: c_h } = panelHost.container.getBoundingClientRect();
-
-    const left = c_x - c_w;
-    const top = c_y - c_y;
-    panelHost.$panel.offset( { left, top } );
-};
-
 let fitToContainer = (canvas, devicePixelRatio) => {
 
     canvas.style.width ='100%';
@@ -38,11 +27,6 @@ let fitToContainer = (canvas, devicePixelRatio) => {
 
     canvas.width  = devicePixelRatio ? devicePixelRatio * canvas.offsetWidth : canvas.offsetWidth;
     canvas.height = devicePixelRatio ? devicePixelRatio * canvas.offsetHeight : canvas.offsetHeight;
-};
-
-let fillCanvasContextRect = (ctx, colorString) => {
-    ctx.fillStyle = colorString;
-    ctx.fillRect(0, 0, ctx.canvas.offsetWidth, ctx.canvas.offsetHeight);
 };
 
 let getMouseXY = (domElement, { clientX, clientY }) => {
@@ -107,7 +91,6 @@ const readFileAsText = async file => {
     });
 };
 
-
 const readFileAsDataURL = async blob => {
 
     const fileReader = new FileReader();
@@ -137,4 +120,16 @@ const createImage = imageSource => {
 
 };
 
-export { setMaterialProvider, segmentIDForInterpolant, createImage, readFileAsDataURL, readFileAsText, moveOnScreen, moveOffScreen, fitToContainer, getMouseXY, throttle, numberFormatter, fillCanvasContextRect };
+export {
+    zIndexPanelSelected,
+    zIndexPanelUnselected,
+    setMaterialProvider,
+    segmentIDForInterpolant,
+    createImage,
+    readFileAsDataURL,
+    readFileAsText,
+    fitToContainer,
+    getMouseXY,
+    throttle,
+    numberFormatter
+};

@@ -1,5 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
+import { numberFormatter } from "./utils.js";
+import {prettyVector3String} from "./math.js";
 
 let cameraWorldDirection = new THREE.Vector3();
 let crossed = new THREE.Vector3();
@@ -25,6 +27,8 @@ class CameraLightingRig extends OrbitControls {
     }
 
     configure ({ fov, position, centroid, boundingDiameter }) {
+
+        console.log(`fov ${ Math.round(fov) } eye ${ prettyVector3String(position) } center ${ prettyVector3String(centroid) } bounds ${ numberFormatter(Math.round(boundingDiameter))}`);
 
         if (true === this.doUpdateCameraPose) {
             this.setPose({ position, centroid });

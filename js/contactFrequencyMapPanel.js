@@ -1,20 +1,26 @@
+import KDBush from '../node_modules/kd3d/js/index.js'
 import Globals from './globals.js';
-import { makeDraggable } from "./draggable.js";
-import { moveOffScreen, moveOnScreen } from "./utils.js";
 import { guiManager } from './gui.js';
 import { clamp } from "./math.js";
-import KDBush from '../node_modules/kd3d/js/index.js'
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
+import Panel from "./panel.js";
 
 const maxDistanceThreshold = 4096;
 const defaultDistanceThreshold = 256;
 
-class ContactFrequencyMapPanel {
+class ContactFrequencyMapPanel extends Panel {
 
     constructor ({ container, panel, isHidden, distanceThreshold }) {
 
-        this.container = container;
-        this.$panel = $(panel);
+        const xFunction = (cw, w) => {
+            return w * 0.1;
+        };
+
+        const yFunction = (ch, h) => {
+            return ch - (h * 1.1);
+        };
+
+        super({ container, panel, isHidden, xFunction, yFunction });
 
         const $canvas_container = this.$panel.find('#spacewalk_contact_frequency_map_panel_container');
 
@@ -32,19 +38,6 @@ class ContactFrequencyMapPanel {
         canvas.height = $canvas_container.height();
         this.ctx_trace = canvas.getContext('2d');
 
-        // test
-        // const { width: w, height: h } = this.ctx_trace.canvas;
-        // this.ctx_trace.fillStyle = rgb255String( appleCrayonColorRGB255('bubblegum') );
-        // this.ctx_trace.fillRect(0, 0, w, h);
-
-        this.isHidden = isHidden;
-
-        if (isHidden) {
-            moveOffScreen(this);
-        } else {
-            this.layout();
-        }
-
         this.distanceThreshold = distanceThreshold;
 
         let $input = this.$panel.find('#spacewalk_contact_frequency_map_adjustment_select_input');
@@ -60,44 +53,14 @@ class ContactFrequencyMapPanel {
             this.drawTraceContactFrequency(getTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace, this.distanceThreshold));
         });
 
-
-        makeDraggable(panel, this.$panel.find('.spacewalk_card_drag_container').get(0));
-
-        $(window).on('resize.contact_frequency_map_panel', () => { this.onWindowResize(container, panel) });
-
-        Globals.eventBus.subscribe("ToggleUIControl", this);
+        this.$panel.on('click.contact_frequency_map_panel', event => {
+            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
+        });
 
     }
 
     receiveEvent({ type, data }) {
-
-        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
-
-            if (this.isHidden) {
-                moveOnScreen(this);
-            } else {
-                moveOffScreen(this);
-            }
-            this.isHidden = !this.isHidden;
-        }
-    }
-
-    onWindowResize() {
-        if (false === this.isHidden) {
-            this.layout();
-        }
-    }
-
-    layout() {
-
-        const { width: cw, height: ch } = this.container.getBoundingClientRect();
-        const { width: pw, height: ph } = this.$panel.get(0).getBoundingClientRect();
-
-        const left = 0.1 * pw;
-        const  top = ch - 1.1 * ph;
-
-        this.$panel.offset( { left, top } );
-
+        super.receiveEvent({ type, data });
     }
 
     drawEnsembleContactFrequency(ensembleContactFrequencyCanvas) {
