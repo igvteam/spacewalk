@@ -177,10 +177,4 @@ class PointCloudManager {
 
 }
 
-export const getBoundsWithPointCloud = mesh => {
-    const { center, radius } = mesh.geometry.boundingSphere;
-    const { min, max } = mesh.geometry.boundingBox;
-    return { min, max, center, radius }
-};
-
 export default PointCloudManager;
