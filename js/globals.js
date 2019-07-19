@@ -1,4 +1,5 @@
 export default {
+        parser: undefined,
         pointCloudManager: undefined,
         pointCloud: undefined,
         ensembleManager: undefined,

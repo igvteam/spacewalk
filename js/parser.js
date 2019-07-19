@@ -1,3 +1,5 @@
+import Globals from "./globals.js";
+
 class Parser {
     constructor () {
 
@@ -53,7 +55,10 @@ class Parser {
 
         } // for (lines)
 
-        console.log(`Parse complete ${ isPointCloud(hash) ? 'for point cloud data' : 'for ensemble data' }`)
+        console.log(`Parse complete ${ isPointCloud(hash) ? 'for point cloud data' : 'for ensemble data' }`);
+
+        const type = isPointCloud(hash) ? 'DidLoadSWPointCloud' : 'DidLoadSWEnsembleCloud';
+        Globals.eventBus.post({ type, data: hash });
     }
 }
 

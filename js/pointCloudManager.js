@@ -11,6 +11,10 @@ class PointCloudManager {
         this.path = undefined;
     }
 
+    ingestSW(string) {
+
+    }
+
     ingest({ path, string }) {
 
         this.path = path;

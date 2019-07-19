@@ -143,6 +143,17 @@ const pointCloudFileLoadModalConfigurator = () => {
     }
 };
 
+const swFileLoadModalConfigurator = () => {
+
+    return {
+        $urlModal: $('#spacewalk-sw-load-url-modal'),
+        $selectModal: $('#spacewalk-sw-load-select-modal'),
+        $localFileInput: $('#spacewalk-sw-load-local-input'),
+        selectLoader: undefined,
+        fileLoader: Globals.parser
+    }
+};
+
 const structureFileLoadModalConfigurator = () => {
 
     return {

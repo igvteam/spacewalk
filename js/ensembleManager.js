@@ -12,6 +12,10 @@ class EnsembleManager {
         this.stepSize = 3e4;
     }
 
+    ingestSW(string) {
+
+    }
+
     ingest({ path, string }){
 
         this.locus = parsePathEncodedGenomicLocation(path);
