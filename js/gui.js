@@ -3,11 +3,11 @@ import GUIManager from "./guiManager.js";
 import TraceSelectPanel from "./traceSelectPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
-import ThumbnailPanel, {thumbnailPanelConfigurator} from "./thumbnailPanel.js";
-import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
-import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
+import ThumbnailPanel, { thumbnailPanelConfigurator } from "./thumbnailPanel.js";
+import DistanceMapPanel, { distanceMapPanelConfigurator } from "./distanceMapPanel.js";
+import ContactFrequencyMapPanel, { contactFrequencyMapPanelConfigurator } from "./contactFrequencyMapPanel.js";
 import IGVPanel, { igvBrowserConfigurator, igvBrowserConfiguratorBigWig } from "./igv/IGVPanel.js";
-import DataFileLoadModal, { pointCloudFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
+import DataFileLoadModal, { swFileLoadModalConfigurator, pointCloudFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import Globals from './globals.js';
 
 let guiManager;
@@ -19,6 +19,7 @@ let distanceMapPanel;
 let contactFrequencyMapPanel;
 let igvPanel;
 
+let swFileLoadModal;
 let pointCloudFileLoadModal;
 let structureFileLoadModal;
 let juiceboxFileLoadModal;
@@ -46,6 +47,8 @@ const createGUI = container => {
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0) });
     juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
+
+    swFileLoadModal = new DataFileLoadModal(swFileLoadModalConfigurator());
 
     pointCloudFileLoadModal = new DataFileLoadModal(pointCloudFileLoadModalConfigurator());
 

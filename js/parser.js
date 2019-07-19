@@ -1,4 +1,6 @@
 import Globals from "./globals.js";
+import igv from "../vendor/igv.esm.js";
+import { readFileAsText } from "./utils.js";
 
 class Parser {
     constructor () {
@@ -60,6 +62,32 @@ class Parser {
         const type = isPointCloud(hash) ? 'DidLoadSWPointCloud' : 'DidLoadSWEnsembleCloud';
         Globals.eventBus.post({ type, data: hash });
     }
+
+    async loadURL ({ url, name }) {
+
+        let string = undefined;
+        try {
+            string = await igv.xhr.load(url);
+        } catch (e) {
+            console.warn(e.message)
+        }
+
+        this.parse(string);
+    }
+
+    async loadLocalFile ({ file }) {
+
+        let string = undefined;
+        try {
+            string = await readFileAsText(file);
+        } catch (e) {
+            console.warn(e.message)
+        }
+
+        this.parse(string);
+
+    }
+
 }
 
 const isPointCloud = hash => {

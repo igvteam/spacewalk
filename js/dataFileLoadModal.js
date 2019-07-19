@@ -132,17 +132,6 @@ const loadFile = (file, fileLoader) => {
 
 };
 
-const pointCloudFileLoadModalConfigurator = () => {
-
-    return {
-        $urlModal: $('#spacewalk-point-cloud-file-load-url-modal'),
-        $selectModal: $('#spacewalk-point-cloud-file-load-select-modal'),
-        $localFileInput: $('#spacewalk-point-cloud-file-load-local-input'),
-        selectLoader: undefined,
-        fileLoader: Globals.pointCloudManager
-    }
-};
-
 const swFileLoadModalConfigurator = () => {
 
     return {
@@ -151,6 +140,17 @@ const swFileLoadModalConfigurator = () => {
         $localFileInput: $('#spacewalk-sw-load-local-input'),
         selectLoader: undefined,
         fileLoader: Globals.parser
+    }
+};
+
+const pointCloudFileLoadModalConfigurator = () => {
+
+    return {
+        $urlModal: $('#spacewalk-point-cloud-file-load-url-modal'),
+        $selectModal: $('#spacewalk-point-cloud-file-load-select-modal'),
+        $localFileInput: $('#spacewalk-point-cloud-file-load-local-input'),
+        selectLoader: undefined,
+        fileLoader: Globals.pointCloudManager
     }
 };
 
@@ -177,6 +177,6 @@ const juiceboxFileLoadModalConfigurator = () => {
 };
 
 
-export { pointCloudFileLoadModalConfigurator, structureFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
+export { swFileLoadModalConfigurator, pointCloudFileLoadModalConfigurator, structureFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
 
 export default DataFileLoadModal;
