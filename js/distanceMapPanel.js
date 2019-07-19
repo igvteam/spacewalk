@@ -41,10 +41,6 @@ class DistanceMapPanel extends Panel {
         this.ctx_ensemble.fillStyle = rgb255String( appleCrayonColorRGB255('honeydew') );
         this.ctx_ensemble.fillRect(0, 0, w, h);
 
-        this.$panel.on('click.distance_map_panel', event => {
-            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
-        });
-
     }
 
     receiveEvent({ type, data }) {

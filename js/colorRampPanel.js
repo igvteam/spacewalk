@@ -33,7 +33,6 @@ class ColorRampPanel extends Panel {
             event.stopPropagation();
             setMaterialProvider(traceColorRampMaterialProvider);
             Globals.eventBus.post({ type: "DidChangeMaterialProvider" });
-            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
         Globals.eventBus.subscribe('DidSelectStructure', this);

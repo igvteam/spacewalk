@@ -53,10 +53,6 @@ class ContactFrequencyMapPanel extends Panel {
             this.drawTraceContactFrequency(getTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace, this.distanceThreshold));
         });
 
-        this.$panel.on('click.contact_frequency_map_panel', event => {
-            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
-        });
-
     }
 
     receiveEvent({ type, data }) {

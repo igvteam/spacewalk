@@ -1,4 +1,5 @@
 import Globals from "./globals.js";
+import igv from '../vendor/igv.esm.js';
 import { makeDraggable } from "./draggable.js";
 import { guiManager } from "./gui.js";
 
@@ -18,14 +19,23 @@ class Panel {
             this.initializeLayout(xFunction, yFunction);
         }
 
-        makeDraggable(panel, this.$panel.find('.spacewalk_card_drag_container').get(0));
 
-        this.$panel.on('mouseenter.panel', (event) => {
+        const namespace = `panel. ${ igv.guid() }`;
+
+        const $drag_handle = this.$panel.find('.spacewalk_card_drag_container');
+        makeDraggable(panel, $drag_handle.get(0));
+
+        $drag_handle.on(`mousedown. ${ namespace }`, event => {
+            // console.log('panel - did select panel');
+            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
+        });
+
+        this.$panel.on(`mouseenter. ${ namespace }`, (event) => {
             event.stopPropagation();
             Globals.eventBus.post({ type: "DidEnterGUI" });
         });
 
-        this.$panel.on('mouseleave.panel', (event) => {
+        this.$panel.on(`mouseleave. ${ namespace }`, (event) => {
             event.stopPropagation();
             Globals.eventBus.post({ type: "DidLeaveGUI" });
         });
