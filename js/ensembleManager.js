@@ -12,8 +12,46 @@ class EnsembleManager {
         this.stepSize = 3e4;
     }
 
-    ingestSW(string) {
+    ingestSW(hash) {
 
+        this.maximumSegmentID = undefined;
+        let dictionary = {};
+        for (let [hashKey, trace] of Object.entries(hash)) {
+
+            // console.log(`:::::::::::::::::::: ${ hashKey } ::::::::::::::::::::`);
+
+            if (undefined === this.maximumSegmentID) {
+                this.maximumSegmentID = Object.keys(trace).length;
+            }
+
+            const segments = Object.values(trace);
+            for (let segment of segments) {
+
+                let { startBP, endBP, x, y, z } = segment[ 0 ];
+                if (x /* && y && y */) {
+
+                    const genomicLocation = (parseFloat(startBP) + parseFloat(endBP)) / 2.0;
+
+                    x = parseFloat(x);
+                    y = parseFloat(y);
+                    z = parseFloat(z);
+
+                    let segmentID = 1 + segments.indexOf(segment);
+                    segmentID = segmentID.toString();
+
+                    const key = hashKey.split('%').pop();
+
+                    if (undefined === dictionary[ key ]) {
+                        dictionary[ key ] = [];
+                    }
+
+                    dictionary[ key ].push({ segmentID, genomicLocation, x, y, z })
+
+                }
+            }
+        }
+
+        console.log('...');
     }
 
     ingest({ path, string }){

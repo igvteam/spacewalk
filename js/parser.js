@@ -59,8 +59,12 @@ class Parser {
 
         console.log(`Parse complete ${ isPointCloud(hash) ? 'for point cloud data' : 'for ensemble data' }`);
 
-        const type = isPointCloud(hash) ? 'DidLoadSWPointCloud' : 'DidLoadSWEnsembleCloud';
-        Globals.eventBus.post({ type, data: hash });
+        const consumer = isPointCloud(hash) ? Globals.pointCloudManager : Globals.ensembleManager;
+        consumer.ingestSW(hash);
+
+
+        // const type = isPointCloud(hash) ? 'DidLoadSWPointCloud' : 'DidLoadSWEnsembleCloud';
+        // Globals.eventBus.post({ type, data: hash });
     }
 
     async loadURL ({ url, name }) {
@@ -86,6 +90,10 @@ class Parser {
 
         this.parse(string);
 
+    }
+
+    reportFileLoadError(name) {
+        return `Parser: Error loading ${ name }`
     }
 
 }
