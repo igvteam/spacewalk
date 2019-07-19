@@ -26,7 +26,7 @@ class Panel {
         makeDraggable(panel, $drag_handle.get(0));
 
         $drag_handle.on(`mousedown. ${ namespace }`, event => {
-            console.log('panel - did select panel');
+            // console.log('panel - did select panel');
             Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
