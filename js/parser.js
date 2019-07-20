@@ -1,6 +1,6 @@
 import Globals from "./globals.js";
 import igv from "../vendor/igv.esm.js";
-import { readFileAsText } from "./utils.js";
+import { numberFormatter, readFileAsText } from "./utils.js";
 
 class Parser {
     constructor () {
@@ -17,10 +17,10 @@ class Parser {
         });
 
         // cell line
-        const cellLine = lines.shift();
+        this.cellLine = lines.shift();
 
         // genome assembly
-        const genomeAssembly = lines.shift();
+        this.genomeAssembly = lines.shift();
 
         // genome assembly
         const [ bed, chr ] = lines.shift().split(' ');
@@ -28,6 +28,9 @@ class Parser {
         let hash = {};
         let hashKey = undefined;
         let trace = undefined;
+
+        let [ genomicStart, genomicEnd ] = [ Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY ];
+
         for (let line of lines) {
 
             // trace
@@ -48,6 +51,9 @@ class Parser {
                 startBP = parseInt(startBP, 10);
                 endBP = parseInt(endBP, 10);
 
+                genomicStart = Math.min(genomicStart, startBP);
+                genomicEnd = Math.max(genomicEnd, endBP);
+
                 x = 'nan' === x ? undefined : parseFloat(x);
                 y = 'nan' === y ? undefined : parseFloat(y);
                 z = 'nan' === z ? undefined : parseFloat(z);
@@ -57,14 +63,14 @@ class Parser {
 
         } // for (lines)
 
-        console.log(`Parse complete ${ isPointCloud(hash) ? 'for point cloud data' : 'for ensemble data' }`);
+        console.log(`Parser. Parse complete ${ isPointCloud(hash) ? 'for point cloud derived data' : 'for ensemble derived data' }`);
 
         const consumer = isPointCloud(hash) ? Globals.pointCloudManager : Globals.ensembleManager;
-        consumer.ingestSW(hash);
 
+        const locus = { chr, genomicStart, genomicEnd };
+        this.locus = locus;
 
-        // const type = isPointCloud(hash) ? 'DidLoadSWPointCloud' : 'DidLoadSWEnsembleCloud';
-        // Globals.eventBus.post({ type, data: hash });
+        consumer.ingestSW({ locus, hash });
     }
 
     async loadURL ({ url, name }) {
@@ -94,6 +100,15 @@ class Parser {
 
     reportFileLoadError(name) {
         return `Parser: Error loading ${ name }`
+    }
+
+    blurbLocus () {
+        const { chr, genomicStart, genomicEnd } = this.locus;
+        return `${ chr } : ${ numberFormatter(genomicStart) } - ${ numberFormatter(genomicEnd) }`;
+    }
+
+    blurbCellLine() {
+        return `Cell Line ${ this.cellLine }`;
     }
 
 }

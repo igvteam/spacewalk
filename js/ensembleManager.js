@@ -4,7 +4,7 @@ import igv from '../vendor/igv.esm.js'
 import { distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
 import { getEnsembleAverageDistanceCanvas } from './distanceMapPanel.js';
 import { getEnsembleContactFrequencyCanvas } from './contactFrequencyMapPanel.js';
-import { numberFormatter, readFileAsText } from "./utils.js";
+import { readFileAsText } from "./utils.js";
 
 class EnsembleManager {
 
@@ -12,9 +12,18 @@ class EnsembleManager {
         this.stepSize = 3e4;
     }
 
-    ingestSW(hash) {
+    ingestSW({ locus, hash }) {
 
+        this.locus = locus;
+
+        // maximumSegmentID is used to size the distance and contact maps which
+        // are N by N where N = maximumSegmentID.
+        // Because trace data often has missing xyz values the total number of
+        // segments cannot be assumed to be the same for each trace in the ensemble.
+        // We use  maximumSegmentID to ensure all traces will map to the contact
+        // and distance maps.
         this.maximumSegmentID = undefined;
+
         let dictionary = {};
         for (let [hashKey, trace] of Object.entries(hash)) {
 
@@ -51,7 +60,47 @@ class EnsembleManager {
             }
         }
 
-        console.log('...');
+        let keys = Object.keys(dictionary);
+
+        // transform and augment dictionary into ensemble
+        this.ensemble = {};
+        for (let key of keys) {
+
+            let list = dictionary[ key ];
+
+            let segmentList = list.map(o => {
+                let { segmentID, genomicLocation } = o;
+                return { segmentID, genomicLocation }
+            });
+
+            let geometry = new THREE.Geometry();
+
+            geometry.vertices = list.map(o => {
+                let { x, y, z } = o;
+                return new THREE.Vector3(x, y, z);
+            });
+
+            geometry.computeBoundingBox();
+            geometry.computeBoundingSphere();
+
+            let material = new THREE.MeshPhongMaterial();
+
+            this.ensemble[ key ] = { segmentList, geometry, material };
+        }
+
+        dictionary = null;
+
+        // update ensemble level contact frequency map
+        contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
+        // segmentIDSanityCheck(this.ensemble);
+
+        // update ensemble level distance map
+        distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
+
+        const { chr, genomicStart, genomicEnd } = locus;
+
+        Globals.eventBus.post({ type: "DidLoadFile", data: { chr, genomicStart, genomicEnd, initialKey: '0' } });
+
     }
 
     ingest({ path, string }){
@@ -152,7 +201,7 @@ class EnsembleManager {
 
         const { chr, genomicStart, genomicEnd } = this.locus;
 
-        Globals.eventBus.post({ type: "DidLoadFile", data: { path, string, chr, genomicStart, genomicEnd, initialKey: '0' } });
+        Globals.eventBus.post({ type: "DidLoadFile", data: { chr, genomicStart, genomicEnd, initialKey: '0' } });
 
     }
 
@@ -192,16 +241,6 @@ class EnsembleManager {
         const { name: path } = file;
         this.ingest({ path, string });
 
-    }
-
-    blurbLocus () {
-        const { chr, genomicStart, genomicEnd } = this.locus;
-        return `${ chr } : ${ numberFormatter(genomicStart) } - ${ numberFormatter(genomicEnd) }`;
-    }
-
-    blurbCellLine() {
-        const cellLine = this.path.split('_').shift();
-        return `Cell Line ${ cellLine }`;
     }
 
     reportFileLoadError(name) {

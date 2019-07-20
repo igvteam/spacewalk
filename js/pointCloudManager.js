@@ -11,7 +11,7 @@ class PointCloudManager {
         this.path = undefined;
     }
 
-    ingestSW(hash) {
+    ingestSW({ locus, hash }) {
         const keys = Object.keys(hash);
         console.log(`PointCloud Manager ingestSW ${ keys }`);
     }
