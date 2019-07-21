@@ -103,7 +103,7 @@ class EnsembleManager {
 
     }
 
-    ingest({ path, string }){
+    DEPRICATED_ingest({ path, string }){
 
         this.locus = parsePathEncodedGenomicLocation(path);
         this.path = path;
