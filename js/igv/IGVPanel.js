@@ -123,11 +123,11 @@ const encodeTrackListLoader = (browser, trackConfigurations) => {
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
-    if (undefined === Globals.ensembleManager || undefined === Globals.ensembleManager.locus) {
+    if (undefined === Globals.ensembleManager || undefined === Globals.parser.locus) {
         return;
     }
 
-    const { genomicStart, genomicEnd } = Globals.ensembleManager.locus;
+    const { genomicStart, genomicEnd } = Globals.parser.locus;
 
     const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
 

@@ -113,11 +113,11 @@ class JuiceboxPanel extends Panel {
 
 const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
 
-    if (undefined === Globals.ensembleManager || undefined === Globals.ensembleManager.locus) {
+    if (undefined === Globals.ensembleManager || undefined === Globals.parser.locus) {
         return;
     }
 
-    const { genomicStart, genomicEnd } = Globals.ensembleManager.locus;
+    const { genomicStart, genomicEnd } = Globals.parser.locus;
 
     const trivialRejection = startXBP > genomicEnd || endXBP < genomicStart || startYBP > genomicEnd || endYBP < genomicStart;
 

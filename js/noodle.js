@@ -135,8 +135,8 @@ class Noodle {
 
 const createTube = (trace, material) => {
 
-    const tubularSegments = getTubularSegmentCount(Globals.ensembleManager.locus);
-    const radialSegments = getRadialSegmentCount(Globals.ensembleManager.locus);
+    const tubularSegments = getTubularSegmentCount(Globals.parser.locus);
+    const radialSegments = getRadialSegmentCount(Globals.parser.locus);
 
     const knots = trace.geometry.vertices.map((vertex) => {
         let { x, y, z} = vertex;
@@ -162,7 +162,7 @@ const createFatSpline = (trace, materialProvider) => {
 
     const curve = new THREE.CatmullRomCurve3(knots);
 
-    const pointCount = getFatSplinePointCount(Globals.ensembleManager.locus);
+    const pointCount = getFatSplinePointCount(Globals.parser.locus);
     const xyzList = curve.getPoints( pointCount );
 
     let vertices = [];
@@ -188,7 +188,7 @@ const createFatSpline = (trace, materialProvider) => {
 
 };
 
-const getRadialSegmentCount = (locus) => {
+const getRadialSegmentCount = locus => {
 
     const { genomicStart, genomicEnd } = locus;
     const genomicLengthMB = (genomicEnd - genomicStart) / 1e6;
