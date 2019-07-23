@@ -3,11 +3,11 @@ import GUIManager from "./guiManager.js";
 import TraceSelectPanel from "./traceSelectPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
-import ThumbnailPanel, {thumbnailPanelConfigurator} from "./thumbnailPanel.js";
-import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
-import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
-import IGVPanel, { igvBrowserConfigurator, igvBrowserConfiguratorBigWig } from "./igv/IGVPanel.js";
-import DataFileLoadModal, { pointCloudFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator, structureFileLoadModalConfigurator } from "./dataFileLoadModal.js";
+import ThumbnailPanel, { thumbnailPanelConfigurator } from "./thumbnailPanel.js";
+import DistanceMapPanel, { distanceMapPanelConfigurator } from "./distanceMapPanel.js";
+import ContactFrequencyMapPanel, { contactFrequencyMapPanelConfigurator } from "./contactFrequencyMapPanel.js";
+import IGVPanel, { igvBrowserConfigurator } from "./igv/IGVPanel.js";
+import DataFileLoadModal, { swFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import Globals from './globals.js';
 
 let guiManager;
@@ -18,9 +18,7 @@ let thumbnailPanel;
 let distanceMapPanel;
 let contactFrequencyMapPanel;
 let igvPanel;
-
-let pointCloudFileLoadModal;
-let structureFileLoadModal;
+let swFileLoadModal;
 let juiceboxFileLoadModal;
 
 const highlightColor = appleCrayonColorThreeJS('honeydew');
@@ -42,14 +40,11 @@ const createGUI = container => {
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0) });
     igvPanel.initialize(igvBrowserConfigurator());
-    // igvPanel.initialize(igvBrowserConfiguratorBigWig());
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0) });
     juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
 
-    pointCloudFileLoadModal = new DataFileLoadModal(pointCloudFileLoadModalConfigurator());
-
-    structureFileLoadModal = new DataFileLoadModal(structureFileLoadModalConfigurator());
+    swFileLoadModal = new DataFileLoadModal(swFileLoadModalConfigurator());
 
     juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator());
 

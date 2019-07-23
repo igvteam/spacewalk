@@ -11,8 +11,11 @@ import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { appEventListener } from "./appEventListener.js";
 import EventBus from "./eventBus.js";
+import Parser from "./parser.js";
 
 document.addEventListener("DOMContentLoaded", event => {
+
+    Globals.parser = new Parser();
 
     Globals.eventBus = new EventBus();
 

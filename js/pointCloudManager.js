@@ -11,118 +11,86 @@ class PointCloudManager {
         this.path = undefined;
     }
 
-    ingest({ path, string }) {
-
-        this.path = path;
-
-        let raw = string.split(/\r?\n/);
-
-        // discard blank lines
-        let lines = raw.filter(line => "" !== line);
-
-        // discard initial on-liner
-        lines.shift();
-
-        console.time(`ingest point-cloud with ${ lines.length } points`);
-
-        let segments = {};
-
-        for (let line of lines) {
-
-            const tokens = line.split(',');
-            const [ startBP, endBP, sizeKB ] = [ tokens[ 0 ], tokens[ 1 ], tokens[ 2 ], tokens[ 3 ], tokens[ 4 ], tokens[ 5 ] ];
-            const key = startBP + '%' + endBP + '%' + sizeKB;
-
-            if (undefined === segments[ key ]) {
-                // console.log(`point cloud manager step size ${ numberFormatter( parseInt(sizeKB, 10) )} kb.`);
-                segments[ key ] = [];
-            }
-
-            segments[ key ].push(line);
-        }
-
-        // sorted key list
-        const keys = Object
-            .keys(segments)
-            .sort((a, b) => {
-                const aa = a.split('%')[ 0 ];
-                const bb = b.split('%')[ 0 ];
-                return parseInt(aa, 10) - parseInt(bb, 10);
-            });
-
-        // genomic extent
-        const [ startBP, endBP ] = keys.reduce((accumulator, key) => {
-            const [ startBP, endBP, sizeKB ] = key.split('%');
-            const ss = Math.min(accumulator[ 0 ], parseInt(startBP, 10));
-            const ee = Math.max(accumulator[ 1 ], parseInt(  endBP, 10));
-            accumulator = [ ss, ee ];
-            return accumulator;
-        }, [ Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY ]);
-
-        // TODO: Erez says assume point clouds are all for chr19
-        this.locus =  { chr: 'chr19', genomicStart: startBP, genomicEnd: endBP };
+    ingestSW({ locus, hash }) {
 
         this.list = [];
         this.boundingBox = new THREE.Box3();
         this.boundingSphere = new THREE.Sphere();
 
+        let { chr, genomicStart, genomicEnd } = locus;
+
         let xyz = new THREE.Vector3();
 
-        const { chr, genomicStart, genomicEnd } = this.locus;
-        for (let key of keys) {
+        for (let [ hashKey, traces ] of Object.entries(hash)) {
 
-            const segment = segments[ key ];
-            const [ startBP, endBP, sizeKB ] = key.split('%');
+            //  key: 'startBP % endBP'
+            // list: [ { startBP, endBP, x, y, z }, ... ]
+            for (let [ key, list ] of Object.entries(traces)) {
 
-            let obj =
-                {
-                    geometry: new THREE.BufferGeometry(),
-                    startBP: parseInt(startBP, 10),
-                    endBP: parseInt(endBP, 10),
-                    sizeBP: parseFloat(sizeKB) / 1e3
-                };
+                let [ startBP, endBP ] = key.split('%');
 
+                startBP = parseInt(startBP, 10);
+                  endBP = parseInt(  endBP, 10);
 
-            let a = (obj.startBP - genomicStart) / (genomicEnd - genomicStart);
-            let b = (obj.endBP - genomicStart) / (genomicEnd - genomicStart);
+                const sizeBP = endBP - startBP;
+                const geometry = new THREE.BufferGeometry();
 
-            const bp = (obj.startBP + obj.endBP) / 2.0;
-            const interpolant = (bp - genomicStart) / (genomicEnd - genomicStart);
+                let obj =
+                    {
+                        geometry,
+                        startBP,
+                        endBP,
+                        sizeBP
+                    };
 
-            obj.geometry.userData.colorRampInterpolantWindow = { start: a, end: b, sizeBP:obj.sizeBP, interpolant, geometryUUID: obj.geometry.uuid };
-            obj.geometry.userData.color = Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant);
-            obj.geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('snow');
+                let a = (startBP - genomicStart) / (genomicEnd - genomicStart);
+                let b =   (endBP - genomicStart) / (genomicEnd - genomicStart);
 
-            let xyzList = [];
-            let rgbList = [];
+                const bp = (startBP + endBP) / 2.0;
+                const interpolant = (bp - genomicStart) / (genomicEnd - genomicStart);
 
-            for (let line of segment) {
+                obj.geometry.userData.colorRampInterpolantWindow =
+                    {
+                        start: a,
+                        end: b,
+                        sizeBP,
+                        interpolant,
+                        geometryUUID: geometry.uuid
+                    };
 
-                const tokens = line.split(',');
-                const [ x, y, z ] = [ tokens[ 3 ], tokens[ 4 ], tokens[ 5 ] ];
+                obj.geometry.userData.color = Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant);
+                obj.geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('snow');
 
-                xyzList.push(parseFloat(x), parseFloat(y), parseFloat(z));
+                let xyzList = [];
+                let rgbList = [];
 
-                const { r, g, b } = obj.geometry.userData.color;
-                rgbList.push(r, g, b);
+                for (let row of list) {
 
-                xyz.set(parseFloat(x), parseFloat(y), parseFloat(z));
-                this.boundingBox.expandByPoint(xyz);
+                    let { x, y, z } = row;
 
-            }
+                    xyzList.push(parseFloat(x), parseFloat(y), parseFloat(z));
 
-            obj.geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( xyzList, 3 ) );
-            obj.geometry.addAttribute(    'color', new THREE.Float32BufferAttribute( rgbList, 3 ).setDynamic( true ) );
-            obj.geometry.computeBoundingBox();
-            obj.geometry.computeBoundingSphere();
+                    const { r, g, b } = obj.geometry.userData.color;
+                    rgbList.push(r, g, b);
 
-            this.list.push(obj);
+                    xyz.set(parseFloat(x), parseFloat(y), parseFloat(z));
+                    this.boundingBox.expandByPoint(xyz);
 
-        }
+                } // for (list)
+
+                obj.geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( xyzList, 3 ) );
+                obj.geometry.addAttribute(    'color', new THREE.Float32BufferAttribute( rgbList, 3 ).setDynamic( true ) );
+
+                obj.geometry.computeBoundingBox();
+                obj.geometry.computeBoundingSphere();
+
+                this.list.push(obj);
+
+            } // for Object.entries(traces)
+
+        } // for Object.entries(hash)
 
         this.boundingBox.getBoundingSphere(this.boundingSphere);
-
-        console.timeEnd(`ingest point-cloud with ${ lines.length } points`);
 
         Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { chr, genomicStart, genomicEnd } });
 
@@ -137,43 +105,6 @@ class PointCloudManager {
         const { min, max } = this.boundingBox;
         return { min, max, center, radius }
     };
-
-    async loadURL ({ url, name }) {
-
-        let string = undefined;
-        try {
-            string = await igv.xhr.load(url);
-        } catch (e) {
-            console.warn(e.message)
-        }
-
-        const { file: path } = igv.parseUri(url);
-        this.ingest({ path, string });
-
-    }
-
-    async loadLocalFile ({ file }) {
-
-        let string = undefined;
-        try {
-            string = await readFileAsText(file);
-        } catch (e) {
-            console.warn(e.message)
-        }
-
-        const { name: path } = file;
-        this.ingest({ path, string });
-
-    }
-
-    reportFileLoadError(name) {
-        return `PointCloudManager: Error loading ${ name }`
-    }
-
-    blurbLocus () {
-        const { chr, genomicStart, genomicEnd } = this.locus;
-        return `${ chr } : ${ numberFormatter(genomicStart) } - ${ numberFormatter(genomicEnd) }`;
-    }
 
 }
 

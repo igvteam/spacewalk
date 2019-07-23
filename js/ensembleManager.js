@@ -1,35 +1,15 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
-import igv from '../vendor/igv.esm.js'
 import { distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
 import { getEnsembleAverageDistanceCanvas } from './distanceMapPanel.js';
 import { getEnsembleContactFrequencyCanvas } from './contactFrequencyMapPanel.js';
-import { numberFormatter, readFileAsText } from "./utils.js";
 
 class EnsembleManager {
 
     constructor () {
-        this.stepSize = 3e4;
     }
 
-    ingest({ path, string }){
-
-        this.locus = parsePathEncodedGenomicLocation(path);
-        this.path = path;
-
-        let raw = string.split(/\r?\n/);
-
-        // discard blurb
-        raw.shift();
-
-        // discard column titles
-        raw.shift();
-
-        // discard blank lines
-        const lines = raw.filter(rawLine => "" !== rawLine);
-        raw = null;
-
-        console.time(`ingest ensemble data with ${ lines.length } lines`);
+    ingestSW({ locus, hash }) {
 
         // maximumSegmentID is used to size the distance and contact maps which
         // are N by N where N = maximumSegmentID.
@@ -37,35 +17,49 @@ class EnsembleManager {
         // segments cannot be assumed to be the same for each trace in the ensemble.
         // We use  maximumSegmentID to ensure all traces will map to the contact
         // and distance maps.
-        this.maximumSegmentID = Number.NEGATIVE_INFINITY;
+        this.maximumSegmentID = undefined;
 
-        // build scratch dictionary
+        // the genomic distance (bp) between centroids
+        this.stepSize = undefined;
+
         let dictionary = {};
-        for (let line of lines) {
+        for (let [hashKey, trace] of Object.entries(hash)) {
 
-            const tokens = line.split(',');
+            // console.log(`:::::::::::::::::::: ${ hashKey } ::::::::::::::::::::`);
 
-            // chr-index (1-based) | segment-index (1-based) | Z | X | Y
-            let [ chromosomeID, segmentIDString, z, x, y ] = [ tokens[ 0 ], tokens[ 1 ], tokens[ 2 ], tokens[ 3 ], tokens[ 4 ] ];
-
-            let segmentID = parseInt(segmentIDString, 10);
-
-            // The chromosome id is 1-based. We use it for a key but make it 0-based.
-            let number = parseInt(chromosomeID, 10) - 1;
-            let key = number.toString();
-
-            if (undefined === dictionary[ key ]) {
-                dictionary[ key ] = [];
+            if (undefined === this.maximumSegmentID) {
+                this.maximumSegmentID = Object.keys(trace).length;
             }
 
-            if ('nan' === x || 'nan' === y || 'nan' === z) {
-                // do nothing
-            } else {
+            const segments = Object.values(trace);
+            for (let segment of segments) {
 
-                this.maximumSegmentID = Math.max(this.maximumSegmentID, segmentID);
+                let { startBP, endBP, x, y, z } = segment[ 0 ];
+                if (x /* && y && y */) {
 
-                const genomicLocation = this.locus.genomicStart + this.stepSize * (0.5 + (segmentID - 1));
-                dictionary[ key ].push({ segmentID, genomicLocation, x: parseFloat(x), y: parseFloat(y), z: parseFloat(z) })
+                    const genomicLocation = (parseFloat(startBP) + parseFloat(endBP)) / 2.0;
+
+                    if (undefined === this.stepSize) {
+                        this.stepSize = parseFloat(endBP) - parseFloat(startBP);
+                    }
+
+
+                    x = parseFloat(x);
+                    y = parseFloat(y);
+                    z = parseFloat(z);
+
+                    let segmentID = 1 + segments.indexOf(segment);
+                    segmentID = segmentID.toString();
+
+                    const key = hashKey.split('%').pop();
+
+                    if (undefined === dictionary[ key ]) {
+                        dictionary[ key ] = [];
+                    }
+
+                    dictionary[ key ].push({ segmentID, genomicLocation, x, y, z })
+
+                }
             }
         }
 
@@ -99,8 +93,6 @@ class EnsembleManager {
 
         dictionary = null;
 
-        console.timeEnd(`ingest ensemble data with ${ lines.length } lines`);
-
         // update ensemble level contact frequency map
         contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
         // segmentIDSanityCheck(this.ensemble);
@@ -108,9 +100,9 @@ class EnsembleManager {
         // update ensemble level distance map
         distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
 
-        const { chr, genomicStart, genomicEnd } = this.locus;
+        const { chr, genomicStart, genomicEnd } = locus;
 
-        Globals.eventBus.post({ type: "DidLoadFile", data: { path, string, chr, genomicStart, genomicEnd, initialKey: '0' } });
+        Globals.eventBus.post({ type: "DidLoadFile", data: { chr, genomicStart, genomicEnd, initialKey: '0' } });
 
     }
 
@@ -120,69 +112,11 @@ class EnsembleManager {
 
     segmentIDForGenomicLocation(bp) {
 
-        let delta = Math.round(bp - this.locus.genomicStart);
+        let delta = Math.round(bp - Globals.parser.locus.genomicStart);
         let segmentID = 1 + Math.floor(delta / this.stepSize);
         return segmentID;
     }
-
-    async loadURL ({ url, name }) {
-
-        let string = undefined;
-        try {
-            string = await igv.xhr.load(url);
-        } catch (e) {
-            console.warn(e.message)
-        }
-
-        const { file: path } = igv.parseUri(url);
-        this.ingest({ path, string });
-    }
-
-    async loadLocalFile ({ file }) {
-
-        let string = undefined;
-        try {
-            string = await readFileAsText(file);
-        } catch (e) {
-            console.warn(e.message)
-        }
-
-        const { name: path } = file;
-        this.ingest({ path, string });
-
-    }
-
-    blurbLocus () {
-        const { chr, genomicStart, genomicEnd } = this.locus;
-        return `${ chr } : ${ numberFormatter(genomicStart) } - ${ numberFormatter(genomicEnd) }`;
-    }
-
-    blurbCellLine() {
-        const cellLine = this.path.split('_').shift();
-        return `Cell Line ${ cellLine }`;
-    }
-
-    reportFileLoadError(name) {
-        return `EnsembleManager: Error loading ${ name }`
-    }
 }
-
-export const parsePathEncodedGenomicLocation = path => {
-
-    let dev_null;
-    let parts = path.split('_');
-    dev_null = parts.shift();
-    let locus = parts[ 0 ];
-
-    let [ chr, start, end ] = locus.split('-');
-
-    dev_null = end.split(''); // 3 0 M b
-    dev_null.pop(); // 3 0 M
-    dev_null.pop(); // 3 0
-    end = dev_null.join(''); // 30
-
-    return { chr, genomicStart: parseInt(start) * 1e6, genomicEnd: parseInt(end) * 1e6 };
-};
 
 export const getBoundsWithTrace = (trace) => {
     const { center, radius } = trace.geometry.boundingSphere;
