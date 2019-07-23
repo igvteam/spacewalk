@@ -31,15 +31,15 @@ export const appEventListener =
 
             }  else if ('DidLoadPointCloudFile' === type) {
 
-                $('#spacewalk_info_panel_locus').text( Globals.parser.blurbLocus() );
+                $('#spacewalk_info_panel_locus').text( Globals.parser.locusBlurb() );
                 $('#spacewalk_info_panel_ensemble').text( '-' );
 
                 setupPointCloud(Globals.pointCloudManager.list.map(o => o.geometry));
 
             } else if ('DidLoadFile' === type) {
 
-                $('#spacewalk_info_panel_locus').text( Globals.parser.blurbLocus() );
-                $('#spacewalk_info_panel_ensemble').text( Globals.parser.blurbCellLine() );
+                $('#spacewalk_info_panel_locus').text( Globals.parser.locusBlurb() );
+                $('#spacewalk_info_panel_ensemble').text( Globals.parser.sampleBlurb() );
 
                 const { initialKey } = data;
                 let trace = Globals.ensembleManager.getTraceWithName(initialKey);
