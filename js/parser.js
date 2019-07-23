@@ -17,7 +17,7 @@ class Parser {
         });
 
         // cell line
-        this.cellLine = lines.shift();
+        this.sample = lines.shift();
 
         // genome assembly
         this.genomeAssembly = lines.shift();
@@ -102,13 +102,13 @@ class Parser {
         return `Parser: Error loading ${ name }`
     }
 
-    blurbLocus () {
+    locusBlurb() {
         const { chr, genomicStart, genomicEnd } = this.locus;
         return `${ chr } : ${ numberFormatter(genomicStart) } - ${ numberFormatter(genomicEnd) }`;
     }
 
-    blurbCellLine() {
-        return `Cell Line ${ this.cellLine }`;
+    sampleBlurb() {
+        return `Sample ${ this.sample }`;
     }
 
 }
