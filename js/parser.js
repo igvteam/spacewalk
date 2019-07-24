@@ -22,7 +22,7 @@ class Parser {
         // genome assembly
         this.genomeAssembly = lines.shift();
 
-        // genome assembly
+        // chromosome name
         const [ bed, chr ] = lines.shift().split(' ');
 
         let hash = {};
@@ -30,6 +30,8 @@ class Parser {
         let trace = undefined;
 
         let [ genomicStart, genomicEnd ] = [ Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY ];
+
+        console.time('Parser - Parse complete.');
 
         for (let line of lines) {
 
@@ -63,11 +65,12 @@ class Parser {
 
         } // for (lines)
 
-        console.log(`Parser. Parse complete ${ isPointCloud(hash) ? 'for point cloud derived data' : 'for ensemble derived data' }`);
+        console.timeEnd('Parser - Parse complete.');
 
         const consumer = isPointCloud(hash) ? Globals.pointCloudManager : Globals.ensembleManager;
 
         const locus = { chr, genomicStart, genomicEnd };
+
         this.locus = locus;
 
         consumer.ingestSW({ locus, hash });
