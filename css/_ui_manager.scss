@@ -4,6 +4,7 @@ $spacewalk_ui_manager_button_top: 64px + $spacewalk_navbar_height;
 $spacewalk_ui_manager_panel_top: 48px + $spacewalk_ui_manager_button_top;
 $spacewalk_ui_manager_left: 32px;
 $spacewalk_ui_manager_render_style_container_margin: 4px;
+$spacewalk_ui_manager_margin: 6px;
 
 // ui manager
 #spacewalk_ui_manager_button {
@@ -34,12 +35,27 @@ $spacewalk_ui_manager_render_style_container_margin: 4px;
 #spacewalk_ui_manager_panel.card {
 
   z-index: 2048;
+  background-color: $spacewalk_tungsten;
+  border-color: $spacewalk_tungsten;
 
   top: $spacewalk_ui_manager_panel_top;
   left: $spacewalk_ui_manager_left;
 
   width: $spacewalk_ui_manager_panel_size;
   height: auto;
+
+  .list-group {
+    margin-top: $spacewalk_ui_manager_margin;
+    margin-bottom: $spacewalk_ui_manager_margin;
+  }
+
+  .list-group:first-child {
+    margin-top: 2 * $spacewalk_ui_manager_margin;
+  }
+
+  .list-group:last-child {
+    margin-bottom: unset;
+  }
 
   li {
     display: flex;

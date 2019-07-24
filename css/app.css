@@ -249,10 +249,19 @@ div.navbar-brand {
 
 #spacewalk_ui_manager_panel.card {
   z-index: 2048;
+  background-color: #3a3a3a;
+  border-color: #3a3a3a;
   top: 154px;
   left: 32px;
   width: 256px;
   height: auto; }
+  #spacewalk_ui_manager_panel.card .list-group {
+    margin-top: 6px;
+    margin-bottom: 6px; }
+  #spacewalk_ui_manager_panel.card .list-group:first-child {
+    margin-top: 12px; }
+  #spacewalk_ui_manager_panel.card .list-group:last-child {
+    margin-bottom: unset; }
   #spacewalk_ui_manager_panel.card li {
     display: flex;
     flex-direction: row;

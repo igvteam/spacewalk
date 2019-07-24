@@ -322,65 +322,29 @@
 
         <!-- UI Manager Panel -->
         <div id="spacewalk_ui_manager_panel" class="card" style="display:none;">
+
+            <!--  -->
             <ul class="list-group list-group-flush">
 
                 <!-- toggle groundplane -->
-                <li class="list-group-item">
+                <li class="list-group-item list-group-item-action">
                     <input id="spacewalk_ui_manager_groundplane" class="mr-2" type="checkbox">
                     <div>Ground Plane</div>
                 </li>
 
                 <!-- toggle gnomon -->
-                <li class="list-group-item">
+                <li class="list-group-item list-group-item-action">
                     <input id="spacewalk_ui_manager_gnomon" class="mr-2" type="checkbox" checked>
                     <div>Axes</div>
                 </li>
 
-                <!-- toggle color ramp panel -->
-                <li class="list-group-item">
-                    <input id="spacewalk_ui_manager_ui_controls_color_ramp" data-target="spacewalk_color_ramp_panel" class="mr-2" type="checkbox">
-                    <div>Genomic Navigator</div>
-                </li>
+            </ul>
 
-                <!-- toggle trace select panel -->
-                <li class="list-group-item">
-                    <input id="spacewalk_ui_manager_ui_controls_trace_select" data-target="spacewalk_trace_select_panel" class="mr-2" type="checkbox">
-                    <div>Trace Selector</div>
-                </li>
-
-                <!-- toggle juicebox panel -->
-                <li class="list-group-item">
-                    <input id="spacewalk_ui_manager_ui_controls_juicebox" data-target="spacewalk_juicebox_panel" class="mr-2" type="checkbox">
-                    <div>Contact Map Viewer</div>
-                </li>
-
-                <!-- toggle igv panel -->
-                <li class="list-group-item">
-                    <input id="spacewalk_ui_manager_ui_controls_igv" data-target="spacewalk_igv_panel" class="mr-2" type="checkbox">
-                    <div>Genomic Track Viewer</div>
-                </li>
-
-                <!-- toggle thumbnail panel -->
-<!--                <li class="list-group-item">-->
-<!--                    <input id="spacewalk_ui_manager_ui_controls_thumbnail" data-target="spacewalk_thumbnail_panel" class="mr-2" type="checkbox" disabled>-->
-<!--                    <div>Thumbnail</div>-->
-<!--                </li>-->
-
-                <!-- toggle distance-map panel -->
-                <li class="list-group-item">
-                    <input id="spacewalk_ui_manager_ui_controls_distance_map" data-target="spacewalk_distance_map_panel" class="mr-2" type="checkbox">
-                    <div>Distance Map</div>
-                </li>
-
-                <!-- toggle contact-frequency-map panel -->
-                <li class="list-group-item">
-
-                    <input id="spacewalk_ui_manager_ui_controls_contact_frequency_map" data-target="spacewalk_contact_frequency_map_panel" class="mr-2" type="checkbox">
-                    <div>Contact Map</div>
-                </li>
+            <!--  -->
+            <ul class="list-group list-group-flush">
 
                 <!-- toggle render style -->
-                <li class="list-group-item">
+                <li class="list-group-item list-group-item-action">
                     <div class="spacewalk_ui_manager_render_style_container">
                         <div class="form-check">
                             <input name="spacewalk-render-style" id="spacewalk-render-style-ball-stick" class="form-check-input" type="radio" checked>
@@ -396,6 +360,58 @@
                         </div>
                     </div>
                 </li>
+
+            </ul>
+
+            <!--  -->
+            <ul class="list-group list-group-flush">
+
+                <!-- toggle trace select panel -->
+                <li class="list-group-item list-group-item-action">
+                    <input id="spacewalk_ui_manager_ui_controls_trace_select" data-target="spacewalk_trace_select_panel" class="mr-2" type="checkbox">
+                    <div>Trace Selector</div>
+                </li>
+            </ul>
+
+            <!--  -->
+            <ul class="list-group list-group-flush">
+
+                <!-- toggle genomic navigator -->
+                <li class="list-group-item list-group-item-action">
+                    <input id="spacewalk_ui_manager_ui_controls_color_ramp" data-target="spacewalk_color_ramp_panel" class="mr-2" type="checkbox">
+                    <div>Genomic Navigator</div>
+                </li>
+
+                <!-- toggle igv panel -->
+                <li class="list-group-item list-group-item-action">
+                    <input id="spacewalk_ui_manager_ui_controls_igv" data-target="spacewalk_igv_panel" class="mr-2" type="checkbox">
+                    <div>IGV Viewer</div>
+                </li>
+
+            </ul>
+
+            <!--  -->
+            <ul class="list-group list-group-flush">
+
+                <!-- toggle juicebox panel -->
+                <li class="list-group-item list-group-item-action">
+                    <input id="spacewalk_ui_manager_ui_controls_juicebox" data-target="spacewalk_juicebox_panel" class="mr-2" type="checkbox">
+                    <div>Juicebox Viewer</div>
+                </li>
+
+                <!-- toggle distance-map panel -->
+                <li class="list-group-item list-group-item-action">
+                    <input id="spacewalk_ui_manager_ui_controls_distance_map" data-target="spacewalk_distance_map_panel" class="mr-2" type="checkbox">
+                    <div>Distance Map</div>
+                </li>
+
+                <!-- toggle contact-frequency-map panel -->
+                <li class="list-group-item list-group-item-action">
+
+                    <input id="spacewalk_ui_manager_ui_controls_contact_frequency_map" data-target="spacewalk_contact_frequency_map_panel" class="mr-2" type="checkbox">
+                    <div>Contact Map</div>
+                </li>
+
             </ul>
         </div>
 
