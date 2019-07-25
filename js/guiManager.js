@@ -60,14 +60,22 @@ class GUIManager {
     receiveEvent({ type, data }) {
 
         if ('DidSelectPanel' === type) {
+
             const $selected = data;
             const $unselected = this.$widgetPanels.not($selected);
             $selected.css('zIndex', zIndexPanelSelected);
             $unselected.css('zIndex', zIndexPanelUnselected);
+
         } else if ('DidLoadFile' === type) {
+
+            $('#spacewalk_info_panel').show();
             $('#spacewalk_ui_manager_render_style').show();
+
         } else if ('DidLoadPointCloudFile' === type) {
+
+            $('#spacewalk_info_panel').show();
             $('#spacewalk_ui_manager_render_style').hide();
+
         }
     }
 
