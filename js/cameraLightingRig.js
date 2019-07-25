@@ -6,7 +6,7 @@ import {prettyVector3String} from "./math.js";
 let cameraWorldDirection = new THREE.Vector3();
 let crossed = new THREE.Vector3();
 
-let currentStructureCentroid = undefined;
+let currentCentroid = undefined;
 
 class CameraLightingRig extends OrbitControls {
 
@@ -28,24 +28,24 @@ class CameraLightingRig extends OrbitControls {
 
     configure ({ fov, position, centroid, boundingDiameter }) {
 
-        console.log(`fov ${ Math.round(fov) } eye ${ prettyVector3String(position) } center ${ prettyVector3String(centroid) } bounds ${ numberFormatter(Math.round(boundingDiameter))}`);
-
         if (true === this.doUpdateCameraPose) {
-            this.setPose({ position, centroid });
+            this.setPose({ position, newTarget: centroid });
             this.doUpdateCameraPose = false;
         } else {
 
-            // maintain the pre-existing delta between camera target and groundplane beneath stucture
-            const delta = this.target.clone().sub(currentStructureCentroid);
+            // maintain the pre-existing delta between camera target and object centroid
+            const delta = new THREE.Vector3();
+            delta.subVectors(this.target, currentCentroid);
 
-            const _centroid = centroid.clone().add(delta);
-            this.setTarget({ centroid: _centroid });
+            const newTarget = new THREE.Vector3();
+            newTarget.addVectors(centroid, delta);
+            this.setTarget({ newTarget });
         }
 
         const [ near, far, aspectRatio ] = [ 1e-1 * boundingDiameter, 3e1 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
         this.setProjection({ fov, near, far, aspectRatio });
 
-        currentStructureCentroid = centroid.clone();
+        currentCentroid = centroid.clone();
 
     }
 
@@ -68,14 +68,16 @@ class CameraLightingRig extends OrbitControls {
         this.camera.updateProjectionMatrix();
     }
 
-    setPose({ position, centroid }) {
-        const toCamera = position.clone().sub(centroid);
-        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this })
+    setPose({ position, newTarget }) {
+        let toCamera = new THREE.Vector3();
+        toCamera.subVectors(position, newTarget);
+        poseHelper({ toCamera, newTarget, camera: this.camera, orbitControl: this })
     }
 
-    setTarget({ centroid }) {
-        const toCamera = this.camera.position.clone().sub(this.target);
-        poseHelper({ toCamera, centroid, camera: this.camera, orbitControl: this })
+    setTarget({ newTarget }) {
+        let toCamera = new THREE.Vector3();
+        toCamera.subVectors(this.camera.position, this.target);
+        poseHelper({ toCamera, newTarget, camera: this.camera, orbitControl: this })
     }
 
     addToScene (scene) {
@@ -108,20 +110,18 @@ const createLightSource = ({ x, y, z, color, intensity }) => {
     return lightSource;
 };
 
-let poseHelper = ({ toCamera, centroid, camera, orbitControl }) => {
+let poseHelper = ({ toCamera, newTarget, camera, orbitControl }) => {
 
-    let _toCamera = toCamera.clone();
-    let _target = centroid.clone();
+    camera.lookAt(newTarget);
 
-    camera.lookAt(_target);
-
-    const { x, y, z } = _target.clone().add(_toCamera);
+    const position = new THREE.Vector3();
+    position.addVectors(newTarget, toCamera);
+    const { x, y, z } = position;
     camera.position.set(x, y, z);
 
     camera.updateMatrixWorld();
 
-    orbitControl.target = _target.clone();
-
+    orbitControl.target.copy(newTarget);
     orbitControl.update();
 
 };
