@@ -21,6 +21,7 @@
     "@babel/polyfill": "^7.2.5",
     "@babel/preset-env": "^7.5.4",
     "data-modal": "github:igvteam/data-modal",
+    "igv": "^2.2.15",
     "juicebox.js": "github:igvteam/juicebox.js#dat_tracing3d_edits",
     "kd3d": "github:turner/kd3d",
     "three": "^0.106.2",

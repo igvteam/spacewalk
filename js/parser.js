@@ -1,5 +1,5 @@
 import Globals from "./globals.js";
-import igv from "../vendor/igv.esm.js";
+import igv from '../node_modules/igv/dist/igv.esm.js';
 import { numberFormatter, readFileAsText } from "./utils.js";
 
 class Parser {
