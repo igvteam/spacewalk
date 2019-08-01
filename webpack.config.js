@@ -1,8 +1,8 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 
-process.env.STUB_FILE_SRC = '<script type="module" src="js/stub_app.js"></script>';
-process.env.STUB_FILE_DST = '<script src="./stub_bundle.js"></script>';
+// process.env.STUB_FILE_SRC = '<script type="module" src="js/stub_app.js"></script>';
+// process.env.STUB_FILE_DST = '<script src="./stub_bundle.js"></script>';
 
 process.env.INDEX_FILE_SRC = '<script type="module" src="js/app.js"></script>';
 process.env.INDEX_FILE_DST = '<script src="./app_bundle.js"></script>';
@@ -10,15 +10,10 @@ process.env.INDEX_FILE_DST = '<script src="./app_bundle.js"></script>';
 module.exports =
     {
         mode: 'none',
-        // entry:
-        //     [
-        //         '@babel/polyfill',
-        //         './js/app.js'
-        //     ],
         entry:
             {
                 app_bundle: './js/app.js',
-                stub_bundle: './js/stub_app.js'
+                // stub_bundle: './js/stub_app.js'
             },
         output:
             {
@@ -57,14 +52,14 @@ module.exports =
                     { from:'resources/**/*' },
                     { from:'vendor/*'       },
                     { from:'favicon.ico'    },
-                    {
-                        from: 'stub.html',
-                        transform: (content) => {
-                            return content
-                                .toString()
-                                .replace(process.env.STUB_FILE_SRC, process.env.STUB_FILE_DST);
-                        }
-                    },
+                    // {
+                    //     from: 'stub.html',
+                    //     transform: (content) => {
+                    //         return content
+                    //             .toString()
+                    //             .replace(process.env.STUB_FILE_SRC, process.env.STUB_FILE_DST);
+                    //     }
+                    // },
                     {
                         from: 'index.html',
                         transform: (content) => {
