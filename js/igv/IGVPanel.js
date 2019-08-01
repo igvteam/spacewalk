@@ -71,7 +71,7 @@ class IGVPanel extends Panel {
             });
 
             trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: this.browser, trackRegistryFile, $googleDriveButton: undefined } ));
-            trackLoadController.updateTrackMenus(this.browser.genome.id);
+            await trackLoadController.updateTrackMenus(this.browser.genome.id);
 
         })();
 
