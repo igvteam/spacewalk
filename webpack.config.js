@@ -49,8 +49,7 @@ module.exports =
         plugins:
             [
                 new CopyPlugin([
-                    { from:'css/*.css'      },
-                    { from:'css/fontawesome/all.css' },
+                    { from:'css/**/*.css'      },
                     { from:'css/webfonts/*' },
                     { from:'css/img/*'      },
                     { from:'img/*'          },
