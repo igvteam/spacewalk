@@ -72,7 +72,6 @@ class IGVPanel extends Panel {
 
             trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: this.browser, trackRegistryFile, $googleDriveButton: undefined } ));
             await trackLoadController.updateTrackMenus(this.browser.genome.id);
-
         })();
 
     }
@@ -140,11 +139,26 @@ const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
     Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
 };
 
+const getTrackFeatures = (track) => {
+
+    (async () => {
+
+        const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
+
+        const { name: chr } = chromosome;
+
+        const { bpPerPixel } = referenceFrame;
+
+        return await track.getFeatures(chr, start, end, bpPerPixel);
+
+    })();
+};
+
 const addDataValueMaterialProviderGUI = tracks => {
 
     for (let track of tracks) {
 
-        if (track.featureType && 'numeric' === track.featureType) {
+        if (true || true || true/*track.featureType && 'numeric' === track.featureType*/) {
 
             const { trackDiv } = track.trackView;
 
@@ -192,7 +206,6 @@ const addDataValueMaterialProviderGUI = tracks => {
 
         }
     }
-
 };
 
 const igvBrowserConfigurator = () => {
