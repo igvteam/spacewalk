@@ -1,5 +1,5 @@
 import Globals from './../globals.js';
-import igv from '../../node_modules/igv/dist/igv.esm.js';
+import igv from '../../vendor/igv.esm.js';
 import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import { igvPanel, guiManager } from "../gui.js";
