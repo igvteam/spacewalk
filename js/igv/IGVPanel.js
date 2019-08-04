@@ -90,21 +90,44 @@ class IGVPanel extends Panel {
 
         (async () => {
 
-            let tracks = undefined;
+            let tracks = [];
             try {
                 tracks = await this.browser.loadTrackList( configurations );
-
-                for (let track of tracks) {
-                    this.browser.setTrackLabelName(track.trackView, track.config.Name)
-                }
-
             } catch (error) {
                 console.warn(error.message);
             }
 
+            for (let track of tracks) {
+                this.browser.setTrackLabelName(track.trackView, track.config.Name);
+            }
+
+            // inspect feature type
+            const { chromosome, start, end, referenceFrame } = this.browser.genomicStateList[ 0 ];
+            const { name: chr } = chromosome;
+            const { bpPerPixel } = referenceFrame;
+
+            let promises = [];
+            for (let track of tracks) {
+                promises.push(track.getFeatures(chr, start, end, bpPerPixel));
+            }
+
+            let listOfFeatureLists = [];
+            try {
+                listOfFeatureLists = await Promise.all(promises);
+            } catch (e) {
+                console.warn(e.message);
+            }
+
+            for (let i = 0; i < listOfFeatureLists.length; i++) {
+                const featureList = listOfFeatureLists[ i ];
+                const featureProbe = featureList[0];
+                tracks[ i ].supportsDataValueMaterialProvider = (featureProbe.score || featureProbe.value) ? true : false;
+            }
+
             addDataValueMaterialProviderGUI(tracks);
 
-           this.presentPanel();
+            this.presentPanel();
+
 
         })();
 
