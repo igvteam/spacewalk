@@ -94,9 +94,9 @@ class IGVPanel extends Panel {
             try {
                 tracks = await this.browser.loadTrackList( configurations );
 
-                // for (let track of tracks) {
-                //     this.browser.setTrackLabelName(track.trackView, track.config.Name)
-                // }
+                for (let track of tracks) {
+                    this.browser.setTrackLabelName(track.trackView, track.config.Name)
+                }
 
             } catch (error) {
                 console.warn(error.message);
