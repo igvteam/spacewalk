@@ -64,8 +64,10 @@ class IGVPanel extends Panel {
                 console.warn(error.message);
             }
 
-            this.browser.on('trackremoved', () => {
-                console.log('igv - track removed.');
+            this.browser.on('trackremoved', (track) => {
+                if (track.$input && track.$input.prop('checked')) {
+                    setMaterialProvider(Globals.traceColorRampMaterialProvider);
+                }
             });
 
             addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
@@ -161,20 +163,20 @@ const addDataValueMaterialProviderGUI = tracks => {
             const $div = $('<div>', { class: 'input-group' });
             $container.append($div);
 
-            const $input = $('<input>', { type: 'checkbox' });
-            $div.append($input);
+            track.$input = $('<input>', { type: 'checkbox' });
+            $div.append(track.$input);
 
-            $input.on('click.igv-panel.encode-loader', async (e) => {
+            track.$input.on('click.igv-panel.encode-loader', async (e) => {
 
                 e.stopPropagation();
 
                 const { trackContainerDiv } = track.browser;
 
-                // unselect  checkboxes
-                const $otherInputs = $(trackContainerDiv).find('.input-group input').not($input.get(0));
+                // unselect other track's checkboxes
+                const $otherInputs = $(trackContainerDiv).find('.input-group input').not(track.$input.get(0));
                 $otherInputs.prop('checked', false);
 
-                if ($input.prop('checked')) {
+                if (track.$input.prop('checked')) {
 
                     const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
 
@@ -193,11 +195,8 @@ const addDataValueMaterialProviderGUI = tracks => {
                     }
 
                     setMaterialProvider(Globals.dataValueMaterialProvider);
-
                 } else {
-
                     setMaterialProvider(Globals.traceColorRampMaterialProvider);
-
                 }
 
             });
