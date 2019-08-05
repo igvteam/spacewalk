@@ -64,6 +64,10 @@ class IGVPanel extends Panel {
                 console.warn(error.message);
             }
 
+            this.browser.on('trackremoved', () => {
+                console.log('igv - track removed.');
+            });
+
             addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
 
             this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
@@ -98,36 +102,18 @@ class IGVPanel extends Panel {
             }
 
             for (let track of tracks) {
+
                 this.browser.setTrackLabelName(track.trackView, track.config.Name);
-            }
 
-            // inspect feature type
-            const { chromosome, start, end, referenceFrame } = this.browser.genomicStateList[ 0 ];
-            const { name: chr } = chromosome;
-            const { bpPerPixel } = referenceFrame;
+                if (track.getFeatures && typeof track.getFeatures === "function") {
+                    track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
+                }
 
-            let promises = [];
-            for (let track of tracks) {
-                promises.push(track.getFeatures(chr, start, end, bpPerPixel));
-            }
-
-            let listOfFeatureLists = [];
-            try {
-                listOfFeatureLists = await Promise.all(promises);
-            } catch (e) {
-                console.warn(e.message);
-            }
-
-            for (let i = 0; i < listOfFeatureLists.length; i++) {
-                const featureList = listOfFeatureLists[ i ];
-                const featureProbe = featureList[0];
-                tracks[ i ].supportsDataValueMaterialProvider = (featureProbe.score || featureProbe.value) ? true : false;
             }
 
             addDataValueMaterialProviderGUI(tracks);
 
             this.presentPanel();
-
 
         })();
 
@@ -162,26 +148,11 @@ const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
     Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
 };
 
-const getTrackFeatures = (track) => {
-
-    (async () => {
-
-        const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
-
-        const { name: chr } = chromosome;
-
-        const { bpPerPixel } = referenceFrame;
-
-        return await track.getFeatures(chr, start, end, bpPerPixel);
-
-    })();
-};
-
 const addDataValueMaterialProviderGUI = tracks => {
 
     for (let track of tracks) {
 
-        if (true || true || true/*track.featureType && 'numeric' === track.featureType*/) {
+        if (track.featureDescription) {
 
             const { trackDiv } = track.trackView;
 
@@ -213,9 +184,13 @@ const addDataValueMaterialProviderGUI = tracks => {
 
                     const features = await track.getFeatures(chr, start, end, bpPerPixel);
 
-                    const { min, max } = track.dataRange;
+                    if ('varying' === track.featureDescription) {
+                        const { min, max } = track.dataRange;
+                        Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
 
-                    Globals.dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
+                    } else {
+                        Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+                    }
 
                     setMaterialProvider(Globals.dataValueMaterialProvider);
 
