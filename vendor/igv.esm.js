@@ -24335,8 +24335,8 @@ var igv = (function (igv) {
             this.searchConfig = {
                 // Legacy support -- deprecated
                 type: "plain",
-                //url: 'https://portals.broadinstitute.org/webservices/igv/locus?genome=$GENOME$&name=$FEATURE$',
-                url: 'https:igv.org/services/locus.php?genome=$GENOME$&name=$FEATURE$',
+                url: 'https://portals.broadinstitute.org/webservices/igv/locus?genome=$GENOME$&name=$FEATURE$',
+                //url: 'https:igv.org/services/locus.php?genome=$GENOME$&name=$FEATURE$',
                 coords: 0,
                 chromosomeField: "chromosome",
                 startField: "start",
@@ -29228,28 +29228,24 @@ var igv = (function (igv) {
      */
 
     igv.FeatureCache = function (featureList, genome, range) {
-        
-        this.treeMap = buildTreeMap(featureList, genome);
+
+        this.treeMap = this.buildTreeMap(featureList, genome);
         this.range = range;
-        
+        this.count = featureList.length;
     }
 
     igv.FeatureCache.prototype.containsRange = function (genomicRange) {
-
         // No range means cache contains all features
         return (this.range === undefined || this.range.contains(genomicRange.chr, genomicRange.start, genomicRange.end));
-
     }
 
     igv.FeatureCache.prototype.queryFeatures = function (chr, start, end) {
 
-        var featureList, intervalFeatures, feature, len, i, tree, intervals;
-
-        tree = this.treeMap[chr];
+        const tree = this.treeMap[chr];
 
         if (!tree) return [];
 
-        intervals = tree.findOverlapping(start, end);
+        const intervals = tree.findOverlapping(start, end);
 
         if (intervals.length == 0) {
             return [];
@@ -29259,27 +29255,25 @@ var igv = (function (igv) {
             // overlapping the requested range.
             // Assumption: features are sorted by start position
 
-            featureList = [];
-
-            intervals.forEach(function (interval) {
-                intervalFeatures = interval.value;
-                len = intervalFeatures.length;
-                for (i = 0; i < len; i++) {
-                    feature = intervalFeatures[i];
-                    if (feature.start > end) break;
-                    else if (feature.end >= start) {
-                        featureList.push(feature);
+            const featureList = [];
+            const all = this.allFeatures[chr];
+            if(all) {
+                for (let interval of intervals) {
+                    const indexRange = interval.value;
+                    for (let i = indexRange.start; i < indexRange.end; i++) {
+                        let feature = all[i];
+                        if (feature.start > end) break;
+                        else if (feature.end >= start) {
+                            featureList.push(feature);
+                        }
                     }
                 }
-            });
-
-            featureList.sort(function (a, b) {
-                return a.start - b.start;
-            });
-
+                featureList.sort(function (a, b) {
+                    return a.start - b.start;
+                });
+            }
             return featureList;
         }
-
     };
 
     /**
@@ -29289,57 +29283,42 @@ var igv = (function (igv) {
      */
     igv.FeatureCache.prototype.getAllFeatures = function () {
 
-
-        var allFeatures = [];
-        var treeMap = this.treeMap;
-        if (treeMap) {
-            for (var key in treeMap) {
-                if (treeMap.hasOwnProperty(key)) {
-
-                    var tree = treeMap[key];
-                    tree.mapIntervals(function (interval) {
-                        allFeatures = allFeatures.concat(interval.value);
-                    });
-                }
-            }
-        }
-
-        return allFeatures;
+        return this.allFeatures;
 
     }
 
-    function buildTreeMap(featureList, genome) {
-        
+    igv.FeatureCache.prototype.buildTreeMap = function (featureList, genome) {
+
         const treeMap = {};
         const chromosomes = [];
-        const featureCache = {};
-        
-        if (featureList) {
+        this.allFeatures = {};
 
-            featureList.forEach(function (feature) {
+        if (featureList) {
+            for (let feature of featureList) {
 
                 let chr = feature.chr;
-
                 // Translate to "official" name
-                if(genome) {
+                if (genome) {
                     chr = genome.getChromosomeName(chr);
                 }
 
-                let geneList = featureCache[chr];
-
+                let geneList = this.allFeatures[chr];
                 if (!geneList) {
                     chromosomes.push(chr);
                     geneList = [];
-                    featureCache[chr] = geneList;
+                    this.allFeatures[chr] = geneList;
                 }
                 geneList.push(feature);
-            });
+            }
 
 
             // Now build interval tree for each chromosome
-            for (let i = 0; i < chromosomes.length; i++) {
-                const chr = chromosomes[i];
-                treeMap[chr] = buildIntervalTree(featureCache[chr]);
+            for (let chr of chromosomes) {
+                const chrFeatures = this.allFeatures[chr];
+                chrFeatures.sort(function (f1, f2) {
+                    return (f1.start === f2.start ? 0 : (f1.start > f2.start ? 1 : -1));
+                });
+                treeMap[chr] = buildIntervalTree(chrFeatures);
             }
         }
 
@@ -29354,30 +29333,31 @@ var igv = (function (igv) {
      */
     function buildIntervalTree(featureList) {
 
-        var i, e, iStart, iEnd, tree, chunkSize, len, subArray;
+        const tree = new igv.IntervalTree();
+        const len = featureList.length;
+        const chunkSize = Math.max(10, Math.round(len / 10));
 
-        tree = new igv.IntervalTree();
-        len = featureList.length;
-
-        chunkSize = Math.max(10, Math.round(len / 100));
-
-        featureList.sort(function (f1, f2) {
-            return (f1.start === f2.start ? 0 : (f1.start > f2.start ? 1 : -1));
-        });
-
-        for (i = 0; i < len; i += chunkSize) {
-            e = Math.min(len, i + chunkSize);
-            subArray = featureList.slice(i, e);
-            iStart = subArray[0].start;
+        for (let i = 0; i < len; i += chunkSize) {
+            const e = Math.min(len, i + chunkSize);
+            const subArray = new IndexRange(i, e); //featureList.slice(i, e);
+            const iStart = featureList[i].start;
             //
-            iEnd = iStart;
-            subArray.forEach(function (feature) {
-                iEnd = Math.max(iEnd, feature.end);
-            });
+            let iEnd = iStart;
+            for (let j = i; j < e; j++) {
+                iEnd = Math.max(iEnd, featureList[j].end);
+            }
             tree.insert(iStart, iEnd, subArray);
         }
 
         return tree;
+    }
+
+
+    class IndexRange {
+        constructor(start, end) {
+            this.start = start;
+            this.end = end;
+        }
     }
 
 
@@ -31275,10 +31255,12 @@ var igv = (function (igv) {
             }
         }
 
+        this.supportsWG = !this.queryable;   // Can be dynamically changed
+
     };
 
     igv.FeatureSource.prototype.supportsWholeGenome = function () {
-        return !this.queryable;
+        return this.supportsWG;
     }
 
     igv.FeatureSource.prototype.getFileHeader = async function () {
@@ -31322,8 +31304,7 @@ var igv = (function (igv) {
 
     /**
      * Required function for all data source objects.  Fetches features for the
-     * range requested and passes them on to the success function.  Usually this is
-     * a function that renders the features on the canvas
+     * range requested.
      *
      * @param chr
      * @param bpStart
@@ -31331,12 +31312,11 @@ var igv = (function (igv) {
      * @param bpPerPixel
      */
 
-    igv.FeatureSource.prototype.getFeatures = async function (chr, bpStart, bpEnd, bpPerPixel, visibilityWindow) {
+    igv.FeatureSource.prototype.getFeatures = async function (chr, bpStart, bpEnd, bpPerPixel) {
 
         const reader = this.reader;
         const genome = this.genome;
         const queryChr = genome ? genome.getChromosomeName(chr) : chr;
-        const maxRows = this.config.maxRows || 500;
         const featureCache = await getFeatureCache.call(this)
         const isQueryable = this.queryable;
 
@@ -31345,11 +31325,16 @@ var igv = (function (igv) {
                 return [];
             }
             else {
-                return this.getWGFeatures(featureCache.getAllFeatures());
+                if(featureCache.count > 100000) {
+                    this.supportsWG = false;
+                    return [];
+                } else {
+                    return this.getWGFeatures(allFeatures);
+                }
             }
         }
         else {
-            return this.featureCache.queryFeatures(queryChr, bpStart, bpEnd);
+            return featureCache.queryFeatures(queryChr, bpStart, bpEnd);
         }
 
 
@@ -31361,7 +31346,6 @@ var igv = (function (igv) {
 
             if (this.featureCache &&
                 (this.static || this.featureCache.containsRange(genomicInterval) || "all" === chr.toLowerCase())) {
-
                 return this.featureCache;
             }
             else {
@@ -31369,12 +31353,12 @@ var igv = (function (igv) {
                 // If a visibility window is defined, potentially expand query interval.
                 // This can save re-queries as we zoom out.  Visibility window <= 0 is a special case
                 // indicating whole chromosome should be read at once.
-                if (visibilityWindow <= 0) {
+                if (this.visibilityWindow === undefined || this.visibilityWindow <= 0) {
                     // Whole chromosome
                     intervalStart = 0;
                     intervalEnd = Number.MAX_VALUE;
                 }
-                else if (visibilityWindow > (bpEnd - bpStart)) {
+                else if (this.visibilityWindow !== undefined && this.visibilityWindow > (bpEnd - bpStart)) {
                     const expansionWindow = Math.min(4.1 * (bpEnd - bpStart), visibilityWindow)
                     intervalStart = Math.max(0, (bpStart + bpEnd - expansionWindow) / 2);
                     intervalEnd = bpStart + expansionWindow;
@@ -31407,7 +31391,9 @@ var igv = (function (igv) {
         }
 
         // Assign overlapping features to rows
-        packFeatures(featureList, this.maxRows);
+        if(this.config.format !== "wig") {
+            packFeatures(featureList, this.maxRows);
+        }
 
         // Note - replacing previous cache with new one
         this.featureCache = this.queryable ?
@@ -31483,46 +31469,53 @@ var igv = (function (igv) {
     }
 
     // TODO -- filter by pixel size
-    igv.FeatureSource.prototype.getWGFeatures = function (features) {
+    igv.FeatureSource.prototype.getWGFeatures = function (allFeatures) {
 
+        if(this.wgFeatures) {
+            return this.wgFeatures;
+
+        }
         const genome = this.genome;
-
         const wgChromosomeNames = new Set(genome.wgChromosomeNames);
-
         const wgFeatures = [];
 
-        for (let f of features) {
+        for(let c of genome.wgChromosomeNames) {
 
-            let queryChr = genome.getChromosomeName(f.chr);
+            const features = allFeatures[c];
 
-            if (wgChromosomeNames.has(queryChr)) {
+            if(features) {
+                for (let f of features) {
+                    let queryChr = genome.getChromosomeName(f.chr);
+                    if (wgChromosomeNames.has(queryChr)) {
 
-                const wg = Object.create(Object.getPrototypeOf(f));
-                Object.assign(wg, f);
+                        const wg = Object.create(Object.getPrototypeOf(f));
+                        Object.assign(wg, f);
 
-                wg.realChr = f.chr;
-                wg.realStart = f.start;
-                wg.realEnd = f.end;
+                        wg.realChr = f.chr;
+                        wg.realStart = f.start;
+                        wg.realEnd = f.end;
 
-                wg.chr = "all";
-                wg.start = genome.getGenomeCoordinate(f.chr, f.start);
-                wg.end = genome.getGenomeCoordinate(f.chr, f.end);
+                        wg.chr = "all";
+                        wg.start = genome.getGenomeCoordinate(f.chr, f.start);
+                        wg.end = genome.getGenomeCoordinate(f.chr, f.end);
 
-                // Don't draw exons in whole genome view
-                if (wg["exons"]) delete wg["exons"]
+                        // Don't draw exons in whole genome view
+                        if (wg["exons"]) delete wg["exons"]
 
-                wg.popupData = function (genomeLocation) {
-                    const clonedObject = Object.assign({}, this)
-                    clonedObject.chr = this.realChr
-                    clonedObject.start = this.realStart
-                    clonedObject.end = this.realEnd
-                    delete clonedObject.realChr
-                    delete clonedObject.realStart
-                    delete clonedObject.realEnd
-                    return igv.TrackBase.extractPopupData(clonedObject, genome.id)
+                        wg.popupData = function (genomeLocation) {
+                            const clonedObject = Object.assign({}, this)
+                            clonedObject.chr = this.realChr
+                            clonedObject.start = this.realStart
+                            clonedObject.end = this.realEnd
+                            delete clonedObject.realChr
+                            delete clonedObject.realStart
+                            delete clonedObject.realEnd
+                            return igv.TrackBase.extractPopupData(clonedObject, genome.id)
+                        }
+
+                        wgFeatures.push(wg);
+                    }
                 }
-
-                wgFeatures.push(wg);
             }
         }
 
@@ -31530,8 +31523,9 @@ var igv = (function (igv) {
             return a.start - b.start;
         });
 
-        return wgFeatures;
+        this.wgFeatures = wgFeatures;
 
+        return wgFeatures;
 
     }
 
@@ -34488,24 +34482,16 @@ var igv = (function (igv) {
                 }
 
                 this.windowFunction = config.windowFunction || "mean";
-
                 this.paintAxis = igv.paintAxis;
-
                 this.graphType = config.graphType || "bar";
 
             });
 
-        WigTrack.prototype.getFeatures = function (chr, bpStart, bpEnd, bpPerPixel) {
+        WigTrack.prototype.getFeatures = async function (chr, bpStart, bpEnd, bpPerPixel) {
 
-            var self = this;
+            const header = await this.getFileHeader();
+            return  this.featureSource.getFeatures(chr, bpStart, bpEnd, bpPerPixel, this.windowFunction);
 
-            return this.getFileHeader()
-
-                .then(function (header) {
-
-                    return self.featureSource.getFeatures(chr, bpStart, bpEnd, bpPerPixel, self.windowFunction);
-
-                });
         };
 
         WigTrack.prototype.menuItemList = function () {
@@ -34576,17 +34562,20 @@ var igv = (function (igv) {
 
         WigTrack.prototype.draw = function (options) {
 
-            var self = this, features, ctx, bpPerPixel, bpStart, pixelWidth, pixelHeight, bpEnd,
-                featureValueMinimum, featureValueMaximum, featureValueRange, baselineColor;
+            var self = this;
 
-            features = options.features;
-            ctx = options.context;
-            bpPerPixel = options.bpPerPixel;
-            bpStart = options.bpStart;
-            pixelWidth = options.pixelWidth;
-            pixelHeight = options.pixelHeight;
-            bpEnd = bpStart + pixelWidth * bpPerPixel + 1;
+            const features = options.features;
+            const ctx = options.context;
+            const bpPerPixel = options.bpPerPixel;
+            const bpStart = options.bpStart;
+            const pixelWidth = options.pixelWidth;
+            const pixelHeight = options.pixelHeight;
+            const bpEnd = bpStart + pixelWidth * bpPerPixel + 1;
+            let lastXPixel = -1;
+            let lastValue = -1;
+            let lastNegValue = 1;
 
+            let baselineColor;
             if (typeof self.color === "string" && self.color.startsWith("rgb(")) {
                 baselineColor = igv.Color.addAlpha(self.color, 0.1);
             }
@@ -34595,19 +34584,19 @@ var igv = (function (igv) {
 
                 if (self.dataRange.min === undefined) self.dataRange.min = 0;
 
-                featureValueMinimum = self.dataRange.min;
-                featureValueMaximum = self.dataRange.max;
+                const featureValueMinimum = self.dataRange.min;
+                const featureValueMaximum = self.dataRange.max;
 
                 // Max can be less than min if config.min is set but max left to autoscale.   If that's the case there is
                 // nothing to paint.
                 if (featureValueMaximum > featureValueMinimum) {
 
-                    featureValueRange = featureValueMaximum - featureValueMinimum;
-
                     if (renderFeature.end < bpStart) return;
                     if (renderFeature.start > bpEnd) return;
 
-                    features.forEach(renderFeature);
+                    for (let f of features) {
+                        renderFeature(f, this.dataRange)
+                    }
 
                     // If the track includes negative values draw a baseline
                     if (featureValueMinimum < 0) {
@@ -34618,7 +34607,11 @@ var igv = (function (igv) {
             }
 
 
-            function renderFeature(feature) {
+            function renderFeature(feature, dataRange) {
+
+                const featureValueMinimum = self.dataRange.min;
+                const featureValueMaximum = self.dataRange.max;
+                const featureValueRange = featureValueMaximum - featureValueMinimum;
 
                 const x = Math.floor((feature.start - bpStart) / bpPerPixel);
                 const rectEnd = Math.ceil((feature.end - bpStart) / bpPerPixel);
@@ -34654,7 +34647,19 @@ var igv = (function (igv) {
                     }
 
                 } else {
-                    igv.graphics.fillRect(ctx, x, yUnitless * pixelHeight, width, heightUnitLess * pixelHeight, {fillStyle: color});
+                    // Draw optimization important for many points -- don't draw if the peak will be occluded by previously drawn features
+                    if (x > lastXPixel || ((feature.value > 0 && feature.value > lastValue) || (feature.value < 0 && feature.value < lastNegValue))) {
+                        igv.graphics.fillRect(ctx, x, yUnitless * pixelHeight, width, heightUnitLess * pixelHeight, {fillStyle: color});
+                        lastXPixel = x;
+                        if (feature.value > 0) {
+                            lastValue = feature.value;
+                        } else if (feature.value < 0) {
+                            lastNegValue = feature.value;
+                        }
+
+                    }
+
+
                 }
 
             }
@@ -34666,7 +34671,7 @@ var igv = (function (igv) {
             // We use the featureCache property rather than method to avoid async load.  If the
             // feature is not already loaded this won't work,  but the user wouldn't be mousing over it either.
 
-            if(!features) features = this.clickedFeatures(clickState);
+            if (!features) features = this.clickedFeatures(clickState);
 
             if (features && features.length > 0) {
 
@@ -41664,15 +41669,13 @@ var igv = (function (igv) {
     class RateLimiter {
 
         constructor(wait) {
-            this.wait = wait === undefined ? 100 : wait
-            this.isCalled = false
+            this.wait = wait === undefined ? 100 : wait;
+            this.isCalled = false;
             this.calls = [];
         }
 
-
         limiter(fn) {
-
-            const self = this
+            const self = this;
 
             let caller = function () {
                 if (self.calls.length && !self.isCalled) {
@@ -41690,15 +41693,12 @@ var igv = (function (igv) {
                 caller();
             };
         }
-
     }
 
-    const rateLimiter = new RateLimiter(100)
-
+    const rateLimiter = new RateLimiter(100);
 
     igv.xhr = {
-
-
+        
         load: async function (url, options) {
 
             options = options || {};
@@ -41720,8 +41720,8 @@ var igv = (function (igv) {
                                 } catch (e) {
                                     reject(e)
                                 }
-                            })(url, options)
-                        })
+                            })(url, options);
+                        });
                     } else {
                         return loadURL(url, options);
                     }
@@ -41764,10 +41764,10 @@ var igv = (function (igv) {
                         // Various Google tansformations
                         if (igv.google.isGoogleURL(url)) {
                             if (url.startsWith("gs://")) {
-                                url = igv.google.translateGoogleCloudURL(url)
+                                url = igv.google.translateGoogleCloudURL(url);
                             } else if (igv.google.isGoogleStorageURL(url)) {
                                 if (!url.includes("altMedia=")) {
-                                    url += (url.includes("?") ? "&altMedia=true" : "?altMedia=true")
+                                    url += (url.includes("?") ? "&altMedia=true" : "?altMedia=true");
                                 }
                             }
                             url = igv.google.addApiKey(url);
@@ -41855,9 +41855,8 @@ var igv = (function (igv) {
                                                 } else {
                                                     throw(error);
                                                 }
-                                            })
-                                    })
-
+                                            });
+                                    });
 
                             } else {
 
@@ -41907,21 +41906,17 @@ var igv = (function (igv) {
         },
 
         loadArrayBuffer: function (url, options) {
-
             options = options || {};
             options.responseType = "arraybuffer";
 
             if (url instanceof File) {
                 return loadFileSlice(url, options);
             } else {
-
                 return igv.xhr.load(url, options);
             }
-
         },
 
         loadJson: function (url, options) {
-
             options = options || {};
 
             var method = options.method || (options.sendData ? "POST" : "GET");
@@ -41931,18 +41926,15 @@ var igv = (function (igv) {
             return igv.xhr.load(url, options)
 
                 .then(function (result) {
-
                     if (result) {
                         return JSON.parse(result);
                     } else {
                         return result;
                     }
-                })
-
+                });
         },
 
         loadString: function (path, options) {
-
             options = options || {};
 
             if (path instanceof File) {
@@ -41957,19 +41949,11 @@ var igv = (function (igv) {
 
 
     function loadFileSlice(localfile, options) {
-
-        return new Promise(function (fullfill, reject) {
-
-            var fileReader,
-                blob,
-                rangeEnd;
-
-            fileReader = new FileReader();
+        return new Promise(function (resolve, reject) {
+            var fileReader = new FileReader();
 
             fileReader.onload = function (e) {
-
-                fullfill(fileReader.result);
-
+                resolve(fileReader.result);
             };
 
             fileReader.onerror = function (e) {
@@ -41978,8 +41962,7 @@ var igv = (function (igv) {
             };
 
             if (options.range) {
-                rangeEnd = options.range.start + options.range.size - 1;
-                blob = localfile.slice(options.range.start, rangeEnd + 1);
+                var blob = localfile.slice(options.range.start, options.range.start + options.range.size);
                 if ("arraybuffer" === options.responseType) {
                     fileReader.readAsArrayBuffer(blob);
                 } else {
@@ -41992,28 +41975,22 @@ var igv = (function (igv) {
                     fileReader.readAsBinaryString(localfile);
                 }
             }
-
         });
-
     }
 
     function loadStringFromFile(localfile, options) {
-
         return new Promise(function (fullfill, reject) {
 
             var fileReader = new FileReader();
-            var compression;
 
+            var compression = NONE;
             if (options.bgz) {
                 compression = BGZF;
             } else if (localfile.name.endsWith(".gz")) {
                 compression = GZIP;
-            } else {
-                compression = NONE;
             }
 
             fileReader.onload = function (e) {
-
                 if (compression === NONE) {
                     return fullfill(fileReader.result);
                 } else {
@@ -42031,43 +42008,34 @@ var igv = (function (igv) {
             } else {
                 fileReader.readAsArrayBuffer(localfile);
             }
-
         });
 
     }
 
     function loadStringFromUrl(url, options) {
+        options = options || {};
 
-        var compression,
-            fn,
-            idx;
+        var fn = options.filename || igv.getFilename(url);
 
-        if (options === undefined) options = {};
-
-        fn = options.filename || igv.getFilename(url);
-
+        var compression = UNKNOWN;
         if (options.bgz) {
             compression = BGZF;
         } else if (fn.endsWith(".gz")) {
             compression = GZIP;
-        } else {
-            compression = UNKNOWN;
         }
 
         options.responseType = "arraybuffer";
         return igv.xhr.load(url, options)
             .then(function (data) {
                 return arrayBufferToString(data, compression);
-            })
+            });
 
 
         function getFilename(url, options) {
-
             if (options.filename) {
                 return Promise.resolve(options.filename);
             }
         }
-
     }
 
     function isAmazonV4Signed(url) {
@@ -42075,27 +42043,24 @@ var igv = (function (igv) {
     }
 
     function getOauthToken(url) {
-
-        if (igv) {
-            const host = igv.parseUri(url).host;
-            let token = igv.oauth.getToken(host);
-            if (!token && igv.google.isGoogleURL(url)) {
-                token = igv.oauth.google.access_token;
-            }
-            return token;
-        } else {
+        if (!igv) {
             return undefined;
         }
+
+        const host = igv.parseUri(url).host;
+        let token = igv.oauth.getToken(host);
+        if (!token && igv.google.isGoogleURL(url)) {
+            token = igv.oauth.google.access_token;
+        }
+        return token;
     }
 
     function addOauthHeaders(headers, acToken) {
-        {
-            if (acToken) {
-                headers["Cache-Control"] = "no-cache";
-                headers["Authorization"] = "Bearer " + acToken;
-            }
-            return headers;
+        if (acToken) {
+            headers["Cache-Control"] = "no-cache";
+            headers["Authorization"] = "Bearer " + acToken;
         }
+        return headers;        
     }
 
     /**
@@ -42119,19 +42084,16 @@ var igv = (function (igv) {
 
 
     function arrayBufferToString(arraybuffer, compression) {
-
-        var plain, inflate;
-
         if (compression === UNKNOWN && arraybuffer.byteLength > 2) {
-
-            const m = new Uint8Array(arraybuffer, 0, 2)
+            const m = new Uint8Array(arraybuffer, 0, 2);
             if (m[0] === 31 && m[1] === 139) {
-                compression = GZIP
+                compression = GZIP;
             }
         }
 
+        var plain;
         if (compression === GZIP) {
-            inflate = new Zlib.Gunzip(new Uint8Array(arraybuffer));
+            var inflate = new Zlib.Gunzip(new Uint8Array(arraybuffer));
             plain = inflate.decompress();
         } else if (compression === BGZF) {
             plain = new Uint8Array(igv.unbgzf(arraybuffer));
@@ -42144,13 +42106,11 @@ var igv = (function (igv) {
         } else {
             return decodeUTF8(plain);
         }
-
     };
 
     function isGoogleDrive(url) {
-        return url.indexOf("drive.google.com") >= 0 || url.indexOf("www.googleapis.com/drive") > 0
+        return url.includes("drive.google.com") || url.includes("www.googleapis.com/drive");
     }
-
 
     /**
      * There can be only 1 oAuth promise executing at a time.
@@ -42160,41 +42120,40 @@ var igv = (function (igv) {
     async function getGoogleAccessToken() {
         if (igv.oauth.google.access_token) {
             return Promise.resolve(igv.oauth.google.access_token);
-        } else if (oauthPromise) {
-            return oauthPromise
         }
-        else {
-            const authInstance = gapi.auth2.getAuthInstance();
-            if (!authInstance) {
-                igv.browser.presentAlert("Authorization is required, but Google oAuth has not been initalized.  Contact your site administrator for assistance.")
-                return undefined;
-            } else {
-                const scope = "https://www.googleapis.com/auth/devstorage.read_only https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.readonly";
-                const options = new gapi.auth2.SigninOptionsBuilder();
-                options.setPrompt('select_account');
-                options.setScope(scope);
-                oauthPromise = new Promise(function (resolve, reject) {
+        if (oauthPromise) {
+            return oauthPromise;
+        } 
 
-                    igv.browser.presentMessageWithCallback("Google Login required", function () {
+        const authInstance = gapi.auth2.getAuthInstance();
+        if (!authInstance) {
+            igv.browser.presentAlert("Authorization is required, but Google oAuth has not been initalized.  Contact your site administrator for assistance.")
+            return undefined;
+        }
 
-                        gapi.auth2.getAuthInstance().signIn(options)
-                            .then(function (user) {
-                                const authResponse = user.getAuthResponse();
-                                igv.setGoogleOauthToken(authResponse["access_token"]);
-                                resolve(authResponse["access_token"]);
-                                oauthPromise = undefined
-                            })
-                            .catch(function(err) {
-                                oauthPromise = undefined
-                                reject(err)
-                            })
+        const scope = "https://www.googleapis.com/auth/devstorage.read_only https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.readonly";
+        const options = new gapi.auth2.SigninOptionsBuilder();
+        options.setPrompt('select_account');
+        options.setScope(scope);
+        oauthPromise = new Promise(function (resolve, reject) {
+
+            igv.browser.presentMessageWithCallback("Google Login required", function () {
+
+                gapi.auth2.getAuthInstance().signIn(options)
+                    .then(function (user) {
+                        const authResponse = user.getAuthResponse();
+                        igv.setGoogleOauthToken(authResponse["access_token"]);
+                        resolve(authResponse["access_token"]);
+                        oauthPromise = undefined;
                     })
-                })
+                    .catch(function(err) {
+                        oauthPromise = undefined;
+                        reject(err);
+                    });
+            });
+        });
 
-                return oauthPromise
-            }
-        }
-
+        return oauthPromise;
     }
 
 
@@ -42221,7 +42180,6 @@ var igv = (function (igv) {
     }
 
     function validateIP(address) {
-
         const regex = new RegExp(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/);
         return regex.test(address);
     }
@@ -47340,19 +47298,22 @@ var igv = (function (igv) {
         const rpV = viewportsToReload.call(this, force);
         for (let vp of rpV) {
             await vp.loadFeatures()
+            if (vp.tile && vp.tile.features && vp.tile.features.length === 0 && 'all' === vp.genomicState.referenceFrame.chrName) {
+                vp.checkZoomIn();
+            }
         }
 
         const isDragging = this.browser.isDragging;
 
         if (!isDragging && this.track.autoscale) {
             let allFeatures = [];
-            for(let vp of visibleViewports) {
+            for (let vp of visibleViewports) {
                 const referenceFrame = vp.genomicState.referenceFrame;
                 const start = referenceFrame.start;
                 const end = start + referenceFrame.toBP($(vp.contentDiv).width());
 
                 if (vp.tile && vp.tile.features) {
-                        allFeatures = allFeatures.concat(igv.FeatureUtils.findOverlapping(vp.tile.features, start, end));
+                    allFeatures = allFeatures.concat(igv.FeatureUtils.findOverlapping(vp.tile.features, start, end));
 
                 }
             }
@@ -47367,12 +47328,12 @@ var igv = (function (igv) {
 
         // Must repaint all viewports if autoscaling
         if (!isDragging && (this.track.autoscale || this.track.autoscaleGroup)) {
-            for(let vp of visibleViewports) {
+            for (let vp of visibleViewports) {
                 vp.repaint();
             }
         }
         else {
-            for(let vp of rpV) {
+            for (let vp of rpV) {
                 vp.repaint();
             }
         }
@@ -47384,46 +47345,39 @@ var igv = (function (igv) {
     /**
      * Return a promise to get all in-view features.  Used for group autoscaling.
      */
-    igv.TrackView.prototype.getInViewFeatures = function (force) {
+    igv.TrackView.prototype.getInViewFeatures = async function (force) {
 
         if (!(this.browser && this.browser.genomicStateList)) {
-            return Promise.resolve([]);
+            return [];
         }
 
-        var self = this, promises, rpV;
-
         // List of viewports that need reloading
-        rpV = viewportsToReload.call(this, force);
-
-        promises = rpV.map(function (vp) {
+        const rpV = viewportsToReload.call(this, force);
+        const promises = rpV.map(function (vp) {
             return vp.loadFeatures();
         });
 
-        return Promise.all(promises)
+        await Promise.all(promises)
 
-            .then(function (tiles) {
-                var allFeatures = [];
-                self.viewports.forEach(function (vp) {
-                    if (vp.tile && vp.tile.features) {
-                        var referenceFrame, chr, start, end, cache;
-                        referenceFrame = vp.genomicState.referenceFrame;
-                        start = referenceFrame.start;
-                        end = start + referenceFrame.toBP($(vp.contentDiv).width());
-                        allFeatures = allFeatures.concat(igv.FeatureUtils.findOverlapping(vp.tile.features, start, end));
-                    }
-                });
-                return allFeatures;
-            })
-
+        let allFeatures = [];
+        for(let vp of this.viewports) {
+            if (vp.tile && vp.tile.features) {
+                const referenceFrame = vp.genomicState.referenceFrame;
+                const start = referenceFrame.start;
+                const end = start + referenceFrame.toBP($(vp.contentDiv).width());
+                allFeatures = allFeatures.concat(igv.FeatureUtils.findOverlapping(vp.tile.features, start, end));
+            }
+        }
+        return allFeatures;
     };
 
 
     function viewportsToReload(force) {
 
-        var rpV;
+
 
         // List of viewports that need reloading
-        rpV = this.viewports.filter(function (viewport) {
+        const rpV = this.viewports.filter(function (viewport) {
             if (!viewport.isVisible()) {
                 return false
             }
@@ -47431,12 +47385,12 @@ var igv = (function (igv) {
                 return false
             }
             else {
-                var bpPerPixel, referenceFrame, chr, start, end;
-                referenceFrame = viewport.genomicState.referenceFrame;
-                chr = referenceFrame.chrName;
-                start = referenceFrame.start;
-                end = start + referenceFrame.toBP($(viewport.contentDiv).width());
-                bpPerPixel = referenceFrame.bpPerPixel;
+
+                const referenceFrame = viewport.genomicState.referenceFrame;
+                const chr = referenceFrame.chrName;
+                const start = referenceFrame.start;
+                const end = start + referenceFrame.toBP($(viewport.contentDiv).width());
+                const bpPerPixel = referenceFrame.bpPerPixel;
                 return force || (!viewport.tile || viewport.tile.invalidate || !viewport.tile.containsRange(chr, start, end, bpPerPixel));
             }
         });
@@ -50790,9 +50744,7 @@ var igv = (function (igv) {
 
 
         function showZoomInNotice() {
-
             const referenceFrame = this.genomicState.referenceFrame;
-
             if (referenceFrame.chrName.toLowerCase() === "all" && !this.trackView.track.supportsWholeGenome()) {
                 return true;
             }
