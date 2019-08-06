@@ -13,17 +13,27 @@ class Parser {
 
         // remove comments and empty lines
         let lines = raw.filter(line => {
-            return line.charAt(0) !== '#' && "" !== line;
+            return "" !== line;
         });
 
-        // cell line
-        this.sample = lines.shift();
+        // format directive followed by key-value pairs
+        let key_value_pairs = lines.shift().split('##').pop().split(' ');
 
-        // genome assembly
-        this.genomeAssembly = lines.shift();
+        // discard furnat=sw1
+        key_value_pairs.shift();
+
+        // name
+        this.sample = key_value_pairs.shift().split('=').pop();
+
+        // genome
+        this.genomeAssembly = key_value_pairs.shift().split('=').pop();
+
+
+        // discard column headings
+        lines.shift();
 
         // chromosome name
-        const [ bed, chr ] = lines.shift().split(' ');
+        let chr = undefined;
 
         let hash = {};
         let hashKey = undefined;
@@ -42,7 +52,11 @@ class Parser {
                 trace = hash[ hashKey ];
             } else {
 
-                let [ startBP, endBP, x, y, z ] = line.split(' ');
+                let [ chr_local, startBP, endBP, x, y, z ] = line.split(' ');
+
+                if (undefined === chr) {
+                    chr = chr_local
+                }
 
                 const traceKey = `${ startBP }%${ endBP }`;
 
