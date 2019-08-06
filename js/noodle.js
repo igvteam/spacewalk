@@ -207,12 +207,13 @@ const getRadialSegmentCount = locus => {
 };
 
 const getTubularSegmentCount = locus => {
-    return getCountMultiplier(locus) * 1024;
-    // return 1024;
+    // return getCountMultiplier(locus) * 1024;
+    return 1024;
 };
 
 const getFatSplinePointCount = locus => {
-    return getCountMultiplier(locus) * 2048;
+    // return getCountMultiplier(locus) * 2048;
+    return 2048;
 };
 
 const getCountMultiplier = locus => {

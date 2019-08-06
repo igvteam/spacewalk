@@ -52,6 +52,8 @@ class GUIManager {
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
 
         Globals.eventBus.subscribe("DidSelectPanel", this);
+        Globals.eventBus.subscribe('DidLoadFile', this);
+        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
 
@@ -61,9 +63,19 @@ class GUIManager {
 
             const $selected = data;
             const $unselected = this.$widgetPanels.not($selected);
-
             $selected.css('zIndex', zIndexPanelSelected);
             $unselected.css('zIndex', zIndexPanelUnselected);
+
+        } else if ('DidLoadFile' === type) {
+
+            $('#spacewalk_info_panel').show();
+            $('#spacewalk_ui_manager_render_style').show();
+
+        } else if ('DidLoadPointCloudFile' === type) {
+
+            $('#spacewalk_info_panel').show();
+            $('#spacewalk_ui_manager_render_style').hide();
+
         }
     }
 

@@ -121,9 +121,17 @@ class DataValueMaterialProvider {
 
             let startPixel = (fsBP - startBP) / bpp;
             let   endPixel = (feBP - startBP) / bpp;
-            let widthPixel = endPixel - startPixel;
 
-            let interpolant = (value - min) / (max - min);
+
+            let widthPixel;
+            let interpolant;
+            if (undefined === min && undefined === max) {
+                interpolant = 1;
+                widthPixel = Math.max(1, endPixel - startPixel);
+            } else {
+                interpolant = (value - min) / (max - min);
+                widthPixel = endPixel - startPixel;
+            }
 
             const { r, g, b } = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolant);
             let fillStyle = rgb255String({ r, g, b });

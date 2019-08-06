@@ -64,6 +64,12 @@ class IGVPanel extends Panel {
                 console.warn(error.message);
             }
 
+            this.browser.on('trackremoved', (track) => {
+                if (track.$input && track.$input.prop('checked')) {
+                    setMaterialProvider(Globals.traceColorRampMaterialProvider);
+                }
+            });
+
             addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
 
             this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
@@ -71,8 +77,7 @@ class IGVPanel extends Panel {
             });
 
             trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: this.browser, trackRegistryFile, $googleDriveButton: undefined } ));
-            trackLoadController.updateTrackMenus(this.browser.genome.id);
-
+            await trackLoadController.updateTrackMenus(this.browser.genome.id);
         })();
 
     }
@@ -91,21 +96,26 @@ class IGVPanel extends Panel {
 
         (async () => {
 
-            let tracks = undefined;
+            let tracks = [];
             try {
                 tracks = await this.browser.loadTrackList( configurations );
-
-                // for (let track of tracks) {
-                //     this.browser.setTrackLabelName(track.trackView, track.config.Name)
-                // }
-
             } catch (error) {
                 console.warn(error.message);
             }
 
+            for (let track of tracks) {
+
+                this.browser.setTrackLabelName(track.trackView, track.config.name);
+
+                if (track.getFeatures && typeof track.getFeatures === "function") {
+                    track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
+                }
+
+            }
+
             addDataValueMaterialProviderGUI(tracks);
 
-           this.presentPanel();
+            this.presentPanel();
 
         })();
 
@@ -144,7 +154,7 @@ const addDataValueMaterialProviderGUI = tracks => {
 
     for (let track of tracks) {
 
-        if (track.featureType && 'numeric' === track.featureType) {
+        if (track.featureDescription) {
 
             const { trackDiv } = track.trackView;
 
@@ -153,20 +163,20 @@ const addDataValueMaterialProviderGUI = tracks => {
             const $div = $('<div>', { class: 'input-group' });
             $container.append($div);
 
-            const $input = $('<input>', { type: 'checkbox' });
-            $div.append($input);
+            track.$input = $('<input>', { type: 'checkbox' });
+            $div.append(track.$input);
 
-            $input.on('click.igv-panel.encode-loader', async (e) => {
+            track.$input.on('click.igv-panel.encode-loader', async (e) => {
 
                 e.stopPropagation();
 
                 const { trackContainerDiv } = track.browser;
 
-                // unselect  checkboxes
-                const $otherInputs = $(trackContainerDiv).find('.input-group input').not($input.get(0));
+                // unselect other track's checkboxes
+                const $otherInputs = $(trackContainerDiv).find('.input-group input').not(track.$input.get(0));
                 $otherInputs.prop('checked', false);
 
-                if ($input.prop('checked')) {
+                if (track.$input.prop('checked')) {
 
                     const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
 
@@ -176,23 +186,23 @@ const addDataValueMaterialProviderGUI = tracks => {
 
                     const features = await track.getFeatures(chr, start, end, bpPerPixel);
 
-                    const { min, max } = track.dataRange;
+                    if ('varying' === track.featureDescription) {
+                        const { min, max } = track.dataRange;
+                        Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
 
-                    Globals.dataValueMaterialProvider.configure({startBP: start, endBP: end, features, min, max});
+                    } else {
+                        Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+                    }
 
                     setMaterialProvider(Globals.dataValueMaterialProvider);
-
                 } else {
-
                     setMaterialProvider(Globals.traceColorRampMaterialProvider);
-
                 }
 
             });
 
         }
     }
-
 };
 
 const igvBrowserConfigurator = () => {
