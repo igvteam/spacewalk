@@ -2,7 +2,7 @@ import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
-import { igvPanel, guiManager } from "../gui.js";
+import { guiManager } from "../gui.js";
 import Panel from "../panel.js";
 
 let trackLoadController;
@@ -61,7 +61,7 @@ class IGVPanel extends Panel {
             try {
                 this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
             } catch (error) {
-                console.warn(error.message);
+                console.error(error);
             }
 
             this.browser.on('trackremoved', (track) => {
@@ -76,8 +76,14 @@ class IGVPanel extends Panel {
                 IGVMouseHandler({ bp, start, end, interpolant })
             });
 
-            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: this.browser, trackRegistryFile, $googleDriveButton: undefined } ));
-            await trackLoadController.updateTrackMenus(this.browser.genome.id);
+            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator(this.browser ));
+
+            try {
+                await trackLoadController.updateTrackMenus(this.browser.genome.id);
+            } catch (error) {
+                console.error(error);
+            }
+
         })();
 
     }
@@ -127,9 +133,7 @@ class IGVPanel extends Panel {
 
 }
 
-const encodeTrackListLoader = (browser, trackConfigurations) => {
-    igvPanel.loadTrackList(trackConfigurations);
-};
+
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
@@ -301,8 +305,6 @@ const igvBrowserConfiguratorBigWig = () => {
 
 const genomes = "resources/genomes.json";
 
-const trackRegistryFile = "resources/tracks/trackRegistry.json";
-
-export { trackLoadController, encodeTrackListLoader, igvBrowserConfigurator, igvBrowserConfiguratorBigWig, genomes, trackRegistryFile };
+export { trackLoadController, igvBrowserConfigurator, igvBrowserConfiguratorBigWig, genomes };
 
 export default IGVPanel;
