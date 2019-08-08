@@ -92,6 +92,8 @@ class DataValueMaterialProvider {
         this.min = min;
         this.max = max;
 
+        this.featureRects = undefined;
+
         if (features) {
             this.featureRects = this.createFeatureRectList({ startBP, endBP, features, min, max });
         }
@@ -157,9 +159,9 @@ class DataValueMaterialProvider {
 
     paint({ featureRects, interpolantList }) {
 
-        if (undefined === featureRects || 0 === featureRects.length) {
-            return;
-        }
+        // if (undefined === featureRects || 0 === featureRects.length) {
+        //     return;
+        // }
 
         // Initialize rgb to transparent. Paint color where features exist.
         // this.rgb_ctx.clearRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
@@ -173,6 +175,10 @@ class DataValueMaterialProvider {
 
         // Initialize alpha to transparent. Make opaque where features exist.
         // this.alpha_ctx.clearRect(0, 0, this.alpha_ctx.canvas.width, this.alpha_ctx.canvas.height);
+
+        if (undefined === featureRects) {
+            return;
+        }
 
         for (let featureRect of featureRects) {
 
@@ -233,24 +239,31 @@ class DataValueMaterialProvider {
 const colorForGenomicLocation = ({ startBP, endBP, features, min, max, colorMinimum, colorMaximum }) => {
 
     let rgb255 = undefined;
-    let maxValue = 0;
-    for (let feature of features) {
 
-        let { start: fsBP, end: feBP, value } = feature;
+    if (features) {
 
-        if (feBP < startBP) {
-            continue;
-        } else if (fsBP > endBP) {
-            continue;
-        }
+        let maxValue = 0;
+        for (let feature of features) {
 
-        fsBP = Math.max(startBP, fsBP);
-        feBP = Math.min(  endBP, feBP);
+            let { start: fsBP, end: feBP, value } = feature;
 
-        if (Math.abs(value) > Math.abs(maxValue)) {
-            maxValue = value;
-            const interpolant = (value - min) / (max - min);
-            rgb255 = rgb255Lerp(colorMinimum, colorMaximum, interpolant);
+            if (feBP < startBP) {
+                continue;
+            } else if (fsBP > endBP) {
+                continue;
+            }
+
+            fsBP = Math.max(startBP, fsBP);
+            feBP = Math.min(  endBP, feBP);
+
+            if (undefined === min && undefined === max) {
+                rgb255 = colorMaximum;
+            } else if (Math.abs(value) > Math.abs(maxValue)) {
+                maxValue = value;
+                const interpolant = (value - min) / (max - min);
+                rgb255 = rgb255Lerp(colorMinimum, colorMaximum, interpolant);
+            }
+
         }
 
     }

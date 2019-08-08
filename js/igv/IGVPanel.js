@@ -188,14 +188,23 @@ const addDataValueMaterialProviderGUI = tracks => {
 
                     const { bpPerPixel } = referenceFrame;
 
-                    const features = await track.getFeatures(chr, start, end, bpPerPixel);
+                    // If "zoom in" notice is displayed do not paint features on trace
+                    if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
 
-                    if ('varying' === track.featureDescription) {
-                        const { min, max } = track.dataRange;
-                        Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+                        Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
 
                     } else {
-                        Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+
+                        const features = await track.getFeatures(chr, start, end, bpPerPixel);
+
+                        if ('varying' === track.featureDescription) {
+                            const { min, max } = track.dataRange;
+                            Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+
+                        } else {
+                            Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+                        }
+
                     }
 
                     setMaterialProvider(Globals.dataValueMaterialProvider);
