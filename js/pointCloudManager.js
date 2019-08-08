@@ -58,7 +58,7 @@ class PointCloudManager {
                     };
 
                 obj.geometry.userData.color = Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant);
-                obj.geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('snow');
+                obj.geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('magnesium');
 
                 let xyzList = [];
                 let rgbList = [];

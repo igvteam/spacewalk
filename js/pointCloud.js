@@ -3,17 +3,20 @@ import { degrees } from './math.js';
 import Globals from "./globals.js";
 import { setGeometryAttributeColorListWithColorThreeJS } from './color.js';
 
+const pointSize = 128;
 class PointCloud {
 
     constructor () {
 
         const materialConfig =
             {
-                size: 64,
+                size: pointSize,
                 vertexColors: THREE.VertexColors,
                 map: new THREE.TextureLoader().load( "texture/dot_dugla.png" ),
+                sizeAttenuation: true,
+                alphaTest: 0.5,
                 transparent: true,
-                depthTest: false
+                depthTest: true
             };
 
         this.material = new THREE.PointsMaterial( materialConfig );
@@ -21,12 +24,13 @@ class PointCloud {
 
         const deemphasizedConfig =
             {
-                // size: 64,
-                size: 32,
+                size: pointSize,
                 vertexColors: THREE.VertexColors,
                 map: new THREE.TextureLoader().load( "texture/dot_dugla_translucent.png" ),
+                sizeAttenuation: true,
+                alphaTest: 0.5,
                 transparent: true,
-                depthTest: false
+                depthTest: true
             };
 
         this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );
