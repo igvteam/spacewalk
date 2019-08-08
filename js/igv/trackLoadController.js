@@ -26,7 +26,6 @@ import FileLoadWidget from './fileLoadWidget.js';
 import FileLoadManager from './fileLoadManager.js';
 import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.js'
 import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
-import { encodeTrackListLoader } from './IGVPanel.js';
 import MultipleFileLoadController from "./multipleFileLoadController.js";
 import { igvPanel } from '../gui.js';
 
@@ -34,18 +33,15 @@ class TrackLoadController {
 
     constructor({ browser, trackRegistryFile, $urlModal, encodeModalTable, $dropdownMenu, $genericTrackSelectModal, uberFileLoader}) {
 
-
-        let urlConfig;
-
-        this.trackRegistryFile = trackRegistryFile;
         this.browser = browser;
-        this.$modal = $genericTrackSelectModal;
-        this.$dropdownMenu = $dropdownMenu;
-
+        this.trackRegistryFile = trackRegistryFile;
+        this.trackRegistry = undefined;
         this.encodeModalTable = encodeModalTable;
+        this.$dropdownMenu = $dropdownMenu;
+        this.$modal = $genericTrackSelectModal;
 
         // URL
-        urlConfig =
+        const urlConfig =
             {
                 $widgetParent: $urlModal.find('.modal-body'),
                 mode: 'url',
@@ -56,30 +52,6 @@ class TrackLoadController {
             uberFileLoader.ingestPaths(fileLoadManager.getPaths());
             return true;
         });
-
-    }
-
-    async getTrackRegistry() {
-
-        const self = this;
-
-        if (this.trackRegistry) {
-            return this.trackRegistry;
-        } else if (this.trackRegistryFile) {
-
-            let registry = undefined;
-
-            try {
-                registry = await igv.xhr.loadJson(this.trackRegistryFile);
-            } catch(err) {
-                console.error(error);
-            }
-
-            return registry;
-
-        } else {
-            return undefined;
-        }
 
     }
 
@@ -98,18 +70,29 @@ class TrackLoadController {
         const $found = this.$dropdownMenu.find(searchString);
         $found.remove();
 
-        this.trackRegistry = await this.getTrackRegistry();
+        if (this.trackRegistry) {
+            // do nothing;
+        } else if (this.trackRegistryFile) {
+
+            try {
+                this.trackRegistry = await igv.xhr.loadJson(this.trackRegistryFile);
+            } catch(error) {
+                console.error(error);
+            }
+
+        } else {
+            throw new Error('Can not find track registry file');
+        }
+
 
         if (undefined === this.trackRegistry) {
-            console.log("Info -- No track registry file  (config.trackRegistryFile)");
-            return;
+            throw new Error('Can not create track registry');
         }
 
         const paths = this.trackRegistry[ genomeID ];
 
         if (undefined === paths) {
-            console.log("No tracks defined for: " + genomeID);
-            return;
+            throw new Error(`Can not file paths for genome ID ${ genomeID }`);
         }
 
         let results = [];
@@ -144,10 +127,6 @@ class TrackLoadController {
 
             gtexConfiguration = gtexConfiguration.pop();
             try {
-
-                // TESTING
-                // await igv.xhr.loadJson('http://www.nothingtoseehere.com', {});
-
                 const info = await igv.GtexUtils.getTissueInfo(gtexConfiguration.genomeID);
                 gtexConfiguration.tracks = info.tissueInfo.map((tissue) => { return igv.GtexUtils.trackConfiguration(tissue) });
                 configurations.push(gtexConfiguration);
@@ -190,7 +169,7 @@ class TrackLoadController {
 
 }
 
-export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $googleDriveButton }) => {
+export const trackLoadControllerConfigurator = (browser) => {
 
     const multipleFileTrackConfig =
         {
@@ -198,11 +177,11 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
             modalTitle: 'Track File Error',
             $localFileInput: $('#spacewalk-igv-app-dropdown-local-track-file-input'),
             $dropboxButton: $('#spacewalk-igv-app-dropdown-dropbox-track-file-button'),
-            $googleDriveButton,
+            $googleDriveButton: undefined,
             configurationHandler: MultipleFileLoadController.trackConfigurator,
             jsonFileValidator: MultipleFileLoadController.trackJSONValidator,
             pathValidator: MultipleFileLoadController.trackPathValidator,
-            fileLoadHandler: (trackConfigurations) => {
+            fileLoadHandler: trackConfigurations => {
                 igvPanel.loadTrackList(trackConfigurations);
             }
         };
@@ -212,13 +191,13 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
             id: "spacewalk-encode-modal",
             title: "ENCODE",
             selectHandler: trackConfigurations => {
-                encodeTrackListLoader(browser, trackConfigurations);
+                igvPanel.loadTrackList(trackConfigurations);
             }
         };
 
     return {
         browser,
-        trackRegistryFile,
+        trackRegistryFile: "resources/tracks/trackRegistry.json",
         $urlModal: $('#spacewalk-igv-app-track-from-url-modal'),
         encodeModalTable: new ModalTable(encodeModalTableConfig),
         $dropdownMenu: $('#spacewalk-igv-app-track-dropdown-menu'),
@@ -230,8 +209,10 @@ export const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $g
 
 function configureModalSelectList($modal, configurations) {
 
-    let $select = $modal.find('.form-control');
+    let $select = $modal.find('select');
     $select.empty();
+
+    $select.append($('<option>', { text: 'Choose...' }));
 
     for (let config of configurations) {
 

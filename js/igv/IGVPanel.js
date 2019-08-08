@@ -2,7 +2,7 @@ import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
-import { igvPanel, guiManager } from "../gui.js";
+import { guiManager } from "../gui.js";
 import Panel from "../panel.js";
 
 let trackLoadController;
@@ -61,7 +61,7 @@ class IGVPanel extends Panel {
             try {
                 this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
             } catch (error) {
-                console.warn(error.message);
+                console.error(error);
             }
 
             this.browser.on('trackremoved', (track) => {
@@ -76,8 +76,14 @@ class IGVPanel extends Panel {
                 IGVMouseHandler({ bp, start, end, interpolant })
             });
 
-            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({ browser: this.browser, trackRegistryFile, $googleDriveButton: undefined } ));
-            await trackLoadController.updateTrackMenus(this.browser.genome.id);
+            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator(this.browser ));
+
+            try {
+                await trackLoadController.updateTrackMenus(this.browser.genome.id);
+            } catch (error) {
+                console.error(error);
+            }
+
         })();
 
     }
@@ -127,9 +133,7 @@ class IGVPanel extends Panel {
 
 }
 
-const encodeTrackListLoader = (browser, trackConfigurations) => {
-    igvPanel.loadTrackList(trackConfigurations);
-};
+
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
@@ -184,14 +188,23 @@ const addDataValueMaterialProviderGUI = tracks => {
 
                     const { bpPerPixel } = referenceFrame;
 
-                    const features = await track.getFeatures(chr, start, end, bpPerPixel);
+                    // If "zoom in" notice is displayed do not paint features on trace
+                    if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
 
-                    if ('varying' === track.featureDescription) {
-                        const { min, max } = track.dataRange;
-                        Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+                        Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
 
                     } else {
-                        Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+
+                        const features = await track.getFeatures(chr, start, end, bpPerPixel);
+
+                        if ('varying' === track.featureDescription) {
+                            const { min, max } = track.dataRange;
+                            Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+
+                        } else {
+                            Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+                        }
+
                     }
 
                     setMaterialProvider(Globals.dataValueMaterialProvider);
@@ -301,8 +314,6 @@ const igvBrowserConfiguratorBigWig = () => {
 
 const genomes = "resources/genomes.json";
 
-const trackRegistryFile = "resources/tracks/trackRegistry.json";
-
-export { trackLoadController, encodeTrackListLoader, igvBrowserConfigurator, igvBrowserConfiguratorBigWig, genomes, trackRegistryFile };
+export { trackLoadController, igvBrowserConfigurator, igvBrowserConfiguratorBigWig, genomes };
 
 export default IGVPanel;

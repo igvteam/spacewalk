@@ -24,7 +24,7 @@
     "juicebox.js": "github:igvteam/juicebox.js#dat_tracing3d_edits",
     "kd3d": "github:turner/kd3d",
     "three": "^0.107.0",
-    "webpack": "^4.39.0",
+    "webpack": "^4.39.1",
     "webpack-cli": "^3.3.6"
   }
 }
