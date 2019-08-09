@@ -1,6 +1,7 @@
 
 $spacewalk_color_ramp_canvas_width: 40px;
 
+$spacewalk_color_ramp_panel_width: 80px;
 $spacewalk_color_ramp_panel_height: 600px;
 
 $spacewalk_text_box_height: 32px;
@@ -8,11 +9,11 @@ $spacewalk_color_ramp_panel_padding: 12px;
 
 #spacewalk_color_ramp_panel.card {
 
-  width: auto;
+  width: $spacewalk_color_ramp_panel_width;
   height: $spacewalk_color_ramp_panel_height;
 
-  padding-left: $spacewalk_color_ramp_panel_padding;
-  padding-right: $spacewalk_color_ramp_panel_padding;
+  //padding-left: $spacewalk_color_ramp_panel_padding;
+  //padding-right: $spacewalk_color_ramp_panel_padding;
 
   #spacewalk_color_ramp_widget_container.card-body {
 
