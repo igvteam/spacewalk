@@ -59,18 +59,25 @@ div.navbar-brand {
     padding: 0.125rem;
     width: 100%; }
     .card .card-body .spacewalk_card_drag_container {
-      cursor: grab;
       display: flex;
       flex-direction: row;
       flex-wrap: nowrap;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
       width: 100%;
       height: 32px;
       background-color: transparent; }
-      .card .card-body .spacewalk_card_drag_container i.fa-grip-horizontal {
+      .card .card-body .spacewalk_card_drag_container i {
+        cursor: grab;
         color: #6e6e6e;
         display: block; }
+      .card .card-body .spacewalk_card_drag_container i:first-child {
+        cursor: unset;
+        color: transparent;
+        background-color: transparent; }
+      .card .card-body .spacewalk_card_drag_container i:last-child {
+        cursor: pointer;
+        margin-right: 8px; }
 
 #spacewalk_data_file_load_select_container .form-control {
   border-top-left-radius: .25rem;
@@ -97,10 +104,8 @@ div.navbar-brand {
       font-size: 1.25rem; }
 
 #spacewalk_color_ramp_panel.card {
-  width: auto;
-  height: 600px;
-  padding-left: 12px;
-  padding-right: 12px; }
+  width: 80px;
+  height: 600px; }
   #spacewalk_color_ramp_panel.card #spacewalk_color_ramp_widget_container.card-body {
     width: 100%;
     height: 600px;
@@ -170,18 +175,25 @@ div.navbar-brand {
   height: unset;
   border: 0; }
   #spacewalk_distance_map_panel.card .card-header .spacewalk_card_drag_container {
-    cursor: grab;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     width: 100%;
     height: 32px;
     background-color: transparent; }
-    #spacewalk_distance_map_panel.card .card-header .spacewalk_card_drag_container i.fa-grip-horizontal {
+    #spacewalk_distance_map_panel.card .card-header .spacewalk_card_drag_container i {
+      cursor: grab;
       color: #6e6e6e;
       display: block; }
+    #spacewalk_distance_map_panel.card .card-header .spacewalk_card_drag_container i:first-child {
+      cursor: unset;
+      color: transparent;
+      background-color: transparent; }
+    #spacewalk_distance_map_panel.card .card-header .spacewalk_card_drag_container i:last-child {
+      cursor: pointer;
+      margin-right: 8px; }
   #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body {
     display: flex;
     flex-direction: column;
@@ -200,18 +212,25 @@ div.navbar-brand {
   height: unset;
   border: 0; }
   #spacewalk_contact_frequency_map_panel.card .card-header .spacewalk_card_drag_container {
-    cursor: grab;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     width: 100%;
     height: 32px;
     background-color: transparent; }
-    #spacewalk_contact_frequency_map_panel.card .card-header .spacewalk_card_drag_container i.fa-grip-horizontal {
+    #spacewalk_contact_frequency_map_panel.card .card-header .spacewalk_card_drag_container i {
+      cursor: grab;
       color: #6e6e6e;
       display: block; }
+    #spacewalk_contact_frequency_map_panel.card .card-header .spacewalk_card_drag_container i:first-child {
+      cursor: unset;
+      color: transparent;
+      background-color: transparent; }
+    #spacewalk_contact_frequency_map_panel.card .card-header .spacewalk_card_drag_container i:last-child {
+      cursor: pointer;
+      margin-right: 8px; }
   #spacewalk_contact_frequency_map_panel.card .card-header .form-group {
     /* margin-bottom: 1rem; */
     margin-bottom: 0; }
@@ -271,16 +290,6 @@ div.navbar-brand {
     #spacewalk_ui_manager_panel.card li input {
       cursor: pointer;
       display: block; }
-
-.spacewalk_ui_manager_render_style_container {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: space-evenly;
-  align-items: flex-start; }
-  .spacewalk_ui_manager_render_style_container > div {
-    margin-top: 4px;
-    margin-bottom: 4px; }
 
 #spacewalk_info_panel {
   font-size: 0.85rem;

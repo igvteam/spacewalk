@@ -33,22 +33,31 @@ $spacewalk_card_drag_container_height: 32px;
     width: 100%;
 
     .spacewalk_card_drag_container {
-
-      cursor: grab;
-
       display: flex;
       flex-direction: row;
       flex-wrap: nowrap;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
 
       width: 100%;
       height: $spacewalk_card_drag_container_height;
       background-color: transparent;
 
-      i.fa-grip-horizontal {
+      i {
+        cursor: grab;
         color: $spacewalk_steel;
         display: block;
+      }
+
+      i:first-child {
+        cursor: unset;
+        color: transparent;
+        background-color: transparent;
+      }
+
+      i:last-child {
+        cursor: pointer;
+        margin-right: 8px;
       }
     }
 

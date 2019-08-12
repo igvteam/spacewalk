@@ -102,7 +102,7 @@ class EnsembleManager {
 
         const { chr, genomicStart, genomicEnd } = locus;
 
-        Globals.eventBus.post({ type: "DidLoadFile", data: { chr, genomicStart, genomicEnd, initialKey: '0' } });
+        Globals.eventBus.post({ type: "DidLoadFile", data: { genomeID: Globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
 
     }
 

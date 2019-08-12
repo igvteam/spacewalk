@@ -30,6 +30,20 @@ class Panel {
             Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
+        const $closer = this.$panel.find('i.fa-times-circle');
+        $closer.on(`click.${ igv.guid() }`, event => {
+
+            event.stopPropagation();
+
+            const id = $closer.attr('data-target');
+            const selector = `#${ id }`;
+            const $input = $(selector);
+            $input.prop('checked', false);
+
+            this.moveOffScreen();
+            this.isHidden = true;
+        });
+
         this.$panel.on(`mouseenter. ${ namespace }`, (event) => {
             event.stopPropagation();
             Globals.eventBus.post({ type: "DidEnterGUI" });
