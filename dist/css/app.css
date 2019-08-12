@@ -291,16 +291,6 @@ div.navbar-brand {
       cursor: pointer;
       display: block; }
 
-.spacewalk_ui_manager_render_style_container {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: space-evenly;
-  align-items: flex-start; }
-  .spacewalk_ui_manager_render_style_container > div {
-    margin-top: 4px;
-    margin-bottom: 4px; }
-
 #spacewalk_info_panel {
   font-size: 0.85rem;
   font-weight: 200;

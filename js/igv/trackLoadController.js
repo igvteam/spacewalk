@@ -115,11 +115,16 @@ class TrackLoadController {
 
             this.createEncodeTable(encodeConfiguration[ 0 ].genomeID);
 
-            const $button = $('<button>', { 'class':'dropdown-item', 'type':'button', 'data-toggle':'modal', 'data-target':'#spacewalk-encode-modal' });
-            $button.insertAfter($divider);
+            if ($('#spacewalk-encode-modal-button').length) {
+                // do nothing
+            } else {
+                const $button = $('<button>', { 'id':'spacewalk-encode-modal-button', 'class':'dropdown-item', 'type':'button', 'data-toggle':'modal', 'data-target':'#spacewalk-encode-modal' });
+                $button.insertAfter($divider);
 
-            const { label } = encodeConfiguration[ 0 ];
-            $button.text( (label + ' ...') );
+                const { label } = encodeConfiguration[ 0 ];
+                $button.text( (label + ' ...') );
+            }
+
         }
 
         let gtexConfiguration = results.filter((c) => { return 'GTEX' === c.type });
