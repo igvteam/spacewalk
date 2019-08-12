@@ -91,7 +91,7 @@ class PointCloudManager {
 
         this.boundingBox.getBoundingSphere(this.boundingSphere);
 
-        Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { chr, genomicStart, genomicEnd } });
+        Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { genomeID: Globals.parser.genomeAssembly, chr, genomicStart, genomicEnd } });
 
     }
 
