@@ -69,12 +69,12 @@ class GUIManager {
         } else if ('DidLoadFile' === type) {
 
             $('#spacewalk_info_panel').show();
-            $('#spacewalk_ui_manager_render_style').show();
+            $('#spacewalk_ui_manager_render_styles').show();
 
         } else if ('DidLoadPointCloudFile' === type) {
 
             $('#spacewalk_info_panel').show();
-            $('#spacewalk_ui_manager_render_style').hide();
+            $('#spacewalk_ui_manager_render_styles').hide();
 
         }
     }
