@@ -2,6 +2,7 @@ import Globals from "./globals.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { zIndexPanelUnselected, zIndexPanelSelected } from './utils.js';
+import { traceSelectPanel } from "./gui.js";
 
 class GUIManager {
     constructor ({ $button, $panel }) {
@@ -70,11 +71,13 @@ class GUIManager {
 
             $('#spacewalk_info_panel').show();
             $('#spacewalk_ui_manager_render_styles').show();
+            $('#spacewalk_ui_manager_trace_select').show();
 
         } else if ('DidLoadPointCloudFile' === type) {
 
             $('#spacewalk_info_panel').show();
             $('#spacewalk_ui_manager_render_styles').hide();
+            $('#spacewalk_ui_manager_trace_select').hide();
 
         }
     }
@@ -101,6 +104,11 @@ class GUIManager {
     panelIsVisible(panelID) {
         const $found = this.$panel.find(`[data-target='${ panelID }']`);
         $found.prop('checked', true);
+    }
+
+    panelIsHidden(panelID) {
+        const $found = this.$panel.find(`[data-target='${ panelID }']`);
+        $found.prop('checked', false);
     }
 }
 

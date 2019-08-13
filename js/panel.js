@@ -125,6 +125,17 @@ class Panel {
 
     };
 
+    dismissPanel() {
+
+        if (false === this.isHidden) {
+            this.moveOffScreen();
+            this.isHidden = true;
+        }
+
+        guiManager.panelIsHidden(this.$panel.attr('id'));
+
+    };
+
     updateLayoutState() {
         const { top, left } = this.$panel.offset();
         const topPercent = top / Globals.appWindowHeight;
