@@ -292,11 +292,10 @@ div.navbar-brand {
       display: block; }
 
 li#spacewalk_ui_manager_render_styles > div {
-  width: inherit; }
+  width: -webkit-fill-available; }
 
 .spacewalk-ball-stick-control {
   font-size: .9rem;
-  width: inherit;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
