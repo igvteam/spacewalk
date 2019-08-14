@@ -16,8 +16,8 @@ class SceneManager {
 
     constructor({ container, scene, ballRadius, stickMaterial, background, renderer, cameraLightingRig, picker, materialProvider, renderStyle }) {
 
-        this.ballRadius = ballRadius;
-        this.ballGeometry = new THREE.SphereBufferGeometry(ballRadius, 32, 16);
+        this.ballRadius = this.defaultBallRadius = ballRadius;
+        this.ballGeometry = new THREE.SphereBufferGeometry(this.ballRadius, 32, 16);
 
         this.stickMaterial = stickMaterial;
 
@@ -100,6 +100,16 @@ class SceneManager {
 
         this.gnomon = new Gnomon(gnomonConfigurator(min, max));
         this.gnomon.addToScene(this.scene);
+    }
+
+    updateBallRadius(scaleFactor) {
+
+        this.ballRadius *= scaleFactor;
+
+        this.ballGeometry.dispose();
+        this.ballGeometry = new THREE.SphereBufferGeometry(this.ballRadius, 32, 16);
+
+        Globals.ballAndStick.replaceGeometry();
     }
 
     onWindowResize() {

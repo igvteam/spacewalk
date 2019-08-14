@@ -55,11 +55,11 @@ class GUIManager {
         const $ball_radius_control = $('#spacewalk-ball-radius-control');
 
         $ball_radius_control.find('i.fa-minus-circle').on('click.spacewalk-ball-radius-minus', () => {
-            console.log('reduce ball radius');
+            Globals.sceneManager.updateBallRadius(0.5);
         });
 
         $ball_radius_control.find('i.fa-plus-circle').on('click.spacewalk-ball-radius-plus', () => {
-            console.log('increase ball radius');
+            Globals.sceneManager.updateBallRadius(2.0);
         });
 
         const $stick_radius_control = $('#spacewalk-stick-radius-control');
