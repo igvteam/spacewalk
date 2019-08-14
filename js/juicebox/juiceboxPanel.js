@@ -80,7 +80,7 @@ class JuiceboxPanel extends Panel {
 
             try {
                 await this.browser.loadHicFile({ url, name, isControl });
-                $('#spacewalk_info_panel_juicebox').text(name);
+                $('#spacewalk_info_panel_juicebox').text( this.blurb() );
             } catch (error) {
                 console.warn(error.message);
             }
@@ -103,6 +103,11 @@ class JuiceboxPanel extends Panel {
 
     loadLocalFile({ file }){
         this.loadPath({ url: file, name: file.name, isControl: false });
+    }
+
+    blurb() {
+        const str = `${ this.browser.$contactMaplabel.text() }`;
+        return str;
     }
 
     isContactMapLoaded() {

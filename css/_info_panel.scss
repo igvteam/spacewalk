@@ -3,9 +3,10 @@ $spacewalk_info_panel_right: 0;
 $spacewalk_info_panel_height: 24px;
 $spacewalk_info_panel_width: 768px;
 
-#spacewalk_info_panel {
+div#spacewalk_info_panel {
 
   font-size: 0.85rem;
+  //font-size: 1.0rem;
   font-weight: 200;
 
   color: white;
@@ -19,10 +20,10 @@ $spacewalk_info_panel_width: 768px;
   height: $spacewalk_info_panel_height;
 
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: nowrap;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
 
   >div {
     display: flex;

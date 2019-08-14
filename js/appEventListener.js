@@ -3,7 +3,7 @@ import Globals from './globals.js';
 import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { contactFrequencyMapPanel, distanceMapPanel, guiManager, thumbnailPanel, traceSelectPanel } from './gui.js';
+import { contactFrequencyMapPanel, distanceMapPanel, guiManager, juiceboxPanel, thumbnailPanel, traceSelectPanel } from './gui.js';
 import { getTraceDistanceCanvas } from "./distanceMapPanel.js";
 import { getTraceContactFrequencyCanvas } from "./contactFrequencyMapPanel.js";
 
@@ -35,6 +35,7 @@ export const appEventListener =
 
                 $('#spacewalk_info_panel_genome').text( genomeID );
                 $('#spacewalk_info_panel_locus').text( Globals.parser.locusBlurb() );
+                $('#spacewalk_info_panel_juicebox').text( juiceboxPanel.blurb() );
 
                 if ('DidLoadPointCloudFile' === type) {
 

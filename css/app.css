@@ -252,7 +252,7 @@ div.navbar-brand {
 #spacewalk_ui_manager_button {
   z-index: 2048;
   position: absolute;
-  top: 106px;
+  top: 150px;
   left: 32px;
   display: flex;
   flex-direction: row;
@@ -270,7 +270,7 @@ div.navbar-brand {
   z-index: 2048;
   background-color: #3a3a3a;
   border-color: #3a3a3a;
-  top: 154px;
+  top: 198px;
   left: 32px;
   width: 256px;
   height: auto; }
@@ -291,7 +291,7 @@ div.navbar-brand {
       cursor: pointer;
       display: block; }
 
-#spacewalk_info_panel {
+div#spacewalk_info_panel {
   font-size: 0.85rem;
   font-weight: 200;
   color: white;
@@ -302,21 +302,21 @@ div.navbar-brand {
   width: 100%;
   height: 24px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: nowrap;
   justify-content: flex-start;
-  align-items: center; }
-  #spacewalk_info_panel > div {
+  align-items: flex-start; }
+  div#spacewalk_info_panel > div {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: flex-start;
     align-items: center;
     margin-left: 8px; }
-    #spacewalk_info_panel > div > div:first-child {
+    div#spacewalk_info_panel > div > div:first-child {
       color: white;
       font-weight: 700; }
-    #spacewalk_info_panel > div > div:last-child {
+    div#spacewalk_info_panel > div > div:last-child {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
