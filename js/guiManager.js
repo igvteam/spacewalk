@@ -52,6 +52,26 @@ class GUIManager {
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
 
+        const $ball_radius_control = $('#spacewalk-ball-radius-control');
+
+        $ball_radius_control.find('i.fa-minus-circle').on('click.spacewalk-ball-radius-minus', () => {
+            console.log('reduce ball radius');
+        });
+
+        $ball_radius_control.find('i.fa-plus-circle').on('click.spacewalk-ball-radius-plus', () => {
+            console.log('increase ball radius');
+        });
+
+        const $stick_radius_control = $('#spacewalk-stick-radius-control');
+
+        $stick_radius_control.find('i.fa-minus-circle').on('click.spacewalk-stick-radius-minus', () => {
+            console.log('reduce stick radius');
+        });
+
+        $stick_radius_control.find('i.fa-plus-circle').on('click.spacewalk-stick-radius-plus', () => {
+            console.log('increase stick radius');
+        });
+
         Globals.eventBus.subscribe("DidSelectPanel", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);

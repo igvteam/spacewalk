@@ -7,6 +7,8 @@ $spacewalk_ui_manager_panel_top: 48px + $spacewalk_ui_manager_button_top;
 $spacewalk_ui_manager_left: 32px;
 $spacewalk_ui_manager_margin: 6px;
 
+$spacewalk-ball-stick-control-y-margin: 4px;
+
 // ui manager
 #spacewalk_ui_manager_button {
 
@@ -69,4 +71,49 @@ $spacewalk_ui_manager_margin: 6px;
       display: block;
     }
   }
+}
+
+li#spacewalk_ui_manager_render_styles {
+  >div {
+    width: inherit;
+  }
+}
+
+.spacewalk-ball-stick-control {
+
+  font-size: .9rem;
+
+  width: inherit;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+
+  >div {
+    margin-top: $spacewalk-ball-stick-control-y-margin;
+  }
+
+  >div:first-child {
+    margin-left: 32px;
+  }
+
+  >div:last-child {
+    margin-bottom: $spacewalk-ball-stick-control-y-margin;
+  }
+
+  i.fas {
+    color: $spacewalk_tin;
+  }
+
+  i.fas:first-child {
+    margin-right: 8px;
+  }
+
+  i.fas:hover {
+    cursor: pointer;
+    color: $spacewalk_tungsten;
+  }
+
 }

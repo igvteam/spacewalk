@@ -291,6 +291,31 @@ div.navbar-brand {
       cursor: pointer;
       display: block; }
 
+li#spacewalk_ui_manager_render_styles > div {
+  width: inherit; }
+
+.spacewalk-ball-stick-control {
+  font-size: .9rem;
+  width: inherit;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center; }
+  .spacewalk-ball-stick-control > div {
+    margin-top: 4px; }
+  .spacewalk-ball-stick-control > div:first-child {
+    margin-left: 32px; }
+  .spacewalk-ball-stick-control > div:last-child {
+    margin-bottom: 4px; }
+  .spacewalk-ball-stick-control i.fas {
+    color: #878687; }
+  .spacewalk-ball-stick-control i.fas:first-child {
+    margin-right: 8px; }
+  .spacewalk-ball-stick-control i.fas:hover {
+    cursor: pointer;
+    color: #3a3a3a; }
+
 div#spacewalk_info_panel {
   font-size: 0.85rem;
   font-weight: 200;
