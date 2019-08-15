@@ -57,13 +57,14 @@ class BallAndStick {
             const color = Globals.sceneManager.materialProvider.colorForSegment({ segmentID, genomicLocation });
             const material = new THREE.MeshPhongMaterial({ color });
 
-            const geometry = Globals.sceneManager.ballGeometry.clone();
-            const { x, y, z } = vertex;
-            geometry.translate(x, y, z);
+            const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
 
             const mesh = new THREE.Mesh(geometry, material);
-
             mesh.name = 'ball';
+
+            const { x, y, z } = vertex;
+            mesh.position.set(x, y, z);
+            mesh.scale.setScalar(Globals.sceneManager.ballRadius());
 
             this.objectSegmentDictionary[ mesh.uuid ] = { segmentID, genomicLocation };
 
@@ -84,12 +85,13 @@ class BallAndStick {
 
             const axis = new THREE.CatmullRomCurve3([ trace.geometry.vertices[ i ].clone(), trace.geometry.vertices[ j ].clone() ]);
 
-            const geometry = new THREE.TubeBufferGeometry(axis, 8, Globals.sceneManager.ballRadius/4, 16, false);
+            const geometry = new THREE.TubeBufferGeometry(axis, 8, 0.25 * Globals.sceneManager.ballRadius(), 16, false);
             const material = Globals.sceneManager.stickMaterial.clone();
 
             const mesh = new THREE.Mesh(geometry, material);
-
             mesh.name = 'stick';
+
+            // mesh.scale.setScalar(0.25 * Globals.sceneManager.ballRadius);
 
             meshes.push(mesh);
         }
@@ -104,13 +106,13 @@ class BallAndStick {
 
     renderLoopHelper () {
 
-        if (this.balls) {
-            for (let mesh of this.balls) {
-                mesh.geometry.attributes.position.needsUpdate = true;
-                mesh.geometry.attributes.normal.needsUpdate = true;
-                mesh.geometry.attributes.uv.needsUpdate = true;
-            }
-        }
+        // if (this.balls) {
+        //     for (let mesh of this.balls) {
+        //         mesh.geometry.attributes.position.needsUpdate = true;
+        //         mesh.geometry.attributes.normal.needsUpdate = true;
+        //         mesh.geometry.attributes.uv.needsUpdate = true;
+        //     }
+        // }
 
     }
 
@@ -124,20 +126,16 @@ class BallAndStick {
         setVisibility(this.sticks, true);
     }
 
-    replaceGeometry () {
+    updateRadius(radius) {
 
         for (let mesh of this.balls) {
-            mesh.geometry.dispose();
-            mesh.geometry = Globals.sceneManager.ballGeometry.clone();
+            mesh.scale.setScalar(radius);
         }
 
-        // for (let i = 0; i < this.sticks.length; i++) {
-        //
-        //     this.sticks[ i ].geometry.dispose();
-        //
-        //     const axis = new THREE.CatmullRomCurve3([ this.trace.geometry.vertices[ i ].clone(), this.trace.geometry.vertices[ j ].clone() ]);
-        //     this.sticks[ i ].geometry = new THREE.TubeBufferGeometry(axis, 8, Globals.sceneManager.ballRadius/4, 16, false);
-        // }
+         for (let i = 0, j = 1; j < this.trace.geometry.vertices.length; ++i, ++j) {
+            const axis = new THREE.CatmullRomCurve3([ this.trace.geometry.vertices[ i ].clone(), this.trace.geometry.vertices[ j ].clone() ]);
+            this.sticks[ i ].geometry.copy(new THREE.TubeBufferGeometry(axis, 8, 0.25 * radius, 16, false));
+         }
 
     }
 

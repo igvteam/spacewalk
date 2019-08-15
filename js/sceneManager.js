@@ -9,15 +9,12 @@ import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { guiManager, colorRampPanel } from './gui.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
+import { clamp } from "./math.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
-
 class SceneManager {
 
-    constructor({ container, scene, ballRadius, stickMaterial, background, renderer, cameraLightingRig, picker, materialProvider, renderStyle }) {
-
-        this.ballRadius = this.defaultBallRadius = ballRadius;
-        this.ballGeometry = new THREE.SphereBufferGeometry(this.ballRadius, 32, 16);
+    constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker, materialProvider, renderStyle }) {
 
         this.stickMaterial = stickMaterial;
 
@@ -102,14 +99,13 @@ class SceneManager {
         this.gnomon.addToScene(this.scene);
     }
 
-    updateBallRadius(scaleFactor) {
+    ballRadius() {
+        return ballRadiusTable[ ballRadiusTableCounter ];
+    }
 
-        this.ballRadius *= scaleFactor;
-
-        this.ballGeometry.dispose();
-        this.ballGeometry = new THREE.SphereBufferGeometry(this.ballRadius, 32, 16);
-
-        Globals.ballAndStick.replaceGeometry();
+    updateBallRadius(increment) {
+        ballRadiusTableCounter = clamp(ballRadiusTableCounter + increment, 0, ballRadiusTableLength - 1);
+        Globals.ballAndStick.updateRadius(this.ballRadius());
     }
 
     onWindowResize() {
@@ -173,6 +169,19 @@ class SceneManager {
 
 }
 
+const maxBallRadius = 64;
+const ballRadiusTableLength = 17;
+let ballRadiusTableCounter = 8;
+const ballRadiusTable = ((radius) => {
+
+    let list = [];
+    for (let r = 0; r < ballRadiusTableLength; r++) {
+        const interpolant = (1 + r)/ballRadiusTableLength;
+        list.push(interpolant * radius);
+    }
+    return list;
+})(maxBallRadius);
+
 export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     // const stickMaterial = showSMaterial;
@@ -202,7 +211,6 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     return {
         container,
         scene: new THREE.Scene(),
-        ballRadius: 32,
         stickMaterial,
         background,
         renderer,
