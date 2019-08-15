@@ -3,6 +3,7 @@ import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { zIndexPanelUnselected, zIndexPanelSelected } from './utils.js';
 import { traceSelectPanel } from "./gui.js";
+import {appleCrayonColorThreeJS} from "./color";
 
 class GUIManager {
     constructor ({ $button, $panel }) {
@@ -70,6 +71,12 @@ class GUIManager {
 
         $stick_radius_control.find('i.fa-plus-circle').on('click.spacewalk-stick-radius-plus', () => {
             console.log('increase stick radius');
+        });
+
+        $('#spacewalk_background_colorpicker').colorpicker();
+        $('#spacewalk_background_colorpicker').on('colorpickerChange', function(event) {
+            const str = event.color.toString();
+            Globals.sceneManager.renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
         });
 
         Globals.eventBus.subscribe("DidSelectPanel", this);

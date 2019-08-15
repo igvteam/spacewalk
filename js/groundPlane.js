@@ -40,8 +40,8 @@ export const groundPlaneConfigurator = (position, size) => {
         size,
         divisions: 16,
         position,
-        color: appleCrayonColorThreeJS('nickel'),
-        opacity: 0.125,
+        color: appleCrayonColorThreeJS('mercury'),
+        opacity: 0.25,
         isHidden: guiManager.isGroundplaneHidden($('#spacewalk_ui_manager_panel'))
     }
 };

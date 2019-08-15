@@ -8,7 +8,7 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { guiManager, colorRampPanel } from './gui.js';
 import { getMouseXY } from "./utils.js";
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomBrightColorThreeJS } from "./color.js";
 import { clamp } from "./math.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
@@ -37,7 +37,7 @@ class SceneManager {
 
         // stub configuration
         this.scene = scene;
-        this.scene.background = this.background;
+        // this.scene.background = this.background;
 
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
@@ -75,7 +75,7 @@ class SceneManager {
 
         // Scene
         this.scene = scene;
-        this.scene.background = this.background;
+        // this.scene.background = this.background;
 
         // Camera Lighting Rig
         this.cameraLightingRig.configure({ fov, position: cameraPosition, centroid, boundingDiameter });
@@ -190,6 +190,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     stickMaterial.side = THREE.DoubleSide;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
 
     const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), (1) );
 
@@ -203,8 +204,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const centroid = new THREE.Vector3(133394, 54542, 4288);
     cameraLightingRig.setPose({ position, newTarget: centroid });
 
-    // const background = appleCrayonColorThreeJS('nickel');
-    const background = new THREE.TextureLoader().load( 'texture/scene-background-grey-0.png' );
+    const background = appleCrayonColorThreeJS('nickel');
+    // const background = new THREE.TextureLoader().load( 'texture/scene-background-grey-0.png' );
 
     const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
 
