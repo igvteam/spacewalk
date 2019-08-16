@@ -40,10 +40,14 @@ class Gnomon extends THREE.AxesHelper {
 
     setColor(color){
 
+        const { r, g, b } = color;
+
         let rgb = this.geometry.attributes.color;
         let colors = rgb.array;
-        for (let i = 0; i < rgb.count; i += rgb.itemSize) {
-            color.toArray( colors, i );
+        for (let i = 0; i < (rgb.count * rgb.itemSize); i += rgb.itemSize) {
+            colors[ i + 0 ] = r;
+            colors[ i + 1 ] = g;
+            colors[ i + 2 ] = b;
         }
 
     };
