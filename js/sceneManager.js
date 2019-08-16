@@ -164,6 +164,9 @@ class SceneManager {
             if (this.groundPlane) {
                 this.groundPlane.renderLoopHelper();
             }
+            if (this.gnomon) {
+                this.gnomon.renderLoopHelper();
+            }
 
             this.renderer.render(this.scene, this.cameraLightingRig.camera);
 

@@ -96,6 +96,18 @@ class GUIManager {
 
         $('#spacewalk_ui_manager_groundplane_colorpicker').spectrum(groundplaneColorPickerConfig);
 
+        const gnomonColorPickerConfig =
+            {
+                color: "#f00",
+                move: color => {
+                    const { r, g, b } = color.toRgb();
+                    Globals.sceneManager.gnomon.setColor (rgb255ToThreeJSColor(r, g, b));
+                }
+
+            };
+
+        $('#spacewalk_ui_manager_gnomon_colorpicker').spectrum(gnomonColorPickerConfig);
+
 
         Globals.eventBus.subscribe("DidSelectPanel", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
