@@ -8,12 +8,14 @@ class GroundPlane extends THREE.GridHelper {
     constructor({ size, divisions, position, color, opacity, isHidden }) {
 
         super(size, divisions, color, color);
-
         this.name = 'groundplane';
-        this.visible = isHidden;
-        this.opacity = opacity;
-        this.material.transparent = true;
+
+        this.divisions = divisions;
         this.position.copy(position);
+        this.opacity = opacity;
+
+        this.visible = isHidden;
+        this.material.transparent = true;
 
         Globals.eventBus.subscribe("ToggleGroundPlane", this);
 
@@ -24,6 +26,32 @@ class GroundPlane extends THREE.GridHelper {
         if ("ToggleGroundPlane" === type) {
             this.visible = data;
         }
+    }
+
+    setColor(color) {
+
+        let colors = this.geometry.attributes.color.array;
+        let j = 0;
+        for (let d = 0; d <= this.divisions; d++) {
+
+            color.toArray( colors, j );
+            j += 3;
+
+            color.toArray( colors, j );
+            j += 3;
+
+            color.toArray( colors, j );
+            j += 3;
+
+            color.toArray( colors, j );
+            j += 3;
+
+        }
+
+    }
+
+    renderLoopHelper () {
+        this.geometry.attributes.color.needsUpdate = true;
     }
 
     dispose () {
@@ -40,7 +68,7 @@ export const groundPlaneConfigurator = (position, size) => {
         size,
         divisions: 16,
         position,
-        color: appleCrayonColorThreeJS('mercury'),
+        color: appleCrayonColorThreeJS( 'mercury'),
         opacity: 0.25,
         isHidden: guiManager.isGroundplaneHidden($('#spacewalk_ui_manager_panel'))
     }

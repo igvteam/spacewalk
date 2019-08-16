@@ -161,6 +161,10 @@ class SceneManager {
 
             this.cameraLightingRig.renderLoopHelper();
 
+            if (this.groundPlane) {
+                this.groundPlane.renderLoopHelper();
+            }
+
             this.renderer.render(this.scene, this.cameraLightingRig.camera);
 
         }

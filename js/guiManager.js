@@ -72,7 +72,7 @@ class GUIManager {
             console.log('increase stick radius');
         });
 
-        const colorPickerConfig =
+        const backgroundColorPickerConfig =
             {
                 color: "#f00",
                 move: color => {
@@ -82,7 +82,20 @@ class GUIManager {
 
             };
 
-        $('#spacewalk_background_colorpicker').spectrum(colorPickerConfig);
+        $('#spacewalk_background_colorpicker').spectrum(backgroundColorPickerConfig);
+
+        const groundplaneColorPickerConfig =
+            {
+                color: "#f00",
+                move: color => {
+                    const { r, g, b } = color.toRgb();
+                    Globals.sceneManager.groundPlane.setColor (rgb255ToThreeJSColor(r, g, b));
+                }
+
+            };
+
+        $('#spacewalk_ui_manager_groundplane_colorpicker').spectrum(groundplaneColorPickerConfig);
+
 
         Globals.eventBus.subscribe("DidSelectPanel", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
