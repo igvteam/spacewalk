@@ -18,14 +18,14 @@
     <!-- Bootstrap-Select CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
 
-    <!-- Bootstrap ColorPicker CSS -->
-    <link rel="stylesheet" type="text/css" href="css/bootstrap-colorpicker.css">
+    <!-- Spectrum colorpicker CSS -->
+    <link rel="stylesheet" href="css/spectrum.css">
 
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
 
     <!-- Juicebox CSS-->
-    <link rel="stylesheet" type="text/css" href="css/juicebox.css">
+    <link rel="stylesheet" href="css/juicebox.css">
 
     <!-- APP CSS -->
     <link rel="stylesheet" href="css/app.css">
@@ -38,11 +38,11 @@
     <!-- Bootstrap-Select JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
 
-    <!-- Bootstrap ColorPicker JS -->
-    <script src="vendor/bootstrap-colorpicker.js"></script>
+    <!-- Spectrum colorpicker  JS -->
+    <script src="vendor/spectrum.js"></script>
 
-    <!-- Resizable DOM Element Events JS   -->
-    <script type="text/javascript" src="vendor/detect-element-resize.js"></script>
+    <!-- Resizable DOM Element Events JS -->
+    <script src="vendor/detect-element-resize.js"></script>
 
     <!-- Dropbox Chooser API -->
     <script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="8glijwyao9fq8we"></script>
@@ -377,16 +377,6 @@
                             </div>
                         </div>
 
-<!--                        <div id="spacewalk-stick-radius-control" class="spacewalk-ball-stick-control">-->
-<!--                            <div>-->
-<!--                                Stick Radius-->
-<!--                            </div>-->
-<!--                            <div>-->
-<!--                                <i class="fas fa-minus-circle"></i>-->
-<!--                                <i class="fas fa-plus-circle"></i>-->
-<!--                            </div>-->
-<!--                        </div>-->
-
                         <div class="form-check">
                             <input name="spacewalk-render-style" id="spacewalk-render-style-noodle" class="form-check-input" type="radio">
                             <label class="form-check-label" for="spacewalk-render-style-noodle">
@@ -398,23 +388,38 @@
                 </li>
 
                 <!-- background color -->
-                <li class="list-group-item list-group-item-action">
-                    <input id="spacewalk_background_colorpicker" type="text" class="form-control" value="rgb(255, 128, 0)" />
-<!--                    <button id="spacewalk_background_colorpicker" class="btn btn-outline-secondary" type="button">-->
-<!--                        Set Background Color-->
-<!--                    </button>-->
+                <li class="list-group-item">
+
+                    <div class="input-group">
+                        <div id="spacewalk_background_color_label" class="input-group-prepend">
+                            <span class="input-group-text">Background Color</span>
+                        </div>
+                        <input id="spacewalk_background_colorpicker" type="text">
+                    </div>
+
+
+<!--                    <div class="form-group">-->
+<!--                        <label for="spacewalk_background_colorpicker">Background Color</label>-->
+<!--                        <input id="spacewalk_background_colorpicker" type="text" class="form-control">-->
+<!--                    </div>-->
                 </li>
 
                 <!-- groundplane -->
-                <li class="list-group-item list-group-item-action">
-                    <input id="spacewalk_ui_manager_groundplane" class="mr-2" type="checkbox">
-                    <div>Ground Plane</div>
+                <li class="list-group-item">
+                    <div class="custom-control custom-checkbox">
+                        <input id="spacewalk_ui_manager_groundplane" class="custom-control-input" type="checkbox">
+                        <label for="spacewalk_ui_manager_groundplane" class="custom-control-label">Ground Plane</label>
+                    </div>
                 </li>
 
                 <!-- gnomon -->
-                <li class="list-group-item list-group-item-action">
-                    <input id="spacewalk_ui_manager_gnomon" class="mr-2" type="checkbox" checked>
-                    <div>Axes</div>
+                <li class="list-group-item">
+
+                    <div class="custom-control custom-checkbox">
+                        <input id="spacewalk_ui_manager_gnomon" class="custom-control-input" type="checkbox">
+                        <label for="spacewalk_ui_manager_gnomon" class="custom-control-label">Axes</label>
+                    </div>
+
                 </li>
 
             </ul>

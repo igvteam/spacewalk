@@ -2,8 +2,7 @@ import Globals from "./globals.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { zIndexPanelUnselected, zIndexPanelSelected } from './utils.js';
-import { traceSelectPanel } from "./gui.js";
-import {appleCrayonColorThreeJS} from "./color";
+import { rgb255ToThreeJSColor } from "./color.js";
 
 class GUIManager {
     constructor ({ $button, $panel }) {
@@ -73,11 +72,17 @@ class GUIManager {
             console.log('increase stick radius');
         });
 
-        $('#spacewalk_background_colorpicker').colorpicker();
-        $('#spacewalk_background_colorpicker').on('colorpickerChange', function(event) {
-            const str = event.color.toString();
-            Globals.sceneManager.renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
-        });
+        const colorPickerConfig =
+            {
+                color: "#f00",
+                move: color => {
+                    const { r, g, b } = color.toRgb();
+                    Globals.sceneManager.renderer.setClearColor (rgb255ToThreeJSColor(r, g, b));
+                }
+
+            };
+
+        $('#spacewalk_background_colorpicker').spectrum(colorPickerConfig);
 
         Globals.eventBus.subscribe("DidSelectPanel", this);
         Globals.eventBus.subscribe('DidLoadFile', this);

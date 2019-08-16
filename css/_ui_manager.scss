@@ -115,3 +115,12 @@ li#spacewalk_ui_manager_render_styles {
   }
 
 }
+
+#spacewalk_background_color_label {
+
+  span.input-group-text {
+    background-color: transparent;
+    border: unset;
+  }
+
+}

@@ -315,6 +315,10 @@ li#spacewalk_ui_manager_render_styles > div {
     cursor: pointer;
     color: #3a3a3a; }
 
+#spacewalk_background_color_label span.input-group-text {
+  background-color: transparent;
+  border: unset; }
+
 div#spacewalk_info_panel {
   font-size: 0.85rem;
   font-weight: 200;
