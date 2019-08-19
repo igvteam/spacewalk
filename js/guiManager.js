@@ -2,6 +2,7 @@ import Globals from "./globals.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { zIndexPanelUnselected, zIndexPanelSelected } from './utils.js';
+import { rgb255ToThreeJSColor } from "./color.js";
 
 class GUIManager {
     constructor ({ $button, $panel }) {
@@ -51,6 +52,63 @@ class GUIManager {
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
 
+        const $ball_radius_control = $('#spacewalk-ball-radius-control');
+
+        $ball_radius_control.find('i.fa-minus-circle').on('click.spacewalk-ball-radius-minus', () => {
+            Globals.sceneManager.updateBallRadius(-1);
+        });
+
+        $ball_radius_control.find('i.fa-plus-circle').on('click.spacewalk-ball-radius-plus', () => {
+            Globals.sceneManager.updateBallRadius(1);
+        });
+
+        const $stick_radius_control = $('#spacewalk-stick-radius-control');
+
+        $stick_radius_control.find('i.fa-minus-circle').on('click.spacewalk-stick-radius-minus', () => {
+            console.log('reduce stick radius');
+        });
+
+        $stick_radius_control.find('i.fa-plus-circle').on('click.spacewalk-stick-radius-plus', () => {
+            console.log('increase stick radius');
+        });
+
+        const backgroundColorPickerConfig =
+            {
+                color: "#f00",
+                move: color => {
+                    const { r, g, b } = color.toRgb();
+                    Globals.sceneManager.renderer.setClearColor (rgb255ToThreeJSColor(r, g, b));
+                }
+
+            };
+
+        $('#spacewalk_background_colorpicker').spectrum(backgroundColorPickerConfig);
+
+        const groundplaneColorPickerConfig =
+            {
+                color: "#f00",
+                move: color => {
+                    const { r, g, b } = color.toRgb();
+                    Globals.sceneManager.groundPlane.setColor (rgb255ToThreeJSColor(r, g, b));
+                }
+
+            };
+
+        $('#spacewalk_ui_manager_groundplane_colorpicker').spectrum(groundplaneColorPickerConfig);
+
+        const gnomonColorPickerConfig =
+            {
+                color: "#f00",
+                move: color => {
+                    const { r, g, b } = color.toRgb();
+                    Globals.sceneManager.gnomon.setColor (rgb255ToThreeJSColor(r, g, b));
+                }
+
+            };
+
+        $('#spacewalk_ui_manager_gnomon_colorpicker').spectrum(gnomonColorPickerConfig);
+
+
         Globals.eventBus.subscribe("DidSelectPanel", this);
         Globals.eventBus.subscribe('DidLoadFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
@@ -69,12 +127,14 @@ class GUIManager {
         } else if ('DidLoadFile' === type) {
 
             $('#spacewalk_info_panel').show();
-            $('#spacewalk_ui_manager_render_style').show();
+            $('#spacewalk_ui_manager_render_styles').show();
+            $('#spacewalk_ui_manager_trace_select').show();
 
         } else if ('DidLoadPointCloudFile' === type) {
 
             $('#spacewalk_info_panel').show();
-            $('#spacewalk_ui_manager_render_style').hide();
+            $('#spacewalk_ui_manager_render_styles').hide();
+            $('#spacewalk_ui_manager_trace_select').hide();
 
         }
     }
@@ -101,6 +161,11 @@ class GUIManager {
     panelIsVisible(panelID) {
         const $found = this.$panel.find(`[data-target='${ panelID }']`);
         $found.prop('checked', true);
+    }
+
+    panelIsHidden(panelID) {
+        const $found = this.$panel.find(`[data-target='${ panelID }']`);
+        $found.prop('checked', false);
     }
 }
 

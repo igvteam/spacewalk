@@ -34,11 +34,11 @@ class BallAndStick {
             return;
         }
 
-        this.balls.mesh.forEach(m => {
-            const { segmentID, genomicLocation } = this.objectSegmentDictionary[ m.uuid ];
+        this.balls.forEach(mesh => {
+            const { segmentID, genomicLocation } = this.objectSegmentDictionary[ mesh.uuid ];
             const color = materialProvider.colorForSegment({ segmentID, genomicLocation });
 
-            m.material = new THREE.MeshPhongMaterial({ color });
+            mesh.material = new THREE.MeshPhongMaterial({ color });
         });
     }
 
@@ -50,20 +50,21 @@ class BallAndStick {
         // 3D Object dictionary. Segment ID is key.
         this.segmentObjectDictionary = {};
 
-        let meshList = trace.geometry.vertices.map((vertex, index) => {
+        return trace.geometry.vertices.map((vertex, index) => {
 
             const { segmentID, genomicLocation } = trace.segmentList[ index ];
 
             const color = Globals.sceneManager.materialProvider.colorForSegment({ segmentID, genomicLocation });
             const material = new THREE.MeshPhongMaterial({ color });
 
-            const geometry = Globals.sceneManager.ballGeometry.clone();
-            const { x, y, z } = vertex;
-            geometry.translate(x, y, z);
+            const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
 
             const mesh = new THREE.Mesh(geometry, material);
-
             mesh.name = 'ball';
+
+            const { x, y, z } = vertex;
+            mesh.position.set(x, y, z);
+            mesh.scale.setScalar(Globals.sceneManager.ballRadius());
 
             this.objectSegmentDictionary[ mesh.uuid ] = { segmentID, genomicLocation };
 
@@ -74,72 +75,92 @@ class BallAndStick {
 
         });
 
-        return { mesh: meshList };
-
     }
 
     createSticks(trace) {
 
-        let meshList = [];
+        let meshes = [];
 
         for (let i = 0, j = 1; j < trace.geometry.vertices.length; ++i, ++j) {
 
             const axis = new THREE.CatmullRomCurve3([ trace.geometry.vertices[ i ].clone(), trace.geometry.vertices[ j ].clone() ]);
 
-            const geometry = new THREE.TubeBufferGeometry(axis, 8, Globals.sceneManager.ballRadius/4, 16, false);
+            const geometry = new THREE.TubeBufferGeometry(axis, 8, 0.25 * Globals.sceneManager.ballRadius(), 16, false);
             const material = Globals.sceneManager.stickMaterial.clone();
 
             const mesh = new THREE.Mesh(geometry, material);
-
             mesh.name = 'stick';
 
-            meshList.push(mesh);
+            // mesh.scale.setScalar(0.25 * Globals.sceneManager.ballRadius);
+
+            meshes.push(mesh);
         }
 
-        return { mesh: meshList };
+        return meshes;
     }
 
     addToScene (scene) {
-        this.balls.mesh.forEach(m => scene.add(m));
-        this.sticks.mesh.forEach(m => scene.add(m));
+        this.balls.forEach(m => scene.add(m));
+        this.sticks.forEach(m => scene.add(m));
     }
 
     renderLoopHelper () {
-        // do stuff
+
+        // if (this.balls) {
+        //     for (let mesh of this.balls) {
+        //         mesh.geometry.attributes.position.needsUpdate = true;
+        //         mesh.geometry.attributes.normal.needsUpdate = true;
+        //         mesh.geometry.attributes.uv.needsUpdate = true;
+        //     }
+        // }
+
     }
 
     hide () {
-        setVisibility(this.balls.mesh, false);
-        setVisibility(this.sticks.mesh, false);
+        setVisibility(this.balls, false);
+        setVisibility(this.sticks, false);
     }
 
     show () {
-        setVisibility(this.balls.mesh, true);
-        setVisibility(this.sticks.mesh, true);
+        setVisibility(this.balls, true);
+        setVisibility(this.sticks, true);
+    }
+
+    updateRadius(radius) {
+
+        for (let mesh of this.balls) {
+            mesh.scale.setScalar(radius);
+        }
+
+         for (let i = 0, j = 1; j < this.trace.geometry.vertices.length; ++i, ++j) {
+            const axis = new THREE.CatmullRomCurve3([ this.trace.geometry.vertices[ i ].clone(), this.trace.geometry.vertices[ j ].clone() ]);
+            this.sticks[ i ].geometry.copy(new THREE.TubeBufferGeometry(axis, 8, 0.25 * radius, 16, false));
+         }
+
     }
 
     dispose () {
 
         if (this.balls) {
-            let geometry = this.balls.mesh.map(m => m.geometry);
-            let material = this.balls.mesh.map(m => m.material);
-            geometry.forEach(g => g.dispose());
-            material.forEach(m => m.dispose());
+            for (let mesh of this.balls) {
+                mesh.geometry.dispose();
+                mesh.material.dispose();
+            }
         }
 
         if (this.sticks) {
-            let geometry = this.sticks.mesh.map(m => m.geometry);
-            let material = this.sticks.mesh.map(m => m.material);
-            geometry.forEach(g => g.dispose());
-            material.forEach(m => m.dispose());
+            for (let mesh of this.sticks) {
+                mesh.geometry.dispose();
+                mesh.material.dispose();
+            }
         }
 
     }
 
     getThumbnailGeometryList () {
 
-        let bg = this.balls.mesh.map(m => m.geometry);
-        let sg = this.sticks.mesh.map(m => m.geometry);
+        let bg = this.balls.map(m => m.geometry);
+        let sg = this.sticks.map(m => m.geometry);
 
         let g = [ ...bg, ...sg ];
 

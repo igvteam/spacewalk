@@ -27,7 +27,6 @@ class Gnomon extends THREE.AxesHelper {
 
         this.group.visible = isHidden;
 
-
         Globals.eventBus.subscribe("ToggleGnomon", this);
 
     }
@@ -37,6 +36,24 @@ class Gnomon extends THREE.AxesHelper {
         if ("ToggleGnomon" === type) {
             this.group.visible = data;
         }
+    }
+
+    setColor(color){
+
+        const { r, g, b } = color;
+
+        let rgb = this.geometry.attributes.color;
+        let colors = rgb.array;
+        for (let i = 0; i < (rgb.count * rgb.itemSize); i += rgb.itemSize) {
+            colors[ i + 0 ] = r;
+            colors[ i + 1 ] = g;
+            colors[ i + 2 ] = b;
+        }
+
+    };
+
+    renderLoopHelper () {
+        this.geometry.attributes.color.needsUpdate = true;
     }
 
     dispose () {

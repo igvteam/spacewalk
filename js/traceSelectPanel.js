@@ -68,13 +68,15 @@ class TraceSelectPanel extends Panel {
 
         super.receiveEvent({ type, data });
 
-        if ('DidLoadFile' === type || 'DidLoadPointCloudFile' === type) {
+        if ('DidLoadFile' === type) {
 
-            if ('DidLoadFile' === type) {
-                const { initialKey } = data;
-                this.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key: initialKey });
-                this.presentPanel();
-            }
+            const { initialKey } = data;
+            this.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key: initialKey });
+            this.presentPanel();
+
+        } else if ('DidLoadPointCloudFile' === type) {
+
+            this.dismissPanel();
 
         }
     }

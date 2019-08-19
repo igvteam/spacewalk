@@ -3,7 +3,7 @@ import Globals from './globals.js';
 import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { contactFrequencyMapPanel, distanceMapPanel, guiManager, thumbnailPanel, traceSelectPanel } from './gui.js';
+import { contactFrequencyMapPanel, distanceMapPanel, guiManager, juiceboxPanel, thumbnailPanel, traceSelectPanel } from './gui.js';
 import { getTraceDistanceCanvas } from "./distanceMapPanel.js";
 import { getTraceContactFrequencyCanvas } from "./contactFrequencyMapPanel.js";
 
@@ -29,25 +29,28 @@ export const appEventListener =
                 //     thumbnailPanel.render();
                 // }
 
-            }  else if ('DidLoadPointCloudFile' === type) {
+            }  else if ('DidLoadPointCloudFile' === type || 'DidLoadFile' === type) {
 
+                const { genomeID, chr, genomicStart, genomicEnd, initialKey } = data;
+
+                $('#spacewalk_info_panel_genome').text( genomeID );
                 $('#spacewalk_info_panel_locus').text( Globals.parser.locusBlurb() );
-                $('#spacewalk_info_panel_ensemble').text( '-' );
+                $('#spacewalk_info_panel_juicebox').text( juiceboxPanel.blurb() );
 
-                setupPointCloud(Globals.pointCloudManager.list.map(o => o.geometry));
+                if ('DidLoadPointCloudFile' === type) {
 
-            } else if ('DidLoadFile' === type) {
+                    $('#spacewalk_info_panel_ensemble').text( '-' );
 
-                $('#spacewalk_info_panel_locus').text( Globals.parser.locusBlurb() );
-                $('#spacewalk_info_panel_ensemble').text( Globals.parser.sampleBlurb() );
+                    setupPointCloud(Globals.pointCloudManager.list.map(o => o.geometry));
+                } else {
 
-                const { initialKey } = data;
-                let trace = Globals.ensembleManager.getTraceWithName(initialKey);
+                    $('#spacewalk_info_panel_ensemble').text( Globals.parser.sampleBlurb() );
 
-                Globals.ensembleManager.currentTrace = trace;
-                Globals.sceneManager.cameraLightingRig.doUpdateCameraPose = true;
-
-                setup({ trace });
+                    let trace = Globals.ensembleManager.getTraceWithName(initialKey);
+                    Globals.ensembleManager.currentTrace = trace;
+                    Globals.sceneManager.cameraLightingRig.doUpdateCameraPose = true;
+                    setup({ trace });
+                }
 
             } else if ('DidSelectStructure' === type) {
 
