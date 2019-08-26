@@ -144,7 +144,7 @@ const createTube = (trace, material) => {
     });
 
     const axis = new THREE.CatmullRomCurve3(knots);
-    const geometry = new THREE.TubeBufferGeometry(axis, tubularSegments, Globals.sceneManager.ballRadius, radialSegments, false);
+    const geometry = new THREE.TubeBufferGeometry(axis, tubularSegments, Globals.sceneManager.ballRadius(), radialSegments, false);
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.name = 'noodle';
@@ -165,15 +165,16 @@ const createFatSpline = (trace, materialProvider) => {
     const pointCount = getFatSplinePointCount(Globals.parser.locus);
     const xyzList = curve.getPoints( pointCount );
 
+    let colors = getColorListWithXYZList(materialProvider, xyzList);
+
+    let geometry = new FatLineGeometry();
+
     let vertices = [];
     xyzList.forEach((xyz) => {
         const { x, y, z } = xyz;
         vertices.push(x, y, z);
     });
 
-    let colors = getColorListWithXYZList(materialProvider, xyzList);
-
-    let geometry = new FatLineGeometry();
     geometry.setPositions( vertices );
     geometry.setColors( colors );
 

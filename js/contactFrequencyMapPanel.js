@@ -49,8 +49,8 @@ class ContactFrequencyMapPanel extends Panel {
             const value = $input.val();
             this.distanceThreshold = clamp(parseInt(value, 10), 0, maxDistanceThreshold);
 
-            this.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble, this.distanceThreshold));
-            this.drawTraceContactFrequency(getTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace, this.distanceThreshold));
+            // this.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble, this.distanceThreshold));
+            // this.drawTraceContactFrequency(getTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace, this.distanceThreshold));
         });
 
     }

@@ -88,17 +88,19 @@ class EnsembleManager {
 
             let material = new THREE.MeshPhongMaterial();
 
+            // console.log(`trace ${ key } vertices ${ geometry.vertices.length }`);
+
             this.ensemble[ key ] = { segmentList, geometry, material };
         }
 
         dictionary = null;
 
         // update ensemble level contact frequency map
-        contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
+        // contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
         // segmentIDSanityCheck(this.ensemble);
 
         // update ensemble level distance map
-        distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
+        // distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
 
         const { chr, genomicStart, genomicEnd } = locus;
 

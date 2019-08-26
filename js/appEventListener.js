@@ -103,6 +103,6 @@ let setup = ({ trace }) => {
     //     thumbnailPanel.render();
     // }
 
-    distanceMapPanel.drawTraceDistanceCanvas(getTraceDistanceCanvas(trace));
-    contactFrequencyMapPanel.drawTraceContactFrequency(getTraceContactFrequencyCanvas(trace, contactFrequencyMapPanel.distanceThreshold));
+    // distanceMapPanel.drawTraceDistanceCanvas(getTraceDistanceCanvas(trace));
+    // contactFrequencyMapPanel.drawTraceContactFrequency(getTraceContactFrequencyCanvas(trace, contactFrequencyMapPanel.distanceThreshold));
 };
