@@ -88,6 +88,8 @@ class EnsembleManager {
 
             let material = new THREE.MeshPhongMaterial();
 
+            // console.log(`trace ${ key } vertices ${ geometry.vertices.length }`);
+
             this.ensemble[ key ] = { segmentList, geometry, material };
         }
 

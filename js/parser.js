@@ -16,8 +16,11 @@ class Parser {
             return "" !== line;
         });
 
+        // const regex = /[ \t]+/;
+        const regex = /\s+/;
+
         // format directive followed by key-value pairs
-        let key_value_pairs = lines.shift().split('##').pop().split(' ');
+        let key_value_pairs = lines.shift().split('##').pop().split(regex);
 
         // discard furnat=sw1
         key_value_pairs.shift();
@@ -47,12 +50,12 @@ class Parser {
 
             // trace
             if (line.startsWith('trace')) {
-                hashKey = line.split(' ').join('%');
+                hashKey = line.split(regex).join('%');
                 hash[ hashKey ] = {};
                 trace = hash[ hashKey ];
             } else {
 
-                let [ chr_local, startBP, endBP, x, y, z ] = line.split(' ');
+                let [ chr_local, startBP, endBP, x, y, z ] = line.split(regex);
 
                 if (undefined === chr) {
                     chr = chr_local
@@ -132,8 +135,11 @@ class Parser {
 
 const isPointCloud = hash => {
 
-    const [ key, value ] = Object.entries(hash)[ 0 ];
-    return 1 === Object.keys(value).length;
+    const [ unused, value ] = Object.entries(hash)[ 0 ];
+
+    const [ irrelevant, candidate ] = Object.entries(value)[ 0 ];
+
+    return (candidate.length > 1);
 
 };
 
