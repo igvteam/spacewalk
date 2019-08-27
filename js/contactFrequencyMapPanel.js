@@ -93,13 +93,15 @@ export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) =
     for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
 
     const ensembleList = Object.values(ensemble);
-    console.time(`getEnsembleContactFrequencyCanvas. ${ ensembleList.length } traces.`);
+
+    const str = `getEnsembleContactFrequencyCanvas. ${ ensembleList.length } traces.`;
+    console.time(str);
 
     for (let trace of ensembleList) {
         updateContactFrequencyArray(trace, frequencies, distanceThreshold);
     }
 
-    console.timeEnd(`getEnsembleContactFrequencyCanvas. ${ ensembleList.length } traces.`);
+    console.timeEnd(str);
 
     return createContactFrequencyCanvas(frequencies);
 
@@ -171,8 +173,6 @@ const createContactFrequencyCanvas = frequencies => {
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
-    console.time(`Create ${ mapSize } x ${ mapSize } contact map`);
-
     let maxFrequency = Number.NEGATIVE_INFINITY;
 
     // Calculate max
@@ -185,6 +185,9 @@ const createContactFrequencyCanvas = frequencies => {
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
     ctx.canvas.width = ctx.canvas.height = mapSize;
+
+    const str = `Create contact canvas ${ mapSize } x ${ mapSize }`;
+    console.time(str);
 
     const { width: w, height: h } = ctx.canvas;
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
@@ -209,7 +212,7 @@ const createContactFrequencyCanvas = frequencies => {
         }
     }
 
-    console.timeEnd(`Create ${ mapSize } x ${ mapSize } contact map`);
+    console.timeEnd(str);
 
     return canvas;
 

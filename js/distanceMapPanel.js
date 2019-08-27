@@ -71,7 +71,8 @@ export const getEnsembleAverageDistanceCanvas = ensemble => {
 
     const traces = Object.values(ensemble);
 
-    console.time(`getEnsembleDistanceMapCanvas. ${ traces.length } traces.`);
+    const str = `getEnsembleDistanceMapCanvas. ${ traces.length } traces.`;
+    console.time(str);
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
@@ -118,9 +119,12 @@ export const getEnsembleAverageDistanceCanvas = ensemble => {
 
     }
 
-    const maxAverageDistance = Math.max(...average);
+    let maxAverageDistance = Number.NEGATIVE_INFINITY;
+    for (let avg of average) {
+        maxAverageDistance = Math.max(maxAverageDistance, avg);
+    }
 
-    console.timeEnd(`getEnsembleDistanceMapCanvas. ${ traces.length } traces.`);
+    console.timeEnd(str);
 
     return createDistanceCanvas(average, maxAverageDistance);
 
@@ -185,6 +189,9 @@ const createDistanceCanvas = (distances, maximumDistance) => {
     let ctx = canvas.getContext('2d');
     ctx.canvas.width = ctx.canvas.height = Globals.ensembleManager.maximumSegmentID;
 
+    const str = `Create distance canvas ${ ctx.canvas.width } by ${ ctx.canvas.width }`;
+    console.time(str);
+
     const { width: w, height: h } = ctx.canvas;
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
     ctx.fillRect(0, 0, w, h);
@@ -205,6 +212,8 @@ const createDistanceCanvas = (distances, maximumDistance) => {
         }
 
     }
+
+    console.timeEnd(str);
 
     return canvas;
 
