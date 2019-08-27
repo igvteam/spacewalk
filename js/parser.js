@@ -16,7 +16,8 @@ class Parser {
             return "" !== line;
         });
 
-        const regex = /[ \t]+/;
+        // const regex = /[ \t]+/;
+        const regex = /\s+/;
 
         // format directive followed by key-value pairs
         let key_value_pairs = lines.shift().split('##').pop().split(regex);
