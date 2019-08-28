@@ -5,6 +5,7 @@ import FatLine from "./threejs_es6/fatlines/fatLine.js";
 import { getBoundsWithTrace } from './ensembleManager.js';
 import Globals from './globals.js';
 import { degrees, clamp, lerp } from './math.js';
+import { numberFormatter } from "./utils.js";
 
 let fatLineMaterial;
 
@@ -23,8 +24,11 @@ class Noodle {
 
         this.trace = trace;
 
-        this.tube = createTube(trace, Globals.sceneManager.materialProvider.material);
-        this.spline = createFatSpline(trace, Globals.sceneManager.materialProvider);
+        this.curve = new THREE.CatmullRomCurve3(trace.geometry.vertices);
+        console.log(`CatmullRom Curve. Length ${ numberFormatter( this.curve.getLength() ) }. Divisions ${ this.curve.arcLengthDivisions }`);
+
+        this.tube = createTube(this.curve, Globals.sceneManager.materialProvider.material);
+        this.spline = createFatSpline(this.curve, Globals.sceneManager.materialProvider);
 
         if (Globals.sceneManager.renderStyle === Noodle.getRenderStyle()) {
             this.show();
@@ -41,7 +45,7 @@ class Noodle {
         }
 
         // tube
-        this.tube.mesh.material = materialProvider.material;
+        this.tube.material = materialProvider.material;
 
         // fat spline
         let colors = getColorListWithXYZList(materialProvider, this.spline.xyzList);
@@ -50,7 +54,7 @@ class Noodle {
     }
 
     addToScene (scene) {
-        scene.add( this.tube.mesh );
+        scene.add( this.tube );
         scene.add( this.spline.mesh );
     }
 
@@ -63,17 +67,23 @@ class Noodle {
     }
 
     hide () {
-        this.tube.mesh.visible = this.spline.mesh.visible = false;
+        this.tube.visible = this.spline.mesh.visible = false;
     }
 
     show () {
-        this.tube.mesh.visible = this.spline.mesh.visible = true;
+        this.tube.visible = this.spline.mesh.visible = true;
+    }
+
+    updateRadius(radius) {
+        const tubularSegments = getTubularSegmentCount(this.curve.getLength());
+        const radialSegments = getRadialSegmentCount(Globals.parser.locus);
+        this.tube.geometry.copy(new THREE.TubeBufferGeometry(this.curve, tubularSegments, radius, radialSegments, false));
     }
 
     dispose () {
 
         if (this.tube) {
-            let { material, geometry } = this.tube.mesh;
+            let { material, geometry } = this.tube;
             [ material, geometry ].forEach(item => item.dispose());
         }
 
@@ -85,7 +95,7 @@ class Noodle {
     }
 
     getThumbnailGeometryList () {
-        return [ this.tube.mesh.geometry ];
+        return [ this.tube.geometry ];
     }
 
     getBounds() {
@@ -133,41 +143,29 @@ class Noodle {
 
 }
 
-const createTube = (trace, material) => {
+const createTube = (curve, material) => {
 
-    const tubularSegments = getTubularSegmentCount(Globals.parser.locus);
+    const tubularSegments = getTubularSegmentCount(curve.getLength());
     const radialSegments = getRadialSegmentCount(Globals.parser.locus);
 
-    const knots = trace.geometry.vertices.map((vertex) => {
-        let { x, y, z} = vertex;
-        return new THREE.Vector3( x, y, z );
-    });
-
-    const axis = new THREE.CatmullRomCurve3(knots);
-    const geometry = new THREE.TubeBufferGeometry(axis, tubularSegments, Globals.sceneManager.ballRadius(), radialSegments, false);
+    const geometry = new THREE.TubeBufferGeometry(curve, tubularSegments, Globals.sceneManager.noodleRadius(), radialSegments, false);
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.name = 'noodle';
 
-    return { mesh };
+    return mesh;
 
 };
 
-const createFatSpline = (trace, materialProvider) => {
+const createFatSpline = (curve, materialProvider) => {
 
-    const knots = trace.geometry.vertices.map((vertex) => {
-        let { x, y, z} = vertex;
-        return new THREE.Vector3( x, y, z );
-    });
+    const pointCount = getFatSplinePointCount(curve.getLength());
 
-    const curve = new THREE.CatmullRomCurve3(knots);
-
-    const pointCount = getFatSplinePointCount(Globals.parser.locus);
     const xyzList = curve.getPoints( pointCount );
 
     let colors = getColorListWithXYZList(materialProvider, xyzList);
 
-    let geometry = new FatLineGeometry();
+    let fatLineGeometry = new FatLineGeometry();
 
     let vertices = [];
     xyzList.forEach((xyz) => {
@@ -175,12 +173,12 @@ const createFatSpline = (trace, materialProvider) => {
         vertices.push(x, y, z);
     });
 
-    geometry.setPositions( vertices );
-    geometry.setColors( colors );
+    fatLineGeometry.setPositions( vertices );
+    fatLineGeometry.setColors( colors );
 
     fatLineMaterial = new FatLineMaterial( { linewidth: /*2*/3, vertexColors: THREE.VertexColors } );
 
-    let mesh = new FatLine(geometry, fatLineMaterial);
+    let mesh = new FatLine(fatLineGeometry, fatLineMaterial);
     mesh.computeLineDistances();
     mesh.scale.set( 1, 1, 1 );
     mesh.name = 'noodle_spline';
@@ -207,24 +205,17 @@ const getRadialSegmentCount = locus => {
 
 };
 
-const getTubularSegmentCount = locus => {
-    // return getCountMultiplier(locus) * 1024;
-    return 1024;
+const getTubularSegmentCount = curveLength => {
+    return getCountMultiplier(curveLength) * 1024;
 };
 
-const getFatSplinePointCount = locus => {
-    // return getCountMultiplier(locus) * 2048;
-    return 2048;
+const getFatSplinePointCount = curveLength => {
+    return getCountMultiplier(curveLength) * 1024;
 };
 
-const getCountMultiplier = locus => {
-
-    const { genomicStart, genomicEnd } = locus;
-
-    let multiplier = (genomicEnd - genomicStart) / 2e6;
-    multiplier = Math.round(multiplier);
-
-    return multiplier;
+const getCountMultiplier = curveLength => {
+    const count = Math.round( Math.max(1, curveLength / 16000) );
+    return count;
 };
 
 const getColorListWithXYZList = (materialProvider, xyzList) =>  {

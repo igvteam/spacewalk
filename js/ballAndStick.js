@@ -6,7 +6,7 @@ import { degrees } from './math.js';
 class BallAndStick {
 
     constructor () {
-
+        this.stickCurves = undefined;
     }
 
     static getRenderStyle() {
@@ -79,19 +79,19 @@ class BallAndStick {
 
     createSticks(trace) {
 
+        if (undefined === this.stickCurves) {
+            this.stickCurves = createStickCurves(trace.geometry.vertices);
+        }
+
         let meshes = [];
 
-        for (let i = 0, j = 1; j < trace.geometry.vertices.length; ++i, ++j) {
+        for (let curve of this.stickCurves) {
 
-            const axis = new THREE.CatmullRomCurve3([ trace.geometry.vertices[ i ].clone(), trace.geometry.vertices[ j ].clone() ]);
-
-            const geometry = new THREE.TubeBufferGeometry(axis, 8, 0.25 * Globals.sceneManager.ballRadius(), 16, false);
+            const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * Globals.sceneManager.ballRadius(), 16, false);
             const material = Globals.sceneManager.stickMaterial.clone();
 
             const mesh = new THREE.Mesh(geometry, material);
             mesh.name = 'stick';
-
-            // mesh.scale.setScalar(0.25 * Globals.sceneManager.ballRadius);
 
             meshes.push(mesh);
         }
@@ -132,10 +132,9 @@ class BallAndStick {
             mesh.scale.setScalar(radius);
         }
 
-         for (let i = 0, j = 1; j < this.trace.geometry.vertices.length; ++i, ++j) {
-            const axis = new THREE.CatmullRomCurve3([ this.trace.geometry.vertices[ i ].clone(), this.trace.geometry.vertices[ j ].clone() ]);
-            this.sticks[ i ].geometry.copy(new THREE.TubeBufferGeometry(axis, 8, 0.25 * radius, 16, false));
-         }
+        for (let i = 0; i < this.stickCurves.length; i++) {
+            this.sticks[ i ].geometry.copy(new THREE.TubeBufferGeometry(this.stickCurves[i], 8, 0.25 * radius, 16, false));
+        }
 
     }
 
@@ -155,6 +154,7 @@ class BallAndStick {
             }
         }
 
+        delete this.stickCurves;
     }
 
     getThumbnailGeometryList () {
@@ -210,6 +210,16 @@ class BallAndStick {
         return { target:center, position, fov }
     }
 }
+
+const createStickCurves = (vertices) => {
+
+    let curves = [];
+    for (let i = 0, j = 1; j < vertices.length; ++i, ++j) {
+        curves.push( new THREE.CatmullRomCurve3([ vertices[i], vertices[j] ]) );
+    }
+
+    return curves;
+};
 
 let setVisibility = (objects, isVisible) => {
     objects.forEach(object => object.visible = isVisible);

@@ -62,6 +62,19 @@ class GUIManager {
             Globals.sceneManager.updateBallRadius(1);
         });
 
+        const $noodle_radius_control = $('#spacewalk-noodle-radius-control');
+
+        $noodle_radius_control.find('i.fa-minus-circle').on('click.spacewalk-noodle-radius-minus', () => {
+            Globals.sceneManager.updateNoodleRadius(-1);
+        });
+
+        $noodle_radius_control.find('i.fa-plus-circle').on('click.spacewalk-noodle-radius-plus', () => {
+            Globals.sceneManager.updateNoodleRadius(1);
+        });
+
+        /*
+                Independant Stick radius control. Currently controlled as a fraction of ball radius
+
         const $stick_radius_control = $('#spacewalk-stick-radius-control');
 
         $stick_radius_control.find('i.fa-minus-circle').on('click.spacewalk-stick-radius-minus', () => {
@@ -71,6 +84,10 @@ class GUIManager {
         $stick_radius_control.find('i.fa-plus-circle').on('click.spacewalk-stick-radius-plus', () => {
             console.log('increase stick radius');
         });
+        */
+
+
+
 
         const backgroundColorPickerConfig =
             {

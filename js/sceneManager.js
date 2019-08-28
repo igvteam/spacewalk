@@ -108,6 +108,15 @@ class SceneManager {
         Globals.ballAndStick.updateRadius(this.ballRadius());
     }
 
+    noodleRadius() {
+        return noodleRadiusTable[ noodleRadiusTableCounter ];
+    }
+
+    updateNoodleRadius(increment) {
+        noodleRadiusTableCounter = clamp(noodleRadiusTableCounter + increment, 0, noodleRadiusTableLength - 1);
+        Globals.noodle.updateRadius(this.noodleRadius());
+    }
+
     onWindowResize() {
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -176,9 +185,10 @@ class SceneManager {
 
 }
 
+// ball & stick radius
 const maxBallRadius = 64;
 const ballRadiusTableLength = 17;
-let ballRadiusTableCounter = 8;
+let ballRadiusTableCounter = 1 + Math.floor(0.5 * ballRadiusTableLength);
 const ballRadiusTable = ((radius) => {
 
     let list = [];
@@ -188,6 +198,20 @@ const ballRadiusTable = ((radius) => {
     }
     return list;
 })(maxBallRadius);
+
+// noodle radius
+const maxNoodleRadius = 3 * maxBallRadius;
+const noodleRadiusTableLength = 17;
+let noodleRadiusTableCounter = Math.floor(0.125 * noodleRadiusTableLength);
+const noodleRadiusTable = ((radius) => {
+
+    let list = [];
+    for (let r = 0; r < noodleRadiusTableLength; r++) {
+        const interpolant = (1 + r)/noodleRadiusTableLength;
+        list.push(interpolant * radius);
+    }
+    return list;
+})(maxNoodleRadius);
 
 export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
