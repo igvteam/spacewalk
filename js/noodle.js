@@ -24,11 +24,11 @@ class Noodle {
 
         this.trace = trace;
 
-        const curve = new THREE.CatmullRomCurve3(trace.geometry.vertices);
-        console.log(`CatmullRom Curve. Length ${ numberFormatter( curve.getLength() ) }. Divisions ${ curve.arcLengthDivisions }`);
+        this.curve = new THREE.CatmullRomCurve3(trace.geometry.vertices);
+        console.log(`CatmullRom Curve. Length ${ numberFormatter( this.curve.getLength() ) }. Divisions ${ this.curve.arcLengthDivisions }`);
 
-        this.tube = createTube(curve, Globals.sceneManager.materialProvider.material);
-        this.spline = createFatSpline(curve, Globals.sceneManager.materialProvider);
+        this.tube = createTube(this.curve, Globals.sceneManager.materialProvider.material);
+        this.spline = createFatSpline(this.curve, Globals.sceneManager.materialProvider);
 
         if (Globals.sceneManager.renderStyle === Noodle.getRenderStyle()) {
             this.show();
@@ -45,7 +45,7 @@ class Noodle {
         }
 
         // tube
-        this.tube.mesh.material = materialProvider.material;
+        this.tube.material = materialProvider.material;
 
         // fat spline
         let colors = getColorListWithXYZList(materialProvider, this.spline.xyzList);
@@ -54,7 +54,7 @@ class Noodle {
     }
 
     addToScene (scene) {
-        scene.add( this.tube.mesh );
+        scene.add( this.tube );
         scene.add( this.spline.mesh );
     }
 
@@ -67,17 +67,23 @@ class Noodle {
     }
 
     hide () {
-        this.tube.mesh.visible = this.spline.mesh.visible = false;
+        this.tube.visible = this.spline.mesh.visible = false;
     }
 
     show () {
-        this.tube.mesh.visible = this.spline.mesh.visible = true;
+        this.tube.visible = this.spline.mesh.visible = true;
+    }
+
+    updateRadius(radius) {
+        const tubularSegments = getTubularSegmentCount(this.curve.getLength());
+        const radialSegments = getRadialSegmentCount(Globals.parser.locus);
+        this.tube.geometry.copy(new THREE.TubeBufferGeometry(this.curve, tubularSegments, radius, radialSegments, false));
     }
 
     dispose () {
 
         if (this.tube) {
-            let { material, geometry } = this.tube.mesh;
+            let { material, geometry } = this.tube;
             [ material, geometry ].forEach(item => item.dispose());
         }
 
@@ -89,7 +95,7 @@ class Noodle {
     }
 
     getThumbnailGeometryList () {
-        return [ this.tube.mesh.geometry ];
+        return [ this.tube.geometry ];
     }
 
     getBounds() {
@@ -142,12 +148,12 @@ const createTube = (curve, material) => {
     const tubularSegments = getTubularSegmentCount(curve.getLength());
     const radialSegments = getRadialSegmentCount(Globals.parser.locus);
 
-    const geometry = new THREE.TubeBufferGeometry(curve, tubularSegments, Globals.sceneManager.ballRadius(), radialSegments, false);
+    const geometry = new THREE.TubeBufferGeometry(curve, tubularSegments, Globals.sceneManager.noodleRadius(), radialSegments, false);
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.name = 'noodle';
 
-    return { mesh };
+    return mesh;
 
 };
 
@@ -159,7 +165,7 @@ const createFatSpline = (curve, materialProvider) => {
 
     let colors = getColorListWithXYZList(materialProvider, xyzList);
 
-    let geometry = new FatLineGeometry();
+    let fatLineGeometry = new FatLineGeometry();
 
     let vertices = [];
     xyzList.forEach((xyz) => {
@@ -167,12 +173,12 @@ const createFatSpline = (curve, materialProvider) => {
         vertices.push(x, y, z);
     });
 
-    geometry.setPositions( vertices );
-    geometry.setColors( colors );
+    fatLineGeometry.setPositions( vertices );
+    fatLineGeometry.setColors( colors );
 
     fatLineMaterial = new FatLineMaterial( { linewidth: /*2*/3, vertexColors: THREE.VertexColors } );
 
-    let mesh = new FatLine(geometry, fatLineMaterial);
+    let mesh = new FatLine(fatLineGeometry, fatLineMaterial);
     mesh.computeLineDistances();
     mesh.scale.set( 1, 1, 1 );
     mesh.name = 'noodle_spline';
