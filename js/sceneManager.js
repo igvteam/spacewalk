@@ -202,7 +202,7 @@ const ballRadiusTable = ((radius) => {
 // noodle radius
 const maxNoodleRadius = 3 * maxBallRadius;
 const noodleRadiusTableLength = 17;
-let noodleRadiusTableCounter = 1 + Math.floor(0.25 * noodleRadiusTableLength);
+let noodleRadiusTableCounter = Math.floor(0.125 * noodleRadiusTableLength);
 const noodleRadiusTable = ((radius) => {
 
     let list = [];
