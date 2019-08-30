@@ -15,6 +15,13 @@ export const colorDescriptionRGBOrThreeJS = color => {
     return `rgb(${r.toFixed(3)},${g.toFixed(3)},${b.toFixed(3)})`
 };
 
+export let threeJSColorToRGB255 = (color) => {
+
+    const { r, g, b } = color;
+
+    return { r: r*255, g: g*255, b: b*255 };
+};
+
 export let rgb255ToThreeJSColor = (r, g, b) => {
 
     return new THREE.Color(r/255, g/255, b/255);
