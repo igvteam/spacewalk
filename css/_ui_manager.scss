@@ -115,8 +115,11 @@ li#spacewalk_ui_manager_render_styles {
   }
 
 }
+.spacewalk-colorpicker-input {
+  border: unset;
+}
 
-span.spacewalk-colorpicker-input-group-text {
+.spacewalk-colorpicker-input-group-text {
   background-color: transparent;
   border: unset;
 }

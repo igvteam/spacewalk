@@ -315,7 +315,10 @@ li#spacewalk_ui_manager_render_styles > div {
     cursor: pointer;
     color: #3a3a3a; }
 
-span.spacewalk-colorpicker-input-group-text {
+.spacewalk-colorpicker-input {
+  border: unset; }
+
+.spacewalk-colorpicker-input-group-text {
   background-color: transparent;
   border: unset; }
 
