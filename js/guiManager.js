@@ -52,6 +52,7 @@ class GUIManager {
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
 
+        // ball radius
         const $ball_radius_control = $('#spacewalk-ball-radius-control');
 
         $ball_radius_control.find('i.fa-minus-circle').on('click.spacewalk-ball-radius-minus', () => {
@@ -62,6 +63,18 @@ class GUIManager {
             Globals.sceneManager.updateBallRadius(1);
         });
 
+        // stick radius
+        const $stick_radius_control = $('#spacewalk-stick-radius-control');
+
+        $stick_radius_control.find('i.fa-minus-circle').on('click.spacewalk-stick-radius-minus', () => {
+            Globals.sceneManager.updateStickRadius(-1);
+        });
+
+        $stick_radius_control.find('i.fa-plus-circle').on('click.spacewalk-stick-radius-plus', () => {
+            Globals.sceneManager.updateStickRadius(1);
+        });
+
+        // noodle radius
         const $noodle_radius_control = $('#spacewalk-noodle-radius-control');
 
         $noodle_radius_control.find('i.fa-minus-circle').on('click.spacewalk-noodle-radius-minus', () => {
@@ -71,22 +84,6 @@ class GUIManager {
         $noodle_radius_control.find('i.fa-plus-circle').on('click.spacewalk-noodle-radius-plus', () => {
             Globals.sceneManager.updateNoodleRadius(1);
         });
-
-        /*
-                Independant Stick radius control. Currently controlled as a fraction of ball radius
-
-        const $stick_radius_control = $('#spacewalk-stick-radius-control');
-
-        $stick_radius_control.find('i.fa-minus-circle').on('click.spacewalk-stick-radius-minus', () => {
-            console.log('reduce stick radius');
-        });
-
-        $stick_radius_control.find('i.fa-plus-circle').on('click.spacewalk-stick-radius-plus', () => {
-            console.log('increase stick radius');
-        });
-        */
-
-
 
 
         const backgroundColorPickerConfig =
