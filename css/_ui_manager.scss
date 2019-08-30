@@ -1,4 +1,4 @@
-$spacewalk_ui_manager_panel_size: 256px;
+$spacewalk_ui_manager_panel_size: 300px;
 
 //$spacewalk_ui_manager_button_top: 64px + $spacewalk_navbar_height;
 $spacewalk_ui_manager_button_top: 150px;
@@ -115,6 +115,11 @@ li#spacewalk_ui_manager_render_styles {
   }
 
 }
+
+.spacewalk-colorpicker-li {
+  padding: unset;
+}
+
 .spacewalk-colorpicker-input {
   border: unset;
 }

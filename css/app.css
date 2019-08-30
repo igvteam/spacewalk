@@ -272,7 +272,7 @@ div.navbar-brand {
   border-color: #3a3a3a;
   top: 198px;
   left: 32px;
-  width: 256px;
+  width: 300px;
   height: auto; }
   #spacewalk_ui_manager_panel.card .list-group {
     margin-top: 6px;
@@ -314,6 +314,9 @@ li#spacewalk_ui_manager_render_styles > div {
   .spacewalk-ball-stick-control i.fas:hover {
     cursor: pointer;
     color: #3a3a3a; }
+
+.spacewalk-colorpicker-li {
+  padding: unset; }
 
 .spacewalk-colorpicker-input {
   border: unset; }
