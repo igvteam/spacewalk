@@ -10,6 +10,9 @@ class Gnomon extends THREE.AxesHelper {
 
         super(1);
 
+        this.min = min;
+        this.max = max;
+
         this.name = 'gnomon';
 
         this.geometry.attributes.position = getVertexListWithSharedOriginAndLengths(min, max);
@@ -56,6 +59,16 @@ class Gnomon extends THREE.AxesHelper {
             colors[ i + 2 ] = b;
         }
 
+        const colorString = rgb255String( threeJSColorToRGB255(color) );
+        this.xAxisSprite.material.dispose();
+        this.xAxisSprite.material = getAxisSpriteMaterial( colorString, this.max.x - this.min.x);
+
+        this.yAxisSprite.material.dispose();
+        this.yAxisSprite.material = getAxisSpriteMaterial( colorString, this.max.y - this.min.y);
+
+        this.zAxisSprite.material.dispose();
+        this.zAxisSprite.material = getAxisSpriteMaterial( colorString, this.max.z - this.min.z);
+
     };
 
     renderLoopHelper () {
@@ -80,31 +93,38 @@ export default Gnomon;
 const getXAxisSprite = (min, max, color) => {
 
     const { x:ax, y:ay, z:az } = min;
-    const { x:bx, y:by, z:bz } = max;
+    const { x:bx } = max;
 
-    const length = bx - ax;
-    return getAxisSprite(bx, ay, az, length, color);
+    return getAxisSprite(bx, ay, az, bx - ax, color);
 };
 
 const getYAxisSprite = (min, max, color) => {
 
     const { x:ax, y:ay, z:az } = min;
-    const { x:bx, y:by, z:bz } = max;
+    const { y:by } = max;
 
-    const length = by - ay;
-    return getAxisSprite(ax, by, az, length, color);
+    return getAxisSprite(ax, by, az, by - ay, color);
 };
 
 const getZAxisSprite = (min, max, color) => {
 
     const { x:ax, y:ay, z:az } = min;
-    const { x:bx, y:by, z:bz } = max;
+    const { z:bz } = max;
 
-    const length = bz - az;
-    return getAxisSprite(ax, ay, bz, length, color);
+    return getAxisSprite(ax, ay, bz, bz - az, color);
 };
 
 const getAxisSprite = (x, y, z, length, color) => {
+
+    const sprite = new THREE.Sprite( getAxisSpriteMaterial(color, length) );
+    sprite.position.set(x, y, z);
+    sprite.scale.set( 512, 512, 1 );
+
+    return sprite;
+
+};
+
+const getAxisSpriteMaterial = (color, length) => {
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -124,12 +144,7 @@ const getAxisSprite = (x, y, z, length, color) => {
     material.side = THREE.DoubleSide;
     material.transparent = true;
 
-    const sprite = new THREE.Sprite( material );
-    sprite.position.set(x, y, z);
-    sprite.scale.set( 512, 512, 1 );
-
-    return sprite;
-
+    return material;
 };
 
 const getVertexListWithSharedOriginAndLengths = (min, max) => {
