@@ -100,12 +100,21 @@ class SceneManager {
     }
 
     ballRadius() {
-        return ballRadiusTable[ ballRadiusTableCounter ];
+        return ballStickRadiusTable[ ballRadiusTableCounter ];
+    }
+
+    stickRadius() {
+        return ballStickRadiusTable[ stickRadiusTableCounter ];
     }
 
     updateBallRadius(increment) {
-        ballRadiusTableCounter = clamp(ballRadiusTableCounter + increment, 0, ballRadiusTableLength - 1);
-        Globals.ballAndStick.updateRadius(this.ballRadius());
+        ballRadiusTableCounter = clamp(ballRadiusTableCounter + increment, 0, ballStickRadiusTableLength - 1);
+        Globals.ballAndStick.updateBallRadius(this.ballRadius());
+    }
+
+    updateStickRadius(increment) {
+        stickRadiusTableCounter = clamp(stickRadiusTableCounter + increment, 0, ballStickRadiusTableLength - 1);
+        Globals.ballAndStick.updateStickRadius(this.stickRadius());
     }
 
     noodleRadius() {
@@ -186,23 +195,25 @@ class SceneManager {
 }
 
 // ball & stick radius
-const maxBallRadius = 64;
-const ballRadiusTableLength = 17;
-let ballRadiusTableCounter = 1 + Math.floor(0.5 * ballRadiusTableLength);
-const ballRadiusTable = ((radius) => {
+
+const maxBallStickRadius = 64;
+const ballStickRadiusTableLength = 17;
+const ballStickRadiusTable = ((radius) => {
 
     let list = [];
-    for (let r = 0; r < ballRadiusTableLength; r++) {
-        const interpolant = (1 + r)/ballRadiusTableLength;
+    for (let r = 0; r < ballStickRadiusTableLength; r++) {
+        const interpolant = (1 + r)/ballStickRadiusTableLength;
         list.push(interpolant * radius);
     }
     return list;
-})(maxBallRadius);
+})(maxBallStickRadius);
+
+let ballRadiusTableCounter = Math.floor(0.5 * ballStickRadiusTableLength);
+let stickRadiusTableCounter = Math.floor(0.25 * ballStickRadiusTableLength);
 
 // noodle radius
-const maxNoodleRadius = 3 * maxBallRadius;
+const maxNoodleRadius = 3 * maxBallStickRadius;
 const noodleRadiusTableLength = 17;
-let noodleRadiusTableCounter = Math.floor(0.125 * noodleRadiusTableLength);
 const noodleRadiusTable = ((radius) => {
 
     let list = [];
@@ -212,6 +223,8 @@ const noodleRadiusTable = ((radius) => {
     }
     return list;
 })(maxNoodleRadius);
+
+let noodleRadiusTableCounter = Math.floor(0.125 * noodleRadiusTableLength);
 
 export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 

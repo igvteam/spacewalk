@@ -126,14 +126,18 @@ class BallAndStick {
         setVisibility(this.sticks, true);
     }
 
-    updateRadius(radius) {
+    updateBallRadius(radius) {
 
         for (let mesh of this.balls) {
             mesh.scale.setScalar(radius);
         }
 
+    }
+
+    updateStickRadius(radius) {
+
         for (let i = 0; i < this.stickCurves.length; i++) {
-            this.sticks[ i ].geometry.copy(new THREE.TubeBufferGeometry(this.stickCurves[i], 8, 0.25 * radius, 16, false));
+            this.sticks[ i ].geometry.copy(new THREE.TubeBufferGeometry(this.stickCurves[i], 8, radius, 16, false));
         }
 
     }

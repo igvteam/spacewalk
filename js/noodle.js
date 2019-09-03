@@ -83,13 +83,11 @@ class Noodle {
     dispose () {
 
         if (this.tube) {
-            let { material, geometry } = this.tube;
-            [ material, geometry ].forEach(item => item.dispose());
+            [ this.tube.material, this.tube.geometry ].forEach(item => item.dispose());
         }
 
         if (this.spline) {
-            let { material, geometry } = this.spline.mesh;
-            [ material, geometry ].forEach(item => item.dispose())
+            [ this.spline.mesh.material, this.spline.mesh.geometry ].forEach(item => item.dispose())
         }
 
     }

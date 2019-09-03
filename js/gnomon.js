@@ -1,7 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
 import { guiManager } from "./gui.js";
-import { appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255String } from "./color.js";
+import { appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255String, threeJSColorToRGB255 } from "./color.js";
 import { numberFormatter } from "./utils.js";
 
 class Gnomon extends THREE.AxesHelper {
@@ -9,6 +9,9 @@ class Gnomon extends THREE.AxesHelper {
     constructor ({ min, max, color, isHidden }) {
 
         super(1);
+
+        this.min = min;
+        this.max = max;
 
         this.name = 'gnomon';
 
@@ -21,9 +24,15 @@ class Gnomon extends THREE.AxesHelper {
         this.group = new THREE.Group();
         this.group.add( this );
 
-        this.group.add( getXAxisSprite(min, max) );
-        this.group.add( getYAxisSprite(min, max) );
-        this.group.add( getZAxisSprite(min, max) );
+        const colorString = rgb255String( threeJSColorToRGB255(color) );
+        this.xAxisSprite = getXAxisSprite(min, max, colorString);
+        this.group.add( this.xAxisSprite );
+
+        this.yAxisSprite = getYAxisSprite(min, max, colorString);
+        this.group.add( this.yAxisSprite );
+
+        this.zAxisSprite = getZAxisSprite(min, max, colorString);
+        this.group.add( this.zAxisSprite );
 
         this.group.visible = isHidden;
 
@@ -50,6 +59,16 @@ class Gnomon extends THREE.AxesHelper {
             colors[ i + 2 ] = b;
         }
 
+        const colorString = rgb255String( threeJSColorToRGB255(color) );
+        this.xAxisSprite.material.dispose();
+        this.xAxisSprite.material = getAxisSpriteMaterial( colorString, this.max.x - this.min.x);
+
+        this.yAxisSprite.material.dispose();
+        this.yAxisSprite.material = getAxisSpriteMaterial( colorString, this.max.y - this.min.y);
+
+        this.zAxisSprite.material.dispose();
+        this.zAxisSprite.material = getAxisSpriteMaterial( colorString, this.max.z - this.min.z);
+
     };
 
     renderLoopHelper () {
@@ -71,34 +90,41 @@ class Gnomon extends THREE.AxesHelper {
 
 export default Gnomon;
 
-const getXAxisSprite = (min, max) => {
+const getXAxisSprite = (min, max, color) => {
 
     const { x:ax, y:ay, z:az } = min;
-    const { x:bx, y:by, z:bz } = max;
+    const { x:bx } = max;
 
-    const length = bx - ax;
-    return getAxisSprite(bx, ay, az, length);
+    return getAxisSprite(bx, ay, az, bx - ax, color);
 };
 
-const getYAxisSprite = (min, max) => {
+const getYAxisSprite = (min, max, color) => {
 
     const { x:ax, y:ay, z:az } = min;
-    const { x:bx, y:by, z:bz } = max;
+    const { y:by } = max;
 
-    const length = by - ay;
-    return getAxisSprite(ax, by, az, length.toString());
+    return getAxisSprite(ax, by, az, by - ay, color);
 };
 
-const getZAxisSprite = (min, max) => {
+const getZAxisSprite = (min, max, color) => {
 
     const { x:ax, y:ay, z:az } = min;
-    const { x:bx, y:by, z:bz } = max;
+    const { z:bz } = max;
 
-    const length = bz - az;
-    return getAxisSprite(ax, ay, bz, length.toString());
+    return getAxisSprite(ax, ay, bz, bz - az, color);
 };
 
-const getAxisSprite = (x, y, z, length) => {
+const getAxisSprite = (x, y, z, length, color) => {
+
+    const sprite = new THREE.Sprite( getAxisSpriteMaterial(color, length) );
+    sprite.position.set(x, y, z);
+    sprite.scale.set( 512, 512, 1 );
+
+    return sprite;
+
+};
+
+const getAxisSpriteMaterial = (color, length) => {
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -106,11 +132,11 @@ const getAxisSprite = (x, y, z, length) => {
     ctx.canvas.width = ctx.canvas.height = 1024;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
+    ctx.fillStyle = color;
     ctx.font = 'bold 128px sans-serif';
 
     length = numberFormatter( Math.round(length) );
-    const string = length + 'nm';
+    const string = `${ length }nm`;
     ctx.fillText(string, ctx.canvas.width/2, ctx.canvas.height/2);
 
     const material = new THREE.SpriteMaterial( { map: new THREE.CanvasTexture(ctx.canvas) } );
@@ -118,12 +144,7 @@ const getAxisSprite = (x, y, z, length) => {
     material.side = THREE.DoubleSide;
     material.transparent = true;
 
-    const sprite = new THREE.Sprite( material );
-    sprite.position.set(x, y, z);
-    sprite.scale.set( 512, 512, 1 );
-
-    return sprite;
-
+    return material;
 };
 
 const getVertexListWithSharedOriginAndLengths = (min, max) => {
