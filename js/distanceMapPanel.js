@@ -47,17 +47,17 @@ class DistanceMapPanel extends Panel {
         super.receiveEvent({ type, data });
     }
 
-    drawTraceDistanceCanvas(traceDistanceCanvas) {
+    drawTraceDistanceCanvas(canvas) {
 
-        if (traceDistanceCanvas) {
-            this.ctx_trace.drawImage(traceDistanceCanvas, 0, 0, traceDistanceCanvas.width, traceDistanceCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+        if (canvas) {
+            this.ctx_trace.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
         }
     }
 
-    drawEnsembleDistanceCanvas(ensembleDistanceCanvas) {
+    drawEnsembleDistanceCanvas(canvas) {
 
-        if (ensembleDistanceCanvas) {
-            this.ctx_ensemble.drawImage(ensembleDistanceCanvas, 0, 0, ensembleDistanceCanvas.width, ensembleDistanceCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+        if (canvas) {
+            this.ctx_ensemble.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
         }
 
     }

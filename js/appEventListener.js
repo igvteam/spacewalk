@@ -3,7 +3,7 @@ import Globals from './globals.js';
 import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { contactFrequencyMapPanel, distanceMapPanel, guiManager, juiceboxPanel, thumbnailPanel, traceSelectPanel } from './gui.js';
+import { hideSpinner, showSpinner, contactFrequencyMapPanel, distanceMapPanel, guiManager, juiceboxPanel, thumbnailPanel, traceSelectPanel } from './gui.js';
 import { getTraceDistanceCanvas } from "./distanceMapPanel.js";
 import { getTraceContactFrequencyCanvas } from "./contactFrequencyMapPanel.js";
 
@@ -103,6 +103,11 @@ let setup = ({ trace }) => {
     //     thumbnailPanel.render();
     // }
 
-    distanceMapPanel.drawTraceDistanceCanvas(getTraceDistanceCanvas(trace));
-    contactFrequencyMapPanel.drawTraceContactFrequency(getTraceContactFrequencyCanvas(trace, contactFrequencyMapPanel.distanceThreshold));
+    showSpinner();
+    setTimeout(() => {
+        distanceMapPanel.drawTraceDistanceCanvas(getTraceDistanceCanvas(trace));
+        contactFrequencyMapPanel.drawTraceContactFrequency(getTraceContactFrequencyCanvas(trace, contactFrequencyMapPanel.distanceThreshold));
+        hideSpinner();
+    }, 0);
+
 };

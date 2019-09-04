@@ -95,13 +95,21 @@ class EnsembleManager {
 
         dictionary = null;
 
-        showSpinner();
+        contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
+        distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
 
-        window.setTimeout(() => {
-            contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
-            distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
-            // hideSpinner();
-        }, 500);
+        // (() => {
+        //
+        //     showSpinner();
+        //
+        //     setTimeout(() => {
+        //         contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
+        //         distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
+        //         hideSpinner();
+        //     }, 0);
+        //
+        // })();
+
 
         const { chr, genomicStart, genomicEnd } = locus;
 

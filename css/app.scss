@@ -37,14 +37,11 @@ $spacewalk_spinner_size: 128px;
   height: -webkit-fill-available;
   height: fill-available;
 
-  //background-color: rgba(255, 105, 180, 0.25);
+  background-color: transparent;
 
   .spinner-border {
 
     pointer-events:none;
-
-    -webkit-animation: unset;
-    animation: unset;
 
     width: $spacewalk_spinner_size;
     height: $spacewalk_spinner_size;

@@ -1,6 +1,7 @@
 import { juiceboxPanel } from "./gui.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
 import Globals from './globals.js';
+import {hideSpinner, showSpinner} from "./gui";
 
 let currentURL = undefined;
 
@@ -90,24 +91,23 @@ class DataFileLoadModal {
 
 const loadURL = ({ url, name, fileLoader, $spinner, $modal }) => {
 
+    showSpinner();
+
     (async () => {
 
-        $spinner.show();
-
         try {
-
             await fileLoader.loadURL({ url, name });
-
-            $spinner.hide();
             $modal.modal('hide');
             Globals.eventBus.post({ type: "DidLeaveGUI" });
 
+            hideSpinner();
         } catch (e) {
-            $spinner.hide();
             $modal.modal('hide');
             Globals.eventBus.post({ type: "DidLeaveGUI" });
             window.alert( fileLoader.reportFileLoadError(name) );
             console.warn(e);
+
+            hideSpinner();
         }
 
     })();
@@ -117,15 +117,20 @@ const loadURL = ({ url, name, fileLoader, $spinner, $modal }) => {
 
 const loadFile = (file, fileLoader) => {
 
+    showSpinner();
+
     (async () => {
 
         try {
             await fileLoader.loadLocalFile({ file });
             Globals.eventBus.post({ type: "DidLeaveGUI" });
+
+            hideSpinner();
         } catch (e) {
+            Globals.eventBus.post({ type: "DidLeaveGUI" });
             console.warn(e);
             window.alert( fileLoader.reportFileLoadError(file.name) );
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
+            hideSpinner();
         }
 
     })();

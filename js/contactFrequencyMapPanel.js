@@ -59,19 +59,19 @@ class ContactFrequencyMapPanel extends Panel {
         super.receiveEvent({ type, data });
     }
 
-    drawEnsembleContactFrequency(ensembleContactFrequencyCanvas) {
+    drawEnsembleContactFrequency(canvas) {
 
-        if (ensembleContactFrequencyCanvas) {
+        if (canvas) {
             this.ctx_ensemble.imageSmoothingEnabled = false;
-            this.ctx_ensemble.drawImage(ensembleContactFrequencyCanvas, 0, 0, ensembleContactFrequencyCanvas.width, ensembleContactFrequencyCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+            this.ctx_ensemble.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
         }
     }
 
-    drawTraceContactFrequency(traceContactFrequencyCanvas) {
+    drawTraceContactFrequency(canvas) {
 
-        if (traceContactFrequencyCanvas) {
+        if (canvas) {
             this.ctx_trace.imageSmoothingEnabled = false;
-            this.ctx_trace.drawImage(traceContactFrequencyCanvas, 0, 0, traceContactFrequencyCanvas.width, traceContactFrequencyCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+            this.ctx_trace.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
         }
     }
 
