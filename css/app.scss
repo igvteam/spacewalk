@@ -1,4 +1,5 @@
 $spacewalk_navbar_height: 42px;
+$spacewalk_spinner_size: 128px;
 
 @import "color";
 @import "navbar";
@@ -19,6 +20,36 @@ $spacewalk_navbar_height: 42px;
 @import "igv/file-load-widget";
 
 @import "encode/encode";
+
+#spacewalk-spinner {
+
+  pointer-events:none;
+
+  position: absolute;
+
+  width: 100%;
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: fill-available;
+
+  height: 100%;
+  height: -moz-available;
+  height: -webkit-fill-available;
+  height: fill-available;
+
+  //background-color: rgba(255, 105, 180, 0.25);
+
+  .spinner-border {
+
+    pointer-events:none;
+
+    width: $spacewalk_spinner_size;
+    height: $spacewalk_spinner_size;
+
+    color: $spacewalk_mercury;
+    border-width: 0.5rem;
+  }
+}
 
 .modal {
   z-index:99099;

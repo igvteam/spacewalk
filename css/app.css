@@ -609,6 +609,24 @@ div#spacewalk_info_panel {
   justify-content: center;
   align-items: center; }
 
+#spacewalk-spinner {
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: fill-available;
+  height: 100%;
+  height: -moz-available;
+  height: -webkit-fill-available;
+  height: fill-available; }
+  #spacewalk-spinner .spinner-border {
+    pointer-events: none;
+    width: 128px;
+    height: 128px;
+    color: #e8e8e8;
+    border-width: 0.5rem; }
+
 .modal {
   z-index: 99099; }
 

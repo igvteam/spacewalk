@@ -146,10 +146,15 @@ const createTube = (curve, material) => {
     const tubularSegments = getTubularSegmentCount(curve.getLength());
     const radialSegments = getRadialSegmentCount(Globals.parser.locus);
 
+    const str = `createTube. ${ tubularSegments } tubes. ${ radialSegments } radial segments.`;
+    console.time(str);
+
     const geometry = new THREE.TubeBufferGeometry(curve, tubularSegments, Globals.sceneManager.noodleRadius(), radialSegments, false);
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.name = 'noodle';
+
+    console.timeEnd(str);
 
     return mesh;
 
@@ -159,17 +164,21 @@ const createFatSpline = (curve, materialProvider) => {
 
     const pointCount = getFatSplinePointCount(curve.getLength());
 
+    const str = `createFatSpline. ${ pointCount } vertices and colors.`;
+
+    console.time(str);
+
     const xyzList = curve.getPoints( pointCount );
 
     let colors = getColorListWithXYZList(materialProvider, xyzList);
-
-    let fatLineGeometry = new FatLineGeometry();
 
     let vertices = [];
     xyzList.forEach((xyz) => {
         const { x, y, z } = xyz;
         vertices.push(x, y, z);
     });
+
+    let fatLineGeometry = new FatLineGeometry();
 
     fatLineGeometry.setPositions( vertices );
     fatLineGeometry.setColors( colors );
@@ -180,6 +189,8 @@ const createFatSpline = (curve, materialProvider) => {
     mesh.computeLineDistances();
     mesh.scale.set( 1, 1, 1 );
     mesh.name = 'noodle_spline';
+
+    console.timeEnd(str);
 
     return { mesh, xyzList };
 

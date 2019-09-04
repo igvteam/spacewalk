@@ -48,11 +48,18 @@ class DistanceMapPanel extends Panel {
     }
 
     drawTraceDistanceCanvas(traceDistanceCanvas) {
-        this.ctx_trace.drawImage(traceDistanceCanvas, 0, 0, traceDistanceCanvas.width, traceDistanceCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+
+        if (traceDistanceCanvas) {
+            this.ctx_trace.drawImage(traceDistanceCanvas, 0, 0, traceDistanceCanvas.width, traceDistanceCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+        }
     }
 
     drawEnsembleDistanceCanvas(ensembleDistanceCanvas) {
-        this.ctx_ensemble.drawImage(ensembleDistanceCanvas, 0, 0, ensembleDistanceCanvas.width, ensembleDistanceCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+
+        if (ensembleDistanceCanvas) {
+            this.ctx_ensemble.drawImage(ensembleDistanceCanvas, 0, 0, ensembleDistanceCanvas.width, ensembleDistanceCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+        }
+
     }
 
 }
@@ -126,18 +133,24 @@ export const getEnsembleAverageDistanceCanvas = ensemble => {
 
     console.timeEnd(str);
 
-    return createDistanceCanvas(average, maxAverageDistance);
+    return undefined;
+    // return createDistanceCanvas(average, maxAverageDistance);
 
 };
 
 export const getTraceDistanceCanvas = trace => {
     const { distanceArray, maxDistance } = createDistanceArray(trace);
-    return createDistanceCanvas(distanceArray, maxDistance);
+
+    return undefined;
+    // return createDistanceCanvas(distanceArray, maxDistance);
 };
 
 const createDistanceArray = trace => {
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
+
+    // const str = `createDistanceArray. ${ mapSize } x ${ mapSize }.`;
+    // console.time(str);
 
     let distanceArray = new Array(mapSize * mapSize);
     distanceArray.fill(kDistanceUndefined);
@@ -178,6 +191,8 @@ const createDistanceArray = trace => {
         } // for (j)
 
     }
+
+    // console.timeEnd(str);
 
     return { distanceArray, maxDistance };
 

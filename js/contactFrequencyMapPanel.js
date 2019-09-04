@@ -61,15 +61,18 @@ class ContactFrequencyMapPanel extends Panel {
 
     drawEnsembleContactFrequency(ensembleContactFrequencyCanvas) {
 
-        this.ctx_ensemble.imageSmoothingEnabled = false;
-        this.ctx_ensemble.drawImage(ensembleContactFrequencyCanvas, 0, 0, ensembleContactFrequencyCanvas.width, ensembleContactFrequencyCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+        if (ensembleContactFrequencyCanvas) {
+            this.ctx_ensemble.imageSmoothingEnabled = false;
+            this.ctx_ensemble.drawImage(ensembleContactFrequencyCanvas, 0, 0, ensembleContactFrequencyCanvas.width, ensembleContactFrequencyCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+        }
     }
 
     drawTraceContactFrequency(traceContactFrequencyCanvas) {
 
-        this.ctx_trace.imageSmoothingEnabled = false;
-
-        this.ctx_trace.drawImage(traceContactFrequencyCanvas, 0, 0, traceContactFrequencyCanvas.width, traceContactFrequencyCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+        if (traceContactFrequencyCanvas) {
+            this.ctx_trace.imageSmoothingEnabled = false;
+            this.ctx_trace.drawImage(traceContactFrequencyCanvas, 0, 0, traceContactFrequencyCanvas.width, traceContactFrequencyCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+        }
     }
 
 }
@@ -103,7 +106,8 @@ export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) =
 
     console.timeEnd(str);
 
-    return createContactFrequencyCanvas(frequencies);
+    return undefined;
+    // return createContactFrequencyCanvas(frequencies);
 
 };
 
@@ -116,19 +120,23 @@ export const getTraceContactFrequencyCanvas = (trace, distanceThreshold) => {
 
     updateContactFrequencyArray(trace, frequencies, distanceThreshold);
 
-    return createContactFrequencyCanvas(frequencies);
+    return undefined;
+    // return createContactFrequencyCanvas(frequencies);
 
 };
 
 const updateContactFrequencyArray = (trace, frequencies, distanceThreshold) => {
+
+    const mapSize = Globals.ensembleManager.maximumSegmentID;
+
+    // const str = `updateContactFrequencyArray. ${ mapSize } x ${ mapSize }.`;
+    // console.time(str);
 
     let { vertices } = trace.geometry;
     let { segmentList } = trace;
     const exclusionSet = new Set();
 
     const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(trace));
-
-    const mapSize = Globals.ensembleManager.maximumSegmentID;
 
     for (let i = 0; i < vertices.length; i++) {
 
@@ -166,6 +174,8 @@ const updateContactFrequencyArray = (trace, frequencies, distanceThreshold) => {
         }
 
     }
+
+    // console.timeEnd(str);
 
 };
 
