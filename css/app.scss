@@ -21,7 +21,7 @@ $spacewalk_spinner_size: 128px;
 
 @import "encode/encode";
 
-#spacewalk-spinner {
+#spacewalk-spinner-container {
 
   pointer-events:none;
 
@@ -42,6 +42,9 @@ $spacewalk_spinner_size: 128px;
   .spinner-border {
 
     pointer-events:none;
+
+    -webkit-animation: unset;
+    animation: unset;
 
     width: $spacewalk_spinner_size;
     height: $spacewalk_spinner_size;

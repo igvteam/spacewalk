@@ -2,7 +2,7 @@ import Globals from "./globals.js";
 import ColorMapManager from "./colorMapManager.js";
 import PointCloudManager from "./pointCloudManager.js";
 import EnsembleManager from "./ensembleManager.js";
-import {createGUI, highlightColor } from "./gui.js";
+import { createGUI, highlightColor } from "./gui.js";
 import SceneManager, {sceneManagerConfigurator} from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import {appleCrayonColorRGB255, appleCrayonColorThreeJS} from "./color.js";

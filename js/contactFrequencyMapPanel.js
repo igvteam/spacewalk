@@ -1,6 +1,6 @@
 import KDBush from '../node_modules/kd3d/js/index.js'
 import Globals from './globals.js';
-import { guiManager } from './gui.js';
+import { showSpinner, hideSpinner, guiManager } from './gui.js';
 import { clamp } from "./math.js";
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 import Panel from "./panel.js";
@@ -106,8 +106,8 @@ export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) =
 
     console.timeEnd(str);
 
-    return undefined;
-    // return createContactFrequencyCanvas(frequencies);
+    // return undefined;
+    return createContactFrequencyCanvas(frequencies);
 
 };
 
@@ -120,8 +120,8 @@ export const getTraceContactFrequencyCanvas = (trace, distanceThreshold) => {
 
     updateContactFrequencyArray(trace, frequencies, distanceThreshold);
 
-    return undefined;
-    // return createContactFrequencyCanvas(frequencies);
+    // return undefined;
+    return createContactFrequencyCanvas(frequencies);
 
 };
 

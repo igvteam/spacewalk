@@ -609,7 +609,7 @@ div#spacewalk_info_panel {
   justify-content: center;
   align-items: center; }
 
-#spacewalk-spinner {
+#spacewalk-spinner-container {
   pointer-events: none;
   position: absolute;
   width: 100%;
@@ -620,8 +620,10 @@ div#spacewalk_info_panel {
   height: -moz-available;
   height: -webkit-fill-available;
   height: fill-available; }
-  #spacewalk-spinner .spinner-border {
+  #spacewalk-spinner-container .spinner-border {
     pointer-events: none;
+    -webkit-animation: unset;
+    animation: unset;
     width: 128px;
     height: 128px;
     color: #e8e8e8;

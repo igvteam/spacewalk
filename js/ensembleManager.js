@@ -1,6 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
-import { distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
+import { hideSpinner, showSpinner, distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
 import { getEnsembleAverageDistanceCanvas } from './distanceMapPanel.js';
 import { getEnsembleContactFrequencyCanvas } from './contactFrequencyMapPanel.js';
 
@@ -95,12 +95,13 @@ class EnsembleManager {
 
         dictionary = null;
 
-        // update ensemble level contact frequency map
-        contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
-        // segmentIDSanityCheck(this.ensemble);
+        showSpinner();
 
-        // update ensemble level distance map
-        distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
+        window.setTimeout(() => {
+            contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
+            distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
+            // hideSpinner();
+        }, 500);
 
         const { chr, genomicStart, genomicEnd } = locus;
 

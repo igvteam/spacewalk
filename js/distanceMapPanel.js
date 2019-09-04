@@ -1,5 +1,5 @@
 import Globals from './globals.js';
-import { guiManager } from './gui.js';
+import { showSpinner, hideSpinner, guiManager } from './gui.js';
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 import Panel from "./panel.js";
 
@@ -133,16 +133,17 @@ export const getEnsembleAverageDistanceCanvas = ensemble => {
 
     console.timeEnd(str);
 
-    return undefined;
-    // return createDistanceCanvas(average, maxAverageDistance);
+    // return undefined;
+    return createDistanceCanvas(average, maxAverageDistance);
 
 };
 
 export const getTraceDistanceCanvas = trace => {
+
     const { distanceArray, maxDistance } = createDistanceArray(trace);
 
-    return undefined;
-    // return createDistanceCanvas(distanceArray, maxDistance);
+    // return undefined;
+    return createDistanceCanvas(distanceArray, maxDistance);
 };
 
 const createDistanceArray = trace => {

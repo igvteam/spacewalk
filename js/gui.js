@@ -50,4 +50,28 @@ const createGUI = container => {
 
 };
 
-export { createGUI, guiManager, traceSelectPanel, juiceboxPanel, colorRampPanel, thumbnailPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, highlightColor };
+// $thang.is(':visible')
+
+const showSpinner = () => {
+
+    // document.getElementById('spacewalk-spinner').style.color = 'rgb(255,0,0)';
+    document.getElementById('spacewalk-spinner').style.display = 'block';
+
+    // const $spinner = $('#spacewalk-spinner').find('.spinner-border');
+    // $spinner.show();
+
+    console.log('show spinner');
+};
+
+const hideSpinner = () => {
+
+    // document.getElementById('spacewalk-spinner').style.color = 'rgb(0,255,0)';
+    document.getElementById('spacewalk-spinner').style.display = 'none';
+
+    // const $spinner = $('#spacewalk-spinner').find('.spinner-border');
+    // $spinner.hide();
+
+    console.log('hide spinner');
+};
+
+export { showSpinner, hideSpinner, createGUI, guiManager, traceSelectPanel, juiceboxPanel, colorRampPanel, thumbnailPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, highlightColor };
