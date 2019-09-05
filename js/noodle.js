@@ -5,7 +5,7 @@ import FatLine from "./threejs_es6/fatlines/fatLine.js";
 import { getBoundsWithTrace } from './ensembleManager.js';
 import Globals from './globals.js';
 import { degrees, clamp, lerp } from './math.js';
-import { numberFormatter } from "./utils.js";
+import {hideSpinner, showSpinner} from "./gui.js";
 
 let fatLineMaterial;
 
@@ -24,11 +24,14 @@ class Noodle {
 
         this.trace = trace;
 
-        this.curve = new THREE.CatmullRomCurve3(trace.geometry.vertices);
-        console.log(`CatmullRom Curve. Length ${ numberFormatter( this.curve.getLength() ) }. Divisions ${ this.curve.arcLengthDivisions }`);
+        const str = 'Noodle.configure()';
+        console.time(str);
 
+        this.curve = new THREE.CatmullRomCurve3(trace.geometry.vertices);
         this.tube = createTube(this.curve, Globals.sceneManager.materialProvider.material);
         this.spline = createFatSpline(this.curve, Globals.sceneManager.materialProvider);
+
+        console.timeEnd(str);
 
         if (Globals.sceneManager.renderStyle === Noodle.getRenderStyle()) {
             this.show();
@@ -165,7 +168,6 @@ const createFatSpline = (curve, materialProvider) => {
     const pointCount = getFatSplinePointCount(curve.getLength());
 
     const str = `createFatSpline. ${ pointCount } vertices and colors.`;
-
     console.time(str);
 
     const xyzList = curve.getPoints( pointCount );

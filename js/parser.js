@@ -1,6 +1,7 @@
 import Globals from "./globals.js";
 import igv from '../vendor/igv.esm.js';
 import { numberFormatter, readFileAsText } from "./utils.js";
+import {hideSpinner, showSpinner} from "./gui";
 
 class Parser {
     constructor () {
@@ -95,14 +96,17 @@ class Parser {
 
     async loadURL ({ url, name }) {
 
+        showSpinner();
         let string = undefined;
         try {
             string = await igv.xhr.load(url);
         } catch (e) {
+            hideSpinner();
             console.warn(e.message)
         }
 
         this.parse(string);
+        hideSpinner();
     }
 
     async loadLocalFile ({ file }) {
@@ -115,7 +119,6 @@ class Parser {
         }
 
         this.parse(string);
-
     }
 
     reportFileLoadError(name) {

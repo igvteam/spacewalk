@@ -3,7 +3,7 @@ import Globals from './globals.js';
 import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { hideSpinner, showSpinner, contactFrequencyMapPanel, distanceMapPanel, guiManager, juiceboxPanel, thumbnailPanel, traceSelectPanel } from './gui.js';
+import { hideSpinner, showSpinner, contactFrequencyMapPanel, distanceMapPanel, guiManager, juiceboxPanel } from './gui.js';
 import { getTraceDistanceCanvas } from "./distanceMapPanel.js";
 import { getTraceContactFrequencyCanvas } from "./contactFrequencyMapPanel.js";
 
@@ -81,32 +81,52 @@ let setupPointCloud = (geometryList) => {
 
 let setup = ({ trace }) => {
 
-    Globals.sceneManager.dispose();
-
-    Globals.sceneManager.renderStyle = guiManager.getRenderingStyle();
-
-    Globals.noodle.configure(trace);
-    Globals.ballAndStick.configure(trace);
-
-    let scene = new THREE.Scene();
-
-    Globals.noodle.addToScene(scene);
-    Globals.ballAndStick.addToScene(scene);
-
-    const { min, max, center, radius } = Globals.ballAndStick.getBounds();
-    const { position, fov } = Globals.ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
-    Globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
-
-    // if (false === thumbnailPanel.isHidden) {
-    //     const model = Globals.sceneManager.renderStyle === Noodle.getRenderStyle() ? Globals.noodle : Globals.ballAndStick;
-    //     thumbnailPanel.configure(model);
-    //     thumbnailPanel.render();
-    // }
+    // showSpinner();
+    // window.setTimeout(() => {
+    //
+    //     hideSpinner();
+    // }, 0);
 
     showSpinner();
-    setTimeout(() => {
-        distanceMapPanel.drawTraceDistanceCanvas(getTraceDistanceCanvas(trace));
-        contactFrequencyMapPanel.drawTraceContactFrequency(getTraceContactFrequencyCanvas(trace, contactFrequencyMapPanel.distanceThreshold));
+    window.setTimeout(() => {
+
+        Globals.sceneManager.dispose();
+
+        Globals.sceneManager.renderStyle = guiManager.getRenderingStyle();
+
+        Globals.noodle.configure(trace);
+
+        Globals.ballAndStick.configure(trace);
+
+        hideSpinner();
+    }, 0);
+
+    showSpinner();
+    window.setTimeout(() => {
+
+        let scene = new THREE.Scene();
+
+        Globals.noodle.addToScene(scene);
+        Globals.ballAndStick.addToScene(scene);
+
+        const { min, max, center, radius } = Globals.ballAndStick.getBounds();
+        const { position, fov } = Globals.ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
+        Globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
+
+        hideSpinner();
+    }, 0);
+
+    showSpinner();
+    window.setTimeout(() => {
+
+        let canvas;
+
+        canvas = getTraceDistanceCanvas(trace);
+        distanceMapPanel.drawTraceDistanceCanvas(canvas);
+
+        canvas = getTraceContactFrequencyCanvas(trace, contactFrequencyMapPanel.distanceThreshold);
+        contactFrequencyMapPanel.drawTraceContactFrequency(canvas);
+
         hideSpinner();
     }, 0);
 

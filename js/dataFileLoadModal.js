@@ -91,23 +91,17 @@ class DataFileLoadModal {
 
 const loadURL = ({ url, name, fileLoader, $spinner, $modal }) => {
 
-    showSpinner();
-
     (async () => {
 
         try {
             await fileLoader.loadURL({ url, name });
             $modal.modal('hide');
             Globals.eventBus.post({ type: "DidLeaveGUI" });
-
-            hideSpinner();
         } catch (e) {
             $modal.modal('hide');
             Globals.eventBus.post({ type: "DidLeaveGUI" });
             window.alert( fileLoader.reportFileLoadError(name) );
             console.warn(e);
-
-            hideSpinner();
         }
 
     })();
@@ -117,20 +111,15 @@ const loadURL = ({ url, name, fileLoader, $spinner, $modal }) => {
 
 const loadFile = (file, fileLoader) => {
 
-    showSpinner();
-
     (async () => {
 
         try {
             await fileLoader.loadLocalFile({ file });
             Globals.eventBus.post({ type: "DidLeaveGUI" });
-
-            hideSpinner();
         } catch (e) {
             Globals.eventBus.post({ type: "DidLeaveGUI" });
             console.warn(e);
             window.alert( fileLoader.reportFileLoadError(file.name) );
-            hideSpinner();
         }
 
     })();
