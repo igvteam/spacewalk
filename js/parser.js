@@ -1,7 +1,9 @@
 import Globals from "./globals.js";
 import igv from '../vendor/igv.esm.js';
-import { numberFormatter, readFileAsText } from "./utils.js";
-import {hideSpinner, showSpinner} from "./gui";
+import { numberFormatter, readFileAsTextNoPromise } from "./utils.js";
+import {contactFrequencyMapPanel, distanceMapPanel, hideSpinner, showSpinner} from "./gui.js";
+import { getEnsembleContactFrequencyCanvas} from "./contactFrequencyMapPanel.js";
+import {getEnsembleAverageDistanceCanvas} from "./distanceMapPanel.js";
 
 class Parser {
     constructor () {
@@ -83,42 +85,75 @@ class Parser {
 
         } // for (lines)
 
+        this.locus = { chr, genomicStart, genomicEnd };
+
         console.timeEnd('Parser - Parse complete.');
 
-        const consumer = isPointCloud(hash) ? Globals.pointCloudManager : Globals.ensembleManager;
+        return hash;
 
-        const locus = { chr, genomicStart, genomicEnd };
-
-        this.locus = locus;
-
-        consumer.ingestSW({ locus, hash });
     }
 
-    async loadURL ({ url, name }) {
+    consume (hash) {
+
+        const consumer = isPointCloud(hash) ? Globals.pointCloudManager : Globals.ensembleManager;
+        consumer.ingestSW({ locus: this.locus, hash });
+
+        const { chr, genomicStart, genomicEnd } = this.locus;
+
+        if (isPointCloud(hash)) {
+            Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { genomeID: Globals.parser.genomeAssembly, chr, genomicStart, genomicEnd } });
+        } else {
+            Globals.eventBus.post({ type:           "DidLoadFile", data: { genomeID: Globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
+        }
+
+    }
+
+    loadURL ({ url, name }) {
 
         showSpinner();
-        let string = undefined;
-        try {
-            string = await igv.xhr.load(url);
-        } catch (e) {
-            hideSpinner();
-            console.warn(e.message)
-        }
 
-        this.parse(string);
-        hideSpinner();
+        (async (url) => {
+
+            let string = undefined;
+            try {
+                string = await igv.xhr.load(url);
+            } catch (e) {
+                hideSpinner();
+                console.warn(e.message)
+            }
+
+            const hash = this.parse(string);
+            hideSpinner();
+
+            this.consume(hash);
+
+        })(url);
+
     }
 
-    async loadLocalFile ({ file }) {
+    loadLocalFile ({ file }) {
 
-        let string = undefined;
-        try {
-            string = await readFileAsText(file);
-        } catch (e) {
-            console.warn(e.message)
-        }
+        showSpinner();
 
-        this.parse(string);
+        const reader = new FileReader();
+
+        reader.onerror = () => {
+            hideSpinner();
+            reader.abort();
+        };
+
+        let txt = undefined;
+        reader.onload = e => {
+            txt = reader.result;
+            window.setTimeout(() => {
+                this.parse(txt);
+                hideSpinner();
+            }, 0);
+
+        };
+
+        reader.readAsText(file);
+
     }
 
     reportFileLoadError(name) {

@@ -41,10 +41,17 @@ class DistanceMapPanel extends Panel {
         this.ctx_ensemble.fillStyle = rgb255String( appleCrayonColorRGB255('honeydew') );
         this.ctx_ensemble.fillRect(0, 0, w, h);
 
+        Globals.eventBus.subscribe("DidLoadFile", this);
     }
 
     receiveEvent({ type, data }) {
+
         super.receiveEvent({ type, data });
+
+        if ('DidLoadFile' === type) {
+            let canvas = getEnsembleAverageDistanceCanvas(Globals.ensembleManager.ensemble);
+            this.drawEnsembleDistanceCanvas(canvas);
+        }
     }
 
     drawTraceDistanceCanvas(canvas) {

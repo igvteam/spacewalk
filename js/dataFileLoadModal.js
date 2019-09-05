@@ -29,7 +29,7 @@ class DataFileLoadModal {
             const name = $(option).text();
 
             if ('' !== url) {
-                loadURL({ url, name, fileLoader, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
+                loadURL({ url, name, fileLoader, $modal: $selectModal });
             }
 
             const $option = $select.find('option:first');
@@ -60,7 +60,7 @@ class DataFileLoadModal {
         $url_ok_button.on('click.spacewalk_data_file_load_url_button', event => {
             event.stopPropagation();
             $url_input.trigger('change.spacewalk_data_file_load_url_input');
-            loadURL({ url: currentURL, name: 'unnamed', fileLoader, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
+            loadURL({ url: currentURL, name: 'unnamed', fileLoader, $modal: $urlModal });
 
             $url_input.val('');
             currentURL = undefined;
@@ -89,40 +89,19 @@ class DataFileLoadModal {
 
 }
 
-const loadURL = ({ url, name, fileLoader, $spinner, $modal }) => {
+const loadURL = ({ url, name, fileLoader, $modal }) => {
 
-    (async () => {
+    $modal.modal('hide');
+    Globals.eventBus.post({ type: "DidLeaveGUI" });
 
-        try {
-            await fileLoader.loadURL({ url, name });
-            $modal.modal('hide');
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-        } catch (e) {
-            $modal.modal('hide');
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-            window.alert( fileLoader.reportFileLoadError(name) );
-            console.warn(e);
-        }
-
-    })();
-
+    fileLoader.loadURL({ url, name });
 
 };
 
 const loadFile = (file, fileLoader) => {
 
-    (async () => {
-
-        try {
-            await fileLoader.loadLocalFile({ file });
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-        } catch (e) {
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-            console.warn(e);
-            window.alert( fileLoader.reportFileLoadError(file.name) );
-        }
-
-    })();
+    Globals.eventBus.post({ type: "DidLeaveGUI" });
+    fileLoader.loadLocalFile({ file });
 
 };
 

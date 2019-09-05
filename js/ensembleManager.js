@@ -95,26 +95,6 @@ class EnsembleManager {
 
         dictionary = null;
 
-        contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
-        distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
-
-        // (() => {
-        //
-        //     showSpinner();
-        //
-        //     setTimeout(() => {
-        //         contactFrequencyMapPanel.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(this.ensemble, contactFrequencyMapPanel.distanceThreshold));
-        //         distanceMapPanel.drawEnsembleDistanceCanvas(getEnsembleAverageDistanceCanvas(this.ensemble));
-        //         hideSpinner();
-        //     }, 0);
-        //
-        // })();
-
-
-        const { chr, genomicStart, genomicEnd } = locus;
-
-        Globals.eventBus.post({ type: "DidLoadFile", data: { genomeID: Globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
-
     }
 
     getTraceWithName(name) {

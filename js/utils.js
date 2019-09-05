@@ -74,6 +74,22 @@ let numberFormatter = (rawNumber) => {
         .join('') + (dec[1] ? decsep + dec[1] : '');
 };
 
+const readFileAsTextNoPromise = file => {
+
+    const reader = new FileReader();
+
+    reader.onerror = () => {
+        reader.abort();
+    };
+
+    let txt = undefined;
+    reader.onload = e => {
+        txt = reader.result;
+    };
+
+    reader.readAsText(file);
+};
+
 const readFileAsText = async file => {
 
     const fileReader = new FileReader();
@@ -130,6 +146,7 @@ export {
     createImage,
     readFileAsDataURL,
     readFileAsText,
+    readFileAsTextNoPromise,
     fitToContainer,
     getMouseXY,
     throttle,

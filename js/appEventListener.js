@@ -64,28 +64,35 @@ export const appEventListener =
 
 let setupPointCloud = (geometryList) => {
 
-    Globals.sceneManager.dispose();
+    showSpinner();
+    window.setTimeout(() => {
 
-    Globals.sceneManager.renderStyle = PointCloud.getRenderStyle();
+        Globals.sceneManager.dispose();
 
-    Globals.pointCloud.configure(geometryList);
+        Globals.sceneManager.renderStyle = PointCloud.getRenderStyle();
 
-    let scene = new THREE.Scene();
-    Globals.pointCloud.addToScene(scene);
+        Globals.pointCloud.configure(geometryList);
 
-    const { min, max, center, radius } = Globals.pointCloud.getBounds();
-    const { position, fov } = Globals.pointCloud.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
-    Globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
+        hideSpinner();
+    }, 0);
 
+
+    showSpinner();
+    window.setTimeout(() => {
+
+        let scene = new THREE.Scene();
+
+        Globals.pointCloud.addToScene(scene);
+
+        const {min, max, center, radius} = Globals.pointCloud.getBounds();
+        const {position, fov} = Globals.pointCloud.getCameraPoseAlongAxis({axis: '+z', scaleFactor: 3});
+        Globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+
+        hideSpinner();
+    }, 0);
 };
 
 let setup = ({ trace }) => {
-
-    // showSpinner();
-    // window.setTimeout(() => {
-    //
-    //     hideSpinner();
-    // }, 0);
 
     showSpinner();
     window.setTimeout(() => {
