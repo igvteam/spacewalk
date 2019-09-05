@@ -74,38 +74,21 @@ let numberFormatter = (rawNumber) => {
         .join('') + (dec[1] ? decsep + dec[1] : '');
 };
 
-const readFileAsTextNoPromise = file => {
+const readFileAsText = file => {
 
     const reader = new FileReader();
 
-    reader.onerror = () => {
-        reader.abort();
-    };
-
-    let txt = undefined;
-    reader.onload = e => {
-        txt = reader.result;
-    };
-
-    reader.readAsText(file);
-};
-
-const readFileAsText = async file => {
-
-    const fileReader = new FileReader();
-
     return new Promise((resolve, reject) => {
-
-        fileReader.onerror = () => {
-            fileReader.abort();
+        reader.onerror = () => {
+            reader.abort();
             reject(new DOMException("Problem parsing input file."));
         };
 
-        fileReader.onload = () => {
-            resolve(fileReader.result);
+        reader.onload = () => {
+            resolve(reader.result);
         };
-
-        fileReader.readAsText(file);
+        
+        reader.readAsText(file);
     });
 };
 
@@ -146,7 +129,6 @@ export {
     createImage,
     readFileAsDataURL,
     readFileAsText,
-    readFileAsTextNoPromise,
     fitToContainer,
     getMouseXY,
     throttle,

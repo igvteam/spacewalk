@@ -1,6 +1,6 @@
 import Globals from "./globals.js";
 import igv from '../vendor/igv.esm.js';
-import { numberFormatter, readFileAsTextNoPromise } from "./utils.js";
+import { numberFormatter, readFileAsText } from "./utils.js";
 import {contactFrequencyMapPanel, distanceMapPanel, hideSpinner, showSpinner} from "./gui.js";
 import { getEnsembleContactFrequencyCanvas} from "./contactFrequencyMapPanel.js";
 import {getEnsembleAverageDistanceCanvas} from "./distanceMapPanel.js";
@@ -131,28 +131,27 @@ class Parser {
 
     }
 
-    loadLocalFile ({ file }) {
+    loadLocalFile({ file }) {
 
         showSpinner();
 
-        const reader = new FileReader();
+        (async (file) => {
 
-        reader.onerror = () => {
-            hideSpinner();
-            reader.abort();
-        };
-
-        let txt = undefined;
-        reader.onload = e => {
-            txt = reader.result;
-            window.setTimeout(() => {
-                this.parse(txt);
+            let string = undefined;
+            try {
+                string = await readFileAsText(file);
+            } catch (e) {
                 hideSpinner();
-            }, 0);
+                console.warn(e.message)
+            }
 
-        };
+            const hash = this.parse(string);
+            hideSpinner();
 
-        reader.readAsText(file);
+            this.consume(hash);
+
+
+        })(file);
 
     }
 
