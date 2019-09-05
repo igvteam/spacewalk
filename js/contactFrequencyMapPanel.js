@@ -49,9 +49,15 @@ class ContactFrequencyMapPanel extends Panel {
             const value = $input.val();
             this.distanceThreshold = clamp(parseInt(value, 10), 0, maxDistanceThreshold);
 
-            this.drawEnsembleContactFrequency(getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble, this.distanceThreshold));
-            this.drawTraceContactFrequency(getTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace, this.distanceThreshold));
+            getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble, this.distanceThreshold, this.mapCanvas);
+            this.drawEnsembleContactFrequency(this.mapCanvas);
+
+            getTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace, this.distanceThreshold, this.mapCanvas);
+            this.drawTraceContactFrequency(this.mapCanvas);
         });
+
+        // scratch canvas
+        this.mapCanvas = document.createElement('canvas');
 
         Globals.eventBus.subscribe("DidLoadFile", this);
 
@@ -63,8 +69,10 @@ class ContactFrequencyMapPanel extends Panel {
 
         if ('DidLoadFile' === type) {
 
-            const canvas = getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble, this.distanceThreshold);
-            this.drawEnsembleContactFrequency(canvas);
+            this.mapCanvas.width = this.mapCanvas.height = Globals.ensembleManager.maximumSegmentID;
+
+            getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble, this.distanceThreshold, this.mapCanvas);
+            this.drawEnsembleContactFrequency(this.mapCanvas);
 
         }
     }
@@ -98,7 +106,7 @@ export let contactFrequencyMapPanelConfigurator = (container) => {
 
 };
 
-export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) => {
+const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold, canvas) => {
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
@@ -107,7 +115,7 @@ export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) =
 
     const ensembleList = Object.values(ensemble);
 
-    const str = `getEnsembleContactFrequencyCanvas. ${ ensembleList.length } traces.`;
+    const str = `Get ensemble contact frequency canvas. ${ ensembleList.length } traces.`;
     console.time(str);
 
     for (let trace of ensembleList) {
@@ -116,12 +124,11 @@ export const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold) =
 
     console.timeEnd(str);
 
-    // return undefined;
-    return createContactFrequencyCanvas(frequencies);
+    setContactFrequencyCanvas(frequencies, canvas);
 
 };
 
-export const getTraceContactFrequencyCanvas = (trace, distanceThreshold) => {
+export const getTraceContactFrequencyCanvas = (trace, distanceThreshold, canvas) => {
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
@@ -130,17 +137,13 @@ export const getTraceContactFrequencyCanvas = (trace, distanceThreshold) => {
 
     updateContactFrequencyArray(trace, frequencies, distanceThreshold);
 
-    // return undefined;
-    return createContactFrequencyCanvas(frequencies);
+    setContactFrequencyCanvas(frequencies, canvas);
 
 };
 
 const updateContactFrequencyArray = (trace, frequencies, distanceThreshold) => {
 
     const mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    // const str = `updateContactFrequencyArray. ${ mapSize } x ${ mapSize }.`;
-    // console.time(str);
 
     let { vertices } = trace.geometry;
     let { segmentList } = trace;
@@ -185,15 +188,16 @@ const updateContactFrequencyArray = (trace, frequencies, distanceThreshold) => {
 
     }
 
-    // console.timeEnd(str);
-
 };
 
-const createContactFrequencyCanvas = frequencies => {
+const setContactFrequencyCanvas = (frequencies, canvas) => {
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
 
     let maxFrequency = Number.NEGATIVE_INFINITY;
+
+    const str = `Set contact frequency canvas ${ mapSize } x ${ mapSize }`;
+    console.time(str);
 
     // Calculate max
     for (let m = 0; m < mapSize; m++) {
@@ -202,12 +206,7 @@ const createContactFrequencyCanvas = frequencies => {
         maxFrequency = Math.max(maxFrequency, frequency);
     }
 
-    let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = mapSize;
-
-    const str = `Create contact canvas ${ mapSize } x ${ mapSize }`;
-    console.time(str);
 
     const { width: w, height: h } = ctx.canvas;
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
@@ -233,8 +232,6 @@ const createContactFrequencyCanvas = frequencies => {
     }
 
     console.timeEnd(str);
-
-    return canvas;
 
 };
 

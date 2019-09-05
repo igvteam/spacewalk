@@ -146,7 +146,7 @@ export const getEnsembleAverageDistanceCanvas = (ensemble, canvas) => {
 
     console.timeEnd(str);
 
-    return setDistanceCanvas(average, maxAverageDistance, canvas);
+    setDistanceCanvas(average, maxAverageDistance, canvas);
 
 };
 
@@ -154,7 +154,7 @@ export const getTraceDistanceCanvas = (trace, canvas) => {
 
     const { distanceArray, maxDistance } = createDistanceArray(trace);
 
-    return setDistanceCanvas(distanceArray, maxDistance, canvas);
+    setDistanceCanvas(distanceArray, maxDistance, canvas);
 };
 
 const createDistanceArray = trace => {

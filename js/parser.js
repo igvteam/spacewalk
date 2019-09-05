@@ -1,9 +1,7 @@
 import Globals from "./globals.js";
 import igv from '../vendor/igv.esm.js';
 import { numberFormatter, readFileAsText } from "./utils.js";
-import {contactFrequencyMapPanel, distanceMapPanel, hideSpinner, showSpinner} from "./gui.js";
-import { getEnsembleContactFrequencyCanvas} from "./contactFrequencyMapPanel.js";
-import {getEnsembleAverageDistanceCanvas} from "./distanceMapPanel.js";
+import { hideSpinner, showSpinner } from "./gui.js";
 
 class Parser {
     constructor () {

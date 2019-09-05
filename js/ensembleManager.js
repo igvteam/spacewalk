@@ -1,8 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
-import { hideSpinner, showSpinner, distanceMapPanel, contactFrequencyMapPanel } from './gui.js';
-import { getEnsembleAverageDistanceCanvas } from './distanceMapPanel.js';
-import { getEnsembleContactFrequencyCanvas } from './contactFrequencyMapPanel.js';
 
 class EnsembleManager {
 
