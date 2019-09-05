@@ -41,6 +41,9 @@ class DistanceMapPanel extends Panel {
         this.ctx_ensemble.fillStyle = rgb255String( appleCrayonColorRGB255('honeydew') );
         this.ctx_ensemble.fillRect(0, 0, w, h);
 
+        // scratch canvas
+        this.mapCanvas = document.createElement('canvas');
+
         Globals.eventBus.subscribe("DidLoadFile", this);
     }
 
@@ -49,8 +52,11 @@ class DistanceMapPanel extends Panel {
         super.receiveEvent({ type, data });
 
         if ('DidLoadFile' === type) {
-            let canvas = getEnsembleAverageDistanceCanvas(Globals.ensembleManager.ensemble);
-            this.drawEnsembleDistanceCanvas(canvas);
+
+            this.mapCanvas.width = this.mapCanvas.height = Globals.ensembleManager.maximumSegmentID;
+
+            getEnsembleAverageDistanceCanvas(Globals.ensembleManager.ensemble, this.mapCanvas);
+            this.drawEnsembleDistanceCanvas(this.mapCanvas);
         }
     }
 
@@ -81,7 +87,7 @@ export let distanceMapPanelConfigurator = (container) => {
 
 };
 
-export const getEnsembleAverageDistanceCanvas = ensemble => {
+export const getEnsembleAverageDistanceCanvas = (ensemble, canvas) => {
 
     const traces = Object.values(ensemble);
 
@@ -140,25 +146,20 @@ export const getEnsembleAverageDistanceCanvas = ensemble => {
 
     console.timeEnd(str);
 
-    // return undefined;
-    return createDistanceCanvas(average, maxAverageDistance);
+    return setDistanceCanvas(average, maxAverageDistance, canvas);
 
 };
 
-export const getTraceDistanceCanvas = trace => {
+export const getTraceDistanceCanvas = (trace, canvas) => {
 
     const { distanceArray, maxDistance } = createDistanceArray(trace);
 
-    // return undefined;
-    return createDistanceCanvas(distanceArray, maxDistance);
+    return setDistanceCanvas(distanceArray, maxDistance, canvas);
 };
 
 const createDistanceArray = trace => {
 
     let mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    // const str = `createDistanceArray. ${ mapSize } x ${ mapSize }.`;
-    // console.time(str);
 
     let distanceArray = new Array(mapSize * mapSize);
     distanceArray.fill(kDistanceUndefined);
@@ -200,17 +201,13 @@ const createDistanceArray = trace => {
 
     }
 
-    // console.timeEnd(str);
-
     return { distanceArray, maxDistance };
 
 };
 
-const createDistanceCanvas = (distances, maximumDistance) => {
+const setDistanceCanvas = (distances, maximumDistance, canvas) => {
 
-    let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = Globals.ensembleManager.maximumSegmentID;
 
     const str = `Create distance canvas ${ ctx.canvas.width } by ${ ctx.canvas.width }`;
     console.time(str);
@@ -237,8 +234,6 @@ const createDistanceCanvas = (distances, maximumDistance) => {
     }
 
     console.timeEnd(str);
-
-    return canvas;
 
 };
 

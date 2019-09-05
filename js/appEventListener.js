@@ -126,12 +126,10 @@ let setup = ({ trace }) => {
     showSpinner();
     window.setTimeout(() => {
 
-        let canvas;
+        getTraceDistanceCanvas(trace, distanceMapPanel.mapCanvas);
+        distanceMapPanel.drawTraceDistanceCanvas(distanceMapPanel.mapCanvas);
 
-        canvas = getTraceDistanceCanvas(trace);
-        distanceMapPanel.drawTraceDistanceCanvas(canvas);
-
-        canvas = getTraceContactFrequencyCanvas(trace, contactFrequencyMapPanel.distanceThreshold);
+        let canvas = getTraceContactFrequencyCanvas(trace, contactFrequencyMapPanel.distanceThreshold);
         contactFrequencyMapPanel.drawTraceContactFrequency(canvas);
 
         hideSpinner();
