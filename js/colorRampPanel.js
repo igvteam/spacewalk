@@ -36,7 +36,7 @@ class ColorRampPanel extends Panel {
         });
 
         Globals.eventBus.subscribe('DidSelectStructure', this);
-        Globals.eventBus.subscribe('DidLoadFile', this);
+        Globals.eventBus.subscribe('DidLoadEnsembleFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
@@ -48,7 +48,7 @@ class ColorRampPanel extends Panel {
         if ("DidSelectStructure" === type) {
 
             this.traceColorRampMaterialProvider.repaint();
-        } else if ("DidLoadFile" === type) {
+        } else if ("DidLoadEnsembleFile" === type) {
 
             this.pointCloudColorRampMaterialProvider.hide();
             this.traceColorRampMaterialProvider.show();

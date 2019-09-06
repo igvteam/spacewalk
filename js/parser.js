@@ -101,7 +101,7 @@ class Parser {
         if (isPointCloud(hash)) {
             Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { genomeID: Globals.parser.genomeAssembly, chr, genomicStart, genomicEnd } });
         } else {
-            Globals.eventBus.post({ type:           "DidLoadFile", data: { genomeID: Globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
+            Globals.eventBus.post({ type: "DidLoadEnsembleFile",   data: { genomeID: Globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
         }
 
     }
@@ -121,9 +121,10 @@ class Parser {
             }
 
             const hash = this.parse(string);
-            hideSpinner();
 
             this.consume(hash);
+
+            hideSpinner();
 
         })(url);
 
@@ -151,10 +152,6 @@ class Parser {
 
         })(file);
 
-    }
-
-    reportFileLoadError(name) {
-        return `Parser: Error loading ${ name }`
     }
 
     locusBlurb() {

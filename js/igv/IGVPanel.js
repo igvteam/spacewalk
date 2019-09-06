@@ -34,7 +34,7 @@ class IGVPanel extends Panel {
         });
 
         Globals.eventBus.subscribe("DidChangeMaterialProvider", this);
-        Globals.eventBus.subscribe('DidLoadFile', this);
+        Globals.eventBus.subscribe('DidLoadEnsembleFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }
 
@@ -47,7 +47,7 @@ class IGVPanel extends Panel {
             const { trackContainerDiv } = igv.browser;
             $(trackContainerDiv).find('.input-group input').prop('checked', false);
 
-        } else if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
+        } else if ("DidLoadEnsembleFile" === type || "DidLoadPointCloudFile" === type) {
 
             (async () => {
 

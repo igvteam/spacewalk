@@ -66,11 +66,11 @@ class PointCloud {
         return 'render-style-point-cloud';
     }
 
-    configure(geometryList) {
+    configure(points) {
 
         this.dispose();
 
-        this.meshList = this.createPointCloud(geometryList);
+        this.meshList = this.createPointCloud(points);
 
         if (Globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
             this.show();
@@ -80,11 +80,11 @@ class PointCloud {
 
     }
 
-    createPointCloud(geometryList) {
+    createPointCloud(points) {
 
-        return geometryList
-            .map(geometry => {
-                let mesh = new THREE.Points( geometry, this.material );
+        return points
+            .map(point => {
+                let mesh = new THREE.Points( point.geometry, this.material );
                 mesh.name = 'point_cloud';
                 return mesh;
             });

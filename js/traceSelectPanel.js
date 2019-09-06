@@ -1,6 +1,7 @@
 import Globals from './globals.js';
 import { clamp } from './math.js'
 import Panel from "./panel.js";
+import {hideSpinner, showSpinner} from "./gui.js";
 
 let currentNumber = undefined;
 class TraceSelectPanel extends Panel {
@@ -59,7 +60,7 @@ class TraceSelectPanel extends Panel {
 
         $(document).on('keyup.trace_select', handleKeyUp);
 
-        Globals.eventBus.subscribe('DidLoadFile', this);
+        Globals.eventBus.subscribe('DidLoadEnsembleFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
@@ -68,7 +69,7 @@ class TraceSelectPanel extends Panel {
 
         super.receiveEvent({ type, data });
 
-        if ('DidLoadFile' === type) {
+        if ('DidLoadEnsembleFile' === type) {
 
             const { initialKey } = data;
             this.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key: initialKey });
@@ -86,9 +87,15 @@ class TraceSelectPanel extends Panel {
     };
 
     broadcastUpdate(number) {
+
         currentNumber = number;
         this.$input.val(currentNumber);
-        Globals.eventBus.post({ type: "DidSelectStructure", data: currentNumber.toString() });
+
+        showSpinner();
+        window.setTimeout(() => {
+            Globals.eventBus.post({ type: "DidSelectStructure", data: currentNumber.toString() });
+            hideSpinner();
+        }, 0);
     }
 
     configureWithEnsemble({ ensemble, key }) {

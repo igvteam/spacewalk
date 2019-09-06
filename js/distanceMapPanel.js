@@ -44,14 +44,14 @@ class DistanceMapPanel extends Panel {
         // scratch canvas
         this.mapCanvas = document.createElement('canvas');
 
-        Globals.eventBus.subscribe("DidLoadFile", this);
+        Globals.eventBus.subscribe("DidLoadEnsembleFile", this);
     }
 
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });
 
-        if ('DidLoadFile' === type) {
+        if ('DidLoadEnsembleFile' === type) {
 
             this.mapCanvas.width = this.mapCanvas.height = Globals.ensembleManager.maximumSegmentID;
 

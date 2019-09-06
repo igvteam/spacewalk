@@ -19,7 +19,7 @@ class JuiceboxPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
-        Globals.eventBus.subscribe('DidLoadFile', this);
+        Globals.eventBus.subscribe('DidLoadEnsembleFile', this);
         Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }
 
@@ -27,7 +27,7 @@ class JuiceboxPanel extends Panel {
 
         super.receiveEvent({ type, data });
 
-        if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
+        if ("DidLoadEnsembleFile" === type || "DidLoadPointCloudFile" === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
