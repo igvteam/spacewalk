@@ -2,7 +2,6 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import Globals from './globals.js';
 import { defaultColormapName } from "./colorMapManager.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import { readFileAsText, numberFormatter } from "./utils.js";
 
 class PointCloudManager {
 

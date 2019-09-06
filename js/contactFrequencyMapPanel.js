@@ -1,8 +1,8 @@
 import KDBush from '../node_modules/kd3d/js/index.js'
 import Globals from './globals.js';
-import { showSpinner, hideSpinner, guiManager } from './gui.js';
 import { clamp } from "./math.js";
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
+import { hideSpinner, showSpinner, guiManager } from './gui.js';
 import Panel from "./panel.js";
 
 const maxDistanceThreshold = 4096;
@@ -49,11 +49,18 @@ class ContactFrequencyMapPanel extends Panel {
             const value = $input.val();
             this.distanceThreshold = clamp(parseInt(value, 10), 0, maxDistanceThreshold);
 
-            this.getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble);
-            this.drawEnsembleContactFrequency(this.mapCanvas);
+            showSpinner();
+            window.setTimeout(() => {
 
-            this.getTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace);
-            this.drawTraceContactFrequency(this.mapCanvas);
+                this.updateEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble);
+                this.drawEnsembleContactFrequency();
+
+                this.updateTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace);
+                this.drawTraceContactFrequency();
+
+                hideSpinner();
+            }, 0);
+
         });
 
         // scratch canvas
@@ -76,13 +83,13 @@ class ContactFrequencyMapPanel extends Panel {
 
             this.mapCanvas.width = this.mapCanvas.height = Globals.ensembleManager.maximumSegmentID;
 
-            this.getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble);
-            this.drawEnsembleContactFrequency(this.mapCanvas);
+            this.updateEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble);
+            this.drawEnsembleContactFrequency();
 
         }
     }
 
-    getEnsembleContactFrequencyCanvas(ensemble) {
+    updateEnsembleContactFrequencyCanvas(ensemble) {
 
         for (let f = 0; f < this.frequencies.length; f++) this.frequencies[ f ] = 0;
 
@@ -101,7 +108,7 @@ class ContactFrequencyMapPanel extends Panel {
 
     };
 
-    getTraceContactFrequencyCanvas(trace) {
+    updateTraceContactFrequencyCanvas(trace) {
 
         for (let f = 0; f < this.frequencies.length; f++) this.frequencies[ f ] = 0;
 
@@ -205,19 +212,19 @@ class ContactFrequencyMapPanel extends Panel {
 
     };
 
-    drawEnsembleContactFrequency(canvas) {
+    drawEnsembleContactFrequency() {
 
-        if (canvas) {
+        if (this.mapCanvas) {
             this.ctx_ensemble.imageSmoothingEnabled = false;
-            this.ctx_ensemble.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+            this.ctx_ensemble.drawImage(this.mapCanvas, 0, 0, this.mapCanvas.width, this.mapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
         }
     }
 
-    drawTraceContactFrequency(canvas) {
+    drawTraceContactFrequency() {
 
-        if (canvas) {
+        if (this.mapCanvas) {
             this.ctx_trace.imageSmoothingEnabled = false;
-            this.ctx_trace.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+            this.ctx_trace.drawImage(this.mapCanvas, 0, 0, this.mapCanvas.width, this.mapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
         }
     }
 

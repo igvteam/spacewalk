@@ -89,11 +89,14 @@ class TraceSelectPanel extends Panel {
     broadcastUpdate(number) {
 
         currentNumber = number;
-        this.$input.val(currentNumber);
+
+        this.$input.val(number);
+
+        const str = number.toString();
 
         showSpinner();
         window.setTimeout(() => {
-            Globals.eventBus.post({ type: "DidSelectStructure", data: currentNumber.toString() });
+            Globals.eventBus.post({ type: "DidSelectStructure", data: str });
             hideSpinner();
         }, 0);
     }

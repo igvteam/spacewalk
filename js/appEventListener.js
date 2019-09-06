@@ -4,7 +4,6 @@ import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { contactFrequencyMapPanel, distanceMapPanel, guiManager } from './gui.js';
-import { getTraceDistanceCanvas } from "./distanceMapPanel.js";
 
 export const appEventListener =
     {
@@ -81,10 +80,10 @@ let setupEnsemble = ({trace}) => {
     const { position, fov } = Globals.ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
     Globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
 
-    getTraceDistanceCanvas(trace, distanceMapPanel.mapCanvas);
-    distanceMapPanel.drawTraceDistanceCanvas(distanceMapPanel.mapCanvas);
+    distanceMapPanel.updateTraceDistanceCanvas(trace);
+    distanceMapPanel.drawTraceDistanceCanvas();
 
-    contactFrequencyMapPanel.getTraceContactFrequencyCanvas(trace);
-    contactFrequencyMapPanel.drawTraceContactFrequency(contactFrequencyMapPanel.mapCanvas);
+    contactFrequencyMapPanel.updateTraceContactFrequencyCanvas(trace);
+    contactFrequencyMapPanel.drawTraceContactFrequency();
 
 };
