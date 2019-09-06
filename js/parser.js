@@ -45,7 +45,8 @@ class Parser {
 
         let [ genomicStart, genomicEnd ] = [ Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY ];
 
-        console.time('Parser - Parse complete.');
+        const str = 'Parse complete';
+        console.time(str);
 
         for (let line of lines) {
 
@@ -83,9 +84,12 @@ class Parser {
 
         } // for (lines)
 
+        // discard line memory
+        lines = null;
+
         this.locus = { chr, genomicStart, genomicEnd };
 
-        console.timeEnd('Parser - Parse complete.');
+        console.timeEnd(str);
 
         return hash;
 

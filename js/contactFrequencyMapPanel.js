@@ -49,15 +49,18 @@ class ContactFrequencyMapPanel extends Panel {
             const value = $input.val();
             this.distanceThreshold = clamp(parseInt(value, 10), 0, maxDistanceThreshold);
 
-            getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble, this.distanceThreshold, this.mapCanvas);
+            this.getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble);
             this.drawEnsembleContactFrequency(this.mapCanvas);
 
-            getTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace, this.distanceThreshold, this.mapCanvas);
+            this.getTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace);
             this.drawTraceContactFrequency(this.mapCanvas);
         });
 
         // scratch canvas
         this.mapCanvas = document.createElement('canvas');
+
+        // frequencies
+        this.frequencies = undefined;
 
         Globals.eventBus.subscribe("DidLoadEnsembleFile", this);
 
@@ -69,13 +72,138 @@ class ContactFrequencyMapPanel extends Panel {
 
         if ('DidLoadEnsembleFile' === type) {
 
+            this.frequencies = new Array(Globals.ensembleManager.maximumSegmentID * Globals.ensembleManager.maximumSegmentID);
+
             this.mapCanvas.width = this.mapCanvas.height = Globals.ensembleManager.maximumSegmentID;
 
-            getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble, this.distanceThreshold, this.mapCanvas);
+            this.getEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble);
             this.drawEnsembleContactFrequency(this.mapCanvas);
 
         }
     }
+
+    getEnsembleContactFrequencyCanvas(ensemble) {
+
+        for (let f = 0; f < this.frequencies.length; f++) this.frequencies[ f ] = 0;
+
+        const ensembleList = Object.values(ensemble);
+
+        const str = `Get ensemble contact frequency canvas. ${ ensembleList.length } traces.`;
+        console.time(str);
+
+        for (let trace of ensembleList) {
+            this.updateContactFrequencyArray(trace);
+        }
+
+        console.timeEnd(str);
+
+        this.updateContactFrequencyCanvas();
+
+    };
+
+    getTraceContactFrequencyCanvas(trace) {
+
+        for (let f = 0; f < this.frequencies.length; f++) this.frequencies[ f ] = 0;
+
+        this.updateContactFrequencyArray(trace);
+
+        this.updateContactFrequencyCanvas();
+
+    };
+
+    updateContactFrequencyArray(trace){
+
+        let { vertices } = trace.geometry;
+        let { segmentList } = trace;
+        const exclusionSet = new Set();
+
+        const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(trace));
+
+        const mapSize = Globals.ensembleManager.maximumSegmentID;
+
+        for (let i = 0; i < vertices.length; i++) {
+
+            const { x, y, z } = vertices[ i ];
+
+            exclusionSet.add(i);
+
+            const xy_diagonal = (segmentList[ i ].segmentID - 1) * mapSize + (segmentList[ i ].segmentID - 1);
+            this.frequencies[ xy_diagonal ]++;
+
+            const contact_indices = spatialIndex.within(x, y, z, this.distanceThreshold).filter(index => !exclusionSet.has(index));
+
+            if (contact_indices.length > 0) {
+                for (let contact_i of contact_indices) {
+
+                    const         i_frequency = segmentList[         i ].segmentID - 1;
+                    const contact_i_frequency = segmentList[ contact_i ].segmentID - 1;
+
+                    const xy =         i_frequency * mapSize + contact_i_frequency;
+                    const yx = contact_i_frequency * mapSize +         i_frequency;
+
+                    if (xy > this.frequencies.length) {
+                        console.log('xy is bogus index ' + xy);
+                    }
+
+                    if (yx > this.frequencies.length) {
+                        console.log('yx is bogus index ' + yx);
+                    }
+
+                    this.frequencies[ xy ] += 1;
+
+                    this.frequencies[ yx ] = this.frequencies[ xy ];
+
+                }
+            }
+
+        }
+
+    };
+
+    updateContactFrequencyCanvas() {
+
+        let mapSize = Globals.ensembleManager.maximumSegmentID;
+
+        let maxFrequency = Number.NEGATIVE_INFINITY;
+
+        const str = `Update contact frequency canvas ${ mapSize } x ${ mapSize }`;
+        console.time(str);
+
+        // Calculate max
+        for (let m = 0; m < mapSize; m++) {
+            const xy = m * mapSize + m;
+            const frequency = this.frequencies[ xy ];
+            maxFrequency = Math.max(maxFrequency, frequency);
+        }
+
+        let ctx = this.mapCanvas.getContext('2d');
+
+        const { width: w, height: h } = ctx.canvas;
+        ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
+        ctx.fillRect(0, 0, w, h);
+
+        for (let i = 0; i < w; i++) {
+            for(let j = 0; j < h; j++) {
+
+                const ij = i * w + j;
+
+                let interpolant;
+
+                if (this.frequencies[ ij ] > maxFrequency) {
+                    console.log(`ERROR! At i ${ i } j ${ j } frequencies ${ this.frequencies[ ij ] } should NOT exceed the max ${ maxFrequency }`);
+                    interpolant = maxFrequency / maxFrequency;
+                } else {
+                    interpolant = this.frequencies[ ij ] / maxFrequency;
+                }
+
+                ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+                ctx.fillRect(i, j, 1, 1);
+            }
+        }
+
+        console.timeEnd(str);
+
+    };
 
     drawEnsembleContactFrequency(canvas) {
 
@@ -95,146 +223,6 @@ class ContactFrequencyMapPanel extends Panel {
 
 }
 
-export let contactFrequencyMapPanelConfigurator = (container) => {
-
-    return {
-        container,
-        panel: $('#spacewalk_contact_frequency_map_panel').get(0),
-        isHidden: guiManager.isPanelHidden('spacewalk_contact_frequency_map_panel'),
-        distanceThreshold: defaultDistanceThreshold
-    };
-
-};
-
-const getEnsembleContactFrequencyCanvas = (ensemble, distanceThreshold, canvas) => {
-
-    let mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    let frequencies = new Array(mapSize * mapSize);
-    for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
-
-    const ensembleList = Object.values(ensemble);
-
-    const str = `Get ensemble contact frequency canvas. ${ ensembleList.length } traces.`;
-    console.time(str);
-
-    for (let trace of ensembleList) {
-        updateContactFrequencyArray(trace, frequencies, distanceThreshold);
-    }
-
-    console.timeEnd(str);
-
-    setContactFrequencyCanvas(frequencies, canvas);
-
-};
-
-export const getTraceContactFrequencyCanvas = (trace, distanceThreshold, canvas) => {
-
-    let mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    let frequencies = new Array(mapSize * mapSize);
-    for (let f = 0; f < frequencies.length; f++) frequencies[ f ] = 0;
-
-    updateContactFrequencyArray(trace, frequencies, distanceThreshold);
-
-    setContactFrequencyCanvas(frequencies, canvas);
-
-};
-
-const updateContactFrequencyArray = (trace, frequencies, distanceThreshold) => {
-
-    const mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    let { vertices } = trace.geometry;
-    let { segmentList } = trace;
-    const exclusionSet = new Set();
-
-    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(trace));
-
-    for (let i = 0; i < vertices.length; i++) {
-
-        const { x, y, z } = vertices[ i ];
-
-        exclusionSet.add(i);
-
-        const xy_diagonal = (segmentList[ i ].segmentID - 1) * mapSize + (segmentList[ i ].segmentID - 1);
-        frequencies[ xy_diagonal ]++;
-
-        const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
-
-        if (contact_indices.length > 0) {
-            for (let contact_i of contact_indices) {
-
-                const         i_frequency = segmentList[         i ].segmentID - 1;
-                const contact_i_frequency = segmentList[ contact_i ].segmentID - 1;
-
-                const xy =         i_frequency * mapSize + contact_i_frequency;
-                const yx = contact_i_frequency * mapSize +         i_frequency;
-
-                if (xy > frequencies.length) {
-                    console.log('xy is bogus index ' + xy);
-                }
-
-                if (yx > frequencies.length) {
-                    console.log('yx is bogus index ' + yx);
-                }
-
-                ++frequencies[ xy ];
-
-                frequencies[ yx ] = frequencies[ xy ];
-
-            }
-        }
-
-    }
-
-};
-
-const setContactFrequencyCanvas = (frequencies, canvas) => {
-
-    let mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    let maxFrequency = Number.NEGATIVE_INFINITY;
-
-    const str = `Set contact frequency canvas ${ mapSize } x ${ mapSize }`;
-    console.time(str);
-
-    // Calculate max
-    for (let m = 0; m < mapSize; m++) {
-        const xy = m * mapSize + m;
-        const frequency = frequencies[ xy ];
-        maxFrequency = Math.max(maxFrequency, frequency);
-    }
-
-    let ctx = canvas.getContext('2d');
-
-    const { width: w, height: h } = ctx.canvas;
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
-    ctx.fillRect(0, 0, w, h);
-
-    for (let i = 0; i < w; i++) {
-        for(let j = 0; j < h; j++) {
-
-            const ij = i * w + j;
-
-            let interpolant;
-
-            if (frequencies[ ij ] > maxFrequency) {
-                console.log(`ERROR! At i ${ i } j ${ j } frequencies ${ frequencies[ ij ] } should NOT exceed the max ${ maxFrequency }`);
-                interpolant = maxFrequency / maxFrequency;
-            } else {
-                interpolant = frequencies[ ij ] / maxFrequency;
-            }
-
-            ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-            ctx.fillRect(i, j, 1, 1);
-        }
-    }
-
-    console.timeEnd(str);
-
-};
-
 const kdBushConfiguratorWithTrace = trace => {
 
     return {
@@ -247,6 +235,17 @@ const kdBushConfiguratorWithTrace = trace => {
         ArrayType: Float64Array,
         axisCount: 3
     }
+
+};
+
+export let contactFrequencyMapPanelConfigurator = (container) => {
+
+    return {
+        container,
+        panel: $('#spacewalk_contact_frequency_map_panel').get(0),
+        isHidden: guiManager.isPanelHidden('spacewalk_contact_frequency_map_panel'),
+        distanceThreshold: defaultDistanceThreshold
+    };
 
 };
 

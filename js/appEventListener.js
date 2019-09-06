@@ -5,7 +5,6 @@ import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { contactFrequencyMapPanel, distanceMapPanel, guiManager } from './gui.js';
 import { getTraceDistanceCanvas } from "./distanceMapPanel.js";
-import { getTraceContactFrequencyCanvas } from "./contactFrequencyMapPanel.js";
 
 export const appEventListener =
     {
@@ -85,7 +84,7 @@ let setupEnsemble = ({trace}) => {
     getTraceDistanceCanvas(trace, distanceMapPanel.mapCanvas);
     distanceMapPanel.drawTraceDistanceCanvas(distanceMapPanel.mapCanvas);
 
-    getTraceContactFrequencyCanvas(trace, contactFrequencyMapPanel.distanceThreshold, contactFrequencyMapPanel.mapCanvas);
+    contactFrequencyMapPanel.getTraceContactFrequencyCanvas(trace);
     contactFrequencyMapPanel.drawTraceContactFrequency(contactFrequencyMapPanel.mapCanvas);
 
 };
