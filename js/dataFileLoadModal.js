@@ -1,7 +1,6 @@
 import { juiceboxPanel } from "./gui.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
-import Globals from './globals.js';
-import {hideSpinner, showSpinner} from "./gui";
+import { globals } from "./app.js";
 
 let currentURL = undefined;
 
@@ -92,7 +91,7 @@ class DataFileLoadModal {
 const loadURL = ({ url, name, fileLoader, $modal }) => {
 
     $modal.modal('hide');
-    Globals.eventBus.post({ type: "DidLeaveGUI" });
+    globals.eventBus.post({ type: "DidLeaveGUI" });
 
     fileLoader.loadURL({ url, name });
 
@@ -100,7 +99,7 @@ const loadURL = ({ url, name, fileLoader, $modal }) => {
 
 const loadFile = (file, fileLoader) => {
 
-    Globals.eventBus.post({ type: "DidLeaveGUI" });
+    globals.eventBus.post({ type: "DidLeaveGUI" });
     fileLoader.loadLocalFile({ file });
 
 };
@@ -112,7 +111,7 @@ const swFileLoadModalConfigurator = () => {
         $selectModal: $('#spacewalk-sw-load-select-modal'),
         $localFileInput: $('#spacewalk-sw-load-local-input'),
         selectLoader: undefined,
-        fileLoader: Globals.parser
+        fileLoader: globals.parser
     }
 };
 

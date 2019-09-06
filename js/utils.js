@@ -1,20 +1,18 @@
 import { quantize } from "./math.js";
-import Globals from "./globals.js";
-import {hideSpinner, showSpinner} from "./gui.js";
+import { globals } from "./app.js";
 
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
 
 const setMaterialProvider = materialProvider => {
-    Globals.sceneManager.materialProvider = materialProvider;
-    Globals.noodle.updateMaterialProvider(Globals.sceneManager.materialProvider);
-    Globals.ballAndStick.updateMaterialProvider(Globals.sceneManager.materialProvider);
+    globals.noodle.updateMaterialProvider(materialProvider);
+    globals.ballAndStick.updateMaterialProvider(materialProvider);
 };
 
 const segmentIDForInterpolant = interpolant => {
 
     // find bucket for interpolant
-    const howmany = Globals.ensembleManager.maximumSegmentID;
+    const howmany = globals.ensembleManager.maximumSegmentID;
     let quantized = quantize(interpolant, howmany);
 
     // return the segmentID
@@ -87,7 +85,7 @@ const readFileAsText = file => {
         reader.onload = () => {
             resolve(reader.result);
         };
-        
+
         reader.readAsText(file);
     });
 };

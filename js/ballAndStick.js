@@ -1,7 +1,8 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import Globals from './globals.js';
 import { getBoundsWithTrace } from './ensembleManager.js';
 import { degrees } from './math.js';
+import { globals } from "./app.js";
+import {colorRampPanel} from "./gui.js";
 
 class BallAndStick {
 
@@ -21,7 +22,7 @@ class BallAndStick {
         this.balls = this.createBalls(trace);
         this.sticks = this.createSticks(trace);
 
-        if (Globals.sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
+        if (globals.sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
         } else {
             this.hide();
@@ -54,7 +55,7 @@ class BallAndStick {
 
             const { segmentID, genomicLocation } = trace.segmentList[ index ];
 
-            const color = Globals.sceneManager.materialProvider.colorForSegment({ segmentID, genomicLocation });
+            const color = colorRampPanel.traceColorRampMaterialProvider.colorForSegment({ segmentID, genomicLocation });
             const material = new THREE.MeshPhongMaterial({ color });
 
             const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
@@ -64,7 +65,7 @@ class BallAndStick {
 
             const { x, y, z } = vertex;
             mesh.position.set(x, y, z);
-            mesh.scale.setScalar(Globals.sceneManager.ballRadius());
+            mesh.scale.setScalar(globals.sceneManager.ballRadius());
 
             this.objectSegmentDictionary[ mesh.uuid ] = { segmentID, genomicLocation };
 
@@ -87,8 +88,8 @@ class BallAndStick {
 
         for (let curve of this.stickCurves) {
 
-            const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * Globals.sceneManager.ballRadius(), 16, false);
-            const material = Globals.sceneManager.stickMaterial.clone();
+            const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * globals.sceneManager.ballRadius(), 16, false);
+            const material = globals.sceneManager.stickMaterial.clone();
 
             const mesh = new THREE.Mesh(geometry, material);
             mesh.name = 'stick';

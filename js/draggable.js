@@ -1,4 +1,4 @@
-import Globals from "./globals.js";
+import { globals } from "./app.js";
 
 const namespace = '.spacewalk_drag';
 let dragData;
@@ -68,7 +68,7 @@ function dragEnd(event) {
     dragData = undefined;
 
     const id = $(this).attr('id');
-    Globals.eventBus.post({ type: "DidDragEnd", data: id });
+    globals.eventBus.post({ type: "DidDragEnd", data: id });
 
 }
 

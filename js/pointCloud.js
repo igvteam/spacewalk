@@ -1,7 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { degrees } from './math.js';
-import Globals from "./globals.js";
 import { setGeometryAttributeColorListWithColorThreeJS } from './color.js';
+import { globals } from "./app.js";
 
 const pointSize = 128;
 class PointCloud {
@@ -72,7 +72,7 @@ class PointCloud {
 
         this.meshList = this.createPointCloud(points);
 
-        if (Globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
+        if (globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
             this.show();
         } else {
             this.hide();
@@ -139,7 +139,7 @@ class PointCloud {
     }
 
     getBounds() {
-        return Globals.pointCloudManager.getBounds();
+        return globals.pointCloudManager.getBounds();
     }
 
     getCameraPoseAlongAxis ({ axis, scaleFactor }) {

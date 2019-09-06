@@ -3,9 +3,9 @@ import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "./threejs_es6/fatlines/fatLine.js";
 import { getBoundsWithTrace } from './ensembleManager.js';
-import Globals from './globals.js';
 import { degrees, clamp, lerp } from './math.js';
-import {hideSpinner, showSpinner} from "./gui.js";
+import { globals } from "./app.js";
+import {colorRampPanel} from "./gui.js";
 
 let fatLineMaterial;
 
@@ -28,12 +28,12 @@ class Noodle {
         console.time(str);
 
         this.curve = new THREE.CatmullRomCurve3(trace.geometry.vertices);
-        this.tube = createTube(this.curve, Globals.sceneManager.materialProvider.material);
-        this.spline = createFatSpline(this.curve, Globals.sceneManager.materialProvider);
+        this.tube = createTube(this.curve, colorRampPanel.traceColorRampMaterialProvider.material);
+        this.spline = createFatSpline(this.curve, colorRampPanel.traceColorRampMaterialProvider);
 
         console.timeEnd(str);
 
-        if (Globals.sceneManager.renderStyle === Noodle.getRenderStyle()) {
+        if (globals.sceneManager.renderStyle === Noodle.getRenderStyle()) {
             this.show();
         } else {
             this.hide();
@@ -79,7 +79,7 @@ class Noodle {
 
     updateRadius(radius) {
         const tubularSegments = getTubularSegmentCount(this.curve.getLength());
-        const radialSegments = getRadialSegmentCount(Globals.parser.locus);
+        const radialSegments = getRadialSegmentCount(globals.parser.locus);
         this.tube.geometry.copy(new THREE.TubeBufferGeometry(this.curve, tubularSegments, radius, radialSegments, false));
     }
 
@@ -147,12 +147,12 @@ class Noodle {
 const createTube = (curve, material) => {
 
     const tubularSegments = getTubularSegmentCount(curve.getLength());
-    const radialSegments = getRadialSegmentCount(Globals.parser.locus);
+    const radialSegments = getRadialSegmentCount(globals.parser.locus);
 
     const str = `createTube. ${ tubularSegments } tubes. ${ radialSegments } radial segments.`;
     console.time(str);
 
-    const geometry = new THREE.TubeBufferGeometry(curve, tubularSegments, Globals.sceneManager.noodleRadius(), radialSegments, false);
+    const geometry = new THREE.TubeBufferGeometry(curve, tubularSegments, globals.sceneManager.noodleRadius(), radialSegments, false);
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.name = 'noodle';

@@ -1,9 +1,9 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import Globals from './globals.js';
 import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { contactFrequencyMapPanel, distanceMapPanel, guiManager } from './gui.js';
+import { globals } from "./app.js";
 
 export const appEventListener =
     {
@@ -12,33 +12,33 @@ export const appEventListener =
             if ('RenderStyleDidChange' === type) {
 
                 if (data === Noodle.getRenderStyle()) {
-                    Globals.sceneManager.renderStyle = Noodle.getRenderStyle();
-                    Globals.ballAndStick.hide();
-                    Globals.noodle.show();
+                    globals.sceneManager.renderStyle = Noodle.getRenderStyle();
+                    globals.ballAndStick.hide();
+                    globals.noodle.show();
                 } else {
-                    Globals.sceneManager.renderStyle = BallAndStick.getRenderStyle();
-                    Globals.noodle.hide();
-                    Globals.ballAndStick.show();
+                    globals.sceneManager.renderStyle = BallAndStick.getRenderStyle();
+                    globals.noodle.hide();
+                    globals.ballAndStick.show();
                 }
 
             }  else if ('DidLoadPointCloudFile' === type) {
 
-                setupPointCloud(Globals.pointCloudManager.list);
+                setupPointCloud(globals.pointCloudManager.list);
 
             }  else if ('DidLoadEnsembleFile' === type) {
 
                 const { initialKey } = data;
-                let trace = Globals.ensembleManager.getTraceWithName(initialKey);
+                let trace = globals.ensembleManager.getTraceWithName(initialKey);
 
-                Globals.ensembleManager.currentTrace = trace;
-                Globals.sceneManager.cameraLightingRig.doUpdateCameraPose = true;
+                globals.ensembleManager.currentTrace = trace;
+                globals.sceneManager.cameraLightingRig.doUpdateCameraPose = true;
 
                 setupEnsemble({trace});
 
             } else if ('DidSelectStructure' === type) {
 
-                let trace = Globals.ensembleManager.getTraceWithName(data);
-                Globals.ensembleManager.currentTrace = trace;
+                let trace = globals.ensembleManager.getTraceWithName(data);
+                globals.ensembleManager.currentTrace = trace;
                 setupEnsemble({trace});
             }
 
@@ -47,38 +47,38 @@ export const appEventListener =
 
 let setupPointCloud = points => {
 
-    Globals.sceneManager.dispose();
+    globals.sceneManager.dispose();
 
-    Globals.sceneManager.renderStyle = PointCloud.getRenderStyle();
+    globals.sceneManager.renderStyle = PointCloud.getRenderStyle();
 
-    Globals.pointCloud.configure(points);
+    globals.pointCloud.configure(points);
 
     let scene = new THREE.Scene();
-    Globals.pointCloud.addToScene(scene);
+    globals.pointCloud.addToScene(scene);
 
-    const {min, max, center, radius} = Globals.pointCloud.getBounds();
-    const {position, fov} = Globals.pointCloud.getCameraPoseAlongAxis({axis: '+z', scaleFactor: 3});
-    Globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+    const {min, max, center, radius} = globals.pointCloud.getBounds();
+    const {position, fov} = globals.pointCloud.getCameraPoseAlongAxis({axis: '+z', scaleFactor: 3});
+    globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
 
 };
 
 let setupEnsemble = ({trace}) => {
 
-    Globals.sceneManager.dispose();
+    globals.sceneManager.dispose();
 
-    Globals.sceneManager.renderStyle = guiManager.getRenderingStyle();
+    globals.sceneManager.renderStyle = guiManager.getRenderStyle();
 
-    Globals.noodle.configure(trace);
+    globals.noodle.configure(trace);
 
-    Globals.ballAndStick.configure(trace);
+    globals.ballAndStick.configure(trace);
 
     let scene = new THREE.Scene();
-    Globals.noodle.addToScene(scene);
-    Globals.ballAndStick.addToScene(scene);
+    globals.noodle.addToScene(scene);
+    globals.ballAndStick.addToScene(scene);
 
-    const { min, max, center, radius } = Globals.ballAndStick.getBounds();
-    const { position, fov } = Globals.ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
-    Globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
+    const { min, max, center, radius } = globals.ballAndStick.getBounds();
+    const { position, fov } = globals.ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
+    globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
 
     distanceMapPanel.updateTraceDistanceCanvas(trace);
     distanceMapPanel.drawTraceDistanceCanvas();

@@ -1,7 +1,7 @@
-import Globals from "./globals.js";
 import igv from '../vendor/igv.esm.js';
 import { numberFormatter, readFileAsText } from "./utils.js";
 import { hideSpinner, showSpinner } from "./gui.js";
+import { globals } from "./app.js";
 
 class Parser {
     constructor () {
@@ -97,15 +97,15 @@ class Parser {
 
     consume (hash) {
 
-        const consumer = isPointCloud(hash) ? Globals.pointCloudManager : Globals.ensembleManager;
+        const consumer = isPointCloud(hash) ? globals.pointCloudManager : globals.ensembleManager;
         consumer.ingestSW({ locus: this.locus, hash });
 
         const { chr, genomicStart, genomicEnd } = this.locus;
 
         if (isPointCloud(hash)) {
-            Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { genomeID: Globals.parser.genomeAssembly, chr, genomicStart, genomicEnd } });
+            globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd } });
         } else {
-            Globals.eventBus.post({ type: "DidLoadEnsembleFile",   data: { genomeID: Globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
+            globals.eventBus.post({ type: "DidLoadEnsembleFile",   data: { genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
         }
 
     }

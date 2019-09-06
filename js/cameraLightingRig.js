@@ -1,7 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
-import { numberFormatter } from "./utils.js";
-import {prettyVector3String} from "./math.js";
 
 let cameraWorldDirection = new THREE.Vector3();
 let crossed = new THREE.Vector3();

@@ -1,8 +1,8 @@
-import Globals from './globals.js';
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import PointCloud from './pointCloud.js';
+import { globals } from "./app.js";
 
 let currentInterpolantWindow = undefined;
 
@@ -28,7 +28,7 @@ class PointCloudColorRampMaterialProvider {
 
             event.stopPropagation();
 
-            if (Globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
+            if (globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
                 this.onCanvasMouseMove(canvas, event)
             }
 
@@ -45,9 +45,9 @@ class PointCloudColorRampMaterialProvider {
 
             currentInterpolantWindow = undefined;
 
-            if (Globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
+            if (globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
                 this.repaint();
-                Globals.pointCloud.unHighlight();
+                globals.pointCloud.unHighlight();
             }
 
         });
@@ -80,7 +80,7 @@ class PointCloudColorRampMaterialProvider {
         for (let y = 0; y < height; y++) {
 
             const interpolant = 1 - (y / (height - 1));
-            this.rgb_ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
+            this.rgb_ctx.fillStyle = globals.colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
             this.rgb_ctx.fillRect(0, y, width, 1);
         }
 
@@ -132,7 +132,7 @@ class PointCloudColorRampMaterialProvider {
 
             this.highlight_ctx.fillRect(0, yy, width, h);
 
-            Globals.pointCloud.highlight(geometryUUID);
+            globals.pointCloud.highlight(geometryUUID);
 
         }
 

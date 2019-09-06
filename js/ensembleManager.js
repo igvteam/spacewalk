@@ -1,5 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import Globals from './globals.js';
+import { globals } from "./app.js";
 
 class EnsembleManager {
 
@@ -99,7 +99,7 @@ class EnsembleManager {
 
     segmentIDForGenomicLocation(bp) {
 
-        let delta = Math.round(bp - Globals.parser.locus.genomicStart);
+        let delta = Math.round(bp - globals.parser.locus.genomicStart);
         let segmentID = 1 + Math.floor(delta / this.stepSize);
         return segmentID;
     }
@@ -115,7 +115,7 @@ const segmentIDSanityCheck = ensemble => {
 
     const ensembleList = Object.values(ensemble);
 
-    let mapSize = Globals.ensembleManager.maximumSegmentID;
+    let mapSize = globals.ensembleManager.maximumSegmentID;
 
     let matrix = new Array(mapSize * mapSize);
     for (let f = 0; f < matrix.length; f++) matrix[ f ] = 0;
@@ -127,8 +127,8 @@ const segmentIDSanityCheck = ensemble => {
         let { vertices } = trace.geometry;
         for (let i = 0; i < vertices.length; i++) {
 
-            if (trace.segmentList[ i ].segmentID > Globals.ensembleManager.maximumSegmentID) {
-                console.log(`Bogus Segment ID. trace ${ ensembleList.indexOf(trace) } vertex ${ i } segmentID ${ trace.segmentList[ i ].segmentID } maximumSegmentID ${ Globals.ensembleManager.maximumSegmentID }`);
+            if (trace.segmentList[ i ].segmentID > globals.ensembleManager.maximumSegmentID) {
+                console.log(`Bogus Segment ID. trace ${ ensembleList.indexOf(trace) } vertex ${ i } segmentID ${ trace.segmentList[ i ].segmentID } maximumSegmentID ${ globals.ensembleManager.maximumSegmentID }`);
             }
             const segmentID = trace.segmentList[ i ].segmentID;
             const  index = segmentID - 1;

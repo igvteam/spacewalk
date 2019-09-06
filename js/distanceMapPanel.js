@@ -1,7 +1,7 @@
-import Globals from './globals.js';
 import { guiManager } from './gui.js';
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 import Panel from "./panel.js";
+import { globals } from "./app.js";
 
 const kDistanceUndefined = -1;
 
@@ -45,7 +45,7 @@ class DistanceMapPanel extends Panel {
         this.mapCanvas = document.createElement('canvas');
         this.distanceArray = undefined;
 
-        Globals.eventBus.subscribe("DidLoadEnsembleFile", this);
+        globals.eventBus.subscribe("DidLoadEnsembleFile", this);
     }
 
     receiveEvent({ type, data }) {
@@ -54,11 +54,11 @@ class DistanceMapPanel extends Panel {
 
         if ('DidLoadEnsembleFile' === type) {
 
-            this.distanceArray = new Array(Globals.ensembleManager.maximumSegmentID * Globals.ensembleManager.maximumSegmentID);
+            this.distanceArray = new Array(globals.ensembleManager.maximumSegmentID * globals.ensembleManager.maximumSegmentID);
 
-            this.mapCanvas.width = this.mapCanvas.height = Globals.ensembleManager.maximumSegmentID;
+            this.mapCanvas.width = this.mapCanvas.height = globals.ensembleManager.maximumSegmentID;
 
-            this.updateEnsembleAverageDistanceCanvas(Globals.ensembleManager.ensemble);
+            this.updateEnsembleAverageDistanceCanvas(globals.ensembleManager.ensemble);
             this.drawEnsembleDistanceCanvas();
         }
     }
@@ -85,7 +85,7 @@ class DistanceMapPanel extends Panel {
         const str = `getEnsembleDistanceMapCanvas. ${ traces.length } traces.`;
         console.time(str);
 
-        let mapSize = Globals.ensembleManager.maximumSegmentID;
+        let mapSize = globals.ensembleManager.maximumSegmentID;
 
         let counter = new Array(mapSize * mapSize);
         counter.fill(0);
@@ -150,7 +150,7 @@ class DistanceMapPanel extends Panel {
 
     updateDistanceArray(trace) {
 
-        let mapSize = Globals.ensembleManager.maximumSegmentID;
+        let mapSize = globals.ensembleManager.maximumSegmentID;
 
         this.distanceArray.fill(kDistanceUndefined);
 
@@ -217,7 +217,7 @@ const setDistanceCanvas = (distances, maximumDistance, canvas) => {
                 // do nothing
             } else {
                 const interpolant = 1.0 - distances[ ij ] / maximumDistance;
-                ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+                ctx.fillStyle = globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
                 ctx.fillRect(i, j, 1, 1);
             }
 

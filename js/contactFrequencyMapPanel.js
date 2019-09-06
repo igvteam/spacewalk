@@ -1,9 +1,9 @@
 import KDBush from '../node_modules/kd3d/js/index.js'
-import Globals from './globals.js';
 import { clamp } from "./math.js";
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 import { hideSpinner, showSpinner, guiManager } from './gui.js';
 import Panel from "./panel.js";
+import { globals } from "./app.js";
 
 const maxDistanceThreshold = 4096;
 const defaultDistanceThreshold = 256;
@@ -52,10 +52,10 @@ class ContactFrequencyMapPanel extends Panel {
             showSpinner();
             window.setTimeout(() => {
 
-                this.updateEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble);
+                this.updateEnsembleContactFrequencyCanvas(globals.ensembleManager.ensemble);
                 this.drawEnsembleContactFrequency();
 
-                this.updateTraceContactFrequencyCanvas(Globals.ensembleManager.currentTrace);
+                this.updateTraceContactFrequencyCanvas(globals.ensembleManager.currentTrace);
                 this.drawTraceContactFrequency();
 
                 hideSpinner();
@@ -69,7 +69,7 @@ class ContactFrequencyMapPanel extends Panel {
         // frequencies
         this.frequencies = undefined;
 
-        Globals.eventBus.subscribe("DidLoadEnsembleFile", this);
+        globals.eventBus.subscribe("DidLoadEnsembleFile", this);
 
     }
 
@@ -79,11 +79,11 @@ class ContactFrequencyMapPanel extends Panel {
 
         if ('DidLoadEnsembleFile' === type) {
 
-            this.frequencies = new Array(Globals.ensembleManager.maximumSegmentID * Globals.ensembleManager.maximumSegmentID);
+            this.frequencies = new Array(globals.ensembleManager.maximumSegmentID * globals.ensembleManager.maximumSegmentID);
 
-            this.mapCanvas.width = this.mapCanvas.height = Globals.ensembleManager.maximumSegmentID;
+            this.mapCanvas.width = this.mapCanvas.height = globals.ensembleManager.maximumSegmentID;
 
-            this.updateEnsembleContactFrequencyCanvas(Globals.ensembleManager.ensemble);
+            this.updateEnsembleContactFrequencyCanvas(globals.ensembleManager.ensemble);
             this.drawEnsembleContactFrequency();
 
         }
@@ -126,7 +126,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(trace));
 
-        const mapSize = Globals.ensembleManager.maximumSegmentID;
+        const mapSize = globals.ensembleManager.maximumSegmentID;
 
         for (let i = 0; i < vertices.length; i++) {
 
@@ -169,7 +169,7 @@ class ContactFrequencyMapPanel extends Panel {
 
     updateContactFrequencyCanvas() {
 
-        let mapSize = Globals.ensembleManager.maximumSegmentID;
+        let mapSize = globals.ensembleManager.maximumSegmentID;
 
         let maxFrequency = Number.NEGATIVE_INFINITY;
 
@@ -203,7 +203,7 @@ class ContactFrequencyMapPanel extends Panel {
                     interpolant = this.frequencies[ ij ] / maxFrequency;
                 }
 
-                ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+                ctx.fillStyle = globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
                 ctx.fillRect(i, j, 1, 1);
             }
         }

@@ -3,18 +3,15 @@ import GUIManager from "./guiManager.js";
 import TraceSelectPanel from "./traceSelectPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
-import ThumbnailPanel, { thumbnailPanelConfigurator } from "./thumbnailPanel.js";
 import DistanceMapPanel, { distanceMapPanelConfigurator } from "./distanceMapPanel.js";
 import ContactFrequencyMapPanel, { contactFrequencyMapPanelConfigurator } from "./contactFrequencyMapPanel.js";
 import IGVPanel, { igvBrowserConfigurator } from "./igv/IGVPanel.js";
 import DataFileLoadModal, { swFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator } from "./dataFileLoadModal.js";
-import Globals from './globals.js';
 
 let guiManager;
 let traceSelectPanel;
 let juiceboxPanel;
 let colorRampPanel;
-let thumbnailPanel;
 let distanceMapPanel;
 let contactFrequencyMapPanel;
 let igvPanel;
@@ -30,9 +27,6 @@ const createGUI = container => {
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
 
     colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, highlightColor }) );
-    Globals.traceColorRampMaterialProvider = colorRampPanel.traceColorRampMaterialProvider;
-
-    // thumbnailPanel = new ThumbnailPanel(thumbnailPanelConfigurator(container));
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator(container));
 
@@ -50,28 +44,14 @@ const createGUI = container => {
 
 };
 
-// $thang.is(':visible')
-
 const showSpinner = () => {
-
-    // document.getElementById('spacewalk-spinner').style.color = 'rgb(255,0,0)';
     document.getElementById('spacewalk-spinner').style.display = 'block';
-
-    // const $spinner = $('#spacewalk-spinner').find('.spinner-border');
-    // $spinner.show();
-
     console.log('show spinner');
 };
 
 const hideSpinner = () => {
-
-    // document.getElementById('spacewalk-spinner').style.color = 'rgb(0,255,0)';
     document.getElementById('spacewalk-spinner').style.display = 'none';
-
-    // const $spinner = $('#spacewalk-spinner').find('.spinner-border');
-    // $spinner.hide();
-
     console.log('hide spinner');
 };
 
-export { showSpinner, hideSpinner, createGUI, guiManager, traceSelectPanel, juiceboxPanel, colorRampPanel, thumbnailPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, highlightColor };
+export { showSpinner, hideSpinner, createGUI, guiManager, traceSelectPanel, juiceboxPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, highlightColor };

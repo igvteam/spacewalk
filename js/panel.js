@@ -1,7 +1,7 @@
-import Globals from "./globals.js";
 import igv from '../vendor/igv.esm.js';
 import { makeDraggable } from "./draggable.js";
 import { guiManager } from "./gui.js";
+import { globals } from "./app.js";
 
 class Panel {
 
@@ -27,7 +27,7 @@ class Panel {
 
         $drag_handle.on(`mousedown. ${ namespace }`, event => {
             // console.log('panel - did select panel');
-            Globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
+            globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
         const $closer = this.$panel.find('i.fa-times-circle');
@@ -46,17 +46,17 @@ class Panel {
 
         this.$panel.on(`mouseenter. ${ namespace }`, (event) => {
             event.stopPropagation();
-            Globals.eventBus.post({ type: "DidEnterGUI" });
+            globals.eventBus.post({ type: "DidEnterGUI" });
         });
 
         this.$panel.on(`mouseleave. ${ namespace }`, (event) => {
             event.stopPropagation();
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
+            globals.eventBus.post({ type: "DidLeaveGUI" });
         });
 
-        Globals.eventBus.subscribe("ToggleUIControl", this);
-        Globals.eventBus.subscribe("AppWindowDidResize", this);
-        Globals.eventBus.subscribe("DidDragEnd", this);
+        globals.eventBus.subscribe("ToggleUIControl", this);
+        globals.eventBus.subscribe("AppWindowDidResize", this);
+        globals.eventBus.subscribe("DidDragEnd", this);
 
     }
 
@@ -100,8 +100,8 @@ class Panel {
 
         if (this.layoutState) {
             const { topPercent, leftPercent } = this.layoutState;
-            const top = topPercent * Globals.appWindowHeight;
-            const left = leftPercent * Globals.appWindowWidth;
+            const top = topPercent * globals.appWindowHeight;
+            const left = leftPercent * globals.appWindowWidth;
             this.$panel.offset({ top, left })
         } else {
             this.initializeLayout(this.xFunction, this.yFunction)
@@ -138,8 +138,8 @@ class Panel {
 
     updateLayoutState() {
         const { top, left } = this.$panel.offset();
-        const topPercent = top / Globals.appWindowHeight;
-        const leftPercent = left / Globals.appWindowWidth;
+        const topPercent = top / globals.appWindowHeight;
+        const leftPercent = left / globals.appWindowWidth;
         this.layoutState = { top, left, topPercent, leftPercent };
     }
 }

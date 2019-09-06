@@ -1,7 +1,7 @@
-import Globals from './globals.js';
 import { clamp } from './math.js'
 import Panel from "./panel.js";
 import {hideSpinner, showSpinner} from "./gui.js";
+import { globals } from "./app.js";
 
 let currentNumber = undefined;
 class TraceSelectPanel extends Panel {
@@ -60,8 +60,8 @@ class TraceSelectPanel extends Panel {
 
         $(document).on('keyup.trace_select', handleKeyUp);
 
-        Globals.eventBus.subscribe('DidLoadEnsembleFile', this);
-        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
+        globals.eventBus.subscribe('DidLoadEnsembleFile', this);
+        globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
 
@@ -72,7 +72,7 @@ class TraceSelectPanel extends Panel {
         if ('DidLoadEnsembleFile' === type) {
 
             const { initialKey } = data;
-            this.configureWithEnsemble({ ensemble: Globals.ensembleManager.ensemble, key: initialKey });
+            this.configureWithEnsemble({ ensemble: globals.ensembleManager.ensemble, key: initialKey });
             this.presentPanel();
 
         } else if ('DidLoadPointCloudFile' === type) {
@@ -96,7 +96,7 @@ class TraceSelectPanel extends Panel {
 
         showSpinner();
         window.setTimeout(() => {
-            Globals.eventBus.post({ type: "DidSelectStructure", data: str });
+            globals.eventBus.post({ type: "DidSelectStructure", data: str });
             hideSpinner();
         }, 0);
     }
