@@ -62,40 +62,19 @@ class ContactFrequencyMapPanel extends Panel {
             }, 0);
 
         });
-
-        // scratch canvas
-        this.mapCanvas = document.createElement('canvas');
-
-        // frequencies
-        this.frequencies = undefined;
-
-        globals.eventBus.subscribe("DidLoadEnsembleFile", this);
-
     }
 
-    receiveEvent({ type, data }) {
-
-        super.receiveEvent({ type, data });
-
-        if ('DidLoadEnsembleFile' === type) {
-
-            this.frequencies = new Array(globals.ensembleManager.maximumSegmentID * globals.ensembleManager.maximumSegmentID);
-
-            this.mapCanvas.width = this.mapCanvas.height = globals.ensembleManager.maximumSegmentID;
-
-            this.updateEnsembleContactFrequencyCanvas(globals.ensembleManager.ensemble);
-            this.drawEnsembleContactFrequency();
-
-        }
-    }
+    // receiveEvent({ type, data }) {
+    //     super.receiveEvent({ type, data });
+    // }
 
     updateEnsembleContactFrequencyCanvas(ensemble) {
 
-        for (let f = 0; f < this.frequencies.length; f++) this.frequencies[ f ] = 0;
+        for (let f = 0; f < globals.sharedMapArray.length; f++) globals.sharedMapArray[ f ] = 0;
 
         const ensembleList = Object.values(ensemble);
 
-        const str = `Get ensemble contact frequency canvas. ${ ensembleList.length } traces.`;
+        const str = `Update Ensemble Contact Frequency Canvas. ${ ensembleList.length } traces.`;
         console.time(str);
 
         for (let trace of ensembleList) {
@@ -104,17 +83,17 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        this.updateContactFrequencyCanvas();
+        this.paintContactFrequencyCanvas();
 
     };
 
     updateTraceContactFrequencyCanvas(trace) {
 
-        for (let f = 0; f < this.frequencies.length; f++) this.frequencies[ f ] = 0;
+        for (let f = 0; f < globals.sharedMapArray.length; f++) globals.sharedMapArray[ f ] = 0;
 
         this.updateContactFrequencyArray(trace);
 
-        this.updateContactFrequencyCanvas();
+        this.paintContactFrequencyCanvas();
 
     };
 
@@ -135,7 +114,7 @@ class ContactFrequencyMapPanel extends Panel {
             exclusionSet.add(i);
 
             const xy_diagonal = (segmentList[ i ].segmentID - 1) * mapSize + (segmentList[ i ].segmentID - 1);
-            this.frequencies[ xy_diagonal ]++;
+            globals.sharedMapArray[ xy_diagonal ]++;
 
             const contact_indices = spatialIndex.within(x, y, z, this.distanceThreshold).filter(index => !exclusionSet.has(index));
 
@@ -148,17 +127,17 @@ class ContactFrequencyMapPanel extends Panel {
                     const xy =         i_frequency * mapSize + contact_i_frequency;
                     const yx = contact_i_frequency * mapSize +         i_frequency;
 
-                    if (xy > this.frequencies.length) {
+                    if (xy > globals.sharedMapArray.length) {
                         console.log('xy is bogus index ' + xy);
                     }
 
-                    if (yx > this.frequencies.length) {
+                    if (yx > globals.sharedMapArray.length) {
                         console.log('yx is bogus index ' + yx);
                     }
 
-                    this.frequencies[ xy ] += 1;
+                    globals.sharedMapArray[ xy ] += 1;
 
-                    this.frequencies[ yx ] = this.frequencies[ xy ];
+                    globals.sharedMapArray[ yx ] = globals.sharedMapArray[ xy ];
 
                 }
             }
@@ -167,23 +146,23 @@ class ContactFrequencyMapPanel extends Panel {
 
     };
 
-    updateContactFrequencyCanvas() {
+    paintContactFrequencyCanvas() {
 
         let mapSize = globals.ensembleManager.maximumSegmentID;
 
         let maxFrequency = Number.NEGATIVE_INFINITY;
 
-        const str = `Update contact frequency canvas ${ mapSize } x ${ mapSize }`;
+        const str = `Paint Contact Frequency Canvas ${ mapSize } x ${ mapSize }`;
         console.time(str);
 
         // Calculate max
         for (let m = 0; m < mapSize; m++) {
             const xy = m * mapSize + m;
-            const frequency = this.frequencies[ xy ];
+            const frequency = globals.sharedMapArray[ xy ];
             maxFrequency = Math.max(maxFrequency, frequency);
         }
 
-        let ctx = this.mapCanvas.getContext('2d');
+        let ctx = globals.sharedMapCanvas.getContext('2d');
 
         const { width: w, height: h } = ctx.canvas;
         ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
@@ -196,11 +175,11 @@ class ContactFrequencyMapPanel extends Panel {
 
                 let interpolant;
 
-                if (this.frequencies[ ij ] > maxFrequency) {
-                    console.log(`ERROR! At i ${ i } j ${ j } frequencies ${ this.frequencies[ ij ] } should NOT exceed the max ${ maxFrequency }`);
+                if (globals.sharedMapArray[ ij ] > maxFrequency) {
+                    console.log(`ERROR! At i ${ i } j ${ j } frequencies ${ globals.sharedMapArray[ ij ] } should NOT exceed the max ${ maxFrequency }`);
                     interpolant = maxFrequency / maxFrequency;
                 } else {
-                    interpolant = this.frequencies[ ij ] / maxFrequency;
+                    interpolant = globals.sharedMapArray[ ij ] / maxFrequency;
                 }
 
                 ctx.fillStyle = globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
@@ -214,17 +193,17 @@ class ContactFrequencyMapPanel extends Panel {
 
     drawEnsembleContactFrequency() {
 
-        if (this.mapCanvas) {
+        if (globals.sharedMapCanvas) {
             this.ctx_ensemble.imageSmoothingEnabled = false;
-            this.ctx_ensemble.drawImage(this.mapCanvas, 0, 0, this.mapCanvas.width, this.mapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+            this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
         }
     }
 
     drawTraceContactFrequency() {
 
-        if (this.mapCanvas) {
+        if (globals.sharedMapCanvas) {
             this.ctx_trace.imageSmoothingEnabled = false;
-            this.ctx_trace.drawImage(this.mapCanvas, 0, 0, this.mapCanvas.width, this.mapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+            this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
         }
     }
 

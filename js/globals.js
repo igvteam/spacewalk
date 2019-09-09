@@ -9,7 +9,7 @@ import BallAndStick from "./ballAndStick.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import {appleCrayonColorRGB255, appleCrayonColorThreeJS} from "./color.js";
 import SceneManager, {sceneManagerConfigurator} from "./sceneManager.js";
-import {highlightColor} from "./gui.js";
+import {highlightColor, distanceMapPanel, contactFrequencyMapPanel} from "./gui.js";
 
 class Globals {
     constructor () {
@@ -34,7 +34,9 @@ class Globals {
 
         this.dataValueMaterialProvider = undefined;
 
-        this.mapCanvas = undefined;
+        // shared by distance/contact maps
+        this.sharedMapCanvas = undefined;
+        this.sharedMapArray = undefined;
 
     }
 
@@ -63,8 +65,24 @@ class Globals {
 
         this.dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 
-        this.mapCanvas = document.createElement('canvas');
+        this.sharedMapCanvas = document.createElement('canvas');
 
+    }
+
+    receiveEvent({ type, data }) {
+        if ('DidLoadEnsembleFile' === type) {
+
+            this.sharedMapArray = new Array(this.ensembleManager.maximumSegmentID * this.ensembleManager.maximumSegmentID);
+            this.sharedMapCanvas.width = this.sharedMapCanvas.height = this.ensembleManager.maximumSegmentID;
+
+            //
+            contactFrequencyMapPanel.updateEnsembleContactFrequencyCanvas(this.ensembleManager.ensemble);
+            contactFrequencyMapPanel.drawEnsembleContactFrequency();
+
+            //
+            distanceMapPanel.updateEnsembleAverageDistanceCanvas(this.ensembleManager.ensemble);
+            distanceMapPanel.drawEnsembleDistanceCanvas();
+        }
     }
 }
 

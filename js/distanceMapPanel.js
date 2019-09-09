@@ -41,39 +41,23 @@ class DistanceMapPanel extends Panel {
         this.ctx_ensemble.fillStyle = rgb255String( appleCrayonColorRGB255('honeydew') );
         this.ctx_ensemble.fillRect(0, 0, w, h);
 
-        // scratch canvas
-        this.mapCanvas = document.createElement('canvas');
-        this.distanceArray = undefined;
-
-        globals.eventBus.subscribe("DidLoadEnsembleFile", this);
     }
 
-    receiveEvent({ type, data }) {
-
-        super.receiveEvent({ type, data });
-
-        if ('DidLoadEnsembleFile' === type) {
-
-            this.distanceArray = new Array(globals.ensembleManager.maximumSegmentID * globals.ensembleManager.maximumSegmentID);
-
-            this.mapCanvas.width = this.mapCanvas.height = globals.ensembleManager.maximumSegmentID;
-
-            this.updateEnsembleAverageDistanceCanvas(globals.ensembleManager.ensemble);
-            this.drawEnsembleDistanceCanvas();
-        }
-    }
+    // receiveEvent({ type, data }) {
+    //     super.receiveEvent({ type, data });
+    // }
 
     drawTraceDistanceCanvas() {
 
-        if (this.mapCanvas) {
-            this.ctx_trace.drawImage(this.mapCanvas, 0, 0, this.mapCanvas.width, this.mapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+        if (globals.sharedMapCanvas) {
+            this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
         }
     }
 
     drawEnsembleDistanceCanvas() {
 
-        if (this.mapCanvas) {
-            this.ctx_ensemble.drawImage(this.mapCanvas, 0, 0, this.mapCanvas.width, this.mapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+        if (globals.sharedMapCanvas) {
+            this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
         }
 
     }
@@ -82,7 +66,7 @@ class DistanceMapPanel extends Panel {
 
         const traces = Object.values(ensemble);
 
-        const str = `getEnsembleDistanceMapCanvas. ${ traces.length } traces.`;
+        const str = `Update Ensemble Average Distance Canvas. ${ traces.length } traces.`;
         console.time(str);
 
         let mapSize = globals.ensembleManager.maximumSegmentID;
@@ -101,10 +85,10 @@ class DistanceMapPanel extends Panel {
             // can have missing - kDistanceUndefined - values
 
             // loop of the distance array
-            for (let d = 0; d < this.distanceArray.length; d++) {
+            for (let d = 0; d < globals.sharedMapArray.length; d++) {
 
                 // ignore missing data values. they do not participate in the average
-                if (kDistanceUndefined === this.distanceArray[ d ]) {
+                if (kDistanceUndefined === globals.sharedMapArray[ d ]) {
                     // do nothing
                 } else {
 
@@ -114,7 +98,7 @@ class DistanceMapPanel extends Panel {
                     if (kDistanceUndefined === average[ d ]) {
 
                         // If this is the first data value at this array index copy it to average.
-                        average[ d ] = this.distanceArray[ d ];
+                        average[ d ] = globals.sharedMapArray[ d ];
                     } else {
 
                         // when there is data AND a pre-existing average value at this array index
@@ -122,7 +106,7 @@ class DistanceMapPanel extends Panel {
 
                         // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
                         // https://math.stackexchange.com/questions/106700/incremental-averageing
-                        average[ d ] = average[ d ] + (this.distanceArray[ d ] - average[ d ]) / counter[ d ];
+                        average[ d ] = average[ d ] + (globals.sharedMapArray[ d ] - average[ d ]) / counter[ d ];
                     }
 
                 }
@@ -137,7 +121,7 @@ class DistanceMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        setDistanceCanvas(average, maxAverageDistance, this.mapCanvas);
+        paintDistanceCanvas(average, maxAverageDistance, globals.sharedMapCanvas);
 
     };
 
@@ -145,14 +129,14 @@ class DistanceMapPanel extends Panel {
 
         const maxDistance = this.updateDistanceArray(trace);
 
-        setDistanceCanvas(this.distanceArray, maxDistance, this.mapCanvas);
+        paintDistanceCanvas(globals.sharedMapArray, maxDistance, globals.sharedMapCanvas);
     };
 
     updateDistanceArray(trace) {
 
         let mapSize = globals.ensembleManager.maximumSegmentID;
 
-        this.distanceArray.fill(kDistanceUndefined);
+        globals.sharedMapArray.fill(kDistanceUndefined);
 
         let maxDistance = Number.NEGATIVE_INFINITY;
 
@@ -167,7 +151,7 @@ class DistanceMapPanel extends Panel {
             const i_segmentIDIndex = segmentList[ i ].segmentID - 1;
 
             const xy_diagonal = i_segmentIDIndex * mapSize + i_segmentIDIndex;
-            this.distanceArray[ xy_diagonal ] = 0;
+            globals.sharedMapArray[ xy_diagonal ] = 0;
 
             exclusionSet.add(i);
 
@@ -182,7 +166,7 @@ class DistanceMapPanel extends Panel {
                     const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
                     const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
 
-                    this.distanceArray[ ij ] = this.distanceArray[ ji ] = distance;
+                    globals.sharedMapArray[ ij ] = globals.sharedMapArray[ ji ] = distance;
 
                     maxDistance = Math.max(maxDistance, distance);
                 }
@@ -197,11 +181,11 @@ class DistanceMapPanel extends Panel {
 
 }
 
-const setDistanceCanvas = (distances, maximumDistance, canvas) => {
+const paintDistanceCanvas = (distances, maximumDistance, canvas) => {
 
     let ctx = canvas.getContext('2d');
 
-    const str = `Create distance canvas ${ ctx.canvas.width } by ${ ctx.canvas.width }`;
+    const str = `Paint distance canvas ${ ctx.canvas.width } by ${ ctx.canvas.width }`;
     console.time(str);
 
     const { width: w, height: h } = ctx.canvas;
