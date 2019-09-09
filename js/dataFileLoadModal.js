@@ -80,8 +80,13 @@ class DataFileLoadModal {
 
         // local file
         $localFileInput.on('change.spacewalk-ensemble-load-local', event => {
+
             event.stopPropagation();
-            loadFile(event.target.files[0], fileLoader);
+            
+            if (event.target.files.length > 0) {
+                loadFile(event.target.files[0], fileLoader);
+            }
+
         });
 
     }

@@ -43,30 +43,11 @@ class DistanceMapPanel extends Panel {
 
     }
 
-    // receiveEvent({ type, data }) {
-    //     super.receiveEvent({ type, data });
-    // }
-
-    drawTraceDistanceCanvas() {
-
-        if (globals.sharedMapCanvas) {
-            this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
-        }
-    }
-
-    drawEnsembleDistanceCanvas() {
-
-        if (globals.sharedMapCanvas) {
-            this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
-        }
-
-    }
-
     updateEnsembleAverageDistanceCanvas(ensemble){
 
         const traces = Object.values(ensemble);
 
-        const str = `Update Ensemble Average Distance Canvas. ${ traces.length } traces.`;
+        const str = `Distance Map - Update Ensemble Distance. ${ traces.length } traces.`;
         console.time(str);
 
         let mapSize = globals.ensembleManager.maximumSegmentID;
@@ -79,7 +60,7 @@ class DistanceMapPanel extends Panel {
 
         for (let trace of traces) {
 
-            const dev_null = this.updateDistanceArray(trace);
+            const dev_null = updateDistanceArray(trace);
 
             // We need to calculate an array of averages where the input data
             // can have missing - kDistanceUndefined - values
@@ -127,65 +108,78 @@ class DistanceMapPanel extends Panel {
 
     updateTraceDistanceCanvas(trace) {
 
-        const maxDistance = this.updateDistanceArray(trace);
+        const str = `Distance Map - Update Trace Distance.`;
+        console.time(str);
+
+        const maxDistance = updateDistanceArray(trace);
+
+        console.timeEnd(str);
 
         paintDistanceCanvas(globals.sharedMapArray, maxDistance, globals.sharedMapCanvas);
     };
 
-    updateDistanceArray(trace) {
+    drawEnsembleDistanceCanvas() {
+        this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+    }
 
-        let mapSize = globals.ensembleManager.maximumSegmentID;
-
-        globals.sharedMapArray.fill(kDistanceUndefined);
-
-        let maxDistance = Number.NEGATIVE_INFINITY;
-
-        let { vertices } = trace.geometry;
-        let { segmentList } = trace;
-        let { length } = vertices;
-
-        let exclusionSet = new Set();
-
-        for (let i = 0; i < length; i++) {
-
-            const i_segmentIDIndex = segmentList[ i ].segmentID - 1;
-
-            const xy_diagonal = i_segmentIDIndex * mapSize + i_segmentIDIndex;
-            globals.sharedMapArray[ xy_diagonal ] = 0;
-
-            exclusionSet.add(i);
-
-            for (let j = 0; j < length; j++) {
-
-                if (!exclusionSet.has(j)) {
-
-                    const distance = vertices[ i ].distanceTo(vertices[ j ]);
-
-                    const j_segmentIDIndex = segmentList[ j ].segmentID - 1;
-
-                    const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
-                    const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
-
-                    globals.sharedMapArray[ ij ] = globals.sharedMapArray[ ji ] = distance;
-
-                    maxDistance = Math.max(maxDistance, distance);
-                }
-
-            } // for (j)
-
-        }
-
-        return maxDistance;
-
-    };
+    drawTraceDistanceCanvas() {
+        this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+    }
 
 }
+
+const updateDistanceArray = trace => {
+
+    let mapSize = globals.ensembleManager.maximumSegmentID;
+
+    globals.sharedMapArray.fill(kDistanceUndefined);
+
+    let maxDistance = Number.NEGATIVE_INFINITY;
+
+    let { vertices } = trace.geometry;
+    let { segmentList } = trace;
+    let { length } = vertices;
+
+    let exclusionSet = new Set();
+
+    for (let i = 0; i < length; i++) {
+
+        const i_segmentIDIndex = segmentList[ i ].segmentID - 1;
+
+        const xy_diagonal = i_segmentIDIndex * mapSize + i_segmentIDIndex;
+        globals.sharedMapArray[ xy_diagonal ] = 0;
+
+        exclusionSet.add(i);
+
+        for (let j = 0; j < length; j++) {
+
+            if (!exclusionSet.has(j)) {
+
+                const distance = vertices[ i ].distanceTo(vertices[ j ]);
+
+                const j_segmentIDIndex = segmentList[ j ].segmentID - 1;
+
+                const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
+                const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
+
+                globals.sharedMapArray[ ij ] = globals.sharedMapArray[ ji ] = distance;
+
+                maxDistance = Math.max(maxDistance, distance);
+            }
+
+        } // for (j)
+
+    }
+
+    return maxDistance;
+
+};
 
 const paintDistanceCanvas = (distances, maximumDistance, canvas) => {
 
     let ctx = canvas.getContext('2d');
 
-    const str = `Paint distance canvas ${ ctx.canvas.width } by ${ ctx.canvas.width }`;
+    const str = `Distance Map - Paint Canvas ${ ctx.canvas.width } by ${ ctx.canvas.width }`;
     console.time(str);
 
     const { width: w, height: h } = ctx.canvas;

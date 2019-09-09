@@ -64,26 +64,22 @@ class ContactFrequencyMapPanel extends Panel {
         });
     }
 
-    // receiveEvent({ type, data }) {
-    //     super.receiveEvent({ type, data });
-    // }
-
     updateEnsembleContactFrequencyCanvas(ensemble) {
 
         for (let f = 0; f < globals.sharedMapArray.length; f++) globals.sharedMapArray[ f ] = 0;
 
         const ensembleList = Object.values(ensemble);
 
-        const str = `Update Ensemble Contact Frequency Canvas. ${ ensembleList.length } traces.`;
+        const str = `Contact Frequency Map - Update Ensemble Frequency Array. ${ ensembleList.length } traces.`;
         console.time(str);
 
         for (let trace of ensembleList) {
-            this.updateContactFrequencyArray(trace);
+            updateContactFrequencyArray(trace, this.distanceThreshold);
         }
 
         console.timeEnd(str);
 
-        this.paintContactFrequencyCanvas();
+        paintContactFrequencyCanvas(globals.sharedMapCanvas);
 
     };
 
@@ -91,123 +87,122 @@ class ContactFrequencyMapPanel extends Panel {
 
         for (let f = 0; f < globals.sharedMapArray.length; f++) globals.sharedMapArray[ f ] = 0;
 
-        this.updateContactFrequencyArray(trace);
-
-        this.paintContactFrequencyCanvas();
-
-    };
-
-    updateContactFrequencyArray(trace){
-
-        let { vertices } = trace.geometry;
-        let { segmentList } = trace;
-        const exclusionSet = new Set();
-
-        const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(trace));
-
-        const mapSize = globals.ensembleManager.maximumSegmentID;
-
-        for (let i = 0; i < vertices.length; i++) {
-
-            const { x, y, z } = vertices[ i ];
-
-            exclusionSet.add(i);
-
-            const xy_diagonal = (segmentList[ i ].segmentID - 1) * mapSize + (segmentList[ i ].segmentID - 1);
-            globals.sharedMapArray[ xy_diagonal ]++;
-
-            const contact_indices = spatialIndex.within(x, y, z, this.distanceThreshold).filter(index => !exclusionSet.has(index));
-
-            if (contact_indices.length > 0) {
-                for (let contact_i of contact_indices) {
-
-                    const         i_frequency = segmentList[         i ].segmentID - 1;
-                    const contact_i_frequency = segmentList[ contact_i ].segmentID - 1;
-
-                    const xy =         i_frequency * mapSize + contact_i_frequency;
-                    const yx = contact_i_frequency * mapSize +         i_frequency;
-
-                    if (xy > globals.sharedMapArray.length) {
-                        console.log('xy is bogus index ' + xy);
-                    }
-
-                    if (yx > globals.sharedMapArray.length) {
-                        console.log('yx is bogus index ' + yx);
-                    }
-
-                    globals.sharedMapArray[ xy ] += 1;
-
-                    globals.sharedMapArray[ yx ] = globals.sharedMapArray[ xy ];
-
-                }
-            }
-
-        }
-
-    };
-
-    paintContactFrequencyCanvas() {
-
-        let mapSize = globals.ensembleManager.maximumSegmentID;
-
-        let maxFrequency = Number.NEGATIVE_INFINITY;
-
-        const str = `Paint Contact Frequency Canvas ${ mapSize } x ${ mapSize }`;
+        const str = `Contact Frequency Map - Update Trace Frequency Array.`;
         console.time(str);
 
-        // Calculate max
-        for (let m = 0; m < mapSize; m++) {
-            const xy = m * mapSize + m;
-            const frequency = globals.sharedMapArray[ xy ];
-            maxFrequency = Math.max(maxFrequency, frequency);
-        }
-
-        let ctx = globals.sharedMapCanvas.getContext('2d');
-
-        const { width: w, height: h } = ctx.canvas;
-        ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
-        ctx.fillRect(0, 0, w, h);
-
-        for (let i = 0; i < w; i++) {
-            for(let j = 0; j < h; j++) {
-
-                const ij = i * w + j;
-
-                let interpolant;
-
-                if (globals.sharedMapArray[ ij ] > maxFrequency) {
-                    console.log(`ERROR! At i ${ i } j ${ j } frequencies ${ globals.sharedMapArray[ ij ] } should NOT exceed the max ${ maxFrequency }`);
-                    interpolant = maxFrequency / maxFrequency;
-                } else {
-                    interpolant = globals.sharedMapArray[ ij ] / maxFrequency;
-                }
-
-                ctx.fillStyle = globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-                ctx.fillRect(i, j, 1, 1);
-            }
-        }
+        updateContactFrequencyArray(trace, this.distanceThreshold);
 
         console.timeEnd(str);
+
+        paintContactFrequencyCanvas(globals.sharedMapCanvas);
 
     };
 
     drawEnsembleContactFrequency() {
-
-        if (globals.sharedMapCanvas) {
-            this.ctx_ensemble.imageSmoothingEnabled = false;
-            this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
-        }
+        this.ctx_ensemble.imageSmoothingEnabled = false;
+        this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
     }
 
     drawTraceContactFrequency() {
-
-        if (globals.sharedMapCanvas) {
-            this.ctx_trace.imageSmoothingEnabled = false;
-            this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
-        }
+        this.ctx_trace.imageSmoothingEnabled = false;
+        this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
     }
 
 }
+
+const updateContactFrequencyArray = (trace, distanceThreshold) => {
+
+    let { vertices } = trace.geometry;
+    let { segmentList } = trace;
+    const exclusionSet = new Set();
+
+    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(trace));
+
+    const mapSize = globals.ensembleManager.maximumSegmentID;
+
+    for (let i = 0; i < vertices.length; i++) {
+
+        const { x, y, z } = vertices[ i ];
+
+        exclusionSet.add(i);
+
+        const xy_diagonal = (segmentList[ i ].segmentID - 1) * mapSize + (segmentList[ i ].segmentID - 1);
+        globals.sharedMapArray[ xy_diagonal ]++;
+
+        const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
+
+        if (contact_indices.length > 0) {
+            for (let contact_i of contact_indices) {
+
+                const         i_frequency = segmentList[         i ].segmentID - 1;
+                const contact_i_frequency = segmentList[ contact_i ].segmentID - 1;
+
+                const xy =         i_frequency * mapSize + contact_i_frequency;
+                const yx = contact_i_frequency * mapSize +         i_frequency;
+
+                if (xy > globals.sharedMapArray.length) {
+                    console.log('xy is bogus index ' + xy);
+                }
+
+                if (yx > globals.sharedMapArray.length) {
+                    console.log('yx is bogus index ' + yx);
+                }
+
+                globals.sharedMapArray[ xy ] += 1;
+
+                globals.sharedMapArray[ yx ] = globals.sharedMapArray[ xy ];
+
+            }
+        }
+
+    }
+
+};
+
+const paintContactFrequencyCanvas = (canvas) => {
+
+    let mapSize = globals.ensembleManager.maximumSegmentID;
+
+    let maxFrequency = Number.NEGATIVE_INFINITY;
+
+    const str = `Contact Frequency Map - Paint Canvas ${ mapSize } x ${ mapSize }`;
+    console.time(str);
+
+    // Calculate max
+    for (let m = 0; m < mapSize; m++) {
+        const xy = m * mapSize + m;
+        const frequency = globals.sharedMapArray[ xy ];
+        maxFrequency = Math.max(maxFrequency, frequency);
+    }
+
+    let ctx = canvas.getContext('2d');
+
+    const { width: w, height: h } = ctx.canvas;
+    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
+    ctx.fillRect(0, 0, w, h);
+
+    for (let i = 0; i < w; i++) {
+        for(let j = 0; j < h; j++) {
+
+            const ij = i * w + j;
+
+            let interpolant;
+
+            if (globals.sharedMapArray[ ij ] > maxFrequency) {
+                console.log(`ERROR! At i ${ i } j ${ j } frequencies ${ globals.sharedMapArray[ ij ] } should NOT exceed the max ${ maxFrequency }`);
+                interpolant = maxFrequency / maxFrequency;
+            } else {
+                interpolant = globals.sharedMapArray[ ij ] / maxFrequency;
+            }
+
+            ctx.fillStyle = globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+            ctx.fillRect(i, j, 1, 1);
+        }
+    }
+
+    console.timeEnd(str);
+
+};
 
 const kdBushConfiguratorWithTrace = trace => {
 
