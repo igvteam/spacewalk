@@ -52,14 +52,6 @@ module.exports =
                     { from:'resources/**/*' },
                     { from:'vendor/*'       },
                     { from:'favicon.ico'    },
-                    // {
-                    //     from: 'stub.html',
-                    //     transform: (content) => {
-                    //         return content
-                    //             .toString()
-                    //             .replace(process.env.STUB_FILE_SRC, process.env.STUB_FILE_DST);
-                    //     }
-                    // },
                     {
                         from: 'index.html',
                         transform: (content) => {

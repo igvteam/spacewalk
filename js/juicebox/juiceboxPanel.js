@@ -1,7 +1,7 @@
-import Globals from './../globals.js';
 import * as hic from '../../node_modules/juicebox.js/js/hic.js';
 import { guiManager } from "../gui.js";
 import Panel from "../panel.js";
+import { globals } from "../app.js";
 
 class JuiceboxPanel extends Panel {
 
@@ -19,15 +19,15 @@ class JuiceboxPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
-        Globals.eventBus.subscribe('DidLoadFile', this);
-        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
+        globals.eventBus.subscribe('DidLoadEnsembleFile', this);
+        globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }
 
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });
 
-        if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
+        if ("DidLoadEnsembleFile" === type || "DidLoadPointCloudFile" === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
@@ -118,11 +118,11 @@ class JuiceboxPanel extends Panel {
 
 const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
 
-    if (undefined === Globals.ensembleManager || undefined === Globals.parser.locus) {
+    if (undefined === globals.ensembleManager || undefined === globals.parser.locus) {
         return;
     }
 
-    const { genomicStart, genomicEnd } = Globals.parser.locus;
+    const { genomicStart, genomicEnd } = globals.parser.locus;
 
     const trivialRejection = startXBP > genomicEnd || endXBP < genomicStart || startYBP > genomicEnd || endYBP < genomicStart;
 
@@ -137,11 +137,11 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
         return;
     }
 
-    const segmentIDX = Globals.ensembleManager.segmentIDForGenomicLocation(xBP);
-    const segmentIDY = Globals.ensembleManager.segmentIDForGenomicLocation(yBP);
+    const segmentIDX = globals.ensembleManager.segmentIDForGenomicLocation(xBP);
+    const segmentIDY = globals.ensembleManager.segmentIDForGenomicLocation(yBP);
     const segmentIDList = segmentIDX === segmentIDY ? [ segmentIDX ] : [ segmentIDX, segmentIDY ];
 
-    Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ], segmentIDList } });
+    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ], segmentIDList } });
 };
 
 export let juiceboxSelectLoader = async ($select) => {

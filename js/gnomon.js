@@ -1,8 +1,8 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import Globals from './globals.js';
 import { guiManager } from "./gui.js";
 import { appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255String, threeJSColorToRGB255 } from "./color.js";
 import { numberFormatter } from "./utils.js";
+import { globals } from "./app.js";
 
 class Gnomon extends THREE.AxesHelper {
 
@@ -36,7 +36,7 @@ class Gnomon extends THREE.AxesHelper {
 
         this.group.visible = isHidden;
 
-        Globals.eventBus.subscribe("ToggleGnomon", this);
+        globals.eventBus.subscribe("ToggleGnomon", this);
 
     }
 

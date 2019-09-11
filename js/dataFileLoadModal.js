@@ -1,6 +1,6 @@
 import { juiceboxPanel } from "./gui.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
-import Globals from './globals.js';
+import { globals } from "./app.js";
 
 let currentURL = undefined;
 
@@ -28,7 +28,7 @@ class DataFileLoadModal {
             const name = $(option).text();
 
             if ('' !== url) {
-                loadURL({ url, name, fileLoader, $spinner: $select_container.find('.spinner-border'), $modal: $selectModal });
+                loadURL({ url, name, fileLoader, $modal: $selectModal });
             }
 
             const $option = $select.find('option:first');
@@ -59,7 +59,7 @@ class DataFileLoadModal {
         $url_ok_button.on('click.spacewalk_data_file_load_url_button', event => {
             event.stopPropagation();
             $url_input.trigger('change.spacewalk_data_file_load_url_input');
-            loadURL({ url: currentURL, name: 'unnamed', fileLoader, $spinner: $url_container.find('.spinner-border'), $modal: $urlModal });
+            loadURL({ url: currentURL, name: 'unnamed', fileLoader, $modal: $urlModal });
 
             $url_input.val('');
             currentURL = undefined;
@@ -80,55 +80,32 @@ class DataFileLoadModal {
 
         // local file
         $localFileInput.on('change.spacewalk-ensemble-load-local', event => {
+
             event.stopPropagation();
-            loadFile(event.target.files[0], fileLoader);
+            
+            if (event.target.files.length > 0) {
+                loadFile(event.target.files[0], fileLoader);
+            }
+
         });
 
     }
 
 }
 
-const loadURL = ({ url, name, fileLoader, $spinner, $modal }) => {
+const loadURL = ({ url, name, fileLoader, $modal }) => {
 
-    (async () => {
+    $modal.modal('hide');
+    globals.eventBus.post({ type: "DidLeaveGUI" });
 
-        $spinner.show();
-
-        try {
-
-            await fileLoader.loadURL({ url, name });
-
-            $spinner.hide();
-            $modal.modal('hide');
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-
-        } catch (e) {
-            $spinner.hide();
-            $modal.modal('hide');
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-            window.alert( fileLoader.reportFileLoadError(name) );
-            console.warn(e);
-        }
-
-    })();
-
+    fileLoader.loadURL({ url, name });
 
 };
 
 const loadFile = (file, fileLoader) => {
 
-    (async () => {
-
-        try {
-            await fileLoader.loadLocalFile({ file });
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-        } catch (e) {
-            console.warn(e);
-            window.alert( fileLoader.reportFileLoadError(file.name) );
-            Globals.eventBus.post({ type: "DidLeaveGUI" });
-        }
-
-    })();
+    globals.eventBus.post({ type: "DidLeaveGUI" });
+    fileLoader.loadLocalFile({ file });
 
 };
 
@@ -139,7 +116,7 @@ const swFileLoadModalConfigurator = () => {
         $selectModal: $('#spacewalk-sw-load-select-modal'),
         $localFileInput: $('#spacewalk-sw-load-local-input'),
         selectLoader: undefined,
-        fileLoader: Globals.parser
+        fileLoader: globals.parser
     }
 };
 

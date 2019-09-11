@@ -1,6 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import Globals from './globals.js';
 import { rgb255ToThreeJSColor, rgb255, rgb255Lerp, rgb255String, greyScale255 } from './color.js';
+import { globals } from "./app.js";
 
 let rgbTexture;
 let alphaTexture;
@@ -51,8 +51,8 @@ class DataValueMaterialProvider {
 
         this.featureRects = undefined;
 
-        Globals.eventBus.subscribe("DidLeaveGUI", this);
-        Globals.eventBus.subscribe("DidSelectSegmentID", this);
+        globals.eventBus.subscribe("DidLeaveGUI", this);
+        globals.eventBus.subscribe("DidSelectSegmentID", this);
     }
 
     receiveEvent({ type, data }) {
@@ -62,7 +62,7 @@ class DataValueMaterialProvider {
             const { interpolantList } = data;
             this.highlight(interpolantList);
 
-        } else if (Globals.sceneManager && "DidLeaveGUI" === type) {
+        } else if (globals.sceneManager && "DidLeaveGUI" === type) {
 
             let { featureRects } = this;
             this.paint({ featureRects, interpolantList: undefined });
@@ -72,7 +72,7 @@ class DataValueMaterialProvider {
 
     highlight(interpolantList) {
 
-        if (undefined === Globals.ensembleManager.maximumSegmentID) {
+        if (undefined === globals.ensembleManager.maximumSegmentID) {
             return;
         }
 
@@ -82,7 +82,7 @@ class DataValueMaterialProvider {
 
     configure({ startBP, endBP, features, min, max }) {
 
-        if (undefined === Globals.ensembleManager.maximumSegmentID) {
+        if (undefined === globals.ensembleManager.maximumSegmentID) {
             return;
         }
 
@@ -207,15 +207,15 @@ class DataValueMaterialProvider {
     }
 
     colorForInterpolant(interpolant) {
-        return Globals.sceneManager.stickMaterial.color;
+        return globals.sceneManager.stickMaterial.color;
     }
 
     colorForSegment({ segmentID, genomicLocation }) {
 
         const { features, min, max, colorMinimum, colorMaximum } = this;
 
-        const startBP = genomicLocation - 0.5 * Globals.ensembleManager.stepSize;
-        const endBP = genomicLocation + 0.5 * Globals.ensembleManager.stepSize;
+        const startBP = genomicLocation - 0.5 * globals.ensembleManager.stepSize;
+        const endBP = genomicLocation + 0.5 * globals.ensembleManager.stepSize;
 
         const { r, g, b } = colorForGenomicLocation({ startBP, endBP, features, min, max, colorMinimum, colorMaximum });
 

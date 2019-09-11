@@ -1,7 +1,7 @@
-import Globals from './globals.js';
 import { guiManager } from './gui.js';
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 import Panel from "./panel.js";
+import { globals } from "./app.js";
 
 const kDistanceUndefined = -1;
 
@@ -43,104 +43,109 @@ class DistanceMapPanel extends Panel {
 
     }
 
-    receiveEvent({ type, data }) {
-        super.receiveEvent({ type, data });
+    updateEnsembleAverageDistanceCanvas(ensemble){
+
+        const traces = Object.values(ensemble);
+
+        const str = `Distance Map - Update Ensemble Distance. ${ traces.length } traces.`;
+        console.time(str);
+
+        let mapSize = globals.ensembleManager.maximumSegmentID;
+
+        let counter = new Array(mapSize * mapSize);
+        counter.fill(0);
+
+        let average = new Array(mapSize * mapSize);
+        average.fill(kDistanceUndefined);
+
+        for (let trace of traces) {
+
+            const dev_null = updateDistanceArray(trace);
+
+            // We need to calculate an array of averages where the input data
+            // can have missing - kDistanceUndefined - values
+
+            // loop of the distance array
+            for (let d = 0; d < globals.sharedMapArray.length; d++) {
+
+                // ignore missing data values. they do not participate in the average
+                if (kDistanceUndefined === globals.sharedMapArray[ d ]) {
+                    // do nothing
+                } else {
+
+                    // keep track of how many samples we have at this array index
+                    ++counter[ d ];
+
+                    if (kDistanceUndefined === average[ d ]) {
+
+                        // If this is the first data value at this array index copy it to average.
+                        average[ d ] = globals.sharedMapArray[ d ];
+                    } else {
+
+                        // when there is data AND a pre-existing average value at this array index
+                        // use an incremental averaging approach.
+
+                        // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
+                        // https://math.stackexchange.com/questions/106700/incremental-averageing
+                        average[ d ] = average[ d ] + (globals.sharedMapArray[ d ] - average[ d ]) / counter[ d ];
+                    }
+
+                }
+            }
+
+        }
+
+        let maxAverageDistance = Number.NEGATIVE_INFINITY;
+        for (let avg of average) {
+            maxAverageDistance = Math.max(maxAverageDistance, avg);
+        }
+
+        console.timeEnd(str);
+
+        paintDistanceCanvas(average, maxAverageDistance, globals.sharedMapCanvas);
+
+    };
+
+    updateTraceDistanceCanvas(trace) {
+
+        const str = `Distance Map - Update Trace Distance.`;
+        console.time(str);
+
+        const maxDistance = updateDistanceArray(trace);
+
+        console.timeEnd(str);
+
+        paintDistanceCanvas(globals.sharedMapArray, maxDistance, globals.sharedMapCanvas);
+    };
+
+    drawEnsembleDistanceCanvas() {
+
+        const str = `Distance Map - draw ensemble canvas. src ${globals.sharedMapCanvas.width} x ${globals.sharedMapCanvas.height} into dst ${this.ctx_ensemble.canvas.width} x ${this.ctx_ensemble.canvas.height}.`;
+        console.time(str);
+
+        this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+
+        console.timeEnd(str);
     }
 
-    drawTraceDistanceCanvas(traceDistanceCanvas) {
-        this.ctx_trace.drawImage(traceDistanceCanvas, 0, 0, traceDistanceCanvas.width, traceDistanceCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
-    }
 
-    drawEnsembleDistanceCanvas(ensembleDistanceCanvas) {
-        this.ctx_ensemble.drawImage(ensembleDistanceCanvas, 0, 0, ensembleDistanceCanvas.width, ensembleDistanceCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+    drawTraceDistanceCanvas() {
+
+        const str = `Distance Map - draw trace canvas. src ${globals.sharedMapCanvas.width} x ${globals.sharedMapCanvas.height} into dst ${this.ctx_ensemble.canvas.width} x ${this.ctx_ensemble.canvas.height}.`;
+        console.time(str);
+
+        this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+
+        console.timeEnd(str);
     }
 
 }
 
-export let distanceMapPanelConfigurator = (container) => {
+const updateDistanceArray = trace => {
 
-    return {
-        container,
-        panel: $('#spacewalk_distance_map_panel').get(0),
-        isHidden: guiManager.isPanelHidden('spacewalk_distance_map_panel')
-    };
+    let mapSize = globals.ensembleManager.maximumSegmentID;
 
-};
-
-export const getEnsembleAverageDistanceCanvas = ensemble => {
-
-    const traces = Object.values(ensemble);
-
-    const str = `getEnsembleDistanceMapCanvas. ${ traces.length } traces.`;
-    console.time(str);
-
-    let mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    let counter = new Array(mapSize * mapSize);
-    counter.fill(0);
-
-    let average = new Array(mapSize * mapSize);
-    average.fill(kDistanceUndefined);
-
-    for (let trace of traces) {
-
-        const { distanceArray } = createDistanceArray(trace);
-
-        // We need to calculate an array of averages where the input data
-        // can have missing - kDistanceUndefined - values
-
-        // loop of the distance array
-        for (let d = 0; d < distanceArray.length; d++) {
-
-            // ignore missing data values. they do not participate in the average
-            if (kDistanceUndefined === distanceArray[ d ]) {
-                // do nothing
-            } else {
-
-                // keep track of how many samples we have at this array index
-                ++counter[ d ];
-
-                if (kDistanceUndefined === average[ d ]) {
-
-                    // If this is the first data value at this array index copy it to average.
-                    average[ d ] = distanceArray[ d ];
-                } else {
-
-                    // when there is data AND a pre-existing average value at this array index
-                    // use an incremental averaging approach.
-
-                    // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
-                    // https://math.stackexchange.com/questions/106700/incremental-averageing
-                    average[ d ] = average[ d ] + (distanceArray[ d ] - average[ d ]) / counter[ d ];
-                }
-
-            }
-        }
-
-    }
-
-    let maxAverageDistance = Number.NEGATIVE_INFINITY;
-    for (let avg of average) {
-        maxAverageDistance = Math.max(maxAverageDistance, avg);
-    }
-
-    console.timeEnd(str);
-
-    return createDistanceCanvas(average, maxAverageDistance);
-
-};
-
-export const getTraceDistanceCanvas = trace => {
-    const { distanceArray, maxDistance } = createDistanceArray(trace);
-    return createDistanceCanvas(distanceArray, maxDistance);
-};
-
-const createDistanceArray = trace => {
-
-    let mapSize = Globals.ensembleManager.maximumSegmentID;
-
-    let distanceArray = new Array(mapSize * mapSize);
-    distanceArray.fill(kDistanceUndefined);
+    globals.sharedMapArray.fill(kDistanceUndefined);
 
     let maxDistance = Number.NEGATIVE_INFINITY;
 
@@ -155,7 +160,7 @@ const createDistanceArray = trace => {
         const i_segmentIDIndex = segmentList[ i ].segmentID - 1;
 
         const xy_diagonal = i_segmentIDIndex * mapSize + i_segmentIDIndex;
-        distanceArray[ xy_diagonal ] = 0;
+        globals.sharedMapArray[ xy_diagonal ] = 0;
 
         exclusionSet.add(i);
 
@@ -170,7 +175,7 @@ const createDistanceArray = trace => {
                 const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
                 const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
 
-                distanceArray[ ij ] = distanceArray[ ji ] = distance;
+                globals.sharedMapArray[ ij ] = globals.sharedMapArray[ ji ] = distance;
 
                 maxDistance = Math.max(maxDistance, distance);
             }
@@ -179,17 +184,15 @@ const createDistanceArray = trace => {
 
     }
 
-    return { distanceArray, maxDistance };
+    return maxDistance;
 
 };
 
-const createDistanceCanvas = (distances, maximumDistance) => {
+const paintDistanceCanvas = (distances, maximumDistance, canvas) => {
 
-    let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
-    ctx.canvas.width = ctx.canvas.height = Globals.ensembleManager.maximumSegmentID;
 
-    const str = `Create distance canvas ${ ctx.canvas.width } by ${ ctx.canvas.width }`;
+    const str = `Distance Map - Paint Canvas ${ ctx.canvas.width } by ${ ctx.canvas.width }`;
     console.time(str);
 
     const { width: w, height: h } = ctx.canvas;
@@ -205,7 +208,7 @@ const createDistanceCanvas = (distances, maximumDistance) => {
                 // do nothing
             } else {
                 const interpolant = 1.0 - distances[ ij ] / maximumDistance;
-                ctx.fillStyle = Globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+                ctx.fillStyle = globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
                 ctx.fillRect(i, j, 1, 1);
             }
 
@@ -215,7 +218,15 @@ const createDistanceCanvas = (distances, maximumDistance) => {
 
     console.timeEnd(str);
 
-    return canvas;
+};
+
+export let distanceMapPanelConfigurator = (container) => {
+
+    return {
+        container,
+        panel: $('#spacewalk_distance_map_panel').get(0),
+        isHidden: guiManager.isPanelHidden('spacewalk_distance_map_panel')
+    };
 
 };
 

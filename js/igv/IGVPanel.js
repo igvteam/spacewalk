@@ -1,9 +1,9 @@
-import Globals from './../globals.js';
 import igv from '../../vendor/igv.esm.js';
 import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
-import { guiManager } from "../gui.js";
+import { guiManager, colorRampPanel } from "../gui.js";
 import Panel from "../panel.js";
+import { globals } from "../app.js";
 
 let trackLoadController;
 
@@ -33,9 +33,9 @@ class IGVPanel extends Panel {
 
         });
 
-        Globals.eventBus.subscribe("DidChangeMaterialProvider", this);
-        Globals.eventBus.subscribe('DidLoadFile', this);
-        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
+        globals.eventBus.subscribe("DidChangeMaterialProvider", this);
+        globals.eventBus.subscribe('DidLoadEnsembleFile', this);
+        globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }
 
     receiveEvent({ type, data }) {
@@ -47,7 +47,7 @@ class IGVPanel extends Panel {
             const { trackContainerDiv } = igv.browser;
             $(trackContainerDiv).find('.input-group input').prop('checked', false);
 
-        } else if ("DidLoadFile" === type || "DidLoadPointCloudFile" === type) {
+        } else if ("DidLoadEnsembleFile" === type || "DidLoadPointCloudFile" === type) {
 
             (async () => {
 
@@ -97,7 +97,7 @@ class IGVPanel extends Panel {
 
             this.browser.on('trackremoved', (track) => {
                 if (track.$input && track.$input.prop('checked')) {
-                    setMaterialProvider(Globals.traceColorRampMaterialProvider);
+                    setMaterialProvider(colorRampPanel.traceColorRampMaterialProvider);
                 }
             });
 
@@ -195,11 +195,11 @@ class IGVPanel extends Panel {
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
-    if (undefined === Globals.ensembleManager || undefined === Globals.parser.locus) {
+    if (undefined === globals.ensembleManager || undefined === globals.parser.locus) {
         return;
     }
 
-    const { genomicStart, genomicEnd } = Globals.parser.locus;
+    const { genomicStart, genomicEnd } = globals.parser.locus;
 
     const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
 
@@ -207,9 +207,9 @@ const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
         return;
     }
 
-    const segmentID = Globals.ensembleManager.segmentIDForGenomicLocation(bp);
+    const segmentID = globals.ensembleManager.segmentIDForGenomicLocation(bp);
 
-    Globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
+    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
 };
 
 const addDataValueMaterialProviderGUI = tracks => {
@@ -249,7 +249,7 @@ const addDataValueMaterialProviderGUI = tracks => {
                     // If "zoom in" notice is displayed do not paint features on trace
                     if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
 
-                        Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
+                        globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
 
                     } else {
 
@@ -257,17 +257,17 @@ const addDataValueMaterialProviderGUI = tracks => {
 
                         if ('varying' === track.featureDescription) {
                             const { min, max } = track.dataRange;
-                            Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+                            globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
 
                         } else {
-                            Globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+                            globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
                         }
 
                     }
 
-                    setMaterialProvider(Globals.dataValueMaterialProvider);
+                    setMaterialProvider(globals.dataValueMaterialProvider);
                 } else {
-                    setMaterialProvider(Globals.traceColorRampMaterialProvider);
+                    setMaterialProvider(colorRampPanel.traceColorRampMaterialProvider);
                 }
 
             });

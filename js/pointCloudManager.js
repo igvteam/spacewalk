@@ -1,8 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import Globals from './globals.js';
 import { defaultColormapName } from "./colorMapManager.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import { readFileAsText, numberFormatter } from "./utils.js";
+import { globals } from "./app.js";
 
 class PointCloudManager {
 
@@ -57,7 +56,7 @@ class PointCloudManager {
                         geometryUUID: geometry.uuid
                     };
 
-                obj.geometry.userData.color = Globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant);
+                obj.geometry.userData.color = globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant);
                 obj.geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('magnesium');
 
                 let xyzList = [];
@@ -90,8 +89,6 @@ class PointCloudManager {
         } // for Object.entries(hash)
 
         this.boundingBox.getBoundingSphere(this.boundingSphere);
-
-        Globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { genomeID: Globals.parser.genomeAssembly, chr, genomicStart, genomicEnd } });
 
     }
 

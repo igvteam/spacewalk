@@ -1,6 +1,7 @@
-import Globals from "./globals.js";
 import igv from '../vendor/igv.esm.js';
 import { numberFormatter, readFileAsText } from "./utils.js";
+import { hideSpinner, showSpinner } from "./gui.js";
+import { globals } from "./app.js";
 
 class Parser {
     constructor () {
@@ -44,7 +45,8 @@ class Parser {
 
         let [ genomicStart, genomicEnd ] = [ Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY ];
 
-        console.time('Parser - Parse complete.');
+        const str = 'Parse complete';
+        console.time(str);
 
         for (let line of lines) {
 
@@ -82,44 +84,78 @@ class Parser {
 
         } // for (lines)
 
-        console.timeEnd('Parser - Parse complete.');
+        // discard line memory
+        lines = null;
 
-        const consumer = isPointCloud(hash) ? Globals.pointCloudManager : Globals.ensembleManager;
+        this.locus = { chr, genomicStart, genomicEnd };
 
-        const locus = { chr, genomicStart, genomicEnd };
+        console.timeEnd(str);
 
-        this.locus = locus;
+        return hash;
 
-        consumer.ingestSW({ locus, hash });
     }
 
-    async loadURL ({ url, name }) {
+    consume (hash) {
 
-        let string = undefined;
-        try {
-            string = await igv.xhr.load(url);
-        } catch (e) {
-            console.warn(e.message)
+        const consumer = isPointCloud(hash) ? globals.pointCloudManager : globals.ensembleManager;
+        consumer.ingestSW({ locus: this.locus, hash });
+
+        const { chr, genomicStart, genomicEnd } = this.locus;
+
+        if (isPointCloud(hash)) {
+            globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd } });
+        } else {
+            globals.eventBus.post({ type: "DidLoadEnsembleFile",   data: { genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
         }
 
-        this.parse(string);
     }
 
-    async loadLocalFile ({ file }) {
+    loadURL ({ url, name }) {
 
-        let string = undefined;
-        try {
-            string = await readFileAsText(file);
-        } catch (e) {
-            console.warn(e.message)
-        }
+        showSpinner();
 
-        this.parse(string);
+        (async (url) => {
+
+            let string = undefined;
+            try {
+                string = await igv.xhr.load(url);
+            } catch (e) {
+                hideSpinner();
+                console.warn(e.message)
+            }
+
+            const hash = this.parse(string);
+
+            this.consume(hash);
+
+            hideSpinner();
+
+        })(url);
 
     }
 
-    reportFileLoadError(name) {
-        return `Parser: Error loading ${ name }`
+    loadLocalFile({ file }) {
+
+        showSpinner();
+
+        (async (file) => {
+
+            let string = undefined;
+            try {
+                string = await readFileAsText(file);
+            } catch (e) {
+                hideSpinner();
+                console.warn(e.message)
+            }
+
+            const hash = this.parse(string);
+            hideSpinner();
+
+            this.consume(hash);
+
+
+        })(file);
+
     }
 
     locusBlurb() {

@@ -1,5 +1,4 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import Globals from './globals.js';
 import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
@@ -8,13 +7,14 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { guiManager, colorRampPanel } from './gui.js';
 import { getMouseXY } from "./utils.js";
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomBrightColorThreeJS } from "./color.js";
+import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import { clamp } from "./math.js";
+import { globals } from "./app.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 class SceneManager {
 
-    constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker, materialProvider, renderStyle }) {
+    constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker }) {
 
         this.stickMaterial = stickMaterial;
 
@@ -31,10 +31,6 @@ class SceneManager {
 
         this.picker = picker;
 
-        this.materialProvider = materialProvider;
-
-        this.renderStyle = renderStyle;
-
         // stub configuration
         this.scene = scene;
         // this.scene.background = this.background;
@@ -48,7 +44,7 @@ class SceneManager {
             this.onContainerMouseMove(event)
         });
 
-        Globals.eventBus.subscribe("DidSelectSegmentID", this);
+        globals.eventBus.subscribe("DidSelectSegmentID", this);
     }
 
     receiveEvent({ type, data }) {
@@ -58,8 +54,8 @@ class SceneManager {
             let objects = [];
             data.segmentIDList.forEach(segmentID => {
                 const key = segmentID.toString();
-                if (Globals.ballAndStick.segmentObjectDictionary[ key ]) {
-                    let { object } = Globals.ballAndStick.segmentObjectDictionary[ key ];
+                if (globals.ballAndStick.segmentObjectDictionary[ key ]) {
+                    let { object } = globals.ballAndStick.segmentObjectDictionary[ key ];
                     objects.push(object);
                 }
             });
@@ -99,6 +95,10 @@ class SceneManager {
         this.gnomon.addToScene(this.scene);
     }
 
+    setRenderStyle (renderStyle) {
+        this.renderStyle = renderStyle;
+    }
+
     ballRadius() {
         return ballStickRadiusTable[ ballRadiusTableCounter ];
     }
@@ -109,12 +109,12 @@ class SceneManager {
 
     updateBallRadius(increment) {
         ballRadiusTableCounter = clamp(ballRadiusTableCounter + increment, 0, ballStickRadiusTableLength - 1);
-        Globals.ballAndStick.updateBallRadius(this.ballRadius());
+        globals.ballAndStick.updateBallRadius(this.ballRadius());
     }
 
     updateStickRadius(increment) {
         stickRadiusTableCounter = clamp(stickRadiusTableCounter + increment, 0, ballStickRadiusTableLength - 1);
-        Globals.ballAndStick.updateStickRadius(this.stickRadius());
+        globals.ballAndStick.updateStickRadius(this.stickRadius());
     }
 
     noodleRadius() {
@@ -123,7 +123,7 @@ class SceneManager {
 
     updateNoodleRadius(increment) {
         noodleRadiusTableCounter = clamp(noodleRadiusTableCounter + increment, 0, noodleRadiusTableLength - 1);
-        Globals.noodle.updateRadius(this.noodleRadius());
+        globals.noodle.updateRadius(this.noodleRadius());
     }
 
     onWindowResize() {
@@ -167,15 +167,15 @@ class SceneManager {
 
         if (this.scene && this.cameraLightingRig) {
 
-            Globals.pointCloud.renderLoopHelper();
+            globals.pointCloud.renderLoopHelper();
 
-            Globals.noodle.renderLoopHelper();
+            globals.noodle.renderLoopHelper();
 
-            Globals.ballAndStick.renderLoopHelper();
+            globals.ballAndStick.renderLoopHelper();
 
-            Globals.dataValueMaterialProvider.renderLoopHelper();
+            globals.dataValueMaterialProvider.renderLoopHelper();
 
-            this.materialProvider.renderLoopHelper();
+            colorRampPanel.traceColorRampMaterialProvider.renderLoopHelper();
 
             this.cameraLightingRig.renderLoopHelper();
 
@@ -260,9 +260,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
         background,
         renderer,
         cameraLightingRig,
-        picker,
-        materialProvider: Globals.traceColorRampMaterialProvider,
-        renderStyle: guiManager.getRenderingStyle()
+        picker
     };
 
 };

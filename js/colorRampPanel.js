@@ -1,9 +1,9 @@
-import Globals from './globals.js';
 import TraceColorRampMaterialProvider from "./traceColorRampMaterialProvider.js";
 import PointCloudColorRampMaterialProvider from "./pointCloudColorRampMaterialProvider.js";
 import { setMaterialProvider } from './utils.js';
 import { guiManager } from './gui.js';
 import Panel from './panel.js';
+import { globals } from "./app.js";
 
 class ColorRampPanel extends Panel {
 
@@ -32,12 +32,12 @@ class ColorRampPanel extends Panel {
         this.$panel.on('click.color-ramp-panel', (event) => {
             event.stopPropagation();
             setMaterialProvider(traceColorRampMaterialProvider);
-            Globals.eventBus.post({ type: "DidChangeMaterialProvider" });
+            globals.eventBus.post({ type: "DidChangeMaterialProvider" });
         });
 
-        Globals.eventBus.subscribe('DidSelectStructure', this);
-        Globals.eventBus.subscribe('DidLoadFile', this);
-        Globals.eventBus.subscribe('DidLoadPointCloudFile', this);
+        globals.eventBus.subscribe('DidSelectStructure', this);
+        globals.eventBus.subscribe('DidLoadEnsembleFile', this);
+        globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
 
@@ -48,7 +48,7 @@ class ColorRampPanel extends Panel {
         if ("DidSelectStructure" === type) {
 
             this.traceColorRampMaterialProvider.repaint();
-        } else if ("DidLoadFile" === type) {
+        } else if ("DidLoadEnsembleFile" === type) {
 
             this.pointCloudColorRampMaterialProvider.hide();
             this.traceColorRampMaterialProvider.show();
@@ -71,7 +71,7 @@ class ColorRampPanel extends Panel {
             this.$footer.text(Math.round(genomicStart / 1e6) + 'Mb');
             this.$header.text(Math.round(genomicEnd   / 1e6) + 'Mb');
 
-            this.pointCloudColorRampMaterialProvider.configureWithInterpolantWindowList(Globals.pointCloudManager.getColorRampInterpolantWindowList());
+            this.pointCloudColorRampMaterialProvider.configureWithInterpolantWindowList(globals.pointCloudManager.getColorRampInterpolantWindowList());
 
             this.presentPanel();
         }
