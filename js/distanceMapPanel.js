@@ -119,11 +119,24 @@ class DistanceMapPanel extends Panel {
     };
 
     drawEnsembleDistanceCanvas() {
+
+        const str = `Distance Map - draw ensemble canvas. src ${globals.sharedMapCanvas.width} x ${globals.sharedMapCanvas.height} into dst ${this.ctx_ensemble.canvas.width} x ${this.ctx_ensemble.canvas.height}.`;
+        console.time(str);
+
         this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+
+        console.timeEnd(str);
     }
 
+
     drawTraceDistanceCanvas() {
+
+        const str = `Distance Map - draw trace canvas. src ${globals.sharedMapCanvas.width} x ${globals.sharedMapCanvas.height} into dst ${this.ctx_ensemble.canvas.width} x ${this.ctx_ensemble.canvas.height}.`;
+        console.time(str);
+
         this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+
+        console.timeEnd(str);
     }
 
 }

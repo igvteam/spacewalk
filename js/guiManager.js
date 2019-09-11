@@ -141,27 +141,29 @@ class GUIManager {
 
         } else if ('DidLoadPointCloudFile' === type || 'DidLoadEnsembleFile' === type) {
 
-            const { genomeID } = data;
+            const {genomeID} = data;
 
-            $('#spacewalk_info_panel_genome').text( genomeID );
-            $('#spacewalk_info_panel_locus').text( globals.parser.locusBlurb() );
-            $('#spacewalk_info_panel_juicebox').text( juiceboxPanel.blurb() );
+            $('#spacewalk_info_panel_genome').text(genomeID);
+            $('#spacewalk_info_panel_locus').text(globals.parser.locusBlurb());
+            $('#spacewalk_info_panel_juicebox').text(juiceboxPanel.blurb());
 
-        } else if ('DidLoadEnsembleFile' === type) {
+            if ('DidLoadEnsembleFile' === type) {
 
-            $('#spacewalk_info_panel_ensemble').text( globals.parser.sampleBlurb() );
+                $('#spacewalk_info_panel_ensemble').text(globals.parser.sampleBlurb());
 
-            $('#spacewalk_info_panel').show();
-            $('#spacewalk_ui_manager_render_styles').show();
-            $('#spacewalk_ui_manager_trace_select').show();
+                $('#spacewalk_info_panel').show();
+                $('#spacewalk_ui_manager_render_styles').show();
+                $('#spacewalk_ui_manager_trace_select').show();
 
-        } else if ('DidLoadPointCloudFile' === type) {
+            } else if ('DidLoadPointCloudFile' === type) {
 
-            $('#spacewalk_info_panel_ensemble').text( '-' );
+                $('#spacewalk_info_panel_ensemble').text('-');
 
-            $('#spacewalk_info_panel').show();
-            $('#spacewalk_ui_manager_render_styles').hide();
-            $('#spacewalk_ui_manager_trace_select').hide();
+                $('#spacewalk_info_panel').show();
+                $('#spacewalk_ui_manager_render_styles').hide();
+                $('#spacewalk_ui_manager_trace_select').hide();
+
+            }
 
         }
     }
