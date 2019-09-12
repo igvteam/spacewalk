@@ -35,7 +35,7 @@ export const appEventListener =
 
                 setupEnsemble({trace});
 
-            } else if ('DidSelectStructure' === type) {
+            } else if ('DidSelectTrace' === type) {
 
                 let trace = globals.ensembleManager.getTraceWithName(data);
                 globals.ensembleManager.currentTrace = trace;

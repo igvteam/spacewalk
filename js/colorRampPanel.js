@@ -35,7 +35,7 @@ class ColorRampPanel extends Panel {
             globals.eventBus.post({ type: "DidChangeMaterialProvider" });
         });
 
-        globals.eventBus.subscribe('DidSelectStructure', this);
+        globals.eventBus.subscribe('DidSelectTrace', this);
         globals.eventBus.subscribe('DidLoadEnsembleFile', this);
         globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
@@ -45,7 +45,7 @@ class ColorRampPanel extends Panel {
 
         super.receiveEvent({ type, data });
 
-        if ("DidSelectStructure" === type) {
+        if ("DidSelectTrace" === type) {
 
             this.traceColorRampMaterialProvider.repaint();
         } else if ("DidLoadEnsembleFile" === type) {
