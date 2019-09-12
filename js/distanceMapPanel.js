@@ -104,6 +104,8 @@ class DistanceMapPanel extends Panel {
 
         paintDistanceCanvas(average, maxAverageDistance, globals.sharedMapCanvas);
 
+        this.drawEnsembleDistanceCanvas();
+
     };
 
     updateTraceDistanceCanvas(trace) {
@@ -116,6 +118,9 @@ class DistanceMapPanel extends Panel {
         console.timeEnd(str);
 
         paintDistanceCanvas(globals.sharedMapArray, maxDistance, globals.sharedMapCanvas);
+
+        this.drawTraceDistanceCanvas();
+
     };
 
     drawEnsembleDistanceCanvas() {
@@ -143,14 +148,17 @@ class DistanceMapPanel extends Panel {
 
 const updateDistanceArray = trace => {
 
+    const str = `Distance Map - Update Distance Array`;
+    console.time(str);
+
     let mapSize = globals.ensembleManager.maximumSegmentID;
 
     globals.sharedMapArray.fill(kDistanceUndefined);
 
     let maxDistance = Number.NEGATIVE_INFINITY;
 
-    let { vertices } = trace.geometry;
     let { segmentList } = trace;
+    let { vertices } = trace.geometry;
     let { length } = vertices;
 
     let exclusionSet = new Set();
@@ -166,7 +174,7 @@ const updateDistanceArray = trace => {
 
         for (let j = 0; j < length; j++) {
 
-            if (!exclusionSet.has(j)) {
+            if (false === exclusionSet.has(j)) {
 
                 const distance = vertices[ i ].distanceTo(vertices[ j ]);
 
@@ -184,6 +192,8 @@ const updateDistanceArray = trace => {
 
     }
 
+    console.timeEnd(str);
+
     return maxDistance;
 
 };
@@ -199,6 +209,9 @@ const paintDistanceCanvas = (distances, maximumDistance, canvas) => {
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
     ctx.fillRect(0, 0, w, h);
 
+    const colorMap = globals.colorMapManager.dictionary['juicebox_default'];
+    const scale = colorMap.length - 1;
+
     for (let i = 0; i < w; i++) {
         for(let j = 0; j < h; j++) {
 
@@ -207,8 +220,10 @@ const paintDistanceCanvas = (distances, maximumDistance, canvas) => {
             if (kDistanceUndefined === distances[ ij ]) {
                 // do nothing
             } else {
+
                 const interpolant = 1.0 - distances[ ij ] / maximumDistance;
-                ctx.fillStyle = globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+                ctx.fillStyle = colorMap[ Math.floor(interpolant * scale) ][ 'rgb255String' ];
+
                 ctx.fillRect(i, j, 1, 1);
             }
 

@@ -51,13 +51,8 @@ class ContactFrequencyMapPanel extends Panel {
 
             showSpinner();
             window.setTimeout(() => {
-
                 this.updateEnsembleContactFrequencyCanvas(globals.ensembleManager.ensemble);
-                this.drawEnsembleContactFrequency();
-
                 this.updateTraceContactFrequencyCanvas(globals.ensembleManager.currentTrace);
-                this.drawTraceContactFrequency();
-
                 hideSpinner();
             }, 0);
 
@@ -81,6 +76,8 @@ class ContactFrequencyMapPanel extends Panel {
 
         paintContactFrequencyCanvas(globals.sharedMapCanvas);
 
+        this.drawEnsembleContactFrequency();
+
     };
 
     updateTraceContactFrequencyCanvas(trace) {
@@ -96,16 +93,30 @@ class ContactFrequencyMapPanel extends Panel {
 
         paintContactFrequencyCanvas(globals.sharedMapCanvas);
 
+        this.drawTraceContactFrequency();
+
     };
 
     drawEnsembleContactFrequency() {
+
+        const str = `Contact Frequency Map - draw ensemble canvas. src ${ globals.sharedMapCanvas.width } x ${ globals.sharedMapCanvas.height }. dst ${ this.ctx_ensemble.canvas.width } x ${ this.ctx_ensemble.canvas.height }`;
+        console.time(str);
+
         this.ctx_ensemble.imageSmoothingEnabled = false;
         this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+
+        console.timeEnd(str);
     }
 
     drawTraceContactFrequency() {
+
+        const str = `Contact Frequency Map - draw trace canvas. src ${ globals.sharedMapCanvas.width } x ${ globals.sharedMapCanvas.height }. dst ${ this.ctx_ensemble.canvas.width } x ${ this.ctx_ensemble.canvas.height }`;
+        console.time(str);
+
         this.ctx_trace.imageSmoothingEnabled = false;
         this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+
+        console.timeEnd(str);
     }
 
 }
@@ -181,21 +192,15 @@ const paintContactFrequencyCanvas = (canvas) => {
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
     ctx.fillRect(0, 0, w, h);
 
+    const colorMap = globals.colorMapManager.dictionary['juicebox_default'];
+    const scale = (colorMap.length - 1) / maxFrequency;
     for (let i = 0; i < w; i++) {
         for(let j = 0; j < h; j++) {
 
             const ij = i * w + j;
 
-            let interpolant;
-
-            if (globals.sharedMapArray[ ij ] > maxFrequency) {
-                console.log(`ERROR! At i ${ i } j ${ j } frequencies ${ globals.sharedMapArray[ ij ] } should NOT exceed the max ${ maxFrequency }`);
-                interpolant = maxFrequency / maxFrequency;
-            } else {
-                interpolant = globals.sharedMapArray[ ij ] / maxFrequency;
-            }
-
-            ctx.fillStyle = globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
+            let interpolant = Math.floor(globals.sharedMapArray[ ij ] * scale);
+            ctx.fillStyle = colorMap[ interpolant ][ 'rgb255String' ];
             ctx.fillRect(i, j, 1, 1);
         }
     }

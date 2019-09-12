@@ -80,10 +80,8 @@ let setupEnsemble = ({trace}) => {
     const { position, fov } = globals.ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
     globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
 
-    distanceMapPanel.updateTraceDistanceCanvas(trace);
-    distanceMapPanel.drawTraceDistanceCanvas();
-
     contactFrequencyMapPanel.updateTraceContactFrequencyCanvas(trace);
-    contactFrequencyMapPanel.drawTraceContactFrequency();
+
+    distanceMapPanel.updateTraceDistanceCanvas(trace);
 
 };

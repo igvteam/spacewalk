@@ -75,13 +75,8 @@ class Globals {
             this.sharedMapArray = new Array(this.ensembleManager.maximumSegmentID * this.ensembleManager.maximumSegmentID);
             this.sharedMapCanvas.width = this.sharedMapCanvas.height = this.ensembleManager.maximumSegmentID;
 
-            //
             contactFrequencyMapPanel.updateEnsembleContactFrequencyCanvas(this.ensembleManager.ensemble);
-            contactFrequencyMapPanel.drawEnsembleContactFrequency();
-
-            //
             distanceMapPanel.updateEnsembleAverageDistanceCanvas(this.ensembleManager.ensemble);
-            distanceMapPanel.drawEnsembleDistanceCanvas();
         }
     }
 }
