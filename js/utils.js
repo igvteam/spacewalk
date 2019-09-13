@@ -119,6 +119,27 @@ const createImage = imageSource => {
 
 };
 
+const drawWithSharedUint8ClampedArray = ctx => {
+
+    const imageData = new ImageData(globals.sharedMapUint8ClampedArray, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height);
+
+    const str = `draw With Shared Uint8 Clamped Array. src ${globals.sharedMapCanvas.width} x ${globals.sharedMapCanvas.height}. dst ${ctx.canvas.width} x ${ctx.canvas.height}.`;
+    console.time(str);
+
+    (async () => {
+        const config =
+            {
+                resizeWidth: ctx.canvas.width,
+                resizeHeight: ctx.canvas.height
+            };
+
+        const imageBitmap = await createImageBitmap(imageData, config);
+        ctx.transferFromImageBitmap(imageBitmap);
+    })();
+
+    console.timeEnd(str)
+};
+
 const drawWithSharedCanvas = ctx => {
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -131,6 +152,7 @@ export {
     segmentIDForInterpolant,
     createImage,
     drawWithSharedCanvas,
+    drawWithSharedUint8ClampedArray,
     readFileAsDataURL,
     readFileAsText,
     fitToContainer,

@@ -37,7 +37,9 @@ class Globals {
         // shared by distance/contact maps
         this.sharedMapCanvas = undefined;
         this.sharedMapCanvasContext = undefined;
+
         this.sharedMapArray = undefined;
+        this.sharedMapUint8ClampedArray = undefined;
 
     }
 
@@ -77,6 +79,8 @@ class Globals {
             // this.sharedMapCanvas.width = this.sharedMapCanvas.height = this.ensembleManager.maximumSegmentID;
             this.sharedMapCanvas = new OffscreenCanvas(this.ensembleManager.maximumSegmentID, this.ensembleManager.maximumSegmentID);
             this.sharedMapCanvasContext = this.sharedMapCanvas.getContext('2d');
+
+            this.sharedMapUint8ClampedArray = new Uint8ClampedArray(this.ensembleManager.maximumSegmentID * this.ensembleManager.maximumSegmentID * 4);
 
             contactFrequencyMapPanel.updateEnsembleContactFrequencyCanvas(this.ensembleManager.ensemble);
             distanceMapPanel.updateEnsembleAverageDistanceCanvas(this.ensembleManager.ensemble);
