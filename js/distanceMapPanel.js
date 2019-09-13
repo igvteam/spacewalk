@@ -1,8 +1,8 @@
 import { guiManager } from './gui.js';
 import Panel from "./panel.js";
 import { globals } from "./app.js";
-import { drawWithSharedCanvas, drawWithSharedUint8ClampedArray } from './utils.js';
-import {threeJSColorToRGB255} from "./color.js";
+import { drawWithSharedUint8ClampedArray } from './utils.js';
+import { threeJSColorToRGB255 } from "./color.js";
 
 const kDistanceUndefined = -1;
 
@@ -39,10 +39,6 @@ class DistanceMapPanel extends Panel {
 
         // this.ctx_ensemble = canvas.getContext('2d');
         this.ctx_ensemble = canvas.getContext('bitmaprenderer');
-
-        // const { width: w, height: h } = this.ctx_ensemble.canvas;
-        // this.ctx_ensemble.fillStyle = rgb255String( appleCrayonColorRGB255('honeydew') );
-        // this.ctx_ensemble.fillRect(0, 0, w, h);
 
     }
 
@@ -107,7 +103,7 @@ class DistanceMapPanel extends Panel {
 
         paintDistanceCanvas(average, maxAverageDistance);
 
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble);
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, globals.sharedDistanceMapUint8ClampedArray);
 
     };
 
@@ -122,7 +118,7 @@ class DistanceMapPanel extends Panel {
 
         paintDistanceCanvas(globals.sharedMapArray, maxDistance);
 
-        drawWithSharedUint8ClampedArray(this.ctx_trace);
+        drawWithSharedUint8ClampedArray(this.ctx_trace, globals.sharedDistanceMapUint8ClampedArray);
 
     };
 }
@@ -193,10 +189,10 @@ const paintDistanceCanvas = (distances, maximumDistance) => {
         const interpolant = 1.0 - d/maximumDistance;
         const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolant * scale) ][ 'threejs' ]);
 
-        globals.sharedMapUint8ClampedArray[i++] = r;
-        globals.sharedMapUint8ClampedArray[i++] = g;
-        globals.sharedMapUint8ClampedArray[i++] = b;
-        globals.sharedMapUint8ClampedArray[i++] = 255;
+        globals.sharedDistanceMapUint8ClampedArray[i++] = r;
+        globals.sharedDistanceMapUint8ClampedArray[i++] = g;
+        globals.sharedDistanceMapUint8ClampedArray[i++] = b;
+        globals.sharedDistanceMapUint8ClampedArray[i++] = 255;
     }
     console.timeEnd(str);
 

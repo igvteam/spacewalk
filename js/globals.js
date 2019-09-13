@@ -34,12 +34,10 @@ class Globals {
 
         this.dataValueMaterialProvider = undefined;
 
-        // shared by distance/contact maps
-        this.sharedMapCanvas = undefined;
-        this.sharedMapCanvasContext = undefined;
-
+        // shared by distance/contact map buffers
         this.sharedMapArray = undefined;
-        this.sharedMapUint8ClampedArray = undefined;
+        this.sharedContactFrequencyMapUint8ClampedArray = undefined;
+                this.sharedDistanceMapUint8ClampedArray = undefined;
 
     }
 
@@ -76,11 +74,9 @@ class Globals {
         if ('DidLoadEnsembleFile' === type) {
 
             this.sharedMapArray = new Array(this.ensembleManager.maximumSegmentID * this.ensembleManager.maximumSegmentID);
-            // this.sharedMapCanvas.width = this.sharedMapCanvas.height = this.ensembleManager.maximumSegmentID;
-            this.sharedMapCanvas = new OffscreenCanvas(this.ensembleManager.maximumSegmentID, this.ensembleManager.maximumSegmentID);
-            this.sharedMapCanvasContext = this.sharedMapCanvas.getContext('2d');
 
-            this.sharedMapUint8ClampedArray = new Uint8ClampedArray(this.ensembleManager.maximumSegmentID * this.ensembleManager.maximumSegmentID * 4);
+            this.sharedContactFrequencyMapUint8ClampedArray = new Uint8ClampedArray(this.ensembleManager.maximumSegmentID * this.ensembleManager.maximumSegmentID * 4);
+                    this.sharedDistanceMapUint8ClampedArray = new Uint8ClampedArray(this.ensembleManager.maximumSegmentID * this.ensembleManager.maximumSegmentID * 4);
 
             contactFrequencyMapPanel.updateEnsembleContactFrequencyCanvas(this.ensembleManager.ensemble);
             distanceMapPanel.updateEnsembleAverageDistanceCanvas(this.ensembleManager.ensemble);

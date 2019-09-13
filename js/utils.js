@@ -119,11 +119,11 @@ const createImage = imageSource => {
 
 };
 
-const drawWithSharedUint8ClampedArray = ctx => {
+const drawWithSharedUint8ClampedArray = (ctx, array) => {
 
-    const imageData = new ImageData(globals.sharedMapUint8ClampedArray, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height);
+    const imageData = new ImageData(array, globals.ensembleManager.maximumSegmentID, globals.ensembleManager.maximumSegmentID);
 
-    const str = `draw With Shared Uint8 Clamped Array. src ${globals.sharedMapCanvas.width} x ${globals.sharedMapCanvas.height}. dst ${ctx.canvas.width} x ${ctx.canvas.height}.`;
+    const str = `draw With Shared Uint8 Clamped Array. src ${globals.ensembleManager.maximumSegmentID} x ${globals.ensembleManager.maximumSegmentID}. dst ${ctx.canvas.width} x ${ctx.canvas.height}.`;
     console.time(str);
 
     (async () => {
@@ -140,18 +140,12 @@ const drawWithSharedUint8ClampedArray = ctx => {
     console.timeEnd(str)
 };
 
-const drawWithSharedCanvas = ctx => {
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, ctx.canvas.width, ctx.canvas.height);
-};
-
 export {
     zIndexPanelSelected,
     zIndexPanelUnselected,
     setMaterialProvider,
     segmentIDForInterpolant,
     createImage,
-    drawWithSharedCanvas,
     drawWithSharedUint8ClampedArray,
     readFileAsDataURL,
     readFileAsText,
