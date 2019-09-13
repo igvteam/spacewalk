@@ -119,12 +119,18 @@ const createImage = imageSource => {
 
 };
 
+const drawWithSharedCanvas = ctx => {
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, ctx.canvas.width, ctx.canvas.height);
+};
+
 export {
     zIndexPanelSelected,
     zIndexPanelUnselected,
     setMaterialProvider,
     segmentIDForInterpolant,
     createImage,
+    drawWithSharedCanvas,
     readFileAsDataURL,
     readFileAsText,
     fitToContainer,

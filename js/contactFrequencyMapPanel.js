@@ -4,6 +4,7 @@ import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 import { hideSpinner, showSpinner, guiManager } from './gui.js';
 import Panel from "./panel.js";
 import { globals } from "./app.js";
+import { drawWithSharedCanvas } from './utils.js';
 
 const maxDistanceThreshold = 4096;
 const defaultDistanceThreshold = 256;
@@ -74,7 +75,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintContactFrequencyCanvas(globals.sharedMapCanvas);
+        paintContactFrequencyCanvas(globals.sharedMapCanvasContext);
 
         this.drawEnsembleContactFrequency();
 
@@ -91,7 +92,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintContactFrequencyCanvas(globals.sharedMapCanvas);
+        paintContactFrequencyCanvas(globals.sharedMapCanvasContext);
 
         this.drawTraceContactFrequency();
 
@@ -102,21 +103,21 @@ class ContactFrequencyMapPanel extends Panel {
         const str = `Contact Frequency Map - draw ensemble canvas. src ${ globals.sharedMapCanvas.width } x ${ globals.sharedMapCanvas.height }. dst ${ this.ctx_ensemble.canvas.width } x ${ this.ctx_ensemble.canvas.height }`;
         console.time(str);
 
-        this.ctx_ensemble.imageSmoothingEnabled = false;
-        this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+        drawWithSharedCanvas(this.ctx_ensemble);
 
         console.timeEnd(str);
+
     }
 
     drawTraceContactFrequency() {
 
-        const str = `Contact Frequency Map - draw trace canvas. src ${ globals.sharedMapCanvas.width } x ${ globals.sharedMapCanvas.height }. dst ${ this.ctx_ensemble.canvas.width } x ${ this.ctx_ensemble.canvas.height }`;
+        const str = `Contact Frequency Map - draw trace canvas. src ${ globals.sharedMapCanvas.width } x ${ globals.sharedMapCanvas.height }. dst ${ this.ctx_trace.canvas.width } x ${ this.ctx_trace.canvas.height }`;
         console.time(str);
 
-        this.ctx_trace.imageSmoothingEnabled = false;
-        this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+        drawWithSharedCanvas(this.ctx_trace);
 
         console.timeEnd(str);
+
     }
 
 }
@@ -170,7 +171,7 @@ const updateContactFrequencyArray = (trace, distanceThreshold) => {
 
 };
 
-const paintContactFrequencyCanvas = (canvas) => {
+const paintContactFrequencyCanvas = (ctx) => {
 
     let mapSize = globals.ensembleManager.maximumSegmentID;
 
@@ -185,8 +186,6 @@ const paintContactFrequencyCanvas = (canvas) => {
         const frequency = globals.sharedMapArray[ xy ];
         maxFrequency = Math.max(maxFrequency, frequency);
     }
-
-    let ctx = canvas.getContext('2d');
 
     const { width: w, height: h } = ctx.canvas;
     ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );

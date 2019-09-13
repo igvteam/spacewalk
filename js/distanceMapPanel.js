@@ -2,6 +2,7 @@ import { guiManager } from './gui.js';
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 import Panel from "./panel.js";
 import { globals } from "./app.js";
+import { drawWithSharedCanvas } from './utils.js';
 
 const kDistanceUndefined = -1;
 
@@ -102,7 +103,7 @@ class DistanceMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintDistanceCanvas(average, maxAverageDistance, globals.sharedMapCanvas);
+        paintDistanceCanvas(average, maxAverageDistance, globals.sharedMapCanvasContext);
 
         this.drawEnsembleDistanceCanvas();
 
@@ -117,7 +118,7 @@ class DistanceMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintDistanceCanvas(globals.sharedMapArray, maxDistance, globals.sharedMapCanvas);
+        paintDistanceCanvas(globals.sharedMapArray, maxDistance, globals.sharedMapCanvasContext);
 
         this.drawTraceDistanceCanvas();
 
@@ -128,18 +129,17 @@ class DistanceMapPanel extends Panel {
         const str = `Distance Map - draw ensemble canvas. src ${globals.sharedMapCanvas.width} x ${globals.sharedMapCanvas.height} into dst ${this.ctx_ensemble.canvas.width} x ${this.ctx_ensemble.canvas.height}.`;
         console.time(str);
 
-        this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
+        drawWithSharedCanvas(this.ctx_ensemble);
 
         console.timeEnd(str);
     }
 
-
     drawTraceDistanceCanvas() {
 
-        const str = `Distance Map - draw trace canvas. src ${globals.sharedMapCanvas.width} x ${globals.sharedMapCanvas.height} into dst ${this.ctx_ensemble.canvas.width} x ${this.ctx_ensemble.canvas.height}.`;
+        const str = `Distance Map - draw trace canvas. src ${globals.sharedMapCanvas.width} x ${globals.sharedMapCanvas.height} into dst ${this.ctx_trace.canvas.width} x ${this.ctx_trace.canvas.height}.`;
         console.time(str);
 
-        this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
+        drawWithSharedCanvas(this.ctx_trace);
 
         console.timeEnd(str);
     }
@@ -198,9 +198,7 @@ const updateDistanceArray = trace => {
 
 };
 
-const paintDistanceCanvas = (distances, maximumDistance, canvas) => {
-
-    let ctx = canvas.getContext('2d');
+const paintDistanceCanvas = (distances, maximumDistance, ctx) => {
 
     const str = `Distance Map - Paint Canvas ${ ctx.canvas.width } by ${ ctx.canvas.width }`;
     console.time(str);

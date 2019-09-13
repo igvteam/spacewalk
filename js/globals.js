@@ -36,6 +36,7 @@ class Globals {
 
         // shared by distance/contact maps
         this.sharedMapCanvas = undefined;
+        this.sharedMapCanvasContext = undefined;
         this.sharedMapArray = undefined;
 
     }
@@ -65,7 +66,7 @@ class Globals {
 
         this.dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 
-        this.sharedMapCanvas = document.createElement('canvas');
+        // this.sharedMapCanvas = document.createElement('canvas');
 
     }
 
@@ -73,7 +74,9 @@ class Globals {
         if ('DidLoadEnsembleFile' === type) {
 
             this.sharedMapArray = new Array(this.ensembleManager.maximumSegmentID * this.ensembleManager.maximumSegmentID);
-            this.sharedMapCanvas.width = this.sharedMapCanvas.height = this.ensembleManager.maximumSegmentID;
+            // this.sharedMapCanvas.width = this.sharedMapCanvas.height = this.ensembleManager.maximumSegmentID;
+            this.sharedMapCanvas = new OffscreenCanvas(this.ensembleManager.maximumSegmentID, this.ensembleManager.maximumSegmentID);
+            this.sharedMapCanvasContext = this.sharedMapCanvas.getContext('2d');
 
             contactFrequencyMapPanel.updateEnsembleContactFrequencyCanvas(this.ensembleManager.ensemble);
             distanceMapPanel.updateEnsembleAverageDistanceCanvas(this.ensembleManager.ensemble);
