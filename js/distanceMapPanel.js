@@ -1,7 +1,8 @@
 import { guiManager } from './gui.js';
-import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 import Panel from "./panel.js";
 import { globals } from "./app.js";
+import { drawWithSharedUint8ClampedArray } from './utils.js';
+import { threeJSColorToRGB255 } from "./color.js";
 
 const kDistanceUndefined = -1;
 
@@ -28,18 +29,16 @@ class DistanceMapPanel extends Panel {
         canvas.width = $canvas_container.width();
         canvas.height = $canvas_container.height();
 
-        this.ctx_trace = canvas.getContext('2d');
+        // this.ctx_trace = canvas.getContext('2d');
+        this.ctx_trace = canvas.getContext('bitmaprenderer');
 
         // ensemble canvas and context
         canvas = $canvas_container.find('#spacewalk_distance_map_canvas_ensemble').get(0);
         canvas.width = $canvas_container.width();
         canvas.height = $canvas_container.height();
 
-        this.ctx_ensemble = canvas.getContext('2d');
-
-        const { width: w, height: h } = this.ctx_ensemble.canvas;
-        this.ctx_ensemble.fillStyle = rgb255String( appleCrayonColorRGB255('honeydew') );
-        this.ctx_ensemble.fillRect(0, 0, w, h);
+        // this.ctx_ensemble = canvas.getContext('2d');
+        this.ctx_ensemble = canvas.getContext('bitmaprenderer');
 
     }
 
@@ -102,7 +101,9 @@ class DistanceMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintDistanceCanvas(average, maxAverageDistance, globals.sharedMapCanvas);
+        paintDistanceCanvas(average, maxAverageDistance);
+
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, globals.sharedDistanceMapUint8ClampedArray);
 
     };
 
@@ -115,33 +116,17 @@ class DistanceMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintDistanceCanvas(globals.sharedMapArray, maxDistance, globals.sharedMapCanvas);
+        paintDistanceCanvas(globals.sharedMapArray, maxDistance);
+
+        drawWithSharedUint8ClampedArray(this.ctx_trace, globals.sharedDistanceMapUint8ClampedArray);
+
     };
-
-    drawEnsembleDistanceCanvas() {
-
-        const str = `Distance Map - draw ensemble canvas. src ${globals.sharedMapCanvas.width} x ${globals.sharedMapCanvas.height} into dst ${this.ctx_ensemble.canvas.width} x ${this.ctx_ensemble.canvas.height}.`;
-        console.time(str);
-
-        this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
-
-        console.timeEnd(str);
-    }
-
-
-    drawTraceDistanceCanvas() {
-
-        const str = `Distance Map - draw trace canvas. src ${globals.sharedMapCanvas.width} x ${globals.sharedMapCanvas.height} into dst ${this.ctx_ensemble.canvas.width} x ${this.ctx_ensemble.canvas.height}.`;
-        console.time(str);
-
-        this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
-
-        console.timeEnd(str);
-    }
-
 }
 
 const updateDistanceArray = trace => {
+
+    const str = `Distance Map - Update Distance Array`;
+    console.time(str);
 
     let mapSize = globals.ensembleManager.maximumSegmentID;
 
@@ -149,8 +134,8 @@ const updateDistanceArray = trace => {
 
     let maxDistance = Number.NEGATIVE_INFINITY;
 
-    let { vertices } = trace.geometry;
     let { segmentList } = trace;
+    let { vertices } = trace.geometry;
     let { length } = vertices;
 
     let exclusionSet = new Set();
@@ -166,7 +151,7 @@ const updateDistanceArray = trace => {
 
         for (let j = 0; j < length; j++) {
 
-            if (!exclusionSet.has(j)) {
+            if (false === exclusionSet.has(j)) {
 
                 const distance = vertices[ i ].distanceTo(vertices[ j ]);
 
@@ -184,38 +169,31 @@ const updateDistanceArray = trace => {
 
     }
 
+    console.timeEnd(str);
+
     return maxDistance;
 
 };
 
-const paintDistanceCanvas = (distances, maximumDistance, canvas) => {
+const paintDistanceCanvas = (distances, maximumDistance) => {
 
-    let ctx = canvas.getContext('2d');
-
-    const str = `Distance Map - Paint Canvas ${ ctx.canvas.width } by ${ ctx.canvas.width }`;
+    const str = `Distance Map - Paint Canvas. Uint8ClampedArray.`;
     console.time(str);
 
-    const { width: w, height: h } = ctx.canvas;
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
-    ctx.fillRect(0, 0, w, h);
+    const colorMap = globals.colorMapManager.dictionary['juicebox_default'];
+    const scale = colorMap.length - 1;
 
-    for (let i = 0; i < w; i++) {
-        for(let j = 0; j < h; j++) {
+    let i = 0;
+    for (let d of distances) {
 
-            const ij = i * w + j;
+        const interpolant = 1.0 - d/maximumDistance;
+        const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolant * scale) ][ 'threejs' ]);
 
-            if (kDistanceUndefined === distances[ ij ]) {
-                // do nothing
-            } else {
-                const interpolant = 1.0 - distances[ ij ] / maximumDistance;
-                ctx.fillStyle = globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-                ctx.fillRect(i, j, 1, 1);
-            }
-
-        }
-
+        globals.sharedDistanceMapUint8ClampedArray[i++] = r;
+        globals.sharedDistanceMapUint8ClampedArray[i++] = g;
+        globals.sharedDistanceMapUint8ClampedArray[i++] = b;
+        globals.sharedDistanceMapUint8ClampedArray[i++] = 255;
     }
-
     console.timeEnd(str);
 
 };

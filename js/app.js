@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", event => {
         globals.eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
     });
 
-    globals.eventBus.subscribe('DidSelectStructure', appEventListener);
+    globals.eventBus.subscribe('DidSelectTrace', appEventListener);
     globals.eventBus.subscribe('DidLoadEnsembleFile', appEventListener);
     globals.eventBus.subscribe('DidLoadPointCloudFile', appEventListener);
     globals.eventBus.subscribe('ToggleAllUIControls', appEventListener);

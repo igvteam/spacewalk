@@ -119,12 +119,34 @@ const createImage = imageSource => {
 
 };
 
+const drawWithSharedUint8ClampedArray = (ctx, array) => {
+
+    const imageData = new ImageData(array, globals.ensembleManager.maximumSegmentID, globals.ensembleManager.maximumSegmentID);
+
+    const str = `draw With Shared Uint8 Clamped Array. src ${globals.ensembleManager.maximumSegmentID} x ${globals.ensembleManager.maximumSegmentID}. dst ${ctx.canvas.width} x ${ctx.canvas.height}.`;
+    console.time(str);
+
+    (async () => {
+        const config =
+            {
+                resizeWidth: ctx.canvas.width,
+                resizeHeight: ctx.canvas.height
+            };
+
+        const imageBitmap = await createImageBitmap(imageData, config);
+        ctx.transferFromImageBitmap(imageBitmap);
+    })();
+
+    console.timeEnd(str)
+};
+
 export {
     zIndexPanelSelected,
     zIndexPanelUnselected,
     setMaterialProvider,
     segmentIDForInterpolant,
     createImage,
+    drawWithSharedUint8ClampedArray,
     readFileAsDataURL,
     readFileAsText,
     fitToContainer,

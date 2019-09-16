@@ -1,9 +1,10 @@
 import KDBush from '../node_modules/kd3d/js/index.js'
 import { clamp } from "./math.js";
-import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 import { hideSpinner, showSpinner, guiManager } from './gui.js';
 import Panel from "./panel.js";
 import { globals } from "./app.js";
+import {threeJSColorToRGB255} from "./color";
+import { drawWithSharedUint8ClampedArray } from "./utils.js";
 
 const maxDistanceThreshold = 4096;
 const defaultDistanceThreshold = 256;
@@ -30,13 +31,13 @@ class ContactFrequencyMapPanel extends Panel {
         canvas = $canvas_container.find('#spacewalk_contact_frequency_map_canvas_ensemble').get(0);
         canvas.width = $canvas_container.width();
         canvas.height = $canvas_container.height();
-        this.ctx_ensemble = canvas.getContext('2d');
+        this.ctx_ensemble = canvas.getContext('bitmaprenderer');
 
         // trace canvas and context
         canvas = $canvas_container.find('#spacewalk_contact_frequency_map_canvas_trace').get(0);
         canvas.width = $canvas_container.width();
         canvas.height = $canvas_container.height();
-        this.ctx_trace = canvas.getContext('2d');
+        this.ctx_trace = canvas.getContext('bitmaprenderer');
 
         this.distanceThreshold = distanceThreshold;
 
@@ -51,13 +52,8 @@ class ContactFrequencyMapPanel extends Panel {
 
             showSpinner();
             window.setTimeout(() => {
-
                 this.updateEnsembleContactFrequencyCanvas(globals.ensembleManager.ensemble);
-                this.drawEnsembleContactFrequency();
-
                 this.updateTraceContactFrequencyCanvas(globals.ensembleManager.currentTrace);
-                this.drawTraceContactFrequency();
-
                 hideSpinner();
             }, 0);
 
@@ -79,7 +75,9 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintContactFrequencyCanvas(globals.sharedMapCanvas);
+        paintContactFrequencyCanvas(globals.sharedMapArray);
+
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, globals.sharedContactFrequencyMapUint8ClampedArray);
 
     };
 
@@ -94,20 +92,11 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintContactFrequencyCanvas(globals.sharedMapCanvas);
+        paintContactFrequencyCanvas(globals.sharedMapArray);
+
+        drawWithSharedUint8ClampedArray(this.ctx_trace, globals.sharedContactFrequencyMapUint8ClampedArray);
 
     };
-
-    drawEnsembleContactFrequency() {
-        this.ctx_ensemble.imageSmoothingEnabled = false;
-        this.ctx_ensemble.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_ensemble.canvas.width, this.ctx_ensemble.canvas.height);
-    }
-
-    drawTraceContactFrequency() {
-        this.ctx_trace.imageSmoothingEnabled = false;
-        this.ctx_trace.drawImage(globals.sharedMapCanvas, 0, 0, globals.sharedMapCanvas.width, globals.sharedMapCanvas.height, 0, 0, this.ctx_trace.canvas.width, this.ctx_trace.canvas.height);
-    }
-
 }
 
 const updateContactFrequencyArray = (trace, distanceThreshold) => {
@@ -159,45 +148,29 @@ const updateContactFrequencyArray = (trace, distanceThreshold) => {
 
 };
 
-const paintContactFrequencyCanvas = (canvas) => {
+const paintContactFrequencyCanvas = frequencies => {
 
-    let mapSize = globals.ensembleManager.maximumSegmentID;
-
-    let maxFrequency = Number.NEGATIVE_INFINITY;
-
-    const str = `Contact Frequency Map - Paint Canvas ${ mapSize } x ${ mapSize }`;
+    const str = `Contact Frequency Map - Paint Canvas.`;
     console.time(str);
 
-    // Calculate max
-    for (let m = 0; m < mapSize; m++) {
-        const xy = m * mapSize + m;
-        const frequency = globals.sharedMapArray[ xy ];
+    let maxFrequency = Number.NEGATIVE_INFINITY;
+    for (let frequency of frequencies) {
         maxFrequency = Math.max(maxFrequency, frequency);
     }
 
-    let ctx = canvas.getContext('2d');
+    const colorMap = globals.colorMapManager.dictionary['juicebox_default'];
+    const scale = (colorMap.length - 1) / maxFrequency;
 
-    const { width: w, height: h } = ctx.canvas;
-    ctx.fillStyle = rgb255String( appleCrayonColorRGB255('magnesium') );
-    ctx.fillRect(0, 0, w, h);
+    let i = 0;
+    for (let frequency of frequencies) {
 
-    for (let i = 0; i < w; i++) {
-        for(let j = 0; j < h; j++) {
+        const interpolant = Math.floor(frequency * scale);
+        const { r, g, b } = threeJSColorToRGB255(colorMap[ interpolant ][ 'threejs' ]);
 
-            const ij = i * w + j;
-
-            let interpolant;
-
-            if (globals.sharedMapArray[ ij ] > maxFrequency) {
-                console.log(`ERROR! At i ${ i } j ${ j } frequencies ${ globals.sharedMapArray[ ij ] } should NOT exceed the max ${ maxFrequency }`);
-                interpolant = maxFrequency / maxFrequency;
-            } else {
-                interpolant = globals.sharedMapArray[ ij ] / maxFrequency;
-            }
-
-            ctx.fillStyle = globals.colorMapManager.retrieveRGB255String('juicebox_default', interpolant);
-            ctx.fillRect(i, j, 1, 1);
-        }
+        globals.sharedContactFrequencyMapUint8ClampedArray[i++] = r;
+        globals.sharedContactFrequencyMapUint8ClampedArray[i++] = g;
+        globals.sharedContactFrequencyMapUint8ClampedArray[i++] = b;
+        globals.sharedContactFrequencyMapUint8ClampedArray[i++] = 255;
     }
 
     console.timeEnd(str);

@@ -19,7 +19,7 @@ export let threeJSColorToRGB255 = (color) => {
 
     const { r, g, b } = color;
 
-    return { r: r*255, g: g*255, b: b*255 };
+    return { r: Math.floor(r*255), g: Math.floor(g*255), b: Math.floor(b*255) };
 };
 
 export let rgb255ToThreeJSColor = (r, g, b) => {

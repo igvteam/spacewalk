@@ -96,7 +96,7 @@ class TraceSelectPanel extends Panel {
 
         showSpinner();
         window.setTimeout(() => {
-            globals.eventBus.post({ type: "DidSelectStructure", data: str });
+            globals.eventBus.post({ type: "DidSelectTrace", data: str });
             hideSpinner();
         }, 0);
     }
