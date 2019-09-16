@@ -37,6 +37,8 @@ class DistanceMapPanel extends Panel {
         canvas.width = $canvas_container.width();
         canvas.height = $canvas_container.height();
 
+        this.size = { width: canvas.width, height: canvas.height };
+
         // this.ctx_ensemble = canvas.getContext('2d');
         this.ctx_ensemble = canvas.getContext('bitmaprenderer');
 
@@ -103,7 +105,7 @@ class DistanceMapPanel extends Panel {
 
         paintDistanceCanvas(average, maxAverageDistance);
 
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, globals.sharedDistanceMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, globals.sharedDistanceMapUint8ClampedArray);
 
     };
 
@@ -118,7 +120,7 @@ class DistanceMapPanel extends Panel {
 
         paintDistanceCanvas(globals.sharedMapArray, maxDistance);
 
-        drawWithSharedUint8ClampedArray(this.ctx_trace, globals.sharedDistanceMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, globals.sharedDistanceMapUint8ClampedArray);
 
     };
 }

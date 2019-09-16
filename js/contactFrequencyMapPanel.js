@@ -39,6 +39,8 @@ class ContactFrequencyMapPanel extends Panel {
         canvas.height = $canvas_container.height();
         this.ctx_trace = canvas.getContext('bitmaprenderer');
 
+        this.size = { width: canvas.width, height: canvas.height };
+
         this.distanceThreshold = distanceThreshold;
 
         let $input = this.$panel.find('#spacewalk_contact_frequency_map_adjustment_select_input');
@@ -77,7 +79,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         paintContactFrequencyCanvas(globals.sharedMapArray);
 
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, globals.sharedContactFrequencyMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, globals.sharedContactFrequencyMapUint8ClampedArray);
 
     };
 
@@ -94,7 +96,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         paintContactFrequencyCanvas(globals.sharedMapArray);
 
-        drawWithSharedUint8ClampedArray(this.ctx_trace, globals.sharedContactFrequencyMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, globals.sharedContactFrequencyMapUint8ClampedArray);
 
     };
 }
