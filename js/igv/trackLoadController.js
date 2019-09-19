@@ -28,6 +28,7 @@ import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.
 import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
 import MultipleFileLoadController from "./multipleFileLoadController.js";
 import { igvPanel } from '../gui.js';
+import igv from '../../vendor/igv.esm.js';
 
 class TrackLoadController {
 

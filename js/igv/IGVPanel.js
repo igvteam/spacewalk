@@ -44,7 +44,7 @@ class IGVPanel extends Panel {
 
         if ("DidChangeMaterialProvider" === type) {
 
-            const { trackContainerDiv } = igv.browser;
+            const { trackContainerDiv } = this.browser;
             $(trackContainerDiv).find('.input-group input').prop('checked', false);
 
         } else if ("DidLoadEnsembleFile" === type || "DidLoadPointCloudFile" === type) {
@@ -123,13 +123,13 @@ class IGVPanel extends Panel {
 
         if (genomeID !== this.browser.genome.id) {
 
-            igv.browser.removeAllTracks();
+            this.browser.removeAllTracks();
 
             const json = this.genomeDictionary[ genomeID ];
 
             try {
 
-                await igv.browser.loadGenome(json);
+                await this.browser.loadGenome(json);
             } catch (e) {
                 console.error(e);
 

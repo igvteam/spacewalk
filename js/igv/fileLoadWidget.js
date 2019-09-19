@@ -24,6 +24,8 @@
  * THE SOFTWARE.
  */
 
+import igv from '../../vendor/igv.esm.js';
+
 class FileLoadWidget {
 
     constructor(config, fileLoadManager) {
