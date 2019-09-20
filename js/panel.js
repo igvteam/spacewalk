@@ -1,4 +1,4 @@
-import igv from '../vendor/igv.esm.js';
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { makeDraggable } from "./draggable.js";
 import { guiManager } from "./gui.js";
 import { globals } from "./app.js";
@@ -20,7 +20,7 @@ class Panel {
         }
 
 
-        const namespace = `panel. ${ igv.guid() }`;
+        const namespace = `panel. ${ hic.igv.guid() }`;
 
         const $drag_handle = this.$panel.find('.spacewalk_card_drag_container');
         makeDraggable(panel, $drag_handle.get(0));
@@ -31,7 +31,7 @@ class Panel {
         });
 
         const $closer = this.$panel.find('i.fa-times-circle');
-        $closer.on(`click.${ igv.guid() }`, event => {
+        $closer.on(`click.${ hic.igv.guid() }`, event => {
 
             event.stopPropagation();
 

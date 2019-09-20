@@ -1,4 +1,4 @@
-import igv from '../vendor/igv.esm.js';
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { numberFormatter, readFileAsText } from "./utils.js";
 import { hideSpinner, showSpinner } from "./gui.js";
 import { globals } from "./app.js";
@@ -118,7 +118,7 @@ class Parser {
 
             let string = undefined;
             try {
-                string = await igv.xhr.load(url);
+                string = await hic.igv.xhr.load(url);
             } catch (e) {
                 hideSpinner();
                 console.warn(e.message)

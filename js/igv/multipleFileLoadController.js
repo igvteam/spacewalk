@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  *
  */
-
+import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import * as app_google from './app-google.js';
 import { getExtension, getFilename, validIndexExtensionSet, isKnownFileExtension, isValidIndexExtension, getIndexObjectWithDataName } from './utils-igv-webapp.js';
 
@@ -71,10 +71,10 @@ class MultipleFileLoadController {
         let googleDrivePaths = [];
         for (let path of paths) {
 
-            if (igv.isFilePath(path)) {
+            if (hic.igv.isFilePath(path)) {
                 tmp.push(path);
             } else if (undefined === path.google_url && path.includes('drive.google.com')) {
-                const fileInfo = await igv.google.getDriveFileInfo(path);
+                const fileInfo = await hic.igv.google.getDriveFileInfo(path);
                 googleDrivePaths.push({ filename: fileInfo.name, name: fileInfo.name, google_url: path});
             } else {
                 tmp.push(path);
@@ -93,7 +93,7 @@ class MultipleFileLoadController {
             jsonPromises = jsonPaths
                 .map((path) => {
                     let url = (path.google_url || path);
-                    return { name: getFilename(path), promise: igv.xhr.loadJson(url) }
+                    return { name: getFilename(path), promise: hic.igv.xhr.loadJson(url) }
                 });
 
             // validate JSON
@@ -118,7 +118,7 @@ class MultipleFileLoadController {
                 } else {
                     let o = {};
                     o.filename = getFilename(path);
-                    if (true === igv.isFilePath(path)) {
+                    if (true === hic.igv.isFilePath(path)) {
                         o.file = path;
                     } else {
                         o.url = path;
@@ -140,7 +140,7 @@ class MultipleFileLoadController {
 
         // bail if no files
         if (0 === jsonPaths.length && 0 === remainingPaths.length) {
-            igv.browser.presentAlert("ERROR: No valid data files submitted");
+            hic.igv.browser.presentAlert("ERROR: No valid data files submitted");
             return;
         }
 
@@ -152,7 +152,7 @@ class MultipleFileLoadController {
             let path = xmlPaths.pop();
             let o = {};
             o.filename = getFilename(path);
-            if (true === igv.isFilePath(path)) {
+            if (true === hic.igv.isFilePath(path)) {
                 o.file = path;
             } else {
                 o.url = path.google_url || path;
@@ -498,7 +498,7 @@ class MultipleFileLoadController {
             {
                 name: dataKey,
                 filename:dataKey,
-                format: igv.inferFileFormat(dataKey),
+                format: hic.igv.inferFileFormat(dataKey),
                 url: dataValue,
                 indexURL: getIndexURL(indexPaths[ dataKey ])
             };
@@ -512,7 +512,7 @@ class MultipleFileLoadController {
             }
         }
 
-        igv.inferTrackTypes(config);
+        hic.igv.inferTrackTypes(config);
 
         return config;
 
@@ -559,7 +559,7 @@ class MultipleFileLoadController {
     }
 
     static trackPathValidator(extension) {
-        return igv.knownFileExtensions.has(extension) || validIndexExtensionSet.has(extension);
+        return hic.igv.knownFileExtensions.has(extension) || validIndexExtensionSet.has(extension);
     }
 
 }

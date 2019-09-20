@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  *
  */
+import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 
 let picker;
 
@@ -101,7 +102,7 @@ let createDropdownButtonPicker = (multipleFileSelection, filePickerHandler) => {
                 if (multipleFileSelection) {
                     picker = new google.picker.PickerBuilder()
                         .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
-                        .setOAuthToken(igv.oauth.google.access_token)
+                        .setOAuthToken(hic.igv.oauth.google.access_token)
                         .addView(view)
                         .addView(teamView)
                         .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
@@ -115,7 +116,7 @@ let createDropdownButtonPicker = (multipleFileSelection, filePickerHandler) => {
                 } else {
                     picker = new google.picker.PickerBuilder()
                         .disableFeature(google.picker.Feature.MULTISELECT_ENABLED)
-                        .setOAuthToken(igv.oauth.google.access_token)
+                        .setOAuthToken(hic.igv.oauth.google.access_token)
                         .addView(view)
                         .addView(teamView)
                         .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
@@ -131,7 +132,7 @@ let createDropdownButtonPicker = (multipleFileSelection, filePickerHandler) => {
                 picker.setVisible(true);
 
             } else {
-                igv.browser.presentAlert("Sign into Google before using picker");
+                hic.igv.browser.presentAlert("Sign into Google before using picker");
             }
         })
         .catch(function (error) {
@@ -166,7 +167,7 @@ let signInHandler = () => {
 
             authResponse = user.getAuthResponse();
 
-            igv.setGoogleOauthToken(authResponse["access_token"]);
+            hic.igv.setGoogleOauthToken(authResponse["access_token"]);
 
             return authResponse["access_token"];
         })
@@ -174,8 +175,8 @@ let signInHandler = () => {
 
 let getAccessToken = () => {
 
-    if (igv.oauth.google.access_token) {
-        return Promise.resolve(igv.oauth.google.access_token);
+    if (hic.igv.oauth.google.access_token) {
+        return Promise.resolve(hic.igv.oauth.google.access_token);
     } else {
         return signInHandler();
     }

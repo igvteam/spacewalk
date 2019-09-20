@@ -1,8 +1,6 @@
+require("@babel/polyfill");
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
-
-// process.env.STUB_FILE_SRC = '<script type="module" src="js/stub_app.js"></script>';
-// process.env.STUB_FILE_DST = '<script src="./stub_bundle.js"></script>';
 
 process.env.INDEX_FILE_SRC = '<script type="module" src="js/app.js"></script>';
 process.env.INDEX_FILE_DST = '<script src="./app_bundle.js"></script>';
@@ -10,16 +8,11 @@ process.env.INDEX_FILE_DST = '<script src="./app_bundle.js"></script>';
 module.exports =
     {
         mode: 'none',
-        entry:
-            {
-                app_bundle: './js/app.js',
-                // stub_bundle: './js/stub_app.js'
-            },
+        entry: ['@babel/polyfill', './js/app.js'],
         output:
             {
                 path: path.resolve(__dirname, 'dist'),
-                // filename: 'bundle.js',
-                filename: '[name].js'
+                filename: 'app_bundle.js'
             },
         module: {
             rules:

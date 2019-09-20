@@ -15,16 +15,17 @@
     "http-server": "^0.11.1"
   },
   "dependencies": {
-    "@babel/cli": "^7.5.5",
-    "@babel/core": "^7.5.5",
-    "@babel/node": "^7.5.5",
-    "@babel/polyfill": "^7.2.5",
-    "@babel/preset-env": "^7.5.5",
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/node": "^7.6.1",
+    "@babel/polyfill": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
     "data-modal": "github:igvteam/data-modal",
-    "juicebox.js": "github:igvteam/juicebox.js#dat_tracing3d_edits",
+    "juicebox.js": "^1.4.0",
     "kd3d": "github:turner/kd3d",
+    "node-fetch": "^2.6.0",
     "three": "^0.108.0",
-    "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.7"
+    "webpack": "^4.40.2",
+    "webpack-cli": "^3.3.9"
   }
 }

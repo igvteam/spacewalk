@@ -28,6 +28,7 @@ import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.
 import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
 import MultipleFileLoadController from "./multipleFileLoadController.js";
 import { igvPanel } from '../gui.js';
+import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 
 class TrackLoadController {
 
@@ -75,7 +76,7 @@ class TrackLoadController {
         } else if (this.trackRegistryFile) {
 
             try {
-                this.trackRegistry = await igv.xhr.loadJson(this.trackRegistryFile);
+                this.trackRegistry = await hic.igv.xhr.loadJson(this.trackRegistryFile);
             } catch(error) {
                 console.error(error);
             }
@@ -99,7 +100,7 @@ class TrackLoadController {
         for (let path of paths.filter( (path) => ( !path.startsWith("@EXTRA") ) ) ) {
 
             try {
-                const result = await igv.xhr.loadJson((path));
+                const result = await hic.igv.xhr.loadJson((path));
                 results.push(result);
             } catch(err) {
                 console.error(err);
@@ -132,8 +133,8 @@ class TrackLoadController {
 
             gtexConfiguration = gtexConfiguration.pop();
             try {
-                const info = await igv.GtexUtils.getTissueInfo(gtexConfiguration.genomeID);
-                gtexConfiguration.tracks = info.tissueInfo.map((tissue) => { return igv.GtexUtils.trackConfiguration(tissue) });
+                const info = await hic.igv.GtexUtils.getTissueInfo(gtexConfiguration.genomeID);
+                gtexConfiguration.tracks = info.tissueInfo.map((tissue) => { return hic.igv.GtexUtils.trackConfiguration(tissue) });
                 configurations.push(gtexConfiguration);
             } catch(err) {
                 console.error(err);
