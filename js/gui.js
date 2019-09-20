@@ -36,9 +36,7 @@ const createGUI = container => {
     igvPanel.initialize(igvBrowserConfigurator());
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0) });
-
-    // TODO: When Juicebox JS is usable uncomment this
-    // juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
+    juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
 
     swFileLoadModal = new DataFileLoadModal(swFileLoadModalConfigurator());
 

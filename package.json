@@ -21,7 +21,9 @@
     "@babel/polyfill": "^7.6.0",
     "@babel/preset-env": "^7.6.0",
     "data-modal": "github:igvteam/data-modal",
+    "juicebox.js": "^1.4.0",
     "kd3d": "github:turner/kd3d",
+    "node-fetch": "^2.6.0",
     "three": "^0.108.0",
     "webpack": "^4.40.2",
     "webpack-cli": "^3.3.9"

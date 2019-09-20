@@ -1,4 +1,4 @@
-import igv from '../../vendor/igv.esm.js';
+import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import { guiManager, colorRampPanel } from "../gui.js";
@@ -79,7 +79,7 @@ class IGVPanel extends Panel {
 
             let genomeList = undefined;
             try {
-                genomeList = await igv.xhr.loadJson(genomesJSONPath, {})
+                genomeList = await hic.igv.xhr.loadJson(genomesJSONPath, {})
             } catch (error) {
                 console.error(error);
             }
@@ -90,7 +90,7 @@ class IGVPanel extends Panel {
             }
 
             try {
-                this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
+                this.browser = await hic.igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
             } catch (error) {
                 console.error(error);
             }

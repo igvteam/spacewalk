@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-import igv from '../../vendor/igv.esm.js';
+import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 
 class FileLoadWidget {
 
@@ -81,7 +81,7 @@ class FileLoadWidget {
         this.$error_message.append($("<div>", { class:"igv-flw-error-message" }));
 
         // error dismiss button
-        igv.attachDialogCloseHandlerWithParent(this.$error_message, function () {
+        hic.igv.attachDialogCloseHandlerWithParent(this.$error_message, function () {
             self.dismissErrorMessage();
         });
 
@@ -221,7 +221,7 @@ class FileLoadWidget {
         $file_chooser_container = $("<div>", { class:"igv-flw-file-chooser-container" });
         $parent.append($file_chooser_container);
 
-        str = id + igv.guid();
+        str = id + hic.igv.guid();
 
         $label = $('<label>', { for:str });
         $file_chooser_container.append($label);

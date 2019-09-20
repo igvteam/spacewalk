@@ -1,8 +1,7 @@
-import * as hic from '../../node_modules/juicebox.js/js/hic.js';
+import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { guiManager } from "../gui.js";
 import Panel from "../panel.js";
 import { globals } from "../app.js";
-import igv from '../../vendor/igv.esm.js';
 
 class JuiceboxPanel extends Panel {
 
@@ -28,8 +27,8 @@ class JuiceboxPanel extends Panel {
 
         super.receiveEvent({ type, data });
 
-        console.log('WARNING: JuiceboxPanel currently disabled. Method receiveEvent() is disabled.');
-        return;
+        // console.log('WARNING: JuiceboxPanel currently disabled. Method receiveEvent() is disabled.');
+        // return;
 
         if ("DidLoadEnsembleFile" === type || "DidLoadPointCloudFile" === type) {
 
@@ -111,11 +110,10 @@ class JuiceboxPanel extends Panel {
 
     blurb() {
 
-        console.log('WARNING: JuiceboxPanel currently disabled. Method blurb() is disabled.');
-        return;
+        // console.log('WARNING: JuiceboxPanel currently disabled. Method blurb() is disabled.');
+        // return;
 
-        const str = `${ this.browser.$contactMaplabel.text() }`;
-        return str;
+        return `${ this.browser.$contactMaplabel.text() }`;
     }
 
     isContactMapLoaded() {
@@ -154,8 +152,8 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
 
 export let juiceboxSelectLoader = async ($select) => {
 
-    const data = await igv.xhr.loadString('resources/hicFiles.txt');
-    const lines = igv.splitLines(data);
+    const data = await hic.igv.xhr.loadString('resources/hicFiles.txt');
+    const lines = hic.igv.splitLines(data);
 
     for (let line of lines) {
 
