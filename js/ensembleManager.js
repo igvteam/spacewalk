@@ -1,5 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { globals } from "./app.js";
+import Parser from "./parser.js";
 
 class EnsembleManager {
 
@@ -7,6 +8,9 @@ class EnsembleManager {
     }
 
     ingestSW({ locus, hash }) {
+
+        const str = 'EnsembleManager ingestSW';
+        console.time(str);
 
         // maximumSegmentID is used to size the distance and contact maps which
         // are N by N where N = maximumSegmentID.
@@ -19,77 +23,61 @@ class EnsembleManager {
         // the genomic distance (bp) between centroids
         this.stepSize = undefined;
 
-        let dictionary = {};
-        for (let [hashKey, trace] of Object.entries(hash)) {
-
-            // console.log(`:::::::::::::::::::: ${ hashKey } ::::::::::::::::::::`);
+        this.ensemble = {};
+        for (let [traceKey, trace] of Object.entries(hash)) {
 
             if (undefined === this.maximumSegmentID) {
                 this.maximumSegmentID = Object.keys(trace).length;
             }
 
-            const segments = Object.values(trace);
-            for (let segment of segments) {
+            let segmentIndex = 0;
 
-                let { startBP, endBP, x, y, z } = segment[ 0 ];
-                if (x /* && y && y */) {
+            const ensembleKey = traceKey.split('%').pop();
 
-                    const genomicLocation = (parseFloat(startBP) + parseFloat(endBP)) / 2.0;
+            for (let [ key, xyzList ] of Object.entries(trace)) {
 
-                    if (undefined === this.stepSize) {
-                        this.stepSize = parseFloat(endBP) - parseFloat(startBP);
-                    }
+                let { startBP, centroidBP, endBP, sizeBP } = Parser.genomicRangeFromHashKey(key);
 
-
-                    x = parseFloat(x);
-                    y = parseFloat(y);
-                    z = parseFloat(z);
-
-                    let segmentID = 1 + segments.indexOf(segment);
-                    segmentID = segmentID.toString();
-
-                    const key = hashKey.split('%').pop();
-
-                    if (undefined === dictionary[ key ]) {
-                        dictionary[ key ] = [];
-                    }
-
-                    dictionary[ key ].push({ segmentID, genomicLocation, x, y, z })
-
+                if (undefined === this.stepSize) {
+                    this.stepSize = sizeBP;
                 }
-            }
-        }
 
-        let keys = Object.keys(dictionary);
+                for (let { x, y, z } of xyzList) {
 
-        // transform and augment dictionary into ensemble
-        this.ensemble = {};
-        for (let key of keys) {
+                    if (x && y && z) {
 
-            let list = dictionary[ key ];
 
-            let segmentList = list.map(o => {
-                let { segmentID, genomicLocation } = o;
-                return { segmentID, genomicLocation }
-            });
+                        if (undefined === this.ensemble[ ensembleKey ]) {
 
-            let geometry = new THREE.Geometry();
+                            this.ensemble[ ensembleKey ] =
+                                {
+                                    geometry: new THREE.Geometry(),
+                                    segmentList: [],
+                                    material: new THREE.MeshPhongMaterial()
+                                };
 
-            geometry.vertices = list.map(o => {
-                let { x, y, z } = o;
-                return new THREE.Vector3(x, y, z);
-            });
+                        }
 
-            geometry.computeBoundingBox();
-            geometry.computeBoundingSphere();
+                        this.ensemble[ ensembleKey ].geometry.vertices.push(new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z)));
 
-            let material = new THREE.MeshPhongMaterial();
+                        const number = 1 + segmentIndex;
+                        const segmentID = number.toString();
+                        this.ensemble[ ensembleKey ].segmentList.push({ segmentID, genomicLocation: centroidBP });
 
-            this.ensemble[ key ] = { segmentList, geometry, material };
-        }
+                    } // if (x && y && z)
 
-        // discard dictionary memory
-        dictionary = null;
+                    ++segmentIndex;
+
+                } // for xyzList
+
+            } // for Object.entries(trace)
+
+            this.ensemble[ ensembleKey ].geometry.computeBoundingBox();
+            this.ensemble[ ensembleKey ].geometry.computeBoundingSphere();
+
+        } // for Object.entries(hash)
+
+        console.timeEnd(str);
 
     }
 

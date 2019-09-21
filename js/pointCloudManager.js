@@ -20,10 +20,9 @@ class PointCloudManager {
 
         let xyz = new THREE.Vector3();
 
-        for (let [ hashKey, traces ] of Object.entries(hash)) {
+        for (let [ traceKey, trace ] of Object.entries(hash)) {
 
-            // list: [ { x, y, z }, ... ]
-            for (let [ key, list ] of Object.entries(traces)) {
+            for (let [ key, xyzList ] of Object.entries(trace)) {
 
                 let { startBP, centroidBP, endBP, sizeBP } = Parser.genomicRangeFromHashKey(key);
 
@@ -47,24 +46,22 @@ class PointCloudManager {
                 obj.geometry.userData.color = globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, obj.colorRampInterpolantWindow.interpolant);
                 obj.geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('magnesium');
 
-                let xyzList = [];
-                let rgbList = [];
+                let positions = [];
+                let colors = [];
+                for (let { x, y, z } of xyzList) {
 
-                for (let row of list) {
-
-                    let { x, y, z } = row;
-                    xyzList.push(parseFloat(x), parseFloat(y), parseFloat(z));
+                    positions.push(parseFloat(x), parseFloat(y), parseFloat(z));
 
                     const { r, g, b } = obj.geometry.userData.color;
-                    rgbList.push(r, g, b);
+                    colors.push(r, g, b);
 
                     xyz.set(parseFloat(x), parseFloat(y), parseFloat(z));
                     this.boundingBox.expandByPoint(xyz);
 
-                } // for (list)
+                } // for (xyzList)
 
-                obj.geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( xyzList, 3 ) );
-                obj.geometry.addAttribute(    'color', new THREE.Float32BufferAttribute( rgbList, 3 ).setDynamic( true ) );
+                obj.geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+                obj.geometry.addAttribute(    'color', new THREE.Float32BufferAttribute( colors, 3 ).setDynamic( true ) );
 
                 obj.geometry.computeBoundingBox();
                 obj.geometry.computeBoundingSphere();
