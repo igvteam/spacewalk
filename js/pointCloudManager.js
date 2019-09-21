@@ -2,6 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import { appleCrayonColorThreeJS } from "./color.js";
 import { globals } from "./app.js";
+import Parser from "./parser.js";
 
 class PointCloudManager {
 
@@ -21,42 +22,29 @@ class PointCloudManager {
 
         for (let [ hashKey, traces ] of Object.entries(hash)) {
 
-            //  key: 'startBP % endBP'
-            // list: [ { startBP, endBP, x, y, z }, ... ]
+            // list: [ { x, y, z }, ... ]
             for (let [ key, list ] of Object.entries(traces)) {
 
-                let [ startBP, endBP ] = key.split('%');
-
-                startBP = parseInt(startBP, 10);
-                  endBP = parseInt(  endBP, 10);
-
-                const sizeBP = endBP - startBP;
-                const geometry = new THREE.BufferGeometry();
+                let { startBP, centroidBP, endBP, sizeBP } = Parser.genomicRangeFromHashKey(key);
 
                 let obj =
                     {
-                        geometry,
                         startBP,
                         endBP,
-                        sizeBP
-                    };
-
-                let a = (startBP - genomicStart) / (genomicEnd - genomicStart);
-                let b =   (endBP - genomicStart) / (genomicEnd - genomicStart);
-
-                const bp = (startBP + endBP) / 2.0;
-                const interpolant = (bp - genomicStart) / (genomicEnd - genomicStart);
-
-                obj.geometry.userData.colorRampInterpolantWindow =
-                    {
-                        start: a,
-                        end: b,
                         sizeBP,
-                        interpolant,
-                        geometryUUID: geometry.uuid
+                        geometry: new THREE.BufferGeometry()
                     };
 
-                obj.geometry.userData.color = globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant);
+                obj.colorRampInterpolantWindow =
+                    {
+                        start: (startBP - genomicStart) / (genomicEnd - genomicStart),
+                        end: (endBP - genomicStart) / (genomicEnd - genomicStart),
+                        interpolant: (centroidBP - genomicStart) / (genomicEnd - genomicStart),
+                        sizeBP,
+                        geometryUUID: obj.geometry.uuid
+                    };
+
+                obj.geometry.userData.color = globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, obj.colorRampInterpolantWindow.interpolant);
                 obj.geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('magnesium');
 
                 let xyzList = [];
@@ -65,7 +53,6 @@ class PointCloudManager {
                 for (let row of list) {
 
                     let { x, y, z } = row;
-
                     xyzList.push(parseFloat(x), parseFloat(y), parseFloat(z));
 
                     const { r, g, b } = obj.geometry.userData.color;
@@ -84,16 +71,16 @@ class PointCloudManager {
 
                 this.list.push(obj);
 
-            } // for Object.entries(traces)
+            }
 
-        } // for Object.entries(hash)
+        }
 
         this.boundingBox.getBoundingSphere(this.boundingSphere);
 
     }
 
     getColorRampInterpolantWindowList() {
-        return this.list.map(o => o.geometry.userData.colorRampInterpolantWindow)
+        return this.list.map(o => o.colorRampInterpolantWindow)
     }
 
     getBounds() {

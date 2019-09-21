@@ -79,7 +79,7 @@ class Parser {
                 y = 'nan' === y ? undefined : parseFloat(y);
                 z = 'nan' === z ? undefined : parseFloat(z);
 
-                trace[ traceKey ].push ({ startBP, endBP, x, y, z });
+                trace[ traceKey ].push ({ x, y, z });
             }
 
         } // for (lines)
@@ -93,6 +93,13 @@ class Parser {
 
         return hash;
 
+    }
+
+    static genomicRangeFromHashKey(key) {
+        const [ startBP, endBP ] = key.split('%').map(k => parseInt(k));
+        const centroidBP = Math.round((startBP + endBP) / 2.0);
+        const sizeBP = endBP - startBP;
+        return { startBP, centroidBP, endBP, sizeBP };
     }
 
     consume (hash) {

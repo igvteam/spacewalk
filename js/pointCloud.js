@@ -26,7 +26,7 @@ class PointCloud {
             {
                 size: pointSize,
                 vertexColors: THREE.VertexColors,
-                map: new THREE.TextureLoader().load( "texture/dot_dugla_translucent.png" ),
+                map: new THREE.TextureLoader().load( "texture/dot_dugla.png" ),
                 sizeAttenuation: true,
                 alphaTest: 0.5,
                 transparent: true,
