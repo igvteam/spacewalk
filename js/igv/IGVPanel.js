@@ -207,9 +207,7 @@ const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
         return;
     }
 
-    const segmentID = globals.ensembleManager.segmentIDForGenomicLocation(bp);
-
-    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
+    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ] } });
 };
 
 const addDataValueMaterialProviderGUI = tracks => {

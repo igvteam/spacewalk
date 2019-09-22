@@ -36,7 +36,12 @@ class BallAndStick {
         }
 
         this.balls.forEach(mesh => {
-            mesh.material = this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ].material;
+
+            const { interpolant } = this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ];
+
+            const color = materialProvider.colorForInterpolant(interpolant);
+
+            mesh.material = new THREE.MeshPhongMaterial({ color });
         });
     }
 
@@ -45,16 +50,12 @@ class BallAndStick {
         // Segment ID dictionay. 3D Object UUID is key.
         this.meshUUID_ColorRampInterpolantWindow_Dictionary = {};
 
-        // 3D Object dictionary. Segment ID is key.
-        this.segmentID_Mesh_Dictionary = {};
-
         return trace.geometry.vertices.map((vertex, index) => {
-
-            const { segmentID, genomicLocation, material } = trace.colorRampInterpolantWindows[ index ];
 
             const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
 
-            const mesh = new THREE.Mesh(geometry, material);
+            const mesh = new THREE.Mesh(geometry, trace.colorRampInterpolantWindows[ index ].material);
+
             mesh.name = 'ball';
 
             const { x, y, z } = vertex;
@@ -62,8 +63,6 @@ class BallAndStick {
             mesh.scale.setScalar(globals.sceneManager.ballRadius());
 
             this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ] = trace.colorRampInterpolantWindows[ index ];
-
-            this.segmentID_Mesh_Dictionary[ segmentID ] = mesh;
 
             return mesh;
 

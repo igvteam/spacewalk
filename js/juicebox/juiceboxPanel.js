@@ -143,11 +143,7 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
         return;
     }
 
-    const segmentIDX = globals.ensembleManager.segmentIDForGenomicLocation(xBP);
-    const segmentIDY = globals.ensembleManager.segmentIDForGenomicLocation(yBP);
-    const segmentIDList = segmentIDX === segmentIDY ? [ segmentIDX ] : [ segmentIDX, segmentIDY ];
-
-    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ], segmentIDList } });
+    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ] } });
 };
 
 export let juiceboxSelectLoader = async ($select) => {

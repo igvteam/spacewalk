@@ -144,7 +144,7 @@ const updateDistanceArray = trace => {
 
     for (let i = 0; i < length; i++) {
 
-        const i_segmentIDIndex = colorRampInterpolantWindows[ i ].segmentID - 1;
+        const i_segmentIDIndex = parseInt(colorRampInterpolantWindows[ i ].segmentID) - 1;
 
         const xy_diagonal = i_segmentIDIndex * mapSize + i_segmentIDIndex;
         globals.sharedMapArray[ xy_diagonal ] = 0;
@@ -157,7 +157,7 @@ const updateDistanceArray = trace => {
 
                 const distance = vertices[ i ].distanceTo(vertices[ j ]);
 
-                const j_segmentIDIndex = colorRampInterpolantWindows[ j ].segmentID - 1;
+                const j_segmentIDIndex = parseInt(colorRampInterpolantWindows[ j ].segmentID) - 1;
 
                 const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
                 const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;

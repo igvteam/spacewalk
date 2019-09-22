@@ -9,16 +9,6 @@ const setMaterialProvider = materialProvider => {
     globals.ballAndStick.updateMaterialProvider(materialProvider);
 };
 
-const segmentIDForInterpolant = interpolant => {
-
-    // find bucket for interpolant
-    const howmany = globals.ensembleManager.maximumSegmentID;
-    let quantized = quantize(interpolant, howmany);
-
-    // return the segmentID
-    return 1 + Math.ceil(quantized * (howmany - 1));
-};
-
 let fitToContainer = (canvas, devicePixelRatio) => {
 
     canvas.style.width ='100%';
@@ -147,7 +137,6 @@ export {
     zIndexPanelSelected,
     zIndexPanelUnselected,
     setMaterialProvider,
-    segmentIDForInterpolant,
     createImage,
     drawWithSharedUint8ClampedArray,
     readFileAsDataURL,

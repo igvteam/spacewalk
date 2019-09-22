@@ -210,18 +210,6 @@ class DataValueMaterialProvider {
         return globals.sceneManager.stickMaterial.color;
     }
 
-    colorForSegment({ segmentID, genomicLocation }) {
-
-        const { features, min, max, colorMinimum, colorMaximum } = this;
-
-        const startBP = genomicLocation - 0.5 * globals.ensembleManager.stepSize;
-        const endBP = genomicLocation + 0.5 * globals.ensembleManager.stepSize;
-
-        const { r, g, b } = colorForGenomicLocation({ startBP, endBP, features, min, max, colorMinimum, colorMaximum });
-
-        return rgb255ToThreeJSColor(r, g, b);
-    }
-
     renderLoopHelper () {
 
         if (rgbTexture) {

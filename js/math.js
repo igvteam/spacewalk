@@ -1,3 +1,7 @@
+const includes = ({ a, b, value }) => {
+    return value < a || value > b ? false : true;
+};
+
 let prettyVector3String = (v3) => {
 
     let [ x, y, z ] = Object.values(v3).map((v) => { return fudged(v) });
@@ -65,4 +69,4 @@ let random = (min, max) => {
 let radians = degrees => degrees * Math.PI / 180;
 let degrees = radians => radians * 180 / Math.PI;
 
-export { radians, degrees, lerp, clamp, whichTile, quantize, random, prettyMatrix4Print, prettyVector3Print, prettyVector3String };
+export { includes, radians, degrees, lerp, clamp, whichTile, quantize, random, prettyMatrix4Print, prettyVector3Print, prettyVector3String };

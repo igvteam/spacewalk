@@ -1,10 +1,11 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { segmentIDForInterpolant, fitToContainer, getMouseXY } from "./utils.js";
+import { fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import PointCloud from "./pointCloud.js";
 import { globals } from "./app.js";
+import BallAndStick from "./ballAndStick.js";
 
 let currentSegmentIndex = undefined;
 
@@ -101,27 +102,21 @@ class TraceColorRampMaterialProvider {
 
             const objectUUID = data;
             if (globals.ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[ objectUUID ]) {
-                const { segmentID } = globals.ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[ objectUUID ];
-                this.highlight([ segmentID ])
+                this.highlightWithInterpolantWindowList([ globals.ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[objectUUID] ])
             }
 
         } else if ("PickerDidLeaveObject" === type) {
-
-            this.repaint();
-
+            this.repaint()
         } else if ("DidSelectSegmentID" === type) {
-
-            this.highlight(data.segmentIDList);
-
+            const { interpolantList } = data;
+            this.highlightWithInterpolantWindowList(globals.ensembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList }));
         } else if (globals.sceneManager && "DidLeaveGUI" === type) {
-
-            this.repaint();
-
+            this.repaint()
         }
     }
 
     repaint () {
-        this.paintQuantizedRamp(undefined);
+        this.paintQuantizedRamp();
     }
 
     onCanvasMouseMove(canvas, event) {
@@ -131,24 +126,26 @@ class TraceColorRampMaterialProvider {
         }
 
         let { yNormalized } = getMouseXY(canvas, event);
+        const interpolantList = [ 1.0 - yNormalized ];
 
-        // 0 to 1. Flip direction.
-        const segmentID = segmentIDForInterpolant(1.0 - yNormalized);
+        const interpolantWindowList = globals.ensembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
 
-        this.highlight([ segmentID ]);
-
-        if (currentSegmentIndex !== segmentID) {
-            currentSegmentIndex = segmentID;
-            globals.eventBus.post({type: "DidSelectSegmentID", data: { segmentIDList: [ segmentID ] } });
+        if (interpolantWindowList) {
+            this.highlightWithInterpolantWindowList(interpolantWindowList);
+            globals.eventBus.post({ type: 'ColorRampMaterialProviderCanvasDidMouseMove', data: { interpolantList } });
         }
 
     };
 
-    highlight(segmentIDList) {
-        this.paintQuantizedRamp(new Set(segmentIDList))
+    highlightWithInterpolantWindowList(interpolantWindowList) {
+
+        if (interpolantWindowList) {
+            this.paintQuantizedRampWithInterpolantWindowList(interpolantWindowList);
+        }
+
     }
 
-    paintQuantizedRamp(highlightedSegmentIDSet){
+    paintQuantizedRampWithInterpolantWindowList(interpolantWindowList) {
 
         if (undefined === globals.ensembleManager.maximumSegmentID) {
             return;
@@ -174,7 +171,7 @@ class TraceColorRampMaterialProvider {
         this.alphamap_ctx.fillStyle = alpha_visible;
         this.alphamap_ctx.fillRect(0, 0, width, height);
 
-        if (highlightedSegmentIDSet) {
+        if (interpolantWindowList) {
 
             // set highlight color
             this.highlight_ctx.fillStyle = this.highlightColor;
@@ -185,29 +182,53 @@ class TraceColorRampMaterialProvider {
             // set opaque color
             this.alphamap_ctx.fillStyle = alpha_visible;
 
-            for (let y = 0;  y < height; y++) {
+            for (let interpolantWindow of interpolantWindowList) {
 
-                interpolant = 1 - (y / (height - 1));
-                quantizedInterpolant = quantize(interpolant, globals.ensembleManager.maximumSegmentID);
-                const segmentID = segmentIDForInterpolant(interpolant);
+                const { start, end } = interpolantWindow;
+                const h = Math.round((end - start) * height);
+                const y = Math.round(start * height);
 
-                if (highlightedSegmentIDSet.has(segmentID)) {
-                    this.highlight_ctx.fillRect(0, y, width, 1);
-                    this.alphamap_ctx.fillRect(0, y, width, 1);
-                }
+                const yy = height - (h + y);
 
-            } // for (y)
+                this.highlight_ctx.fillRect(0, yy, width, h);
+                this.alphamap_ctx.fillRect(0, yy, width, h);
 
-        } // if (highlightedSegmentIndexSet)
+            }
+
+        }
+
+
+    }
+
+    paintQuantizedRamp(){
+
+        if (undefined === globals.ensembleManager.maximumSegmentID) {
+            return;
+        }
+
+        const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
+
+        let interpolant;
+        let quantizedInterpolant;
+
+        // paint rgb ramp
+        for (let y = 0;  y < height; y++) {
+            interpolant = 1 - (y / (height - 1));
+            quantizedInterpolant = quantize(interpolant, globals.ensembleManager.maximumSegmentID);
+            this.rgb_ctx.fillStyle = globals.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
+            this.rgb_ctx.fillRect(0, y, width, 1);
+        }
+
+        // clear highlight canvas
+        this.highlight_ctx.clearRect(0, 0, width, height);
+
+        // paint alpha map opacque
+        this.alphamap_ctx.fillStyle = alpha_visible;
+        this.alphamap_ctx.fillRect(0, 0, width, height);
 
     }
 
     colorForInterpolant(interpolant) {
-        return globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
-    }
-
-    colorForSegment({ segmentID, genomicLocation }) {
-        const interpolant = (segmentID - 1) / (globals.ensembleManager.maximumSegmentID - 1);
         return globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
     }
 

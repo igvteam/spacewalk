@@ -117,7 +117,7 @@ const updateContactFrequencyArray = (trace, distanceThreshold) => {
 
         exclusionSet.add(i);
 
-        const xy_diagonal = (colorRampInterpolantWindows[ i ].segmentID - 1) * mapSize + (colorRampInterpolantWindows[ i ].segmentID - 1);
+        const xy_diagonal = (parseInt(colorRampInterpolantWindows[ i ].segmentID) - 1) * mapSize + (parseInt(colorRampInterpolantWindows[ i ].segmentID) - 1);
         globals.sharedMapArray[ xy_diagonal ]++;
 
         const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
@@ -125,8 +125,8 @@ const updateContactFrequencyArray = (trace, distanceThreshold) => {
         if (contact_indices.length > 0) {
             for (let contact_i of contact_indices) {
 
-                const         i_frequency = colorRampInterpolantWindows[         i ].segmentID - 1;
-                const contact_i_frequency = colorRampInterpolantWindows[ contact_i ].segmentID - 1;
+                const         i_frequency = parseInt(colorRampInterpolantWindows[ i ].segmentID) - 1;
+                const contact_i_frequency = parseInt(colorRampInterpolantWindows[ contact_i ].segmentID) - 1;
 
                 const xy =         i_frequency * mapSize + contact_i_frequency;
                 const yx = contact_i_frequency * mapSize +         i_frequency;

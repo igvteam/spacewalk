@@ -1,7 +1,8 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { globals } from "./app.js";
 import Parser from "./parser.js";
-import { defaultColormapName } from "./colorMapManager.js";
+import { colorRampPanel } from "./gui.js";
+import {includes} from "./math.js";
 
 class EnsembleManager {
 
@@ -74,7 +75,7 @@ class EnsembleManager {
                                 genomicLocation: centroidBP
                             };
 
-                        colorRampInterpolantWindow.color = globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, colorRampInterpolantWindow.interpolant);
+                        colorRampInterpolantWindow.color = colorRampPanel.traceColorRampMaterialProvider.colorForInterpolant(colorRampInterpolantWindow.interpolant);
 
                         colorRampInterpolantWindow.material = new THREE.MeshPhongMaterial({ color: colorRampInterpolantWindow.color });
 
@@ -99,15 +100,28 @@ class EnsembleManager {
 
     }
 
-    getTraceWithName(name) {
-        return this.ensemble[ name ] || undefined;
+    getInterpolantWindowList({ trace, interpolantList }) {
+        let interpolantWindowList = [];
+
+        for (let colorRampInterpolantWindow of trace.colorRampInterpolantWindows) {
+
+            const { start: a, end: b } = colorRampInterpolantWindow;
+
+            for (let interpolant of interpolantList) {
+
+                if ( includes({ a, b, value: interpolant }) ) {
+                    interpolantWindowList.push(colorRampInterpolantWindow);
+                }
+
+            }
+
+        }
+
+        return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;
     }
 
-    segmentIDForGenomicLocation(bp) {
-
-        let delta = Math.round(bp - globals.parser.locus.genomicStart);
-        let segmentID = 1 + Math.floor(delta / this.stepSize);
-        return segmentID;
+    getTraceWithName(name) {
+        return this.ensemble[ name ] || undefined;
     }
 }
 
@@ -115,41 +129,6 @@ export const getBoundsWithTrace = (trace) => {
     const { center, radius } = trace.geometry.boundingSphere;
     const { min, max } = trace.geometry.boundingBox;
     return { min, max, center, radius }
-};
-
-const segmentIDSanityCheck = ensemble => {
-
-    const ensembleList = Object.values(ensemble);
-
-    let mapSize = globals.ensembleManager.maximumSegmentID;
-
-    let matrix = new Array(mapSize * mapSize);
-    for (let f = 0; f < matrix.length; f++) matrix[ f ] = 0;
-
-    console.time(`segmentIDSanityCheck. ${ ensembleList.length } traces.`);
-
-    for (let trace of ensembleList) {
-
-        let { vertices } = trace.geometry;
-        for (let i = 0; i < vertices.length; i++) {
-
-            if (trace.colorRampInterpolantWindows[ i ].segmentID > globals.ensembleManager.maximumSegmentID) {
-                console.log(`Bogus Segment ID. trace ${ ensembleList.indexOf(trace) } vertex ${ i } segmentID ${ trace.colorRampInterpolantWindows[ i ].segmentID } maximumSegmentID ${ globals.ensembleManager.maximumSegmentID }`);
-            }
-            const segmentID = trace.colorRampInterpolantWindows[ i ].segmentID;
-            const  index = segmentID - 1;
-
-            const xy = index * mapSize + index;
-            if (xy > matrix.length) {
-                console.log('xy is bogus index ' + xy);
-            }
-
-        }
-
-    }
-
-    console.timeEnd(`segmentIDSanityCheck. ${ ensembleList.length } traces.`);
-
 };
 
 export default EnsembleManager;

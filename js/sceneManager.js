@@ -45,21 +45,29 @@ class SceneManager {
         });
 
         globals.eventBus.subscribe("DidSelectSegmentID", this);
+        globals.eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
+
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidSelectSegmentID" === type && BallAndStick.getRenderStyle() === this.renderStyle) {
+        const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
 
-            let objects = [];
-            data.segmentIDList.forEach(segmentID => {
-                if (globals.ballAndStick.segmentID_Mesh_Dictionary[ segmentID ]) {
-                    objects.push( globals.ballAndStick.segmentID_Mesh_Dictionary[ segmentID ] );
-                }
-            });
+        if (typeConditional && BallAndStick.getRenderStyle() === this.renderStyle) {
 
-            if (objects.length > 0) {
+            const { interpolantList } = data;
+
+            const interpolantWindowList = globals.ensembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
+
+            if (interpolantWindowList) {
+
+                let objects = interpolantWindowList.map((interpolantWindow) => {
+                    const index = globals.ensembleManager.currentTrace.colorRampInterpolantWindows.indexOf(interpolantWindow);
+                    return globals.ballAndStick.balls[ index ];
+                });
+
                 this.picker.pickHighlighter.configureObjects(objects);
+
             }
 
         }
