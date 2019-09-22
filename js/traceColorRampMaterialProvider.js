@@ -100,9 +100,9 @@ class TraceColorRampMaterialProvider {
         if ("PickerDidHitObject" === type) {
 
             const objectUUID = data;
-            if (globals.ballAndStick.objectSegmentDictionary[ objectUUID ]) {
-                const segmentIndex = globals.ballAndStick.objectSegmentDictionary[ objectUUID ].segmentID;
-                this.highlight([segmentIndex])
+            if (globals.ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[ objectUUID ]) {
+                const { segmentID } = globals.ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[ objectUUID ];
+                this.highlight([ segmentID ])
             }
 
         } else if ("PickerDidLeaveObject" === type) {
@@ -148,7 +148,7 @@ class TraceColorRampMaterialProvider {
         this.paintQuantizedRamp(new Set(segmentIDList))
     }
 
-    paintQuantizedRamp(highlightedSegmentIndexSet){
+    paintQuantizedRamp(highlightedSegmentIDSet){
 
         if (undefined === globals.ensembleManager.maximumSegmentID) {
             return;
@@ -174,7 +174,7 @@ class TraceColorRampMaterialProvider {
         this.alphamap_ctx.fillStyle = alpha_visible;
         this.alphamap_ctx.fillRect(0, 0, width, height);
 
-        if (highlightedSegmentIndexSet) {
+        if (highlightedSegmentIDSet) {
 
             // set highlight color
             this.highlight_ctx.fillStyle = this.highlightColor;
@@ -191,7 +191,7 @@ class TraceColorRampMaterialProvider {
                 quantizedInterpolant = quantize(interpolant, globals.ensembleManager.maximumSegmentID);
                 const segmentID = segmentIDForInterpolant(interpolant);
 
-                if (highlightedSegmentIndexSet.has(segmentID)) {
+                if (highlightedSegmentIDSet.has(segmentID)) {
                     this.highlight_ctx.fillRect(0, y, width, 1);
                     this.alphamap_ctx.fillRect(0, y, width, 1);
                 }

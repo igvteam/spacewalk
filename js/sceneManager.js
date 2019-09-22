@@ -53,10 +53,8 @@ class SceneManager {
 
             let objects = [];
             data.segmentIDList.forEach(segmentID => {
-                const key = segmentID.toString();
-                if (globals.ballAndStick.segmentObjectDictionary[ key ]) {
-                    let { object } = globals.ballAndStick.segmentObjectDictionary[ key ];
-                    objects.push(object);
+                if (globals.ballAndStick.segmentID_Mesh_Dictionary[ segmentID ]) {
+                    objects.push( globals.ballAndStick.segmentID_Mesh_Dictionary[ segmentID ] );
                 }
             });
 

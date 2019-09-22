@@ -1,6 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { globals } from "./app.js";
 import Parser from "./parser.js";
+import { defaultColormapName } from "./colorMapManager.js";
 
 class EnsembleManager {
 
@@ -24,6 +25,9 @@ class EnsembleManager {
         this.stepSize = undefined;
 
         this.ensemble = {};
+
+        let { chr, genomicStart, genomicEnd } = locus;
+
         for (let [traceKey, trace] of Object.entries(hash)) {
 
             if (undefined === this.maximumSegmentID) {
@@ -42,27 +46,41 @@ class EnsembleManager {
                     this.stepSize = sizeBP;
                 }
 
+
                 for (let { x, y, z } of xyzList) {
 
                     if (x && y && z) {
-
 
                         if (undefined === this.ensemble[ ensembleKey ]) {
 
                             this.ensemble[ ensembleKey ] =
                                 {
                                     geometry: new THREE.Geometry(),
-                                    segmentList: [],
-                                    material: new THREE.MeshPhongMaterial()
+                                    colorRampInterpolantWindows: [],
                                 };
 
                         }
 
-                        this.ensemble[ ensembleKey ].geometry.vertices.push(new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z)));
-
                         const number = 1 + segmentIndex;
                         const segmentID = number.toString();
-                        this.ensemble[ ensembleKey ].segmentList.push({ segmentID, genomicLocation: centroidBP });
+
+                        let colorRampInterpolantWindow =
+                            {
+                                start: (startBP - genomicStart) / (genomicEnd - genomicStart),
+                                  end: (  endBP - genomicStart) / (genomicEnd - genomicStart),
+                                interpolant: (centroidBP - genomicStart) / (genomicEnd - genomicStart),
+                                sizeBP,
+                                segmentID,
+                                genomicLocation: centroidBP
+                            };
+
+                        colorRampInterpolantWindow.color = globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, colorRampInterpolantWindow.interpolant);
+
+                        colorRampInterpolantWindow.material = new THREE.MeshPhongMaterial({ color: colorRampInterpolantWindow.color });
+
+                        this.ensemble[ ensembleKey ].colorRampInterpolantWindows.push(colorRampInterpolantWindow);
+
+                        this.ensemble[ ensembleKey ].geometry.vertices.push(new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z)));
 
                     } // if (x && y && z)
 
@@ -115,10 +133,10 @@ const segmentIDSanityCheck = ensemble => {
         let { vertices } = trace.geometry;
         for (let i = 0; i < vertices.length; i++) {
 
-            if (trace.segmentList[ i ].segmentID > globals.ensembleManager.maximumSegmentID) {
-                console.log(`Bogus Segment ID. trace ${ ensembleList.indexOf(trace) } vertex ${ i } segmentID ${ trace.segmentList[ i ].segmentID } maximumSegmentID ${ globals.ensembleManager.maximumSegmentID }`);
+            if (trace.colorRampInterpolantWindows[ i ].segmentID > globals.ensembleManager.maximumSegmentID) {
+                console.log(`Bogus Segment ID. trace ${ ensembleList.indexOf(trace) } vertex ${ i } segmentID ${ trace.colorRampInterpolantWindows[ i ].segmentID } maximumSegmentID ${ globals.ensembleManager.maximumSegmentID }`);
             }
-            const segmentID = trace.segmentList[ i ].segmentID;
+            const segmentID = trace.colorRampInterpolantWindows[ i ].segmentID;
             const  index = segmentID - 1;
 
             const xy = index * mapSize + index;
