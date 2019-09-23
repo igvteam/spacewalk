@@ -34,6 +34,8 @@ class EnsembleManager {
 
             const ensembleKey = traceKey.split('%').pop();
 
+            this.ensemble[ensembleKey] = [];
+
             const keyValuePairs = Object.entries(trace);
             for (let keyValuePair of keyValuePairs) {
 
@@ -43,56 +45,58 @@ class EnsembleManager {
                 let { startBP, centroidBP, endBP, sizeBP } = Parser.genomicRangeFromHashKey(key);
 
                 const positions = xyzList
-                    .map(({ startBP, endBP, x, y, z }) => {
+                    .map(({ x, y, z }) => {
 
                         const exe = x ? parseFloat(x) : 'nan';
                         const wye = y ? parseFloat(y) : 'nan';
                         const zee = z ? parseFloat(z) : 'nan';
 
-                        return { exe, wye, zee, segmentID }
+                        return { exe, wye, zee }
                     })
-                    .filter(({ exe, wye, zee, segmentID }) => {
+                    .filter(({ exe, wye, zee }) => {
                         return !(exe === 'nan' || wye === 'nan' || zee === 'nan')
                     });
 
-                    for(let { exe, wye, zee, segmentID } of positions ){
+                if (0 === positions.length) {
+                   // positions array has no valid x, y, or z values (nan)
+                   //  console.log(`ignore segment ID ${ segmentID }.`);
+                } else {
 
-                        if (undefined === this.ensemble[ensembleKey]) {
+                    const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart);
+                    const color = colorRampPanel.traceColorRampMaterialProvider.colorForInterpolant(interpolant);
+                    const material = new THREE.MeshPhongMaterial({color});
 
-                            this.ensemble[ensembleKey] =
-                                {
-                                    geometry: new THREE.Geometry(),
-                                    colorRampInterpolantWindows: [],
-                                };
+                    let colorRampInterpolantWindow =
+                        {
+                            start: (startBP - genomicStart) / (genomicEnd - genomicStart),
+                            end: (endBP - genomicStart) / (genomicEnd - genomicStart),
+                            interpolant,
+                            sizeBP,
+                            genomicLocation: centroidBP,
+                            segmentID,
+                            color,
+                            material
+                        };
 
-                        }
+                    const geometry = new THREE.BufferGeometry();
 
-                        const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart);
-                        const color = colorRampPanel.traceColorRampMaterialProvider.colorForInterpolant(interpolant);
-                        const material = new THREE.MeshPhongMaterial({color});
+                    this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
 
-                        let colorRampInterpolantWindow =
-                            {
-                                start: (startBP - genomicStart) / (genomicEnd - genomicStart),
-                                end: (endBP - genomicStart) / (genomicEnd - genomicStart),
-                                interpolant,
-                                sizeBP,
-                                segmentID,
-                                genomicLocation: centroidBP,
-                                color,
-                                material
-                            };
-
-                        this.ensemble[ensembleKey].colorRampInterpolantWindows.push(colorRampInterpolantWindow);
-
-                        this.ensemble[ensembleKey].geometry.vertices.push(new THREE.Vector3(exe, wye, zee));
-
+                    const list = [];
+                    for(let { exe, wye, zee } of positions){
+                        list.push(exe, wye, zee);
                     }
+
+                    geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array(list), 3 ) );
+
+                }
 
             } // for Object.entries(trace)
 
-            this.ensemble[ ensembleKey ].geometry.computeBoundingBox();
-            this.ensemble[ ensembleKey ].geometry.computeBoundingSphere();
+            for (let { geometry } of this.ensemble[ ensembleKey ]) {
+                geometry.computeBoundingBox();
+                geometry.computeBoundingSphere();
+            }
 
         } // for Object.entries(hash)
 
