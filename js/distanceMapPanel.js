@@ -3,6 +3,7 @@ import Panel from "./panel.js";
 import { globals } from "./app.js";
 import { drawWithSharedUint8ClampedArray } from './utils.js';
 import { threeJSColorToRGB255 } from "./color.js";
+import {appleCrayonColorRGB255} from "./color";
 
 const kDistanceUndefined = -1;
 
@@ -182,20 +183,37 @@ const paintDistanceCanvas = (distances, maximumDistance) => {
     const str = `Distance Map - Paint Canvas. Uint8ClampedArray.`;
     console.time(str);
 
-    const colorMap = globals.colorMapManager.dictionary['juicebox_default'];
-    const scale = colorMap.length - 1;
+    let i;
 
-    let i = 0;
-    for (let d of distances) {
-
-        const interpolant = 1.0 - d/maximumDistance;
-        const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolant * scale) ][ 'threejs' ]);
-
+    i = 0;
+    const { r, g, b } = appleCrayonColorRGB255('magnesium');
+    for (let x = 0; x < distances.length; x++) {
         globals.sharedDistanceMapUint8ClampedArray[i++] = r;
         globals.sharedDistanceMapUint8ClampedArray[i++] = g;
         globals.sharedDistanceMapUint8ClampedArray[i++] = b;
         globals.sharedDistanceMapUint8ClampedArray[i++] = 255;
     }
+
+    const colorMap = globals.colorMapManager.dictionary['juicebox_default'];
+    const scale = colorMap.length - 1;
+
+    i = 0;
+    for (let d of distances) {
+
+        if (kDistanceUndefined !== d) {
+
+            const interpolant = 1.0 - d/maximumDistance;
+            const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolant * scale) ][ 'threejs' ]);
+
+            globals.sharedDistanceMapUint8ClampedArray[i + 0] = r;
+            globals.sharedDistanceMapUint8ClampedArray[i + 1] = g;
+            globals.sharedDistanceMapUint8ClampedArray[i + 2] = b;
+            globals.sharedDistanceMapUint8ClampedArray[i + 3] = 255;
+        }
+
+        i += 4;
+    }
+    
     console.timeEnd(str);
 
 };
