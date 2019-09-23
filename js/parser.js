@@ -104,20 +104,12 @@ class Parser {
 
     consume (hash) {
 
-        // const consumer = isPointCloud(hash) ? globals.pointCloudManager : globals.ensembleManager;
-        // consumer.ingestSW({ locus: this.locus, hash });
-
         globals.ensembleManager.ingestSW({ locus: this.locus, hash });
 
         const { chr, genomicStart, genomicEnd } = this.locus;
 
-        // if (isPointCloud(hash)) {
-        //     globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd } });
-        // } else {
-        //     globals.eventBus.post({ type: "DidLoadEnsembleFile",   data: { genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
-        // }
-
-        globals.eventBus.post({ type: "DidLoadEnsembleFile",   data: { genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
+        const status = isPointCloud(hash);
+        globals.eventBus.post({ type: "DidLoadEnsembleFile",   data: { isPointCloud: status, genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
 
     }
 

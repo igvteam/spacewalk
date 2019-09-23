@@ -12,23 +12,25 @@ import SceneManager, {sceneManagerConfigurator} from "./sceneManager.js";
 import {highlightColor, distanceMapPanel, contactFrequencyMapPanel} from "./gui.js";
 
 class Globals {
-    constructor () {
 
-        this.parser = undefined;
+    constructor (container) {
 
-        this.eventBus = undefined;
+        this.parser = new Parser();
 
-        this.pointCloudManager = undefined;
-        this.ensembleManager = undefined;
+        this.eventBus = new EventBus();
 
-        this.colorMapManager = undefined;
+        this.pointCloudManager = new PointCloudManager();
+        this.ensembleManager = new EnsembleManager();
 
-        this.appWindowWidth = undefined;
-        this.appWindowHeight = undefined;
+        this.pointCloud = new PointCloud();
+        this.noodle = new Noodle();
+        this.ballAndStick = new BallAndStick();
 
-        this.pointCloud = undefined;
-        this.noodle = undefined;
-        this.ballAndStick = undefined;
+        this.colorMapManager = new ColorMapManager();
+
+        let { width, height } = container.getBoundingClientRect();
+        this.appWindowWidth = width;
+        this.appWindowHeight = height;
 
         this.sceneManager = undefined;
 
@@ -37,41 +39,27 @@ class Globals {
         // shared by distance/contact map buffers
         this.sharedMapArray = undefined;
         this.sharedContactFrequencyMapUint8ClampedArray = undefined;
-                this.sharedDistanceMapUint8ClampedArray = undefined;
+        this.sharedDistanceMapUint8ClampedArray = undefined;
+
+        this.eventBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 
     initialize(container) {
 
-        this.parser = new Parser();
-
-        this.eventBus = new EventBus();
-        this.eventBus.subscribe('DidLoadEnsembleFile', this);
-
-        this.pointCloudManager = new PointCloudManager();
-        this.ensembleManager = new EnsembleManager();
-
-        this.colorMapManager = new ColorMapManager();
         this.colorMapManager.configure();
-
-        let { width, height } = container.getBoundingClientRect();
-        this.appWindowWidth = width;
-        this.appWindowHeight = height;
-
-        this.pointCloud = new PointCloud();
-        this.noodle = new Noodle();
-        this.ballAndStick = new BallAndStick();
 
         this.sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
 
         this.dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 
-        // this.sharedMapCanvas = document.createElement('canvas');
-
     }
 
     receiveEvent({ type, data }) {
-        if ('DidLoadEnsembleFile' === type) {
+
+        const { isPointCloud } = data;
+
+        if ('DidLoadEnsembleFile' === type && false === isPointCloud) {
 
             this.sharedMapArray = new Array(this.ensembleManager.maximumSegmentID * this.ensembleManager.maximumSegmentID);
 

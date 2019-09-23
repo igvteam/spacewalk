@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", event => {
 
     const container = document.getElementById('spacewalk_canvas_container');
 
-    globals = new Globals();
+    globals = new Globals(container);
     globals.initialize(container);
 
     createGUI(container);
