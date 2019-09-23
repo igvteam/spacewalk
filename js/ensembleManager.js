@@ -2,7 +2,8 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { globals } from "./app.js";
 import Parser from "./parser.js";
 import { colorRampPanel } from "./gui.js";
-import {includes} from "./math.js";
+import { includes, degrees } from "./math.js";
+import {appleCrayonColorThreeJS} from "./color.js";
 
 class EnsembleManager {
 
@@ -42,6 +43,10 @@ class EnsembleManager {
                 let [ key, xyzList ] = keyValuePair;
                 let segmentID = (1 + keyValuePairs.indexOf(keyValuePair)).toString();
 
+                if (undefined === this.isPointCloud) {
+                    this.isPointCloud = xyzList.length > 1;
+                }
+
                 let { startBP, centroidBP, endBP, sizeBP } = Parser.genomicRangeFromHashKey(key);
 
                 const positions = xyzList
@@ -63,8 +68,6 @@ class EnsembleManager {
                 } else {
 
                     const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart);
-                    const color = colorRampPanel.traceColorRampMaterialProvider.colorForInterpolant(interpolant);
-                    const material = new THREE.MeshPhongMaterial({color});
 
                     let colorRampInterpolantWindow =
                         {
@@ -73,34 +76,45 @@ class EnsembleManager {
                             interpolant,
                             sizeBP,
                             genomicLocation: centroidBP,
-                            segmentID,
-                            color,
-                            material
+                            segmentID
                         };
 
                     const geometry = new THREE.BufferGeometry();
 
-                    this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
+                    geometry.userData.color = colorRampPanel.traceColorRampMaterialProvider.colorForInterpolant(interpolant);
+                    geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('magnesium');
 
-                    const list = [];
+                    geometry.userData.material = new THREE.MeshPhongMaterial({ color: geometry.userData.color });
+
+                    const xyz = [];
+                    const rgb = [];
                     for(let { exe, wye, zee } of positions){
-                        list.push(exe, wye, zee);
+
+                        xyz.push(exe, wye, zee);
+
+                        const { r, g, b } = geometry.userData.color;
+                        rgb.push(r, g, b);
                     }
 
-                    geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array(list), 3 ) );
+                    geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
+                    geometry.addAttribute(    'color', new THREE.Float32BufferAttribute( rgb, 3 ).setDynamic( this.isPointCloud ) );
+
+                    if (this.isPointCloud) {
+                        geometry.computeBoundingBox();
+                        geometry.computeBoundingSphere();
+                    }
+
+                    this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
 
                 }
 
             } // for Object.entries(trace)
 
-            for (let { geometry } of this.ensemble[ ensembleKey ]) {
-                geometry.computeBoundingBox();
-                geometry.computeBoundingSphere();
-            }
-
         } // for Object.entries(hash)
 
         console.timeEnd(str);
+
+        globals.eventBus.post({ type: "DidLoadEnsembleFile", data: { isPointCloud: this.isPointCloud, genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
 
     }
 
@@ -127,12 +141,74 @@ class EnsembleManager {
 
         return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;
     }
+
+    static getBoundsWithTrace(trace, isPointCloud){
+
+        if (isPointCloud) {
+            const { center, radius } = trace.geometry.boundingSphere;
+            const { min, max } = trace.geometry.boundingBox;
+            return { min, max, center, radius }
+        } else {
+
+            const boundingBox = new THREE.Box3();
+
+            let xyz = new THREE.Vector3();
+            for (let { geometry } of Object.values(trace)) {
+
+                const [ x, y, z ] = geometry.getAttribute('position').array;
+                xyz.set(x, y, z);
+                boundingBox.expandByPoint(xyz);
+            }
+
+            const { min, max } = boundingBox;
+
+            const boundingSphere = new THREE.Sphere();
+            boundingBox.getBoundingSphere(boundingSphere);
+            const { center, radius } = boundingSphere;
+
+            return { min, max, center, radius }
+        }
+    };
+
+    static getCameraPoseAlongAxis ({ trace, isPointCloud, axis, scaleFactor }) {
+
+        const { center, radius } = EnsembleManager.getBoundsWithTrace(trace, isPointCloud);
+
+        const dimen = scaleFactor * radius;
+
+        const theta = Math.atan(radius/dimen);
+        const fov = degrees( 2 * theta);
+
+        const axes =
+            {
+                '-x': () => {
+                    return new THREE.Vector3(-dimen, 0, 0);
+                },
+                '+x': () => {
+                    return new THREE.Vector3(dimen, 0, 0);
+                },
+                '-y': () => {
+                    return new THREE.Vector3(0, -dimen, 0);
+                },
+                '+y': () => {
+                    return new THREE.Vector3(0, dimen, 0);
+                },
+                '-z': () => {
+                    return new THREE.Vector3(0, 0, -dimen);
+                },
+                '+z': () => {
+                    return new THREE.Vector3(0, 0, dimen);
+                },
+            };
+
+        const vector = axes[ axis ]();
+        let position = new THREE.Vector3();
+
+        position.addVectors(center, vector);
+
+        return { target:center, position, fov }
+    }
 }
 
-export const getBoundsWithTrace = (trace) => {
-    const { center, radius } = trace.geometry.boundingSphere;
-    const { min, max } = trace.geometry.boundingBox;
-    return { min, max, center, radius }
-};
 
 export default EnsembleManager;

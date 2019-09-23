@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", event => {
 
     globals.eventBus.subscribe('DidSelectTrace', appEventListener);
     globals.eventBus.subscribe('DidLoadEnsembleFile', appEventListener);
-    globals.eventBus.subscribe('DidLoadPointCloudFile', appEventListener);
     globals.eventBus.subscribe('ToggleAllUIControls', appEventListener);
     globals.eventBus.subscribe('RenderStyleDidChange', appEventListener);
 

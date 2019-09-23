@@ -102,17 +102,6 @@ class Parser {
         return { startBP, centroidBP, endBP, sizeBP };
     }
 
-    consume (hash) {
-
-        globals.ensembleManager.ingestSW({ locus: this.locus, hash });
-
-        const { chr, genomicStart, genomicEnd } = this.locus;
-
-        const status = isPointCloud(hash);
-        globals.eventBus.post({ type: "DidLoadEnsembleFile",   data: { isPointCloud: status, genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
-
-    }
-
     loadURL ({ url, name }) {
 
         showSpinner();
@@ -128,10 +117,9 @@ class Parser {
             }
 
             const hash = this.parse(string);
-
-            this.consume(hash);
-
             hideSpinner();
+
+            globals.ensembleManager.ingestSW({ locus: this.locus, hash });
 
         })(url);
 
@@ -154,8 +142,7 @@ class Parser {
             const hash = this.parse(string);
             hideSpinner();
 
-            this.consume(hash);
-
+            globals.ensembleManager.ingestSW({ locus: this.locus, hash });
 
         })(file);
 
@@ -171,15 +158,5 @@ class Parser {
     }
 
 }
-
-const isPointCloud = hash => {
-
-    const [ unused, value ] = Object.entries(hash)[ 0 ];
-
-    const [ irrelevant, candidate ] = Object.entries(value)[ 0 ];
-
-    return (candidate.length > 1);
-
-};
 
 export default Parser;

@@ -20,17 +20,13 @@ class JuiceboxPanel extends Panel {
         super({ container, panel, isHidden, xFunction, yFunction });
 
         globals.eventBus.subscribe('DidLoadEnsembleFile', this);
-        globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }
 
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });
 
-        // console.log('WARNING: JuiceboxPanel currently disabled. Method receiveEvent() is disabled.');
-        // return;
-
-        if ("DidLoadEnsembleFile" === type || "DidLoadPointCloudFile" === type) {
+        if ("DidLoadEnsembleFile" === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
