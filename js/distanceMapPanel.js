@@ -2,8 +2,7 @@ import { guiManager } from './gui.js';
 import Panel from "./panel.js";
 import { globals } from "./app.js";
 import { drawWithSharedUint8ClampedArray } from './utils.js';
-import { threeJSColorToRGB255 } from "./color.js";
-import {appleCrayonColorRGB255} from "./color";
+import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 
 const kDistanceUndefined = -1;
 
@@ -213,7 +212,7 @@ const paintDistanceCanvas = (distances, maximumDistance) => {
 
         i += 4;
     }
-    
+
     console.timeEnd(str);
 
 };

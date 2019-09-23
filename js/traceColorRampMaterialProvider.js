@@ -5,7 +5,7 @@ import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import PointCloud from "./pointCloud.js";
 import { globals } from "./app.js";
-import BallAndStick from "./ballAndStick.js";
+import EnsembleManager from "./ensembleManager.js";
 
 let currentSegmentIndex = undefined;
 
@@ -109,7 +109,7 @@ class TraceColorRampMaterialProvider {
             this.repaint()
         } else if ("DidSelectSegmentID" === type) {
             const { interpolantList } = data;
-            this.highlightWithInterpolantWindowList(globals.ensembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList }));
+            this.highlightWithInterpolantWindowList(EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList }));
         } else if (globals.sceneManager && "DidLeaveGUI" === type) {
             this.repaint()
         }
@@ -128,7 +128,7 @@ class TraceColorRampMaterialProvider {
         let { yNormalized } = getMouseXY(canvas, event);
         const interpolantList = [ 1.0 - yNormalized ];
 
-        const interpolantWindowList = globals.ensembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
+        const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
 
         if (interpolantWindowList) {
             this.highlightWithInterpolantWindowList(interpolantWindowList);

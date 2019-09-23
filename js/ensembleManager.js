@@ -22,9 +22,6 @@ class EnsembleManager {
         // and distance maps.
         this.maximumSegmentID = undefined;
 
-        // the genomic distance (bp) between centroids
-        this.stepSize = undefined;
-
         this.ensemble = {};
 
         let { chr, genomicStart, genomicEnd } = locus;
@@ -35,26 +32,34 @@ class EnsembleManager {
                 this.maximumSegmentID = Object.keys(trace).length;
             }
 
-            let segmentIndex = 0;
-
             const ensembleKey = traceKey.split('%').pop();
 
-            for (let [ key, xyzList ] of Object.entries(trace)) {
+            const keyValuePairs = Object.entries(trace);
+            for (let keyValuePair of keyValuePairs) {
+
+                let [ key, xyzList ] = keyValuePair;
+                let segmentID = (1 + keyValuePairs.indexOf(keyValuePair)).toString();
 
                 let { startBP, centroidBP, endBP, sizeBP } = Parser.genomicRangeFromHashKey(key);
 
-                if (undefined === this.stepSize) {
-                    this.stepSize = sizeBP;
-                }
+                const positions = xyzList
+                    .map(({ startBP, endBP, x, y, z }) => {
 
+                        const exe = x ? parseFloat(x) : 'nan';
+                        const wye = y ? parseFloat(y) : 'nan';
+                        const zee = z ? parseFloat(z) : 'nan';
 
-                for (let { x, y, z } of xyzList) {
+                        return { exe, wye, zee, segmentID }
+                    })
+                    .filter(({ exe, wye, zee, segmentID }) => {
+                        return !(exe === 'nan' || wye === 'nan' || zee === 'nan')
+                    });
 
-                    if (x && y && z) {
+                    for(let { exe, wye, zee, segmentID } of positions ){
 
-                        if (undefined === this.ensemble[ ensembleKey ]) {
+                        if (undefined === this.ensemble[ensembleKey]) {
 
-                            this.ensemble[ ensembleKey ] =
+                            this.ensemble[ensembleKey] =
                                 {
                                     geometry: new THREE.Geometry(),
                                     colorRampInterpolantWindows: [],
@@ -62,32 +67,27 @@ class EnsembleManager {
 
                         }
 
-                        const number = 1 + segmentIndex;
-                        const segmentID = number.toString();
+                        const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart);
+                        const color = colorRampPanel.traceColorRampMaterialProvider.colorForInterpolant(interpolant);
+                        const material = new THREE.MeshPhongMaterial({color});
 
                         let colorRampInterpolantWindow =
                             {
                                 start: (startBP - genomicStart) / (genomicEnd - genomicStart),
-                                  end: (  endBP - genomicStart) / (genomicEnd - genomicStart),
-                                interpolant: (centroidBP - genomicStart) / (genomicEnd - genomicStart),
+                                end: (endBP - genomicStart) / (genomicEnd - genomicStart),
+                                interpolant,
                                 sizeBP,
                                 segmentID,
-                                genomicLocation: centroidBP
+                                genomicLocation: centroidBP,
+                                color,
+                                material
                             };
 
-                        colorRampInterpolantWindow.color = colorRampPanel.traceColorRampMaterialProvider.colorForInterpolant(colorRampInterpolantWindow.interpolant);
+                        this.ensemble[ensembleKey].colorRampInterpolantWindows.push(colorRampInterpolantWindow);
 
-                        colorRampInterpolantWindow.material = new THREE.MeshPhongMaterial({ color: colorRampInterpolantWindow.color });
+                        this.ensemble[ensembleKey].geometry.vertices.push(new THREE.Vector3(exe, wye, zee));
 
-                        this.ensemble[ ensembleKey ].colorRampInterpolantWindows.push(colorRampInterpolantWindow);
-
-                        this.ensemble[ ensembleKey ].geometry.vertices.push(new THREE.Vector3(parseFloat(x), parseFloat(y), parseFloat(z)));
-
-                    } // if (x && y && z)
-
-                    ++segmentIndex;
-
-                } // for xyzList
+                    }
 
             } // for Object.entries(trace)
 
@@ -100,7 +100,11 @@ class EnsembleManager {
 
     }
 
-    getInterpolantWindowList({ trace, interpolantList }) {
+    getTraceWithName(name) {
+        return this.ensemble[ name ] || undefined;
+    }
+
+    static getInterpolantWindowList({ trace, interpolantList }) {
         let interpolantWindowList = [];
 
         for (let colorRampInterpolantWindow of trace.colorRampInterpolantWindows) {
@@ -118,10 +122,6 @@ class EnsembleManager {
         }
 
         return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;
-    }
-
-    getTraceWithName(name) {
-        return this.ensemble[ name ] || undefined;
     }
 }
 

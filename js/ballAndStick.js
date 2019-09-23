@@ -2,7 +2,6 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { getBoundsWithTrace } from './ensembleManager.js';
 import { degrees } from './math.js';
 import { globals } from "./app.js";
-import {colorRampPanel} from "./gui.js";
 
 class BallAndStick {
 

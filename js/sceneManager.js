@@ -10,6 +10,7 @@ import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import { clamp } from "./math.js";
 import { globals } from "./app.js";
+import EnsembleManager from "./ensembleManager.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 class SceneManager {
@@ -57,7 +58,7 @@ class SceneManager {
 
             const { interpolantList } = data;
 
-            const interpolantWindowList = globals.ensembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
 
             if (interpolantWindowList) {
 
