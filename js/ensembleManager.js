@@ -23,9 +23,12 @@ class EnsembleManager {
         // and distance maps.
         this.maximumSegmentID = undefined;
 
+        this.isPointCloud = undefined;
+
         this.ensemble = {};
 
         let { chr, genomicStart, genomicEnd } = locus;
+
 
         for (let [traceKey, trace] of Object.entries(hash)) {
 
