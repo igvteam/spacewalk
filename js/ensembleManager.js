@@ -41,7 +41,6 @@ class EnsembleManager {
             for (let keyValuePair of keyValuePairs) {
 
                 let [ key, xyzList ] = keyValuePair;
-                let segmentID = (1 + keyValuePairs.indexOf(keyValuePair)).toString();
 
                 if (undefined === this.isPointCloud) {
                     this.isPointCloud = xyzList.length > 1;
@@ -63,8 +62,7 @@ class EnsembleManager {
                     });
 
                 if (0 === positions.length) {
-                   // positions array has no valid x, y, or z values (nan)
-                   //  console.log(`ignore segment ID ${ segmentID }.`);
+                    // positions array has no valid x, y, or z values (nan)
                 } else {
 
                     const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart);
@@ -76,7 +74,7 @@ class EnsembleManager {
                             interpolant,
                             sizeBP,
                             genomicLocation: centroidBP,
-                            segmentID
+                            segmentIndex: keyValuePairs.indexOf(keyValuePair)
                         };
 
                     const geometry = new THREE.BufferGeometry();
@@ -208,7 +206,16 @@ class EnsembleManager {
 
         return { target:center, position, fov }
     }
-}
 
+    static getSingleCentroidVerticesWithTrace(trace) {
+
+        return Object.values(trace)
+            .map(({ geometry }) => {
+                const [ x, y, z ] = geometry.getAttribute('position').array;
+                return new THREE.Vector3(x, y, z);
+            });
+
+    }
+}
 
 export default EnsembleManager;

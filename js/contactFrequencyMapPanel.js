@@ -1,4 +1,3 @@
-import * as THREE from "../node_modules/three/build/three.module.js";
 import KDBush from '../node_modules/kd3d/js/index.js'
 import { clamp } from "./math.js";
 import { hideSpinner, showSpinner, guiManager } from './gui.js';
@@ -6,6 +5,7 @@ import Panel from "./panel.js";
 import { globals } from "./app.js";
 import {threeJSColorToRGB255} from "./color";
 import { drawWithSharedUint8ClampedArray } from "./utils.js";
+import EnsembleManager from "./ensembleManager.js";
 
 const maxDistanceThreshold = 4096;
 const defaultDistanceThreshold = 256;
@@ -104,19 +104,15 @@ class ContactFrequencyMapPanel extends Panel {
 
 const updateContactFrequencyArray = (trace, distanceThreshold) => {
 
-    const vertices = [];
+    const mapSize = globals.ensembleManager.maximumSegmentID;
 
-    const traceValues = Object.values(trace);
-    for (let { geometry } of traceValues) {
-        const [ x, y, z ] = geometry.getAttribute('position').array;
-        vertices.push(new THREE.Vector3(x, y, z));
-    }
+    const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
 
     const exclusionSet = new Set();
 
     const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(vertices));
 
-    const mapSize = globals.ensembleManager.maximumSegmentID;
+    const traceValues = Object.values(trace);
 
     for (let i = 0; i < vertices.length; i++) {
 
@@ -125,8 +121,8 @@ const updateContactFrequencyArray = (trace, distanceThreshold) => {
         exclusionSet.add(i);
         const { colorRampInterpolantWindow } = traceValues[ i ];
 
-        const dimension = parseInt(colorRampInterpolantWindow.segmentID) - 1;
-        const xy_diagonal = dimension * mapSize + dimension;
+        const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
+        const xy_diagonal = i_segmentIndex * mapSize + i_segmentIndex;
 
         globals.sharedMapArray[ xy_diagonal ]++;
 
@@ -135,12 +131,12 @@ const updateContactFrequencyArray = (trace, distanceThreshold) => {
         if (contact_indices.length > 0) {
             for (let j of contact_indices) {
 
-                const { colorRampInterpolantWindow: colorRampInterpolantWindow_contact } = traceValues[ j ];
+                const { colorRampInterpolantWindow: colorRampInterpolantWindow_j } = traceValues[ j ];
 
-                const dimension_contact = parseInt(colorRampInterpolantWindow_contact.segmentID) - 1;
+                const j_segmentIndex = colorRampInterpolantWindow_j.segmentIndex;
 
-                const xy =         dimension * mapSize + dimension_contact;
-                const yx = dimension_contact * mapSize +         dimension;
+                const xy = i_segmentIndex * mapSize + j_segmentIndex;
+                const yx = j_segmentIndex * mapSize + i_segmentIndex;
 
                 if (xy > globals.sharedMapArray.length) {
                     console.log('xy is bogus index ' + xy);

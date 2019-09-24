@@ -3,6 +3,7 @@ import Panel from "./panel.js";
 import { globals } from "./app.js";
 import { drawWithSharedUint8ClampedArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
+import EnsembleManager from "./ensembleManager.js";
 
 const kDistanceUndefined = -1;
 
@@ -136,31 +137,32 @@ const updateDistanceArray = trace => {
 
     let maxDistance = Number.NEGATIVE_INFINITY;
 
-    let { colorRampInterpolantWindows } = trace;
-    let { vertices } = trace.geometry;
-    let { length } = vertices;
+    const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
 
     let exclusionSet = new Set();
 
-    for (let i = 0; i < length; i++) {
+    const traceValues = Object.values(trace);
 
-        const i_segmentIDIndex = parseInt(colorRampInterpolantWindows[ i ].segmentID) - 1;
+    for (let i = 0; i < vertices.length; i++) {
 
-        const xy_diagonal = i_segmentIDIndex * mapSize + i_segmentIDIndex;
+        const { colorRampInterpolantWindow } = traceValues[ i ];
+        const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
+        const xy_diagonal = i_segmentIndex * mapSize + i_segmentIndex;
         globals.sharedMapArray[ xy_diagonal ] = 0;
 
         exclusionSet.add(i);
 
-        for (let j = 0; j < length; j++) {
+        for (let j = 0; j < vertices.length; j++) {
 
             if (false === exclusionSet.has(j)) {
 
                 const distance = vertices[ i ].distanceTo(vertices[ j ]);
 
-                const j_segmentIDIndex = parseInt(colorRampInterpolantWindows[ j ].segmentID) - 1;
+                const { colorRampInterpolantWindow: colorRampInterpolantWindow_j } = traceValues[ j ];
+                const j_segmentIndex = colorRampInterpolantWindow_j.segmentIndex;
 
-                const ij =  i_segmentIDIndex * mapSize + j_segmentIDIndex;
-                const ji =  j_segmentIDIndex * mapSize + i_segmentIDIndex;
+                const ij =  i_segmentIndex * mapSize + j_segmentIndex;
+                const ji =  j_segmentIndex * mapSize + i_segmentIndex;
 
                 globals.sharedMapArray[ ij ] = globals.sharedMapArray[ ji ] = distance;
 

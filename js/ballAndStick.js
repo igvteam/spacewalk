@@ -49,46 +49,45 @@ class BallAndStick {
         // Segment ID dictionay. 3D Object UUID is key.
         this.meshUUID_ColorRampInterpolantWindow_Dictionary = {};
 
-        return trace.geometry.vertices.map((vertex, index) => {
+        return EnsembleManager.getSingleCentroidVerticesWithTrace(trace)
+            .map((vertex, index) => {
 
-            const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
+                const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
 
-            const mesh = new THREE.Mesh(geometry, trace.colorRampInterpolantWindows[ index ].material);
+                const mesh = new THREE.Mesh(geometry, trace[ index ].geometry.material);
 
-            mesh.name = 'ball';
+                mesh.name = 'ball';
 
-            const { x, y, z } = vertex;
-            mesh.position.set(x, y, z);
-            mesh.scale.setScalar(globals.sceneManager.ballRadius());
+                const { x, y, z } = vertex;
+                mesh.position.set(x, y, z);
+                mesh.scale.setScalar(globals.sceneManager.ballRadius());
 
-            this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ] = trace.colorRampInterpolantWindows[ index ];
+                this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ] = trace[ index ].colorRampInterpolantWindow;
 
-            return mesh;
+                return mesh;
 
-        });
+            });
 
     }
 
     createSticks(trace) {
 
         if (undefined === this.stickCurves) {
-            this.stickCurves = createStickCurves(trace.geometry.vertices);
+            this.stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVerticesWithTrace(trace));
         }
 
-        let meshes = [];
+        return this.stickCurves
+            .map((curve) => {
 
-        for (let curve of this.stickCurves) {
+                const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * globals.sceneManager.ballRadius(), 16, false);
+                const material = globals.sceneManager.stickMaterial.clone();
 
-            const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * globals.sceneManager.ballRadius(), 16, false);
-            const material = globals.sceneManager.stickMaterial.clone();
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.name = 'stick';
 
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.name = 'stick';
+                return mesh;
+            });
 
-            meshes.push(mesh);
-        }
-
-        return meshes;
     }
 
     addToScene (scene) {

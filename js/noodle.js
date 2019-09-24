@@ -27,7 +27,7 @@ class Noodle {
         const str = 'Noodle.configure()';
         console.time(str);
 
-        this.curve = new THREE.CatmullRomCurve3(trace.geometry.vertices);
+        this.curve = new THREE.CatmullRomCurve3(EnsembleManager.getSingleCentroidVerticesWithTrace(trace));
         this.tube = createTube(this.curve, colorRampPanel.traceColorRampMaterialProvider.material);
         this.spline = createFatSpline(this.curve, colorRampPanel.traceColorRampMaterialProvider);
 
