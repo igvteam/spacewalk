@@ -54,7 +54,7 @@ class BallAndStick {
 
                 const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
 
-                const mesh = new THREE.Mesh(geometry, trace[ index ].geometry.material);
+                const mesh = new THREE.Mesh(geometry, trace[ index ].geometry.userData.material);
 
                 mesh.name = 'ball';
 

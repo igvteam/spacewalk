@@ -108,8 +108,11 @@ class TraceColorRampMaterialProvider {
         } else if ("PickerDidLeaveObject" === type) {
             this.repaint()
         } else if ("DidSelectSegmentID" === type) {
+
             const { interpolantList } = data;
-            this.highlightWithInterpolantWindowList(EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList }));
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
+
+            this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
         } else if (globals.sceneManager && "DidLeaveGUI" === type) {
             this.repaint()
         }
@@ -131,7 +134,7 @@ class TraceColorRampMaterialProvider {
         const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
 
         if (interpolantWindowList) {
-            this.highlightWithInterpolantWindowList(interpolantWindowList);
+            this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
             globals.eventBus.post({ type: 'ColorRampMaterialProviderCanvasDidMouseMove', data: { interpolantList } });
         }
 

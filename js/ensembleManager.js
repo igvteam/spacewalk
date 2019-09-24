@@ -121,21 +121,39 @@ class EnsembleManager {
     }
 
     static getInterpolantWindowList({ trace, interpolantList }) {
+
         let interpolantWindowList = [];
 
-        for (let colorRampInterpolantWindow of trace.colorRampInterpolantWindows) {
+        const traceValues = Object.values(trace);
+        for (let i = 0; i < traceValues.length; i++) {
+
+            let { colorRampInterpolantWindow } = traceValues[ i ];
 
             const { start: a, end: b } = colorRampInterpolantWindow;
 
             for (let interpolant of interpolantList) {
 
                 if ( includes({ a, b, value: interpolant }) ) {
-                    interpolantWindowList.push(colorRampInterpolantWindow);
+                    interpolantWindowList.push({ colorRampInterpolantWindow, index: i });
                 }
 
             }
 
         }
+
+        // for (let { colorRampInterpolantWindow } of trace) {
+        //
+        //     const { start: a, end: b } = colorRampInterpolantWindow;
+        //
+        //     for (let interpolant of interpolantList) {
+        //
+        //         if ( includes({ a, b, value: interpolant }) ) {
+        //             interpolantWindowList.push(colorRampInterpolantWindow);
+        //         }
+        //
+        //     }
+        //
+        // }
 
         return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;
     }

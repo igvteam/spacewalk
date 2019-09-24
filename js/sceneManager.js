@@ -62,8 +62,7 @@ class SceneManager {
 
             if (interpolantWindowList) {
 
-                let objects = interpolantWindowList.map((interpolantWindow) => {
-                    const index = globals.ensembleManager.currentTrace.colorRampInterpolantWindows.indexOf(interpolantWindow);
+                let objects = interpolantWindowList.map(({ index }) => {
                     return globals.ballAndStick.balls[ index ];
                 });
 
