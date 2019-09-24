@@ -37,7 +37,6 @@ class ColorRampPanel extends Panel {
 
         globals.eventBus.subscribe('DidSelectTrace', this);
         globals.eventBus.subscribe('DidLoadEnsembleFile', this);
-        globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
 

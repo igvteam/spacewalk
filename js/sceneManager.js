@@ -80,7 +80,7 @@ class SceneManager {
         // this.scene.background = this.background;
 
         // Camera Lighting Rig
-        this.cameraLightingRig.configure({ fov, position: cameraPosition, centroid, boundingDiameter });
+        this.cameraLightingRig.configure({fov, position: cameraPosition, centroid, boundingDiameter});
         this.cameraLightingRig.addToScene(this.scene);
 
         // Groundplane

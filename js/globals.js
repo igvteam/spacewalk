@@ -1,6 +1,5 @@
 import EventBus from "./eventBus.js";
 import Parser from "./parser.js";
-import PointCloudManager from "./pointCloudManager.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import PointCloud from "./pointCloud.js";
@@ -19,7 +18,6 @@ class Globals {
 
         this.eventBus = new EventBus();
 
-        this.pointCloudManager = new PointCloudManager();
         this.ensembleManager = new EnsembleManager();
 
         this.pointCloud = new PointCloud();

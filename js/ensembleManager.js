@@ -97,18 +97,13 @@ class EnsembleManager {
                     geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
                     geometry.addAttribute(    'color', new THREE.Float32BufferAttribute( rgb, 3 ).setDynamic( this.isPointCloud ) );
 
-                    if (this.isPointCloud) {
-                        geometry.computeBoundingBox();
-                        geometry.computeBoundingSphere();
-                    }
-
                     this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
 
                 }
 
-            } // for Object.entries(trace)
+            }
 
-        } // for Object.entries(hash)
+        }
 
         console.timeEnd(str);
 
@@ -141,54 +136,39 @@ class EnsembleManager {
 
         }
 
-        // for (let { colorRampInterpolantWindow } of trace) {
-        //
-        //     const { start: a, end: b } = colorRampInterpolantWindow;
-        //
-        //     for (let interpolant of interpolantList) {
-        //
-        //         if ( includes({ a, b, value: interpolant }) ) {
-        //             interpolantWindowList.push(colorRampInterpolantWindow);
-        //         }
-        //
-        //     }
-        //
-        // }
-
         return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;
     }
 
-    static getBoundsWithTrace(trace, isPointCloud){
+    static getBoundsWithTrace(trace){
 
-        if (isPointCloud) {
-            const { center, radius } = trace.geometry.boundingSphere;
-            const { min, max } = trace.geometry.boundingBox;
-            return { min, max, center, radius }
-        } else {
+        const boundingBox = new THREE.Box3();
 
-            const boundingBox = new THREE.Box3();
+        let probe = new THREE.Vector3();
+        for (let { geometry } of Object.values(trace)) {
 
-            let xyz = new THREE.Vector3();
-            for (let { geometry } of Object.values(trace)) {
+            let xyz = geometry.getAttribute('position');
+            for (let a = 0; a < xyz.count; a++) {
 
-                const [ x, y, z ] = geometry.getAttribute('position').array;
-                xyz.set(x, y, z);
-                boundingBox.expandByPoint(xyz);
+                const [ x, y, z ] = [ xyz.getX(a), xyz.getY(a), xyz.getZ(a) ];
+                probe.set(x, y, z);
+
+                boundingBox.expandByPoint(probe);
             }
 
-            const { min, max } = boundingBox;
-
-            const boundingSphere = new THREE.Sphere();
-            boundingBox.getBoundingSphere(boundingSphere);
-            const { center, radius } = boundingSphere;
-
-            return { min, max, center, radius }
         }
+
+        const { min, max } = boundingBox;
+
+        const boundingSphere = new THREE.Sphere();
+        boundingBox.getBoundingSphere(boundingSphere);
+        const { center, radius } = boundingSphere;
+
+        return { min, max, center, radius }
     };
 
-    static getCameraPoseAlongAxis ({ trace, isPointCloud, axis, scaleFactor }) {
+    static getCameraPoseAlongAxis ({ trace, axis, scaleFactor }) {
 
-        const { center, radius } = EnsembleManager.getBoundsWithTrace(trace, isPointCloud);
+        const { center, radius } = EnsembleManager.getBoundsWithTrace(trace);
 
         const dimen = scaleFactor * radius;
 

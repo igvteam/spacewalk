@@ -53,19 +53,19 @@ let setupEnsemble = ({trace}) => {
 
         globals.sceneManager.renderStyle = PointCloud.getRenderStyle();
 
-        globals.pointCloud.configure(points);
+        globals.pointCloud.configure(trace);
         globals.pointCloud.addToScene(scene);
 
-        const {min, max, center, radius} = EnsembleManager.getBoundsWithTrace(trace, isPointCloud);
-        const {position, fov} = EnsembleManager.getCameraPoseAlongAxis({ trace, isPointCloud, axis: '+z', scaleFactor: 3 });
+        const {min, max, center, radius} = EnsembleManager.getBoundsWithTrace(trace);
+        const {position, fov} = EnsembleManager.getCameraPoseAlongAxis({ trace, axis: '+z', scaleFactor: 3 });
         globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
 
     } else {
 
         globals.sceneManager.renderStyle = guiManager.getRenderStyle();
 
-        const { min, max, center, radius } = EnsembleManager.getBoundsWithTrace(trace, isPointCloud);
-        const { position, fov } = EnsembleManager.getCameraPoseAlongAxis({ trace, isPointCloud, axis: '+z', scaleFactor: 3 });
+        const { min, max, center, radius } = EnsembleManager.getBoundsWithTrace(trace);
+        const { position, fov } = EnsembleManager.getCameraPoseAlongAxis({ trace, axis: '+z', scaleFactor: 3 });
 
         globals.noodle.configure(trace);
         globals.noodle.addToScene(scene);
