@@ -3,11 +3,8 @@ import { fitToContainer, getMouseXY } from "./utils.js";
 import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
-import PointCloud from "./pointCloud.js";
 import { globals } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
-
-let currentSegmentIndex = undefined;
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
@@ -56,28 +53,17 @@ class TraceColorRampMaterialProvider {
         const namespace = 'color-ramp-material-provider';
 
         $canvasContainer.on(('mousemove.' + namespace), (event) => {
-
             event.stopPropagation();
-
-            if (globals.sceneManager.renderStyle !== PointCloud.getRenderStyle()) {
-                this.onCanvasMouseMove(canvas, event)
-            }
-
+            this.onCanvasMouseMove(canvas, event);
         });
 
         $canvasContainer.on(('mouseenter.' + namespace), (event) => {
             event.stopPropagation();
-            currentSegmentIndex = undefined;
         });
 
         $canvasContainer.on(('mouseleave.' + namespace), (event) => {
-
             event.stopPropagation();
-
-            if (globals.sceneManager.renderStyle !== PointCloud.getRenderStyle()) {
-                currentSegmentIndex = undefined;
-                this.repaint();
-            }
+            this.repaint();
         });
 
         // soak up misc events

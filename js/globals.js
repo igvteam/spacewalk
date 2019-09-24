@@ -20,10 +20,6 @@ class Globals {
 
         this.ensembleManager = new EnsembleManager();
 
-        this.pointCloud = new PointCloud();
-        this.noodle = new Noodle();
-        this.ballAndStick = new BallAndStick();
-
         this.colorMapManager = new ColorMapManager();
 
         let { width, height } = container.getBoundingClientRect();
@@ -44,6 +40,10 @@ class Globals {
     }
 
     initialize(container) {
+
+        this.pointCloud = new PointCloud();
+        this.noodle = new Noodle();
+        this.ballAndStick = new BallAndStick();
 
         this.colorMapManager.configure();
 

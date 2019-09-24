@@ -1,5 +1,4 @@
 import TraceColorRampMaterialProvider from "./traceColorRampMaterialProvider.js";
-import PointCloudColorRampMaterialProvider from "./pointCloudColorRampMaterialProvider.js";
 import { setMaterialProvider } from './utils.js';
 import { guiManager } from './gui.js';
 import Panel from './panel.js';
@@ -7,7 +6,7 @@ import { globals } from "./app.js";
 
 class ColorRampPanel extends Panel {
 
-    constructor({ container, panel, traceColorRampMaterialProvider, pointCloudColorRampMaterialProvider, isHidden }) {
+    constructor({ container, panel, traceColorRampMaterialProvider, isHidden }) {
 
         const xFunction = (cw, w) => {
             const multiple = 5/4;
@@ -21,7 +20,6 @@ class ColorRampPanel extends Panel {
         super({ container, panel, isHidden, xFunction, yFunction });
 
         this.traceColorRampMaterialProvider = traceColorRampMaterialProvider;
-        this.pointCloudColorRampMaterialProvider = pointCloudColorRampMaterialProvider;
 
         // header
         this.$header = this.$panel.find('#spacewalk_color_ramp_header');
@@ -49,28 +47,12 @@ class ColorRampPanel extends Panel {
             this.traceColorRampMaterialProvider.repaint();
         } else if ("DidLoadEnsembleFile" === type) {
 
-            this.pointCloudColorRampMaterialProvider.hide();
-            this.traceColorRampMaterialProvider.show();
-
             const { genomicStart, genomicEnd } = data;
 
             this.$footer.text(Math.round(genomicStart / 1e6) + 'Mb');
             this.$header.text(Math.round(genomicEnd   / 1e6) + 'Mb');
 
             this.traceColorRampMaterialProvider.repaint();
-
-            this.presentPanel();
-        } else if ("DidLoadPointCloudFile" === type) {
-
-            this.traceColorRampMaterialProvider.hide();
-            this.pointCloudColorRampMaterialProvider.show();
-
-            const { genomicStart, genomicEnd } = data;
-
-            this.$footer.text(Math.round(genomicStart / 1e6) + 'Mb');
-            this.$header.text(Math.round(genomicEnd   / 1e6) + 'Mb');
-
-            this.pointCloudColorRampMaterialProvider.configureWithInterpolantWindowList(globals.pointCloudManager.getColorRampInterpolantWindowList());
 
             this.presentPanel();
         }
@@ -86,7 +68,6 @@ export const colorRampPanelConfigurator = ({ container, highlightColor }) => {
             container,
             panel: $('#spacewalk_color_ramp_panel').get(0),
             traceColorRampMaterialProvider: new TraceColorRampMaterialProvider( { $canvasContainer, highlightColor } ),
-            pointCloudColorRampMaterialProvider: new PointCloudColorRampMaterialProvider( { $canvasContainer, highlightColor } ),
             isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel')
         };
 
