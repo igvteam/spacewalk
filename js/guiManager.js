@@ -123,10 +123,8 @@ class GUIManager {
 
         $('#spacewalk_ui_manager_gnomon_colorpicker').spectrum(gnomonColorPickerConfig);
 
-
         globals.eventBus.subscribe("DidSelectPanel", this);
         globals.eventBus.subscribe('DidLoadEnsembleFile', this);
-        globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
 
@@ -139,7 +137,7 @@ class GUIManager {
             $selected.css('zIndex', zIndexPanelSelected);
             $unselected.css('zIndex', zIndexPanelUnselected);
 
-        } else if ('DidLoadPointCloudFile' === type || 'DidLoadEnsembleFile' === type) {
+        } else if ('DidLoadEnsembleFile' === type) {
 
             const {genomeID} = data;
 
@@ -147,23 +145,11 @@ class GUIManager {
             $('#spacewalk_info_panel_locus').text(globals.parser.locusBlurb());
             $('#spacewalk_info_panel_juicebox').text(juiceboxPanel.blurb());
 
-            if ('DidLoadEnsembleFile' === type) {
+            $('#spacewalk_info_panel_ensemble').text(globals.parser.sampleBlurb());
 
-                $('#spacewalk_info_panel_ensemble').text(globals.parser.sampleBlurb());
-
-                $('#spacewalk_info_panel').show();
-                $('#spacewalk_ui_manager_render_styles').show();
-                $('#spacewalk_ui_manager_trace_select').show();
-
-            } else if ('DidLoadPointCloudFile' === type) {
-
-                $('#spacewalk_info_panel_ensemble').text('-');
-
-                $('#spacewalk_info_panel').show();
-                $('#spacewalk_ui_manager_render_styles').hide();
-                $('#spacewalk_ui_manager_trace_select').hide();
-
-            }
+            $('#spacewalk_info_panel').show();
+            $('#spacewalk_ui_manager_render_styles').show();
+            $('#spacewalk_ui_manager_trace_select').show();
 
         }
     }

@@ -35,7 +35,6 @@ class IGVPanel extends Panel {
 
         globals.eventBus.subscribe("DidChangeMaterialProvider", this);
         globals.eventBus.subscribe('DidLoadEnsembleFile', this);
-        globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }
 
     receiveEvent({ type, data }) {
@@ -47,7 +46,7 @@ class IGVPanel extends Panel {
             const { trackContainerDiv } = this.browser;
             $(trackContainerDiv).find('.input-group input').prop('checked', false);
 
-        } else if ("DidLoadEnsembleFile" === type || "DidLoadPointCloudFile" === type) {
+        } else if ("DidLoadEnsembleFile" === type) {
 
             (async () => {
 
@@ -207,9 +206,7 @@ const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
         return;
     }
 
-    const segmentID = globals.ensembleManager.segmentIDForGenomicLocation(bp);
-
-    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ], segmentIDList: [ segmentID ]} });
+    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ] } });
 };
 
 const addDataValueMaterialProviderGUI = tracks => {

@@ -79,7 +79,7 @@ class Parser {
                 y = 'nan' === y ? undefined : parseFloat(y);
                 z = 'nan' === z ? undefined : parseFloat(z);
 
-                trace[ traceKey ].push ({ startBP, endBP, x, y, z });
+                trace[ traceKey ].push ({ x, y, z });
             }
 
         } // for (lines)
@@ -95,19 +95,11 @@ class Parser {
 
     }
 
-    consume (hash) {
-
-        const consumer = isPointCloud(hash) ? globals.pointCloudManager : globals.ensembleManager;
-        consumer.ingestSW({ locus: this.locus, hash });
-
-        const { chr, genomicStart, genomicEnd } = this.locus;
-
-        if (isPointCloud(hash)) {
-            globals.eventBus.post({ type: "DidLoadPointCloudFile", data: { genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd } });
-        } else {
-            globals.eventBus.post({ type: "DidLoadEnsembleFile",   data: { genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
-        }
-
+    static genomicRangeFromHashKey(key) {
+        const [ startBP, endBP ] = key.split('%').map(k => parseInt(k));
+        const centroidBP = Math.round((startBP + endBP) / 2.0);
+        const sizeBP = endBP - startBP;
+        return { startBP, centroidBP, endBP, sizeBP };
     }
 
     loadURL ({ url, name }) {
@@ -125,10 +117,9 @@ class Parser {
             }
 
             const hash = this.parse(string);
-
-            this.consume(hash);
-
             hideSpinner();
+
+            globals.ensembleManager.ingestSW({ locus: this.locus, hash });
 
         })(url);
 
@@ -151,8 +142,7 @@ class Parser {
             const hash = this.parse(string);
             hideSpinner();
 
-            this.consume(hash);
-
+            globals.ensembleManager.ingestSW({ locus: this.locus, hash });
 
         })(file);
 
@@ -168,15 +158,5 @@ class Parser {
     }
 
 }
-
-const isPointCloud = hash => {
-
-    const [ unused, value ] = Object.entries(hash)[ 0 ];
-
-    const [ irrelevant, candidate ] = Object.entries(value)[ 0 ];
-
-    return (candidate.length > 1);
-
-};
 
 export default Parser;

@@ -10,6 +10,7 @@ import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import { clamp } from "./math.js";
 import { globals } from "./app.js";
+import EnsembleManager from "./ensembleManager.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 class SceneManager {
@@ -45,23 +46,28 @@ class SceneManager {
         });
 
         globals.eventBus.subscribe("DidSelectSegmentID", this);
+        globals.eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
+
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidSelectSegmentID" === type && BallAndStick.getRenderStyle() === this.renderStyle) {
+        const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
 
-            let objects = [];
-            data.segmentIDList.forEach(segmentID => {
-                const key = segmentID.toString();
-                if (globals.ballAndStick.segmentObjectDictionary[ key ]) {
-                    let { object } = globals.ballAndStick.segmentObjectDictionary[ key ];
-                    objects.push(object);
-                }
-            });
+        if (typeConditional && BallAndStick.getRenderStyle() === this.renderStyle) {
 
-            if (objects.length > 0) {
+            const { interpolantList } = data;
+
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
+
+            if (interpolantWindowList) {
+
+                let objects = interpolantWindowList.map(({ index }) => {
+                    return globals.ballAndStick.balls[ index ];
+                });
+
                 this.picker.pickHighlighter.configureObjects(objects);
+
             }
 
         }
@@ -74,7 +80,7 @@ class SceneManager {
         // this.scene.background = this.background;
 
         // Camera Lighting Rig
-        this.cameraLightingRig.configure({ fov, position: cameraPosition, centroid, boundingDiameter });
+        this.cameraLightingRig.configure({fov, position: cameraPosition, centroid, boundingDiameter});
         this.cameraLightingRig.addToScene(this.scene);
 
         // Groundplane

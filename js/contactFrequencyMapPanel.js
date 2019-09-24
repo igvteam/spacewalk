@@ -5,6 +5,7 @@ import Panel from "./panel.js";
 import { globals } from "./app.js";
 import {threeJSColorToRGB255} from "./color";
 import { drawWithSharedUint8ClampedArray } from "./utils.js";
+import EnsembleManager from "./ensembleManager.js";
 
 const maxDistanceThreshold = 4096;
 const defaultDistanceThreshold = 256;
@@ -66,12 +67,12 @@ class ContactFrequencyMapPanel extends Panel {
 
         for (let f = 0; f < globals.sharedMapArray.length; f++) globals.sharedMapArray[ f ] = 0;
 
-        const ensembleList = Object.values(ensemble);
+        const traces = Object.values(ensemble);
 
-        const str = `Contact Frequency Map - Update Ensemble Frequency Array. ${ ensembleList.length } traces.`;
+        const str = `Contact Frequency Map - Update Ensemble Frequency Array. ${ traces.length } traces.`;
         console.time(str);
 
-        for (let trace of ensembleList) {
+        for (let trace of traces) {
             updateContactFrequencyArray(trace, this.distanceThreshold);
         }
 
@@ -103,33 +104,39 @@ class ContactFrequencyMapPanel extends Panel {
 
 const updateContactFrequencyArray = (trace, distanceThreshold) => {
 
-    let { vertices } = trace.geometry;
-    let { segmentList } = trace;
+    const mapSize = globals.ensembleManager.maximumSegmentID;
+
+    const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
+
     const exclusionSet = new Set();
 
-    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(trace));
+    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(vertices));
 
-    const mapSize = globals.ensembleManager.maximumSegmentID;
+    const traceValues = Object.values(trace);
 
     for (let i = 0; i < vertices.length; i++) {
 
         const { x, y, z } = vertices[ i ];
 
         exclusionSet.add(i);
+        const { colorRampInterpolantWindow } = traceValues[ i ];
 
-        const xy_diagonal = (segmentList[ i ].segmentID - 1) * mapSize + (segmentList[ i ].segmentID - 1);
+        const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
+        const xy_diagonal = i_segmentIndex * mapSize + i_segmentIndex;
+
         globals.sharedMapArray[ xy_diagonal ]++;
 
         const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
 
         if (contact_indices.length > 0) {
-            for (let contact_i of contact_indices) {
+            for (let j of contact_indices) {
 
-                const         i_frequency = segmentList[         i ].segmentID - 1;
-                const contact_i_frequency = segmentList[ contact_i ].segmentID - 1;
+                const { colorRampInterpolantWindow: colorRampInterpolantWindow_j } = traceValues[ j ];
 
-                const xy =         i_frequency * mapSize + contact_i_frequency;
-                const yx = contact_i_frequency * mapSize +         i_frequency;
+                const j_segmentIndex = colorRampInterpolantWindow_j.segmentIndex;
+
+                const xy = i_segmentIndex * mapSize + j_segmentIndex;
+                const yx = j_segmentIndex * mapSize + i_segmentIndex;
 
                 if (xy > globals.sharedMapArray.length) {
                     console.log('xy is bogus index ' + xy);
@@ -179,11 +186,11 @@ const paintContactFrequencyCanvas = frequencies => {
 
 };
 
-const kdBushConfiguratorWithTrace = trace => {
+const kdBushConfiguratorWithTrace = vertices => {
 
     return {
-        idList: trace.geometry.vertices.map((vertex, index) => index),
-        points: trace.geometry.vertices,
+        idList: vertices.map((vertex, index) => index),
+        points: vertices,
         getX: pt => pt.x,
         getY: pt => pt.y,
         getZ: pt => pt.z,

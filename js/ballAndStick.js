@@ -1,8 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { getBoundsWithTrace } from './ensembleManager.js';
 import { degrees } from './math.js';
 import { globals } from "./app.js";
-import {colorRampPanel} from "./gui.js";
+import EnsembleManager from "./ensembleManager.js";
 
 class BallAndStick {
 
@@ -36,8 +35,10 @@ class BallAndStick {
         }
 
         this.balls.forEach(mesh => {
-            const { segmentID, genomicLocation } = this.objectSegmentDictionary[ mesh.uuid ];
-            const color = materialProvider.colorForSegment({ segmentID, genomicLocation });
+
+            const { interpolant } = this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ];
+
+            const color = materialProvider.colorForInterpolant(interpolant);
 
             mesh.material = new THREE.MeshPhongMaterial({ color });
         });
@@ -46,58 +47,47 @@ class BallAndStick {
     createBalls(trace) {
 
         // Segment ID dictionay. 3D Object UUID is key.
-        this.objectSegmentDictionary = {};
+        this.meshUUID_ColorRampInterpolantWindow_Dictionary = {};
 
-        // 3D Object dictionary. Segment ID is key.
-        this.segmentObjectDictionary = {};
+        return EnsembleManager.getSingleCentroidVerticesWithTrace(trace)
+            .map((vertex, index) => {
 
-        return trace.geometry.vertices.map((vertex, index) => {
+                const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
 
-            const { segmentID, genomicLocation } = trace.segmentList[ index ];
+                const mesh = new THREE.Mesh(geometry, trace[ index ].geometry.userData.material);
 
-            const color = colorRampPanel.traceColorRampMaterialProvider.colorForSegment({ segmentID, genomicLocation });
-            const material = new THREE.MeshPhongMaterial({ color });
+                mesh.name = 'ball';
 
-            const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
+                const { x, y, z } = vertex;
+                mesh.position.set(x, y, z);
+                mesh.scale.setScalar(globals.sceneManager.ballRadius());
 
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.name = 'ball';
+                this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ] = trace[ index ].colorRampInterpolantWindow;
 
-            const { x, y, z } = vertex;
-            mesh.position.set(x, y, z);
-            mesh.scale.setScalar(globals.sceneManager.ballRadius());
+                return mesh;
 
-            this.objectSegmentDictionary[ mesh.uuid ] = { segmentID, genomicLocation };
-
-            const key = segmentID.toString();
-            this.segmentObjectDictionary[ key ] = { object: mesh, genomicLocation };
-
-            return mesh;
-
-        });
+            });
 
     }
 
     createSticks(trace) {
 
         if (undefined === this.stickCurves) {
-            this.stickCurves = createStickCurves(trace.geometry.vertices);
+            this.stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVerticesWithTrace(trace));
         }
 
-        let meshes = [];
+        return this.stickCurves
+            .map((curve) => {
 
-        for (let curve of this.stickCurves) {
+                const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * globals.sceneManager.ballRadius(), 16, false);
+                const material = globals.sceneManager.stickMaterial.clone();
 
-            const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * globals.sceneManager.ballRadius(), 16, false);
-            const material = globals.sceneManager.stickMaterial.clone();
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.name = 'stick';
 
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.name = 'stick';
+                return mesh;
+            });
 
-            meshes.push(mesh);
-        }
-
-        return meshes;
     }
 
     addToScene (scene) {
@@ -173,7 +163,7 @@ class BallAndStick {
     }
 
     getBounds() {
-        return getBoundsWithTrace(this.trace);
+        return EnsembleManager.getBoundsWithTrace(this.trace);
     }
 
     getCameraPoseAlongAxis ({ axis, scaleFactor }) {

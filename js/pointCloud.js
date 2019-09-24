@@ -2,6 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { degrees } from './math.js';
 import { setGeometryAttributeColorListWithColorThreeJS } from './color.js';
 import { globals } from "./app.js";
+import EnsembleManager from "./ensembleManager.js";
 
 const pointSize = 128;
 class PointCloud {
@@ -26,7 +27,7 @@ class PointCloud {
             {
                 size: pointSize,
                 vertexColors: THREE.VertexColors,
-                map: new THREE.TextureLoader().load( "texture/dot_dugla_translucent.png" ),
+                map: new THREE.TextureLoader().load( "texture/dot_dugla.png" ),
                 sizeAttenuation: true,
                 alphaTest: 0.5,
                 transparent: true,
@@ -36,41 +37,56 @@ class PointCloud {
         this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );
         this.deemphasizedMaterial.side = THREE.DoubleSide;
 
-    }
-
-    highlight(geometryUUID) {
-
-        if (this.meshList) {
-
-            for (let mesh of this.meshList) {
-                if (geometryUUID === mesh.geometry.uuid) {
-                    mesh.material = this.material;
-                    setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
-                } else {
-                    mesh.material = this.deemphasizedMaterial;
-                    setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.deemphasizedColor)
-                }
-            }
-        }
+        globals.eventBus.subscribe("DidLeaveGUI", this);
+        globals.eventBus.subscribe("DidSelectSegmentID", this);
+        globals.eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
 
     }
 
-    unHighlight() {
-        for (let mesh of this.meshList) {
-            mesh.material = this.material;
-            setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
+    receiveEvent({ type, data }) {
+
+        const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
+
+        if (typeConditional && globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
+
+            if (this.meshList) {
+
+                const { interpolantList } = data;
+
+                const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
+
+                if (interpolantWindowList) {
+
+                    for (let mesh of this.meshList) {
+                        mesh.material = this.deemphasizedMaterial;
+                        setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.deemphasizedColor)
+                    }
+
+                    for (let { index } of interpolantWindowList) {
+                        let mesh = this.meshList[ index ];
+                        mesh.material = this.material;
+                        setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
+                    }
+
+                } // if (interpolantWindowList)
+
+            } // if (this.meshList)
+
+        } else if ("DidLeaveGUI" === type) {
+            this.unHighlight();
         }
+
     }
 
     static getRenderStyle() {
         return 'render-style-point-cloud';
     }
 
-    configure(points) {
+    configure(trace) {
 
         this.dispose();
 
-        this.meshList = this.createPointCloud(points);
+        this.meshList = this.createPointCloud(trace);
 
         if (globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
             this.show();
@@ -80,11 +96,11 @@ class PointCloud {
 
     }
 
-    createPointCloud(points) {
+    createPointCloud(trace) {
 
-        return points
-            .map(point => {
-                let mesh = new THREE.Points( point.geometry, this.material );
+        return trace
+            .map(({ geometry }) => {
+                let mesh = new THREE.Points( geometry, this.material );
                 mesh.name = 'point_cloud';
                 return mesh;
             });
@@ -179,6 +195,19 @@ class PointCloud {
         position.addVectors(center, vector);
 
         return { target:center, position, fov }
+    }
+
+    unHighlight() {
+
+        if (this.meshList) {
+
+            for (let mesh of this.meshList) {
+                mesh.material = this.material;
+                setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
+            }
+
+        }
+
     }
 
 }

@@ -1,4 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import EnsembleManager from "./ensembleManager.js";
 import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
@@ -21,10 +22,6 @@ export const appEventListener =
                     globals.ballAndStick.show();
                 }
 
-            }  else if ('DidLoadPointCloudFile' === type) {
-
-                setupPointCloud(globals.pointCloudManager.list);
-
             }  else if ('DidLoadEnsembleFile' === type) {
 
                 const { initialKey } = data;
@@ -45,43 +42,42 @@ export const appEventListener =
         }
     };
 
-let setupPointCloud = points => {
-
-    globals.sceneManager.dispose();
-
-    globals.sceneManager.renderStyle = PointCloud.getRenderStyle();
-
-    globals.pointCloud.configure(points);
-
-    let scene = new THREE.Scene();
-    globals.pointCloud.addToScene(scene);
-
-    const {min, max, center, radius} = globals.pointCloud.getBounds();
-    const {position, fov} = globals.pointCloud.getCameraPoseAlongAxis({axis: '+z', scaleFactor: 3});
-    globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
-
-};
-
 let setupEnsemble = ({trace}) => {
 
     globals.sceneManager.dispose();
-
-    globals.sceneManager.renderStyle = guiManager.getRenderStyle();
-
-    globals.noodle.configure(trace);
-
-    globals.ballAndStick.configure(trace);
-
     let scene = new THREE.Scene();
-    globals.noodle.addToScene(scene);
-    globals.ballAndStick.addToScene(scene);
 
-    const { min, max, center, radius } = globals.ballAndStick.getBounds();
-    const { position, fov } = globals.ballAndStick.getCameraPoseAlongAxis({ axis: '+z', scaleFactor: 3 });
-    globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
+    const { isPointCloud } = globals.ensembleManager;
 
-    contactFrequencyMapPanel.updateTraceContactFrequencyCanvas(trace);
+    if (isPointCloud) {
 
-    distanceMapPanel.updateTraceDistanceCanvas(trace);
+        globals.sceneManager.renderStyle = PointCloud.getRenderStyle();
+
+        globals.pointCloud.configure(trace);
+        globals.pointCloud.addToScene(scene);
+
+        const {min, max, center, radius} = EnsembleManager.getBoundsWithTrace(trace);
+        const {position, fov} = EnsembleManager.getCameraPoseAlongAxis({ trace, axis: '+z', scaleFactor: 3 });
+        globals.sceneManager.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+
+    } else {
+
+        globals.sceneManager.renderStyle = guiManager.getRenderStyle();
+
+        const { min, max, center, radius } = EnsembleManager.getBoundsWithTrace(trace);
+        const { position, fov } = EnsembleManager.getCameraPoseAlongAxis({ trace, axis: '+z', scaleFactor: 3 });
+
+        globals.noodle.configure(trace);
+        globals.noodle.addToScene(scene);
+
+        globals.ballAndStick.configure(trace);
+        globals.ballAndStick.addToScene(scene);
+
+        globals.sceneManager.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
+
+        contactFrequencyMapPanel.updateTraceContactFrequencyCanvas(trace);
+        distanceMapPanel.updateTraceDistanceCanvas(trace);
+    }
+
 
 };

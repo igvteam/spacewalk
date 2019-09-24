@@ -1,5 +1,9 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { globals } from "./app.js";
+import Parser from "./parser.js";
+import { colorRampPanel } from "./gui.js";
+import { includes, degrees } from "./math.js";
+import {appleCrayonColorThreeJS} from "./color.js";
 
 class EnsembleManager {
 
@@ -7,6 +11,9 @@ class EnsembleManager {
     }
 
     ingestSW({ locus, hash }) {
+
+        const str = 'EnsembleManager ingestSW';
+        console.time(str);
 
         // maximumSegmentID is used to size the distance and contact maps which
         // are N by N where N = maximumSegmentID.
@@ -16,80 +23,94 @@ class EnsembleManager {
         // and distance maps.
         this.maximumSegmentID = undefined;
 
-        // the genomic distance (bp) between centroids
-        this.stepSize = undefined;
+        this.isPointCloud = undefined;
 
-        let dictionary = {};
-        for (let [hashKey, trace] of Object.entries(hash)) {
+        this.ensemble = {};
 
-            // console.log(`:::::::::::::::::::: ${ hashKey } ::::::::::::::::::::`);
+        let { chr, genomicStart, genomicEnd } = locus;
+
+
+        for (let [traceKey, trace] of Object.entries(hash)) {
 
             if (undefined === this.maximumSegmentID) {
                 this.maximumSegmentID = Object.keys(trace).length;
             }
 
-            const segments = Object.values(trace);
-            for (let segment of segments) {
+            const ensembleKey = traceKey.split('%').pop();
 
-                let { startBP, endBP, x, y, z } = segment[ 0 ];
-                if (x /* && y && y */) {
+            this.ensemble[ensembleKey] = [];
 
-                    const genomicLocation = (parseFloat(startBP) + parseFloat(endBP)) / 2.0;
+            const keyValuePairs = Object.entries(trace);
+            for (let keyValuePair of keyValuePairs) {
 
-                    if (undefined === this.stepSize) {
-                        this.stepSize = parseFloat(endBP) - parseFloat(startBP);
+                let [ key, xyzList ] = keyValuePair;
+
+                if (undefined === this.isPointCloud) {
+                    this.isPointCloud = xyzList.length > 1;
+                }
+
+                let { startBP, centroidBP, endBP, sizeBP } = Parser.genomicRangeFromHashKey(key);
+
+                const positions = xyzList
+                    .map(({ x, y, z }) => {
+
+                        const exe = x ? parseFloat(x) : 'nan';
+                        const wye = y ? parseFloat(y) : 'nan';
+                        const zee = z ? parseFloat(z) : 'nan';
+
+                        return { exe, wye, zee }
+                    })
+                    .filter(({ exe, wye, zee }) => {
+                        return !(exe === 'nan' || wye === 'nan' || zee === 'nan')
+                    });
+
+                if (0 === positions.length) {
+                    // positions array has no valid x, y, or z values (nan)
+                } else {
+
+                    const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart);
+
+                    let colorRampInterpolantWindow =
+                        {
+                            start: (startBP - genomicStart) / (genomicEnd - genomicStart),
+                            end: (endBP - genomicStart) / (genomicEnd - genomicStart),
+                            interpolant,
+                            sizeBP,
+                            genomicLocation: centroidBP,
+                            segmentIndex: keyValuePairs.indexOf(keyValuePair)
+                        };
+
+                    const geometry = new THREE.BufferGeometry();
+
+                    geometry.userData.color = colorRampPanel.traceColorRampMaterialProvider.colorForInterpolant(interpolant);
+                    geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('magnesium');
+
+                    geometry.userData.material = new THREE.MeshPhongMaterial({ color: geometry.userData.color });
+
+                    const xyz = [];
+                    const rgb = [];
+                    for(let { exe, wye, zee } of positions){
+
+                        xyz.push(exe, wye, zee);
+
+                        const { r, g, b } = geometry.userData.color;
+                        rgb.push(r, g, b);
                     }
 
+                    geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
+                    geometry.addAttribute(    'color', new THREE.Float32BufferAttribute( rgb, 3 ).setDynamic( this.isPointCloud ) );
 
-                    x = parseFloat(x);
-                    y = parseFloat(y);
-                    z = parseFloat(z);
-
-                    let segmentID = 1 + segments.indexOf(segment);
-                    segmentID = segmentID.toString();
-
-                    const key = hashKey.split('%').pop();
-
-                    if (undefined === dictionary[ key ]) {
-                        dictionary[ key ] = [];
-                    }
-
-                    dictionary[ key ].push({ segmentID, genomicLocation, x, y, z })
+                    this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
 
                 }
+
             }
+
         }
 
-        let keys = Object.keys(dictionary);
+        console.timeEnd(str);
 
-        // transform and augment dictionary into ensemble
-        this.ensemble = {};
-        for (let key of keys) {
-
-            let list = dictionary[ key ];
-
-            let segmentList = list.map(o => {
-                let { segmentID, genomicLocation } = o;
-                return { segmentID, genomicLocation }
-            });
-
-            let geometry = new THREE.Geometry();
-
-            geometry.vertices = list.map(o => {
-                let { x, y, z } = o;
-                return new THREE.Vector3(x, y, z);
-            });
-
-            geometry.computeBoundingBox();
-            geometry.computeBoundingSphere();
-
-            let material = new THREE.MeshPhongMaterial();
-
-            this.ensemble[ key ] = { segmentList, geometry, material };
-        }
-
-        // discard dictionary memory
-        dictionary = null;
+        globals.eventBus.post({ type: "DidLoadEnsembleFile", data: { isPointCloud: this.isPointCloud, genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
 
     }
 
@@ -97,53 +118,105 @@ class EnsembleManager {
         return this.ensemble[ name ] || undefined;
     }
 
-    segmentIDForGenomicLocation(bp) {
+    static getInterpolantWindowList({ trace, interpolantList }) {
 
-        let delta = Math.round(bp - globals.parser.locus.genomicStart);
-        let segmentID = 1 + Math.floor(delta / this.stepSize);
-        return segmentID;
-    }
-}
+        let interpolantWindowList = [];
 
-export const getBoundsWithTrace = (trace) => {
-    const { center, radius } = trace.geometry.boundingSphere;
-    const { min, max } = trace.geometry.boundingBox;
-    return { min, max, center, radius }
-};
+        const traceValues = Object.values(trace);
+        for (let i = 0; i < traceValues.length; i++) {
 
-const segmentIDSanityCheck = ensemble => {
+            let { colorRampInterpolantWindow } = traceValues[ i ];
 
-    const ensembleList = Object.values(ensemble);
+            const { start: a, end: b } = colorRampInterpolantWindow;
 
-    let mapSize = globals.ensembleManager.maximumSegmentID;
+            for (let interpolant of interpolantList) {
 
-    let matrix = new Array(mapSize * mapSize);
-    for (let f = 0; f < matrix.length; f++) matrix[ f ] = 0;
+                if ( includes({ a, b, value: interpolant }) ) {
+                    interpolantWindowList.push({ colorRampInterpolantWindow, index: i });
+                }
 
-    console.time(`segmentIDSanityCheck. ${ ensembleList.length } traces.`);
-
-    for (let trace of ensembleList) {
-
-        let { vertices } = trace.geometry;
-        for (let i = 0; i < vertices.length; i++) {
-
-            if (trace.segmentList[ i ].segmentID > globals.ensembleManager.maximumSegmentID) {
-                console.log(`Bogus Segment ID. trace ${ ensembleList.indexOf(trace) } vertex ${ i } segmentID ${ trace.segmentList[ i ].segmentID } maximumSegmentID ${ globals.ensembleManager.maximumSegmentID }`);
-            }
-            const segmentID = trace.segmentList[ i ].segmentID;
-            const  index = segmentID - 1;
-
-            const xy = index * mapSize + index;
-            if (xy > matrix.length) {
-                console.log('xy is bogus index ' + xy);
             }
 
         }
 
+        return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;
     }
 
-    console.timeEnd(`segmentIDSanityCheck. ${ ensembleList.length } traces.`);
+    static getBoundsWithTrace(trace){
 
-};
+        const boundingBox = new THREE.Box3();
+
+        let probe = new THREE.Vector3();
+        for (let { geometry } of Object.values(trace)) {
+
+            let xyz = geometry.getAttribute('position');
+            for (let a = 0; a < xyz.count; a++) {
+
+                const [ x, y, z ] = [ xyz.getX(a), xyz.getY(a), xyz.getZ(a) ];
+                probe.set(x, y, z);
+
+                boundingBox.expandByPoint(probe);
+            }
+
+        }
+
+        const { min, max } = boundingBox;
+
+        const boundingSphere = new THREE.Sphere();
+        boundingBox.getBoundingSphere(boundingSphere);
+        const { center, radius } = boundingSphere;
+
+        return { min, max, center, radius }
+    };
+
+    static getCameraPoseAlongAxis ({ trace, axis, scaleFactor }) {
+
+        const { center, radius } = EnsembleManager.getBoundsWithTrace(trace);
+
+        const dimen = scaleFactor * radius;
+
+        const theta = Math.atan(radius/dimen);
+        const fov = degrees( 2 * theta);
+
+        const axes =
+            {
+                '-x': () => {
+                    return new THREE.Vector3(-dimen, 0, 0);
+                },
+                '+x': () => {
+                    return new THREE.Vector3(dimen, 0, 0);
+                },
+                '-y': () => {
+                    return new THREE.Vector3(0, -dimen, 0);
+                },
+                '+y': () => {
+                    return new THREE.Vector3(0, dimen, 0);
+                },
+                '-z': () => {
+                    return new THREE.Vector3(0, 0, -dimen);
+                },
+                '+z': () => {
+                    return new THREE.Vector3(0, 0, dimen);
+                },
+            };
+
+        const vector = axes[ axis ]();
+        let position = new THREE.Vector3();
+
+        position.addVectors(center, vector);
+
+        return { target:center, position, fov }
+    }
+
+    static getSingleCentroidVerticesWithTrace(trace) {
+
+        return Object.values(trace)
+            .map(({ geometry }) => {
+                const [ x, y, z ] = geometry.getAttribute('position').array;
+                return new THREE.Vector3(x, y, z);
+            });
+
+    }
+}
 
 export default EnsembleManager;

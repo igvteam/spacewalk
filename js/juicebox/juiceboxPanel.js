@@ -20,17 +20,13 @@ class JuiceboxPanel extends Panel {
         super({ container, panel, isHidden, xFunction, yFunction });
 
         globals.eventBus.subscribe('DidLoadEnsembleFile', this);
-        globals.eventBus.subscribe('DidLoadPointCloudFile', this);
     }
 
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });
 
-        // console.log('WARNING: JuiceboxPanel currently disabled. Method receiveEvent() is disabled.');
-        // return;
-
-        if ("DidLoadEnsembleFile" === type || "DidLoadPointCloudFile" === type) {
+        if ("DidLoadEnsembleFile" === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
@@ -143,11 +139,7 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
         return;
     }
 
-    const segmentIDX = globals.ensembleManager.segmentIDForGenomicLocation(xBP);
-    const segmentIDY = globals.ensembleManager.segmentIDForGenomicLocation(yBP);
-    const segmentIDList = segmentIDX === segmentIDY ? [ segmentIDX ] : [ segmentIDX, segmentIDY ];
-
-    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ], segmentIDList } });
+    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ] } });
 };
 
 export let juiceboxSelectLoader = async ($select) => {

@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", event => {
 
     const container = document.getElementById('spacewalk_canvas_container');
 
-    globals = new Globals();
+    globals = new Globals(container);
     globals.initialize(container);
 
     createGUI(container);
@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", event => {
 
     globals.eventBus.subscribe('DidSelectTrace', appEventListener);
     globals.eventBus.subscribe('DidLoadEnsembleFile', appEventListener);
-    globals.eventBus.subscribe('DidLoadPointCloudFile', appEventListener);
     globals.eventBus.subscribe('ToggleAllUIControls', appEventListener);
     globals.eventBus.subscribe('RenderStyleDidChange', appEventListener);
 

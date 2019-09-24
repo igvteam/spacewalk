@@ -61,7 +61,6 @@ class TraceSelectPanel extends Panel {
         $(document).on('keyup.trace_select', handleKeyUp);
 
         globals.eventBus.subscribe('DidLoadEnsembleFile', this);
-        globals.eventBus.subscribe('DidLoadPointCloudFile', this);
 
     }
 
@@ -70,15 +69,9 @@ class TraceSelectPanel extends Panel {
         super.receiveEvent({ type, data });
 
         if ('DidLoadEnsembleFile' === type) {
-
             const { initialKey } = data;
             this.configureWithEnsemble({ ensemble: globals.ensembleManager.ensemble, key: initialKey });
             this.presentPanel();
-
-        } else if ('DidLoadPointCloudFile' === type) {
-
-            this.dismissPanel();
-
         }
     }
 
