@@ -96,7 +96,7 @@ class IGVPanel extends Panel {
 
             this.browser.on('trackremoved', (track) => {
                 if (track.$input && track.$input.prop('checked')) {
-                    setMaterialProvider(colorRampPanel.traceColorRampMaterialProvider);
+                    setMaterialProvider(colorRampPanel.colorRampMaterialProvider);
                 }
             });
 
@@ -264,7 +264,7 @@ const addDataValueMaterialProviderGUI = tracks => {
 
                     setMaterialProvider(globals.dataValueMaterialProvider);
                 } else {
-                    setMaterialProvider(colorRampPanel.traceColorRampMaterialProvider);
+                    setMaterialProvider(colorRampPanel.colorRampMaterialProvider);
                 }
 
             });

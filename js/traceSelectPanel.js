@@ -85,11 +85,14 @@ class TraceSelectPanel extends Panel {
 
         this.$input.val(number);
 
-        const str = number.toString();
+        const key = number.toString();
 
         showSpinner();
         window.setTimeout(() => {
-            globals.eventBus.post({ type: "DidSelectTrace", data: str });
+
+            globals.ensembleManager.currentTrace = globals.ensembleManager.getTraceWithName(key);
+            globals.eventBus.post({ type: "DidSelectTrace", data: key });
+
             hideSpinner();
         }, 0);
     }

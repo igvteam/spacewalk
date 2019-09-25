@@ -10,7 +10,7 @@ const alpha_visible = `rgb(${255},${255},${255})`;
 
 let rgbTexture;
 let alphaTexture;
-class TraceColorRampMaterialProvider {
+class ColorRampMaterialProvider {
 
     constructor({ $canvasContainer, highlightColor }) {
 
@@ -80,6 +80,7 @@ class TraceColorRampMaterialProvider {
         globals.eventBus.subscribe("PickerDidLeaveObject", this);
         globals.eventBus.subscribe("PickerDidHitObject", this);
         globals.eventBus.subscribe("DidSelectSegmentID", this);
+        globals.eventBus.subscribe('DidLoadEnsembleFile', this);
     }
 
     receiveEvent({ type, data }) {
@@ -91,26 +92,26 @@ class TraceColorRampMaterialProvider {
                 this.highlightWithInterpolantWindowList([ globals.ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[objectUUID] ])
             }
 
-        } else if ("PickerDidLeaveObject" === type) {
-            this.repaint()
+        // } else if ("PickerDidLeaveObject" === type) {
+        //     this.repaint()
         } else if ("DidSelectSegmentID" === type) {
 
             const { interpolantList } = data;
             const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
 
             this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
-        } else if (globals.sceneManager && "DidLeaveGUI" === type) {
+        } else if ("DidLeaveGUI" === type || 'DidLoadEnsembleFile' === type) {
             this.repaint()
         }
     }
 
-    repaint () {
-        this.paintQuantizedRamp();
-    }
+    // repaint () {
+    //     this.paintQuantizedRamp();
+    // }
 
     onCanvasMouseMove(canvas, event) {
 
-        if (undefined === globals.ensembleManager.maximumSegmentID) {
+        if (undefined === globals.ensembleManager.currentTrace) {
             return;
         }
 
@@ -129,29 +130,20 @@ class TraceColorRampMaterialProvider {
     highlightWithInterpolantWindowList(interpolantWindowList) {
 
         if (interpolantWindowList) {
-            this.paintQuantizedRampWithInterpolantWindowList(interpolantWindowList);
+            this.paintWithInterpolantWindowList(interpolantWindowList);
         }
 
     }
 
-    paintQuantizedRampWithInterpolantWindowList(interpolantWindowList) {
+    paintWithInterpolantWindowList(interpolantWindowList) {
 
-        if (undefined === globals.ensembleManager.maximumSegmentID) {
+        if (undefined === globals.ensembleManager.currentTrace) {
             return;
         }
 
+        this.repaint();
+
         const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
-
-        let interpolant;
-        let quantizedInterpolant;
-
-        // paint rgb ramp
-        for (let y = 0;  y < height; y++) {
-            interpolant = 1 - (y / (height - 1));
-            quantizedInterpolant = quantize(interpolant, globals.ensembleManager.maximumSegmentID);
-            this.rgb_ctx.fillStyle = globals.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
-            this.rgb_ctx.fillRect(0, y, width, 1);
-        }
 
         // clear highlight canvas
         this.highlight_ctx.clearRect(0, 0, width, height);
@@ -186,26 +178,28 @@ class TraceColorRampMaterialProvider {
 
         }
 
-
     }
 
-    paintQuantizedRamp(){
+    repaint(){
 
-        if (undefined === globals.ensembleManager.maximumSegmentID) {
+        if (undefined === globals.ensembleManager.currentTrace) {
             return;
         }
 
         const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
 
-        let interpolant;
-        let quantizedInterpolant;
+        const colorRampInterpolantWindows = Object.values(globals.ensembleManager.currentTrace).map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow);
 
-        // paint rgb ramp
-        for (let y = 0;  y < height; y++) {
-            interpolant = 1 - (y / (height - 1));
-            quantizedInterpolant = quantize(interpolant, globals.ensembleManager.maximumSegmentID);
-            this.rgb_ctx.fillStyle = globals.colorMapManager.retrieveRGB255String(defaultColormapName, quantizedInterpolant);
-            this.rgb_ctx.fillRect(0, y, width, 1);
+        for (let { interpolant, start, end, sizeBP } of colorRampInterpolantWindows) {
+
+            this.rgb_ctx.fillStyle = globals.colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
+
+            const h = Math.ceil((end - start) * height);
+            const y = Math.round(start * (height));
+
+            const yy = height - (h + y);
+
+            this.rgb_ctx.fillRect(0, yy, width, h);
         }
 
         // clear highlight canvas
@@ -244,4 +238,4 @@ class TraceColorRampMaterialProvider {
     }
 }
 
-export default TraceColorRampMaterialProvider;
+export default ColorRampMaterialProvider;

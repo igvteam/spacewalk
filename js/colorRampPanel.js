@@ -1,4 +1,4 @@
-import TraceColorRampMaterialProvider from "./traceColorRampMaterialProvider.js";
+import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import { setMaterialProvider } from './utils.js';
 import { guiManager } from './gui.js';
 import Panel from './panel.js';
@@ -6,7 +6,7 @@ import { globals } from "./app.js";
 
 class ColorRampPanel extends Panel {
 
-    constructor({ container, panel, traceColorRampMaterialProvider, isHidden }) {
+    constructor({ container, panel, colorRampMaterialProvider, isHidden }) {
 
         const xFunction = (cw, w) => {
             const multiple = 5/4;
@@ -19,7 +19,7 @@ class ColorRampPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
-        this.traceColorRampMaterialProvider = traceColorRampMaterialProvider;
+        this.colorRampMaterialProvider = colorRampMaterialProvider;
 
         // header
         this.$header = this.$panel.find('#spacewalk_color_ramp_header');
@@ -29,7 +29,7 @@ class ColorRampPanel extends Panel {
 
         this.$panel.on('click.color-ramp-panel', (event) => {
             event.stopPropagation();
-            setMaterialProvider(traceColorRampMaterialProvider);
+            setMaterialProvider(colorRampMaterialProvider);
             globals.eventBus.post({ type: "DidChangeMaterialProvider" });
         });
 
@@ -44,7 +44,7 @@ class ColorRampPanel extends Panel {
 
         if ("DidSelectTrace" === type) {
 
-            this.traceColorRampMaterialProvider.repaint();
+            this.colorRampMaterialProvider.repaint();
         } else if ("DidLoadEnsembleFile" === type) {
 
             const { genomicStart, genomicEnd } = data;
@@ -52,7 +52,7 @@ class ColorRampPanel extends Panel {
             this.$footer.text(Math.round(genomicStart / 1e6) + 'Mb');
             this.$header.text(Math.round(genomicEnd   / 1e6) + 'Mb');
 
-            this.traceColorRampMaterialProvider.repaint();
+            this.colorRampMaterialProvider.repaint();
 
             this.presentPanel();
         }
@@ -67,7 +67,7 @@ export const colorRampPanelConfigurator = ({ container, highlightColor }) => {
     return {
             container,
             panel: $('#spacewalk_color_ramp_panel').get(0),
-            traceColorRampMaterialProvider: new TraceColorRampMaterialProvider( { $canvasContainer, highlightColor } ),
+            colorRampMaterialProvider: new ColorRampMaterialProvider( { $canvasContainer, highlightColor } ),
             isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel')
         };
 
