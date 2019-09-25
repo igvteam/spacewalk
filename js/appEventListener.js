@@ -23,20 +23,10 @@ export const appEventListener =
                 }
 
             }  else if ('DidLoadEnsembleFile' === type) {
-
-                const { initialKey } = data;
-                let trace = globals.ensembleManager.getTraceWithName(initialKey);
-
-                globals.ensembleManager.currentTrace = trace;
                 globals.sceneManager.cameraLightingRig.doUpdateCameraPose = true;
-
-                setupEnsemble({trace});
-
+                setupEnsemble({ trace: globals.ensembleManager.currentTrace });
             } else if ('DidSelectTrace' === type) {
-
-                let trace = globals.ensembleManager.getTraceWithName(data);
-                globals.ensembleManager.currentTrace = trace;
-                setupEnsemble({trace});
+                setupEnsemble({ trace: globals.ensembleManager.currentTrace });
             }
 
         }

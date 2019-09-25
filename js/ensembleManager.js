@@ -82,7 +82,7 @@ class EnsembleManager {
 
                     const geometry = new THREE.BufferGeometry();
 
-                    geometry.userData.color = colorRampPanel.traceColorRampMaterialProvider.colorForInterpolant(interpolant);
+                    geometry.userData.color = colorRampPanel.colorRampMaterialProvider.colorForInterpolant(interpolant);
                     geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('magnesium');
 
                     geometry.userData.material = new THREE.MeshPhongMaterial({ color: geometry.userData.color });
@@ -110,7 +110,10 @@ class EnsembleManager {
 
         console.timeEnd(str);
 
-        globals.eventBus.post({ type: "DidLoadEnsembleFile", data: { isPointCloud: this.isPointCloud, genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey: '0' } });
+        const initialKey = '0';
+        this.currentTrace = this.getTraceWithName(initialKey);
+
+        globals.eventBus.post({ type: "DidLoadEnsembleFile", data: { isPointCloud: this.isPointCloud, genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey } });
 
     }
 
@@ -122,17 +125,17 @@ class EnsembleManager {
 
         let interpolantWindowList = [];
 
-        const traceValues = Object.values(trace);
-        for (let i = 0; i < traceValues.length; i++) {
 
-            let { colorRampInterpolantWindow } = traceValues[ i ];
+        const colorRampInterpolantWindows = Object.values(trace).map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow);
 
-            const { start: a, end: b } = colorRampInterpolantWindow;
+        for (let colorRampInterpolantWindow of colorRampInterpolantWindows) {
+
+            let { start: a, end: b, sizeBP } = colorRampInterpolantWindow;
 
             for (let interpolant of interpolantList) {
 
                 if ( includes({ a, b, value: interpolant }) ) {
-                    interpolantWindowList.push({ colorRampInterpolantWindow, index: i });
+                    interpolantWindowList.push({ colorRampInterpolantWindow, index: colorRampInterpolantWindows.indexOf(colorRampInterpolantWindow) });
                 }
 
             }

@@ -181,7 +181,7 @@ class SceneManager {
 
             globals.dataValueMaterialProvider.renderLoopHelper();
 
-            colorRampPanel.traceColorRampMaterialProvider.renderLoopHelper();
+            colorRampPanel.colorRampMaterialProvider.renderLoopHelper();
 
             this.cameraLightingRig.renderLoopHelper();
 

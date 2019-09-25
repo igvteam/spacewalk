@@ -28,8 +28,8 @@ class Noodle {
         console.time(str);
 
         this.curve = new THREE.CatmullRomCurve3(EnsembleManager.getSingleCentroidVerticesWithTrace(trace));
-        this.tube = createTube(this.curve, colorRampPanel.traceColorRampMaterialProvider.material);
-        this.spline = createFatSpline(this.curve, colorRampPanel.traceColorRampMaterialProvider);
+        this.tube = createTube(this.curve, colorRampPanel.colorRampMaterialProvider.material);
+        this.spline = createFatSpline(this.curve, colorRampPanel.colorRampMaterialProvider);
 
         console.timeEnd(str);
 
