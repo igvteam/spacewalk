@@ -73,26 +73,22 @@ class JuiceboxPanel extends Panel {
 
     }
 
-    loadPath({ url, name, isControl }) {
+    async loadPath({ url, name, isControl }) {
 
-        (async () => {
+        try {
+            await this.browser.loadHicFile({ url, name, isControl });
+            $('#spacewalk_info_panel_juicebox').text( this.blurb() );
+        } catch (error) {
+            console.warn(error.message);
+        }
 
-            try {
-                await this.browser.loadHicFile({ url, name, isControl });
-                $('#spacewalk_info_panel_juicebox').text( this.blurb() );
-            } catch (error) {
-                console.warn(error.message);
-            }
+        this.presentPanel();
 
-            this.presentPanel();
-
-            try {
-                await this.browser.parseGotoInput(this.locus);
-            } catch (e) {
-                console.warn(e.message);
-            }
-
-        })();
+        try {
+            await this.browser.parseGotoInput(this.locus);
+        } catch (e) {
+            console.warn(e.message);
+        }
 
     }
 
