@@ -1,6 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
-import { quantize } from "./math.js";
 import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import { globals } from "./app.js";
@@ -92,22 +91,21 @@ class ColorRampMaterialProvider {
                 this.highlightWithInterpolantWindowList([ globals.ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[objectUUID] ])
             }
 
-        // } else if ("PickerDidLeaveObject" === type) {
-        //     this.repaint()
+        } else if ("PickerDidLeaveObject" === type) {
+            this.repaint()
         } else if ("DidSelectSegmentID" === type) {
 
             const { interpolantList } = data;
             const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
 
-            this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
+            if (interpolantWindowList) {
+                this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
+            }
+
         } else if ("DidLeaveGUI" === type || 'DidLoadEnsembleFile' === type) {
             this.repaint()
         }
     }
-
-    // repaint () {
-    //     this.paintQuantizedRamp();
-    // }
 
     onCanvasMouseMove(canvas, event) {
 
