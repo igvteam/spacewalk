@@ -109,28 +109,26 @@ const createImage = imageSource => {
 
 };
 
-const drawWithSharedUint8ClampedArray = (ctx, size, array) => {
+const drawWithSharedUint8ClampedArray = async (ctx, size, array) => {
 
     const { width, height } = size;
 
     const imageData = new ImageData(array, globals.ensembleManager.maximumSegmentID, globals.ensembleManager.maximumSegmentID);
 
-    const str = `draw With Shared Uint8 Clamped Array. src ${globals.ensembleManager.maximumSegmentID} x ${globals.ensembleManager.maximumSegmentID}. dst ${width} x ${height}.`;
-    console.time(str);
+    // const str = `draw With Shared Uint8 Clamped Array. src ${globals.ensembleManager.maximumSegmentID} x ${globals.ensembleManager.maximumSegmentID}. dst ${width} x ${height}.`;
+    // console.time(str);
 
-    (async () => {
-        const config =
-            {
-                resizeWidth: width,
-                resizeHeight: height
-            };
+    const config =
+        {
+            resizeWidth: width,
+            resizeHeight: height
+        };
 
-        // const imageBitmap = await createImageBitmap(imageData, config);
-        const imageBitmap = await createImageBitmap(imageData);
-        ctx.transferFromImageBitmap(imageBitmap);
-    })();
+    // const imageBitmap = await createImageBitmap(imageData, config);
+    const imageBitmap = await createImageBitmap(imageData);
+    ctx.transferFromImageBitmap(imageBitmap);
 
-    console.timeEnd(str)
+    // console.timeEnd(str)
 };
 
 export {
