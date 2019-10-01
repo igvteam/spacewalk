@@ -2,6 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { degrees } from './math.js';
 import { globals } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
+import {numberFormatter} from "./utils.js";
 
 class BallAndStick {
 
@@ -23,17 +24,8 @@ class BallAndStick {
             this.stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVerticesWithTrace(trace));
         }
 
-        let acc = 0;
-        let averageCurveDistance = this.stickCurves
-            .reduce((accumulator, curve) => {
-
-                const curveLength = curve.getLength();
-                accumulator += curveLength;
-
-                return accumulator;
-            }, acc);
-
-        averageCurveDistance /= this.stickCurves.length;
+        const averageCurveDistance  = computeAverageCurveDistance(this.stickCurves);
+        console.log(`Ball&Stick. Average Curve Distance ${ numberFormatter(Math.round(averageCurveDistance)) }`);
 
         const stickRadius = averageCurveDistance * 0.5e-1;
         this.sticks = this.createSticks(this.stickCurves, stickRadius);
@@ -224,7 +216,23 @@ class BallAndStick {
     }
 }
 
-const createStickCurves = (vertices) => {
+export const computeAverageCurveDistance = curves => {
+
+    let acc = 0;
+    const sum = curves
+        .reduce((accumulator, curve) => {
+            accumulator += curve.getLength();
+            return accumulator;
+        }, acc);
+
+    return sum / curves.length;
+
+};
+
+
+
+
+export const createStickCurves = (vertices) => {
 
     let curves = [];
     for (let i = 0, j = 1; j < vertices.length; ++i, ++j) {
