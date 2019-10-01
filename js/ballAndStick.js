@@ -2,6 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { degrees } from './math.js';
 import { globals } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
+import {numberFormatter} from "./utils.js";
 
 class BallAndStick {
 
@@ -18,8 +19,19 @@ class BallAndStick {
         this.dispose();
 
         this.trace = trace;
-        this.balls = this.createBalls(trace);
-        this.sticks = this.createSticks(trace);
+
+        if (undefined === this.stickCurves) {
+            this.stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVerticesWithTrace(trace));
+        }
+
+        const averageCurveDistance  = computeAverageCurveDistance(this.stickCurves);
+        console.log(`Ball&Stick. Average Curve Distance ${ numberFormatter(Math.round(averageCurveDistance)) }`);
+
+        const stickRadius = averageCurveDistance * 0.5e-1;
+        this.sticks = this.createSticks(this.stickCurves, stickRadius);
+
+        const ballRadius = averageCurveDistance * 2e-1;
+        this.balls = this.createBalls(trace, ballRadius);
 
         if (globals.sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
@@ -44,7 +56,7 @@ class BallAndStick {
         });
     }
 
-    createBalls(trace) {
+    createBalls(trace, ballRadius) {
 
         // Segment ID dictionay. 3D Object UUID is key.
         this.meshUUID_ColorRampInterpolantWindow_Dictionary = {};
@@ -60,7 +72,8 @@ class BallAndStick {
 
                 const { x, y, z } = vertex;
                 mesh.position.set(x, y, z);
-                mesh.scale.setScalar(globals.sceneManager.ballRadius());
+                // mesh.scale.setScalar(globals.sceneManager.ballRadius());
+                mesh.scale.setScalar(ballRadius);
 
                 this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ] = trace[ index ].colorRampInterpolantWindow;
 
@@ -70,16 +83,13 @@ class BallAndStick {
 
     }
 
-    createSticks(trace) {
+    createSticks(curves, stickRadius) {
 
-        if (undefined === this.stickCurves) {
-            this.stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVerticesWithTrace(trace));
-        }
-
-        return this.stickCurves
+        return curves
             .map((curve) => {
 
-                const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * globals.sceneManager.ballRadius(), 16, false);
+                // const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * globals.sceneManager.ballRadius(), 16, false);
+                const geometry = new THREE.TubeBufferGeometry(curve, 8, stickRadius, 16, false);
                 const material = globals.sceneManager.stickMaterial.clone();
 
                 const mesh = new THREE.Mesh(geometry, material);
@@ -166,7 +176,7 @@ class BallAndStick {
         return EnsembleManager.getBoundsWithTrace(this.trace);
     }
 
-    getCameraPoseAlongAxis ({ axis, scaleFactor }) {
+    DEPRICATED_getCameraPoseAlongAxis ({ axis, scaleFactor }) {
 
         const { center, radius } = this.getBounds();
 
@@ -206,7 +216,23 @@ class BallAndStick {
     }
 }
 
-const createStickCurves = (vertices) => {
+export const computeAverageCurveDistance = curves => {
+
+    let acc = 0;
+    const sum = curves
+        .reduce((accumulator, curve) => {
+            accumulator += curve.getLength();
+            return accumulator;
+        }, acc);
+
+    return sum / curves.length;
+
+};
+
+
+
+
+export const createStickCurves = (vertices) => {
 
     let curves = [];
     for (let i = 0, j = 1; j < vertices.length; ++i, ++j) {

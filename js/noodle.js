@@ -6,6 +6,7 @@ import { degrees, clamp, lerp } from './math.js';
 import { globals } from "./app.js";
 import {colorRampPanel} from "./gui.js";
 import EnsembleManager from "./ensembleManager.js";
+import { createStickCurves, computeAverageCurveDistance } from './ballAndStick.js';
 
 let fatLineMaterial;
 
@@ -27,8 +28,15 @@ class Noodle {
         const str = 'Noodle.configure()';
         console.time(str);
 
-        this.curve = new THREE.CatmullRomCurve3(EnsembleManager.getSingleCentroidVerticesWithTrace(trace));
-        this.tube = createTube(this.curve, colorRampPanel.colorRampMaterialProvider.material);
+        const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
+
+        this.curve = new THREE.CatmullRomCurve3( vertices );
+
+        const stickCurves = createStickCurves( vertices );
+        const averageCurveDistance = computeAverageCurveDistance(stickCurves);
+        const tubeRadius = averageCurveDistance * 1e-1;
+
+        this.tube = createTube(this.curve, tubeRadius, colorRampPanel.colorRampMaterialProvider.material);
         this.spline = createFatSpline(this.curve, colorRampPanel.colorRampMaterialProvider);
 
         console.timeEnd(str);
@@ -103,7 +111,7 @@ class Noodle {
         return EnsembleManager.getBoundsWithTrace(this.trace);
     }
 
-    getCameraPoseAlongAxis ({ axis, scaleFactor }) {
+    DEPRICATED_getCameraPoseAlongAxis({axis, scaleFactor}) {
 
         const { center, radius } = this.getBounds();
 
@@ -144,7 +152,7 @@ class Noodle {
 
 }
 
-const createTube = (curve, material) => {
+const createTube = (curve, tubeRadius, material) => {
 
     const tubularSegments = getTubularSegmentCount(curve.getLength());
     const radialSegments = getRadialSegmentCount(globals.parser.locus);
@@ -152,7 +160,7 @@ const createTube = (curve, material) => {
     const str = `createTube. ${ tubularSegments } tubes. ${ radialSegments } radial segments.`;
     console.time(str);
 
-    const geometry = new THREE.TubeBufferGeometry(curve, tubularSegments, globals.sceneManager.noodleRadius(), radialSegments, false);
+    const geometry = new THREE.TubeBufferGeometry(curve, tubularSegments, tubeRadius, radialSegments, false);
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.name = 'noodle';

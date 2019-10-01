@@ -164,9 +164,7 @@ class EnsembleManager {
         return { min, max, center, radius }
     };
 
-    static getCameraPoseAlongAxis ({ trace, axis, scaleFactor }) {
-
-        const { center, radius } = EnsembleManager.getBoundsWithTrace(trace);
+    static getCameraPoseAlongAxis ({ center, radius, axis, scaleFactor }) {
 
         const dimen = scaleFactor * radius;
 
