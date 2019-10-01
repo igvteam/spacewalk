@@ -4,6 +4,7 @@ import { hideSpinner, showSpinner } from "./gui.js";
 import { globals } from "./app.js";
 
 class Parser {
+
     constructor () {
 
     }
@@ -31,7 +32,6 @@ class Parser {
 
         // genome
         this.genomeAssembly = key_value_pairs.shift().split('=').pop();
-
 
         // discard column headings
         lines.shift();
@@ -75,9 +75,9 @@ class Parser {
                 genomicStart = Math.min(genomicStart, startBP);
                 genomicEnd = Math.max(genomicEnd, endBP);
 
-                x = 'nan' === x ? undefined : parseFloat(x);
-                y = 'nan' === y ? undefined : parseFloat(y);
-                z = 'nan' === z ? undefined : parseFloat(z);
+                x = 'nan' === x ? x : parseFloat(x);
+                y = 'nan' === y ? y : parseFloat(y);
+                z = 'nan' === z ? z : parseFloat(z);
 
                 trace[ traceKey ].push ({ x, y, z });
             }
@@ -95,57 +95,32 @@ class Parser {
 
     }
 
-    static genomicRangeFromHashKey(key) {
-        const [ startBP, endBP ] = key.split('%').map(k => parseInt(k));
-        const centroidBP = Math.round((startBP + endBP) / 2.0);
-        const sizeBP = endBP - startBP;
-        return { startBP, centroidBP, endBP, sizeBP };
+    async load ({ loader, path }) {
+
+        let string = undefined;
+        try {
+            showSpinner();
+            string = await loader( path );
+            hideSpinner();
+        } catch (e) {
+            hideSpinner();
+            console.warn(e.message)
+        }
+
+        showSpinner();
+        const hash = this.parse(string);
+        hideSpinner();
+
+        globals.ensembleManager.ingest({locus: this.locus, hash});
+
     }
 
     loadURL ({ url, name }) {
-
-        showSpinner();
-
-        (async (url) => {
-
-            let string = undefined;
-            try {
-                string = await hic.igv.xhr.load(url);
-            } catch (e) {
-                hideSpinner();
-                console.warn(e.message)
-            }
-
-            const hash = this.parse(string);
-            hideSpinner();
-
-            globals.ensembleManager.ingestSW({ locus: this.locus, hash });
-
-        })(url);
-
+        this.load({ loader: hic.igv.xhr.load, path: url });
     }
 
     loadLocalFile({ file }) {
-
-        showSpinner();
-
-        (async (file) => {
-
-            let string = undefined;
-            try {
-                string = await readFileAsText(file);
-            } catch (e) {
-                hideSpinner();
-                console.warn(e.message)
-            }
-
-            const hash = this.parse(string);
-            hideSpinner();
-
-            globals.ensembleManager.ingestSW({ locus: this.locus, hash });
-
-        })(file);
-
+        this.load({ loader: readFileAsText, path: file });
     }
 
     locusBlurb() {
@@ -155,6 +130,13 @@ class Parser {
 
     sampleBlurb() {
         return `Sample ${ this.sample }`;
+    }
+
+    static genomicRangeFromHashKey(key) {
+        const [ startBP, endBP ] = key.split('%').map(k => parseInt(k));
+        const centroidBP = Math.round((startBP + endBP) / 2.0);
+        const sizeBP = endBP - startBP;
+        return { startBP, centroidBP, endBP, sizeBP };
     }
 
 }

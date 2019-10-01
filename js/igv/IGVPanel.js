@@ -72,49 +72,45 @@ class IGVPanel extends Panel {
 
     }
 
-    initialize(config) {
+    async initialize(config) {
 
-        (async () => {
+        let genomeList = undefined;
+        try {
+            genomeList = await hic.igv.xhr.loadJson(genomesJSONPath, {})
+        } catch (error) {
+            console.error(error);
+        }
 
-            let genomeList = undefined;
-            try {
-                genomeList = await hic.igv.xhr.loadJson(genomesJSONPath, {})
-            } catch (error) {
-                console.error(error);
+        this.genomeDictionary = {};
+        for (let genome of genomeList) {
+            this.genomeDictionary[ genome.id ] = genome;
+        }
+
+        try {
+            this.browser = await hic.igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
+        } catch (error) {
+            console.error(error);
+        }
+
+        this.browser.on('trackremoved', (track) => {
+            if (track.$input && track.$input.prop('checked')) {
+                setMaterialProvider(colorRampPanel.colorRampMaterialProvider);
             }
+        });
 
-            this.genomeDictionary = {};
-            for (let genome of genomeList) {
-                this.genomeDictionary[ genome.id ] = genome;
-            }
+        addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
 
-            try {
-                this.browser = await hic.igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
-            } catch (error) {
-                console.error(error);
-            }
+        this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
+            IGVMouseHandler({ bp, start, end, interpolant })
+        });
 
-            this.browser.on('trackremoved', (track) => {
-                if (track.$input && track.$input.prop('checked')) {
-                    setMaterialProvider(colorRampPanel.colorRampMaterialProvider);
-                }
-            });
+        trackLoadController = new TrackLoadController(trackLoadControllerConfigurator(this.browser ));
 
-            addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
-
-            this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                IGVMouseHandler({ bp, start, end, interpolant })
-            });
-
-            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator(this.browser ));
-
-            try {
-                await trackLoadController.updateTrackMenus(this.browser.genome.id);
-            } catch (error) {
-                console.error(error);
-            }
-
-        })();
+        try {
+            await trackLoadController.updateTrackMenus(this.browser.genome.id);
+        } catch (error) {
+            console.error(error);
+        }
 
     }
 
@@ -144,45 +140,29 @@ class IGVPanel extends Panel {
 
     }
 
-    goto({ chr, start, end }) {
+    async loadTrackList(configurations) {
 
-        (async () => {
-            const str = 'all' === chr ? 'all' : `${ chr }:${ start }-${ end }`;
-            try {
-                await this.browser.search(str);
-            } catch (e) {
-                console.error(e);
+        let tracks = [];
+        try {
+            tracks = await this.browser.loadTrackList( configurations );
+        } catch (error) {
+            console.warn(error.message);
+        }
+
+        for (let track of tracks) {
+
+            this.browser.setTrackLabelName(track.trackView, track.config.name);
+
+            if (track.getFeatures && typeof track.getFeatures === "function") {
+                track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
             }
 
-        })();
-    }
+        }
 
-    loadTrackList(configurations) {
+        addDataValueMaterialProviderGUI(tracks);
 
-        (async () => {
+        this.presentPanel();
 
-            let tracks = [];
-            try {
-                tracks = await this.browser.loadTrackList( configurations );
-            } catch (error) {
-                console.warn(error.message);
-            }
-
-            for (let track of tracks) {
-
-                this.browser.setTrackLabelName(track.trackView, track.config.name);
-
-                if (track.getFeatures && typeof track.getFeatures === "function") {
-                    track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
-                }
-
-            }
-
-            addDataValueMaterialProviderGUI(tracks);
-
-            this.presentPanel();
-
-        })();
 
     }
 

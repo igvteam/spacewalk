@@ -10,13 +10,26 @@ class ColorMapManager {
         this.dictionary = {};
     }
 
-    configure () {
+    async configure () {
 
-        (async () => {
+        try {
             await this.addMap({ name: defaultColormapName, path: 'resources/colormaps/peter_kovesi/CET-R2.csv' });
-            await this.addMap({ name: 'bintu_et_al',       path: 'resources/colormaps/bintu_et_al/bintu_et_al.png' });
-            await this.addMap({ name: 'juicebox_default',  path: 'resources/colormaps/juicebox_default/juicebox_default.png' });
-        })();
+        } catch (e) {
+            console.warn(e.message);
+        }
+
+        try {
+            await this.addMap({ name: 'bintu_et_al', path: 'resources/colormaps/bintu_et_al/bintu_et_al.png' });
+        } catch (e) {
+            console.warn(e.message);
+        }
+
+        try {
+            await this.addMap({ name: 'juicebox_default', path: 'resources/colormaps/juicebox_default/juicebox_default.png' });
+        } catch (e) {
+            console.warn(e.message);
+        }
+
     }
 
     async addMap({name, path}) {
@@ -40,14 +53,36 @@ class ColorMapManager {
 
         if ('csv' === suffix) {
 
-            const string = await response.text();
-            this.dictionary[ name ] = rgbListWithString(string);
+            try {
+                const string = await response.text();
+                this.dictionary[ name ] = rgbListWithString(string);
+            } catch (e) {
+                console.warn(e.message);
+            }
 
         } else if ('png' === suffix) {
 
-            const blob = await response.blob();
-            const imageSource = await readFileAsDataURL(blob);
-            const image = await createImage(imageSource);
+            let blob = undefined;
+            try {
+                blob = await response.blob();
+            } catch (e) {
+                console.warn(e.message);
+            }
+
+            let imageSource = undefined;
+            try {
+                imageSource = await readFileAsDataURL(blob);
+            } catch (e) {
+                console.warn(e.message);
+            }
+
+            let image = undefined;
+            try {
+                image = await createImage(imageSource);
+            } catch (e) {
+                console.warn(e.message);
+            }
+
             this.dictionary[ name ] = rgbListWithImage(image);
 
         }

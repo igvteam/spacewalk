@@ -10,7 +10,7 @@ class EnsembleManager {
     constructor () {
     }
 
-    ingestSW({ locus, hash }) {
+    ingest({locus, hash}) {
 
         const str = 'EnsembleManager ingestSW';
         console.time(str);
@@ -52,16 +52,8 @@ class EnsembleManager {
                 let { startBP, centroidBP, endBP, sizeBP } = Parser.genomicRangeFromHashKey(key);
 
                 const positions = xyzList
-                    .map(({ x, y, z }) => {
-
-                        const exe = x ? parseFloat(x) : 'nan';
-                        const wye = y ? parseFloat(y) : 'nan';
-                        const zee = z ? parseFloat(z) : 'nan';
-
-                        return { exe, wye, zee }
-                    })
-                    .filter(({ exe, wye, zee }) => {
-                        return !(exe === 'nan' || wye === 'nan' || zee === 'nan')
+                    .filter(({ x, y, z }) => {
+                        return !(x === 'nan' || y === 'nan' || z === 'nan')
                     });
 
                 if (0 === positions.length) {
@@ -89,9 +81,9 @@ class EnsembleManager {
 
                     const xyz = [];
                     const rgb = [];
-                    for(let { exe, wye, zee } of positions){
+                    for(let { x, y, z } of positions){
 
-                        xyz.push(exe, wye, zee);
+                        xyz.push(x, y, z);
 
                         const { r, g, b } = geometry.userData.color;
                         rgb.push(r, g, b);

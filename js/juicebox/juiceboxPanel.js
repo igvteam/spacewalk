@@ -34,65 +34,54 @@ class JuiceboxPanel extends Panel {
         }
     }
 
-    initialize(browserConfig) {
+    async initialize(browserConfig) {
 
         this.locus = 'all';
 
-        (async () => {
+        try {
+            const { container, width, height } = browserConfig;
+            this.browser = await hic.createBrowser(container, { width, height });
+        } catch (error) {
+            console.warn(error.message);
+        }
 
-            try {
-                const { container, width, height } = browserConfig;
-                this.browser = await hic.createBrowser(container, { width, height });
-            } catch (error) {
-                console.warn(error.message);
-            }
+        this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+            juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
+        });
 
-            this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-                juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
-            });
-
-        })();
 
     }
 
-    goto({ chr, start, end }) {
+    async goto({ chr, start, end }) {
 
         this.locus = chr + ':' + start + '-' + end;
 
         if (this.isContactMapLoaded()) {
-            (async () => {
-
-                try {
-                    await this.browser.parseGotoInput(this.locus);
-                } catch (error) {
-                    console.warn(error.message);
-                }
-
-            })();
+            try {
+                await this.browser.parseGotoInput(this.locus);
+            } catch (error) {
+                console.warn(error.message);
+            }
         }
 
     }
 
-    loadPath({ url, name, isControl }) {
+    async loadPath({ url, name, isControl }) {
 
-        (async () => {
+        try {
+            await this.browser.loadHicFile({ url, name, isControl });
+            $('#spacewalk_info_panel_juicebox').text( this.blurb() );
+        } catch (error) {
+            console.warn(error.message);
+        }
 
-            try {
-                await this.browser.loadHicFile({ url, name, isControl });
-                $('#spacewalk_info_panel_juicebox').text( this.blurb() );
-            } catch (error) {
-                console.warn(error.message);
-            }
+        this.presentPanel();
 
-            this.presentPanel();
-
-            try {
-                await this.browser.parseGotoInput(this.locus);
-            } catch (e) {
-                console.warn(e.message);
-            }
-
-        })();
+        try {
+            await this.browser.parseGotoInput(this.locus);
+        } catch (e) {
+            console.warn(e.message);
+        }
 
     }
 
