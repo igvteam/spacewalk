@@ -111,7 +111,7 @@ class Noodle {
         return EnsembleManager.getBoundsWithTrace(this.trace);
     }
 
-    getCameraPoseAlongAxis ({ axis, scaleFactor }) {
+    DEPRICATED_getCameraPoseAlongAxis({axis, scaleFactor}) {
 
         const { center, radius } = this.getBounds();
 
@@ -160,8 +160,7 @@ const createTube = (curve, tubeRadius, material) => {
     const str = `createTube. ${ tubularSegments } tubes. ${ radialSegments } radial segments.`;
     console.time(str);
 
-    // const geometry = new THREE.TubeBufferGeometry(curve, tubularSegments, globals.sceneManager.noodleRadius(), radialSegments, false);
-    const geometry = new THREE.TubeBufferGeometry(curve, 2048, tubeRadius, 16, false);
+    const geometry = new THREE.TubeBufferGeometry(curve, tubularSegments, tubeRadius, radialSegments, false);
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.name = 'noodle';

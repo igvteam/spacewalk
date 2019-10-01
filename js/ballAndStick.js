@@ -176,7 +176,7 @@ class BallAndStick {
         return EnsembleManager.getBoundsWithTrace(this.trace);
     }
 
-    getCameraPoseAlongAxis ({ axis, scaleFactor }) {
+    DEPRICATED_getCameraPoseAlongAxis ({ axis, scaleFactor }) {
 
         const { center, radius } = this.getBounds();
 

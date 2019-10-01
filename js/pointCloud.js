@@ -158,7 +158,7 @@ class PointCloud {
         return globals.pointCloudManager.getBounds();
     }
 
-    getCameraPoseAlongAxis ({ axis, scaleFactor }) {
+    DEPRICATED_getCameraPoseAlongAxis ({ axis, scaleFactor }) {
 
         const { center, radius } = this.getBounds();
 
