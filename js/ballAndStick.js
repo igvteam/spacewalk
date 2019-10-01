@@ -18,8 +18,28 @@ class BallAndStick {
         this.dispose();
 
         this.trace = trace;
-        this.balls = this.createBalls(trace);
-        this.sticks = this.createSticks(trace);
+
+        if (undefined === this.stickCurves) {
+            this.stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVerticesWithTrace(trace));
+        }
+
+        let acc = 0;
+        let averageCurveDistance = this.stickCurves
+            .reduce((accumulator, curve) => {
+
+                const curveLength = curve.getLength();
+                accumulator += curveLength;
+
+                return accumulator;
+            }, acc);
+
+        averageCurveDistance /= this.stickCurves.length;
+
+        const stickRadius = averageCurveDistance * 0.5e-1;
+        this.sticks = this.createSticks(this.stickCurves, stickRadius);
+
+        const ballRadius = averageCurveDistance * 2e-1;
+        this.balls = this.createBalls(trace, ballRadius);
 
         if (globals.sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
@@ -44,7 +64,7 @@ class BallAndStick {
         });
     }
 
-    createBalls(trace) {
+    createBalls(trace, ballRadius) {
 
         // Segment ID dictionay. 3D Object UUID is key.
         this.meshUUID_ColorRampInterpolantWindow_Dictionary = {};
@@ -60,7 +80,8 @@ class BallAndStick {
 
                 const { x, y, z } = vertex;
                 mesh.position.set(x, y, z);
-                mesh.scale.setScalar(globals.sceneManager.ballRadius());
+                // mesh.scale.setScalar(globals.sceneManager.ballRadius());
+                mesh.scale.setScalar(ballRadius);
 
                 this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ] = trace[ index ].colorRampInterpolantWindow;
 
@@ -70,16 +91,13 @@ class BallAndStick {
 
     }
 
-    createSticks(trace) {
+    createSticks(curves, stickRadius) {
 
-        if (undefined === this.stickCurves) {
-            this.stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVerticesWithTrace(trace));
-        }
-
-        return this.stickCurves
+        return curves
             .map((curve) => {
 
-                const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * globals.sceneManager.ballRadius(), 16, false);
+                // const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * globals.sceneManager.ballRadius(), 16, false);
+                const geometry = new THREE.TubeBufferGeometry(curve, 8, stickRadius, 16, false);
                 const material = globals.sceneManager.stickMaterial.clone();
 
                 const mesh = new THREE.Mesh(geometry, material);
