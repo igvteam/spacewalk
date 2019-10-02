@@ -40,7 +40,7 @@ class CameraLightingRig extends OrbitControls {
             this.setTarget({ newTarget });
         }
 
-        const [ near, far, aspectRatio ] = [ 1e-1 * boundingDiameter, 3e1 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
+        const [ near, far, aspectRatio ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
         this.setProjection({ fov, near, far, aspectRatio });
 
         currentCentroid = centroid.clone();
@@ -55,8 +55,9 @@ class CameraLightingRig extends OrbitControls {
 
         // Update camera dolly range
         const delta = far - near;
-        this.minDistance = near + 1e-2 * delta;
-        this.maxDistance =  far - 4e-1 * delta;
+        // this.minDistance = near + 1e-2 * delta;
+        this.minDistance = near;
+        // this.maxDistance =  far - 4e-1 * delta;
 
         this.camera.fov = fov;
         this.camera.aspect = aspectRatio;
