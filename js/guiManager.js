@@ -57,33 +57,33 @@ class GUIManager {
         const $ball_radius_control = $('#spacewalk-ball-radius-control');
 
         $ball_radius_control.find('i.fa-minus-circle').on('click.spacewalk-ball-radius-minus', () => {
-            globals.sceneManager.updateBallRadius(-1);
+            globals.ballAndStick.updateBallRadius(-1);
         });
 
         $ball_radius_control.find('i.fa-plus-circle').on('click.spacewalk-ball-radius-plus', () => {
-            globals.sceneManager.updateBallRadius(1);
+            globals.ballAndStick.updateBallRadius(1);
         });
 
         // stick radius
         const $stick_radius_control = $('#spacewalk-stick-radius-control');
 
         $stick_radius_control.find('i.fa-minus-circle').on('click.spacewalk-stick-radius-minus', () => {
-            globals.sceneManager.updateStickRadius(-1);
+            globals.ballAndStick.updateStickRadius(-1);
         });
 
         $stick_radius_control.find('i.fa-plus-circle').on('click.spacewalk-stick-radius-plus', () => {
-            globals.sceneManager.updateStickRadius(1);
+            globals.ballAndStick.updateStickRadius(1);
         });
 
         // noodle radius
         const $noodle_radius_control = $('#spacewalk-noodle-radius-control');
 
         $noodle_radius_control.find('i.fa-minus-circle').on('click.spacewalk-noodle-radius-minus', () => {
-            globals.sceneManager.updateNoodleRadius(-1);
+            globals.noodle.updateRadius(-1);
         });
 
         $noodle_radius_control.find('i.fa-plus-circle').on('click.spacewalk-noodle-radius-plus', () => {
-            globals.sceneManager.updateNoodleRadius(1);
+            globals.noodle.updateRadius(1);
         });
 
 

@@ -105,33 +105,6 @@ class SceneManager {
         this.renderStyle = renderStyle;
     }
 
-    ballRadius() {
-        return ballStickRadiusTable[ ballRadiusTableCounter ];
-    }
-
-    stickRadius() {
-        return ballStickRadiusTable[ stickRadiusTableCounter ];
-    }
-
-    updateBallRadius(increment) {
-        ballRadiusTableCounter = clamp(ballRadiusTableCounter + increment, 0, ballStickRadiusTableLength - 1);
-        globals.ballAndStick.updateBallRadius(this.ballRadius());
-    }
-
-    updateStickRadius(increment) {
-        stickRadiusTableCounter = clamp(stickRadiusTableCounter + increment, 0, ballStickRadiusTableLength - 1);
-        globals.ballAndStick.updateStickRadius(this.stickRadius());
-    }
-
-    noodleRadius() {
-        return noodleRadiusTable[ noodleRadiusTableCounter ];
-    }
-
-    updateNoodleRadius(increment) {
-        noodleRadiusTableCounter = clamp(noodleRadiusTableCounter + increment, 0, noodleRadiusTableLength - 1);
-        globals.noodle.updateRadius(this.noodleRadius());
-    }
-
     onWindowResize() {
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -199,38 +172,6 @@ class SceneManager {
     }
 
 }
-
-// ball & stick radius
-
-const maxBallStickRadius = 64;
-const ballStickRadiusTableLength = 17;
-const ballStickRadiusTable = ((radius) => {
-
-    let list = [];
-    for (let r = 0; r < ballStickRadiusTableLength; r++) {
-        const interpolant = (1 + r)/ballStickRadiusTableLength;
-        list.push(interpolant * radius);
-    }
-    return list;
-})(maxBallStickRadius);
-
-let ballRadiusTableCounter = Math.floor(0.5 * ballStickRadiusTableLength);
-let stickRadiusTableCounter = Math.floor(0.25 * ballStickRadiusTableLength);
-
-// noodle radius
-const maxNoodleRadius = 3 * maxBallStickRadius;
-const noodleRadiusTableLength = 17;
-const noodleRadiusTable = ((radius) => {
-
-    let list = [];
-    for (let r = 0; r < noodleRadiusTableLength; r++) {
-        const interpolant = (1 + r)/noodleRadiusTableLength;
-        list.push(interpolant * radius);
-    }
-    return list;
-})(maxNoodleRadius);
-
-let noodleRadiusTableCounter = Math.floor(0.125 * noodleRadiusTableLength);
 
 export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
