@@ -1,5 +1,5 @@
-import { quantize } from "./math.js";
 import { globals } from "./app.js";
+import {lerp} from "./math.js";
 
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
@@ -131,6 +131,20 @@ const drawWithSharedUint8ClampedArray = async (ctx, size, array) => {
     // console.timeEnd(str)
 };
 
+const generateRadiusTable = defaultRadius => {
+
+    const radiusTableLength = 11;
+    const radiusTable = [];
+
+    for (let i = 0; i < radiusTableLength; i++) {
+        const interpolant = i / (radiusTableLength - 1);
+        const radius = lerp(0.5 * defaultRadius, 2.0 * defaultRadius, interpolant);
+        radiusTable.push(radius);
+    }
+
+    return radiusTable
+};
+
 export {
     zIndexPanelSelected,
     zIndexPanelUnselected,
@@ -142,5 +156,6 @@ export {
     fitToContainer,
     getMouseXY,
     throttle,
-    numberFormatter
+    numberFormatter,
+    generateRadiusTable
 };

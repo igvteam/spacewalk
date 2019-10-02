@@ -7,8 +7,11 @@ import { globals } from "./app.js";
 import {colorRampPanel} from "./gui.js";
 import EnsembleManager from "./ensembleManager.js";
 import { createStickCurves, computeAverageCurveDistance } from './ballAndStick.js';
+import { generateRadiusTable } from "./utils.js";
 
 let fatLineMaterial;
+let noodleRadiusIndex = undefined;
+let noodleRadiusTable = undefined;
 
 class Noodle {
 
@@ -29,12 +32,14 @@ class Noodle {
         console.time(str);
 
         const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
-
         this.curve = new THREE.CatmullRomCurve3( vertices );
 
-        const stickCurves = createStickCurves( vertices );
-        const averageCurveDistance = computeAverageCurveDistance(stickCurves);
-        const tubeRadius = averageCurveDistance * 1e-1;
+        const averageCurveDistance = computeAverageCurveDistance( createStickCurves( vertices ) );
+
+        noodleRadiusTable = generateRadiusTable(1e-1 * averageCurveDistance);
+        noodleRadiusIndex = Math.floor( noodleRadiusTable.length/2 );
+
+        const tubeRadius = noodleRadiusTable[ noodleRadiusIndex ];
 
         this.tube = createTube(this.curve, tubeRadius, colorRampPanel.colorRampMaterialProvider.material);
         this.spline = createFatSpline(this.curve, colorRampPanel.colorRampMaterialProvider);
@@ -85,9 +90,14 @@ class Noodle {
         this.tube.visible = this.spline.mesh.visible = true;
     }
 
-    updateRadius(radius) {
+    updateRadius(increment) {
+
         const tubularSegments = getTubularSegmentCount(this.curve.getLength());
         const radialSegments = getRadialSegmentCount(globals.parser.locus);
+
+        noodleRadiusIndex = clamp(noodleRadiusIndex + increment, 0, noodleRadiusTable.length - 1);
+        const radius = noodleRadiusTable[ noodleRadiusIndex ];
+
         this.tube.geometry.copy(new THREE.TubeBufferGeometry(this.curve, tubularSegments, radius, radialSegments, false));
     }
 

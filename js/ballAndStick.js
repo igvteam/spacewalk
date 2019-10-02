@@ -1,8 +1,14 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { degrees } from './math.js';
+import { degrees, clamp } from './math.js';
 import { globals } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
-import {numberFormatter} from "./utils.js";
+import { numberFormatter, generateRadiusTable } from "./utils.js";
+
+let ballRadiusIndex = undefined;
+let ballRadiusTable = undefined;
+
+let stickRadiusIndex = undefined;
+let stickRadiusTable = undefined;
 
 class BallAndStick {
 
@@ -27,11 +33,13 @@ class BallAndStick {
         const averageCurveDistance  = computeAverageCurveDistance(this.stickCurves);
         console.log(`Ball&Stick. Average Curve Distance ${ numberFormatter(Math.round(averageCurveDistance)) }`);
 
-        const stickRadius = averageCurveDistance * 0.5e-1;
-        this.sticks = this.createSticks(this.stickCurves, stickRadius);
+        stickRadiusTable = generateRadiusTable(0.5e-1 * averageCurveDistance);
+        stickRadiusIndex = Math.floor( stickRadiusTable.length/2 );
+        this.sticks = this.createSticks(this.stickCurves, stickRadiusTable[ stickRadiusIndex ]);
 
-        const ballRadius = averageCurveDistance * 2e-1;
-        this.balls = this.createBalls(trace, ballRadius);
+        ballRadiusTable = generateRadiusTable(2e-1 * averageCurveDistance);
+        ballRadiusIndex = Math.floor( ballRadiusTable.length/2 );
+        this.balls = this.createBalls(trace, ballRadiusTable[ ballRadiusIndex ]);
 
         if (globals.sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
@@ -72,7 +80,6 @@ class BallAndStick {
 
                 const { x, y, z } = vertex;
                 mesh.position.set(x, y, z);
-                // mesh.scale.setScalar(globals.sceneManager.ballRadius());
                 mesh.scale.setScalar(ballRadius);
 
                 this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ] = trace[ index ].colorRampInterpolantWindow;
@@ -88,7 +95,6 @@ class BallAndStick {
         return curves
             .map((curve) => {
 
-                // const geometry = new THREE.TubeBufferGeometry(curve, 8, 0.25 * globals.sceneManager.ballRadius(), 16, false);
                 const geometry = new THREE.TubeBufferGeometry(curve, 8, stickRadius, 16, false);
                 const material = globals.sceneManager.stickMaterial.clone();
 
@@ -127,7 +133,10 @@ class BallAndStick {
         setVisibility(this.sticks, true);
     }
 
-    updateBallRadius(radius) {
+    updateBallRadius(increment) {
+
+        ballRadiusIndex = clamp(ballRadiusIndex + increment, 0, ballRadiusTable.length - 1);
+        const radius = ballRadiusTable[ ballRadiusIndex ];
 
         for (let mesh of this.balls) {
             mesh.scale.setScalar(radius);
@@ -135,7 +144,10 @@ class BallAndStick {
 
     }
 
-    updateStickRadius(radius) {
+    updateStickRadius(increment) {
+
+        stickRadiusIndex = clamp(stickRadiusIndex + increment, 0, stickRadiusTable.length - 1);
+        const radius = stickRadiusTable[ stickRadiusIndex ];
 
         for (let i = 0; i < this.stickCurves.length; i++) {
             this.sticks[ i ].geometry.copy(new THREE.TubeBufferGeometry(this.stickCurves[i], 8, radius, 16, false));
@@ -228,9 +240,6 @@ export const computeAverageCurveDistance = curves => {
     return sum / curves.length;
 
 };
-
-
-
 
 export const createStickCurves = (vertices) => {
 
