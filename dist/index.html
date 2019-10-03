@@ -141,6 +141,11 @@
 
                     <div id="spacewalk-sw-load-dropdown-menu"  class="dropdown-menu">
 
+                        <!-- select gsdb -->
+                        <button id="spacewalk-gsdb-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-gsdb-modal">
+                            Select From GSDB ...
+                        </button>
+
                         <!-- select -->
                         <button id="spacewalk-sw-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-sw-load-select-modal">Select From List ...
                         </button>
@@ -750,6 +755,39 @@
 
     </div>
 
+    <!-- GSDB. Jianlin Cheng's database of 3d structures -->
+    <div id="spacewalk-gsdb-modal" class="modal fade">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <div class="modal-title">GSDB. Select File</div>
+
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+                    <div>
+                        <div class="input-group mb-3">
+                            <select class="custom-select">
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <!-- SW File Select Modal -->
     <div id="spacewalk-sw-load-select-modal" class="modal fade">
 
@@ -777,25 +815,13 @@
 
                             <select class="form-control selectpicker" data-live-search="true" title="Select an ensemble" data-width="100%">
 
-                                <!-- Ensemble Conversions -->
                                 <option value="https://www.dropbox.com/s/o61ix7cnnfxvylm/A549_chr21-28-30Mb.sw?dl=0">A549 chr21:28-30</option>
                                 <option value="https://www.dropbox.com/s/xw1n2vpt4ohppw2/HCT116_chr21-28-30Mb_6h_auxin.sw?dl=0">HCT116 6h_auxin chr21:28-30</option>
                                 <option value="https://www.dropbox.com/s/lf4s45fwcdu5wfn/HCT116_chr21-28-30Mb_untreated.sw?dl=0">HCT116 untreated chr21:28-30</option>
                                 <option value="https://www.dropbox.com/s/7wfnkgd7kej4aub/IMR90_chr21-18-20Mb.sw?dl=0">IMR90 chr21:18-20</option>
                                 <option value="https://www.dropbox.com/s/wyhuv5frqo0q5gb/IMR90_chr21-28-30Mb.sw?dl=0">IMR90 chr21:28-30</option>
                                 <option value="https://www.dropbox.com/s/fkqk2mtl20inicl/K562_chr21-28-30Mb.sw?dl=0">K562 chr21:28-30</option>
-
-                                <!--Point Cloud Conversions -->
-
                                 <option value="https://www.dropbox.com/s/dzsmcn8yu9zrv2q/Nir%20et%20al.bed?dl=0">Nir et al</option>
-
-<!--                                <option value="https://www.dropbox.com/s/b0lquymwrvawpa4/2017-08-03-19-34-25_Location-01_6column.sw?dl=0">2017-08-03 | 19 34 25 Location 01 6 column</option>-->
-<!--                                <option value="https://www.dropbox.com/s/2e4jfd7z4ebgvi6/2017-08-03-19-34-25_Location-02_6column.sw?dl=0">2017-08-03 | 19 34 25 Location 02 6 column</option>-->
-<!--                                <option value="https://www.dropbox.com/s/9pvcbzoddc07a3z/2017-08-03-19-34-25_Location-05_6column.sw?dl=0">2017-08-03 | 19 34 25 Location 05 6 column</option>-->
-<!--                                <option value="https://www.dropbox.com/s/wfkfcakoroxa40o/2017-10-06-09-57-37_Location-04_6column.sw?dl=0">2017-10-06 | 09 57 37 Location 04 6 column</option>-->
-<!--                                <option value="https://www.dropbox.com/s/xgftw5otqnnyeh1/2017-11-09-10-52-14_Location-02_6column.sw?dl=0">2017-11-09 | 10 52 14 Location 02 6 column</option>-->
-<!--                                <option value="https://www.dropbox.com/s/1wgyoqbxh3dny2f/2017-11-09-10-52-14_Location-05_6column.sw?dl=0">2017-11-09 | 10 52 14 Location 05 6 column</option>-->
-
                             </select>
                         </div>
                     </div>
@@ -945,7 +971,7 @@
 
                     <div class="modal-title">Select File</div>
 
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
                     </button>
 
