@@ -131,10 +131,12 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
     globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ] } });
 };
 
-export let juiceboxSelectLoader = async ($select) => {
+export let juiceboxSelectLoader = async ($selectModal, onChange) => {
 
     const data = await hic.igv.xhr.loadString('resources/hicFiles.txt');
     const lines = hic.igv.splitLines(data);
+
+    const $select = $selectModal.find('select');
 
     for (let line of lines) {
 
@@ -146,6 +148,8 @@ export let juiceboxSelectLoader = async ($select) => {
         }
 
     }
+
+    onChange($selectModal, $select);
 
 };
 
