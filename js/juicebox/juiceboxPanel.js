@@ -131,7 +131,7 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
     eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ] } });
 };
 
-export let juiceboxSelectLoader = async ($selectModal, onChange) => {
+export let juiceboxSelectLoader = async ($selectModal, onChangeConfiguration) => {
 
     const data = await hic.igv.xhr.loadString('resources/hicFiles.txt');
     const lines = hic.igv.splitLines(data);
@@ -149,7 +149,7 @@ export let juiceboxSelectLoader = async ($selectModal, onChange) => {
 
     }
 
-    onChange($selectModal, $select);
+    onChangeConfiguration();
 
 };
 
