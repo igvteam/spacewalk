@@ -1,4 +1,4 @@
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 
 const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle_spline', 'noodle', 'stick' ]);
 
@@ -10,8 +10,8 @@ class Picker {
         this.pickHighlighter = pickHighlighter;
         this.isEnabled = true;
 
-        globals.eventBus.subscribe("DidEnterGUI", this);
-        globals.eventBus.subscribe("DidLeaveGUI", this);
+        eventBus.subscribe("DidEnterGUI", this);
+        eventBus.subscribe("DidLeaveGUI", this);
     }
 
     receiveEvent({ type }) {
@@ -43,12 +43,12 @@ class Picker {
                 // const { uv } = hit;
 
                 this.pickHighlighter.configureObjects([ object ]);
-                globals.eventBus.post({ type: "PickerDidHitObject", data: object.uuid });
+                eventBus.post({ type: "PickerDidHitObject", data: object.uuid });
             }
 
         } else {
             this.pickHighlighter.unhighlight();
-            globals.eventBus.post({ type: "PickerDidLeaveObject" });
+            eventBus.post({ type: "PickerDidLeaveObject" });
         }
 
     }

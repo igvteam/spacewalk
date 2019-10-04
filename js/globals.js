@@ -1,4 +1,3 @@
-import EventBus from "./eventBus.js";
 import Parser from "./parser.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
@@ -9,14 +8,13 @@ import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import {appleCrayonColorRGB255, appleCrayonColorThreeJS} from "./color.js";
 import SceneManager, {sceneManagerConfigurator} from "./sceneManager.js";
 import {highlightColor, distanceMapPanel, contactFrequencyMapPanel} from "./gui.js";
+import { eventBus } from './app.js';
 
 class Globals {
 
     constructor (container) {
 
         this.parser = new Parser();
-
-        this.eventBus = new EventBus();
 
         this.ensembleManager = new EnsembleManager();
 
@@ -35,7 +33,7 @@ class Globals {
         this.sharedContactFrequencyMapUint8ClampedArray = undefined;
         this.sharedDistanceMapUint8ClampedArray = undefined;
 
-        this.eventBus.subscribe('DidLoadEnsembleFile', this);
+        eventBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 

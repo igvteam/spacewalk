@@ -1,6 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { rgb255ToThreeJSColor, rgb255, rgb255Lerp, rgb255String, greyScale255 } from './color.js';
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 
 let rgbTexture;
 let alphaTexture;
@@ -51,8 +51,8 @@ class DataValueMaterialProvider {
 
         this.featureRects = undefined;
 
-        globals.eventBus.subscribe("DidLeaveGUI", this);
-        globals.eventBus.subscribe("DidSelectSegmentID", this);
+        eventBus.subscribe("DidLeaveGUI", this);
+        eventBus.subscribe("DidSelectSegmentID", this);
     }
 
     receiveEvent({ type, data }) {

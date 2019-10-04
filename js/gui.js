@@ -6,7 +6,7 @@ import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
 import DistanceMapPanel, { distanceMapPanelConfigurator } from "./distanceMapPanel.js";
 import ContactFrequencyMapPanel, { contactFrequencyMapPanelConfigurator } from "./contactFrequencyMapPanel.js";
 import IGVPanel, { igvBrowserConfigurator } from "./igv/IGVPanel.js";
-import DataFileLoadModal, { gsdbFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator } from "./dataFileLoadModal.js";
+import DataFileLoadModal, { spaceWalkFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 
 let guiManager;
 let traceSelectPanel;
@@ -15,7 +15,6 @@ let colorRampPanel;
 let distanceMapPanel;
 let contactFrequencyMapPanel;
 let igvPanel;
-let gsdbFileLoadModal;
 let swFileLoadModal;
 let juiceboxFileLoadModal;
 
@@ -38,8 +37,6 @@ const createGUI = container => {
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0) });
     juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
-
-    gsdbFileLoadModal = new DataFileLoadModal(gsdbFileLoadModalConfigurator());
 
     swFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator());
 

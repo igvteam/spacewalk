@@ -2,7 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
 
 const alpha_visible = `rgb(${255},${255},${255})`;
@@ -75,11 +75,11 @@ class ColorRampMaterialProvider {
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
 
-        globals.eventBus.subscribe("DidLeaveGUI", this);
-        globals.eventBus.subscribe("PickerDidLeaveObject", this);
-        globals.eventBus.subscribe("PickerDidHitObject", this);
-        globals.eventBus.subscribe("DidSelectSegmentID", this);
-        globals.eventBus.subscribe('DidLoadEnsembleFile', this);
+        eventBus.subscribe("DidLeaveGUI", this);
+        eventBus.subscribe("PickerDidLeaveObject", this);
+        eventBus.subscribe("PickerDidHitObject", this);
+        eventBus.subscribe("DidSelectSegmentID", this);
+        eventBus.subscribe('DidLoadEnsembleFile', this);
     }
 
     receiveEvent({ type, data }) {
@@ -120,7 +120,7 @@ class ColorRampMaterialProvider {
 
         if (interpolantWindowList) {
             this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
-            globals.eventBus.post({ type: 'ColorRampMaterialProviderCanvasDidMouseMove', data: { interpolantList } });
+            eventBus.post({ type: 'ColorRampMaterialProviderCanvasDidMouseMove', data: { interpolantList } });
         }
 
     };

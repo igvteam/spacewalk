@@ -1,64 +1,32 @@
+import ModalTable from '../node_modules/data-modal/js/modalTable.js'
+import GSDBDataSource from "./gsdbDataSource.js";
 
-const gsdbSelectLoader = async ($selectModal, onChange) => {
+class GSDB {
 
-    const jsonFile = 'resources/gsdb.json';
+    constructor(loader) {
 
-    let myJSON = undefined;
-    try {
+        const gsdbModalConfig =
+            {
+                id: 'spacewalk-gsdb-modal',
+                title: 'GSDB',
+                datasource: new GSDBDataSource(),
+                selectHandler: (selections) => {
 
-        const response = await fetch(jsonFile);
+                    if (selections.length > 0) {
 
-        if (!response.ok) {
-            throw new Error(`Unable to retrieve ${ jsonFile }.`);
-        }
+                        let { name, url } = selections.pop();
 
-        myJSON = await response.json();
+                        url = `http://${ url }`;
+                        loader.loadURL({ name, url })
 
-    } catch (error) {
-        console.error(error);
+                    }
+                }
+            };
+
+        this.gsdbModal = new ModalTable(gsdbModalConfig);
+
     }
 
-    if (myJSON) {
+}
 
-        let urls = [];
-        traverseJSON(myJSON, urls, '');
-
-        const $select = $selectModal.find('select');
-
-        let counter = 0;
-        for (let { name, url } of urls) {
-
-            url = `http://${ url }`;
-            const str = `<option value="${ url }">${ name }</option>`;
-            const $option = $(str);
-            $select.append($option);
-
-            if (3e3 === counter++) {
-                break
-            }
-        }
-
-        onChange($selectModal, $select);
-    }
-
-};
-
-const traverseJSON = (o, urls, label) => {
-
-    if ('directory' === o.type) {
-
-        for (let thang of o.children) {
-
-            const str = '' === label ? o.name : `${ label }-${ o.name }`;
-            traverseJSON(thang, urls, str);
-        }
-
-    } else {
-        const { name, url } = o;
-        const str = `${ label }-${ name }`;
-        urls.push({ name: str, url });
-    }
-
-};
-
-export { gsdbSelectLoader };
+export default GSDB;

@@ -3,7 +3,7 @@ import BallAndStick from "./ballAndStick.js";
 import { zIndexPanelUnselected, zIndexPanelSelected } from './utils.js';
 import { rgb255ToThreeJSColor } from "./color.js";
 import { juiceboxPanel } from "./gui.js";
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 
 class GUIManager {
     constructor ({ $button, $panel }) {
@@ -123,8 +123,8 @@ class GUIManager {
 
         $('#spacewalk_ui_manager_gnomon_colorpicker').spectrum(gnomonColorPickerConfig);
 
-        globals.eventBus.subscribe("DidSelectPanel", this);
-        globals.eventBus.subscribe('DidLoadEnsembleFile', this);
+        eventBus.subscribe("DidSelectPanel", this);
+        eventBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 
@@ -197,12 +197,12 @@ const configureWidgetVisibility = (input_id_list, $panel) => {
             e.preventDefault();
 
             if ('spacewalk_ui_manager_groundplane' === input_id) {
-                globals.eventBus .post({ type: "ToggleGroundPlane", data: $input.prop('checked') });
+                eventBus .post({ type: "ToggleGroundPlane", data: $input.prop('checked') });
             } else if ('spacewalk_ui_manager_gnomon' === input_id) {
-                globals.eventBus .post({ type: "ToggleGnomon", data: $input.prop('checked') });
+                eventBus .post({ type: "ToggleGnomon", data: $input.prop('checked') });
             } else {
                 const payload = $input.data('target');
-                globals.eventBus .post({ type: "ToggleUIControl", data: { $input, payload } });
+                eventBus .post({ type: "ToggleUIControl", data: { $input, payload } });
             }
         });
 
@@ -216,7 +216,7 @@ const configureRenderStyleRadioButton = ($input, renderStyle) => {
 
     $input.on('change.gui_manager.render_style_ball_stick', (e) => {
         e.preventDefault();
-        globals.eventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
+        eventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
     });
 
 };

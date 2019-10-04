@@ -1,7 +1,6 @@
 import { juiceboxPanel } from "./gui.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
-import { globals } from "./app.js";
-import { gsdbSelectLoader } from './gsdb.js';
+import { globals, eventBus } from "./app.js";
 
 let currentURL = undefined;
 
@@ -97,7 +96,7 @@ class DataFileLoadModal {
 const loadURL = ({ url, name, fileLoader, $modal }) => {
 
     $modal.modal('hide');
-    globals.eventBus.post({ type: "DidLeaveGUI" });
+    eventBus.post({ type: "DidLeaveGUI" });
 
     fileLoader.loadURL({ url, name });
 
@@ -105,7 +104,7 @@ const loadURL = ({ url, name, fileLoader, $modal }) => {
 
 const loadFile = (file, fileLoader) => {
 
-    globals.eventBus.post({ type: "DidLeaveGUI" });
+    eventBus.post({ type: "DidLeaveGUI" });
     fileLoader.loadLocalFile({ file });
 
 };
@@ -132,17 +131,6 @@ const juiceboxFileLoadModalConfigurator = () => {
     }
 };
 
-const gsdbFileLoadModalConfigurator = () => {
-
-    return {
-        $urlModal: $('#spacewalk-sw-load-url-modal'),
-        $selectModal: $('#spacewalk-gsdb-modal'),
-        $localFileInput: $('#spacewalk-sw-load-local-input'),
-        selectLoader: gsdbSelectLoader,
-        fileLoader: globals.parser
-    }
-};
-
-export { gsdbFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
+export { spaceWalkFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
 
 export default DataFileLoadModal;

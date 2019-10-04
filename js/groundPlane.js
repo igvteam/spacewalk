@@ -1,7 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { appleCrayonColorThreeJS } from "./color.js";
 import { guiManager } from "./gui.js";
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 
 class GroundPlane extends THREE.GridHelper {
 
@@ -17,7 +17,7 @@ class GroundPlane extends THREE.GridHelper {
         this.visible = isHidden;
         this.material.transparent = true;
 
-        globals.eventBus.subscribe("ToggleGroundPlane", this);
+        eventBus.subscribe("ToggleGroundPlane", this);
 
     }
 
