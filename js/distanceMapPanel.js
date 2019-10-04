@@ -1,6 +1,6 @@
 import { guiManager } from './gui.js';
 import Panel from "./panel.js";
-import { globals } from "./app.js";
+import { globals, colorMapManager, ensembleManager } from "./app.js";
 import { drawWithSharedUint8ClampedArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -52,7 +52,7 @@ class DistanceMapPanel extends Panel {
         const str = `Distance Map - Update Ensemble Distance. ${ traces.length } traces.`;
         console.time(str);
 
-        let mapSize = globals.ensembleManager.maximumSegmentID;
+        let mapSize = ensembleManager.maximumSegmentID;
 
         let counter = new Array(mapSize * mapSize);
         counter.fill(0);
@@ -131,7 +131,7 @@ const updateDistanceArray = trace => {
     const str = `Distance Map - Update Distance Array`;
     console.time(str);
 
-    let mapSize = globals.ensembleManager.maximumSegmentID;
+    let mapSize = ensembleManager.maximumSegmentID;
 
     globals.sharedMapArray.fill(kDistanceUndefined);
 
@@ -195,7 +195,7 @@ const paintDistanceCanvas = (distances, maximumDistance) => {
         globals.sharedDistanceMapUint8ClampedArray[i++] = 255;
     }
 
-    const colorMap = globals.colorMapManager.dictionary['juicebox_default'];
+    const colorMap = colorMapManager.dictionary['juicebox_default'];
     const scale = colorMap.length - 1;
 
     i = 0;

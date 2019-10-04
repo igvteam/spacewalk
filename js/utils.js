@@ -1,12 +1,12 @@
-import { globals } from "./app.js";
+import { noodle, ballAndStick, ensembleManager } from "./app.js";
 import {lerp} from "./math.js";
 
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
 
 const setMaterialProvider = materialProvider => {
-    globals.noodle.updateMaterialProvider(materialProvider);
-    globals.ballAndStick.updateMaterialProvider(materialProvider);
+    noodle.updateMaterialProvider(materialProvider);
+    ballAndStick.updateMaterialProvider(materialProvider);
 };
 
 let fitToContainer = (canvas, devicePixelRatio) => {
@@ -113,10 +113,7 @@ const drawWithSharedUint8ClampedArray = async (ctx, size, array) => {
 
     const { width, height } = size;
 
-    const imageData = new ImageData(array, globals.ensembleManager.maximumSegmentID, globals.ensembleManager.maximumSegmentID);
-
-    // const str = `draw With Shared Uint8 Clamped Array. src ${globals.ensembleManager.maximumSegmentID} x ${globals.ensembleManager.maximumSegmentID}. dst ${width} x ${height}.`;
-    // console.time(str);
+    const imageData = new ImageData(array, ensembleManager.maximumSegmentID, ensembleManager.maximumSegmentID);
 
     const config =
         {
@@ -128,7 +125,6 @@ const drawWithSharedUint8ClampedArray = async (ctx, size, array) => {
     const imageBitmap = await createImageBitmap(imageData);
     ctx.transferFromImageBitmap(imageBitmap);
 
-    // console.timeEnd(str)
 };
 
 const generateRadiusTable = defaultRadius => {

@@ -1,6 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { rgb255ToThreeJSColor, rgb255, rgb255Lerp, rgb255String, greyScale255 } from './color.js';
-import { globals, eventBus } from "./app.js";
+import { rgb255, rgb255Lerp, rgb255String, greyScale255 } from './color.js';
+import { eventBus, ensembleManager, sceneManager } from "./app.js";
 
 let rgbTexture;
 let alphaTexture;
@@ -62,7 +62,7 @@ class DataValueMaterialProvider {
             const { interpolantList } = data;
             this.highlight(interpolantList);
 
-        } else if (globals.sceneManager && "DidLeaveGUI" === type) {
+        } else if (sceneManager && "DidLeaveGUI" === type) {
 
             let { featureRects } = this;
             this.paint({ featureRects, interpolantList: undefined });
@@ -72,7 +72,7 @@ class DataValueMaterialProvider {
 
     highlight(interpolantList) {
 
-        if (undefined === globals.ensembleManager.maximumSegmentID) {
+        if (undefined === ensembleManager.maximumSegmentID) {
             return;
         }
 
@@ -82,7 +82,7 @@ class DataValueMaterialProvider {
 
     configure({ startBP, endBP, features, min, max }) {
 
-        if (undefined === globals.ensembleManager.maximumSegmentID) {
+        if (undefined === ensembleManager.maximumSegmentID) {
             return;
         }
 
@@ -207,7 +207,7 @@ class DataValueMaterialProvider {
     }
 
     colorForInterpolant(interpolant) {
-        return globals.sceneManager.stickMaterial.color;
+        return sceneManager.stickMaterial.color;
     }
 
     renderLoopHelper () {

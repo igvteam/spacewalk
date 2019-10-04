@@ -1,6 +1,6 @@
 import { juiceboxPanel } from "./gui.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
-import { globals, eventBus } from "./app.js";
+import { parser, eventBus } from "./app.js";
 
 let currentURL = undefined;
 
@@ -116,7 +116,7 @@ const spaceWalkFileLoadModalConfigurator = () => {
         $selectModal: $('#spacewalk-sw-load-select-modal'),
         $localFileInput: $('#spacewalk-sw-load-local-input'),
         selectLoader: undefined,
-        fileLoader: globals.parser
+        fileLoader: parser
     }
 };
 

@@ -3,7 +3,7 @@ import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import { guiManager, colorRampPanel } from "../gui.js";
 import Panel from "../panel.js";
-import { globals, eventBus } from "../app.js";
+import { ensembleManager, eventBus } from "../app.js";
 
 let trackLoadController;
 
@@ -174,11 +174,11 @@ class IGVPanel extends Panel {
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
-    if (undefined === globals.ensembleManager || undefined === globals.parser.locus) {
+    if (undefined === ensembleManager || undefined === parser.locus) {
         return;
     }
 
-    const { genomicStart, genomicEnd } = globals.parser.locus;
+    const { genomicStart, genomicEnd } = parser.locus;
 
     const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
 
@@ -226,7 +226,7 @@ const addDataValueMaterialProviderGUI = tracks => {
                     // If "zoom in" notice is displayed do not paint features on trace
                     if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
 
-                        globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
+                        dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
 
                     } else {
 
@@ -234,15 +234,15 @@ const addDataValueMaterialProviderGUI = tracks => {
 
                         if ('varying' === track.featureDescription) {
                             const { min, max } = track.dataRange;
-                            globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+                            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
 
                         } else {
-                            globals.dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+                            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
                         }
 
                     }
 
-                    setMaterialProvider(globals.dataValueMaterialProvider);
+                    setMaterialProvider(dataValueMaterialProvider);
                 } else {
                     setMaterialProvider(colorRampPanel.colorRampMaterialProvider);
                 }

@@ -5,10 +5,10 @@ import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
-import { guiManager, colorRampPanel } from './gui.js';
+import { colorRampPanel } from './gui.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
-import { globals, eventBus } from "./app.js";
+import { pointCloud, noodle, ballAndStick, ensembleManager, eventBus, dataValueMaterialProvider } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
@@ -57,12 +57,12 @@ class SceneManager {
 
             const { interpolantList } = data;
 
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
             if (interpolantWindowList) {
 
                 let objects = interpolantWindowList.map(({ index }) => {
-                    return globals.ballAndStick.balls[ index ];
+                    return ballAndStick.balls[ index ];
                 });
 
                 this.picker.pickHighlighter.configureObjects(objects);
@@ -130,7 +130,6 @@ class SceneManager {
         if (this.scene) {
 
             let disposable = this.scene.children.filter(child => {
-                // return 'noodle' === child.name || 'ball' === child.name || 'stick' === child.name || 'noodle_spline' === child.name
                 return disposableSet.has(child.name);
             });
 
@@ -145,13 +144,13 @@ class SceneManager {
 
         if (this.scene && this.cameraLightingRig) {
 
-            globals.pointCloud.renderLoopHelper();
+            pointCloud.renderLoopHelper();
 
-            globals.noodle.renderLoopHelper();
+            noodle.renderLoopHelper();
 
-            globals.ballAndStick.renderLoopHelper();
+            ballAndStick.renderLoopHelper();
 
-            globals.dataValueMaterialProvider.renderLoopHelper();
+            dataValueMaterialProvider.renderLoopHelper();
 
             colorRampPanel.colorRampMaterialProvider.renderLoopHelper();
 

@@ -1,7 +1,7 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { numberFormatter, readFileAsText } from "./utils.js";
 import { hideSpinner, showSpinner } from "./gui.js";
-import { globals } from "./app.js";
+import { ensembleManager } from "./app.js";
 
 class Parser {
 
@@ -111,7 +111,7 @@ class Parser {
         const hash = this.parse(string);
         hideSpinner();
 
-        globals.ensembleManager.ingest({locus: this.locus, hash});
+        ensembleManager.ingest({locus: this.locus, hash});
 
     }
 
