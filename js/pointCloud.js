@@ -1,7 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { degrees } from './math.js';
 import { setGeometryAttributeColorListWithColorThreeJS } from './color.js';
-import { globals, eventBus } from "./app.js";
+import { ensembleManager, eventBus, sceneManager } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
 
 const pointSize = 128;
@@ -47,13 +47,13 @@ class PointCloud {
 
         const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
 
-        if (typeConditional && globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
+        if (typeConditional && sceneManager.renderStyle === PointCloud.getRenderStyle()) {
 
             if (this.meshList) {
 
                 const { interpolantList } = data;
 
-                const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
+                const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
                 if (interpolantWindowList) {
 
@@ -88,7 +88,7 @@ class PointCloud {
 
         this.meshList = this.createPointCloud(trace);
 
-        if (globals.sceneManager.renderStyle === PointCloud.getRenderStyle()) {
+        if (sceneManager.renderStyle === PointCloud.getRenderStyle()) {
             this.show();
         } else {
             this.hide();

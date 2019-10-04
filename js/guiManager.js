@@ -3,7 +3,7 @@ import BallAndStick from "./ballAndStick.js";
 import { zIndexPanelUnselected, zIndexPanelSelected } from './utils.js';
 import { rgb255ToThreeJSColor } from "./color.js";
 import { juiceboxPanel } from "./gui.js";
-import { globals, eventBus } from "./app.js";
+import { parser, eventBus, noodle, ballAndStick, sceneManager } from "./app.js";
 
 class GUIManager {
     constructor ({ $button, $panel }) {
@@ -57,33 +57,33 @@ class GUIManager {
         const $ball_radius_control = $('#spacewalk-ball-radius-control');
 
         $ball_radius_control.find('i.fa-minus-circle').on('click.spacewalk-ball-radius-minus', () => {
-            globals.ballAndStick.updateBallRadius(-1);
+            ballAndStick.updateBallRadius(-1);
         });
 
         $ball_radius_control.find('i.fa-plus-circle').on('click.spacewalk-ball-radius-plus', () => {
-            globals.ballAndStick.updateBallRadius(1);
+            ballAndStick.updateBallRadius(1);
         });
 
         // stick radius
         const $stick_radius_control = $('#spacewalk-stick-radius-control');
 
         $stick_radius_control.find('i.fa-minus-circle').on('click.spacewalk-stick-radius-minus', () => {
-            globals.ballAndStick.updateStickRadius(-1);
+            ballAndStick.updateStickRadius(-1);
         });
 
         $stick_radius_control.find('i.fa-plus-circle').on('click.spacewalk-stick-radius-plus', () => {
-            globals.ballAndStick.updateStickRadius(1);
+            ballAndStick.updateStickRadius(1);
         });
 
         // noodle radius
         const $noodle_radius_control = $('#spacewalk-noodle-radius-control');
 
         $noodle_radius_control.find('i.fa-minus-circle').on('click.spacewalk-noodle-radius-minus', () => {
-            globals.noodle.updateRadius(-1);
+            noodle.updateRadius(-1);
         });
 
         $noodle_radius_control.find('i.fa-plus-circle').on('click.spacewalk-noodle-radius-plus', () => {
-            globals.noodle.updateRadius(1);
+            noodle.updateRadius(1);
         });
 
 
@@ -92,7 +92,7 @@ class GUIManager {
                 color: "#f00",
                 move: color => {
                     const { r, g, b } = color.toRgb();
-                    globals.sceneManager.renderer.setClearColor (rgb255ToThreeJSColor(r, g, b));
+                    sceneManager.renderer.setClearColor (rgb255ToThreeJSColor(r, g, b));
                 }
 
             };
@@ -104,7 +104,7 @@ class GUIManager {
                 color: "#f00",
                 move: color => {
                     const { r, g, b } = color.toRgb();
-                    globals.sceneManager.groundPlane.setColor (rgb255ToThreeJSColor(r, g, b));
+                    sceneManager.groundPlane.setColor (rgb255ToThreeJSColor(r, g, b));
                 }
 
             };
@@ -116,7 +116,7 @@ class GUIManager {
                 color: "#f00",
                 move: color => {
                     const { r, g, b } = color.toRgb();
-                    globals.sceneManager.gnomon.setColor (rgb255ToThreeJSColor(r, g, b));
+                    sceneManager.gnomon.setColor (rgb255ToThreeJSColor(r, g, b));
                 }
 
             };
@@ -142,10 +142,10 @@ class GUIManager {
             const {genomeID} = data;
 
             $('#spacewalk_info_panel_genome').text(genomeID);
-            $('#spacewalk_info_panel_locus').text(globals.parser.locusBlurb());
+            $('#spacewalk_info_panel_locus').text(parser.locusBlurb());
             $('#spacewalk_info_panel_juicebox').text(juiceboxPanel.blurb());
 
-            $('#spacewalk_info_panel_ensemble').text(globals.parser.sampleBlurb());
+            $('#spacewalk_info_panel_ensemble').text(parser.sampleBlurb());
 
             $('#spacewalk_info_panel').show();
             $('#spacewalk_ui_manager_render_styles').show();

@@ -2,7 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { rgb255, rgb255String } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
-import { globals, eventBus } from "./app.js";
+import { ballAndStick, colorMapManager, ensembleManager, eventBus } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
 
 const alpha_visible = `rgb(${255},${255},${255})`;
@@ -87,8 +87,8 @@ class ColorRampMaterialProvider {
         if ("PickerDidHitObject" === type) {
 
             const objectUUID = data;
-            if (globals.ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[ objectUUID ]) {
-                this.highlightWithInterpolantWindowList([ globals.ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[objectUUID] ])
+            if (ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[ objectUUID ]) {
+                this.highlightWithInterpolantWindowList([ ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[objectUUID] ])
             }
 
         } else if ("PickerDidLeaveObject" === type) {
@@ -96,7 +96,7 @@ class ColorRampMaterialProvider {
         } else if ("DidSelectSegmentID" === type) {
 
             const { interpolantList } = data;
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
             if (interpolantWindowList) {
                 this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
@@ -109,14 +109,14 @@ class ColorRampMaterialProvider {
 
     onCanvasMouseMove(canvas, event) {
 
-        if (undefined === globals.ensembleManager.currentTrace) {
+        if (undefined === ensembleManager.currentTrace) {
             return;
         }
 
         let { yNormalized } = getMouseXY(canvas, event);
         const interpolantList = [ 1.0 - yNormalized ];
 
-        const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: globals.ensembleManager.currentTrace, interpolantList });
+        const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
         if (interpolantWindowList) {
             this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
@@ -135,7 +135,7 @@ class ColorRampMaterialProvider {
 
     paintWithInterpolantWindowList(interpolantWindowList) {
 
-        if (undefined === globals.ensembleManager.currentTrace) {
+        if (undefined === ensembleManager.currentTrace) {
             return;
         }
 
@@ -180,17 +180,17 @@ class ColorRampMaterialProvider {
 
     repaint(){
 
-        if (undefined === globals.ensembleManager.currentTrace) {
+        if (undefined === ensembleManager.currentTrace) {
             return;
         }
 
         const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
 
-        const colorRampInterpolantWindows = Object.values(globals.ensembleManager.currentTrace).map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow);
+        const colorRampInterpolantWindows = Object.values(ensembleManager.currentTrace).map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow);
 
         for (let { interpolant, start, end, sizeBP } of colorRampInterpolantWindows) {
 
-            this.rgb_ctx.fillStyle = globals.colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
+            this.rgb_ctx.fillStyle = colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
 
             const h = Math.ceil((end - start) * height);
             const y = Math.round(start * (height));
@@ -210,7 +210,7 @@ class ColorRampMaterialProvider {
     }
 
     colorForInterpolant(interpolant) {
-        return globals.colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
+        return colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
     }
 
     renderLoopHelper () {

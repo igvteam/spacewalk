@@ -2,7 +2,7 @@ import KDBush from '../node_modules/kd3d/js/index.js'
 import { clamp } from "./math.js";
 import { hideSpinner, showSpinner, guiManager } from './gui.js';
 import Panel from "./panel.js";
-import { globals } from "./app.js";
+import { globals, colorMapManager, ensembleManager } from "./app.js";
 import {threeJSColorToRGB255} from "./color";
 import { drawWithSharedUint8ClampedArray } from "./utils.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -55,8 +55,8 @@ class ContactFrequencyMapPanel extends Panel {
 
             showSpinner();
             window.setTimeout(() => {
-                this.updateEnsembleContactFrequencyCanvas(globals.ensembleManager.ensemble);
-                this.updateTraceContactFrequencyCanvas(globals.ensembleManager.currentTrace);
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.ensemble);
+                this.updateTraceContactFrequencyCanvas(ensembleManager.currentTrace);
                 hideSpinner();
             }, 0);
 
@@ -104,7 +104,7 @@ class ContactFrequencyMapPanel extends Panel {
 
 const updateContactFrequencyArray = (trace, distanceThreshold) => {
 
-    const mapSize = globals.ensembleManager.maximumSegmentID;
+    const mapSize = ensembleManager.maximumSegmentID;
 
     const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
 
@@ -167,7 +167,7 @@ const paintContactFrequencyCanvas = frequencies => {
         maxFrequency = Math.max(maxFrequency, frequency);
     }
 
-    const colorMap = globals.colorMapManager.dictionary['juicebox_default'];
+    const colorMap = colorMapManager.dictionary['juicebox_default'];
     const scale = (colorMap.length - 1) / maxFrequency;
 
     let i = 0;

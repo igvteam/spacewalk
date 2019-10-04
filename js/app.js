@@ -1,13 +1,30 @@
 import { appEventListener } from "./appEventListener.js";
-import { guiManager, createGUI } from "./gui.js";
+import { highlightColor, guiManager, createGUI } from "./gui.js";
 import Globals from "./globals.js";
 import GSDB from "./gsdb.js";
 import EventBus from "./eventBus.js";
+import EnsembleManager from "./ensembleManager.js";
+import ColorMapManager from "./colorMapManager.js";
+import Parser from "./parser.js";
+import SceneManager, {sceneManagerConfigurator} from "./sceneManager.js";
+import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
+import {appleCrayonColorRGB255, appleCrayonColorThreeJS} from "./color.js";
+import PointCloud from "./pointCloud.js";
+import Noodle from "./noodle.js";
+import BallAndStick from "./ballAndStick.js";
 
+let eventBus = new EventBus();
+let pointCloud;
+let noodle;
+let ballAndStick;
+let ensembleManager;
+let colorMapManager;
+let parser;
+let sceneManager;
+let dataValueMaterialProvider;
 let gsdb;
 
 let globals;
-const eventBus = new EventBus();
 
 document.addEventListener("DOMContentLoaded", event => {
 
@@ -16,11 +33,28 @@ document.addEventListener("DOMContentLoaded", event => {
     globals = new Globals(container);
     globals.initialize(container);
 
+    pointCloud = new PointCloud();
+
+    noodle = new Noodle();
+
+    ballAndStick = new BallAndStick();
+
+    ensembleManager = new EnsembleManager();
+
+    colorMapManager = new ColorMapManager();
+    colorMapManager.configure();
+
+    parser = new Parser();
+
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
+
+    dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
+
+    gsdb = new GSDB(parser);
+
     createGUI(container);
 
-    globals.sceneManager.setRenderStyle( guiManager.getRenderStyle() );
-
-    gsdb = new GSDB(globals.parser);
+    sceneManager.setRenderStyle( guiManager.getRenderStyle() );
 
     $(window).on('resize.app', () => {
         let { width, height } = container.getBoundingClientRect();
@@ -40,7 +74,7 @@ document.addEventListener("DOMContentLoaded", event => {
 
 let renderLoop = () => {
     requestAnimationFrame( renderLoop );
-    globals.sceneManager.render();
+    sceneManager.render();
 };
 
-export { eventBus, globals };
+export { eventBus, pointCloud, noodle, ballAndStick, ensembleManager, colorMapManager, parser, sceneManager, dataValueMaterialProvider, globals };

@@ -1,9 +1,8 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { degrees, clamp } from './math.js';
-import { globals } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
 import { numberFormatter, generateRadiusTable } from "./utils.js";
-
+import { sceneManager } from './app.js'
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
 
@@ -41,7 +40,7 @@ class BallAndStick {
         ballRadiusIndex = Math.floor( ballRadiusTable.length/2 );
         this.balls = this.createBalls(trace, ballRadiusTable[ ballRadiusIndex ]);
 
-        if (globals.sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
+        if (sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
         } else {
             this.hide();
@@ -96,7 +95,7 @@ class BallAndStick {
             .map((curve) => {
 
                 const geometry = new THREE.TubeBufferGeometry(curve, 8, stickRadius, 16, false);
-                const material = globals.sceneManager.stickMaterial.clone();
+                const material = sceneManager.stickMaterial.clone();
 
                 const mesh = new THREE.Mesh(geometry, material);
                 mesh.name = 'stick';

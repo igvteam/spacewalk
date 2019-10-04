@@ -1,6 +1,6 @@
 import { juiceboxPanel } from "./gui.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
-import { globals, eventBus } from "./app.js";
+import { parser, eventBus } from "./app.js";
 
 let currentURL = undefined;
 
@@ -10,30 +10,12 @@ class DataFileLoadModal {
 
         if (selectLoader) {
 
-            const selectOnChange = ($selectModal, $select) => {
+            selectLoader($selectModal, () => {
+                configureSelectOnChange($selectModal.find('select'), $selectModal, fileLoader);
+            });
 
-                $select.on('change', event => {
-                    event.stopPropagation();
-
-                    let url = $select.val();
-                    url = url || '';
-
-                    const index = $select.get(0).selectedIndex;
-                    const option = $select.get(0)[ index ];
-                    const name = $(option).text();
-
-                    if ('' !== url) {
-                        loadURL({ url, name, fileLoader, $modal: $selectModal });
-                    }
-
-                    const $option = $select.find('option:first');
-                    $select.val( $option.val() );
-
-                });
-
-            };
-
-            selectLoader($selectModal, selectOnChange);
+        } else {
+            configureSelectOnChange($selectModal.find('select'), $selectModal, fileLoader);
         }
 
         // URL
@@ -93,6 +75,30 @@ class DataFileLoadModal {
 
 }
 
+const configureSelectOnChange = ($select, $selectModal, fileLoader) => {
+
+    $select.on('change', event => {
+        event.stopPropagation();
+
+        let url = $select.val();
+        url = url || '';
+
+        const index = $select.get(0).selectedIndex;
+        const option = $select.get(0)[ index ];
+        const name = $(option).text();
+
+        if ('' !== url) {
+            loadURL({ url, name, fileLoader, $modal: $selectModal });
+        }
+
+        const $option = $select.find('option:first');
+        $select.val( $option.val() );
+
+    });
+
+
+};
+
 const loadURL = ({ url, name, fileLoader, $modal }) => {
 
     $modal.modal('hide');
@@ -116,7 +122,7 @@ const spaceWalkFileLoadModalConfigurator = () => {
         $selectModal: $('#spacewalk-sw-load-select-modal'),
         $localFileInput: $('#spacewalk-sw-load-local-input'),
         selectLoader: undefined,
-        fileLoader: globals.parser
+        fileLoader: parser
     }
 };
 

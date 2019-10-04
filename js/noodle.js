@@ -3,12 +3,11 @@ import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "./threejs_es6/fatlines/fatLine.js";
 import { degrees, clamp, lerp } from './math.js';
-import { globals } from "./app.js";
 import {colorRampPanel} from "./gui.js";
 import EnsembleManager from "./ensembleManager.js";
 import { createStickCurves, computeAverageCurveDistance } from './ballAndStick.js';
 import { generateRadiusTable } from "./utils.js";
-
+import { parser, sceneManager } from './app.js'
 let fatLineMaterial;
 let noodleRadiusIndex = undefined;
 let noodleRadiusTable = undefined;
@@ -46,7 +45,7 @@ class Noodle {
 
         console.timeEnd(str);
 
-        if (globals.sceneManager.renderStyle === Noodle.getRenderStyle()) {
+        if (sceneManager.renderStyle === Noodle.getRenderStyle()) {
             this.show();
         } else {
             this.hide();
@@ -93,7 +92,7 @@ class Noodle {
     updateRadius(increment) {
 
         const tubularSegments = getTubularSegmentCount(this.curve.getLength());
-        const radialSegments = getRadialSegmentCount(globals.parser.locus);
+        const radialSegments = getRadialSegmentCount(parser.locus);
 
         noodleRadiusIndex = clamp(noodleRadiusIndex + increment, 0, noodleRadiusTable.length - 1);
         const radius = noodleRadiusTable[ noodleRadiusIndex ];
@@ -165,7 +164,7 @@ class Noodle {
 const createTube = (curve, tubeRadius, material) => {
 
     const tubularSegments = getTubularSegmentCount(curve.getLength());
-    const radialSegments = getRadialSegmentCount(globals.parser.locus);
+    const radialSegments = getRadialSegmentCount(parser.locus);
 
     const str = `createTube. ${ tubularSegments } tubes. ${ radialSegments } radial segments.`;
     console.time(str);

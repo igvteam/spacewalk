@@ -1,7 +1,7 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { guiManager } from "../gui.js";
 import Panel from "../panel.js";
-import { globals, eventBus } from "../app.js";
+import { ensembleManager, eventBus } from "../app.js";
 
 class JuiceboxPanel extends Panel {
 
@@ -109,11 +109,11 @@ class JuiceboxPanel extends Panel {
 
 const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
 
-    if (undefined === globals.ensembleManager || undefined === globals.parser.locus) {
+    if (undefined === ensembleManager || undefined === parser.locus) {
         return;
     }
 
-    const { genomicStart, genomicEnd } = globals.parser.locus;
+    const { genomicStart, genomicEnd } = parser.locus;
 
     const trivialRejection = startXBP > genomicEnd || endXBP < genomicStart || startYBP > genomicEnd || endYBP < genomicStart;
 
@@ -131,7 +131,7 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
     eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ] } });
 };
 
-export let juiceboxSelectLoader = async ($selectModal, onChange) => {
+export let juiceboxSelectLoader = async ($selectModal, onChangeConfiguration) => {
 
     const data = await hic.igv.xhr.loadString('resources/hicFiles.txt');
     const lines = hic.igv.splitLines(data);
@@ -149,7 +149,7 @@ export let juiceboxSelectLoader = async ($selectModal, onChange) => {
 
     }
 
-    onChange($selectModal, $select);
+    onChangeConfiguration();
 
 };
 
