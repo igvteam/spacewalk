@@ -1,7 +1,7 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { makeDraggable } from "./draggable.js";
 import { guiManager } from "./gui.js";
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 
 class Panel {
 
@@ -27,7 +27,7 @@ class Panel {
 
         $drag_handle.on(`mousedown. ${ namespace }`, event => {
             // console.log('panel - did select panel');
-            globals.eventBus.post({ type: "DidSelectPanel", data: this.$panel });
+            eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
         const $closer = this.$panel.find('i.fa-times-circle');
@@ -46,17 +46,17 @@ class Panel {
 
         this.$panel.on(`mouseenter. ${ namespace }`, (event) => {
             event.stopPropagation();
-            globals.eventBus.post({ type: "DidEnterGUI" });
+            eventBus.post({ type: "DidEnterGUI" });
         });
 
         this.$panel.on(`mouseleave. ${ namespace }`, (event) => {
             event.stopPropagation();
-            globals.eventBus.post({ type: "DidLeaveGUI" });
+            eventBus.post({ type: "DidLeaveGUI" });
         });
 
-        globals.eventBus.subscribe("ToggleUIControl", this);
-        globals.eventBus.subscribe("AppWindowDidResize", this);
-        globals.eventBus.subscribe("DidDragEnd", this);
+        eventBus.subscribe("ToggleUIControl", this);
+        eventBus.subscribe("AppWindowDidResize", this);
+        eventBus.subscribe("DidDragEnd", this);
 
     }
 

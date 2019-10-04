@@ -1,6 +1,6 @@
 import { juiceboxPanel } from "./gui.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 
 let currentURL = undefined;
 
@@ -8,30 +8,31 @@ class DataFileLoadModal {
 
     constructor({ $urlModal, $selectModal, $localFileInput, selectLoader, fileLoader }) {
 
-        const selectOnChange = ($selectModal, $select) => {
-
-            $select.on('change', event => {
-                event.stopPropagation();
-
-                let url = $select.val();
-                url = url || '';
-
-                const index = $select.get(0).selectedIndex;
-                const option = $select.get(0)[ index ];
-                const name = $(option).text();
-
-                if ('' !== url) {
-                    loadURL({ url, name, fileLoader, $modal: $selectModal });
-                }
-
-                const $option = $select.find('option:first');
-                $select.val( $option.val() );
-
-            });
-
-        };
-
         if (selectLoader) {
+
+            const selectOnChange = ($selectModal, $select) => {
+
+                $select.on('change', event => {
+                    event.stopPropagation();
+
+                    let url = $select.val();
+                    url = url || '';
+
+                    const index = $select.get(0).selectedIndex;
+                    const option = $select.get(0)[ index ];
+                    const name = $(option).text();
+
+                    if ('' !== url) {
+                        loadURL({ url, name, fileLoader, $modal: $selectModal });
+                    }
+
+                    const $option = $select.find('option:first');
+                    $select.val( $option.val() );
+
+                });
+
+            };
+
             selectLoader($selectModal, selectOnChange);
         }
 
@@ -95,7 +96,7 @@ class DataFileLoadModal {
 const loadURL = ({ url, name, fileLoader, $modal }) => {
 
     $modal.modal('hide');
-    globals.eventBus.post({ type: "DidLeaveGUI" });
+    eventBus.post({ type: "DidLeaveGUI" });
 
     fileLoader.loadURL({ url, name });
 
@@ -103,7 +104,7 @@ const loadURL = ({ url, name, fileLoader, $modal }) => {
 
 const loadFile = (file, fileLoader) => {
 
-    globals.eventBus.post({ type: "DidLeaveGUI" });
+    eventBus.post({ type: "DidLeaveGUI" });
     fileLoader.loadLocalFile({ file });
 
 };
@@ -130,79 +131,6 @@ const juiceboxFileLoadModalConfigurator = () => {
     }
 };
 
-const gsdbFileLoadModalConfigurator = () => {
-
-    return {
-        $urlModal: $('#spacewalk-sw-load-url-modal'),
-        $selectModal: $('#spacewalk-gsdb-modal'),
-        $localFileInput: $('#spacewalk-sw-load-local-input'),
-        selectLoader: gsdbSelectLoader,
-        fileLoader: globals.parser
-    }
-};
-
-const gsdbSelectLoader = async ($selectModal, onChange) => {
-
-    const jsonFile = 'resources/gsdb.json';
-
-    let myJSON = undefined;
-    try {
-
-        const response = await fetch(jsonFile);
-
-        if (!response.ok) {
-            throw new Error(`Unable to retrieve ${ jsonFile }.`);
-        }
-
-        myJSON = await response.json();
-
-    } catch (error) {
-        console.error(error);
-    }
-
-    if (myJSON) {
-
-        const $select = $selectModal.find('select');
-
-        let urls = [];
-        traverseJSON(myJSON, urls, '');
-
-        let counter = 0;
-        for (let { name, url } of urls) {
-
-            url = `http://${ url }`;
-            const str = `<option value="${ url }">${ name }</option>`;
-            const $option = $(str);
-            $select.append($option);
-
-            if (3e3 === counter++) {
-                break
-            }
-        }
-
-        onChange($selectModal, $select);
-    }
-
-};
-
-const traverseJSON = (o, urls, label) => {
-
-    if ('directory' === o.type) {
-
-        for (let thang of o.children) {
-
-            const str = '' === label ? o.name : `${ label }-${ o.name }`;
-            traverseJSON(thang, urls, str);
-        }
-
-    } else {
-        const { name, url } = o;
-        const str = `${ label }-${ name }`;
-        urls.push({ name: str, url });
-    }
-
-};
-
-export { gsdbFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
+export { spaceWalkFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
 
 export default DataFileLoadModal;

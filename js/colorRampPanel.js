@@ -2,7 +2,7 @@ import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import { setMaterialProvider } from './utils.js';
 import { guiManager } from './gui.js';
 import Panel from './panel.js';
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 
 class ColorRampPanel extends Panel {
 
@@ -30,11 +30,11 @@ class ColorRampPanel extends Panel {
         this.$panel.on('click.color-ramp-panel', (event) => {
             event.stopPropagation();
             setMaterialProvider(colorRampMaterialProvider);
-            globals.eventBus.post({ type: "DidChangeMaterialProvider" });
+            eventBus.post({ type: "DidChangeMaterialProvider" });
         });
 
-        globals.eventBus.subscribe('DidSelectTrace', this);
-        globals.eventBus.subscribe('DidLoadEnsembleFile', this);
+        eventBus.subscribe('DidSelectTrace', this);
+        eventBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 

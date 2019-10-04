@@ -8,8 +8,7 @@ import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { guiManager, colorRampPanel } from './gui.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
-import { clamp } from "./math.js";
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
@@ -45,8 +44,8 @@ class SceneManager {
             this.onContainerMouseMove(event)
         });
 
-        globals.eventBus.subscribe("DidSelectSegmentID", this);
-        globals.eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
+        eventBus.subscribe("DidSelectSegmentID", this);
+        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
 
     }
 

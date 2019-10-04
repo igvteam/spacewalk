@@ -1,7 +1,7 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { guiManager } from "../gui.js";
 import Panel from "../panel.js";
-import { globals } from "../app.js";
+import { globals, eventBus } from "../app.js";
 
 class JuiceboxPanel extends Panel {
 
@@ -19,7 +19,7 @@ class JuiceboxPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
-        globals.eventBus.subscribe('DidLoadEnsembleFile', this);
+        eventBus.subscribe('DidLoadEnsembleFile', this);
     }
 
     receiveEvent({ type, data }) {
@@ -128,7 +128,7 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
         return;
     }
 
-    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ] } });
+    eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ] } });
 };
 
 export let juiceboxSelectLoader = async ($selectModal, onChange) => {

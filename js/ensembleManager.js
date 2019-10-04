@@ -1,5 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 import Parser from "./parser.js";
 import { colorRampPanel } from "./gui.js";
 import { includes, degrees } from "./math.js";
@@ -105,7 +105,7 @@ class EnsembleManager {
         const initialKey = '0';
         this.currentTrace = this.getTraceWithName(initialKey);
 
-        globals.eventBus.post({ type: "DidLoadEnsembleFile", data: { isPointCloud: this.isPointCloud, genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey } });
+        eventBus.post({ type: "DidLoadEnsembleFile", data: { isPointCloud: this.isPointCloud, genomeID: globals.parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey } });
 
     }
 

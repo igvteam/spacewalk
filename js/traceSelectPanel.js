@@ -1,7 +1,7 @@
 import { clamp } from './math.js'
 import Panel from "./panel.js";
 import {hideSpinner, showSpinner} from "./gui.js";
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 
 let currentNumber = undefined;
 class TraceSelectPanel extends Panel {
@@ -60,7 +60,7 @@ class TraceSelectPanel extends Panel {
 
         $(document).on('keyup.trace_select', handleKeyUp);
 
-        globals.eventBus.subscribe('DidLoadEnsembleFile', this);
+        eventBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 
@@ -91,7 +91,7 @@ class TraceSelectPanel extends Panel {
         window.setTimeout(() => {
 
             globals.ensembleManager.currentTrace = globals.ensembleManager.getTraceWithName(key);
-            globals.eventBus.post({ type: "DidSelectTrace", data: key });
+            eventBus.post({ type: "DidSelectTrace", data: key });
 
             hideSpinner();
         }, 0);

@@ -1,7 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { degrees } from './math.js';
 import { setGeometryAttributeColorListWithColorThreeJS } from './color.js';
-import { globals } from "./app.js";
+import { globals, eventBus } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
 
 const pointSize = 128;
@@ -37,9 +37,9 @@ class PointCloud {
         this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );
         this.deemphasizedMaterial.side = THREE.DoubleSide;
 
-        globals.eventBus.subscribe("DidLeaveGUI", this);
-        globals.eventBus.subscribe("DidSelectSegmentID", this);
-        globals.eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
+        eventBus.subscribe("DidLeaveGUI", this);
+        eventBus.subscribe("DidSelectSegmentID", this);
+        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
 
     }
 

@@ -3,7 +3,7 @@ import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import { guiManager, colorRampPanel } from "../gui.js";
 import Panel from "../panel.js";
-import { globals } from "../app.js";
+import { globals, eventBus } from "../app.js";
 
 let trackLoadController;
 
@@ -33,8 +33,8 @@ class IGVPanel extends Panel {
 
         });
 
-        globals.eventBus.subscribe("DidChangeMaterialProvider", this);
-        globals.eventBus.subscribe('DidLoadEnsembleFile', this);
+        eventBus.subscribe("DidChangeMaterialProvider", this);
+        eventBus.subscribe('DidLoadEnsembleFile', this);
     }
 
     receiveEvent({ type, data }) {
@@ -186,7 +186,7 @@ const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
         return;
     }
 
-    globals.eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ] } });
+    eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ] } });
 };
 
 const addDataValueMaterialProviderGUI = tracks => {
