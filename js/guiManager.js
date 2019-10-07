@@ -139,9 +139,7 @@ class GUIManager {
 
         } else if ('DidLoadEnsembleFile' === type) {
 
-            const {genomeID} = data;
-
-            $('#spacewalk_info_panel_genome').text(genomeID);
+            $('#spacewalk_info_panel_genome').text( parser.genomeAssembly );
 
             $('#spacewalk_info_panel_locus').text(parser.locusBlurb());
             $('#spacewalk_info_panel_ensemble').text(parser.sampleBlurb());

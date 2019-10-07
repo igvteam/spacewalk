@@ -1,6 +1,5 @@
 import { appEventListener } from "./appEventListener.js";
 import { highlightColor, guiManager, createGUI } from "./gui.js";
-import Globals from "./globals.js";
 import GSDB from "./gsdb.js";
 import EventBus from "./eventBus.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -23,15 +22,12 @@ let parser;
 let sceneManager;
 let dataValueMaterialProvider;
 let gsdb;
-
-let globals;
+let appWindowWidth;
+let appWindowHeight;
 
 document.addEventListener("DOMContentLoaded", event => {
 
     const container = document.getElementById('spacewalk_canvas_container');
-
-    globals = new Globals(container);
-    globals.initialize(container);
 
     pointCloud = new PointCloud();
 
@@ -58,8 +54,9 @@ document.addEventListener("DOMContentLoaded", event => {
 
     $(window).on('resize.app', () => {
         let { width, height } = container.getBoundingClientRect();
-        globals.appWindowWidth = width;
-        globals.appWindowHeight = height;
+        appWindowWidth = width;
+        appWindowHeight = height;
+
         eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
     });
 
@@ -77,4 +74,4 @@ let renderLoop = () => {
     sceneManager.render();
 };
 
-export { eventBus, pointCloud, noodle, ballAndStick, ensembleManager, colorMapManager, parser, sceneManager, dataValueMaterialProvider, globals };
+export { appWindowWidth, appWindowHeight, eventBus, pointCloud, noodle, ballAndStick, ensembleManager, colorMapManager, parser, sceneManager, dataValueMaterialProvider };

@@ -155,7 +155,7 @@ class PointCloud {
     }
 
     getBounds() {
-        return globals.pointCloudManager.getBounds();
+        return pointCloudManager.getBounds();
     }
 
     DEPRICATED_getCameraPoseAlongAxis ({ axis, scaleFactor }) {

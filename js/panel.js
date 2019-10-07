@@ -1,7 +1,7 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { makeDraggable } from "./draggable.js";
 import { guiManager } from "./gui.js";
-import { globals, eventBus } from "./app.js";
+import { appWindowWidth, appWindowHeight, eventBus } from "./app.js";
 
 class Panel {
 
@@ -100,8 +100,8 @@ class Panel {
 
         if (this.layoutState) {
             const { topPercent, leftPercent } = this.layoutState;
-            const top = topPercent * globals.appWindowHeight;
-            const left = leftPercent * globals.appWindowWidth;
+            const top = topPercent * appWindowHeight;
+            const left = leftPercent * appWindowWidth;
             this.$panel.offset({ top, left })
         } else {
             this.initializeLayout(this.xFunction, this.yFunction)
@@ -138,8 +138,8 @@ class Panel {
 
     updateLayoutState() {
         const { top, left } = this.$panel.offset();
-        const topPercent = top / globals.appWindowHeight;
-        const leftPercent = left / globals.appWindowWidth;
+        const topPercent = top / appWindowHeight;
+        const leftPercent = left / appWindowWidth;
         this.layoutState = { top, left, topPercent, leftPercent };
     }
 }

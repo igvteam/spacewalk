@@ -1,6 +1,6 @@
 import { guiManager } from './gui.js';
 import Panel from "./panel.js";
-import { globals, colorMapManager, ensembleManager } from "./app.js";
+import { colorMapManager, ensembleManager } from "./app.js";
 import { drawWithSharedUint8ClampedArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -68,10 +68,10 @@ class DistanceMapPanel extends Panel {
             // can have missing - kDistanceUndefined - values
 
             // loop of the distance array
-            for (let d = 0; d < globals.sharedMapArray.length; d++) {
+            for (let d = 0; d < ensembleManager.sharedMapArray.length; d++) {
 
                 // ignore missing data values. they do not participate in the average
-                if (kDistanceUndefined === globals.sharedMapArray[ d ]) {
+                if (kDistanceUndefined === ensembleManager.sharedMapArray[ d ]) {
                     // do nothing
                 } else {
 
@@ -81,7 +81,7 @@ class DistanceMapPanel extends Panel {
                     if (kDistanceUndefined === average[ d ]) {
 
                         // If this is the first data value at this array index copy it to average.
-                        average[ d ] = globals.sharedMapArray[ d ];
+                        average[ d ] = ensembleManager.sharedMapArray[ d ];
                     } else {
 
                         // when there is data AND a pre-existing average value at this array index
@@ -89,7 +89,7 @@ class DistanceMapPanel extends Panel {
 
                         // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
                         // https://math.stackexchange.com/questions/106700/incremental-averageing
-                        average[ d ] = average[ d ] + (globals.sharedMapArray[ d ] - average[ d ]) / counter[ d ];
+                        average[ d ] = average[ d ] + (ensembleManager.sharedMapArray[ d ] - average[ d ]) / counter[ d ];
                     }
 
                 }
@@ -106,7 +106,7 @@ class DistanceMapPanel extends Panel {
 
         paintDistanceCanvas(average, maxAverageDistance);
 
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, globals.sharedDistanceMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, ensembleManager.sharedDistanceMapUint8ClampedArray);
 
     };
 
@@ -119,9 +119,9 @@ class DistanceMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintDistanceCanvas(globals.sharedMapArray, maxDistance);
+        paintDistanceCanvas(ensembleManager.sharedMapArray, maxDistance);
 
-        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, globals.sharedDistanceMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, ensembleManager.sharedDistanceMapUint8ClampedArray);
 
     };
 }
@@ -133,7 +133,7 @@ const updateDistanceArray = trace => {
 
     let mapSize = ensembleManager.maximumSegmentID;
 
-    globals.sharedMapArray.fill(kDistanceUndefined);
+    ensembleManager.sharedMapArray.fill(kDistanceUndefined);
 
     let maxDistance = Number.NEGATIVE_INFINITY;
 
@@ -148,7 +148,7 @@ const updateDistanceArray = trace => {
         const { colorRampInterpolantWindow } = traceValues[ i ];
         const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
         const xy_diagonal = i_segmentIndex * mapSize + i_segmentIndex;
-        globals.sharedMapArray[ xy_diagonal ] = 0;
+        ensembleManager.sharedMapArray[ xy_diagonal ] = 0;
 
         exclusionSet.add(i);
 
@@ -164,7 +164,7 @@ const updateDistanceArray = trace => {
                 const ij =  i_segmentIndex * mapSize + j_segmentIndex;
                 const ji =  j_segmentIndex * mapSize + i_segmentIndex;
 
-                globals.sharedMapArray[ ij ] = globals.sharedMapArray[ ji ] = distance;
+                ensembleManager.sharedMapArray[ ij ] = ensembleManager.sharedMapArray[ ji ] = distance;
 
                 maxDistance = Math.max(maxDistance, distance);
             }
@@ -189,10 +189,10 @@ const paintDistanceCanvas = (distances, maximumDistance) => {
     i = 0;
     const { r, g, b } = appleCrayonColorRGB255('magnesium');
     for (let x = 0; x < distances.length; x++) {
-        globals.sharedDistanceMapUint8ClampedArray[i++] = r;
-        globals.sharedDistanceMapUint8ClampedArray[i++] = g;
-        globals.sharedDistanceMapUint8ClampedArray[i++] = b;
-        globals.sharedDistanceMapUint8ClampedArray[i++] = 255;
+        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = r;
+        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = g;
+        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = b;
+        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = 255;
     }
 
     const colorMap = colorMapManager.dictionary['juicebox_default'];
@@ -206,10 +206,10 @@ const paintDistanceCanvas = (distances, maximumDistance) => {
             const interpolant = 1.0 - d/maximumDistance;
             const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolant * scale) ][ 'threejs' ]);
 
-            globals.sharedDistanceMapUint8ClampedArray[i + 0] = r;
-            globals.sharedDistanceMapUint8ClampedArray[i + 1] = g;
-            globals.sharedDistanceMapUint8ClampedArray[i + 2] = b;
-            globals.sharedDistanceMapUint8ClampedArray[i + 3] = 255;
+            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 0] = r;
+            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 1] = g;
+            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 2] = b;
+            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 3] = 255;
         }
 
         i += 4;

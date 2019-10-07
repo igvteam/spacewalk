@@ -1,6 +1,6 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Panel from "../panel.js";
-import { ensembleManager, eventBus } from "../app.js";
+import { parser, ensembleManager, eventBus } from "../app.js";
 
 class JuiceboxPanel extends Panel {
 
