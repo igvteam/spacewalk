@@ -1,5 +1,4 @@
 import {appleCrayonColorThreeJS} from "./color.js";
-import GUIManager from "./guiManager.js";
 import TraceSelectPanel from "./traceSelectPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
@@ -7,8 +6,8 @@ import DistanceMapPanel, { distanceMapPanelConfigurator } from "./distanceMapPan
 import ContactFrequencyMapPanel, { contactFrequencyMapPanelConfigurator } from "./contactFrequencyMapPanel.js";
 import IGVPanel, { igvBrowserConfigurator } from "./igv/IGVPanel.js";
 import DataFileLoadModal, { spaceWalkFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator } from "./dataFileLoadModal.js";
+import { guiManager} from "./app.js";
 
-let guiManager;
 let traceSelectPanel;
 let juiceboxPanel;
 let colorRampPanel;
@@ -21,8 +20,6 @@ let juiceboxFileLoadModal;
 const highlightColor = appleCrayonColorThreeJS('honeydew');
 
 const createGUI = container => {
-
-    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
 
@@ -54,4 +51,4 @@ const hideSpinner = () => {
     console.log('hide spinner');
 };
 
-export { showSpinner, hideSpinner, createGUI, guiManager, traceSelectPanel, juiceboxPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, highlightColor };
+export { showSpinner, hideSpinner, createGUI, traceSelectPanel, juiceboxPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, highlightColor };

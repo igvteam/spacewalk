@@ -1,6 +1,5 @@
-import { guiManager } from './gui.js';
 import Panel from "./panel.js";
-import { colorMapManager, ensembleManager } from "./app.js";
+import { colorMapManager, ensembleManager, guiManager } from "./app.js";
 import { drawWithSharedUint8ClampedArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import EnsembleManager from "./ensembleManager.js";

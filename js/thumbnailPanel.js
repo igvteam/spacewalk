@@ -1,8 +1,8 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import Panel from "./panel.js";
 import { fitToContainer, } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
-import { guiManager } from './gui.js';
-import Panel from "./panel.js";
+import { guiManager } from './app.js';
 
 class ThumbnailPanel extends Panel {
 
