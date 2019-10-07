@@ -2,7 +2,7 @@ import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import { setMaterialProvider } from './utils.js';
 import { guiManager } from './gui.js';
 import Panel from './panel.js';
-import { globals, eventBus } from "./app.js";
+import { eventBus } from "./app.js";
 
 class ColorRampPanel extends Panel {
 

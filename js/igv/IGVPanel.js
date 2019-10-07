@@ -11,9 +11,9 @@ const genomesJSONPath = "resources/genomes.json";
 
 class IGVPanel extends Panel {
 
-    constructor ({ container, panel }) {
+    constructor ({ container, panel, isHidden }) {
 
-        const isHidden = guiManager.isPanelHidden($(panel).attr('id'));
+        // const isHidden = guiManager.isPanelHidden($(panel).attr('id'));
 
         const xFunction = (cw, w) => {
             return (cw - w)/2;

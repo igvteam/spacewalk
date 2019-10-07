@@ -1,13 +1,12 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
-import { guiManager } from "../gui.js";
 import Panel from "../panel.js";
 import { ensembleManager, eventBus } from "../app.js";
 
 class JuiceboxPanel extends Panel {
 
-    constructor ({ container, panel }) {
+    constructor ({ container, panel, isHidden }) {
 
-        const isHidden = guiManager.isPanelHidden($(panel).attr('id'));
+        // const isHidden = guiManager.isPanelHidden($(panel).attr('id'));
 
         const xFunction = (cw, w) => {
             return (cw - w)/2;

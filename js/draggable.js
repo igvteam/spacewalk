@@ -1,4 +1,4 @@
-import { globals, eventBus } from "./app.js";
+import { eventBus } from "./app.js";
 
 const namespace = '.spacewalk_drag';
 let dragData;

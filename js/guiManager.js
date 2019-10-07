@@ -142,10 +142,12 @@ class GUIManager {
             const {genomeID} = data;
 
             $('#spacewalk_info_panel_genome').text(genomeID);
+
             $('#spacewalk_info_panel_locus').text(parser.locusBlurb());
+            $('#spacewalk_info_panel_ensemble').text(parser.sampleBlurb());
+
             $('#spacewalk_info_panel_juicebox').text(juiceboxPanel.blurb());
 
-            $('#spacewalk_info_panel_ensemble').text(parser.sampleBlurb());
 
             $('#spacewalk_info_panel').show();
             $('#spacewalk_ui_manager_render_styles').show();

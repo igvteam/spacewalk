@@ -24,7 +24,7 @@ class Parser {
         // format directive followed by key-value pairs
         let key_value_pairs = lines.shift().split('##').pop().split(regex);
 
-        // discard furnat=sw1
+        // discard format=sw1
         key_value_pairs.shift();
 
         // name
