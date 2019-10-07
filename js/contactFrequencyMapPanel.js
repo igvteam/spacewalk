@@ -2,7 +2,7 @@ import KDBush from '../node_modules/kd3d/js/index.js'
 import { clamp } from "./math.js";
 import { hideSpinner, showSpinner, guiManager } from './gui.js';
 import Panel from "./panel.js";
-import { globals, colorMapManager, ensembleManager } from "./app.js";
+import { colorMapManager, ensembleManager } from "./app.js";
 import {threeJSColorToRGB255} from "./color";
 import { drawWithSharedUint8ClampedArray } from "./utils.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -65,7 +65,7 @@ class ContactFrequencyMapPanel extends Panel {
 
     updateEnsembleContactFrequencyCanvas(ensemble) {
 
-        for (let f = 0; f < globals.sharedMapArray.length; f++) globals.sharedMapArray[ f ] = 0;
+        for (let f = 0; f < ensembleManager.sharedMapArray.length; f++) ensembleManager.sharedMapArray[ f ] = 0;
 
         const traces = Object.values(ensemble);
 
@@ -78,15 +78,15 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintContactFrequencyCanvas(globals.sharedMapArray);
+        paintContactFrequencyCanvas(ensembleManager.sharedMapArray);
 
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, globals.sharedContactFrequencyMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, ensembleManager.sharedContactFrequencyMapUint8ClampedArray);
 
     };
 
     updateTraceContactFrequencyCanvas(trace) {
 
-        for (let f = 0; f < globals.sharedMapArray.length; f++) globals.sharedMapArray[ f ] = 0;
+        for (let f = 0; f < ensembleManager.sharedMapArray.length; f++) ensembleManager.sharedMapArray[ f ] = 0;
 
         const str = `Contact Frequency Map - Update Trace Frequency Array.`;
         console.time(str);
@@ -95,9 +95,9 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintContactFrequencyCanvas(globals.sharedMapArray);
+        paintContactFrequencyCanvas(ensembleManager.sharedMapArray);
 
-        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, globals.sharedContactFrequencyMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, ensembleManager.sharedContactFrequencyMapUint8ClampedArray);
 
     };
 }
@@ -124,7 +124,7 @@ const updateContactFrequencyArray = (trace, distanceThreshold) => {
         const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
         const xy_diagonal = i_segmentIndex * mapSize + i_segmentIndex;
 
-        globals.sharedMapArray[ xy_diagonal ]++;
+        ensembleManager.sharedMapArray[ xy_diagonal ]++;
 
         const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
 
@@ -138,17 +138,17 @@ const updateContactFrequencyArray = (trace, distanceThreshold) => {
                 const xy = i_segmentIndex * mapSize + j_segmentIndex;
                 const yx = j_segmentIndex * mapSize + i_segmentIndex;
 
-                if (xy > globals.sharedMapArray.length) {
+                if (xy > ensembleManager.sharedMapArray.length) {
                     console.log('xy is bogus index ' + xy);
                 }
 
-                if (yx > globals.sharedMapArray.length) {
+                if (yx > ensembleManager.sharedMapArray.length) {
                     console.log('yx is bogus index ' + yx);
                 }
 
-                globals.sharedMapArray[ xy ] += 1;
+                ensembleManager.sharedMapArray[ xy ] += 1;
 
-                globals.sharedMapArray[ yx ] = globals.sharedMapArray[ xy ];
+                ensembleManager.sharedMapArray[ yx ] = ensembleManager.sharedMapArray[ xy ];
 
             }
         }
@@ -176,10 +176,10 @@ const paintContactFrequencyCanvas = frequencies => {
         const interpolant = Math.floor(frequency * scale);
         const { r, g, b } = threeJSColorToRGB255(colorMap[ interpolant ][ 'threejs' ]);
 
-        globals.sharedContactFrequencyMapUint8ClampedArray[i++] = r;
-        globals.sharedContactFrequencyMapUint8ClampedArray[i++] = g;
-        globals.sharedContactFrequencyMapUint8ClampedArray[i++] = b;
-        globals.sharedContactFrequencyMapUint8ClampedArray[i++] = 255;
+        ensembleManager.sharedContactFrequencyMapUint8ClampedArray[i++] = r;
+        ensembleManager.sharedContactFrequencyMapUint8ClampedArray[i++] = g;
+        ensembleManager.sharedContactFrequencyMapUint8ClampedArray[i++] = b;
+        ensembleManager.sharedContactFrequencyMapUint8ClampedArray[i++] = 255;
     }
 
     console.timeEnd(str);

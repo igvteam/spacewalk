@@ -1,6 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { rgb255, rgb255Lerp, rgb255String, greyScale255 } from './color.js';
 import { eventBus, ensembleManager, sceneManager } from "./app.js";
+import {rgb255ToThreeJSColor} from "./color";
 
 let rgbTexture;
 let alphaTexture;
@@ -207,7 +208,15 @@ class DataValueMaterialProvider {
     }
 
     colorForInterpolant(interpolant) {
-        return sceneManager.stickMaterial.color;
+
+        const x = Math.round(interpolant * this.rgb_ctx.canvas.width);
+        const y = Math.floor( 0.5 * this.alpha_ctx.canvas.height);
+
+        const { data } = this.rgb_ctx.getImageData(x, y, 1, 1);
+
+        return rgb255ToThreeJSColor(data[ 0 ], data[ 1 ], data[ 2 ])
+
+        // return sceneManager.stickMaterial.color;
     }
 
     renderLoopHelper () {

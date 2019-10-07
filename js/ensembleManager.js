@@ -1,7 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { parser, eventBus } from "./app.js";
 import Parser from "./parser.js";
-import { colorRampPanel } from "./gui.js";
+import { colorRampPanel, contactFrequencyMapPanel, distanceMapPanel } from "./gui.js";
 import { includes, degrees } from "./math.js";
 import {appleCrayonColorThreeJS} from "./color.js";
 
@@ -102,10 +102,23 @@ class EnsembleManager {
 
         console.timeEnd(str);
 
+        if (false === this.isPointCloud) {
+
+            // update shared buffers for distance and contact-frequency maps
+
+            this.sharedMapArray = new Array(this.maximumSegmentID * this.maximumSegmentID);
+
+            this.sharedContactFrequencyMapUint8ClampedArray = new Uint8ClampedArray(this.maximumSegmentID * this.maximumSegmentID * 4);
+            this.sharedDistanceMapUint8ClampedArray = new Uint8ClampedArray(this.maximumSegmentID * this.maximumSegmentID * 4);
+
+            contactFrequencyMapPanel.updateEnsembleContactFrequencyCanvas(this.ensemble);
+            distanceMapPanel.updateEnsembleAverageDistanceCanvas(this.ensemble);
+        }
+
         const initialKey = '0';
         this.currentTrace = this.getTraceWithName(initialKey);
 
-        eventBus.post({ type: "DidLoadEnsembleFile", data: { isPointCloud: this.isPointCloud, genomeID: parser.genomeAssembly, chr, genomicStart, genomicEnd, initialKey } });
+        eventBus.post({ type: "DidLoadEnsembleFile", data: { chr, genomicStart, genomicEnd, initialKey } });
 
     }
 

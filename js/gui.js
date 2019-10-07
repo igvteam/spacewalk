@@ -15,7 +15,7 @@ let colorRampPanel;
 let distanceMapPanel;
 let contactFrequencyMapPanel;
 let igvPanel;
-let swFileLoadModal;
+let spaceWalkFileLoadModal;
 let juiceboxFileLoadModal;
 
 const highlightColor = appleCrayonColorThreeJS('honeydew');
@@ -32,13 +32,13 @@ const createGUI = container => {
 
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator(container));
 
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0) });
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
     igvPanel.initialize(igvBrowserConfigurator());
 
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0) });
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });
     juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
 
-    swFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator());
+    spaceWalkFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator());
 
     juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator());
 

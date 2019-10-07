@@ -1,9 +1,9 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
-import { guiManager, colorRampPanel } from "../gui.js";
+import { colorRampPanel } from "../gui.js";
 import Panel from "../panel.js";
-import { ensembleManager, eventBus } from "../app.js";
+import { dataValueMaterialProvider, parser, ensembleManager, eventBus } from "../app.js";
 
 let trackLoadController;
 
@@ -11,9 +11,9 @@ const genomesJSONPath = "resources/genomes.json";
 
 class IGVPanel extends Panel {
 
-    constructor ({ container, panel }) {
+    constructor ({ container, panel, isHidden }) {
 
-        const isHidden = guiManager.isPanelHidden($(panel).attr('id'));
+        // const isHidden = guiManager.isPanelHidden($(panel).attr('id'));
 
         const xFunction = (cw, w) => {
             return (cw - w)/2;
@@ -50,10 +50,10 @@ class IGVPanel extends Panel {
 
             (async () => {
 
-                const { genomeID, chr, genomicStart: start, genomicEnd: end } = data;
+                const { chr, genomicStart: start, genomicEnd: end } = data;
 
                 try {
-                    await this.loadGenomeWithID(genomeID);
+                    await this.loadGenomeWithID( parser.genomeAssembly );
                 } catch (e) {
                     console.error(e);
                 }
