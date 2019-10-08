@@ -1,7 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import { guiManager } from "./gui.js";
-import { eventBus } from "./app.js";
+import { eventBus, guiManager } from "./app.js";
 
 class GroundPlane extends THREE.GridHelper {
 

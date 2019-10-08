@@ -3,8 +3,8 @@ import EnsembleManager from "./ensembleManager.js";
 import PointCloud from './pointCloud.js';
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { contactFrequencyMapPanel, distanceMapPanel, guiManager } from './gui.js';
-import { pointCloud, noodle, ballAndStick, ensembleManager, sceneManager } from "./app.js";
+import { contactFrequencyMapPanel, distanceMapPanel } from './gui.js';
+import { pointCloud, noodle, ballAndStick, ensembleManager, sceneManager, guiManager } from "./app.js";
 
 export const appEventListener =
     {

@@ -1,7 +1,6 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { makeDraggable } from "./draggable.js";
-import { guiManager } from "./gui.js";
-import { appWindowWidth, appWindowHeight, eventBus } from "./app.js";
+import { guiManager, appWindowWidth, appWindowHeight, eventBus } from "./app.js";
 
 class Panel {
 

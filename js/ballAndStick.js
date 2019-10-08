@@ -3,6 +3,8 @@ import { degrees, clamp } from './math.js';
 import EnsembleManager from "./ensembleManager.js";
 import { numberFormatter, generateRadiusTable } from "./utils.js";
 import { sceneManager } from './app.js'
+import { igvPanel } from "./gui.js";
+
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
 
@@ -73,7 +75,11 @@ class BallAndStick {
 
                 const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
 
-                const mesh = new THREE.Mesh(geometry, trace[ index ].geometry.userData.material);
+                const { interpolant } = trace[ index ].colorRampInterpolantWindow;
+                const color = igvPanel.materialProvider.colorForInterpolant(interpolant);
+                const material = new THREE.MeshPhongMaterial({ color });
+
+                const mesh = new THREE.Mesh(geometry, material);
 
                 mesh.name = 'ball';
 

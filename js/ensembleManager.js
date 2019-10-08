@@ -1,6 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { parser, eventBus } from "./app.js";
 import Parser from "./parser.js";
+import { eventBus } from "./app.js";
 import { colorRampPanel, contactFrequencyMapPanel, distanceMapPanel } from "./gui.js";
 import { includes, degrees } from "./math.js";
 import {appleCrayonColorThreeJS} from "./color.js";

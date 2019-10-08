@@ -2,12 +2,13 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "./threejs_es6/fatlines/fatLine.js";
-import { degrees, clamp, lerp } from './math.js';
-import {colorRampPanel} from "./gui.js";
 import EnsembleManager from "./ensembleManager.js";
 import { createStickCurves, computeAverageCurveDistance } from './ballAndStick.js';
 import { generateRadiusTable } from "./utils.js";
 import { parser, sceneManager } from './app.js'
+import { igvPanel } from "./gui.js";
+import { degrees, clamp, lerp } from './math.js';
+
 let fatLineMaterial;
 let noodleRadiusIndex = undefined;
 let noodleRadiusTable = undefined;
@@ -40,8 +41,8 @@ class Noodle {
 
         const tubeRadius = noodleRadiusTable[ noodleRadiusIndex ];
 
-        this.tube = createTube(this.curve, tubeRadius, colorRampPanel.colorRampMaterialProvider.material);
-        this.spline = createFatSpline(this.curve, colorRampPanel.colorRampMaterialProvider);
+        this.tube = createTube(this.curve, tubeRadius, igvPanel.materialProvider.material);
+        this.spline = createFatSpline(this.curve, igvPanel.materialProvider);
 
         console.timeEnd(str);
 

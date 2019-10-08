@@ -13,8 +13,6 @@ class IGVPanel extends Panel {
 
     constructor ({ container, panel, isHidden }) {
 
-        // const isHidden = guiManager.isPanelHidden($(panel).attr('id'));
-
         const xFunction = (cw, w) => {
             return (cw - w)/2;
         };
@@ -94,11 +92,12 @@ class IGVPanel extends Panel {
 
         this.browser.on('trackremoved', (track) => {
             if (track.$input && track.$input.prop('checked')) {
-                setMaterialProvider(colorRampPanel.colorRampMaterialProvider);
+                this.materialProvider = colorRampPanel.colorRampMaterialProvider;
+                setMaterialProvider(this.materialProvider);
             }
         });
 
-        addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
+        this.addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
 
         this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
             IGVMouseHandler({ bp, start, end, interpolant })
@@ -159,7 +158,7 @@ class IGVPanel extends Panel {
 
         }
 
-        addDataValueMaterialProviderGUI(tracks);
+        this.addDataValueMaterialProviderGUI(tracks);
 
         this.presentPanel();
 
@@ -169,6 +168,73 @@ class IGVPanel extends Panel {
     loadTrack(trackConfiguration) {
         this.loadTrackList([trackConfiguration]);
     }
+
+
+    addDataValueMaterialProviderGUI(tracks) {
+
+        for (let track of tracks) {
+
+            if (track.featureDescription) {
+
+                const { trackDiv } = track.trackView;
+
+                const $container = $(trackDiv).find('.igv-left-hand-gutter');
+
+                const $div = $('<div>', { class: 'input-group' });
+                $container.append($div);
+
+                track.$input = $('<input>', { type: 'checkbox' });
+                $div.append(track.$input);
+
+                track.$input.on('click.igv-panel.encode-loader', async (e) => {
+
+                    e.stopPropagation();
+
+                    const { trackContainerDiv } = track.browser;
+
+                    // unselect other track's checkboxes
+                    const $otherInputs = $(trackContainerDiv).find('.input-group input').not(track.$input.get(0));
+                    $otherInputs.prop('checked', false);
+
+                    if (track.$input.prop('checked')) {
+
+                        const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
+
+                        const { name: chr } = chromosome;
+
+                        const { bpPerPixel } = referenceFrame;
+
+                        // If "zoom in" notice is displayed do not paint features on trace
+                        if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
+
+                            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
+
+                        } else {
+
+                            const features = await track.getFeatures(chr, start, end, bpPerPixel);
+
+                            if ('varying' === track.featureDescription) {
+                                const { min, max } = track.dataRange;
+                                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+
+                            } else {
+                                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+                            }
+
+                        }
+
+                        this.materialProvider = dataValueMaterialProvider;
+                    } else {
+                        this.materialProvider = colorRampPanel.colorRampMaterialProvider;
+                    }
+
+                    setMaterialProvider(this.materialProvider);
+
+                });
+
+            }
+        }
+    };
 
 }
 
@@ -187,70 +253,6 @@ const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
     }
 
     eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ] } });
-};
-
-const addDataValueMaterialProviderGUI = tracks => {
-
-    for (let track of tracks) {
-
-        if (track.featureDescription) {
-
-            const { trackDiv } = track.trackView;
-
-            const $container = $(trackDiv).find('.igv-left-hand-gutter');
-
-            const $div = $('<div>', { class: 'input-group' });
-            $container.append($div);
-
-            track.$input = $('<input>', { type: 'checkbox' });
-            $div.append(track.$input);
-
-            track.$input.on('click.igv-panel.encode-loader', async (e) => {
-
-                e.stopPropagation();
-
-                const { trackContainerDiv } = track.browser;
-
-                // unselect other track's checkboxes
-                const $otherInputs = $(trackContainerDiv).find('.input-group input').not(track.$input.get(0));
-                $otherInputs.prop('checked', false);
-
-                if (track.$input.prop('checked')) {
-
-                    const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
-
-                    const { name: chr } = chromosome;
-
-                    const { bpPerPixel } = referenceFrame;
-
-                    // If "zoom in" notice is displayed do not paint features on trace
-                    if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
-
-                        dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
-
-                    } else {
-
-                        const features = await track.getFeatures(chr, start, end, bpPerPixel);
-
-                        if ('varying' === track.featureDescription) {
-                            const { min, max } = track.dataRange;
-                            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
-
-                        } else {
-                            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
-                        }
-
-                    }
-
-                    setMaterialProvider(dataValueMaterialProvider);
-                } else {
-                    setMaterialProvider(colorRampPanel.colorRampMaterialProvider);
-                }
-
-            });
-
-        }
-    }
 };
 
 const igvBrowserConfigurator = () => {
