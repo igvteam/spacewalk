@@ -30,6 +30,9 @@ const createGUI = container => {
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator(container));
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
+
+    igvPanel.materialProvider = colorRampPanel.colorRampMaterialProvider;
+
     igvPanel.initialize(igvBrowserConfigurator());
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });

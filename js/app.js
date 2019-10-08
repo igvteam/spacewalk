@@ -31,8 +31,6 @@ let guiManager;
 
 document.addEventListener("DOMContentLoaded", event => {
 
-    gsdb = new GSDB(parser);
-
     parser = new Parser();
 
     pointCloud = new PointCloud();
@@ -42,6 +40,8 @@ document.addEventListener("DOMContentLoaded", event => {
     ballAndStick = new BallAndStick();
 
     ensembleManager = new EnsembleManager();
+
+    gsdb = new GSDB(parser);
 
     colorMapManager = new ColorMapManager();
     colorMapManager.configure();
@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", event => {
     sceneManager.setRenderStyle( guiManager.getRenderStyle() );
 
     createGUI(container);
-
 
     $(window).on('resize.app', () => {
         let { width, height } = container.getBoundingClientRect();
