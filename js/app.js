@@ -1,10 +1,11 @@
 import EventBus from "./eventBus.js";
-import GSDB from "./gsdb.js";
+import GSDB from "./gsdb/gsdb.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
 import SceneManager, {sceneManagerConfigurator} from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
+import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import PointCloud from "./pointCloud.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
@@ -25,6 +26,7 @@ let colorMapManager;
 let parser;
 let sceneManager;
 let dataValueMaterialProvider;
+let colorRampMaterialProvider;
 let appWindowWidth;
 let appWindowHeight;
 let guiManager;
@@ -47,6 +49,9 @@ document.addEventListener("DOMContentLoaded", event => {
     colorMapManager.configure();
 
     dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
+
+    const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
+    colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
 
     const container = document.getElementById('spacewalk_canvas_container');
     sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
@@ -79,4 +84,4 @@ let renderLoop = () => {
     sceneManager.render();
 };
 
-export { appWindowWidth, appWindowHeight, eventBus, pointCloud, noodle, ballAndStick, ensembleManager, colorMapManager, parser, sceneManager, dataValueMaterialProvider, guiManager };
+export { appWindowWidth, appWindowHeight, eventBus, pointCloud, noodle, ballAndStick, ensembleManager, colorMapManager, parser, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager };

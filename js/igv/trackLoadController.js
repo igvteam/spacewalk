@@ -93,7 +93,7 @@ class TrackLoadController {
         const paths = this.trackRegistry[ genomeID ];
 
         if (undefined === paths) {
-            throw new Error(`Can not file paths for genome ID ${ genomeID }`);
+            throw new Error(`Unsupported genome ID ${ genomeID }`);
         }
 
         let results = [];

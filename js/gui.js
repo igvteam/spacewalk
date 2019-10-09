@@ -6,7 +6,7 @@ import DistanceMapPanel, { distanceMapPanelConfigurator } from "./distanceMapPan
 import ContactFrequencyMapPanel, { contactFrequencyMapPanelConfigurator } from "./contactFrequencyMapPanel.js";
 import IGVPanel, { igvBrowserConfigurator } from "./igv/IGVPanel.js";
 import DataFileLoadModal, { spaceWalkFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator } from "./dataFileLoadModal.js";
-import { guiManager} from "./app.js";
+import { guiManager, colorRampMaterialProvider } from "./app.js";
 
 let traceSelectPanel;
 let juiceboxPanel;
@@ -23,7 +23,7 @@ const createGUI = container => {
 
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
 
-    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, highlightColor }) );
+    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container }) );
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator(container));
 
@@ -31,7 +31,7 @@ const createGUI = container => {
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
 
-    igvPanel.materialProvider = colorRampPanel.colorRampMaterialProvider;
+    igvPanel.materialProvider = colorRampMaterialProvider;
 
     igvPanel.initialize(igvBrowserConfigurator());
 

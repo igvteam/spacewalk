@@ -1,4 +1,4 @@
-import ModalTable from '../node_modules/data-modal/js/modalTable.js'
+import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
 import GSDBDataSource from "./gsdbDataSource.js";
 
 class GSDB {
