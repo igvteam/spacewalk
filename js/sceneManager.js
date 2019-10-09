@@ -1,15 +1,14 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import EnsembleManager from "./ensembleManager.js";
 import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
-import { colorRampPanel } from './gui.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
-import { pointCloud, noodle, ballAndStick, ensembleManager, eventBus, dataValueMaterialProvider } from "./app.js";
-import EnsembleManager from "./ensembleManager.js";
+import { colorRampMaterialProvider, pointCloud, noodle, ballAndStick, ensembleManager, eventBus, dataValueMaterialProvider } from "./app.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 class SceneManager {
@@ -96,7 +95,7 @@ class SceneManager {
             this.gnomon.dispose();
         }
 
-        this.gnomon = new Gnomon(gnomonConfigurator(min, max));
+        this.gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter));
         this.gnomon.addToScene(this.scene);
     }
 
@@ -152,7 +151,7 @@ class SceneManager {
 
             dataValueMaterialProvider.renderLoopHelper();
 
-            colorRampPanel.colorRampMaterialProvider.renderLoopHelper();
+            colorRampMaterialProvider.renderLoopHelper();
 
             this.cameraLightingRig.renderLoopHelper();
 

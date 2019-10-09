@@ -5,7 +5,7 @@ import { eventBus, guiManager } from "./app.js";
 
 class Gnomon extends THREE.AxesHelper {
 
-    constructor ({ min, max, color, isHidden }) {
+    constructor ({ min, max, boundingDiameter, color, isHidden }) {
 
         super(1);
 
@@ -24,13 +24,13 @@ class Gnomon extends THREE.AxesHelper {
         this.group.add( this );
 
         const colorString = rgb255String( threeJSColorToRGB255(color) );
-        this.xAxisSprite = getXAxisSprite(min, max, colorString);
+        this.xAxisSprite = getXAxisSprite(min, max, boundingDiameter, colorString);
         this.group.add( this.xAxisSprite );
 
-        this.yAxisSprite = getYAxisSprite(min, max, colorString);
+        this.yAxisSprite = getYAxisSprite(min, max, boundingDiameter, colorString);
         this.group.add( this.yAxisSprite );
 
-        this.zAxisSprite = getZAxisSprite(min, max, colorString);
+        this.zAxisSprite = getZAxisSprite(min, max, boundingDiameter, colorString);
         this.group.add( this.zAxisSprite );
 
         this.group.visible = isHidden;
@@ -89,35 +89,39 @@ class Gnomon extends THREE.AxesHelper {
 
 export default Gnomon;
 
-const getXAxisSprite = (min, max, color) => {
+const getXAxisSprite = (min, max, boundingDiameter, color) => {
 
     const { x:ax, y:ay, z:az } = min;
     const { x:bx } = max;
 
-    return getAxisSprite(bx, ay, az, bx - ax, color);
+    return getAxisSprite(bx, ay, az, bx - ax, boundingDiameter, color);
 };
 
-const getYAxisSprite = (min, max, color) => {
+const getYAxisSprite = (min, max, boundingDiameter, color) => {
 
     const { x:ax, y:ay, z:az } = min;
     const { y:by } = max;
 
-    return getAxisSprite(ax, by, az, by - ay, color);
+    return getAxisSprite(ax, by, az, by - ay, boundingDiameter, color);
 };
 
-const getZAxisSprite = (min, max, color) => {
+const getZAxisSprite = (min, max, boundingDiameter, color) => {
 
     const { x:ax, y:ay, z:az } = min;
     const { z:bz } = max;
 
-    return getAxisSprite(ax, ay, bz, bz - az, color);
+    return getAxisSprite(ax, ay, bz, bz - az, boundingDiameter, color);
 };
 
-const getAxisSprite = (x, y, z, length, color) => {
+const getAxisSprite = (x, y, z, length, boundingDiameter, color) => {
 
     const sprite = new THREE.Sprite( getAxisSpriteMaterial(color, length) );
     sprite.position.set(x, y, z);
-    sprite.scale.set( 512, 512, 1 );
+
+    // console.log(`gnomon. scale ratio ${ 512/boundingDiameter }`);
+
+    const scaleFactor = 0.25 * boundingDiameter;
+    sprite.scale.set( scaleFactor, scaleFactor, 1 );
 
     return sprite;
 
@@ -174,11 +178,12 @@ const getColors = (color) => {
 
 };
 
-export const gnomonConfigurator = (min, max) => {
+export const gnomonConfigurator = (min, max, boundingDiameter) => {
 
     return {
         min,
         max,
+        boundingDiameter,
         color: appleCrayonColorThreeJS('snow'),
         isHidden: guiManager.isGnomonHidden($('#spacewalk_ui_manager_panel'))
     }

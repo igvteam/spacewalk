@@ -26,6 +26,7 @@ export const appEventListener =
                 sceneManager.cameraLightingRig.doUpdateCameraPose = true;
                 setupEnsemble({ trace: ensembleManager.currentTrace });
             } else if ('DidSelectTrace' === type) {
+                ensembleManager.currentTrace = ensembleManager.getTraceWithName(data);
                 setupEnsemble({ trace: ensembleManager.currentTrace });
             }
 

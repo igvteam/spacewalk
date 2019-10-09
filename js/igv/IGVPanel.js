@@ -1,9 +1,8 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
-import { colorRampPanel } from "../gui.js";
 import Panel from "../panel.js";
-import { dataValueMaterialProvider, parser, ensembleManager, eventBus } from "../app.js";
+import { colorRampMaterialProvider, dataValueMaterialProvider, parser, ensembleManager, eventBus } from "../app.js";
 
 let trackLoadController;
 
@@ -92,7 +91,7 @@ class IGVPanel extends Panel {
 
         this.browser.on('trackremoved', (track) => {
             if (track.$input && track.$input.prop('checked')) {
-                this.materialProvider = colorRampPanel.colorRampMaterialProvider;
+                this.materialProvider = colorRampMaterialProvider;
                 setMaterialProvider(this.materialProvider);
             }
         });
@@ -225,7 +224,7 @@ class IGVPanel extends Panel {
 
                         this.materialProvider = dataValueMaterialProvider;
                     } else {
-                        this.materialProvider = colorRampPanel.colorRampMaterialProvider;
+                        this.materialProvider = colorRampMaterialProvider;
                     }
 
                     setMaterialProvider(this.materialProvider);
