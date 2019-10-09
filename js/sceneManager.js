@@ -95,7 +95,7 @@ class SceneManager {
             this.gnomon.dispose();
         }
 
-        this.gnomon = new Gnomon(gnomonConfigurator(min, max));
+        this.gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter));
         this.gnomon.addToScene(this.scene);
     }
 
