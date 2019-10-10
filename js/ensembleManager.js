@@ -28,8 +28,9 @@ class EnsembleManager {
         this.ensemble = {};
 
         let { sample, genomeAssembly, locus, traces } = payload;
-        let { chr, genomicStart, genomicEnd } = locus;
+        this.genomeAssembly = genomeAssembly;
 
+        let { chr, genomicStart, genomicEnd } = locus;
         this.locus = locus;
 
         for (let [traceKey, trace] of Object.entries(traces)) {

@@ -132,6 +132,7 @@ class IGVPanel extends Panel {
                 await trackLoadController.updateTrackMenus(this.browser.genome.id);
             } catch (e) {
                 console.error(e);
+                alert(e.message);
             }
 
         }

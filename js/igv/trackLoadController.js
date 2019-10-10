@@ -93,7 +93,9 @@ class TrackLoadController {
         const paths = this.trackRegistry[ genomeID ];
 
         if (undefined === paths) {
-            throw new Error(`Unsupported genome ID ${ genomeID }`);
+            console.warn(`No additional track menu items genome ID ${ genomeID }`);
+            // throw new Error(`Unsupported genome ID ${ genomeID }`);
+            return;
         }
 
         let results = [];
