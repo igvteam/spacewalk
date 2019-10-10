@@ -10,7 +10,7 @@ class EnsembleManager {
     constructor () {
     }
 
-    ingest({locus, hash}) {
+    ingest({ payload }) {
 
         const str = 'EnsembleManager ingestSW';
         console.time(str);
@@ -27,10 +27,12 @@ class EnsembleManager {
 
         this.ensemble = {};
 
+        let { sample, genomeAssembly, locus, traces } = payload;
         let { chr, genomicStart, genomicEnd } = locus;
 
+        this.locus = locus;
 
-        for (let [traceKey, trace] of Object.entries(hash)) {
+        for (let [traceKey, trace] of Object.entries(traces)) {
 
             if (undefined === this.maximumSegmentID) {
                 this.maximumSegmentID = Object.keys(trace).length;
@@ -117,7 +119,7 @@ class EnsembleManager {
 
         const initialKey = '0';
         this.currentTrace = this.getTraceWithName(initialKey);
-        eventBus.post({ type: "DidLoadEnsembleFile", data: { chr, genomicStart, genomicEnd, initialKey } });
+        eventBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey } });
 
     }
 

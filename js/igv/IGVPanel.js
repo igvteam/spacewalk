@@ -2,7 +2,7 @@ import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import Panel from "../panel.js";
-import { colorRampMaterialProvider, dataValueMaterialProvider, parser, ensembleManager, eventBus } from "../app.js";
+import { colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, eventBus } from "../app.js";
 
 let trackLoadController;
 
@@ -47,10 +47,10 @@ class IGVPanel extends Panel {
 
             (async () => {
 
-                const { chr, genomicStart: start, genomicEnd: end } = data;
+                const { genomeAssembly, chr, genomicStart: start, genomicEnd: end } = data;
 
                 try {
-                    await this.loadGenomeWithID( parser.genomeAssembly );
+                    await this.loadGenomeWithID( genomeAssembly );
                 } catch (e) {
                     console.error(e);
                 }
@@ -239,11 +239,11 @@ class IGVPanel extends Panel {
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
-    if (undefined === ensembleManager || undefined === parser.locus) {
+    if (undefined === ensembleManager || undefined === ensembleManager.locus) {
         return;
     }
 
-    const { genomicStart, genomicEnd } = parser.locus;
+    const { genomicStart, genomicEnd } = ensembleManager.locus;
 
     const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
 
