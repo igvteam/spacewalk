@@ -1,5 +1,4 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { degrees } from './math.js';
 import { setGeometryAttributeColorListWithColorThreeJS } from './color.js';
 import { ensembleManager, eventBus, sceneManager } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -156,45 +155,6 @@ class PointCloud {
 
     getBounds() {
         return pointCloudManager.getBounds();
-    }
-
-    DEPRICATED_getCameraPoseAlongAxis ({ axis, scaleFactor }) {
-
-        const { center, radius } = this.getBounds();
-
-        const dimen = scaleFactor * radius;
-
-        const theta = Math.atan(radius/dimen);
-        const fov = degrees( 2 * theta);
-
-        const axes =
-            {
-                '-x': () => {
-                    return new THREE.Vector3(-dimen, 0, 0);
-                },
-                '+x': () => {
-                    return new THREE.Vector3(dimen, 0, 0);
-                },
-                '-y': () => {
-                    return new THREE.Vector3(0, -dimen, 0);
-                },
-                '+y': () => {
-                    return new THREE.Vector3(0, dimen, 0);
-                },
-                '-z': () => {
-                    return new THREE.Vector3(0, 0, -dimen);
-                },
-                '+z': () => {
-                    return new THREE.Vector3(0, 0, dimen);
-                },
-            };
-
-        const vector = axes[ axis ]();
-        let position = new THREE.Vector3();
-
-        position.addVectors(center, vector);
-
-        return { target:center, position, fov }
     }
 
     unHighlight() {

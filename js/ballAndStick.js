@@ -1,5 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { degrees, clamp } from './math.js';
+import { clamp } from './math.js';
 import EnsembleManager from "./ensembleManager.js";
 import { numberFormatter, generateRadiusTable } from "./utils.js";
 import { sceneManager } from './app.js'
@@ -191,45 +191,6 @@ class BallAndStick {
 
     getBounds() {
         return EnsembleManager.getBoundsWithTrace(this.trace);
-    }
-
-    DEPRICATED_getCameraPoseAlongAxis ({ axis, scaleFactor }) {
-
-        const { center, radius } = this.getBounds();
-
-        const dimen = scaleFactor * radius;
-
-        const theta = Math.atan(radius/dimen);
-        const fov = degrees( 2 * theta);
-
-        const axes =
-            {
-                '-x': () => {
-                    return new THREE.Vector3(-dimen, 0, 0);
-                },
-                '+x': () => {
-                    return new THREE.Vector3(dimen, 0, 0);
-                },
-                '-y': () => {
-                    return new THREE.Vector3(0, -dimen, 0);
-                },
-                '+y': () => {
-                    return new THREE.Vector3(0, dimen, 0);
-                },
-                '-z': () => {
-                    return new THREE.Vector3(0, 0, -dimen);
-                },
-                '+z': () => {
-                    return new THREE.Vector3(0, 0, dimen);
-                },
-            };
-
-        const vector = axes[ axis ]();
-        let position = new THREE.Vector3();
-
-        position.addVectors(center, vector);
-
-        return { target:center, position, fov }
     }
 }
 
