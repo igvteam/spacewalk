@@ -1,6 +1,6 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Panel from "../panel.js";
-import { parser, ensembleManager, eventBus } from "../app.js";
+import { ensembleManager, eventBus } from "../app.js";
 
 class JuiceboxPanel extends Panel {
 
@@ -106,11 +106,11 @@ class JuiceboxPanel extends Panel {
 
 const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
 
-    if (undefined === ensembleManager || undefined === parser.locus) {
+    if (undefined === ensembleManager || undefined === ensembleManager.locus) {
         return;
     }
 
-    const { genomicStart, genomicEnd } = parser.locus;
+    const { genomicStart, genomicEnd } = ensembleManager.locus;
 
     const trivialRejection = startXBP > genomicEnd || endXBP < genomicStart || startYBP > genomicEnd || endYBP < genomicStart;
 

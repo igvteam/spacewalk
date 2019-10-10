@@ -1,9 +1,9 @@
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { zIndexPanelUnselected, zIndexPanelSelected } from './utils.js';
+import { numberFormatter, zIndexPanelUnselected, zIndexPanelSelected } from './utils.js';
 import { rgb255ToThreeJSColor } from "./color.js";
 import { juiceboxPanel } from "./gui.js";
-import { parser, eventBus, noodle, ballAndStick, sceneManager } from "./app.js";
+import { eventBus, noodle, ballAndStick, sceneManager } from "./app.js";
 
 class GUIManager {
     constructor ({ $button, $panel }) {
@@ -139,13 +139,19 @@ class GUIManager {
 
         } else if ('DidLoadEnsembleFile' === type) {
 
-            $('#spacewalk_info_panel_genome').text( parser.genomeAssembly );
+            let str;
 
-            $('#spacewalk_info_panel_locus').text(parser.locusBlurb());
-            $('#spacewalk_info_panel_ensemble').text(parser.sampleBlurb());
+            const { sample, genomeAssembly, chr, genomicStart, genomicEnd } = data;
+
+            $('#spacewalk_info_panel_genome').text( genomeAssembly );
+
+            str = `${ chr } : ${ numberFormatter(genomicStart) } - ${ numberFormatter(genomicEnd) }`;
+            $('#spacewalk_info_panel_locus').text( str );
+
+            str = `Sample ${ sample }`;
+            $('#spacewalk_info_panel_ensemble').text( str );
 
             $('#spacewalk_info_panel_juicebox').text(juiceboxPanel.blurb());
-
 
             $('#spacewalk_info_panel').show();
             $('#spacewalk_ui_manager_render_styles').show();

@@ -1,5 +1,5 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
-import { numberFormatter, readFileAsText } from "./utils.js";
+import { readFileAsText } from "./utils.js";
 import { hideSpinner, showSpinner } from "./gui.js";
 import { ensembleManager } from "./app.js";
 
@@ -10,6 +10,8 @@ class Parser {
     }
 
     parse (string) {
+
+        let result = {};
 
         let raw = string.split('\n');
 
@@ -28,10 +30,10 @@ class Parser {
         key_value_pairs.shift();
 
         // name
-        this.sample = key_value_pairs.shift().split('=').pop();
+        result.sample = key_value_pairs.shift().split('=').pop();
 
         // genome
-        this.genomeAssembly = key_value_pairs.shift().split('=').pop();
+        result.genomeAssembly = key_value_pairs.shift().split('=').pop();
 
         // discard column headings
         lines.shift();
@@ -87,11 +89,13 @@ class Parser {
         // discard line memory
         lines = null;
 
-        this.locus = { chr, genomicStart, genomicEnd };
+        result.locus = { chr, genomicStart, genomicEnd };
 
         console.timeEnd(str);
 
-        return hash;
+        result.traces = hash;
+
+        return result;
 
     }
 
@@ -108,10 +112,10 @@ class Parser {
         }
 
         showSpinner();
-        const hash = this.parse(string);
+        const payload = this.parse(string);
         hideSpinner();
 
-        ensembleManager.ingest({locus: this.locus, hash});
+        ensembleManager.ingest({ payload });
 
     }
 
@@ -121,15 +125,6 @@ class Parser {
 
     loadLocalFile({ file }) {
         this.load({ loader: readFileAsText, path: file });
-    }
-
-    locusBlurb() {
-        const { chr, genomicStart, genomicEnd } = this.locus;
-        return `${ chr } : ${ numberFormatter(genomicStart) } - ${ numberFormatter(genomicEnd) }`;
-    }
-
-    sampleBlurb() {
-        return `Sample ${ this.sample }`;
     }
 
     static genomicRangeFromHashKey(key) {
