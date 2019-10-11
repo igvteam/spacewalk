@@ -195,8 +195,8 @@ const getRadialSegmentCount = locus => {
 
 };
 
-const scaleFactor = 4096;
-// const scaleFactor = 1024;
+// const scaleFactor = 4096;
+const scaleFactor = 1024;
 const getTubularSegmentCount = curveLength => {
     return getCountMultiplier(curveLength) * scaleFactor;
 };

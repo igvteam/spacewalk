@@ -29,7 +29,6 @@ class DistanceMapPanel extends Panel {
         canvas.width = $canvas_container.width();
         canvas.height = $canvas_container.height();
 
-        // this.ctx_trace = canvas.getContext('2d');
         this.ctx_trace = canvas.getContext('bitmaprenderer');
 
         // ensemble canvas and context
@@ -39,7 +38,6 @@ class DistanceMapPanel extends Panel {
 
         this.size = { width: canvas.width, height: canvas.height };
 
-        // this.ctx_ensemble = canvas.getContext('2d');
         this.ctx_ensemble = canvas.getContext('bitmaprenderer');
 
     }
