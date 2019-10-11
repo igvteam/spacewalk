@@ -7,7 +7,7 @@ import { createStickCurves, computeAverageCurveDistance } from './ballAndStick.j
 import { generateRadiusTable } from "./utils.js";
 import { ensembleManager, sceneManager } from './app.js'
 import { igvPanel } from "./gui.js";
-import { degrees, clamp, lerp } from './math.js';
+import { clamp, lerp } from './math.js';
 
 let fatLineMaterial;
 let noodleRadiusIndex = undefined;
@@ -120,46 +120,6 @@ class Noodle {
     getBounds() {
         return EnsembleManager.getBoundsWithTrace(this.trace);
     }
-
-    DEPRICATED_getCameraPoseAlongAxis({axis, scaleFactor}) {
-
-        const { center, radius } = this.getBounds();
-
-        const dimen = scaleFactor * radius;
-
-        const theta = Math.atan(radius/dimen);
-        const fov = degrees( 2 * theta);
-
-        const axes =
-            {
-                '-x': () => {
-                    return new THREE.Vector3(-dimen, 0, 0);
-                },
-                '+x': () => {
-                    return new THREE.Vector3(dimen, 0, 0);
-                },
-                '-y': () => {
-                    return new THREE.Vector3(0, -dimen, 0);
-                },
-                '+y': () => {
-                    return new THREE.Vector3(0, dimen, 0);
-                },
-                '-z': () => {
-                    return new THREE.Vector3(0, 0, -dimen);
-                },
-                '+z': () => {
-                    return new THREE.Vector3(0, 0, dimen);
-                },
-            };
-
-        const vector = axes[ axis ]();
-        let position = new THREE.Vector3();
-
-        position.addVectors(center, vector);
-
-        return { target:center, position, fov }
-    }
-
 }
 
 const createTube = (curve, tubeRadius, material) => {
@@ -188,7 +148,8 @@ const createFatSpline = (curve, materialProvider) => {
     const str = `createFatSpline. ${ pointCount } vertices and colors.`;
     console.time(str);
 
-    const xyzList = curve.getPoints( pointCount );
+    // const xyzList = curve.getPoints( pointCount );
+    const xyzList = curve.getSpacedPoints( pointCount );
 
     let colors = getColorListWithXYZList(materialProvider, xyzList);
 
@@ -234,17 +195,18 @@ const getRadialSegmentCount = locus => {
 
 };
 
+// const scaleFactor = 4096;
+const scaleFactor = 1024;
 const getTubularSegmentCount = curveLength => {
-    return getCountMultiplier(curveLength) * 1024;
+    return getCountMultiplier(curveLength) * scaleFactor;
 };
 
 const getFatSplinePointCount = curveLength => {
-    return getCountMultiplier(curveLength) * 1024;
+    return getCountMultiplier(curveLength) * scaleFactor;
 };
 
 const getCountMultiplier = curveLength => {
-    const count = Math.round( Math.max(1, curveLength / 16000) );
-    return count;
+    return Math.round( Math.max(1, curveLength / 16000) );
 };
 
 const getColorListWithXYZList = (materialProvider, xyzList) =>  {
