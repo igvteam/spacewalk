@@ -10,7 +10,8 @@ class GSDBDataSource {
 
     async tableData() {
 
-        const jsonFile = 'resources/gsdb.json';
+        // const jsonFile = 'resources/gsdb.json';
+        const jsonFile = 'http://calla.rnet.missouri.edu/genome3d/GSDB/GSDB_JSON_URL_LIST.txt';
 
         let myJSON = undefined;
         try {
