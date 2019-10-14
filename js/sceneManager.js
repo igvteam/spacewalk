@@ -15,6 +15,7 @@ class SceneManager {
 
     constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker }) {
 
+
         this.stickMaterial = stickMaterial;
 
         this.background = background;
@@ -25,6 +26,7 @@ class SceneManager {
 
         // insert rendering canvas in DOM
         container.appendChild(renderer.domElement);
+        this.container = container;
 
         this.renderer = renderer;
 
@@ -38,10 +40,6 @@ class SceneManager {
         this.cameraLightingRig.addToScene(this.scene);
 
         $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
-
-        $(container).on('mousemove.spacewalk.picker', (event) => {
-            this.onContainerMouseMove(event)
-        });
 
         eventBus.subscribe("DidSelectSegmentID", this);
         eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
@@ -97,6 +95,21 @@ class SceneManager {
 
         this.gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter));
         this.gnomon.addToScene(this.scene);
+
+        $(this.container).on('mousemove.spacewalk.picker', (event) => {
+
+            if (true === this.picker.isEnabled) {
+
+                const xy = getMouseXY(this.renderer.domElement, event);
+
+                const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
+                const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
+
+                this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.camera, doTrackObject: true });
+
+            }
+        });
+
     }
 
     setRenderStyle (renderStyle) {
@@ -105,27 +118,20 @@ class SceneManager {
 
     onWindowResize() {
 
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        if (this.renderer && this.cameraLightingRig) {
 
-        this.cameraLightingRig.camera.aspect = window.innerWidth/window.innerHeight;
-        this.cameraLightingRig.camera.updateProjectionMatrix();
-    };
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    onContainerMouseMove(event){
-
-        if (this.cameraLightingRig && this.cameraLightingRig.camera && this.picker.isEnabled) {
-
-            const xy = getMouseXY(this.renderer.domElement, event);
-
-            const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
-            const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
-
-            this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.camera, doTrackObject: true });
-
+            this.cameraLightingRig.camera.aspect = window.innerWidth/window.innerHeight;
+            this.cameraLightingRig.camera.updateProjectionMatrix();
         }
+
     };
 
     dispose() {
+
+        $(this.container).off('mousemove.spacewalk.picker');
+
         if (this.scene) {
 
             let disposable = this.scene.children.filter(child => {

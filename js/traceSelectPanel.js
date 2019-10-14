@@ -90,7 +90,9 @@ class TraceSelectPanel extends Panel {
         showSpinner();
         window.setTimeout(() => {
 
-            eventBus.post({ type: "DidSelectTrace", data: key });
+            const trace = ensembleManager.getTraceWithName(key);
+            ensembleManager.currentTrace = trace;
+            eventBus.post({ type: "DidSelectTrace", data: { trace } });
 
             hideSpinner();
         }, 0);

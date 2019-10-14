@@ -24,10 +24,11 @@ export const appEventListener =
 
             }  else if ('DidLoadEnsembleFile' === type) {
                 sceneManager.cameraLightingRig.doUpdateCameraPose = true;
-                setupEnsemble({ trace: ensembleManager.currentTrace });
+                const { trace } = data;
+                setupEnsemble({ trace });
             } else if ('DidSelectTrace' === type) {
-                ensembleManager.currentTrace = ensembleManager.getTraceWithName(data);
-                setupEnsemble({ trace: ensembleManager.currentTrace });
+                const { trace } = data;
+                setupEnsemble({ trace });
             }
 
         }

@@ -120,7 +120,7 @@ class EnsembleManager {
 
         const initialKey = '0';
         this.currentTrace = this.getTraceWithName(initialKey);
-        eventBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey } });
+        eventBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, trace: this.currentTrace } });
 
     }
 
