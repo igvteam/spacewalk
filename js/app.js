@@ -10,7 +10,6 @@ import PointCloud from "./pointCloud.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import GUIManager from "./guiManager.js";
-import { appEventListener } from "./appEventListener.js";
 import { highlightColor, createGUI } from "./gui.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS } from "./color.js";
 
@@ -53,10 +52,10 @@ document.addEventListener("DOMContentLoaded", event => {
     const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
 
+    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
+
     const container = document.getElementById('spacewalk_canvas_container');
     sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
-
-    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
     sceneManager.setRenderStyle( guiManager.getRenderStyle() );
 
@@ -69,11 +68,6 @@ document.addEventListener("DOMContentLoaded", event => {
 
         eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
     });
-
-    eventBus.subscribe('DidSelectTrace', appEventListener);
-    eventBus.subscribe('DidLoadEnsembleFile', appEventListener);
-    eventBus.subscribe('ToggleAllUIControls', appEventListener);
-    eventBus.subscribe('RenderStyleDidChange', appEventListener);
 
     renderLoop();
 

@@ -4,11 +4,14 @@ import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
+import PointCloud from "./pointCloud.js";
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
-import { colorRampMaterialProvider, pointCloud, noodle, ballAndStick, ensembleManager, eventBus, dataValueMaterialProvider } from "./app.js";
+import { guiManager, colorRampMaterialProvider, pointCloud, noodle, ballAndStick, ensembleManager, eventBus, dataValueMaterialProvider } from "./app.js";
+import { contactFrequencyMapPanel, distanceMapPanel } from "./gui.js";
+import Noodle from "./noodle";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 class SceneManager {
@@ -43,6 +46,9 @@ class SceneManager {
 
         eventBus.subscribe("DidSelectSegmentID", this);
         eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
+        eventBus.subscribe('DidSelectTrace', this);
+        eventBus.subscribe('DidLoadEnsembleFile', this);
+        eventBus.subscribe('RenderStyleDidChange', this);
 
     }
 
@@ -66,7 +72,66 @@ class SceneManager {
 
             }
 
+        } else if ('RenderStyleDidChange' === type) {
+
+            if (data === Noodle.getRenderStyle()) {
+                this.renderStyle = Noodle.getRenderStyle();
+                ballAndStick.hide();
+                noodle.show();
+            } else {
+                this.renderStyle = BallAndStick.getRenderStyle();
+                noodle.hide();
+                ballAndStick.show();
+            }
+
+        }  else if ('DidLoadEnsembleFile' === type) {
+            this.cameraLightingRig.doUpdateCameraPose = true;
+            const { trace } = data;
+            this.setupWithTrace(trace);
+        } else if ('DidSelectTrace' === type) {
+            const { trace } = data;
+            this.setupWithTrace(trace);
         }
+
+    }
+
+    setupWithTrace(trace) {
+
+        this.dispose();
+
+        let scene = new THREE.Scene();
+
+        if (ensembleManager.isPointCloud) {
+
+            this.renderStyle = PointCloud.getRenderStyle();
+
+            pointCloud.configure(trace);
+            pointCloud.addToScene(scene);
+
+            const {min, max, center, radius} = EnsembleManager.getBoundsWithTrace(trace);
+            const {position, fov} = EnsembleManager.getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
+            this.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+
+        } else {
+
+            this.renderStyle = guiManager.getRenderStyle();
+
+            const { min, max, center, radius } = EnsembleManager.getBoundsWithTrace(trace);
+            const { position, fov } = EnsembleManager.getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
+
+            noodle.configure(trace);
+            noodle.addToScene(scene);
+
+            ballAndStick.configure(trace);
+            ballAndStick.addToScene(scene);
+
+            this.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
+
+            contactFrequencyMapPanel.updateTraceContactFrequencyCanvas(trace);
+            distanceMapPanel.updateTraceDistanceCanvas(trace);
+        }
+
+
     }
 
     configure({ scene, min, max, boundingDiameter, cameraPosition, centroid, fov }) {
