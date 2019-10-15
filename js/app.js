@@ -57,8 +57,6 @@ document.addEventListener("DOMContentLoaded", event => {
     const container = document.getElementById('spacewalk_canvas_container');
     sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
 
-    sceneManager.setRenderStyle( guiManager.getRenderStyle() );
-
     createGUI(container);
 
     $(window).on('resize.app', () => {

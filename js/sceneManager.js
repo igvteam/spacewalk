@@ -4,6 +4,7 @@ import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
+import Noodle from "./noodle.js";
 import PointCloud from "./pointCloud.js";
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
@@ -11,12 +12,11 @@ import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import { guiManager, colorRampMaterialProvider, pointCloud, noodle, ballAndStick, ensembleManager, eventBus, dataValueMaterialProvider } from "./app.js";
 import { contactFrequencyMapPanel, distanceMapPanel } from "./gui.js";
-import Noodle from "./noodle";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 class SceneManager {
 
-    constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker }) {
+    constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker, renderStyle }) {
 
 
         this.stickMaterial = stickMaterial;
@@ -41,6 +41,8 @@ class SceneManager {
 
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
+
+        this.renderStyle = renderStyle;
 
         $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
 
@@ -256,8 +258,6 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const [ fov, near, far, domElement, aspectRatio ] = [ 35, 1e2, 3e3, renderer.domElement, (window.innerWidth/window.innerHeight) ];
     const cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspectRatio, hemisphereLight });
 
-
-
     // Nice numbers
     const position = new THREE.Vector3(134820, 55968, 5715);
     const centroid = new THREE.Vector3(133394, 54542, 4288);
@@ -275,7 +275,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
         background,
         renderer,
         cameraLightingRig,
-        picker
+        picker,
+        renderStyle: guiManager.getRenderStyle()
     };
 
 };
