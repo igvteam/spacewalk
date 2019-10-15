@@ -26,7 +26,7 @@ class ColorRampPanel extends Panel {
         this.$panel.on('click.color-ramp-panel', (event) => {
             event.stopPropagation();
             setMaterialProvider(colorRampMaterialProvider);
-            eventBus.post({ type: "DidChangeMaterialProvider" });
+            eventBus.post({ type: "DidChangeMaterialProvider", data: colorRampMaterialProvider });
         });
 
         eventBus.subscribe('DidSelectTrace', this);

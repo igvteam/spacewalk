@@ -40,6 +40,8 @@ class IGVPanel extends Panel {
 
         if ("DidChangeMaterialProvider" === type) {
 
+            this.materialProvider = data;
+
             const { trackContainerDiv } = this.browser;
             $(trackContainerDiv).find('.input-group input').prop('checked', false);
 
