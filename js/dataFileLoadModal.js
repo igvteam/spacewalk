@@ -1,5 +1,5 @@
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
-import { parser, juiceboxPanel, eventBus } from "./app.js";
+import { eventBus } from "./app.js";
 
 let currentURL = undefined;
 
@@ -114,25 +114,25 @@ const loadFile = (file, fileLoader) => {
 
 };
 
-const spaceWalkFileLoadModalConfigurator = () => {
+const spaceWalkFileLoadModalConfigurator = ({ fileLoader }) => {
 
     return {
         $urlModal: $('#spacewalk-sw-load-url-modal'),
         $selectModal: $('#spacewalk-sw-load-select-modal'),
         $localFileInput: $('#spacewalk-sw-load-local-input'),
         selectLoader: undefined,
-        fileLoader: parser
+        fileLoader
     }
 };
 
-const juiceboxFileLoadModalConfigurator = () => {
+const juiceboxFileLoadModalConfigurator = ({ fileLoader }) => {
 
     return {
         $urlModal: $('#hic-load-url-modal'),
         $selectModal: $('#hic-contact-map-select-modal'),
         $localFileInput: $('#spacewalk-juicebox-load-local-input'),
         selectLoader: juiceboxSelectLoader,
-        fileLoader: juiceboxPanel
+        fileLoader
     }
 };
 

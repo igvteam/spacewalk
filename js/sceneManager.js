@@ -86,12 +86,19 @@ class SceneManager {
             }
 
         }  else if ('DidLoadEnsembleFile' === type) {
+
             this.cameraLightingRig.doUpdateCameraPose = true;
+
+            this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle();
+
             const { trace } = data;
             this.setupWithTrace(trace);
+
         } else if ('DidSelectTrace' === type) {
+
             const { trace } = data;
             this.setupWithTrace(trace);
+
         }
 
     }
@@ -104,21 +111,10 @@ class SceneManager {
 
         if (ensembleManager.isPointCloud) {
 
-            this.renderStyle = PointCloud.getRenderStyle();
-
             pointCloud.configure(trace);
             pointCloud.addToScene(scene);
 
-            const {min, max, center, radius} = EnsembleManager.getBoundsWithTrace(trace);
-            const {position, fov} = EnsembleManager.getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
-            this.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
-
         } else {
-
-            this.renderStyle = guiManager.getRenderStyle();
-
-            const { min, max, center, radius } = EnsembleManager.getBoundsWithTrace(trace);
-            const { position, fov } = EnsembleManager.getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
 
             noodle.configure(trace);
             noodle.addToScene(scene);
@@ -126,12 +122,13 @@ class SceneManager {
             ballAndStick.configure(trace);
             ballAndStick.addToScene(scene);
 
-            this.configure({scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov});
-
             contactFrequencyMapPanel.updateTraceContactFrequencyCanvas(trace);
             distanceMapPanel.updateTraceDistanceCanvas(trace);
         }
 
+        const {min, max, center, radius} = EnsembleManager.getBoundsWithTrace(trace);
+        const {position, fov} = EnsembleManager.getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
+        this.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
 
     }
 
@@ -176,10 +173,6 @@ class SceneManager {
             }
         });
 
-    }
-
-    setRenderStyle (renderStyle) {
-        this.renderStyle = renderStyle;
     }
 
     onWindowResize() {
@@ -242,7 +235,7 @@ class SceneManager {
 
 }
 
-export const sceneManagerConfigurator = ({ container, highlightColor }) => {
+export const sceneManagerConfigurator = ({ container, highlightColor, renderStyle }) => {
 
     // const stickMaterial = showSMaterial;
     // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
@@ -275,7 +268,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
         renderer,
         cameraLightingRig,
         picker,
-        renderStyle: guiManager.getRenderStyle()
+        renderStyle
     };
 
 };

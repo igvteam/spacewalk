@@ -71,17 +71,9 @@ document.addEventListener("DOMContentLoaded", event => {
     guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
     const container = document.getElementById('spacewalk_canvas_container');
-    sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor, renderStyle: guiManager.getRenderStyle() }));
 
     createPanelsAndModals(container);
-
-    $(window).on('resize.app', () => {
-        let { width, height } = container.getBoundingClientRect();
-        appWindowWidth = width;
-        appWindowHeight = height;
-
-        eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
-    });
 
     renderLoop();
 
@@ -96,24 +88,30 @@ const createPanelsAndModals = container => {
 
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
 
-    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container }) );
+    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel') }) );
 
-    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator(container));
+    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: guiManager.isPanelHidden('spacewalk_distance_map_panel') }));
 
-    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator(container));
+    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: guiManager.isPanelHidden('spacewalk_contact_frequency_map_panel') }));
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
-
     igvPanel.materialProvider = colorRampMaterialProvider;
-
     igvPanel.initialize(igvBrowserConfigurator());
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });
     juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
 
-    spaceWalkFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator());
+    spaceWalkFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator( { fileLoader: parser } ));
 
-    juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator());
+    juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator( { fileLoader: juiceboxPanel } ));
+
+    $(window).on('resize.app', () => {
+        let { width, height } = container.getBoundingClientRect();
+        appWindowWidth = width;
+        appWindowHeight = height;
+
+        eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
+    });
 
 };
 
@@ -127,4 +125,4 @@ const hideSpinner = () => {
     console.log('hide spinner');
 };
 
-export { appWindowWidth, appWindowHeight, eventBus, pointCloud, noodle, ballAndStick, ensembleManager, colorMapManager, parser, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel };
+export { appWindowWidth, appWindowHeight, eventBus, pointCloud, noodle, ballAndStick, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel };

@@ -1,5 +1,5 @@
 import Panel from "./panel.js";
-import { colorMapManager, ensembleManager, guiManager } from "./app.js";
+import { colorMapManager, ensembleManager } from "./app.js";
 import { drawWithSharedUint8ClampedArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -216,12 +216,12 @@ const paintDistanceCanvas = (distances, maximumDistance) => {
 
 };
 
-export let distanceMapPanelConfigurator = (container) => {
+export let distanceMapPanelConfigurator = ({ container, isHidden }) => {
 
     return {
         container,
         panel: $('#spacewalk_distance_map_panel').get(0),
-        isHidden: guiManager.isPanelHidden('spacewalk_distance_map_panel')
+        isHidden
     };
 
 };
