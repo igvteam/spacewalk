@@ -2,7 +2,7 @@ import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { numberFormatter, zIndexPanelUnselected, zIndexPanelSelected } from './utils.js';
 import { rgb255ToThreeJSColor } from "./color.js";
-import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel } from "./app.js";
+import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
 
 class GUIManager {
     constructor ({ $button, $panel }) {
@@ -153,8 +153,13 @@ class GUIManager {
             $('#spacewalk_info_panel_juicebox').text(juiceboxPanel.blurb());
 
             $('#spacewalk_info_panel').show();
-            $('#spacewalk_ui_manager_render_styles').show();
-            $('#spacewalk_ui_manager_trace_select').show();
+
+            if (true === ensembleManager.isPointCloud) {
+                $('#spacewalk_ui_manager_render_styles').hide();
+            } else {
+                $('#spacewalk_ui_manager_render_styles').show();
+            }
+
 
         }
     }
