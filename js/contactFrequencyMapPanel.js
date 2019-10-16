@@ -1,6 +1,6 @@
 import KDBush from '../node_modules/kd3d/js/index.js'
 import { clamp } from "./math.js";
-import { hideSpinner, showSpinner } from './gui.js';
+import { hideSpinner, showSpinner } from './app.js';
 import Panel from "./panel.js";
 import { guiManager, colorMapManager, ensembleManager } from "./app.js";
 import {threeJSColorToRGB255} from "./color";

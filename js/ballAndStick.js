@@ -2,8 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import { clamp } from './math.js';
 import EnsembleManager from "./ensembleManager.js";
 import { numberFormatter, generateRadiusTable } from "./utils.js";
-import { sceneManager } from './app.js'
-import { igvPanel } from "./gui.js";
+import { sceneManager, igvPanel } from './app.js'
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;

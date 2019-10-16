@@ -10,8 +10,7 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
-import { guiManager, colorRampMaterialProvider, pointCloud, noodle, ballAndStick, ensembleManager, eventBus, dataValueMaterialProvider } from "./app.js";
-import { contactFrequencyMapPanel, distanceMapPanel } from "./gui.js";
+import { guiManager, colorRampMaterialProvider, pointCloud, noodle, ballAndStick, ensembleManager, eventBus, dataValueMaterialProvider, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 class SceneManager {

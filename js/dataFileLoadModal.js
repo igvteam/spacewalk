@@ -1,6 +1,5 @@
-import { juiceboxPanel } from "./gui.js";
 import { juiceboxSelectLoader } from "./juicebox/juiceboxPanel.js";
-import { parser, eventBus } from "./app.js";
+import { parser, juiceboxPanel, eventBus } from "./app.js";
 
 let currentURL = undefined;
 

@@ -293,5 +293,7 @@ let appleCrayonColorRGB255 = name => {
     return rgb255;
 };
 
-export { appleCrayonNames, appleCrayonRandomBrightColorThreeJS, appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomColorHexValue, appleCrayonColorRGB255 };
+const highlightColor = appleCrayonColorThreeJS('honeydew');
+
+export { highlightColor, appleCrayonNames, appleCrayonRandomBrightColorThreeJS, appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomColorHexValue, appleCrayonColorRGB255 };
 
