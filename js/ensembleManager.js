@@ -1,7 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Parser from "./parser.js";
-import { eventBus, colorRampMaterialProvider } from "./app.js";
-import { contactFrequencyMapPanel, distanceMapPanel } from "./gui.js";
+import { eventBus, colorRampMaterialProvider, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 import { includes, degrees } from "./math.js";
 import {appleCrayonColorThreeJS} from "./color.js";
 
@@ -120,7 +119,7 @@ class EnsembleManager {
 
         const initialKey = '0';
         this.currentTrace = this.getTraceWithName(initialKey);
-        eventBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey } });
+        eventBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, trace: this.currentTrace } });
 
     }
 

@@ -4,16 +4,19 @@ import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
 import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
+import Noodle from "./noodle.js";
+import PointCloud from "./pointCloud.js";
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
-import { colorRampMaterialProvider, pointCloud, noodle, ballAndStick, ensembleManager, eventBus, dataValueMaterialProvider } from "./app.js";
+import { guiManager, colorRampMaterialProvider, pointCloud, noodle, ballAndStick, ensembleManager, eventBus, dataValueMaterialProvider, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
 class SceneManager {
 
-    constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker }) {
+    constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker, renderStyle }) {
+
 
         this.stickMaterial = stickMaterial;
 
@@ -25,6 +28,7 @@ class SceneManager {
 
         // insert rendering canvas in DOM
         container.appendChild(renderer.domElement);
+        this.container = container;
 
         this.renderer = renderer;
 
@@ -37,14 +41,15 @@ class SceneManager {
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
 
-        $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
+        this.renderStyle = renderStyle;
 
-        $(container).on('mousemove.spacewalk.picker', (event) => {
-            this.onContainerMouseMove(event)
-        });
+        $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
 
         eventBus.subscribe("DidSelectSegmentID", this);
         eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
+        eventBus.subscribe('DidSelectTrace', this);
+        eventBus.subscribe('DidLoadEnsembleFile', this);
+        eventBus.subscribe('RenderStyleDidChange', this);
 
     }
 
@@ -68,7 +73,63 @@ class SceneManager {
 
             }
 
+        } else if ('RenderStyleDidChange' === type) {
+
+            if (data === Noodle.getRenderStyle()) {
+                this.renderStyle = Noodle.getRenderStyle();
+                ballAndStick.hide();
+                noodle.show();
+            } else {
+                this.renderStyle = BallAndStick.getRenderStyle();
+                noodle.hide();
+                ballAndStick.show();
+            }
+
+        }  else if ('DidLoadEnsembleFile' === type) {
+
+            this.cameraLightingRig.doUpdateCameraPose = true;
+
+            this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle();
+
+            const { trace } = data;
+            this.setupWithTrace(trace);
+
+        } else if ('DidSelectTrace' === type) {
+
+            const { trace } = data;
+            this.setupWithTrace(trace);
+
         }
+
+    }
+
+    setupWithTrace(trace) {
+
+        this.dispose();
+
+        let scene = new THREE.Scene();
+
+        if (ensembleManager.isPointCloud) {
+
+            pointCloud.configure(trace);
+            pointCloud.addToScene(scene);
+
+        } else {
+
+            noodle.configure(trace);
+            noodle.addToScene(scene);
+
+            ballAndStick.configure(trace);
+            ballAndStick.addToScene(scene);
+
+            contactFrequencyMapPanel.updateTraceContactFrequencyCanvas(trace);
+            distanceMapPanel.updateTraceDistanceCanvas(trace);
+        }
+
+        const {min, max, center, radius} = EnsembleManager.getBoundsWithTrace(trace);
+        const {position, fov} = EnsembleManager.getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
+        this.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+
     }
 
     configure({ scene, min, max, boundingDiameter, cameraPosition, centroid, fov }) {
@@ -97,35 +158,39 @@ class SceneManager {
 
         this.gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter));
         this.gnomon.addToScene(this.scene);
-    }
 
-    setRenderStyle (renderStyle) {
-        this.renderStyle = renderStyle;
+        $(this.container).on('mousemove.spacewalk.picker', (event) => {
+
+            if (true === this.picker.isEnabled) {
+
+                const xy = getMouseXY(this.renderer.domElement, event);
+
+                const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
+                const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
+
+                this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.camera, doTrackObject: true });
+
+            }
+        });
+
     }
 
     onWindowResize() {
 
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        if (this.renderer && this.cameraLightingRig) {
 
-        this.cameraLightingRig.camera.aspect = window.innerWidth/window.innerHeight;
-        this.cameraLightingRig.camera.updateProjectionMatrix();
-    };
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    onContainerMouseMove(event){
-
-        if (this.cameraLightingRig && this.cameraLightingRig.camera && this.picker.isEnabled) {
-
-            const xy = getMouseXY(this.renderer.domElement, event);
-
-            const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
-            const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
-
-            this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.camera, doTrackObject: true });
-
+            this.cameraLightingRig.camera.aspect = window.innerWidth/window.innerHeight;
+            this.cameraLightingRig.camera.updateProjectionMatrix();
         }
+
     };
 
     dispose() {
+
+        $(this.container).off('mousemove.spacewalk.picker');
+
         if (this.scene) {
 
             let disposable = this.scene.children.filter(child => {
@@ -170,7 +235,7 @@ class SceneManager {
 
 }
 
-export const sceneManagerConfigurator = ({ container, highlightColor }) => {
+export const sceneManagerConfigurator = ({ container, highlightColor, renderStyle }) => {
 
     // const stickMaterial = showSMaterial;
     // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
@@ -184,8 +249,6 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     const [ fov, near, far, domElement, aspectRatio ] = [ 35, 1e2, 3e3, renderer.domElement, (window.innerWidth/window.innerHeight) ];
     const cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspectRatio, hemisphereLight });
-
-
 
     // Nice numbers
     const position = new THREE.Vector3(134820, 55968, 5715);
@@ -204,7 +267,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
         background,
         renderer,
         cameraLightingRig,
-        picker
+        picker,
+        renderStyle
     };
 
 };

@@ -1,8 +1,8 @@
 import KDBush from '../node_modules/kd3d/js/index.js'
 import { clamp } from "./math.js";
-import { hideSpinner, showSpinner } from './gui.js';
+import { hideSpinner, showSpinner } from './app.js';
 import Panel from "./panel.js";
-import { guiManager, colorMapManager, ensembleManager } from "./app.js";
+import { colorMapManager, ensembleManager } from "./app.js";
 import {threeJSColorToRGB255} from "./color";
 import { drawWithSharedUint8ClampedArray } from "./utils.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -201,12 +201,12 @@ const kdBushConfiguratorWithTrace = vertices => {
 
 };
 
-export let contactFrequencyMapPanelConfigurator = (container) => {
+export let contactFrequencyMapPanelConfigurator = ({ container, isHidden }) => {
 
     return {
         container,
         panel: $('#spacewalk_contact_frequency_map_panel').get(0),
-        isHidden: guiManager.isPanelHidden('spacewalk_contact_frequency_map_panel'),
+        isHidden,
         distanceThreshold: defaultDistanceThreshold
     };
 

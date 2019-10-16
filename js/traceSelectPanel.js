@@ -1,6 +1,6 @@
 import { clamp } from './math.js'
 import Panel from "./panel.js";
-import {hideSpinner, showSpinner} from "./gui.js";
+import {hideSpinner, showSpinner} from "./app.js";
 import { ensembleManager, eventBus } from "./app.js";
 
 let currentNumber = undefined;
@@ -90,7 +90,9 @@ class TraceSelectPanel extends Panel {
         showSpinner();
         window.setTimeout(() => {
 
-            eventBus.post({ type: "DidSelectTrace", data: key });
+            const trace = ensembleManager.getTraceWithName(key);
+            ensembleManager.currentTrace = trace;
+            eventBus.post({ type: "DidSelectTrace", data: { trace } });
 
             hideSpinner();
         }, 0);

@@ -1,6 +1,6 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { readFileAsText } from "./utils.js";
-import { hideSpinner, showSpinner } from "./gui.js";
+import { hideSpinner, showSpinner } from "./app.js";
 import { ensembleManager } from "./app.js";
 
 class Parser {

@@ -27,7 +27,7 @@ import FileLoadManager from './fileLoadManager.js';
 import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.js'
 import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
 import MultipleFileLoadController from "./multipleFileLoadController.js";
-import { igvPanel } from '../gui.js';
+import { igvPanel } from '../app.js';
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 
 class TrackLoadController {

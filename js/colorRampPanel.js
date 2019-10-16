@@ -1,6 +1,6 @@
 import { setMaterialProvider } from './utils.js';
 import Panel from './panel.js';
-import { eventBus, guiManager, colorRampMaterialProvider } from "./app.js";
+import { eventBus, colorRampMaterialProvider } from "./app.js";
 
 class ColorRampPanel extends Panel {
 
@@ -26,7 +26,7 @@ class ColorRampPanel extends Panel {
         this.$panel.on('click.color-ramp-panel', (event) => {
             event.stopPropagation();
             setMaterialProvider(colorRampMaterialProvider);
-            eventBus.post({ type: "DidChangeMaterialProvider" });
+            eventBus.post({ type: "DidChangeMaterialProvider", data: colorRampMaterialProvider });
         });
 
         eventBus.subscribe('DidSelectTrace', this);
@@ -56,13 +56,13 @@ class ColorRampPanel extends Panel {
 
 }
 
-export const colorRampPanelConfigurator = ({ container }) => {
+export const colorRampPanelConfigurator = ({ container, isHidden }) => {
 
     return {
             container,
             panel: $('#spacewalk_color_ramp_panel').get(0),
             colorRampMaterialProvider,
-            isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel')
+            isHidden
         };
 
 };

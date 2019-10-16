@@ -5,8 +5,7 @@ import FatLine from "./threejs_es6/fatlines/fatLine.js";
 import EnsembleManager from "./ensembleManager.js";
 import { createStickCurves, computeAverageCurveDistance } from './ballAndStick.js';
 import { generateRadiusTable } from "./utils.js";
-import { ensembleManager, sceneManager } from './app.js'
-import { igvPanel } from "./gui.js";
+import { ensembleManager, sceneManager, igvPanel } from './app.js'
 import { clamp, lerp } from './math.js';
 
 let fatLineMaterial;
