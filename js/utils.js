@@ -1,9 +1,6 @@
 import { noodle, ballAndStick, ensembleManager } from "./app.js";
 import {lerp} from "./math.js";
 
-const zIndexPanelSelected = 1124;
-const zIndexPanelUnselected = 1024;
-
 const setMaterialProvider = materialProvider => {
     noodle.updateMaterialProvider(materialProvider);
     ballAndStick.updateMaterialProvider(materialProvider);
@@ -142,8 +139,6 @@ const generateRadiusTable = defaultRadius => {
 };
 
 export {
-    zIndexPanelSelected,
-    zIndexPanelUnselected,
     setMaterialProvider,
     createImage,
     drawWithSharedUint8ClampedArray,

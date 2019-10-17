@@ -1,5 +1,5 @@
 
-import { rgba255, rgba255String, rgb255String, rgb255ToThreeJSColor } from "./color.js";
+import { rgb255String, rgb255ToThreeJSColor } from "./color.js";
 import { createImage, readFileAsDataURL } from './utils.js';
 
 export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
