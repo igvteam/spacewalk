@@ -16,8 +16,9 @@ import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel
 import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
 import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
-import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
+import DataFileLoadModal, { loadURLViaQueryString, juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
+import { getUrlParams } from "./urlParams.js";
 
 let gsdb;
 
@@ -32,8 +33,6 @@ let parser;
 let sceneManager;
 let dataValueMaterialProvider;
 let colorRampMaterialProvider;
-let appWindowWidth;
-let appWindowHeight;
 let guiManager;
 
 let traceSelectPanel;
@@ -77,6 +76,14 @@ document.addEventListener("DOMContentLoaded", event => {
 
     renderLoop();
 
+    const params = getUrlParams();
+
+    if (params.hasOwnProperty('file')) {
+
+        const { file } = params;
+        loadURLViaQueryString({ url: file, fileLoader: parser });
+    }
+
 });
 
 let renderLoop = () => {
@@ -107,9 +114,6 @@ const createPanelsAndModals = container => {
 
     $(window).on('resize.app', () => {
         let { width, height } = container.getBoundingClientRect();
-        appWindowWidth = width;
-        appWindowHeight = height;
-
         eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
     });
 
@@ -125,4 +129,4 @@ const hideSpinner = () => {
     console.log('hide spinner');
 };
 
-export { appWindowWidth, appWindowHeight, eventBus, pointCloud, noodle, ballAndStick, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel };
+export { eventBus, pointCloud, noodle, ballAndStick, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel };

@@ -1,8 +1,11 @@
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { numberFormatter, zIndexPanelUnselected, zIndexPanelSelected } from './utils.js';
+import { numberFormatter } from './utils.js';
 import { rgb255ToThreeJSColor } from "./color.js";
 import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
+
+const zIndexPanelSelected = 1124;
+const zIndexPanelUnselected = 1024;
 
 class GUIManager {
     constructor ({ $button, $panel }) {

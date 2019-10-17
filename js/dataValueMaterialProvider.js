@@ -1,7 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { rgb255, rgb255Lerp, rgb255String, greyScale255 } from './color.js';
+import { rgb255, rgb255Lerp, rgb255String, greyScale255, rgb255ToThreeJSColor } from './color.js';
 import { eventBus, ensembleManager, sceneManager } from "./app.js";
-import {rgb255ToThreeJSColor} from "./color";
 
 let rgbTexture;
 let alphaTexture;

@@ -136,6 +136,13 @@ const juiceboxFileLoadModalConfigurator = ({ fileLoader }) => {
     }
 };
 
-export { spaceWalkFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
+
+const loadURLViaQueryString = ({ url, fileLoader }) => {
+
+    fileLoader.loadURL({ url, name: 'unnamed' });
+
+};
+
+export { loadURLViaQueryString, spaceWalkFileLoadModalConfigurator, juiceboxFileLoadModalConfigurator };
 
 export default DataFileLoadModal;
