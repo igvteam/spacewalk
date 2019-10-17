@@ -1,19 +1,15 @@
-/**
- * JavaScript Get URL Parameter
- *
- * @param prop The specific URL parameter you want to retreive the value for
- * @return String|Object If prop is provided a string value is returned, otherwise an object of all properties is returned
- */
 
-export const getUrlParams = prop => {
+export const getUrlParams = url => {
 
-    let params = {};
-    const search = decodeURIComponent( window.location.href.slice( window.location.href.indexOf( '?' ) + 1 ) );
+    const search = decodeURIComponent( url.slice( url.indexOf( '?' ) + 1 ) );
 
-    search.split( '&' ).forEach( function( val, key ) {
-        const parts = val.split( '=', 2 );
-        params[ parts[ 0 ] ] = parts[ 1 ];
-    } );
+    return search
+        .split('&')
+        .reduce((acc, key_value) => {
 
-    return ( prop && prop in params ) ? params[ prop ] : params;
+            const [ key, value ] = key_value.split( '=', 2 );
+            acc[ key ] = value;
+            return acc;
+        }, {});
+
 };

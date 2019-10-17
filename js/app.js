@@ -76,19 +76,28 @@ document.addEventListener("DOMContentLoaded", event => {
 
     renderLoop();
 
-    const params = getUrlParams();
+    loadSession(window.location.href);
+
+});
+
+const loadSession = (url) => {
+
+    const params = getUrlParams(url);
 
     if (params.hasOwnProperty('file')) {
-
         const { file } = params;
         loadURLViaQueryString({ url: file, fileLoader: parser });
     }
 
-});
+};
 
 let renderLoop = () => {
     requestAnimationFrame( renderLoop );
     sceneManager.render();
+};
+
+const saveSession = () => {
+
 };
 
 const createPanelsAndModals = container => {
