@@ -9,7 +9,9 @@ class EnsembleManager {
     constructor () {
     }
 
-    ingest({ payload }) {
+    ingest(payload) {
+
+        this.payload = payload;
 
         const str = 'EnsembleManager ingestSW';
         console.time(str);
@@ -122,6 +124,10 @@ class EnsembleManager {
         eventBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, trace: this.currentTrace } });
 
     }
+
+    toJSON() {
+        return this.payload;
+    };
 
     getTraceWithName(name) {
         return this.ensemble[ name ] || undefined;

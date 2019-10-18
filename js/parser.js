@@ -115,7 +115,7 @@ class Parser {
         const payload = this.parse(string);
         hideSpinner();
 
-        ensembleManager.ingest({ payload });
+        ensembleManager.ingest(payload);
 
     }
 

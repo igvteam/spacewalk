@@ -91,12 +91,29 @@ const loadSession = (url) => {
 
 };
 
-let renderLoop = () => {
-    requestAnimationFrame( renderLoop );
-    sceneManager.render();
+const saveSession = () => {
+
 };
 
-const saveSession = () => {
+const renderLoop = () => {
+
+    requestAnimationFrame( renderLoop );
+
+    if (sceneManager.isGoodToGo()) {
+
+        pointCloud.renderLoopHelper();
+
+        noodle.renderLoopHelper();
+
+        ballAndStick.renderLoopHelper();
+
+        dataValueMaterialProvider.renderLoopHelper();
+
+        colorRampMaterialProvider.renderLoopHelper();
+
+        sceneManager.renderLoopHelper();
+
+    }
 
 };
 
