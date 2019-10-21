@@ -1,4 +1,4 @@
-import {ensembleManager} from "./app";
+import { ensembleManager } from "./app.js";
 import Zlib from "../vendor/zlib_and_gzip.js";
 
 const getSessionURL = () => {
@@ -32,14 +32,20 @@ const getCompressedString = string => {
     }
 
     const compressedBytes = new Zlib.RawDeflate(bytes).compress();
-    const compressedString = String.fromCharCode.apply(null, compressedBytes);
+
+    // const compressedString = String.fromCharCode(null, compressedBytes);
+
+    const compressedString = compressedBytes
+        .reduce((accumulator, byte) => {
+            return accumulator + String.fromCharCode(byte)
+        }, '');
 
     let base64EncodedString = btoa(compressedString);
-
     return base64EncodedString.replace(/\+/g, '.').replace(/\//g, '_').replace(/=/g, '-');   // URL safe
 };
 
-export const getUrlParams = url => {
+// url - window.location.href
+const getUrlParams = url => {
 
     const search = decodeURIComponent( url.slice( url.indexOf( '?' ) + 1 ) );
 
@@ -53,3 +59,5 @@ export const getUrlParams = url => {
         }, {});
 
 };
+
+export { getUrlParams, getSessionURL };

@@ -18,7 +18,7 @@ import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { loadURLViaQueryString, juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { getUrlParams } from "./urlParams.js";
+import { getUrlParams, getSessionURL } from "./session.js";
 
 let gsdb;
 
@@ -84,16 +84,17 @@ const loadSession = (url) => {
 
     const params = getUrlParams(url);
 
-    if (params.hasOwnProperty('file')) {
+    if (params.hasOwnProperty('sessionURL')) {
         const { file } = params;
         loadURLViaQueryString({ url: file, fileLoader: parser });
     }
 
 };
 
-const saveSession = () => {
-
-};
+$('#spacewalk-bookmark-button').on('click', event => {
+    const url = getSessionURL();
+    window.history.pushState({}, "SPACE_WALK", url);
+});
 
 const renderLoop = () => {
 
