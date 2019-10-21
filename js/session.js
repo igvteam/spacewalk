@@ -1,5 +1,7 @@
 import { ensembleManager } from "./app.js";
 import Zlib from "../vendor/zlib_and_gzip.js";
+import { decodeDataURI } from '../vendor/uriUtils.js'
+import { uncompressString } from "../vendor/stringUtils.js";
 
 const getSessionURL = () => {
 
@@ -44,6 +46,23 @@ const getCompressedString = string => {
     return base64EncodedString.replace(/\+/g, '.').replace(/\//g, '_').replace(/=/g, '-');   // URL safe
 };
 
+const uncompressSession = url => {
+
+    if (url.indexOf('/gzip;base64') > 0) {
+
+        const bytes = decodeDataURI(url);
+        let json = '';
+        for (let b of bytes) {
+            json += String.fromCharCode(b)
+        }
+        return json;
+    } else {
+
+        let enc = url.substring(5);
+        return uncompressString(enc);
+    }
+};
+
 // url - window.location.href
 const getUrlParams = url => {
 
@@ -60,4 +79,4 @@ const getUrlParams = url => {
 
 };
 
-export { getUrlParams, getSessionURL };
+export { getUrlParams, getSessionURL, uncompressSession };

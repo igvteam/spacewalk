@@ -18,7 +18,7 @@ import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { loadURLViaQueryString, juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { getUrlParams, getSessionURL } from "./session.js";
+import { getUrlParams, getSessionURL, uncompressSession } from "./session.js";
 
 let gsdb;
 
@@ -45,7 +45,7 @@ let juiceboxPanel;
 let distanceMapPanel;
 let contactFrequencyMapPanel;
 
-document.addEventListener("DOMContentLoaded", event => {
+document.addEventListener("DOMContentLoaded", async (event) => {
 
     parser = new Parser();
 
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", event => {
     gsdb = new GSDB(parser);
 
     colorMapManager = new ColorMapManager();
-    colorMapManager.configure();
+    await colorMapManager.configure();
 
     dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
 
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", event => {
     const container = document.getElementById('spacewalk_canvas_container');
     sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor, renderStyle: guiManager.getRenderStyle() }));
 
-    createPanelsAndModals(container);
+    await createPanelsAndModals(container);
 
     renderLoop();
 
@@ -85,8 +85,11 @@ const loadSession = (url) => {
     const params = getUrlParams(url);
 
     if (params.hasOwnProperty('sessionURL')) {
-        const { file } = params;
-        loadURLViaQueryString({ url: file, fileLoader: parser });
+        const { sessionURL } = params;
+        const value = decodeURIComponent(sessionURL);
+        const jsonString = uncompressSession(value);
+        const json = JSON.parse(jsonString);
+        ensembleManager.ingest(json);
     }
 
 };
@@ -118,7 +121,7 @@ const renderLoop = () => {
 
 };
 
-const createPanelsAndModals = container => {
+const createPanelsAndModals = async (container) => {
 
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
 
@@ -128,12 +131,12 @@ const createPanelsAndModals = container => {
 
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: guiManager.isPanelHidden('spacewalk_contact_frequency_map_panel') }));
 
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });
+    await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
+
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
-    igvPanel.initialize(igvBrowserConfigurator());
-
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });
-    juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
+    await igvPanel.initialize(igvBrowserConfigurator());
 
     spaceWalkFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator( { fileLoader: parser } ));
 
