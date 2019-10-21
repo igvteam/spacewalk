@@ -19,23 +19,22 @@ import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { loadURLViaQueryString, juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
 import { getUrlParams, getSessionURL, uncompressSession } from "./session.js";
-import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 
-let gsdb;
 
 let eventBus = new EventBus();
 
 let pointCloud;
 let noodle;
 let ballAndStick;
+let parser;
 let ensembleManager;
 let colorMapManager;
-let parser;
 let sceneManager;
 let dataValueMaterialProvider;
 let colorRampMaterialProvider;
 let guiManager;
 
+let gsdb;
 let traceSelectPanel;
 let colorRampPanel;
 let spaceWalkFileLoadModal;
@@ -90,7 +89,8 @@ const loadSession = (url) => {
         const value = decodeURIComponent(sessionURL);
         const jsonString = uncompressSession(value);
         const json = JSON.parse(jsonString);
-        ensembleManager.ingest(json);
+        const { url } = json;
+        loadURLViaQueryString({ url, fileLoader: parser })
     }
 
 };
@@ -160,4 +160,4 @@ const hideSpinner = () => {
     console.log('hide spinner');
 };
 
-export { eventBus, pointCloud, noodle, ballAndStick, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel };
+export { eventBus, pointCloud, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel };

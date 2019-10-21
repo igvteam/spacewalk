@@ -136,7 +136,6 @@ const juiceboxFileLoadModalConfigurator = ({ fileLoader }) => {
     }
 };
 
-
 const loadURLViaQueryString = ({ url, fileLoader }) => {
 
     fileLoader.loadURL({ url, name: 'unnamed' });

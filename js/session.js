@@ -1,4 +1,4 @@
-import { ensembleManager } from "./app.js";
+import { parser } from "./app.js";
 import Zlib from "../vendor/zlib_and_gzip.js";
 import { decodeDataURI } from '../vendor/uriUtils.js'
 import { uncompressString } from "../vendor/stringUtils.js";
@@ -18,7 +18,7 @@ const getSessionURL = () => {
 
 const getCompressedSession = function () {
 
-    const json = ensembleManager.toJSON();
+    const json = parser.toJSON();
 
     const jsonString = JSON.stringify( json );
 
