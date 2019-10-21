@@ -19,6 +19,7 @@ import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { loadURLViaQueryString, juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
 import { getUrlParams, getSessionURL, uncompressSession } from "./session.js";
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 
 let gsdb;
 
