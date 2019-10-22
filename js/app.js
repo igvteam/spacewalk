@@ -84,12 +84,15 @@ const loadSession = (url) => {
 
     const params = getUrlParams(url);
 
-    if (params.hasOwnProperty('sessionURL')) {
-        const { sessionURL } = params;
-        const value = decodeURIComponent(sessionURL);
-        const jsonString = uncompressSession(value);
-        const json = JSON.parse(jsonString);
-        const { url } = json;
+    if (params.hasOwnProperty('spacewalk_session_URL')) {
+
+        const { spacewalk_session_URL } = params;
+
+        // const value = decodeURIComponent(spacewalk_session_URL);
+        const jsonString = uncompressSession(spacewalk_session_URL);
+
+        const { url } = JSON.parse(jsonString);
+
         loadURLViaQueryString({ url, fileLoader: parser })
     }
 

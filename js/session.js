@@ -1,4 +1,4 @@
-import { parser } from "./app.js";
+import { parser, igvPanel, juiceboxPanel } from "./app.js";
 import Zlib from "../vendor/zlib_and_gzip.js";
 import { decodeDataURI } from '../vendor/uriUtils.js'
 import { uncompressString } from "../vendor/stringUtils.js";
@@ -10,7 +10,9 @@ const getSessionURL = () => {
     const prefix = index > 0 ? path.substring(0, index) : path;
     const compressedSession = getCompressedSession();
 
-    const sessionURL = `${ prefix }?sessionURL=data:${ compressedSession }`;
+    const igvCompressedSession = igvPanel.browser.compressedSession();
+
+    const sessionURL = `${ prefix }?spacewalk_session_URL=data:${ compressedSession }&sessionURL=data:${igvCompressedSession}`;
 
     return sessionURL;
 
@@ -18,7 +20,9 @@ const getSessionURL = () => {
 
 const getCompressedSession = function () {
 
+    // app state: the .sw url path
     const json = parser.toJSON();
+
 
     const jsonString = JSON.stringify( json );
 
