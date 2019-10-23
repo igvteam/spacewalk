@@ -20,7 +20,6 @@ import DataFileLoadModal, { loadURLViaQueryString, juiceboxFileLoadModalConfigur
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
 import { getUrlParams, getSessionURL, uncompressSession } from "./session.js";
 
-
 let eventBus = new EventBus();
 
 let pointCloud;
@@ -99,8 +98,14 @@ const loadSession = (url) => {
 };
 
 $('#spacewalk-bookmark-button').on('click', event => {
+
     const url = getSessionURL();
+
+    console.log(`session: ${ url }`);
+
     window.history.pushState({}, "SPACE_WALK", url);
+
+    return false;
 });
 
 const renderLoop = () => {

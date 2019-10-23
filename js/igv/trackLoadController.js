@@ -29,7 +29,6 @@ import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
 import MultipleFileLoadController from "./multipleFileLoadController.js";
 import { igvPanel } from '../app.js';
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
-
 class TrackLoadController {
 
     constructor({ browser, trackRegistryFile, $urlModal, encodeModalTable, $dropdownMenu, $genericTrackSelectModal, uberFileLoader}) {

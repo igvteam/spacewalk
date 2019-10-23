@@ -258,7 +258,7 @@ const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 };
 
 const igvBrowserConfigurator = () => {
-    return { genome: 'hg19', queryParametersSupported: true };
+    return { genome: 'hg19' };
 };
 
 export { trackLoadController, igvBrowserConfigurator };

@@ -1,7 +1,8 @@
-import { parser, igvPanel, juiceboxPanel } from "./app.js";
+import { parser, igvPanel } from "./app.js";
 import Zlib from "../vendor/zlib_and_gzip.js";
 import { decodeDataURI } from '../vendor/uriUtils.js'
 import { uncompressString } from "../vendor/stringUtils.js";
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 
 const getSessionURL = () => {
 
@@ -12,7 +13,9 @@ const getSessionURL = () => {
 
     const igvCompressedSession = igvPanel.browser.compressedSession();
 
-    const sessionURL = `${ prefix }?spacewalk_session_URL=data:${ compressedSession }&sessionURL=data:${igvCompressedSession}`;
+    const juiceboxSession = hic.getCompressedDataString();
+
+    const sessionURL = `${ prefix }?spacewalk_session_URL=data:${ compressedSession }&sessionURL=data:${ igvCompressedSession }&${ juiceboxSession }`;
 
     return sessionURL;
 

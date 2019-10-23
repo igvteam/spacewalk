@@ -21,7 +21,6 @@
  *
  */
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
-
 let picker;
 
 let init = (clientId) => {
