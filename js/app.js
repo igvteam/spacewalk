@@ -97,17 +97,6 @@ const loadSession = (url) => {
 
 };
 
-$('#spacewalk-bookmark-button').on('click', event => {
-
-    const url = getSessionURL();
-
-    console.log(`session: ${ url }`);
-
-    window.history.pushState({}, "SPACE_WALK", url);
-
-    return false;
-});
-
 const renderLoop = () => {
 
     requestAnimationFrame( renderLoop );
@@ -131,6 +120,17 @@ const renderLoop = () => {
 };
 
 const createPanelsAndModals = async (container) => {
+
+    $('#spacewalk-bookmark-button').on('click', event => {
+
+        const url = getSessionURL();
+
+        console.log(`session: ${ url }`);
+
+        window.history.pushState({}, "SPACE_WALK", url);
+
+        return false;
+    });
 
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
 
