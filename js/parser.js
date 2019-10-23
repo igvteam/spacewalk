@@ -101,6 +101,8 @@ class Parser {
 
     async load ({ loader, path }) {
 
+        this.url = false === hic.igv.isFilePath(path) ? path : undefined;
+
         let string = undefined;
         try {
             showSpinner();
@@ -115,7 +117,7 @@ class Parser {
         const payload = this.parse(string);
         hideSpinner();
 
-        ensembleManager.ingest({ payload });
+        ensembleManager.ingest(payload);
 
     }
 
@@ -125,6 +127,10 @@ class Parser {
 
     loadLocalFile({ file }) {
         this.load({ loader: readFileAsText, path: file });
+    }
+
+    toJSON() {
+        return this.url ? { url: this.url } : undefined;
     }
 
     static genomicRangeFromHashKey(key) {

@@ -9,7 +9,7 @@ class EnsembleManager {
     constructor () {
     }
 
-    ingest({ payload }) {
+    ingest(payload) {
 
         const str = 'EnsembleManager ingestSW';
         console.time(str);

@@ -1,6 +1,7 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Panel from "../panel.js";
 import { ensembleManager, eventBus } from "../app.js";
+import {getUrlParams} from "../session.js";
 
 class JuiceboxPanel extends Panel {
 
@@ -37,7 +38,25 @@ class JuiceboxPanel extends Panel {
 
         try {
             const { container, width, height } = browserConfig;
-            this.browser = await hic.createBrowser(container, { width, height });
+
+            const params = getUrlParams(window.location.href);
+
+            let queryString = undefined;
+            if (params.hasOwnProperty('juiceboxData')) {
+
+                const { juiceboxData } = params;
+
+                let decompressed = hic.decompressQueryParameter(juiceboxData);
+
+                decompressed = decompressed.substr(1, decompressed.length - 2);  // Strip leading and trailing bracket
+                const parts = decompressed.split("},{");
+                queryString = decodeURIComponent( parts[ 0 ] );
+            }
+
+            const config = queryString ? { queryString, width, height } : { width, height };
+
+            this.browser = await hic.createBrowser(container, config);
+
         } catch (error) {
             console.warn(error.message);
         }

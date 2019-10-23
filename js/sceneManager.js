@@ -204,32 +204,22 @@ class SceneManager {
         }
     }
 
-    render () {
+    isGoodToGo() {
+        return (this.scene && this.cameraLightingRig);
+    }
 
-        if (this.scene && this.cameraLightingRig) {
+    renderLoopHelper() {
 
-            pointCloud.renderLoopHelper();
+        this.cameraLightingRig.renderLoopHelper();
 
-            noodle.renderLoopHelper();
-
-            ballAndStick.renderLoopHelper();
-
-            dataValueMaterialProvider.renderLoopHelper();
-
-            colorRampMaterialProvider.renderLoopHelper();
-
-            this.cameraLightingRig.renderLoopHelper();
-
-            if (this.groundPlane) {
-                this.groundPlane.renderLoopHelper();
-            }
-            if (this.gnomon) {
-                this.gnomon.renderLoopHelper();
-            }
-
-            this.renderer.render(this.scene, this.cameraLightingRig.camera);
-
+        if (this.groundPlane) {
+            this.groundPlane.renderLoopHelper();
         }
+        if (this.gnomon) {
+            this.gnomon.renderLoopHelper();
+        }
+
+        this.renderer.render(this.scene, this.cameraLightingRig.camera);
 
     }
 
