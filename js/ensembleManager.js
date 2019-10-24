@@ -9,7 +9,7 @@ class EnsembleManager {
     constructor () {
     }
 
-    ingest(payload) {
+    ingest(payload, traceKey) {
 
         const str = 'EnsembleManager ingestSW';
         console.time(str);
@@ -117,10 +117,21 @@ class EnsembleManager {
             distanceMapPanel.updateEnsembleAverageDistanceCanvas(this.ensemble);
         }
 
-        const initialKey = '0';
+        const initialKey = traceKey || '0';
         this.currentTrace = this.getTraceWithName(initialKey);
         eventBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, trace: this.currentTrace } });
 
+    }
+
+    getTraceKey(trace) {
+
+        for (let [key, value] of Object.entries(this.ensemble)) {
+            if (trace === value) {
+                return key;
+            }
+        }
+
+        return undefined;
     }
 
     getTraceWithName(name) {

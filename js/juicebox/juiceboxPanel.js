@@ -101,12 +101,12 @@ class JuiceboxPanel extends Panel {
 
     }
 
-    loadURL({ url, name }){
-        this.loadPath({ url, name, isControl: false });
+    async loadURL({ url, name }){
+        await this.loadPath({ url, name, isControl: false });
     }
 
-    loadLocalFile({ file }){
-        this.loadPath({ url: file, name: file.name, isControl: false });
+    async loadLocalFile({ file }){
+        await this.loadPath({ url: file, name: file.name, isControl: false });
     }
 
     blurb() {
