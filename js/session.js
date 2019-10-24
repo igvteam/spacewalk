@@ -1,4 +1,4 @@
-import { parser, igvPanel } from "./app.js";
+import { parser, ensembleManager, igvPanel } from "./app.js";
 import Zlib from "../vendor/zlib_and_gzip.js";
 import { decodeDataURI } from '../vendor/uriUtils.js'
 import { uncompressString } from "../vendor/stringUtils.js";
@@ -26,6 +26,7 @@ const getCompressedSession = function () {
     // app state: the .sw url path
     const json = parser.toJSON();
 
+    json.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace);
 
     const jsonString = JSON.stringify( json );
 

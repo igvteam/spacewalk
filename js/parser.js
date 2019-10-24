@@ -99,7 +99,7 @@ class Parser {
 
     }
 
-    async load ({ loader, path }) {
+    async load ({ loader, path, traceKey }) {
 
         this.url = false === hic.igv.isFilePath(path) ? path : undefined;
 
@@ -117,16 +117,20 @@ class Parser {
         const payload = this.parse(string);
         hideSpinner();
 
-        ensembleManager.ingest(payload);
+        ensembleManager.ingest(payload, traceKey);
 
+    }
+
+    async loadSessionTrace ({ url, traceKey }) {
+        await this.load({ loader: hic.igv.xhr.load, path: url, traceKey });
     }
 
     async loadURL ({ url, name }) {
-        await this.load({ loader: hic.igv.xhr.load, path: url });
+        await this.load({ loader: hic.igv.xhr.load, path: url, traceKey: undefined });
     }
 
     async loadLocalFile({ file }) {
-        await this.load({ loader: readFileAsText, path: file });
+        await this.load({ loader: readFileAsText, path: file, traceKey: undefined });
     }
 
     toJSON() {

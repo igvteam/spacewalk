@@ -90,9 +90,10 @@ const loadSession = async (url) => {
         // const value = decodeURIComponent(spacewalk_session_URL);
         const jsonString = uncompressSession(spacewalk_session_URL);
 
-        const { url } = JSON.parse(jsonString);
+        const { url, traceKey } = JSON.parse(jsonString);
 
-        await parser.loadURL({ url, name: 'unnamed' });
+        await parser.loadSessionTrace({ url, traceKey });
+
     }
 
 };
