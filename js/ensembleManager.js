@@ -123,6 +123,17 @@ class EnsembleManager {
 
     }
 
+    getTraceKey(trace) {
+
+        for (let [key, value] of Object.entries(this.ensemble)) {
+            if (trace === value) {
+                return key;
+            }
+        }
+
+        return undefined;
+    }
+
     getTraceWithName(name) {
         return this.ensemble[ name ] || undefined;
     }

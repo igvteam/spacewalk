@@ -16,7 +16,7 @@ import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel
 import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
 import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
-import DataFileLoadModal, { loadURLViaQueryString, juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
+import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
 import { getUrlParams, getSessionURL, uncompressSession } from "./session.js";
 
@@ -75,11 +75,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     renderLoop();
 
-    loadSession(window.location.href);
+    await loadSession(window.location.href);
 
 });
 
-const loadSession = (url) => {
+const loadSession = async (url) => {
 
     const params = getUrlParams(url);
 
@@ -92,7 +92,7 @@ const loadSession = (url) => {
 
         const { url } = JSON.parse(jsonString);
 
-        loadURLViaQueryString({ url, fileLoader: parser })
+        await parser.loadURL({ url, name: 'unnamed' });
     }
 
 };

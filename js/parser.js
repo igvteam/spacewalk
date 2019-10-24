@@ -121,12 +121,12 @@ class Parser {
 
     }
 
-    loadURL ({ url, name }) {
-        this.load({ loader: hic.igv.xhr.load, path: url });
+    async loadURL ({ url, name }) {
+        await this.load({ loader: hic.igv.xhr.load, path: url });
     }
 
-    loadLocalFile({ file }) {
-        this.load({ loader: readFileAsText, path: file });
+    async loadLocalFile({ file }) {
+        await this.load({ loader: readFileAsText, path: file });
     }
 
     toJSON() {
