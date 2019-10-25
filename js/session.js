@@ -4,6 +4,28 @@ import { decodeDataURI } from '../vendor/uriUtils.js'
 import { uncompressString } from "../vendor/stringUtils.js";
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 
+const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
+
+const loadSession = async (url) => {
+
+    const params = getUrlParams(url);
+
+    if (params.hasOwnProperty('spacewalk_session_URL')) {
+
+        let { spacewalk_session_URL } = params;
+
+        // spacewalk_session_URL = decodeURIComponent(spacewalk_session_URL);
+
+        const jsonString = uncompressSession(spacewalk_session_URL);
+
+        const { url, traceKey } = JSON.parse(jsonString);
+
+        await parser.loadSessionTrace({ url, traceKey });
+
+    }
+
+};
+
 const getSessionURL = () => {
 
     const path = window.location.href.slice();
@@ -17,7 +39,9 @@ const getSessionURL = () => {
 
     const sessionURL = `${ prefix }?spacewalk_session_URL=data:${ compressedSession }&sessionURL=data:${ igvCompressedSession }&${ juiceboxSession }`;
 
-    return sessionURL;
+    const encodedURI = encodeURIComponent( sessionURL );
+
+    return encodedURI;
 
 };
 
@@ -42,8 +66,6 @@ const getCompressedString = string => {
     }
 
     const compressedBytes = new Zlib.RawDeflate(bytes).compress();
-
-    // const compressedString = String.fromCharCode(null, compressedBytes);
 
     const compressedString = compressedBytes
         .reduce((accumulator, byte) => {
@@ -87,4 +109,4 @@ const getUrlParams = url => {
 
 };
 
-export { getUrlParams, getSessionURL, uncompressSession };
+export { tinyURLService, getUrlParams, loadSession, getSessionURL };
