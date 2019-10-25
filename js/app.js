@@ -18,7 +18,7 @@ import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { getUrlParams, getSessionURL, uncompressSession } from "./session.js";
+import { tinyURLService, loadSession, getSessionURL } from "./session.js";
 
 let eventBus = new EventBus();
 
@@ -79,25 +79,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
 });
 
-const loadSession = async (url) => {
-
-    const params = getUrlParams(url);
-
-    if (params.hasOwnProperty('spacewalk_session_URL')) {
-
-        const { spacewalk_session_URL } = params;
-
-        // const value = decodeURIComponent(spacewalk_session_URL);
-        const jsonString = uncompressSession(spacewalk_session_URL);
-
-        const { url, traceKey } = JSON.parse(jsonString);
-
-        await parser.loadSessionTrace({ url, traceKey });
-
-    }
-
-};
-
 const renderLoop = () => {
 
     requestAnimationFrame( renderLoop );
@@ -122,13 +103,35 @@ const renderLoop = () => {
 
 const createPanelsAndModals = async (container) => {
 
-    $('#spacewalk-bookmark-button').on('click', event => {
+    $('#spacewalk-bookmark-button').on('click', async (event) => {
 
         const url = getSessionURL();
 
-        console.log(`session: ${ url }`);
+        let response;
 
-        window.history.pushState({}, "SPACE_WALK", url);
+        const path = `${ tinyURLService }${ url }`;
+        try {
+            response = await fetch(path);
+        } catch (error) {
+            console.warn(error.message);
+            return;
+        }
+
+        if (200 !== response.status) {
+            console.log('ERROR: bad response status');
+        }
+
+        let tinyURL = undefined;
+        try {
+            tinyURL = await response.text();
+        } catch (e) {
+            console.warn(e.message);
+        }
+
+        if (tinyURL) {
+            console.log(`session: ${ tinyURL }`);
+            // window.history.pushState({}, "SPACE_WALK", tinyURL);
+        }
 
         return false;
     });
