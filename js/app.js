@@ -103,7 +103,19 @@ const renderLoop = () => {
 
 const createPanelsAndModals = async (container) => {
 
-    $('#spacewalk-bookmark-button').on('click', async (event) => {
+    $('#spacewalk-copy-link').on('click', e => {
+
+        $('#spacewalk-share-url')[0].select();
+
+        const success = document.execCommand('copy');
+        if (success) {
+            $('#spacewalk-share-url-modal').modal('hide');
+        } else {
+            alert("Copy not successful");
+        }
+    });
+
+    $('#spacewalk-share-url-modal').on('show.bs.modal', async (e) => {
 
         const url = getSessionURL();
 
@@ -130,10 +142,15 @@ const createPanelsAndModals = async (container) => {
 
         if (tinyURL) {
             console.log(`session: ${ tinyURL }`);
-            // window.history.pushState({}, "SPACE_WALK", tinyURL);
+
+            const $spacewalk_share_url = $('#spacewalk-share-url');
+            $spacewalk_share_url.val( tinyURL );
+            $spacewalk_share_url.get(0).select();
+
         }
 
         return false;
+
     });
 
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
