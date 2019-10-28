@@ -6,6 +6,44 @@ import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 
 const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
 
+const sessionSaveHandler = async (e) => {
+
+    const url = getSessionURL();
+
+    let response;
+
+    const useService = `${ tinyURLService }${ url }`;
+    try {
+        response = await fetch(useService);
+    } catch (error) {
+        console.warn(error.message);
+        return;
+    }
+
+    if (200 !== response.status) {
+        console.log('ERROR: bad response status');
+    }
+
+    let tinyURL = undefined;
+    try {
+        tinyURL = await response.text();
+    } catch (e) {
+        console.warn(e.message);
+    }
+
+    if (tinyURL) {
+        console.log(`session: ${ tinyURL }`);
+
+        const $spacewalk_share_url = $('#spacewalk-share-url');
+        $spacewalk_share_url.val( tinyURL );
+        $spacewalk_share_url.get(0).select();
+
+    }
+
+    return false;
+
+};
+
 const loadSession = async (url) => {
 
     const params = getUrlParams(url);
@@ -109,4 +147,4 @@ const getUrlParams = url => {
 
 };
 
-export { tinyURLService, getUrlParams, loadSession, getSessionURL };
+export { sessionSaveHandler, getUrlParams, loadSession };

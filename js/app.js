@@ -18,7 +18,7 @@ import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { tinyURLService, loadSession, getSessionURL } from "./session.js";
+import { sessionSaveHandler, loadSession } from "./session.js";
 
 let eventBus = new EventBus();
 
@@ -115,43 +115,7 @@ const createPanelsAndModals = async (container) => {
         }
     });
 
-    $('#spacewalk-share-url-modal').on('show.bs.modal', async (e) => {
-
-        const url = getSessionURL();
-
-        let response;
-
-        const path = `${ tinyURLService }${ url }`;
-        try {
-            response = await fetch(path);
-        } catch (error) {
-            console.warn(error.message);
-            return;
-        }
-
-        if (200 !== response.status) {
-            console.log('ERROR: bad response status');
-        }
-
-        let tinyURL = undefined;
-        try {
-            tinyURL = await response.text();
-        } catch (e) {
-            console.warn(e.message);
-        }
-
-        if (tinyURL) {
-            console.log(`session: ${ tinyURL }`);
-
-            const $spacewalk_share_url = $('#spacewalk-share-url');
-            $spacewalk_share_url.val( tinyURL );
-            $spacewalk_share_url.get(0).select();
-
-        }
-
-        return false;
-
-    });
+    $('#spacewalk-share-url-modal').on('show.bs.modal', sessionSaveHandler);
 
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
 
