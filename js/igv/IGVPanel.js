@@ -151,13 +151,7 @@ class IGVPanel extends Panel {
         }
 
         for (let track of tracks) {
-
             this.browser.setTrackLabelName(track.trackView, track.config.name);
-
-            if (track.getFeatures && typeof track.getFeatures === "function") {
-                track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
-            }
-
         }
 
         this.addDataValueMaterialProviderGUI(tracks);
@@ -175,6 +169,10 @@ class IGVPanel extends Panel {
     addDataValueMaterialProviderGUI(tracks) {
 
         for (let track of tracks) {
+
+            if (track.getFeatures && typeof track.getFeatures === "function") {
+                track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
+            }
 
             if (track.featureDescription) {
 
