@@ -56,9 +56,13 @@ const loadSession = async (url) => {
 
         const jsonString = uncompressSession(spacewalk_session_URL);
 
-        const { url, traceKey } = JSON.parse(jsonString);
+        const { url, traceKey, igvPanelState } = JSON.parse(jsonString);
 
         await parser.loadSessionTrace({ url, traceKey });
+
+        if ('none' !== igvPanelState) {
+            await igvPanel.restoreState(igvPanelState);
+        }
 
     }
 
@@ -85,10 +89,11 @@ const getSessionURL = () => {
 
 const getCompressedSession = function () {
 
-    // app state: the .sw url path
     const json = parser.toJSON();
 
     json.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace);
+
+    json.igvPanelState = igvPanel.getState();
 
     const jsonString = JSON.stringify( json );
 

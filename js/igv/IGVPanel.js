@@ -166,7 +166,6 @@ class IGVPanel extends Panel {
         this.loadTrackList([trackConfiguration]);
     }
 
-
     addDataValueMaterialProviderGUI(tracks) {
 
         for (let track of tracks) {
@@ -237,6 +236,49 @@ class IGVPanel extends Panel {
         }
     };
 
+    getState() {
+
+        for (let track of this.browser.trackViews.map(trackView => trackView.track)) {
+            if (track.$input.prop('checked')) {
+                return track.name;
+            }
+        }
+
+        return 'none';
+    }
+
+    async restoreState(state) {
+
+        let track = this.browser.trackViews
+            .map(trackView => trackView.track)
+            .filter((track) => { return state === track.name })
+            .pop();
+
+        track.$input.prop('checked', true);
+
+        const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
+
+        const { name: chr } = chromosome;
+
+        const { bpPerPixel } = referenceFrame;
+
+        const features = await track.getFeatures(chr, start, end, bpPerPixel);
+
+        if ('varying' === track.featureDescription) {
+            const { min, max } = track.dataRange;
+            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+
+        } else {
+            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+        }
+
+        this.materialProvider = dataValueMaterialProvider;
+
+        setMaterialProvider(this.materialProvider);
+
+        eventBus .post({ type: "ToggleUIControl", data: { payload: this.$panel.attr('id') } });
+
+    }
 }
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
