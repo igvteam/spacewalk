@@ -3,6 +3,7 @@ import BallAndStick from "./ballAndStick.js";
 import { numberFormatter } from './utils.js';
 import { rgb255ToThreeJSColor } from "./color.js";
 import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
+import PointCloud from "./pointCloud";
 
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
@@ -53,6 +54,7 @@ class GUIManager {
         configureWidgetVisibility(input_id_list, $panel);
 
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
+
         configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
 
         // ball radius
@@ -170,6 +172,18 @@ class GUIManager {
     getRenderStyle() {
         const id = this.$panel.find("input:radio[name='spacewalk-render-style']:checked").attr('id');
         return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Noodle.getRenderStyle();
+    }
+
+    setRenderStyle(renderStyle) {
+
+        if (renderStyle === Noodle.getRenderStyle()) {
+            this.$panel.find('#spacewalk-render-style-noodle').prop('checked', true);
+            eventBus .post({ type: "RenderStyleDidChange", data: renderStyle });
+        } else if (renderStyle === BallAndStick.getRenderStyle()) {
+            this.$panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
+            eventBus .post({ type: "RenderStyleDidChange", data: renderStyle });
+        }
+
     }
 
     isGroundplaneHidden () {

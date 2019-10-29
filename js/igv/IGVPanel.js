@@ -239,7 +239,7 @@ class IGVPanel extends Panel {
     getState() {
 
         for (let track of this.browser.trackViews.map(trackView => trackView.track)) {
-            if (track.$input.prop('checked')) {
+            if (track.$input && track.$input.prop('checked')) {
                 return track.name;
             }
         }
