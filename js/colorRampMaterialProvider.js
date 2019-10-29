@@ -1,9 +1,9 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import EnsembleManager from "./ensembleManager.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
-import { rgb255, rgb255String, threeJSColorToRGB255 } from "./color.js";
+import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import { ballAndStick, colorMapManager, ensembleManager, eventBus } from "./app.js";
-import EnsembleManager from "./ensembleManager.js";
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
@@ -186,29 +186,23 @@ class ColorRampMaterialProvider {
 
         const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
 
+        this.rgb_ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
+        this.rgb_ctx.fillRect(0, 0, width, height);
+
         const colorRampInterpolantWindows = Object.values(ensembleManager.currentTrace).map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow);
 
-        let counter = 0;
-        for (let { interpolant, start, end, sizeBP } of colorRampInterpolantWindows) {
+        // console.log(`max possible segments ${ ensembleManager.maximumSegmentID } trace count ${ colorRampInterpolantWindows.length }`);
+
+        for (let { interpolant, start, end } of colorRampInterpolantWindows) {
 
             this.rgb_ctx.fillStyle = colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
 
-            const extent = end - start;
-            const extent_height = extent * height;
-            const h = Math.ceil(extent_height);
+            const h = Math.ceil((end - start) * height);
             const y = Math.round(start * (height));
 
             const yy = Math.max(0, height - (h + y));
 
-            // if (-1 === yy) {
-            //     console.log(`counter ${ counter } start ${ numberFormatter(start) } end ${ numberFormatter(end) } h ${ h }`);
-            // }
-
-            // const { r, g, b } = threeJSColorToRGB255( colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant) );
-            // console.log(`counter ${ counter } start ${ start.toFixed(4) } end ${ end.toFixed(4) } extent ${ extent.toFixed(4) } r ${ r } g ${ g } b ${ b }`);
-
             this.rgb_ctx.fillRect(0, yy, width, h);
-            ++counter;
         }
 
         // clear highlight canvas
