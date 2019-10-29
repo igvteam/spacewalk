@@ -1,4 +1,5 @@
-import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
+// import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
+import igv from '../../vendor/igv.esm.js';
 import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import Panel from "../panel.js";
@@ -75,7 +76,7 @@ class IGVPanel extends Panel {
 
         let genomeList = undefined;
         try {
-            genomeList = await hic.igv.xhr.loadJson(genomesJSONPath, {})
+            genomeList = await igv.xhr.loadJson(genomesJSONPath, {})
         } catch (error) {
             console.error(error);
         }
@@ -86,7 +87,7 @@ class IGVPanel extends Panel {
         }
 
         try {
-            this.browser = await hic.igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
+            this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
         } catch (error) {
             console.error(error);
         }
@@ -151,13 +152,7 @@ class IGVPanel extends Panel {
         }
 
         for (let track of tracks) {
-
             this.browser.setTrackLabelName(track.trackView, track.config.name);
-
-            if (track.getFeatures && typeof track.getFeatures === "function") {
-                track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
-            }
-
         }
 
         this.addDataValueMaterialProviderGUI(tracks);
@@ -175,6 +170,10 @@ class IGVPanel extends Panel {
     addDataValueMaterialProviderGUI(tracks) {
 
         for (let track of tracks) {
+
+            if (track.getFeatures && typeof track.getFeatures === "function") {
+                track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
+            }
 
             if (track.featureDescription) {
 

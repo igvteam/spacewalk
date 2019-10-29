@@ -23,7 +23,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
+
+// import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
+import igv from '../../vendor/igv.esm.js';
 
 class FileLoadManager {
 
@@ -108,7 +110,7 @@ class FileLoadManager {
 }
 
 function itemName (item) {
-    return hic.igv.isFilePath(item) ? item.name : item;
+    return igv.isFilePath(item) ? item.name : item;
 }
 
 export default FileLoadManager;

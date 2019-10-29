@@ -15,7 +15,7 @@ class Panel {
         this.layoutState = undefined;
 
         if (false === this.isHidden) {
-            this.initializeLayout(xFunction, yFunction);
+            this.initializeLayout(xFunction, yFunction, container);
         }
 
 
@@ -78,39 +78,43 @@ class Panel {
             }
 
         } else if ('DidDragEnd' === type && data && data === this.$panel.attr('id')) {
-            this.updateLayoutState();
+            this.saveLayoutState(this.container, this.$panel);
         }
     }
 
-    initializeLayout(xFunction, yFunction) {
+    initializeLayout(xFunction, yFunction, container) {
 
-        const { width: width_container, height: height_container } = $(this.container).get(0).getBoundingClientRect();
-        const { width: width_panel,     height: height_panel     } =       this.$panel.get(0).getBoundingClientRect();
+        const { width, height } = container.getBoundingClientRect();
+        const { width: width_p, height: height_p } = this.$panel.get(0).getBoundingClientRect();
 
-        const left = xFunction(width_container,   width_panel);
-        const  top = yFunction(height_container, height_panel);
+        const left = xFunction(width,   width_p);
+        const  top = yFunction(height, height_p);
 
         this.$panel.offset( { left, top } );
 
-        this.updateLayoutState();
+        this.saveLayoutState(this.container, this.$panel);
+    }
+
+    getOffset() {
+        const { width, height } = this.container.getBoundingClientRect();
+        const { topPercent, leftPercent } = this.layoutState;
+        const top = topPercent * height;
+        const left = leftPercent * width;
+        return { top, left };
     }
 
     layout(){
 
         if (this.layoutState) {
-            const { width, height } = this.container.getBoundingClientRect();
-            const { topPercent, leftPercent } = this.layoutState;
-            const top = topPercent * height;
-            const left = leftPercent * width;
-            this.$panel.offset({ top, left })
+            this.$panel.offset(this.getOffset())
         } else {
-            this.initializeLayout(this.xFunction, this.yFunction)
+            this.initializeLayout(this.xFunction, this.yFunction, this.container)
         }
 
     };
 
     moveOffScreen() {
-        this.updateLayoutState();
+        this.saveLayoutState(this.container, this.$panel);
         this.$panel.offset( { left: -1000, top: -1000 } );
     };
 
@@ -136,9 +140,9 @@ class Panel {
 
     };
 
-    updateLayoutState() {
-        const { width, height } = this.container.getBoundingClientRect();
-        const { top, left } = this.$panel.offset();
+    saveLayoutState(container, $panel) {
+        const { width, height } = container.getBoundingClientRect();
+        const { top, left } = $panel.offset();
         const topPercent = top / height;
         const leftPercent = left / width;
         this.layoutState = { top, left, topPercent, leftPercent };

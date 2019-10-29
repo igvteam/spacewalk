@@ -21,7 +21,9 @@
  *
  */
 
-import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
+// import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
+import igv from '../../vendor/igv.esm.js';
+
 import { trackLoadController } from './IGVPanel.js';
 
 let validIndexExtensionSet = new Set(['fai', 'bai', 'crai', 'tbi', 'idx']);
@@ -77,16 +79,16 @@ let getIndexObjectWithDataName = (name) => {
 
 let isKnownFileExtension = (extension) => {
     let fasta = new Set(['fa', 'fasta']);
-    let union = new Set([...(hic.igv.knownFileExtensions), ...fasta]);
+    let union = new Set([...(igv.knownFileExtensions), ...fasta]);
     return union.has(extension);
 };
 
 let getFilename = (path) => {
-    return path.google_url ? path.name : hic.igv.getFilename(path);
+    return path.google_url ? path.name : igv.getFilename(path);
 };
 
 let getExtension = (path) => {
-    return hic.igv.getExtension({url: path.google_url ? path.name : path});
+    return igv.getExtension({url: path.google_url ? path.name : path});
 };
 
 let isJSON = (thang) => {
@@ -136,13 +138,13 @@ let configureModal = (fileLoadWidget, $modal, okHandler = undefined) => {
 
 let loadGenome = (genome) => {
 
-    hic.igv.browser
+    igv.browser
         .loadGenome(genome)
         .then(function (genome) {
             trackLoadController.updateTrackMenus(genome.id);
         })
         .catch(function (error) {
-            hic.igv.browser.presentAlert(error);
+            igv.browser.presentAlert(error);
         });
 
 };
