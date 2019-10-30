@@ -10,79 +10,66 @@ const saveSession = async () => {
 
     const url = getSessionURL();
 
-    let response;
+    if (url) {
 
-    const useService = `${ tinyURLService }${ url }`;
-    try {
-        response = await fetch(useService);
-    } catch (error) {
-        console.warn(error.message);
-        return;
-    }
+        let response;
 
-    if (200 !== response.status) {
-        console.log('ERROR: bad response status');
-    }
-
-    let tinyURL = undefined;
-    try {
-        tinyURL = await response.text();
-    } catch (error) {
-        console.warn(error.message);
-    }
-
-    return tinyURL;
-
-};
-
-const loadSession = async (url) => {
-
-    const params = getUrlParams(url);
-
-    if (params.hasOwnProperty('spacewalk_session_URL')) {
-
-        let { spacewalk_session_URL } = params;
-
-        // spacewalk_session_URL = decodeURIComponent(spacewalk_session_URL);
-
-        const jsonString = uncompressSession(spacewalk_session_URL);
-
-        const { url, traceKey, igvPanelState, renderStyle } = JSON.parse(jsonString);
-
-        await parser.loadSessionTrace({ url, traceKey });
-
-        if ('none' !== igvPanelState) {
-            await igvPanel.restoreState(igvPanelState);
+        const useService = `${ tinyURLService }${ url }`;
+        try {
+            response = await fetch(useService);
+        } catch (error) {
+            console.warn(error.message);
+            return;
         }
 
-        guiManager.setRenderStyle(renderStyle);
+        if (200 !== response.status) {
+            console.log('ERROR: bad response status');
+        }
 
+        let tinyURL = undefined;
+        try {
+            tinyURL = await response.text();
+        } catch (error) {
+            console.warn(error.message);
+        }
+
+        return tinyURL;
+
+    } else {
+        return undefined;
     }
 
 };
 
 const getSessionURL = () => {
 
-    const path = window.location.href.slice();
-    const index = path.indexOf("?");
-    const prefix = index > 0 ? path.substring(0, index) : path;
-    const compressedSession = getCompressedSession();
+    try {
 
-    const igvCompressedSession = igvPanel.browser.compressedSession();
+        const path = window.location.href.slice();
+        const index = path.indexOf("?");
+        const prefix = index > 0 ? path.substring(0, index) : path;
 
-    const juiceboxSession = hic.getCompressedDataString();
+        const spacewalkCompressedSession = getCompressedSession();
 
-    const sessionURL = `${ prefix }?spacewalk_session_URL=data:${ compressedSession }&sessionURL=data:${ igvCompressedSession }&${ juiceboxSession }`;
+        const igvCompressedSession = igvPanel.browser.compressedSession();
 
-    const encodedURI = encodeURIComponent( sessionURL );
+        const juiceboxCompressedSession = hic.getCompressedDataString();
 
-    return encodedURI;
+        const sessionURL = `${ prefix }?spacewalk_session_URL=data:${ spacewalkCompressedSession }&sessionURL=data:${ igvCompressedSession }&${ juiceboxCompressedSession }`;
+
+        return encodeURIComponent( sessionURL );
+
+    } catch (e) {
+        console.error(e);
+        alert(e.message);
+        return undefined;
+    }
 
 };
 
-const getCompressedSession = function () {
+const getCompressedSession = () => {
 
-    const json = parser.toJSON();
+    let json = parser.toJSON();
 
     json.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace);
 
@@ -131,7 +118,32 @@ const uncompressSession = url => {
     }
 };
 
-// url - window.location.href
+const loadSession = async (url) => {
+
+    const params = getUrlParams(url);
+
+    if (params.hasOwnProperty('spacewalk_session_URL')) {
+
+        let { spacewalk_session_URL } = params;
+
+        // spacewalk_session_URL = decodeURIComponent(spacewalk_session_URL);
+
+        const jsonString = uncompressSession(spacewalk_session_URL);
+
+        const { url, traceKey, igvPanelState, renderStyle } = JSON.parse(jsonString);
+
+        await parser.loadSessionTrace({ url, traceKey });
+
+        if ('none' !== igvPanelState) {
+            await igvPanel.restoreState(igvPanelState);
+        }
+
+        guiManager.setRenderStyle(renderStyle);
+
+    }
+
+};
+
 const getUrlParams = url => {
 
     const search = decodeURIComponent( url.slice( url.indexOf( '?' ) + 1 ) );

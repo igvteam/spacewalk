@@ -185,7 +185,7 @@ export const gnomonConfigurator = (min, max, boundingDiameter) => {
         max,
         boundingDiameter,
         color: appleCrayonColorThreeJS('snow'),
-        isHidden: guiManager.isGnomonHidden($('#spacewalk_ui_manager_panel'))
+        isHidden: guiManager.getGnomonVisibility()
     }
 
 };

@@ -63,7 +63,7 @@ class Panel {
 
         if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
 
-            if (this.isHidden) {
+            if (true === this.isHidden) {
                 this.layout();
             } else {
                 this.moveOffScreen();
@@ -125,18 +125,7 @@ class Panel {
             this.isHidden = false;
         }
 
-        guiManager.panelIsVisible(this.$panel.attr('id'));
-
-    };
-
-    dismissPanel() {
-
-        if (false === this.isHidden) {
-            this.moveOffScreen();
-            this.isHidden = true;
-        }
-
-        guiManager.panelIsHidden(this.$panel.attr('id'));
+        guiManager.setPanelVisibility(this.$panel.attr('id'), true);
 
     };
 

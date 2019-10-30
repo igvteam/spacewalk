@@ -103,45 +103,72 @@ const renderLoop = () => {
 
 const createPanelsAndModals = async (container) => {
 
-    $('#spacewalk-copy-link').on('click', e => {
+    const $share_url_modal = $('#spacewalk-share-url-modal');
+    const $spacewalk_share_url = $('#spacewalk-share-url');
 
-        $('#spacewalk-share-url')[0].select();
+    $('#spacewalk-share-button').on('click.spacewalk-share-button', async e => {
+
+        const url = await saveSession();
+
+        if (url) {
+
+            console.log(`session: ${ url }`);
+
+            $spacewalk_share_url.val( url );
+            $spacewalk_share_url.get(0).select();
+
+            $share_url_modal.modal('show');
+        }
+
+    });
+
+    $('#spacewalk-copy-link').on('click.spacewalk-copy-link', e => {
+
+        $spacewalk_share_url.get(0).select();
 
         const success = document.execCommand('copy');
         if (success) {
-            $('#spacewalk-share-url-modal').modal('hide');
+            $share_url_modal.modal('hide');
         } else {
             alert("Copy not successful");
         }
     });
 
-    $('#spacewalk-share-url-modal').on('show.bs.modal', async e => {
 
-        const url = await saveSession();
+    // $share_url_modal.on('show.bs.modal', async e => {
+    //
+    //     const url = await saveSession();
+    //
+    //     if (url) {
+    //
+    //         console.log(`session: ${ url }`);
+    //
+    //         const $spacewalk_share_url = $('#spacewalk-share-url');
+    //         $spacewalk_share_url.val( url );
+    //         $spacewalk_share_url.get(0).select();
+    //
+    //     } else {
+    //
+    //         $share_url_modal.modal('hide');
+    //
+    //     }
+    //
+    //     return false;
+    //
+    // });
 
-        if (url) {
-            console.log(`session: ${ url }`);
-            const $spacewalk_share_url = $('#spacewalk-share-url');
-            $spacewalk_share_url.val( url );
-            $spacewalk_share_url.get(0).select();
-        }
+    traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.getPanelVisibility('spacewalk_trace_select_panel') });
 
-        return false;
+    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, isHidden: guiManager.getPanelVisibility('spacewalk_color_ramp_panel') }) );
 
-    });
+    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: guiManager.getPanelVisibility('spacewalk_distance_map_panel') }));
 
-    traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
+    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: guiManager.getPanelVisibility('spacewalk_contact_frequency_map_panel') }));
 
-    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel') }) );
-
-    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: guiManager.isPanelHidden('spacewalk_distance_map_panel') }));
-
-    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: guiManager.isPanelHidden('spacewalk_contact_frequency_map_panel') }));
-
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.getPanelVisibility('spacewalk_juicebox_panel') });
     await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
 
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.getPanelVisibility('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
     await igvPanel.initialize(igvBrowserConfigurator());
 

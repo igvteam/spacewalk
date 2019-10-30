@@ -3,7 +3,6 @@ import BallAndStick from "./ballAndStick.js";
 import { numberFormatter } from './utils.js';
 import { rgb255ToThreeJSColor } from "./color.js";
 import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
-import PointCloud from "./pointCloud";
 
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
@@ -186,29 +185,24 @@ class GUIManager {
 
     }
 
-    isGroundplaneHidden () {
+    getGroundplaneVisibility() {
         const $input = this.$panel.find('#spacewalk_ui_manager_groundplane');
         return $input.prop('checked');
     }
 
-    isGnomonHidden () {
+    getGnomonVisibility() {
         const $input = this.$panel.find('#spacewalk_ui_manager_gnomon');
         return $input.prop('checked');
     }
 
-    isPanelHidden (panelID) {
+    getPanelVisibility(panelID) {
         return !(this.$panel.find(`[data-target='${panelID}']`).prop('checked'));
     }
 
-    panelIsVisible(panelID) {
-        const $found = this.$panel.find(`[data-target='${ panelID }']`);
-        $found.prop('checked', true);
+    setPanelVisibility(panelID, status) {
+        this.$panel.find(`[data-target='${ panelID }']`).prop('checked', status);
     }
 
-    panelIsHidden(panelID) {
-        const $found = this.$panel.find(`[data-target='${ panelID }']`);
-        $found.prop('checked', false);
-    }
 }
 
 const configureWidgetVisibility = (input_id_list, $panel) => {
