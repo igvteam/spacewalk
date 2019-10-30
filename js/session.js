@@ -6,7 +6,7 @@ import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 
 const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
 
-const sessionSaveHandler = async (e) => {
+const saveSession = async () => {
 
     const url = getSessionURL();
 
@@ -27,20 +27,11 @@ const sessionSaveHandler = async (e) => {
     let tinyURL = undefined;
     try {
         tinyURL = await response.text();
-    } catch (e) {
-        console.warn(e.message);
+    } catch (error) {
+        console.warn(error.message);
     }
 
-    if (tinyURL) {
-        console.log(`session: ${ tinyURL }`);
-
-        const $spacewalk_share_url = $('#spacewalk-share-url');
-        $spacewalk_share_url.val( tinyURL );
-        $spacewalk_share_url.get(0).select();
-
-    }
-
-    return false;
+    return tinyURL;
 
 };
 
@@ -156,4 +147,4 @@ const getUrlParams = url => {
 
 };
 
-export { sessionSaveHandler, getUrlParams, loadSession };
+export { saveSession, getUrlParams, loadSession };

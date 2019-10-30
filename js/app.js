@@ -18,7 +18,7 @@ import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { sessionSaveHandler, loadSession } from "./session.js";
+import { saveSession, loadSession } from "./session.js";
 
 let eventBus = new EventBus();
 
@@ -115,7 +115,20 @@ const createPanelsAndModals = async (container) => {
         }
     });
 
-    $('#spacewalk-share-url-modal').on('show.bs.modal', sessionSaveHandler);
+    $('#spacewalk-share-url-modal').on('show.bs.modal', async e => {
+
+        const url = await saveSession();
+
+        if (url) {
+            console.log(`session: ${ url }`);
+            const $spacewalk_share_url = $('#spacewalk-share-url');
+            $spacewalk_share_url.val( url );
+            $spacewalk_share_url.get(0).select();
+        }
+
+        return false;
+
+    });
 
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
 
