@@ -1,4 +1,4 @@
-import { parser, ensembleManager, igvPanel } from "./app.js";
+import { parser, ensembleManager, igvPanel, guiManager } from "./app.js";
 import Zlib from "../vendor/zlib_and_gzip.js";
 import { decodeDataURI } from '../vendor/uriUtils.js'
 import { uncompressString } from "../vendor/stringUtils.js";
@@ -56,9 +56,15 @@ const loadSession = async (url) => {
 
         const jsonString = uncompressSession(spacewalk_session_URL);
 
-        const { url, traceKey } = JSON.parse(jsonString);
+        const { url, traceKey, igvPanelState, renderStyle } = JSON.parse(jsonString);
 
         await parser.loadSessionTrace({ url, traceKey });
+
+        if ('none' !== igvPanelState) {
+            await igvPanel.restoreState(igvPanelState);
+        }
+
+        guiManager.setRenderStyle(renderStyle);
 
     }
 
@@ -85,10 +91,13 @@ const getSessionURL = () => {
 
 const getCompressedSession = function () {
 
-    // app state: the .sw url path
     const json = parser.toJSON();
 
     json.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace);
+
+    json.igvPanelState = igvPanel.getState();
+
+    json.renderStyle = guiManager.getRenderStyle();
 
     const jsonString = JSON.stringify( json );
 
