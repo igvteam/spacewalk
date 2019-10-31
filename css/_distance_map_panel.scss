@@ -1,9 +1,9 @@
 
-$spacewalk_thumbnail_panel_width: 256px;
+$spacewalk_distance_map_panel_width: 256px;
 
 #spacewalk_distance_map_panel.card {
 
-  width: $spacewalk_thumbnail_panel_width;
+  width: $spacewalk_distance_map_panel_width;
   height: unset;
   border: 0;
 
@@ -50,12 +50,12 @@ $spacewalk_thumbnail_panel_width: 256px;
 
     padding: 0.125rem;
 
-    width: $spacewalk_thumbnail_panel_width;
+    width: $spacewalk_distance_map_panel_width;
     height: unset;
 
     #spacewalk_distance_map_panel_container {
-      width: $spacewalk_thumbnail_panel_width;
-      height: $spacewalk_thumbnail_panel_width;
+      width: $spacewalk_distance_map_panel_width;
+      height: $spacewalk_distance_map_panel_width;
     }
 
   }

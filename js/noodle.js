@@ -112,10 +112,6 @@ class Noodle {
 
     }
 
-    getThumbnailGeometryList () {
-        return [ this.tube.geometry ];
-    }
-
     getBounds() {
         return EnsembleManager.getBoundsWithTrace(this.trace);
     }

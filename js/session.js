@@ -73,7 +73,7 @@ const getCompressedSession = () => {
 
     json.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace);
 
-    json.igvPanelState = igvPanel.getState();
+    json.igvPanelState = igvPanel.getSessionState();
 
     json.renderStyle = guiManager.getRenderStyle();
 
@@ -135,7 +135,7 @@ const loadSession = async (url) => {
         await parser.loadSessionTrace({ url, traceKey });
 
         if ('none' !== igvPanelState) {
-            await igvPanel.restoreState(igvPanelState);
+            await igvPanel.restoreSessionState(igvPanelState);
         }
 
         guiManager.setRenderStyle(renderStyle);

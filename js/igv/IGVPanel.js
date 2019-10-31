@@ -1,4 +1,3 @@
-// import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import igv from '../../vendor/igv.esm.js';
 import { setMaterialProvider } from '../utils.js';
 import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
@@ -236,7 +235,7 @@ class IGVPanel extends Panel {
         }
     };
 
-    getState() {
+    getSessionState() {
 
         for (let track of this.browser.trackViews.map(trackView => trackView.track)) {
             if (track.$input && track.$input.prop('checked')) {
@@ -247,7 +246,7 @@ class IGVPanel extends Panel {
         return 'none';
     }
 
-    async restoreState(state) {
+    async restoreSessionState(state) {
 
         let track = this.browser.trackViews
             .map(trackView => trackView.track)

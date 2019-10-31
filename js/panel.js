@@ -134,8 +134,9 @@ class Panel {
         const { top, left } = $panel.offset();
         const topPercent = top / height;
         const leftPercent = left / width;
-        this.layoutState = { top, left, topPercent, leftPercent };
+        this.layoutState = { topPercent, leftPercent };
     }
+
 }
 
 export default Panel;

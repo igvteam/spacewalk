@@ -149,10 +149,6 @@ class PointCloud {
 
     }
 
-    getThumbnailGeometryList () {
-        return undefined;
-    }
-
     getBounds() {
         return pointCloudManager.getBounds();
     }
