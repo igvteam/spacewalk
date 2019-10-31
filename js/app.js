@@ -34,15 +34,15 @@ let colorRampMaterialProvider;
 let guiManager;
 
 let gsdb;
-let traceSelectPanel;
-let colorRampPanel;
 let spaceWalkFileLoadModal;
 let juiceboxFileLoadModal;
 
-let igvPanel;
-let juiceboxPanel;
+let traceSelectPanel;
+let colorRampPanel;
 let distanceMapPanel;
 let contactFrequencyMapPanel;
+let juiceboxPanel;
+let igvPanel;
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
@@ -170,4 +170,4 @@ const hideSpinner = () => {
     console.log('hide spinner');
 };
 
-export { eventBus, pointCloud, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel };
+export { eventBus, pointCloud, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel };

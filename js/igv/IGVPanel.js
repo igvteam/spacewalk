@@ -156,7 +156,7 @@ class IGVPanel extends Panel {
 
         this.addDataValueMaterialProviderGUI(tracks);
 
-        this.presentPanel();
+        this.present();
 
 
     }

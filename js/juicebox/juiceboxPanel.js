@@ -91,7 +91,7 @@ class JuiceboxPanel extends Panel {
             console.warn(error.message);
         }
 
-        this.presentPanel();
+        this.present();
 
         try {
             await this.browser.parseGotoInput(this.locus);

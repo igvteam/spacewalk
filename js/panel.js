@@ -39,7 +39,7 @@ class Panel {
             const $input = $(selector);
             $input.prop('checked', false);
 
-            this.moveOffScreen();
+            this.dismiss();
             this.isHidden = true;
         });
 
@@ -66,7 +66,7 @@ class Panel {
             if (true === this.isHidden) {
                 this.layout();
             } else {
-                this.moveOffScreen();
+                this.dismiss();
             }
 
             this.isHidden = !this.isHidden;
@@ -113,12 +113,12 @@ class Panel {
 
     };
 
-    moveOffScreen() {
+    dismiss() {
         this.saveLayoutState(this.container, this.$panel);
         this.$panel.offset( { left: -1000, top: -1000 } );
     };
 
-    presentPanel() {
+    present() {
 
         if (this.isHidden) {
             this.layout();

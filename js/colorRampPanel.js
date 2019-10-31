@@ -50,7 +50,7 @@ class ColorRampPanel extends Panel {
 
             colorRampMaterialProvider.repaint();
 
-            this.presentPanel();
+            this.present();
         }
     }
 

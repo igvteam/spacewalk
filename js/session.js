@@ -1,8 +1,8 @@
-import { parser, ensembleManager, igvPanel, guiManager } from "./app.js";
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Zlib from "../vendor/zlib_and_gzip.js";
+import { guiManager, parser, ensembleManager, igvPanel, colorRampPanel, contactFrequencyMapPanel, distanceMapPanel, juiceboxPanel, traceSelectPanel } from "./app.js";
 import { decodeDataURI } from '../vendor/uriUtils.js'
 import { uncompressString } from "../vendor/stringUtils.js";
-import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 
 const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
 
@@ -77,6 +77,11 @@ const getCompressedSession = () => {
 
     json.renderStyle = guiManager.getRenderStyle();
 
+    json.panelVisibility = {};
+    [ traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel ].forEach( panel => {
+        json.panelVisibility[ panel.constructor.name ] = true === panel.isHidden ? 'hidden' : 'visible';
+    });
+
     const jsonString = JSON.stringify( json );
 
     return getCompressedString(jsonString);
@@ -130,7 +135,7 @@ const loadSession = async (url) => {
 
         const jsonString = uncompressSession(spacewalk_session_URL);
 
-        const { url, traceKey, igvPanelState, renderStyle } = JSON.parse(jsonString);
+        const { url, traceKey, igvPanelState, renderStyle, panelVisibility } = JSON.parse(jsonString);
 
         await parser.loadSessionTrace({ url, traceKey });
 
@@ -139,6 +144,15 @@ const loadSession = async (url) => {
         }
 
         guiManager.setRenderStyle(renderStyle);
+
+        [ traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel ].forEach( panel => {
+            if ('visible' === panelVisibility[ panel.constructor.name ]) {
+                panel.present();
+            } else {
+
+            }
+        });
+
 
     }
 
