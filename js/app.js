@@ -134,29 +134,6 @@ const createPanelsAndModals = async (container) => {
         }
     });
 
-
-    // $share_url_modal.on('show.bs.modal', async e => {
-    //
-    //     const url = await saveSession();
-    //
-    //     if (url) {
-    //
-    //         console.log(`session: ${ url }`);
-    //
-    //         const $spacewalk_share_url = $('#spacewalk-share-url');
-    //         $spacewalk_share_url.val( url );
-    //         $spacewalk_share_url.get(0).select();
-    //
-    //     } else {
-    //
-    //         $share_url_modal.modal('hide');
-    //
-    //     }
-    //
-    //     return false;
-    //
-    // });
-
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.getPanelVisibility('spacewalk_trace_select_panel') });
 
     colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, isHidden: guiManager.getPanelVisibility('spacewalk_color_ramp_panel') }) );
