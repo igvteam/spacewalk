@@ -1,7 +1,8 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255String, threeJSColorToRGB255 } from "./color.js";
 import { numberFormatter } from "./utils.js";
-import { eventBus, guiManager } from "./app.js";
+import { eventBus } from "./app.js";
+import { setGnomonVisibility } from "./guiManager.js";
 
 class Gnomon extends THREE.AxesHelper {
 
@@ -33,7 +34,7 @@ class Gnomon extends THREE.AxesHelper {
         this.zAxisSprite = getZAxisSprite(min, max, boundingDiameter, colorString);
         this.group.add( this.zAxisSprite );
 
-        this.group.visible = isHidden;
+        this.group.visible = !(isHidden);
 
         eventBus.subscribe("ToggleGnomon", this);
 
@@ -185,7 +186,7 @@ export const gnomonConfigurator = (min, max, boundingDiameter) => {
         max,
         boundingDiameter,
         color: appleCrayonColorThreeJS('snow'),
-        isHidden: guiManager.getGnomonVisibility()
+        isHidden: setGnomonVisibility()
     }
 
 };

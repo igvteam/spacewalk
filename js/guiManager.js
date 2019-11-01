@@ -8,9 +8,8 @@ const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
 
 class GUIManager {
-    constructor ({ $button, $panel }) {
 
-        this.$panel = $panel;
+    constructor ({ $button, $panel }) {
 
         $button.on('click.gui_manager', (e) => {
             e.preventDefault();
@@ -50,11 +49,11 @@ class GUIManager {
                 'spacewalk_ui_manager_ui_controls_contact_frequency_map'
             ];
 
-        configureWidgetVisibility(input_id_list, $panel);
+        configureVisibilityControl(input_id_list, $panel);
 
-        configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
+        configureRenderStyleControl($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
 
-        configureRenderStyleRadioButton($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
+        configureRenderStyleControl($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
 
         // ball radius
         const $ball_radius_control = $('#spacewalk-ball-radius-control');
@@ -168,44 +167,9 @@ class GUIManager {
         }
     }
 
-    getRenderStyle() {
-        const id = this.$panel.find("input:radio[name='spacewalk-render-style']:checked").attr('id');
-        return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Noodle.getRenderStyle();
-    }
-
-    setRenderStyle(renderStyle) {
-
-        if (renderStyle === Noodle.getRenderStyle()) {
-            this.$panel.find('#spacewalk-render-style-noodle').prop('checked', true);
-            eventBus .post({ type: "RenderStyleDidChange", data: renderStyle });
-        } else if (renderStyle === BallAndStick.getRenderStyle()) {
-            this.$panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
-            eventBus .post({ type: "RenderStyleDidChange", data: renderStyle });
-        }
-
-    }
-
-    getGroundplaneVisibility() {
-        const $input = this.$panel.find('#spacewalk_ui_manager_groundplane');
-        return $input.prop('checked');
-    }
-
-    getGnomonVisibility() {
-        const $input = this.$panel.find('#spacewalk_ui_manager_gnomon');
-        return $input.prop('checked');
-    }
-
-    getPanelVisibility(panelID) {
-        return !(this.$panel.find(`[data-target='${panelID}']`).prop('checked'));
-    }
-
-    setPanelVisibility(panelID, status) {
-        this.$panel.find(`[data-target='${ panelID }']`).prop('checked', status);
-    }
-
 }
 
-const configureWidgetVisibility = (input_id_list, $panel) => {
+const configureVisibilityControl = (input_id_list, $panel) => {
 
     for (let input_id of input_id_list) {
 
@@ -231,7 +195,7 @@ const configureWidgetVisibility = (input_id_list, $panel) => {
 
 };
 
-const configureRenderStyleRadioButton = ($input, renderStyle) => {
+const configureRenderStyleControl = ($input, renderStyle) => {
 
     $input.val( renderStyle );
 
@@ -240,6 +204,43 @@ const configureRenderStyleRadioButton = ($input, renderStyle) => {
         eventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
     });
 
+};
+
+export const getGUIRenderStyle = () => {
+    const id = $('#spacewalk_ui_manager_panel').find("input:radio[name='spacewalk-render-style']:checked").attr('id');
+    return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Noodle.getRenderStyle();
+};
+
+export const setGUIRenderStyle = renderStyle => {
+
+    const $ui_manager_panel = $('#spacewalk_ui_manager_panel');
+
+    if (renderStyle === Noodle.getRenderStyle()) {
+        $ui_manager_panel.find('#spacewalk-render-style-noodle').prop('checked', true);
+        eventBus .post({ type: "RenderStyleDidChange", data: renderStyle });
+    } else if (renderStyle === BallAndStick.getRenderStyle()) {
+        $ui_manager_panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
+        eventBus .post({ type: "RenderStyleDidChange", data: renderStyle });
+    }
+
+};
+
+export const doConfigurePanelHidden = panelID => {
+    return !($('#spacewalk_ui_manager_panel').find(`[data-target='${ panelID }']`).prop('checked'));
+};
+
+export const setPanelVisibility = (panelID, status) => {
+    $('#spacewalk_ui_manager_panel').find(`[data-target='${ panelID }']`).prop('checked', status);
+};
+
+export const setGroundplaneVisibility = () => {
+    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_groundplane');
+    return !($input.prop('checked'));
+};
+
+export const setGnomonVisibility = () => {
+    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_gnomon');
+    return !($input.prop('checked'));
 };
 
 export default GUIManager;

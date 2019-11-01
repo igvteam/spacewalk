@@ -10,7 +10,7 @@ import Panel from "./panel.js";
 import PointCloud from "./pointCloud.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import GUIManager from "./guiManager.js";
+import GUIManager, { doConfigurePanelHidden } from "./guiManager.js";
 import TraceSelectPanel from "./traceSelectPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
@@ -67,10 +67,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
 
-    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
-
     const container = document.getElementById('spacewalk_canvas_container');
-    sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor, renderStyle: guiManager.getRenderStyle() }));
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
 
     await createPanelsAndModals(container);
 
@@ -135,18 +133,18 @@ const createPanelsAndModals = async (container) => {
         }
     });
 
-    traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.getPanelVisibility('spacewalk_trace_select_panel') });
+    traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_trace_select_panel') });
 
-    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, isHidden: guiManager.getPanelVisibility('spacewalk_color_ramp_panel') }) );
+    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_color_ramp_panel') }) );
 
-    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: guiManager.getPanelVisibility('spacewalk_distance_map_panel') }));
+    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_distance_map_panel') }));
 
-    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: guiManager.getPanelVisibility('spacewalk_contact_frequency_map_panel') }));
+    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_contact_frequency_map_panel') }));
 
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.getPanelVisibility('spacewalk_juicebox_panel') });
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
     await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
 
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.getPanelVisibility('spacewalk_igv_panel') });
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
     await igvPanel.initialize(igvBrowserConfigurator());
 
@@ -155,6 +153,8 @@ const createPanelsAndModals = async (container) => {
     spaceWalkFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator( { fileLoader: parser } ));
 
     juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator( { fileLoader: juiceboxPanel } ));
+
+    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
     $(window).on('resize.app', () => {
         let { width, height } = container.getBoundingClientRect();

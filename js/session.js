@@ -1,9 +1,10 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Zlib from "../vendor/zlib_and_gzip.js";
 import Panel from "./panel.js";
-import { guiManager, parser, ensembleManager, igvPanel } from "./app.js";
+import { parser, ensembleManager, igvPanel } from "./app.js";
 import { decodeDataURI } from '../vendor/uriUtils.js'
 import { uncompressString } from "../vendor/stringUtils.js";
+import { getGUIRenderStyle, setGUIRenderStyle } from "./guiManager.js";
 
 const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
 
@@ -76,7 +77,7 @@ const getCompressedSession = () => {
 
     json.igvPanelState = igvPanel.getSessionState();
 
-    json.renderStyle = guiManager.getRenderStyle();
+    json.renderStyle = getGUIRenderStyle();
 
     json.panelVisibility = {};
     Panel.getPanelList().forEach( panel => {
@@ -144,7 +145,7 @@ const loadSession = async (url) => {
             await igvPanel.restoreSessionState(igvPanelState);
         }
 
-        guiManager.setRenderStyle(renderStyle);
+        setGUIRenderStyle(renderStyle);
 
         Panel.getPanelList().forEach( panel => {
             if ('visible' === panelVisibility[ panel.constructor.name ]) {

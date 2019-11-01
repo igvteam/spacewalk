@@ -1,6 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import { eventBus, guiManager } from "./app.js";
+import { eventBus } from "./app.js";
+import {setGroundplaneVisibility} from "./guiManager.js";
 
 class GroundPlane extends THREE.GridHelper {
 
@@ -13,7 +14,7 @@ class GroundPlane extends THREE.GridHelper {
         this.position.copy(position);
         this.opacity = opacity;
 
-        this.visible = isHidden;
+        this.visible = !(isHidden);
         this.material.transparent = true;
 
         eventBus.subscribe("ToggleGroundPlane", this);
@@ -69,6 +70,6 @@ export const groundPlaneConfigurator = (position, size) => {
         position,
         color: appleCrayonColorThreeJS( 'mercury'),
         opacity: 0.25,
-        isHidden: guiManager.getGroundplaneVisibility()
+        isHidden: setGroundplaneVisibility()
     }
 };

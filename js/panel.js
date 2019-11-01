@@ -1,6 +1,7 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { makeDraggable } from "./draggable.js";
-import { guiManager, eventBus } from "./app.js";
+import { eventBus } from "./app.js";
+import { setPanelVisibility } from "./guiManager.js";
 
 let panelList = undefined;
 
@@ -110,7 +111,7 @@ class Panel {
 
         this.$panel.offset( { left: -1000, top: -1000 } );
 
-        guiManager.setPanelVisibility(this.$panel.attr('id'), false);
+        setPanelVisibility(this.$panel.attr('id'), false);
 
     };
 
@@ -121,7 +122,7 @@ class Panel {
             this.isHidden = false;
         }
 
-        guiManager.setPanelVisibility(this.$panel.attr('id'), true);
+        setPanelVisibility(this.$panel.attr('id'), true);
 
     };
 
@@ -140,6 +141,8 @@ class Panel {
     static getPanelList() {
         return panelList;
     }
+
 }
+
 
 export default Panel;
