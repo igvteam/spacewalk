@@ -1,7 +1,7 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Zlib from "../vendor/zlib_and_gzip.js";
 import Panel from "./panel.js";
-import { parser, ensembleManager, igvPanel } from "./app.js";
+import { parser, ensembleManager, igvPanel, sceneManager } from "./app.js";
 import { decodeDataURI } from '../vendor/uriUtils.js'
 import { uncompressString } from "../vendor/stringUtils.js";
 import { getGUIRenderStyle, setGUIRenderStyle } from "./guiManager.js";
@@ -84,6 +84,10 @@ const getCompressedSession = () => {
         json.panelVisibility[ panel.constructor.name ] = true === panel.isHidden ? 'hidden' : 'visible';
     });
 
+    json.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden';
+
+    json.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden';
+
     const jsonString = JSON.stringify( json );
 
     return getCompressedString(jsonString);
@@ -137,7 +141,7 @@ const loadSession = async (url) => {
 
         const jsonString = uncompressSession(spacewalk_session_URL);
 
-        const { url, traceKey, igvPanelState, renderStyle, panelVisibility } = JSON.parse(jsonString);
+        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility } = JSON.parse(jsonString);
 
         await parser.loadSessionTrace({ url, traceKey });
 
@@ -155,6 +159,17 @@ const loadSession = async (url) => {
             }
         });
 
+        if('visible' === gnomonVisibility) {
+            sceneManager.gnomon.present();
+        } else {
+            sceneManager.gnomon.dismiss();
+        }
+
+        if('visible' === groundPlaneVisibility) {
+            sceneManager.groundPlane.present();
+        } else {
+            sceneManager.groundPlane.dismiss();
+        }
 
     }
 

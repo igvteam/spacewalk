@@ -72,6 +72,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     await createPanelsAndModals(container);
 
+    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
+
     renderLoop();
 
     await loadSession(window.location.href);
@@ -153,8 +155,6 @@ const createPanelsAndModals = async (container) => {
     spaceWalkFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator( { fileLoader: parser } ));
 
     juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator( { fileLoader: juiceboxPanel } ));
-
-    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
     $(window).on('resize.app', () => {
         let { width, height } = container.getBoundingClientRect();

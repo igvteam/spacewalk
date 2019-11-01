@@ -4,6 +4,8 @@ import { numberFormatter } from './utils.js';
 import { rgb255ToThreeJSColor } from "./color.js";
 import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
 
+const $spacewalk_ui_manager_panel = $('#spacewalk_ui_manager_panel');
+
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
 
@@ -182,9 +184,9 @@ const configureVisibilityControl = (input_id_list, $panel) => {
             e.preventDefault();
 
             if ('spacewalk_ui_manager_groundplane' === input_id) {
-                eventBus .post({ type: "ToggleGroundPlane", data: $input.prop('checked') });
+                sceneManager.groundPlane.toggle();
             } else if ('spacewalk_ui_manager_gnomon' === input_id) {
-                eventBus .post({ type: "ToggleGnomon", data: $input.prop('checked') });
+                sceneManager.gnomon.toggle();
             } else {
                 const payload = $input.data('target');
                 eventBus .post({ type: 'ToggleUIControl', data: { payload } });
@@ -225,22 +227,32 @@ export const setGUIRenderStyle = renderStyle => {
 
 };
 
+export const doConfigureGroundplaneHidden = () => {
+    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_groundplane');
+    return !($input.prop('checked'));
+};
+
+export const setGUIGroundplaneVisibility = status => {
+    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_groundplane');
+    $input.prop('checked', status);
+};
+
+export const doConfigureGnomonHidden = () => {
+    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_gnomon');
+    return !($input.prop('checked'));
+};
+
+export const setGUIGnomonVisibility = status => {
+    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_gnomon');
+    $input.prop('checked', status);
+};
+
 export const doConfigurePanelHidden = panelID => {
     return !($('#spacewalk_ui_manager_panel').find(`[data-target='${ panelID }']`).prop('checked'));
 };
 
 export const setPanelVisibility = (panelID, status) => {
     $('#spacewalk_ui_manager_panel').find(`[data-target='${ panelID }']`).prop('checked', status);
-};
-
-export const setGroundplaneVisibility = () => {
-    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_groundplane');
-    return !($input.prop('checked'));
-};
-
-export const setGnomonVisibility = () => {
-    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_gnomon');
-    return !($input.prop('checked'));
 };
 
 export default GUIManager;
