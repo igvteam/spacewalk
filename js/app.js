@@ -6,6 +6,7 @@ import Parser from "./parser.js";
 import SceneManager, {sceneManagerConfigurator} from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
+import Panel from "./panel.js";
 import PointCloud from "./pointCloud.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
@@ -148,6 +149,8 @@ const createPanelsAndModals = async (container) => {
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.getPanelVisibility('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
     await igvPanel.initialize(igvBrowserConfigurator());
+
+    Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
 
     spaceWalkFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator( { fileLoader: parser } ));
 

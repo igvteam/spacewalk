@@ -223,7 +223,7 @@ const configureWidgetVisibility = (input_id_list, $panel) => {
                 eventBus .post({ type: "ToggleGnomon", data: $input.prop('checked') });
             } else {
                 const payload = $input.data('target');
-                eventBus .post({ type: "ToggleUIControl", data: { payload } });
+                eventBus .post({ type: 'ToggleUIControl', data: { payload } });
             }
         });
 

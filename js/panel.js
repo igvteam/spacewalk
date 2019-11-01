@@ -2,6 +2,8 @@ import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { makeDraggable } from "./draggable.js";
 import { guiManager, eventBus } from "./app.js";
 
+let panelList = undefined;
+
 class Panel {
 
     constructor({ container, panel, isHidden, xFunction, yFunction }) {
@@ -131,6 +133,13 @@ class Panel {
         this.layoutState = { topPercent, leftPercent };
     }
 
+    static setPanelList(panels) {
+        panelList = panels;
+    }
+
+    static getPanelList() {
+        return panelList;
+    }
 }
 
 export default Panel;
