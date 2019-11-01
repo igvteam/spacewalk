@@ -10,12 +10,14 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
-import { guiManager, colorRampMaterialProvider, pointCloud, noodle, ballAndStick, ensembleManager, eventBus, dataValueMaterialProvider, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
+import { pointCloud, noodle, ballAndStick, ensembleManager, eventBus, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
+import { getGUIRenderStyle } from "./guiManager.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'noodle', 'ball' , 'stick' , 'noodle_spline' ]);
+
 class SceneManager {
 
-    constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker, renderStyle }) {
+    constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker }) {
 
 
         this.stickMaterial = stickMaterial;
@@ -40,8 +42,6 @@ class SceneManager {
 
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
-
-        this.renderStyle = renderStyle;
 
         $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
 
@@ -89,7 +89,7 @@ class SceneManager {
 
             this.cameraLightingRig.doUpdateCameraPose = true;
 
-            this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle();
+            this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : getGUIRenderStyle();
 
             const { trace } = data;
             this.setupWithTrace(trace);
@@ -225,7 +225,7 @@ class SceneManager {
 
 }
 
-export const sceneManagerConfigurator = ({ container, highlightColor, renderStyle }) => {
+export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     // const stickMaterial = showSMaterial;
     // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
@@ -250,16 +250,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor, renderStyl
 
     const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
 
-    return {
-        container,
-        scene: new THREE.Scene(),
-        stickMaterial,
-        background,
-        renderer,
-        cameraLightingRig,
-        picker,
-        renderStyle
-    };
+    return { container, scene: new THREE.Scene(), stickMaterial, background, renderer, cameraLightingRig, picker };
 
 };
 

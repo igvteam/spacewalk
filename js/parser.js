@@ -134,7 +134,13 @@ class Parser {
     }
 
     toJSON() {
-        return this.url ? { url: this.url } : undefined;
+
+        if (undefined === this.url) {
+            throw new Error(`Unable to save session. Local files not supported.`);
+        } else {
+            return { url: this.url };
+        }
+
     }
 
     static genomicRangeFromHashKey(key) {

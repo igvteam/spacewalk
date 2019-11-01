@@ -1,7 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255String, threeJSColorToRGB255 } from "./color.js";
 import { numberFormatter } from "./utils.js";
-import { eventBus, guiManager } from "./app.js";
+import { doConfigureGnomonHidden, setGUIGnomonVisibility } from "./guiManager.js";
 
 class Gnomon extends THREE.AxesHelper {
 
@@ -33,17 +33,8 @@ class Gnomon extends THREE.AxesHelper {
         this.zAxisSprite = getZAxisSprite(min, max, boundingDiameter, colorString);
         this.group.add( this.zAxisSprite );
 
-        this.group.visible = isHidden;
+        this.group.visible = !(isHidden);
 
-        eventBus.subscribe("ToggleGnomon", this);
-
-    }
-
-    receiveEvent({ type, data }) {
-
-        if ("ToggleGnomon" === type) {
-            this.group.visible = data;
-        }
     }
 
     setColor(color){
@@ -84,6 +75,21 @@ class Gnomon extends THREE.AxesHelper {
     addToScene (scene) {
         scene.add( this.group );
     };
+
+    toggle() {
+        this.group.visible = !this.group.visible;
+        setGUIGnomonVisibility(this.group.visible);
+    }
+
+    present() {
+        this.group.visible = true;
+        setGUIGnomonVisibility(this.group.visible);
+    }
+
+    dismiss() {
+        this.group.visible = false;
+        setGUIGnomonVisibility(this.group.visible);
+    }
 
 }
 
@@ -185,7 +191,7 @@ export const gnomonConfigurator = (min, max, boundingDiameter) => {
         max,
         boundingDiameter,
         color: appleCrayonColorThreeJS('snow'),
-        isHidden: guiManager.isGnomonHidden($('#spacewalk_ui_manager_panel'))
+        isHidden: doConfigureGnomonHidden()
     }
 
 };

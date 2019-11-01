@@ -143,33 +143,6 @@ div.navbar-brand {
       vertical-align: middle;
       text-align: center; }
 
-#spacewalk_juicebox_panel.card {
-  width: auto;
-  height: auto;
-  align-items: center; }
-  #spacewalk_juicebox_panel.card .card-body #spacewalk_hic_url_form_group {
-    width: 95%;
-    margin-top: 4px;
-    margin-bottom: 4px; }
-  #spacewalk_juicebox_panel.card .card-body #spacewalk_juicebox_root_container {
-    width: 100%;
-    height: 548px; }
-    #spacewalk_juicebox_panel.card .card-body #spacewalk_juicebox_root_container .hic-root {
-      margin: 0;
-      border-color: transparent;
-      border-width: thin;
-      border-radius: .25rem; }
-
-#spacewalk_thumbnail_panel.card {
-  width: 160px;
-  height: 192px; }
-  #spacewalk_thumbnail_panel.card #spacewalk_thumbnail_panel_body.card-body {
-    width: 100%;
-    height: 100%; }
-    #spacewalk_thumbnail_panel.card #spacewalk_thumbnail_panel_body.card-body #spacewalk_thumbnail_container {
-      width: 100%;
-      height: calc(100% - 32px); }
-
 #spacewalk_distance_map_panel.card {
   width: 256px;
   height: unset;
@@ -248,6 +221,68 @@ div.navbar-brand {
     #spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body #spacewalk_contact_frequency_map_panel_container {
       width: 256px;
       height: 256px; }
+
+#spacewalk_juicebox_panel.card {
+  width: auto;
+  height: auto;
+  align-items: center; }
+  #spacewalk_juicebox_panel.card .card-body #spacewalk_hic_url_form_group {
+    width: 95%;
+    margin-top: 4px;
+    margin-bottom: 4px; }
+  #spacewalk_juicebox_panel.card .card-body #spacewalk_juicebox_root_container {
+    width: 100%;
+    height: 548px; }
+    #spacewalk_juicebox_panel.card .card-body #spacewalk_juicebox_root_container .hic-root {
+      margin: 0;
+      border-color: transparent;
+      border-width: thin;
+      border-radius: .25rem; }
+
+.igv-left-hand-gutter > div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff; }
+  .igv-left-hand-gutter > div > input {
+    display: block; }
+.igv-left-hand-gutter > div:hover {
+  background-color: #e8e8e8; }
+
+.spacewalk-igv-app-dropdown-item-cloud-storage {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  height: 18px;
+  margin-top: 4px;
+  margin-bottom: 4px; }
+  .spacewalk-igv-app-dropdown-item-cloud-storage div:first-child {
+    margin-right: 4px; }
+  .spacewalk-igv-app-dropdown-item-cloud-storage div:last-child {
+    margin-left: 4px; }
+
+#spacewalk_igv_panel.card {
+  resize: both;
+  overflow: scroll;
+  width: 600px;
+  height: unset;
+  align-items: center;
+  justify-content: flex-start; }
+  #spacewalk_igv_panel.card #spacewalk_igv_container.card-body {
+    height: unset; }
+    #spacewalk_igv_panel.card #spacewalk_igv_container.card-body #spacewalk_igv_root_container {
+      width: 100%;
+      height: 100%;
+      border-style: solid;
+      border-width: thin;
+      border-color: #a09fa0;
+      background-color: #ffffff; }
 
 #spacewalk_ui_manager_button {
   z-index: 2048;
@@ -355,51 +390,6 @@ div#spacewalk_info_panel {
       overflow: hidden;
       text-overflow: ellipsis;
       margin-left: 8px; }
-
-.igv-left-hand-gutter > div {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
-  background-color: #ffffff; }
-  .igv-left-hand-gutter > div > input {
-    display: block; }
-.igv-left-hand-gutter > div:hover {
-  background-color: #e8e8e8; }
-
-.spacewalk-igv-app-dropdown-item-cloud-storage {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  align-items: center;
-  height: 18px;
-  margin-top: 4px;
-  margin-bottom: 4px; }
-  .spacewalk-igv-app-dropdown-item-cloud-storage div:first-child {
-    margin-right: 4px; }
-  .spacewalk-igv-app-dropdown-item-cloud-storage div:last-child {
-    margin-left: 4px; }
-
-#spacewalk_igv_panel.card {
-  resize: both;
-  overflow: scroll;
-  width: 600px;
-  height: unset;
-  align-items: center;
-  justify-content: flex-start; }
-  #spacewalk_igv_panel.card #spacewalk_igv_container.card-body {
-    height: unset; }
-    #spacewalk_igv_panel.card #spacewalk_igv_container.card-body #spacewalk_igv_root_container {
-      width: 100%;
-      height: 100%;
-      border-style: solid;
-      border-width: thin;
-      border-color: #a09fa0;
-      background-color: #ffffff; }
 
 .igv-file-load-widget-container {
   position: relative;

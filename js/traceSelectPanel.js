@@ -71,7 +71,7 @@ class TraceSelectPanel extends Panel {
         if ('DidLoadEnsembleFile' === type) {
             const { initialKey } = data;
             this.configureWithEnsemble({ ensemble: ensembleManager.ensemble, key: initialKey });
-            this.presentPanel();
+            this.present();
         }
     }
 

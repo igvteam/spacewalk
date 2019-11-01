@@ -1,103 +1,92 @@
-import { parser, ensembleManager, igvPanel, guiManager } from "./app.js";
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Zlib from "../vendor/zlib_and_gzip.js";
+import Panel from "./panel.js";
+import { parser, ensembleManager, igvPanel, sceneManager } from "./app.js";
 import { decodeDataURI } from '../vendor/uriUtils.js'
 import { uncompressString } from "../vendor/stringUtils.js";
-import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
+import { getGUIRenderStyle, setGUIRenderStyle } from "./guiManager.js";
 
 const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
 
-const sessionSaveHandler = async (e) => {
+const saveSession = async () => {
 
     const url = getSessionURL();
 
-    let response;
+    if (url) {
 
-    const useService = `${ tinyURLService }${ url }`;
-    try {
-        response = await fetch(useService);
-    } catch (error) {
-        console.warn(error.message);
-        return;
-    }
+        let response;
 
-    if (200 !== response.status) {
-        console.log('ERROR: bad response status');
-    }
-
-    let tinyURL = undefined;
-    try {
-        tinyURL = await response.text();
-    } catch (e) {
-        console.warn(e.message);
-    }
-
-    if (tinyURL) {
-        console.log(`session: ${ tinyURL }`);
-
-        const $spacewalk_share_url = $('#spacewalk-share-url');
-        $spacewalk_share_url.val( tinyURL );
-        $spacewalk_share_url.get(0).select();
-
-    }
-
-    return false;
-
-};
-
-const loadSession = async (url) => {
-
-    const params = getUrlParams(url);
-
-    if (params.hasOwnProperty('spacewalk_session_URL')) {
-
-        let { spacewalk_session_URL } = params;
-
-        // spacewalk_session_URL = decodeURIComponent(spacewalk_session_URL);
-
-        const jsonString = uncompressSession(spacewalk_session_URL);
-
-        const { url, traceKey, igvPanelState, renderStyle } = JSON.parse(jsonString);
-
-        await parser.loadSessionTrace({ url, traceKey });
-
-        if ('none' !== igvPanelState) {
-            await igvPanel.restoreState(igvPanelState);
+        const useService = `${ tinyURLService }${ url }`;
+        try {
+            response = await fetch(useService);
+        } catch (error) {
+            console.warn(error.message);
+            return;
         }
 
-        guiManager.setRenderStyle(renderStyle);
+        if (200 !== response.status) {
+            console.log('ERROR: bad response status');
+        }
 
+        let tinyURL = undefined;
+        try {
+            tinyURL = await response.text();
+        } catch (error) {
+            console.warn(error.message);
+        }
+
+        return tinyURL;
+
+    } else {
+        return undefined;
     }
 
 };
 
 const getSessionURL = () => {
 
-    const path = window.location.href.slice();
-    const index = path.indexOf("?");
-    const prefix = index > 0 ? path.substring(0, index) : path;
-    const compressedSession = getCompressedSession();
+    try {
 
-    const igvCompressedSession = igvPanel.browser.compressedSession();
+        const path = window.location.href.slice();
+        const index = path.indexOf("?");
+        const prefix = index > 0 ? path.substring(0, index) : path;
 
-    const juiceboxSession = hic.getCompressedDataString();
+        const spacewalkCompressedSession = getCompressedSession();
 
-    const sessionURL = `${ prefix }?spacewalk_session_URL=data:${ compressedSession }&sessionURL=data:${ igvCompressedSession }&${ juiceboxSession }`;
+        const igvCompressedSession = igvPanel.browser.compressedSession();
 
-    const encodedURI = encodeURIComponent( sessionURL );
+        const juiceboxCompressedSession = hic.getCompressedDataString();
 
-    return encodedURI;
+        const sessionURL = `${ prefix }?spacewalk_session_URL=data:${ spacewalkCompressedSession }&sessionURL=data:${ igvCompressedSession }&${ juiceboxCompressedSession }`;
+
+        return encodeURIComponent( sessionURL );
+
+    } catch (e) {
+        console.error(e);
+        alert(e.message);
+        return undefined;
+    }
 
 };
 
-const getCompressedSession = function () {
+const getCompressedSession = () => {
 
-    const json = parser.toJSON();
+    let json = parser.toJSON();
 
     json.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace);
 
-    json.igvPanelState = igvPanel.getState();
+    json.igvPanelState = igvPanel.getSessionState();
 
-    json.renderStyle = guiManager.getRenderStyle();
+    json.renderStyle = getGUIRenderStyle();
+
+    json.panelVisibility = {};
+    Panel.getPanelList().forEach( panel => {
+        json.panelVisibility[ panel.constructor.name ] = true === panel.isHidden ? 'hidden' : 'visible';
+    });
+
+    json.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden';
+
+    json.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden';
 
     const jsonString = JSON.stringify( json );
 
@@ -140,7 +129,52 @@ const uncompressSession = url => {
     }
 };
 
-// url - window.location.href
+const loadSession = async (url) => {
+
+    const params = getUrlParams(url);
+
+    if (params.hasOwnProperty('spacewalk_session_URL')) {
+
+        let { spacewalk_session_URL } = params;
+
+        // spacewalk_session_URL = decodeURIComponent(spacewalk_session_URL);
+
+        const jsonString = uncompressSession(spacewalk_session_URL);
+
+        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility } = JSON.parse(jsonString);
+
+        await parser.loadSessionTrace({ url, traceKey });
+
+        if ('none' !== igvPanelState) {
+            await igvPanel.restoreSessionState(igvPanelState);
+        }
+
+        setGUIRenderStyle(renderStyle);
+
+        Panel.getPanelList().forEach( panel => {
+            if ('visible' === panelVisibility[ panel.constructor.name ]) {
+                panel.present();
+            } else {
+                panel.dismiss();
+            }
+        });
+
+        if('visible' === gnomonVisibility) {
+            sceneManager.gnomon.present();
+        } else {
+            sceneManager.gnomon.dismiss();
+        }
+
+        if('visible' === groundPlaneVisibility) {
+            sceneManager.groundPlane.present();
+        } else {
+            sceneManager.groundPlane.dismiss();
+        }
+
+    }
+
+};
+
 const getUrlParams = url => {
 
     const search = decodeURIComponent( url.slice( url.indexOf( '?' ) + 1 ) );
@@ -156,4 +190,4 @@ const getUrlParams = url => {
 
 };
 
-export { sessionSaveHandler, getUrlParams, loadSession };
+export { saveSession, getUrlParams, loadSession };

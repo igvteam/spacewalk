@@ -1,6 +1,9 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { makeDraggable } from "./draggable.js";
-import { guiManager, eventBus } from "./app.js";
+import { eventBus } from "./app.js";
+import { setPanelVisibility } from "./guiManager.js";
+
+let panelList = undefined;
 
 class Panel {
 
@@ -18,37 +21,27 @@ class Panel {
             this.initializeLayout(xFunction, yFunction, container);
         }
 
-
-        const namespace = `panel. ${ hic.igv.guid() }`;
+        const namespace = `panel.${ hic.igv.guid() }`;
 
         const $drag_handle = this.$panel.find('.spacewalk_card_drag_container');
         makeDraggable(panel, $drag_handle.get(0));
 
-        $drag_handle.on(`mousedown. ${ namespace }`, event => {
-            // console.log('panel - did select panel');
+        $drag_handle.on(`mousedown.${ namespace }`, event => {
             eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
         const $closer = this.$panel.find('i.fa-times-circle');
         $closer.on(`click.${ hic.igv.guid() }`, event => {
-
             event.stopPropagation();
-
-            const id = $closer.attr('data-target');
-            const selector = `#${ id }`;
-            const $input = $(selector);
-            $input.prop('checked', false);
-
-            this.moveOffScreen();
-            this.isHidden = true;
+            this.dismiss();
         });
 
-        this.$panel.on(`mouseenter. ${ namespace }`, (event) => {
+        this.$panel.on(`mouseenter.${ namespace }`, (event) => {
             event.stopPropagation();
             eventBus.post({ type: "DidEnterGUI" });
         });
 
-        this.$panel.on(`mouseleave. ${ namespace }`, (event) => {
+        this.$panel.on(`mouseleave.${ namespace }`, (event) => {
             event.stopPropagation();
             eventBus.post({ type: "DidLeaveGUI" });
         });
@@ -63,13 +56,11 @@ class Panel {
 
         if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
 
-            if (this.isHidden) {
-                this.layout();
+            if (true === this.isHidden) {
+                this.present();
             } else {
-                this.moveOffScreen();
+                this.dismiss();
             }
-
-            this.isHidden = !this.isHidden;
 
         } else if ('AppWindowDidResize' === type) {
 
@@ -113,30 +104,25 @@ class Panel {
 
     };
 
-    moveOffScreen() {
+    dismiss() {
+
         this.saveLayoutState(this.container, this.$panel);
+        this.isHidden = true;
+
         this.$panel.offset( { left: -1000, top: -1000 } );
+
+        setPanelVisibility(this.$panel.attr('id'), false);
+
     };
 
-    presentPanel() {
+    present() {
 
         if (this.isHidden) {
             this.layout();
             this.isHidden = false;
         }
 
-        guiManager.panelIsVisible(this.$panel.attr('id'));
-
-    };
-
-    dismissPanel() {
-
-        if (false === this.isHidden) {
-            this.moveOffScreen();
-            this.isHidden = true;
-        }
-
-        guiManager.panelIsHidden(this.$panel.attr('id'));
+        setPanelVisibility(this.$panel.attr('id'), true);
 
     };
 
@@ -145,8 +131,18 @@ class Panel {
         const { top, left } = $panel.offset();
         const topPercent = top / height;
         const leftPercent = left / width;
-        this.layoutState = { top, left, topPercent, leftPercent };
+        this.layoutState = { topPercent, leftPercent };
     }
+
+    static setPanelList(panels) {
+        panelList = panels;
+    }
+
+    static getPanelList() {
+        return panelList;
+    }
+
 }
+
 
 export default Panel;

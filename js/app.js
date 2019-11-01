@@ -6,10 +6,11 @@ import Parser from "./parser.js";
 import SceneManager, {sceneManagerConfigurator} from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
+import Panel from "./panel.js";
 import PointCloud from "./pointCloud.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import GUIManager from "./guiManager.js";
+import GUIManager, { doConfigurePanelHidden } from "./guiManager.js";
 import TraceSelectPanel from "./traceSelectPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
@@ -18,7 +19,7 @@ import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { sessionSaveHandler, loadSession } from "./session.js";
+import { saveSession, loadSession } from "./session.js";
 
 let eventBus = new EventBus();
 
@@ -34,15 +35,15 @@ let colorRampMaterialProvider;
 let guiManager;
 
 let gsdb;
-let traceSelectPanel;
-let colorRampPanel;
 let spaceWalkFileLoadModal;
 let juiceboxFileLoadModal;
 
-let igvPanel;
-let juiceboxPanel;
+let traceSelectPanel;
+let colorRampPanel;
 let distanceMapPanel;
 let contactFrequencyMapPanel;
+let juiceboxPanel;
+let igvPanel;
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
@@ -66,12 +67,12 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
 
-    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
-
     const container = document.getElementById('spacewalk_canvas_container');
-    sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor, renderStyle: guiManager.getRenderStyle() }));
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
 
     await createPanelsAndModals(container);
+
+    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
     renderLoop();
 
@@ -103,34 +104,53 @@ const renderLoop = () => {
 
 const createPanelsAndModals = async (container) => {
 
-    $('#spacewalk-copy-link').on('click', e => {
+    const $share_url_modal = $('#spacewalk-share-url-modal');
+    const $spacewalk_share_url = $('#spacewalk-share-url');
 
-        $('#spacewalk-share-url')[0].select();
+    $('#spacewalk-share-button').on('click.spacewalk-share-button', async e => {
+
+        const url = await saveSession();
+
+        if (url) {
+
+            console.log(`session: ${ url }`);
+
+            $spacewalk_share_url.val( url );
+            $spacewalk_share_url.get(0).select();
+
+            $share_url_modal.modal('show');
+        }
+
+    });
+
+    $('#spacewalk-copy-link').on('click.spacewalk-copy-link', e => {
+
+        $spacewalk_share_url.get(0).select();
 
         const success = document.execCommand('copy');
         if (success) {
-            $('#spacewalk-share-url-modal').modal('hide');
+            $share_url_modal.modal('hide');
         } else {
             alert("Copy not successful");
         }
     });
 
-    $('#spacewalk-share-url-modal').on('show.bs.modal', sessionSaveHandler);
+    traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_trace_select_panel') });
 
-    traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_trace_select_panel') });
+    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_color_ramp_panel') }) );
 
-    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, isHidden: guiManager.isPanelHidden('spacewalk_color_ramp_panel') }) );
+    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_distance_map_panel') }));
 
-    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: guiManager.isPanelHidden('spacewalk_distance_map_panel') }));
+    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_contact_frequency_map_panel') }));
 
-    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: guiManager.isPanelHidden('spacewalk_contact_frequency_map_panel') }));
-
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_juicebox_panel') });
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
     await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
 
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: guiManager.isPanelHidden('spacewalk_igv_panel') });
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
     await igvPanel.initialize(igvBrowserConfigurator());
+
+    Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
 
     spaceWalkFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator( { fileLoader: parser } ));
 
@@ -153,4 +173,4 @@ const hideSpinner = () => {
     console.log('hide spinner');
 };
 
-export { eventBus, pointCloud, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel };
+export { eventBus, pointCloud, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel };

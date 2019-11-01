@@ -178,16 +178,6 @@ class BallAndStick {
         delete this.stickCurves;
     }
 
-    getThumbnailGeometryList () {
-
-        let bg = this.balls.map(m => m.geometry);
-        let sg = this.sticks.map(m => m.geometry);
-
-        let g = [ ...bg, ...sg ];
-
-        return g;
-    }
-
     getBounds() {
         return EnsembleManager.getBoundsWithTrace(this.trace);
     }
