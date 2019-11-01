@@ -149,7 +149,7 @@ const loadSession = async (url) => {
             if ('visible' === panelVisibility[ panel.constructor.name ]) {
                 panel.present();
             } else {
-
+                panel.dismiss();
             }
         });
 

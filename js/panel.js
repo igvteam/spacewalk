@@ -18,37 +18,27 @@ class Panel {
             this.initializeLayout(xFunction, yFunction, container);
         }
 
-
-        const namespace = `panel. ${ hic.igv.guid() }`;
+        const namespace = `panel.${ hic.igv.guid() }`;
 
         const $drag_handle = this.$panel.find('.spacewalk_card_drag_container');
         makeDraggable(panel, $drag_handle.get(0));
 
-        $drag_handle.on(`mousedown. ${ namespace }`, event => {
-            // console.log('panel - did select panel');
+        $drag_handle.on(`mousedown.${ namespace }`, event => {
             eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
         const $closer = this.$panel.find('i.fa-times-circle');
         $closer.on(`click.${ hic.igv.guid() }`, event => {
-
             event.stopPropagation();
-
-            const id = $closer.attr('data-target');
-            const selector = `#${ id }`;
-            const $input = $(selector);
-            $input.prop('checked', false);
-
             this.dismiss();
-            this.isHidden = true;
         });
 
-        this.$panel.on(`mouseenter. ${ namespace }`, (event) => {
+        this.$panel.on(`mouseenter.${ namespace }`, (event) => {
             event.stopPropagation();
             eventBus.post({ type: "DidEnterGUI" });
         });
 
-        this.$panel.on(`mouseleave. ${ namespace }`, (event) => {
+        this.$panel.on(`mouseleave.${ namespace }`, (event) => {
             event.stopPropagation();
             eventBus.post({ type: "DidLeaveGUI" });
         });
@@ -64,12 +54,10 @@ class Panel {
         if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
 
             if (true === this.isHidden) {
-                this.layout();
+                this.present();
             } else {
                 this.dismiss();
             }
-
-            this.isHidden = !this.isHidden;
 
         } else if ('AppWindowDidResize' === type) {
 
@@ -114,8 +102,14 @@ class Panel {
     };
 
     dismiss() {
+
         this.saveLayoutState(this.container, this.$panel);
+        this.isHidden = true;
+
         this.$panel.offset( { left: -1000, top: -1000 } );
+
+        guiManager.setPanelVisibility(this.$panel.attr('id'), false);
+
     };
 
     present() {
