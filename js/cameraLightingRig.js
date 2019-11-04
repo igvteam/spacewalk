@@ -27,17 +27,13 @@ class CameraLightingRig extends OrbitControls {
     configure ({ fov, position, centroid, boundingDiameter }) {
 
         if (true === this.doUpdateCameraPose) {
-            this.setPose({ position, newTarget: centroid });
+            this.poseHelper(position.clone().sub(centroid), centroid);
             this.doUpdateCameraPose = false;
         } else {
 
             // maintain the pre-existing delta between camera target and object centroid
-            const delta = new THREE.Vector3();
-            delta.subVectors(this.target, currentCentroid);
-
-            const newTarget = new THREE.Vector3();
-            newTarget.addVectors(centroid, delta);
-            this.setTarget({ newTarget });
+            const delta = this.target.clone().sub(currentCentroid);
+            this.poseHelper(this.camera.position.clone().sub(this.target), centroid.clone().add(delta));
         }
 
         const [ near, far, aspectRatio ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
@@ -67,17 +63,23 @@ class CameraLightingRig extends OrbitControls {
         this.camera.updateProjectionMatrix();
     }
 
-    setPose({ position, newTarget }) {
-        let toCamera = new THREE.Vector3();
-        toCamera.subVectors(position, newTarget);
-        poseHelper({ toCamera, newTarget, camera: this.camera, orbitControl: this })
+    setPose(position, target) {
+        this.poseHelper(position.clone().sub(target), target)
     }
 
-    setTarget({ newTarget }) {
-        let toCamera = new THREE.Vector3();
-        toCamera.subVectors(this.camera.position, this.target);
-        poseHelper({ toCamera, newTarget, camera: this.camera, orbitControl: this })
-    }
+    poseHelper(toCamera, target) {
+
+        this.camera.lookAt(target);
+
+        const { x, y, z } = target.clone().add(toCamera);
+        this.camera.position.set(x, y, z);
+
+        this.camera.updateMatrixWorld();
+
+        this.target.copy(target);
+        this.update();
+
+    };
 
     addToScene (scene) {
         scene.add( this.camera );
@@ -107,22 +109,6 @@ const createLightSource = ({ x, y, z, color, intensity }) => {
     lightSource.position.set(x, y, z);
 
     return lightSource;
-};
-
-let poseHelper = ({ toCamera, newTarget, camera, orbitControl }) => {
-
-    camera.lookAt(newTarget);
-
-    const position = new THREE.Vector3();
-    position.addVectors(newTarget, toCamera);
-    const { x, y, z } = position;
-    camera.position.set(x, y, z);
-
-    camera.updateMatrixWorld();
-
-    orbitControl.target.copy(newTarget);
-    orbitControl.update();
-
 };
 
 export default CameraLightingRig
