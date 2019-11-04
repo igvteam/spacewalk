@@ -27,13 +27,19 @@ class CameraLightingRig extends OrbitControls {
     configure ({ fov, position, centroid, boundingDiameter }) {
 
         if (true === this.doUpdateCameraPose) {
-            this.poseHelper(position.clone().sub(centroid), centroid);
+
+            this.setPose(position, centroid);
             this.doUpdateCameraPose = false;
         } else {
 
             // maintain the pre-existing delta between camera target and object centroid
             const delta = this.target.clone().sub(currentCentroid);
-            this.poseHelper(this.camera.position.clone().sub(this.target), centroid.clone().add(delta));
+            const target = centroid.clone().add(delta);
+
+            const toCamera = this.camera.position.clone().sub(this.target);
+            const position = target.clone().add(toCamera);
+
+            this.setPose(position, target);
         }
 
         const [ near, far, aspectRatio ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
@@ -64,14 +70,10 @@ class CameraLightingRig extends OrbitControls {
     }
 
     setPose(position, target) {
-        this.poseHelper(position.clone().sub(target), target)
-    }
-
-    poseHelper(toCamera, target) {
 
         this.camera.lookAt(target);
 
-        const { x, y, z } = target.clone().add(toCamera);
+        const { x, y, z } = position;
         this.camera.position.set(x, y, z);
 
         this.camera.updateMatrixWorld();

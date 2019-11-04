@@ -243,7 +243,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     // Nice numbers
     const position = new THREE.Vector3(134820, 55968, 5715);
     const centroid = new THREE.Vector3(133394, 54542, 4288);
-    cameraLightingRig.poseHelper(position.clone().sub(centroid), centroid);
+    cameraLightingRig.setPose(position, centroid);
 
     const background = appleCrayonColorThreeJS('nickel');
     // const background = new THREE.TextureLoader().load( 'texture/scene-background-grey-0.png' );
