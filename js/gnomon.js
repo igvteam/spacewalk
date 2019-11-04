@@ -91,6 +91,14 @@ class Gnomon extends THREE.AxesHelper {
         setGUIGnomonVisibility(this.group.visible);
     }
 
+    setVisibility(status) {
+        if('visible' === status) {
+            this.present();
+        } else {
+            this.dismiss();
+        }
+
+    }
 }
 
 export default Gnomon;

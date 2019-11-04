@@ -64,6 +64,15 @@ class GroundPlane extends THREE.GridHelper {
         setGUIGroundplaneVisibility(this.visible);
     }
 
+    setVisibility(status) {
+        if('visible' === status) {
+            this.present();
+        } else {
+            this.dismiss();
+        }
+
+    }
+
 }
 
 export default GroundPlane;

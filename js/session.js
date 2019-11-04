@@ -151,25 +151,11 @@ const loadSession = async (url) => {
 
         setGUIRenderStyle(renderStyle);
 
-        Panel.getPanelList().forEach( panel => {
-            if ('visible' === panelVisibility[ panel.constructor.name ]) {
-                panel.present();
-            } else {
-                panel.dismiss();
-            }
-        });
+        Panel.setAllPanelVisibility(panelVisibility);
 
-        if('visible' === gnomonVisibility) {
-            sceneManager.gnomon.present();
-        } else {
-            sceneManager.gnomon.dismiss();
-        }
+        sceneManager.gnomon.setVisibility(gnomonVisibility);
 
-        if('visible' === groundPlaneVisibility) {
-            sceneManager.groundPlane.present();
-        } else {
-            sceneManager.groundPlane.dismiss();
-        }
+        sceneManager.groundPlane.setVisibility(groundPlaneVisibility);
 
     }
 
