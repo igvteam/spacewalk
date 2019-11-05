@@ -19,7 +19,6 @@ class SceneManager {
 
     constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker }) {
 
-
         this.stickMaterial = stickMaterial;
 
         this.background = background;
@@ -221,6 +220,16 @@ class SceneManager {
 
         this.renderer.render(this.scene, this.cameraLightingRig.camera);
 
+    }
+
+    getRendererClearColorState() {
+        const { r, g, b } = this.renderer.getClearColor();
+        return  { r, g, b }
+    }
+
+    setRendererClearColorState(json) {
+        const { r, g, b } = json;
+        this.renderer.setClearColor(new THREE.Color(r, g, b));
     }
 
 }

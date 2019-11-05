@@ -14,6 +14,8 @@ class Gnomon extends THREE.AxesHelper {
 
         this.name = 'gnomon';
 
+        this.color = color;
+
         this.geometry.attributes.position = getVertexListWithSharedOriginAndLengths(min, max);
         this.geometry.attributes.position.needsUpdate = true;
 
@@ -37,9 +39,21 @@ class Gnomon extends THREE.AxesHelper {
 
     }
 
+    getColorState() {
+        const { r, g, b } = this.color;
+        return { r, g, b };
+    }
+
+    setColorState(json) {
+        const { r, g, b } = json;
+        this.setColor(new THREE.Color(r, g, b));
+    }
+
     setColor(color){
 
         const { r, g, b } = color;
+
+        this.color.setRGB(r, g, b);
 
         let rgb = this.geometry.attributes.color;
         let colors = rgb.array;

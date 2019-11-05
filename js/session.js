@@ -91,6 +91,10 @@ const getCompressedSession = () => {
 
     json.cameraLightingRig = sceneManager.cameraLightingRig.getState();
 
+    json.gnomonColor = sceneManager.gnomon.getColorState();
+    json.groundplaneColor = sceneManager.groundPlane.getColorState();
+    json.rendererClearColor = sceneManager.getRendererClearColorState();
+
     const jsonString = JSON.stringify( json );
 
     return getCompressedString(jsonString);
@@ -144,7 +148,7 @@ const loadSession = async (url) => {
 
         const jsonString = uncompressSession(spacewalk_session_URL);
 
-        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig } = JSON.parse(jsonString);
+        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, rendererClearColor } = JSON.parse(jsonString);
 
         await parser.loadSessionTrace({ url, traceKey });
 
@@ -159,6 +163,10 @@ const loadSession = async (url) => {
         sceneManager.gnomon.setVisibility(gnomonVisibility);
 
         sceneManager.groundPlane.setVisibility(groundPlaneVisibility);
+
+        sceneManager.gnomon.setColorState(gnomonColor);
+        sceneManager.groundPlane.setColorState(groundplaneColor);
+        sceneManager.setRendererClearColorState(rendererClearColor);
 
         // sceneManager.cameraLightingRig.setState(cameraLightingRig);
 
