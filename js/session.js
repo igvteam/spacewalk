@@ -1,3 +1,4 @@
+import * as THREE from "../node_modules/three/build/three.module.js";
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Zlib from "../vendor/zlib_and_gzip.js";
 import Panel from "./panel.js";
@@ -88,6 +89,8 @@ const getCompressedSession = () => {
 
     json.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden';
 
+    json.cameraLightingRig = sceneManager.cameraLightingRig.getState();
+
     const jsonString = JSON.stringify( json );
 
     return getCompressedString(jsonString);
@@ -141,7 +144,7 @@ const loadSession = async (url) => {
 
         const jsonString = uncompressSession(spacewalk_session_URL);
 
-        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility } = JSON.parse(jsonString);
+        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig } = JSON.parse(jsonString);
 
         await parser.loadSessionTrace({ url, traceKey });
 
@@ -156,6 +159,8 @@ const loadSession = async (url) => {
         sceneManager.gnomon.setVisibility(gnomonVisibility);
 
         sceneManager.groundPlane.setVisibility(groundPlaneVisibility);
+
+        // sceneManager.cameraLightingRig.setState(cameraLightingRig);
 
     }
 

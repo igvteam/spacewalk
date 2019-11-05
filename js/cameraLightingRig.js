@@ -49,6 +49,16 @@ class CameraLightingRig extends OrbitControls {
 
     }
 
+    getState() {
+        return this.camera.toJSON();
+    }
+
+    setState(json) {
+        const jsonLoader = new THREE.ObjectLoader();
+        this.camera = jsonLoader.parse(json);
+        this.reset();
+    }
+
     get name () {
         return this.camera.name;
     }
