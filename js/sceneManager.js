@@ -232,6 +232,10 @@ class SceneManager {
         this.renderer.setClearColor(new THREE.Color(r, g, b));
     }
 
+    resetCamera() {
+        this.cameraLightingRig.reset();
+    }
+
 }
 
 export const sceneManagerConfigurator = ({ container, highlightColor }) => {

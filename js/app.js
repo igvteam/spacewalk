@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const container = document.getElementById('spacewalk_canvas_container');
     sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
 
-    await createPanelsAndModals(container);
+    await createButtonsPanelsModals(container);
 
     guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
@@ -102,7 +102,11 @@ const renderLoop = () => {
 
 };
 
-const createPanelsAndModals = async (container) => {
+const createButtonsPanelsModals = async container => {
+
+    $('#spacewalk-reset-camera-button').on('click.spacewalk-reset-camera-button', e => {
+        sceneManager.resetCamera();
+    });
 
     const $share_url_modal = $('#spacewalk-share-url-modal');
     const $spacewalk_share_url = $('#spacewalk-share-url');

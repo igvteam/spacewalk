@@ -91,8 +91,13 @@ class EnsembleManager {
                         rgb.push(r, g, b);
                     }
 
-                    geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
-                    geometry.addAttribute(    'color', new THREE.Float32BufferAttribute( rgb, 3 ).setDynamic( this.isPointCloud ) );
+                    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
+
+                    // geometry.setAttribute(    'color', new THREE.Float32BufferAttribute( rgb, 3 ).setDynamic( this.isPointCloud ) );
+
+                    const attribute = new THREE.Float32BufferAttribute(rgb, 3);
+                    attribute.setUsage( true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage );
+                    geometry.setAttribute('color', attribute );
 
                     this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
 
