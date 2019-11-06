@@ -137,8 +137,8 @@ class SceneManager {
         this.scene = scene;
         // this.scene.background = this.background;
 
-        // Camera Lighting Rig
         this.cameraLightingRig.configure({fov, position: cameraPosition, centroid, boundingDiameter});
+
         this.cameraLightingRig.addToScene(this.scene);
 
         // Groundplane
@@ -233,7 +233,7 @@ class SceneManager {
     }
 
     resetCamera() {
-        this.cameraLightingRig.reset();
+        this.cameraLightingRig.resetCamera();
     }
 
 }

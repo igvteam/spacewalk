@@ -25,10 +25,21 @@ class CameraLightingRig extends OrbitControls {
 
     configure ({ fov, position, centroid, boundingDiameter }) {
 
+        const [ near, far, aspect ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
+
+        // to set the camera in a sane pose after it has gotten mangled
+        this.resetCamera = () => {
+            this.setPose(position, centroid);
+            this.setProjection({ fov, near, far, aspect });
+            currentCentroid = centroid.clone();
+        };
+
         if (true === this.doUpdateCameraPose) {
 
             this.setPose(position, centroid);
+
             this.doUpdateCameraPose = false;
+
         } else {
 
             // maintain the pre-existing delta between camera target and object centroid
@@ -41,7 +52,6 @@ class CameraLightingRig extends OrbitControls {
             this.setPose(position, target);
         }
 
-        const [ near, far, aspect ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
         this.setProjection({ fov, near, far, aspect });
 
         currentCentroid = centroid.clone();
