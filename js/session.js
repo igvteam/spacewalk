@@ -164,11 +164,14 @@ const loadSession = async (url) => {
 
         sceneManager.groundPlane.setVisibility(groundPlaneVisibility);
 
-        sceneManager.gnomon.setColorState(gnomonColor);
-        sceneManager.groundPlane.setColorState(groundplaneColor);
-        sceneManager.setRendererClearColorState(rendererClearColor);
-
+        // TODO: Decide whether to restore camera state
         // sceneManager.cameraLightingRig.setState(cameraLightingRig);
+
+        sceneManager.gnomon.setColorState(gnomonColor);
+
+        sceneManager.groundPlane.setColorState(groundplaneColor);
+
+        sceneManager.setRendererClearColorState(rendererClearColor);
 
     }
 

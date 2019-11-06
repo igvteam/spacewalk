@@ -167,7 +167,7 @@ class SceneManager {
                 const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
                 const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
 
-                this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.camera, doTrackObject: true });
+                this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.object, doTrackObject: true });
 
             }
         });
@@ -180,8 +180,8 @@ class SceneManager {
 
             this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-            this.cameraLightingRig.camera.aspect = window.innerWidth/window.innerHeight;
-            this.cameraLightingRig.camera.updateProjectionMatrix();
+            this.cameraLightingRig.object.aspect = window.innerWidth/window.innerHeight;
+            this.cameraLightingRig.object.updateProjectionMatrix();
         }
 
     };
@@ -218,7 +218,7 @@ class SceneManager {
             this.gnomon.renderLoopHelper();
         }
 
-        this.renderer.render(this.scene, this.cameraLightingRig.camera);
+        this.renderer.render(this.scene, this.cameraLightingRig.object);
 
     }
 
@@ -246,8 +246,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), (1) );
 
-    const [ fov, near, far, domElement, aspectRatio ] = [ 35, 1e2, 3e3, renderer.domElement, (window.innerWidth/window.innerHeight) ];
-    const cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspectRatio, hemisphereLight });
+    const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (window.innerWidth/window.innerHeight) ];
+    const cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspect, hemisphereLight });
 
     // Nice numbers
     const position = new THREE.Vector3(134820, 55968, 5715);

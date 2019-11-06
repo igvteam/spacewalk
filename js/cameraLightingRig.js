@@ -8,14 +8,12 @@ let currentCentroid = undefined;
 
 class CameraLightingRig extends OrbitControls {
 
-    constructor ({ fov, near, far, domElement, aspectRatio, hemisphereLight }) {
+    constructor ({ fov, near, far, domElement, aspect, hemisphereLight }) {
 
-        let camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
+        super (new THREE.PerspectiveCamera(fov, aspect, near, far), domElement);
 
-        super (camera, domElement);
-
-        this.camera = camera;
-        this.camera.name = 'orbital_camera';
+        // OrbitControls refers to the camera as "object"
+        this.object.name = 'orbital_camera';
 
         this.hemisphereLight = hemisphereLight;
 
@@ -36,34 +34,70 @@ class CameraLightingRig extends OrbitControls {
             const delta = this.target.clone().sub(currentCentroid);
             const target = centroid.clone().add(delta);
 
-            const toCamera = this.camera.position.clone().sub(this.target);
+            const toCamera = this.object.position.clone().sub(this.target);
             const position = target.clone().add(toCamera);
 
             this.setPose(position, target);
         }
 
-        const [ near, far, aspectRatio ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
-        this.setProjection({ fov, near, far, aspectRatio });
+        const [ near, far, aspect ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
+        this.setProjection({ fov, near, far, aspect });
 
         currentCentroid = centroid.clone();
 
     }
 
     getState() {
-        return this.camera.toJSON();
+        const json = this.object.toJSON();
+
+        const { x, y, z } = this.object.position;
+        json.position = { x, y, z };
+
+        const { x:tx, y:ty, z: tz } = this.target;
+        json.target = { tx, ty, tz };
+
+        return json;
     }
 
     setState(json) {
-        const jsonLoader = new THREE.ObjectLoader();
-        this.camera = jsonLoader.parse(json);
-        this.reset();
+
+        const { position:p, target:t } = json;
+
+        const { x, y, z } = p;
+        const position = new THREE.Vector3(x, y, z);
+
+        const { tx, ty, tz } = t;
+        const target = new THREE.Vector3(tx, ty, tz);
+
+        this.setPose(position, target);
+
+        const { fov, near, far } = json.object;
+        this.setProjection({ fov, near, far, aspect: (window.innerWidth/window.innerHeight) });
+
+        // const jsonLoader = new THREE.ObjectLoader();
+        // this.object = jsonLoader.parse(json);
+        // this.reset();
     }
 
     get name () {
-        return this.camera.name;
+        return this.object.name;
     }
 
-    setProjection({ fov, near, far, aspectRatio }) {
+    setPose(position, target) {
+
+        this.object.lookAt(target);
+
+        const { x, y, z } = position;
+        this.object.position.set(x, y, z);
+
+        this.object.updateMatrixWorld();
+
+        this.target.copy(target);
+        this.update();
+
+    };
+
+    setProjection({ fov, near, far, aspect }) {
 
         // Update camera dolly range
         const delta = far - near;
@@ -71,45 +105,31 @@ class CameraLightingRig extends OrbitControls {
         this.minDistance = near;
         // this.maxDistance =  far - 4e-1 * delta;
 
-        this.camera.fov = fov;
-        this.camera.aspect = aspectRatio;
-        this.camera.near = near;
-        this.camera.far = far;
+        this.object.fov = fov;
+        this.object.aspect = aspect;
+        this.object.near = near;
+        this.object.far = far;
 
-        this.camera.updateProjectionMatrix();
+        this.object.updateProjectionMatrix();
     }
 
-    setPose(position, target) {
-
-        this.camera.lookAt(target);
-
-        const { x, y, z } = position;
-        this.camera.position.set(x, y, z);
-
-        this.camera.updateMatrixWorld();
-
-        this.target.copy(target);
-        this.update();
-
-    };
-
     addToScene (scene) {
-        scene.add( this.camera );
+        scene.add( this.object );
         scene.add( this.hemisphereLight );
     };
 
     renderLoopHelper() {
 
         // Keep hemisphere light directly above trace model by transforming with camera transform
-        this.camera.getWorldDirection(cameraWorldDirection);
-        crossed.crossVectors(cameraWorldDirection, this.camera.up);
+        this.object.getWorldDirection(cameraWorldDirection);
+        crossed.crossVectors(cameraWorldDirection, this.object.up);
         this.hemisphereLight.position.crossVectors(crossed, cameraWorldDirection);
 
     }
 
     dispose() {
         //
-        delete this.camera;
+        delete this.object;
     }
 
 }
