@@ -50,6 +50,8 @@ class CameraLightingRig extends OrbitControls {
     getState() {
         const json = this.object.toJSON();
 
+        // Note: object.position is not included in object.toJSON (perspectiveCamera.toJSON())
+        //       so it must be json'ed separately
         const { x, y, z } = this.object.position;
         json.position = { x, y, z };
 
@@ -72,6 +74,9 @@ class CameraLightingRig extends OrbitControls {
         this.setPose(position, target);
 
         const { fov, near, far } = json.object;
+
+        // The aspect ratio of the json CameraLightingRig can differ from the app
+        // it is being imported into. We recalculate it here.
         this.setProjection({ fov, near, far, aspect: (window.innerWidth/window.innerHeight) });
 
         // const jsonLoader = new THREE.ObjectLoader();
