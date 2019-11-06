@@ -8,14 +8,12 @@ let currentCentroid = undefined;
 
 class CameraLightingRig extends OrbitControls {
 
-    constructor ({ fov, near, far, domElement, aspectRatio, hemisphereLight }) {
+    constructor ({ fov, near, far, domElement, aspect, hemisphereLight }) {
 
-        let camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
+        super (new THREE.PerspectiveCamera(fov, aspect, near, far), domElement);
 
-        super (camera, domElement);
-
-        this.camera = camera;
-        this.camera.name = 'orbital_camera';
+        // OrbitControls refers to the camera as "object"
+        this.object.name = 'orbital_camera';
 
         this.hemisphereLight = hemisphereLight;
 
@@ -27,31 +25,79 @@ class CameraLightingRig extends OrbitControls {
     configure ({ fov, position, centroid, boundingDiameter }) {
 
         if (true === this.doUpdateCameraPose) {
-            this.setPose({ position, newTarget: centroid });
+
+            this.setPose(position, centroid);
             this.doUpdateCameraPose = false;
         } else {
 
             // maintain the pre-existing delta between camera target and object centroid
-            const delta = new THREE.Vector3();
-            delta.subVectors(this.target, currentCentroid);
+            const delta = this.target.clone().sub(currentCentroid);
+            const target = centroid.clone().add(delta);
 
-            const newTarget = new THREE.Vector3();
-            newTarget.addVectors(centroid, delta);
-            this.setTarget({ newTarget });
+            const toCamera = this.object.position.clone().sub(this.target);
+            const position = target.clone().add(toCamera);
+
+            this.setPose(position, target);
         }
 
-        const [ near, far, aspectRatio ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
-        this.setProjection({ fov, near, far, aspectRatio });
+        const [ near, far, aspect ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
+        this.setProjection({ fov, near, far, aspect });
 
         currentCentroid = centroid.clone();
 
     }
 
-    get name () {
-        return this.camera.name;
+    getState() {
+        const json = this.object.toJSON();
+
+        const { x, y, z } = this.object.position;
+        json.position = { x, y, z };
+
+        const { x:tx, y:ty, z: tz } = this.target;
+        json.target = { tx, ty, tz };
+
+        return json;
     }
 
-    setProjection({ fov, near, far, aspectRatio }) {
+    setState(json) {
+
+        const { position:p, target:t } = json;
+
+        const { x, y, z } = p;
+        const position = new THREE.Vector3(x, y, z);
+
+        const { tx, ty, tz } = t;
+        const target = new THREE.Vector3(tx, ty, tz);
+
+        this.setPose(position, target);
+
+        const { fov, near, far } = json.object;
+        this.setProjection({ fov, near, far, aspect: (window.innerWidth/window.innerHeight) });
+
+        // const jsonLoader = new THREE.ObjectLoader();
+        // this.object = jsonLoader.parse(json);
+        // this.reset();
+    }
+
+    get name () {
+        return this.object.name;
+    }
+
+    setPose(position, target) {
+
+        this.object.lookAt(target);
+
+        const { x, y, z } = position;
+        this.object.position.set(x, y, z);
+
+        this.object.updateMatrixWorld();
+
+        this.target.copy(target);
+        this.update();
+
+    };
+
+    setProjection({ fov, near, far, aspect }) {
 
         // Update camera dolly range
         const delta = far - near;
@@ -59,43 +105,31 @@ class CameraLightingRig extends OrbitControls {
         this.minDistance = near;
         // this.maxDistance =  far - 4e-1 * delta;
 
-        this.camera.fov = fov;
-        this.camera.aspect = aspectRatio;
-        this.camera.near = near;
-        this.camera.far = far;
+        this.object.fov = fov;
+        this.object.aspect = aspect;
+        this.object.near = near;
+        this.object.far = far;
 
-        this.camera.updateProjectionMatrix();
-    }
-
-    setPose({ position, newTarget }) {
-        let toCamera = new THREE.Vector3();
-        toCamera.subVectors(position, newTarget);
-        poseHelper({ toCamera, newTarget, camera: this.camera, orbitControl: this })
-    }
-
-    setTarget({ newTarget }) {
-        let toCamera = new THREE.Vector3();
-        toCamera.subVectors(this.camera.position, this.target);
-        poseHelper({ toCamera, newTarget, camera: this.camera, orbitControl: this })
+        this.object.updateProjectionMatrix();
     }
 
     addToScene (scene) {
-        scene.add( this.camera );
+        scene.add( this.object );
         scene.add( this.hemisphereLight );
     };
 
     renderLoopHelper() {
 
         // Keep hemisphere light directly above trace model by transforming with camera transform
-        this.camera.getWorldDirection(cameraWorldDirection);
-        crossed.crossVectors(cameraWorldDirection, this.camera.up);
+        this.object.getWorldDirection(cameraWorldDirection);
+        crossed.crossVectors(cameraWorldDirection, this.object.up);
         this.hemisphereLight.position.crossVectors(crossed, cameraWorldDirection);
 
     }
 
     dispose() {
         //
-        delete this.camera;
+        delete this.object;
     }
 
 }
@@ -107,22 +141,6 @@ const createLightSource = ({ x, y, z, color, intensity }) => {
     lightSource.position.set(x, y, z);
 
     return lightSource;
-};
-
-let poseHelper = ({ toCamera, newTarget, camera, orbitControl }) => {
-
-    camera.lookAt(newTarget);
-
-    const position = new THREE.Vector3();
-    position.addVectors(newTarget, toCamera);
-    const { x, y, z } = position;
-    camera.position.set(x, y, z);
-
-    camera.updateMatrixWorld();
-
-    orbitControl.target.copy(newTarget);
-    orbitControl.update();
-
 };
 
 export default CameraLightingRig

@@ -9,6 +9,8 @@ class GroundPlane extends THREE.GridHelper {
         super(size, divisions, color, color);
         this.name = 'groundplane';
 
+        this.color = color;
+
         this.divisions = divisions;
         this.position.copy(position);
         this.opacity = opacity;
@@ -18,7 +20,20 @@ class GroundPlane extends THREE.GridHelper {
 
     }
 
+    getColorState() {
+        const { r, g, b } = this.color;
+        return { r, g, b };
+    }
+
+    setColorState(json) {
+        const { r, g, b } = json;
+        this.setColor(new THREE.Color(r, g, b));
+    }
+
     setColor(color) {
+
+        const { r, g, b } = color;
+        this.color.setRGB(r, g, b);
 
         let colors = this.geometry.attributes.color.array;
         let j = 0;
@@ -62,6 +77,15 @@ class GroundPlane extends THREE.GridHelper {
     dismiss() {
         this.visible = false;
         setGUIGroundplaneVisibility(this.visible);
+    }
+
+    setVisibility(status) {
+        if('visible' === status) {
+            this.present();
+        } else {
+            this.dismiss();
+        }
+
     }
 
 }

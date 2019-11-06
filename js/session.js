@@ -1,3 +1,4 @@
+import * as THREE from "../node_modules/three/build/three.module.js";
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Zlib from "../vendor/zlib_and_gzip.js";
 import Panel from "./panel.js";
@@ -88,6 +89,12 @@ const getCompressedSession = () => {
 
     json.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden';
 
+    json.cameraLightingRig = sceneManager.cameraLightingRig.getState();
+
+    json.gnomonColor = sceneManager.gnomon.getColorState();
+    json.groundplaneColor = sceneManager.groundPlane.getColorState();
+    json.rendererClearColor = sceneManager.getRendererClearColorState();
+
     const jsonString = JSON.stringify( json );
 
     return getCompressedString(jsonString);
@@ -141,7 +148,7 @@ const loadSession = async (url) => {
 
         const jsonString = uncompressSession(spacewalk_session_URL);
 
-        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility } = JSON.parse(jsonString);
+        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, rendererClearColor } = JSON.parse(jsonString);
 
         await parser.loadSessionTrace({ url, traceKey });
 
@@ -151,25 +158,20 @@ const loadSession = async (url) => {
 
         setGUIRenderStyle(renderStyle);
 
-        Panel.getPanelList().forEach( panel => {
-            if ('visible' === panelVisibility[ panel.constructor.name ]) {
-                panel.present();
-            } else {
-                panel.dismiss();
-            }
-        });
+        Panel.setAllPanelVisibility(panelVisibility);
 
-        if('visible' === gnomonVisibility) {
-            sceneManager.gnomon.present();
-        } else {
-            sceneManager.gnomon.dismiss();
-        }
+        sceneManager.gnomon.setVisibility(gnomonVisibility);
 
-        if('visible' === groundPlaneVisibility) {
-            sceneManager.groundPlane.present();
-        } else {
-            sceneManager.groundPlane.dismiss();
-        }
+        sceneManager.groundPlane.setVisibility(groundPlaneVisibility);
+
+        // TODO: Decide whether to restore camera state
+        // sceneManager.cameraLightingRig.setState(cameraLightingRig);
+
+        sceneManager.gnomon.setColorState(gnomonColor);
+
+        sceneManager.groundPlane.setColorState(groundplaneColor);
+
+        sceneManager.setRendererClearColorState(rendererClearColor);
 
     }
 

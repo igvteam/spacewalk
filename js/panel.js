@@ -138,6 +138,18 @@ class Panel {
         panelList = panels;
     }
 
+    static setAllPanelVisibility(panelVisibility) {
+
+        Panel.getPanelList().forEach( panel => {
+            if ('visible' === panelVisibility[ panel.constructor.name ]) {
+                panel.present();
+            } else {
+                panel.dismiss();
+            }
+        });
+
+    }
+
     static getPanelList() {
         return panelList;
     }
