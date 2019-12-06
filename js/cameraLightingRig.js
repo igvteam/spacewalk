@@ -1,5 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
+// import OrbitControls from "../node_modules/orbit-controls-es6/build/orbit-controls-es6.es6.js";
 
 let cameraWorldDirection = new THREE.Vector3();
 let crossed = new THREE.Vector3();
@@ -24,10 +25,21 @@ class CameraLightingRig extends OrbitControls {
 
     configure ({ fov, position, centroid, boundingDiameter }) {
 
+        const [ near, far, aspect ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
+
+        // to set the camera in a sane pose after it has gotten mangled
+        this.resetCamera = () => {
+            this.setPose(position, centroid);
+            this.setProjection({ fov, near, far, aspect });
+            currentCentroid = centroid.clone();
+        };
+
         if (true === this.doUpdateCameraPose) {
 
             this.setPose(position, centroid);
+
             this.doUpdateCameraPose = false;
+
         } else {
 
             // maintain the pre-existing delta between camera target and object centroid
@@ -40,7 +52,6 @@ class CameraLightingRig extends OrbitControls {
             this.setPose(position, target);
         }
 
-        const [ near, far, aspect ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
         this.setProjection({ fov, near, far, aspect });
 
         currentCentroid = centroid.clone();
@@ -50,6 +61,8 @@ class CameraLightingRig extends OrbitControls {
     getState() {
         const json = this.object.toJSON();
 
+        // Note: object.position is not included in object.toJSON (perspectiveCamera.toJSON())
+        //       so it must be json'ed separately
         const { x, y, z } = this.object.position;
         json.position = { x, y, z };
 
@@ -72,6 +85,9 @@ class CameraLightingRig extends OrbitControls {
         this.setPose(position, target);
 
         const { fov, near, far } = json.object;
+
+        // The aspect ratio of the json CameraLightingRig can differ from the app
+        // it is being imported into. We recalculate it here.
         this.setProjection({ fov, near, far, aspect: (window.innerWidth/window.innerHeight) });
 
         // const jsonLoader = new THREE.ObjectLoader();

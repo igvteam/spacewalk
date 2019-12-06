@@ -15,10 +15,10 @@ class FatLineSegmentsGeometry extends THREE.InstancedBufferGeometry {
         this.setIndex( index );
 
         const positions = [ - 1, 2, 0, 1, 2, 0, - 1, 1, 0, 1, 1, 0, - 1, 0, 0, 1, 0, 0, - 1, - 1, 0, 1, - 1, 0 ];
-        this.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+        this.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
 
         const uvs = [ - 1, 2, 1, 2, - 1, 1, 1, 1, - 1, - 1, 1, - 1, - 1, - 2, 1, - 2 ];
-        this.addAttribute( 'uv', new THREE.Float32BufferAttribute( uvs, 2 ) );
+        this.setAttribute( 'uv', new THREE.Float32BufferAttribute( uvs, 2 ) );
 
     }
 
@@ -68,8 +68,8 @@ class FatLineSegmentsGeometry extends THREE.InstancedBufferGeometry {
         }
 
         const instanceBuffer = new THREE.InstancedInterleavedBuffer( lineSegments, 6, 1 ); // xyz, xyz
-        this.addAttribute( 'instanceStart', new THREE.InterleavedBufferAttribute( instanceBuffer, 3, 0 ) ); // xyz
-        this.addAttribute( 'instanceEnd', new THREE.InterleavedBufferAttribute( instanceBuffer, 3, 3 ) ); // xyz
+        this.setAttribute( 'instanceStart', new THREE.InterleavedBufferAttribute( instanceBuffer, 3, 0 ) ); // xyz
+        this.setAttribute( 'instanceEnd', new THREE.InterleavedBufferAttribute( instanceBuffer, 3, 3 ) ); // xyz
 
         //
 
@@ -95,8 +95,8 @@ class FatLineSegmentsGeometry extends THREE.InstancedBufferGeometry {
         }
 
         const instanceColorBuffer = new THREE.InstancedInterleavedBuffer( colors, 6, 1 ); // rgb, rgb
-        this.addAttribute( 'instanceColorStart', new THREE.InterleavedBufferAttribute( instanceColorBuffer, 3, 0 ) ); // rgb
-        this.addAttribute( 'instanceColorEnd', new THREE.InterleavedBufferAttribute( instanceColorBuffer, 3, 3 ) ); // rgb
+        this.setAttribute( 'instanceColorStart', new THREE.InterleavedBufferAttribute( instanceColorBuffer, 3, 0 ) ); // rgb
+        this.setAttribute( 'instanceColorEnd', new THREE.InterleavedBufferAttribute( instanceColorBuffer, 3, 3 ) ); // rgb
 
         return this;
 

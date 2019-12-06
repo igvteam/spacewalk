@@ -1,4 +1,3 @@
-import * as THREE from "../node_modules/three/build/three.module.js";
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Zlib from "../vendor/zlib_and_gzip.js";
 import Panel from "./panel.js";

@@ -218,14 +218,23 @@ export const trackLoadControllerConfigurator = (browser) => {
 
 function configureModalSelectList($modal, configurations) {
 
-    let $select = $modal.find('select');
-    $select.empty();
+    $modal.find('select').remove();
 
-    $select.append($('<option>', { text: 'Choose...' }));
+    const $select = $('<select>', { class: 'custom-select'});
+    $modal.find('.input-group').append($select);
+
+
+    let $option;
+
+    $option = $('<option>', {text: 'Select...'});
+    $select.append($option);
+
+    $option.attr('selected', 'selected');
+    $option.val(undefined);
 
     for (let config of configurations) {
 
-        let $option = $('<option>', { value: config.name, text: config.name });
+        $option = $('<option>', { value: config.name, text: config.name });
         $select.append($option);
 
         $option.data('track', config);
@@ -233,14 +242,16 @@ function configureModalSelectList($modal, configurations) {
 
     $select.on('change', function (e) {
 
-        const $option = $(this).find('option:selected');
+        const $option = $select.find('option:selected');
         const value = $option.val();
 
         if ('' === value) {
             // do nothing
         } else {
-            const trackConfiguration = $option.data('track');
+
             $option.removeAttr("selected");
+
+            const trackConfiguration = $option.data('track');
             igvPanel.loadTrack(trackConfiguration);
         }
 

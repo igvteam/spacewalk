@@ -137,8 +137,8 @@ class SceneManager {
         this.scene = scene;
         // this.scene.background = this.background;
 
-        // Camera Lighting Rig
         this.cameraLightingRig.configure({fov, position: cameraPosition, centroid, boundingDiameter});
+
         this.cameraLightingRig.addToScene(this.scene);
 
         // Groundplane
@@ -230,6 +230,10 @@ class SceneManager {
     setRendererClearColorState(json) {
         const { r, g, b } = json;
         this.renderer.setClearColor(new THREE.Color(r, g, b));
+    }
+
+    resetCamera() {
+        this.cameraLightingRig.resetCamera();
     }
 
 }
