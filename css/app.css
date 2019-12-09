@@ -34,11 +34,8 @@ div.navbar-brand {
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center; }
-  #spacewalk-help-icon-container a {
+  #spacewalk-help-icon-container button span {
     color: white; }
-    #spacewalk-help-icon-container a i {
-      cursor: pointer;
-      display: block; }
 
 .card {
   position: absolute;

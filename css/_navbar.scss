@@ -54,14 +54,9 @@ div.navbar-brand {
   justify-content: center;
   align-items: center;
 
-  a {
-
-    color: white;
-
-    i {
-      cursor: pointer;
-      display: block;
+  button {
+    span {
+      color: white;
     }
-
   }
 }
