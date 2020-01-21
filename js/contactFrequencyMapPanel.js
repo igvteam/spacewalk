@@ -3,7 +3,7 @@ import { clamp } from "./math.js";
 import { hideSpinner, showSpinner } from './app.js';
 import Panel from "./panel.js";
 import { colorMapManager, ensembleManager } from "./app.js";
-import {threeJSColorToRGB255} from "./color";
+import {threeJSColorToRGB255} from "./color.js";
 import { drawWithSharedUint8ClampedArray } from "./utils.js";
 import EnsembleManager from "./ensembleManager.js";
 
