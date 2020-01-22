@@ -57,14 +57,14 @@ class IGVPanel extends Panel {
                 try {
                     await this.loadGenomeWithID( genomeAssembly );
                 } catch (e) {
-                    console.error(e);
+                    Alert.presentAlert(e.message);
                 }
 
                 try {
                     const str = 'all' === chr ? 'all' : `${ chr }:${ start }-${ end }`;
                     await this.browser.search(str);
                 } catch (e) {
-                    console.error(e);
+                    Alert.presentAlert(e.message);
                 }
 
             })();
@@ -187,8 +187,8 @@ class IGVPanel extends Panel {
         let tracks = [];
         try {
             tracks = await this.browser.loadTrackList( configurations );
-        } catch (error) {
-            console.warn(error.message);
+        } catch (e) {
+            Alert.presentAlert(e.message);
         }
 
         for (let track of tracks) {
