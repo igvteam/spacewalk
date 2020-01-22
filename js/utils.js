@@ -44,21 +44,6 @@ let throttle = (fn, threshhold, scope) => {
     }
 };
 
-let numberFormatter = (rawNumber) => {
-
-    const [ dec, sep, decsep ] = [ String(rawNumber).split(/[.,]/), ',', '.' ];
-
-    return dec[ 0 ]
-        .split('')
-        .reverse()
-        .reduce((accumulator, value, index) => {
-            return 0 === index % 3 ? accumulator + sep + value : accumulator + value;
-        })
-        .split('')
-        .reverse()
-        .join('') + (dec[1] ? decsep + dec[1] : '');
-};
-
 const readFileAsText = file => {
 
     const reader = new FileReader();
@@ -147,6 +132,5 @@ export {
     fitToContainer,
     getMouseXY,
     throttle,
-    numberFormatter,
     generateRadiusTable
 };

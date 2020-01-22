@@ -1,6 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import { appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255String, threeJSColorToRGB255 } from "./color.js";
-import { numberFormatter } from "./utils.js";
 import { doConfigureGnomonHidden, setGUIGnomonVisibility } from "./guiManager.js";
 
 class Gnomon extends THREE.AxesHelper {
@@ -166,7 +166,7 @@ const getAxisSpriteMaterial = (color, length) => {
     ctx.fillStyle = color;
     ctx.font = 'bold 128px sans-serif';
 
-    length = numberFormatter( Math.round(length) );
+    length = StringUtils.numberFormatter( Math.round(length) );
     const string = `${ length }nm`;
     ctx.fillText(string, ctx.canvas.width/2, ctx.canvas.height/2);
 

@@ -13,19 +13,23 @@
     "babel-loader": "^8.0.5"
   },
   "dependencies": {
+    "node-fetch": "^2.6.0",
+    "three": "^0.112.1",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "http-server": "^0.12.1",
     "@babel/cli": "^7.8.3",
     "@babel/core": "^7.8.3",
     "@babel/node": "^7.8.3",
     "@babel/polyfill": "^7.8.3",
     "@babel/preset-env": "^7.8.3",
     "copy-webpack-plugin": "^5.1.1",
-    "data-modal": "github:igvteam/data-modal",
-    "http-server": "^0.12.1",
     "juicebox.js": "^1.4.2",
-    "kd3d": "github:turner/kd3d",
-    "node-fetch": "^2.6.0",
-    "three": "^0.112.1",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10"
+    "igv": "^2.3.5",
+    "igv-ui": "github:igvteam/igv-ui",
+    "igv-utils": "github:igvteam/igv-utils",
+    "igv-widgets": "github:igvteam/igv-widgets",
+    "data-modal": "github:igvteam/data-modal",
+    "kd3d": "github:turner/kd3d"
   }
 }

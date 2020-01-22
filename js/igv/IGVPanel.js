@@ -1,6 +1,9 @@
-import igv from '../../vendor/igv.esm.js';
+import igv from '../../node_modules/igv/dist/igv.esm.js';
+import { Alert } from '../../node_modules/igv-ui/src/index.js'
+import { TrackFileLoad } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
+import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
+import TrackLoadController from "./trackLoadController.js";
 import { setMaterialProvider } from '../utils.js';
-import TrackLoadController, { trackLoadControllerConfigurator } from "./trackLoadController.js";
 import Panel from "../panel.js";
 import { colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, eventBus } from "../app.js";
 
@@ -76,8 +79,8 @@ class IGVPanel extends Panel {
         let genomeList = undefined;
         try {
             genomeList = await igv.xhr.loadJson(genomesJSONPath, {})
-        } catch (error) {
-            console.error(error);
+        } catch (e) {
+            Alert.presentAlert(e.message);
         }
 
         this.genomeDictionary = {};
@@ -87,8 +90,8 @@ class IGVPanel extends Panel {
 
         try {
             this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
-        } catch (error) {
-            console.error(error);
+        } catch (e) {
+            Alert.presentAlert(e.message);
         }
 
         this.browser.on('trackremoved', (track) => {
@@ -104,12 +107,45 @@ class IGVPanel extends Panel {
             IGVMouseHandler({ bp, start, end, interpolant })
         });
 
-        trackLoadController = new TrackLoadController(trackLoadControllerConfigurator(this.browser ));
+        // TrackFileLoad
+        const trackFileLoadConfig =
+            {
+                localFileInput: document.querySelector('#spacewalk-igv-app-dropdown-local-track-file-input'),
+                dropboxButton: document.querySelector('#spacewalk-igv-app-dropdown-dropbox-track-file-button'),
+                googleEnabled: false,
+                googleDriveButton: document.querySelector('#spacewalk-igv-app-dropdown-google-drive-track-file-button'),
+                loadHandler: async configurations => await this.browser.loadTrackList(configurations)
+            };
+
+        // ModalTable
+        const encodeModalTableConfig =
+            {
+                id: "igv-app-encode-modal",
+                title: "ENCODE",
+                selectHandler: async trackConfigurations => await this.browser.loadTrackList( trackConfigurations )
+            };
+
+        const dropdownMenu = document.querySelector('#spacewalk-igv-app-track-dropdown-menu');
+        const selectModal = document.querySelector('#spacewalk-igv-app-generic-track-select-modal');
+
+        // TrackLoadController
+        const trackLoadControllerConfig =
+            {
+                browser: this.browser,
+                trackRegistryFile: "resources/tracks/trackRegistry.json",
+                trackLoadModal: document.querySelector('#spacewalk-igv-app-track-from-url-modal'),
+                trackFileLoad: new TrackFileLoad(trackFileLoadConfig),
+                encodeModalTable: new ModalTable(encodeModalTableConfig),
+                dropdownMenu,
+                selectModal
+            };
+
+        trackLoadController = new TrackLoadController(trackLoadControllerConfig);
 
         try {
-            await trackLoadController.updateTrackMenus(this.browser.genome.id);
-        } catch (error) {
-            console.error(error);
+            await trackLoadController.updateTrackMenus(this.browser, this.browser.genome.id, trackLoadController.trackRegistryFile, dropdownMenu, selectModal);
+        } catch (e) {
+            Alert.presentAlert(e.message);
         }
 
     }
@@ -122,19 +158,24 @@ class IGVPanel extends Panel {
 
             const json = this.genomeDictionary[ genomeID ];
 
+            let g = undefined;
             try {
-
-                await this.browser.loadGenome(json);
+                g = await this.browser.loadGenome(json);
             } catch (e) {
-                console.error(e);
-
+                Alert.presentAlert(e.message);
             }
 
-            try {
-                await trackLoadController.updateTrackMenus(this.browser.genome.id);
-            } catch (e) {
-                console.error(e);
-                alert(e.message);
+            if (g) {
+
+                const dropdownMenu = document.querySelector('#spacewalk-igv-app-track-dropdown-menu');
+                const selectModal = document.querySelector('#spacewalk-igv-app-generic-track-select-modal');
+
+                try {
+                    await trackLoadController.updateTrackMenus(this.browser, this.browser.genome.id, trackLoadController.trackRegistryFile, dropdownMenu, selectModal);
+                } catch (e) {
+                    Alert.presentAlert(e.message);
+                }
+
             }
 
         }

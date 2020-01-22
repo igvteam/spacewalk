@@ -1,7 +1,9 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import { clamp } from './math.js';
 import EnsembleManager from "./ensembleManager.js";
-import { numberFormatter, generateRadiusTable } from "./utils.js";
+import { generateRadiusTable } from "./utils.js";
+
 import { sceneManager, igvPanel } from './app.js'
 
 let ballRadiusIndex = undefined;
@@ -31,7 +33,7 @@ class BallAndStick {
         }
 
         const averageCurveDistance  = computeAverageCurveDistance(this.stickCurves);
-        console.log(`Ball&Stick. Average Curve Distance ${ numberFormatter(Math.round(averageCurveDistance)) }`);
+        console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`);
 
         stickRadiusTable = generateRadiusTable(0.5e-1 * averageCurveDistance);
         stickRadiusIndex = Math.floor( stickRadiusTable.length/2 );

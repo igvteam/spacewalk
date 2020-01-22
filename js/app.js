@@ -1,3 +1,4 @@
+import { Alert } from '../node_modules/igv-ui/src/index.js'
 import EventBus from "./eventBus.js";
 import GSDB from "./gsdb/gsdb.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -47,6 +48,10 @@ let igvPanel;
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
+    const container = document.getElementById('spacewalk_canvas_container');
+
+    Alert.init(container);
+
     parser = new Parser();
 
     pointCloud = new PointCloud();
@@ -67,7 +72,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
 
-    const container = document.getElementById('spacewalk_canvas_container');
     sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
 
     await createButtonsPanelsModals(container);

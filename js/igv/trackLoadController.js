@@ -1,228 +1,183 @@
-/*
- *  The MIT License (MIT)
- *
- * Copyright (c) 2016-2017 The Regents of the University of California
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial
- * portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
- * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-// import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
-import igv from '../../vendor/igv.esm.js';
-import {configureModal} from './utils-igv-webapp.js';
-import FileLoadWidget from './fileLoadWidget.js';
-import FileLoadManager from './fileLoadManager.js';
-import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.js'
-import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
-import MultipleFileLoadController from "./multipleFileLoadController.js";
-import { igvPanel } from '../app.js';
+import { Utils, FileLoadManager, FileLoadWidget } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
+import { GtexUtils } from '../../node_modules/igv-utils/src/index.js';
+import { Alert } from '../../node_modules/igv-ui/src/index.js'
+import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.js';
 
 class TrackLoadController {
 
-    constructor({ browser, trackRegistryFile, $urlModal, encodeModalTable, $dropdownMenu, $genericTrackSelectModal, uberFileLoader}) {
+    constructor({ browser, trackRegistryFile, trackLoadModal, trackFileLoad, encodeModalTable, dropdownMenu, selectModal }) {
 
         this.browser = browser;
         this.trackRegistryFile = trackRegistryFile;
-        this.trackRegistry = undefined;
         this.encodeModalTable = encodeModalTable;
-        this.$dropdownMenu = $dropdownMenu;
-        this.$modal = $genericTrackSelectModal;
 
-        // URL
-        const urlConfig =
+        let fileLoadWidgetConfig =
             {
-                $widgetParent: $urlModal.find('.modal-body'),
+                widgetParent: trackLoadModal.querySelector('.modal-body'),
+                dataTitle: undefined,
+                indexTitle: undefined,
                 mode: 'url',
+                fileLoadManager: new FileLoadManager(),
+                dataOnly: undefined,
+                doURL: undefined
             };
 
-        this.urlWidget = new FileLoadWidget(urlConfig, new FileLoadManager());
-        configureModal(this.urlWidget, $urlModal, (fileLoadManager) => {
-            uberFileLoader.ingestPaths(fileLoadManager.getPaths());
+        this.urlWidget = new FileLoadWidget(fileLoadWidgetConfig);
+
+        Utils.configureModal(this.urlWidget, trackLoadModal, async fileLoadWidget => {
+            await trackFileLoad.loadPaths(fileLoadWidget.retrievePaths());
             return true;
         });
 
     }
+
+    async updateTrackMenus(browser, genomeID, trackRegistryFile, dropdownMenu, selectModal) {
+
+        const id_prefix = 'genome_specific_';
+
+        const $dropdownMenu = $(dropdownMenu);
+
+        const $found = $dropdownMenu.find("[id^='genome_specific_']");
+        $found.remove();
+
+        this.trackRegistry = undefined;
+        try {
+            this.trackRegistry = await this.getTrackRegistry(trackRegistryFile);
+        } catch (e) {
+            Alert.presentAlert(e.message);
+        }
+
+        if (undefined === this.trackRegistry) {
+            const e = new Error("Error retrieving registry via getTrackRegistry function");
+            Alert.presentAlert(e.message);
+            throw e;
+        }
+
+        const paths = this.trackRegistry[ genomeID ];
+
+        if (undefined === paths) {
+            console.warn(`There are no tracks in the track registryy for genome ${ genomeID }`);
+            return;
+        }
+
+        let responses = [];
+        try {
+            responses = await Promise.all( paths.map( path => fetch(path) ) )
+        } catch (e) {
+            Alert.presentAlert(e.message);
+        }
+
+        let jsons = [];
+        try {
+            const promises = responses.map( response => response.json() );
+            jsons = await Promise.all( promises )
+        } catch (e) {
+            Alert.presentAlert(e.message);
+        }
+
+        let buttonConfigurations = [];
+
+        for (let json of jsons) {
+
+            if ('ENCODE' === json.type) {
+
+                this.createEncodeTable(json.genomeID);
+                buttonConfigurations.push(json);
+
+            } else if ('GTEX' === json.type) {
+
+                let info = undefined;
+                try {
+                    info = await GtexUtils.getTissueInfo(json.datasetId);
+                } catch (e) {
+                    Alert.presentAlert(e.message);
+                }
+
+                if (info) {
+                    json.tracks = info.tissueInfo.map(tissue => GtexUtils.trackConfiguration(tissue));
+                    buttonConfigurations.push(json);
+                }
+
+            } else {
+                buttonConfigurations.push(json);
+            }
+
+
+        }
+
+        const $divider = $dropdownMenu.find('.dropdown-divider');
+
+        buttonConfigurations = buttonConfigurations.reverse();
+        for (let config of buttonConfigurations) {
+
+            const $button = $('<button>', { class:'dropdown-item', type:'button' });
+            $button.text(`${ config.label}...`);
+            $button.attr('id', `${ id_prefix }${ config.label.toLowerCase().split(' ').join('_') }`);
+
+            $button.insertAfter($divider);
+
+            $button.on('click', () => {
+
+                if ('ENCODE' === config.type) {
+
+                    this.encodeModalTable.$modal.modal('show');
+
+                } else {
+
+                    let markup = '<div>' + config.label + '</div>';
+
+                    if (config.description) {
+                        markup += '<div>' + config.description + '</div>';
+                    }
+
+                    const $modal = $(selectModal);
+
+                    $modal.find('#igv-app-generic-track-select-modal-label').html(markup);
+
+                    configureModalSelectList(browser, $modal, config.tracks);
+
+                    $modal.modal('show');
+
+                }
+
+            });
+
+        }
+
+
+    };
 
     createEncodeTable(genomeID) {
         const datasource = new EncodeDataSource(genomeID);
         this.encodeModalTable.setDatasource(datasource)
     };
 
-    async updateTrackMenus(genomeID) {
+    async getTrackRegistry(trackRegistryFile) {
 
-        const id_prefix = 'genome_specific_';
+        let response = undefined;
 
-        const $divider = this.$dropdownMenu.find('#spacewalk-igv-app-annotations-section');
+        try {
+            response = await fetch(trackRegistryFile);
+        } catch (e) {
+            console.error(e);
+        }
 
-        const searchString = '[id^=' + id_prefix + ']';
-        const $found = this.$dropdownMenu.find(searchString);
-        $found.remove();
-
-        if (this.trackRegistry) {
-            // do nothing;
-        } else if (this.trackRegistryFile) {
-
-            try {
-                this.trackRegistry = await igv.xhr.loadJson(this.trackRegistryFile);
-            } catch(error) {
-                console.error(error);
-            }
-
+        if (response) {
+            return await response.json();
         } else {
-            throw new Error('Can not find track registry file');
+            return undefined;
         }
 
-
-        if (undefined === this.trackRegistry) {
-            throw new Error('Can not create track registry');
-        }
-
-        const paths = this.trackRegistry[ genomeID ];
-
-        if (undefined === paths) {
-            console.warn(`No additional track menu items genome ID ${ genomeID }`);
-            // throw new Error(`Unsupported genome ID ${ genomeID }`);
-            return;
-        }
-
-        let results = [];
-        for (let path of paths.filter( (path) => ( !path.startsWith("@EXTRA") ) ) ) {
-
-            try {
-                const result = await igv.xhr.loadJson((path));
-                results.push(result);
-            } catch(err) {
-                console.error(err);
-            }
-
-        }
-
-        const set = new Set([ 'ENCODE', 'GTEX' ]);
-        let configurations = results.filter((c) => { return !set.has(c.type) });
-
-        let encodeConfiguration = results.filter((c) => { return 'ENCODE' === c.type });
-        if (encodeConfiguration && encodeConfiguration.length > 0) {
-
-            this.createEncodeTable(encodeConfiguration[ 0 ].genomeID);
-
-            if ($('#spacewalk-encode-modal-button').length) {
-                // do nothing
-            } else {
-                const $button = $('<button>', { 'id':'spacewalk-encode-modal-button', 'class':'dropdown-item', 'type':'button', 'data-toggle':'modal', 'data-target':'#spacewalk-encode-modal' });
-                $button.insertAfter($divider);
-
-                const { label } = encodeConfiguration[ 0 ];
-                $button.text( (label + ' ...') );
-            }
-
-        }
-
-        let gtexConfiguration = results.filter((c) => { return 'GTEX' === c.type });
-        if (gtexConfiguration && gtexConfiguration.length > 0) {
-
-            gtexConfiguration = gtexConfiguration.pop();
-            try {
-                const info = await igv.GtexUtils.getTissueInfo(gtexConfiguration.genomeID);
-                gtexConfiguration.tracks = info.tissueInfo.map((tissue) => { return igv.GtexUtils.trackConfiguration(tissue) });
-                configurations.push(gtexConfiguration);
-            } catch(err) {
-                console.error(err);
-            }
-
-        }
-
-        for (let config of configurations) {
-
-            const $button = $('<button>', {class: 'dropdown-item', type: 'button'});
-            const str = config.label + ' ...';
-            $button.text(str);
-
-            const id = id_prefix + config.label.toLowerCase().split(' ').join('_');
-            $button.attr('id', id);
-
-            $button.insertAfter($divider);
-
-            $button.on('click', () => {
-                let markup;
-
-                markup = '<div>' + config.label + '</div>';
-                if (config.description) {
-                    markup += '<div>' + config.description + '</div>';
-                }
-
-                this.$modal.find('#spacewalk-igv-app-generic-track-select-modal-label').html(markup);
-
-                configureModalSelectList(this.$modal, config.tracks);
-                this.$modal.modal('show');
-
-            });
-
-        }
-
-    };
-
+    }
 
 }
 
-export const trackLoadControllerConfigurator = (browser) => {
+function configureModalSelectList(browser, $selectModal, configurations) {
 
-    const multipleFileTrackConfig =
-        {
-            $modal: $('#spacewalk-igv-app-multiple-file-load-modal'),
-            modalTitle: 'Track File Error',
-            $localFileInput: $('#spacewalk-igv-app-dropdown-local-track-file-input'),
-            $dropboxButton: $('#spacewalk-igv-app-dropdown-dropbox-track-file-button'),
-            $googleDriveButton: undefined,
-            configurationHandler: MultipleFileLoadController.trackConfigurator,
-            jsonFileValidator: MultipleFileLoadController.trackJSONValidator,
-            pathValidator: MultipleFileLoadController.trackPathValidator,
-            fileLoadHandler: trackConfigurations => {
-                igvPanel.loadTrackList(trackConfigurations);
-            }
-        };
+    $selectModal.find('select').remove();
 
-    const encodeModalTableConfig =
-        {
-            id: "spacewalk-encode-modal",
-            title: "ENCODE",
-            selectHandler: trackConfigurations => {
-                igvPanel.loadTrackList(trackConfigurations);
-            }
-        };
-
-    return {
-        browser,
-        trackRegistryFile: "resources/tracks/trackRegistry.json",
-        $urlModal: $('#spacewalk-igv-app-track-from-url-modal'),
-        encodeModalTable: new ModalTable(encodeModalTableConfig),
-        $dropdownMenu: $('#spacewalk-igv-app-track-dropdown-menu'),
-        $genericTrackSelectModal: $('#spacewalk-igv-app-generic-track-select-modal'),
-        uberFileLoader: new MultipleFileLoadController(browser, multipleFileTrackConfig)
-    }
-
-};
-
-function configureModalSelectList($modal, configurations) {
-
-    $modal.find('select').remove();
-
-    const $select = $('<select>', { class: 'custom-select'});
-    $modal.find('.input-group').append($select);
-
+    const $select = $('<select>', { class: 'form-control' });
+    $selectModal.find('.form-group').append($select);
 
     let $option;
 
@@ -232,17 +187,21 @@ function configureModalSelectList($modal, configurations) {
     $option.attr('selected', 'selected');
     $option.val(undefined);
 
-    for (let config of configurations) {
+    configurations.reduce(($accumulator, configuration) => {
 
-        $option = $('<option>', { value: config.name, text: config.name });
+        $option = $('<option>', {value: configuration.name, text: configuration.name});
         $select.append($option);
 
-        $option.data('track', config);
-    }
+        $option.data('track', configuration);
 
-    $select.on('change', function (e) {
+        $accumulator.append($option);
 
-        const $option = $select.find('option:selected');
+        return $accumulator;
+    }, $select);
+
+    $select.on('change', () => {
+
+        let $option = $select.find('option:selected');
         const value = $option.val();
 
         if ('' === value) {
@@ -251,11 +210,11 @@ function configureModalSelectList($modal, configurations) {
 
             $option.removeAttr("selected");
 
-            const trackConfiguration = $option.data('track');
-            igvPanel.loadTrack(trackConfiguration);
+            const configuration = $option.data('track');
+            browser.loadTrack(configuration);
         }
 
-        $modal.modal('hide');
+        $selectModal.modal('hide');
 
     });
 
