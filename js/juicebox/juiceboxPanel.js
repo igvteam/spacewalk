@@ -149,27 +149,9 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
 
 export let juiceboxSelectLoader = async ($selectModal, onChangeConfiguration) => {
 
-    // let response = undefined;
-    // try {
-    //     response = await fetch('https://aidenlab.org/juicebox/res/mapMenuData.txt')
-    // } catch (e) {
-    //     console.warn(e.message);
-    //     return;
-    // }
-    //
-    // if (200 !== response.status) {
-    //     console.log('ERROR: bad response status');
-    // }
-    //
-    // let string = undefined;
-    // try {
-    //     string = await response.text();
-    // } catch (e) {
-    //     console.warn(e.message);
-    // }
+    // const data = await hic.igv.xhr.loadString('resources/mapMenuData.txt');
+    const data = await hic.igv.xhr.loadString('https://aidenlab.org/juicebox/res/mapMenuData.txt');
 
-
-    const data = await hic.igv.xhr.loadString('resources/mapMenuData.txt');
     const lines = hic.igv.splitLines(data);
 
     const $select = $selectModal.find('select');
