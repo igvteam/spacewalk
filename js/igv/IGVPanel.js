@@ -114,7 +114,9 @@ class IGVPanel extends Panel {
                 dropboxButton: document.querySelector('#spacewalk-igv-app-dropdown-dropbox-track-file-button'),
                 googleEnabled: false,
                 googleDriveButton: document.querySelector('#spacewalk-igv-app-dropdown-google-drive-track-file-button'),
-                loadHandler: async configurations => await this.browser.loadTrackList(configurations)
+                loadHandler: async configurations => {
+                    return await this.loadTrackList(configurations);
+                }
             };
 
         // ModalTable
@@ -122,7 +124,9 @@ class IGVPanel extends Panel {
             {
                 id: "igv-app-encode-modal",
                 title: "ENCODE",
-                selectHandler: async trackConfigurations => await this.browser.loadTrackList( trackConfigurations )
+                selectHandler: async configurations => {
+                    return await this.loadTrackList(configurations);
+                }
             };
 
         const dropdownMenu = document.querySelector('#spacewalk-igv-app-track-dropdown-menu');

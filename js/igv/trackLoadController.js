@@ -1,6 +1,7 @@
 import { Utils, FileLoadManager, FileLoadWidget } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
 import { Alert } from '../../node_modules/igv-ui/src/index.js'
 import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.js';
+import { igvPanel } from "../app.js";
 
 class TrackLoadController {
 
@@ -198,7 +199,7 @@ function configureModalSelectList(browser, $selectModal, tracks) {
             $option.removeAttr("selected");
 
             const configuration = $option.data('track');
-            browser.loadTrack(configuration);
+            igvPanel.loadTrack(configuration);
         }
 
         $selectModal.modal('hide');
