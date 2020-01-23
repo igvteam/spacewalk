@@ -1,5 +1,4 @@
 import { Utils, FileLoadManager, FileLoadWidget } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
-import { GtexUtils } from '../../node_modules/igv-utils/src/index.js';
 import { Alert } from '../../node_modules/igv-ui/src/index.js'
 import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.js';
 
@@ -80,24 +79,8 @@ class TrackLoadController {
         for (let json of jsons) {
 
             if ('ENCODE' === json.type) {
-
                 this.createEncodeTable(json.genomeID);
                 buttonConfigurations.push(json);
-
-            } else if ('GTEX' === json.type) {
-
-                let info = undefined;
-                try {
-                    info = await GtexUtils.getTissueInfo(json.datasetId);
-                } catch (e) {
-                    Alert.presentAlert(e.message);
-                }
-
-                if (info) {
-                    json.tracks = info.tissueInfo.map(tissue => GtexUtils.trackConfiguration(tissue));
-                    buttonConfigurations.push(json);
-                }
-
             } else {
                 buttonConfigurations.push(json);
             }

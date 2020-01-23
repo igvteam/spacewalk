@@ -1,4 +1,4 @@
-import { Alert } from '../node_modules/igv-ui/src/index.js'
+import { Alert, createGenericSelectModal, createTrackURLModal } from '../node_modules/igv-ui/src/index.js'
 import EventBus from "./eventBus.js";
 import GSDB from "./gsdb/gsdb.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -52,6 +52,9 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     Alert.init(container);
 
+    const root = document.querySelector('#spacewalk-main');
+    $(root).append(createGenericSelectModal('spacewalk-igv-app-generic-track-select-modal'));
+    $(root).append(createTrackURLModal('spacewalk-igv-app-track-from-url-modal'));
     parser = new Parser();
 
     pointCloud = new PointCloud();
