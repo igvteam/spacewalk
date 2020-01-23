@@ -108,33 +108,33 @@ class TrackLoadController {
         const $divider = $dropdownMenu.find('.dropdown-divider');
 
         buttonConfigurations = buttonConfigurations.reverse();
-        for (let config of buttonConfigurations) {
+        for (let { label, type, description, tracks } of buttonConfigurations) {
 
             const $button = $('<button>', { class:'dropdown-item', type:'button' });
-            $button.text(`${ config.label}...`);
-            $button.attr('id', `${ id_prefix }${ config.label.toLowerCase().split(' ').join('_') }`);
+            $button.text(`${ label}...`);
+            $button.attr('id', `${ id_prefix }${ label.toLowerCase().split(' ').join('_') }`);
 
             $button.insertAfter($divider);
 
             $button.on('click', () => {
 
-                if ('ENCODE' === config.type) {
+                if ('ENCODE' === type) {
 
                     this.encodeModalTable.$modal.modal('show');
 
                 } else {
 
-                    let markup = '<div>' + config.label + '</div>';
+                    let markup = '<div>' + label + '</div>';
 
-                    if (config.description) {
-                        markup += '<div>' + config.description + '</div>';
+                    if (description) {
+                        markup += '<div>' + description + '</div>';
                     }
 
                     const $modal = $(selectModal);
 
                     $modal.find('#igv-app-generic-track-select-modal-label').html(markup);
 
-                    configureModalSelectList(browser, $modal, config.tracks);
+                    configureModalSelectList(browser, $modal, tracks);
 
                     $modal.modal('show');
 
@@ -172,12 +172,16 @@ class TrackLoadController {
 
 }
 
-function configureModalSelectList(browser, $selectModal, configurations) {
+function configureModalSelectList(browser, $selectModal, tracks) {
 
-    $selectModal.find('select').remove();
+    let $found;
+
+    $found = $selectModal.find('select');
+    $found.remove();
 
     const $select = $('<select>', { class: 'form-control' });
-    $selectModal.find('.form-group').append($select);
+    $found = $selectModal.find('.form-group');
+    $found.append($select);
 
     let $option;
 
@@ -187,7 +191,7 @@ function configureModalSelectList(browser, $selectModal, configurations) {
     $option.attr('selected', 'selected');
     $option.val(undefined);
 
-    configurations.reduce(($accumulator, configuration) => {
+    tracks.reduce(($accumulator, configuration) => {
 
         $option = $('<option>', {value: configuration.name, text: configuration.name});
         $select.append($option);
