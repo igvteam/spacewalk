@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     Alert.init(container);
 
     const root = document.querySelector('#spacewalk-main');
-    $(root).append(createGenericSelectModal('spacewalk-igv-app-generic-track-select-modal'));
+    $(root).append(createGenericSelectModal('spacewalk-igv-app-generic-track-select-modal', 'spacewalk-igv-app-generic-track-select'));
     $(root).append(createTrackURLModal('spacewalk-igv-app-track-from-url-modal'));
     parser = new Parser();
 
