@@ -212,7 +212,8 @@ class IGVPanel extends Panel {
 
     addDataValueMaterialProviderGUI(tracks) {
 
-        for (let track of tracks) {
+        const dataValueTracks = tracks.filter(track => track.type !== 'ruler' && track.type !== 'sequence' && track.name !== 'Refseq Genes');
+        for (let track of dataValueTracks) {
 
             if (track.getFeatures && typeof track.getFeatures === "function") {
                 track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
