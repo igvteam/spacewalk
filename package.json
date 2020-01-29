@@ -4,21 +4,22 @@
   "description": "3D Chromosome Visualization Tool",
   "scripts": {
     "start": "http-server -a localhost dist",
-    "build": "webpack"
+    "build": "npx rollup --config && npm run build-umd",
+    "build-umd": "node scripts/injectRuntime.js"
   },
   "keywords": [],
   "author": "Douglass Turner and Jim Robinson",
   "license": "ISC",
   "devDependencies": {
-    "babel-loader": "^8.0.5"
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@rollup/plugin-node-resolve": "^7.0.0",
+    "fs-extra": "^8.1.0",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-terser": "^5.2.0"
   },
   "dependencies": {
-    "@babel/cli": "^7.8.3",
-    "@babel/core": "^7.8.3",
-    "@babel/node": "^7.8.3",
-    "@babel/polyfill": "^7.8.3",
-    "@babel/preset-env": "^7.8.3",
-    "copy-webpack-plugin": "^5.1.1",
     "data-modal": "github:igvteam/data-modal",
     "http-server": "^0.12.1",
     "igv": "^2.3.5",
