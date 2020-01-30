@@ -2,22 +2,12 @@
   "name": "spacewalk",
   "version": "0.1.0",
   "description": "3D Chromosome Visualization Tool",
-  "scripts": {
-    "start": "http-server -a localhost dist",
-    "build": "npx rollup --config && npm run build-umd",
-    "build-umd": "node scripts/injectRuntime.js"
-  },
   "keywords": [],
   "author": "Douglass Turner and Jim Robinson",
   "license": "ISC",
-  "devDependencies": {
-    "@babel/core": "^7.8.3",
-    "@babel/preset-env": "^7.8.3",
-    "@rollup/plugin-node-resolve": "^7.0.0",
-    "fs-extra": "^8.1.0",
-    "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-copy": "^3.3.0",
-    "rollup-plugin-terser": "^5.2.0"
+  "scripts": {
+    "build": "npx rollup --config && node scripts/injectRuntime.js",
+    "start": "http-server -a localhost dist"
   },
   "dependencies": {
     "data-modal": "github:igvteam/data-modal",
@@ -32,5 +22,14 @@
     "three": "^0.112.1",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@rollup/plugin-node-resolve": "^7.0.0",
+    "fs-extra": "^8.1.0",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-terser": "^5.2.0"
   }
 }
