@@ -1,9 +1,7 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
-import Zlib from "../vendor/zlib_and_gzip.js";
+import { URIUtils, StringUtils, Zlib } from '../node_modules/igv-utils/src/index.js';
 import Panel from "./panel.js";
 import { parser, ensembleManager, igvPanel, sceneManager } from "./app.js";
-import { decodeDataURI } from '../vendor/uriUtils.js'
-import { uncompressString } from "../vendor/stringUtils.js";
 import { getGUIRenderStyle, setGUIRenderStyle } from "./guiManager.js";
 
 const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
@@ -122,7 +120,7 @@ const uncompressSession = url => {
 
     if (url.indexOf('/gzip;base64') > 0) {
 
-        const bytes = decodeDataURI(url);
+        const bytes = URIUtils.decodeDataURI(url);
         let json = '';
         for (let b of bytes) {
             json += String.fromCharCode(b)
@@ -131,7 +129,7 @@ const uncompressSession = url => {
     } else {
 
         let enc = url.substring(5);
-        return uncompressString(enc);
+        return StringUtils.uncompressString(enc);
     }
 };
 

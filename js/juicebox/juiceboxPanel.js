@@ -1,3 +1,4 @@
+import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Panel from "../panel.js";
 import { ensembleManager, eventBus } from "../app.js";
@@ -149,10 +150,8 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
 
 export let juiceboxSelectLoader = async ($selectModal, onChangeConfiguration) => {
 
-    // const data = await hic.igv.xhr.loadString('resources/mapMenuData.txt');
     const data = await hic.igv.xhr.loadString('https://aidenlab.org/juicebox/res/mapMenuData.txt');
-
-    const lines = hic.igv.splitLines(data);
+    const lines = StringUtils.splitLines(data);
 
     const $select = $selectModal.find('select');
 

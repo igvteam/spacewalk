@@ -1,6 +1,6 @@
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { numberFormatter } from './utils.js';
+import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import { rgb255ToThreeJSColor } from "./color.js";
 import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
 
@@ -149,7 +149,7 @@ class GUIManager {
 
             $('#spacewalk_info_panel_genome').text( genomeAssembly );
 
-            str = `${ chr } : ${ numberFormatter(genomicStart) } - ${ numberFormatter(genomicEnd) }`;
+            str = `${ chr } : ${StringUtils.numberFormatter(genomicStart) } - ${ StringUtils.numberFormatter(genomicEnd) }`;
             $('#spacewalk_info_panel_locus').text( str );
 
             str = `Sample ${ sample }`;
