@@ -129,7 +129,7 @@ const uncompressSession = url => {
     } else {
 
         let enc = url.substring(5);
-        return StringUtils.uncompressString(enc);
+        return StringUtils.uncompressString(enc, Zlib);
     }
 };
 
