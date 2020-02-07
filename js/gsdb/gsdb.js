@@ -17,7 +17,7 @@ class GSDB {
                         let { name, url } = selections.pop();
 
                         url = `http://${ url }`;
-                        loader.loadURL({ name, url })
+                        loader.load(url)
 
                     }
                 }

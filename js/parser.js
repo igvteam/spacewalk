@@ -1,5 +1,4 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
-import { readFileAsText } from "./utils.js";
 import { hideSpinner, showSpinner } from "./app.js";
 import { ensembleManager } from "./app.js";
 
@@ -99,18 +98,22 @@ class Parser {
 
     }
 
-    async load ({ loader, path, traceKey }) {
+    async loadSessionTrace ({ url, traceKey }) {
+        await this.load(url, traceKey);
+    }
+
+    async load (path, traceKey) {
 
         this.url = false === hic.igv.isFilePath(path) ? path : undefined;
 
         let string = undefined;
         try {
             showSpinner();
-            string = await loader( path );
+            string = await hic.igv.xhr.loadString(path);
             hideSpinner();
         } catch (e) {
             hideSpinner();
-            console.warn(e.message)
+            console.error(e.message)
         }
 
         showSpinner();
@@ -119,18 +122,6 @@ class Parser {
 
         ensembleManager.ingest(payload, traceKey);
 
-    }
-
-    async loadSessionTrace ({ url, traceKey }) {
-        await this.load({ loader: hic.igv.xhr.load, path: url, traceKey });
-    }
-
-    async loadURL ({ url, name }) {
-        await this.load({ loader: hic.igv.xhr.load, path: url, traceKey: undefined });
-    }
-
-    async loadLocalFile({ file }) {
-        await this.load({ loader: readFileAsText, path: file, traceKey: undefined });
     }
 
     toJSON() {
