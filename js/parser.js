@@ -1,6 +1,8 @@
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { hideSpinner, showSpinner } from "./app.js";
 import { ensembleManager } from "./app.js";
+import GenomicDataset from "./genomicDataset.js";
+import NonGenomicDataset from "./nonGenomicDataset.js";
 
 class Parser {
 
@@ -9,6 +11,51 @@ class Parser {
     }
 
     parse (string) {
+
+        const str = 'Parse complete';
+        console.time(str);
+
+        let raw = string.split('\n');
+
+        // remove comments and empty lines
+        let lines = raw.filter(line => "" !== line);
+
+        // const regex = /[ \t]+/;
+        const regex = /\s+/;
+
+        const datasets = Object.assign({}, getSampleNameAndGenome(lines, regex));
+
+        let ds = undefined;
+        for (let line of lines) {
+
+            if (line.startsWith('chromosome')) {
+                datasets[ 'genomic' ] = new GenomicDataset();
+                ds = datasets[ 'genomic' ];
+                continue;
+            } else if (line.startsWith('nongenomic')) {
+                datasets[ 'nongenomic' ] = new NonGenomicDataset();
+                ds = datasets[ 'nongenomic' ];
+                continue;
+            }
+
+            if (ds) {
+                ds.consume(line, regex);
+            }
+
+        }
+
+        datasets[ 'genomic' ].postprocess();
+        if (datasets[ 'nongenomic' ]) {
+            datasets[ 'nongenomic' ].postprocess();
+        }
+
+        console.timeEnd(str);
+
+        return datasets;
+
+    }
+
+    DEPRICATED_parse (string) {
 
         let result = {};
 
@@ -142,5 +189,24 @@ class Parser {
     }
 
 }
+
+const getSampleNameAndGenome = (lines, regex) => {
+
+    const line = lines.shift();
+
+    const parts = line.split('##').pop().split(regex);
+
+    // discard format=sw1
+    parts.shift();
+
+    // capture cellLine (ex: name=IM90)
+    const sample = parts.shift().split('=').pop();
+
+    // capture genome (ex: genome=hg19)
+    const genomeAssembly = parts.shift().split('=').pop();
+
+    return { sample, genomeAssembly }
+};
+
 
 export default Parser;
