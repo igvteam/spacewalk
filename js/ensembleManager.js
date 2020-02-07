@@ -9,7 +9,7 @@ class EnsembleManager {
     constructor () {
     }
 
-    ingest(payload, traceKey) {
+    ingest({ sample, genomeAssembly, genomic }, traceKey) {
 
         const str = 'EnsembleManager ingestSW';
         console.time(str);
@@ -26,41 +26,34 @@ class EnsembleManager {
 
         this.ensemble = {};
 
-        let { sample, genomeAssembly, locus, traces } = payload;
+        let { traces } = genomic;
+
         this.genomeAssembly = genomeAssembly;
 
-        let { chr, genomicStart, genomicEnd } = locus;
-        this.locus = locus;
+        this.locus = genomic.getLocus();
+        let { chr, genomicStart, genomicEnd } = this.locus;
 
-        for (let [traceKey, trace] of Object.entries(traces)) {
+        this.maximumSegmentID = genomic.maximumSegmentID;
+        this.isPointCloud = genomic.isPointCloud;
 
-            if (undefined === this.maximumSegmentID) {
-                this.maximumSegmentID = Object.keys(trace).length;
-            }
+        for (let [k, trace] of Object.entries(traces)) {
 
-            const ensembleKey = traceKey.split('%').pop();
-
+            const parts = k.split('%');
+            const ensembleKey = parts.pop();
             this.ensemble[ensembleKey] = [];
 
             const keyValuePairs = Object.entries(trace);
             for (let keyValuePair of keyValuePairs) {
 
-                let [ key, xyzList ] = keyValuePair;
-
-                if (undefined === this.isPointCloud) {
-                    this.isPointCloud = xyzList.length > 1;
-                }
+                let [ key, value ] = keyValuePair;
 
                 let { startBP, centroidBP, endBP, sizeBP } = Parser.genomicRangeFromHashKey(key);
 
-                const positions = xyzList
-                    .filter(({ x, y, z }) => {
-                        return !(x === 'nan' || y === 'nan' || z === 'nan')
-                    });
+                const xyzList = this.isPointCloud ? value : [ { x: value.x, y: value.y, z: value.z } ];
 
-                if (0 === positions.length) {
-                    // positions array has no valid x, y, or z values (nan)
-                } else {
+                const positions = xyzList.filter(({ x, y, z }) => ![ x, y, z ].some(isNaN));
+
+                if (positions.length > 0) {
 
                     const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart);
 
@@ -92,8 +85,6 @@ class EnsembleManager {
                     }
 
                     geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
-
-                    // geometry.setAttribute(    'color', new THREE.Float32BufferAttribute( rgb, 3 ).setDynamic( this.isPointCloud ) );
 
                     const attribute = new THREE.Float32BufferAttribute(rgb, 3);
                     attribute.setUsage( true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage );
