@@ -103,14 +103,14 @@ const loadURL = ({ url, name, fileLoader, $modal }) => {
     $modal.modal('hide');
     eventBus.post({ type: "DidLeaveGUI" });
 
-    fileLoader.loadURL({ url, name });
+    fileLoader.load(url);
 
 };
 
 const loadFile = (file, fileLoader) => {
 
     eventBus.post({ type: "DidLeaveGUI" });
-    fileLoader.loadLocalFile({ file });
+    fileLoader.load(file);
 
 };
 
