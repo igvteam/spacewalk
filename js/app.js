@@ -49,8 +49,21 @@ let igvPanel;
 document.addEventListener("DOMContentLoaded", async (event) => {
 
     const container = document.getElementById('spacewalk_canvas_container');
-
     Alert.init(container);
+
+    const { userAgent } = window.navigator;
+
+    const isChromeUserAgent = userAgent.indexOf("Chrome") > -1;
+
+    try {
+
+        if (!isChromeUserAgent) {
+            throw new Error("Spacewalk only supports Chrome Browser");
+        }
+
+    } catch (e) {
+        Alert.presentAlert(e.message);
+    }
 
     const root = document.querySelector('#spacewalk-main');
     $(root).append(createGenericSelectModal('spacewalk-igv-app-generic-track-select-modal', 'spacewalk-igv-app-generic-track-select'));
