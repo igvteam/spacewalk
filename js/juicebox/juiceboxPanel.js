@@ -83,10 +83,12 @@ class JuiceboxPanel extends Panel {
 
     }
 
-    async loadPath({ url, name, isControl }) {
+    async load(path) {
+
+        const name = hic.igv.isFilePath(path) ? path.name : undefined;
 
         try {
-            await this.browser.loadHicFile({ url, name, isControl });
+            await this.browser.loadHicFile({ url: path, name, isControl: false });
             $('#spacewalk_info_panel_juicebox').text( this.blurb() );
         } catch (error) {
             console.warn(error.message);
@@ -100,14 +102,6 @@ class JuiceboxPanel extends Panel {
             console.warn(e.message);
         }
 
-    }
-
-    async loadURL({ url, name }){
-        await this.loadPath({ url, name, isControl: false });
-    }
-
-    async loadLocalFile({ file }){
-        await this.loadPath({ url: file, name: file.name, isControl: false });
     }
 
     blurb() {
