@@ -1,7 +1,8 @@
-import { noodle, ballAndStick, ensembleManager } from "./app.js";
+import { ribbon, noodle, ballAndStick, ensembleManager } from "./app.js";
 import {lerp} from "./math.js";
 
 const setMaterialProvider = materialProvider => {
+    ribbon.updateMaterialProvider(materialProvider);
     noodle.updateMaterialProvider(materialProvider);
     ballAndStick.updateMaterialProvider(materialProvider);
 };
