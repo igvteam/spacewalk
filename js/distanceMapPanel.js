@@ -125,8 +125,8 @@ class DistanceMapPanel extends Panel {
 
 const updateDistanceArray = trace => {
 
-    const str = `Distance Map - Update Distance Array`;
-    console.time(str);
+    // const str = `Distance Map - Update Distance Array`;
+    // console.time(str);
 
     let mapSize = ensembleManager.maximumSegmentID;
 
@@ -170,7 +170,7 @@ const updateDistanceArray = trace => {
 
     }
 
-    console.timeEnd(str);
+    // console.timeEnd(str);
 
     return maxDistance;
 

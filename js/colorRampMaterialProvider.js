@@ -169,8 +169,10 @@ class ColorRampMaterialProvider {
 
                 const yy = height - (h + y);
 
-                this.highlight_ctx.fillRect(0, yy, width, h);
-                this.alphamap_ctx.fillRect(0, yy, width, h);
+                const h_rendered = Math.max(1, h);
+                // console.log(`paintWithInterpolantWindowList yy ${ yy} h_rendered ${ h_rendered }`);
+                this.highlight_ctx.fillRect(0, yy, width, h_rendered);
+                this.alphamap_ctx.fillRect(0, yy, width, h_rendered);
 
             }
 
@@ -208,7 +210,7 @@ class ColorRampMaterialProvider {
         // clear highlight canvas
         this.highlight_ctx.clearRect(0, 0, width, height);
 
-        // paint alpha map opacque
+        // paint alpha map opaque
         this.alphamap_ctx.fillStyle = alpha_visible;
         this.alphamap_ctx.fillRect(0, 0, width, height);
 

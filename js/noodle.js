@@ -7,6 +7,7 @@ import { createStickCurves, computeAverageCurveDistance } from './ballAndStick.j
 import { generateRadiusTable } from "./utils.js";
 import { ensembleManager, sceneManager, igvPanel } from './app.js'
 import { clamp, lerp } from './math.js';
+import { StringUtils } from '../node_modules/igv-utils/src/index.js';
 
 let fatLineMaterial;
 let noodleRadiusIndex = undefined;
@@ -32,8 +33,12 @@ class Noodle {
 
         const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
         this.curve = new THREE.CatmullRomCurve3( vertices );
+        // default value is 200
+        this.curve.arcLengthDivisions = 1000;
 
-        const averageCurveDistance = computeAverageCurveDistance( createStickCurves( vertices ) );
+        // const averageCurveDistance = computeAverageCurveDistance( createStickCurves( vertices ) );
+        const averageCurveDistance = this.curve.getLength() / vertices.length;
+        // console.log(`average curve length ${ averageCurveDistance }. curveLength()/vertexCount ${ this.curve.getLength() / vertices.length }`);
 
         noodleRadiusTable = generateRadiusTable(1e-1 * averageCurveDistance);
         noodleRadiusIndex = Math.floor( noodleRadiusTable.length/2 );
@@ -118,6 +123,8 @@ class Noodle {
 }
 
 const createTube = (curve, tubeRadius, material) => {
+
+    console.log(`noodle.createTube: curve length ${ StringUtils.numberFormatter( curve.getLength() ) }`);
 
     const tubularSegments = getTubularSegmentCount(curve.getLength());
     const radialSegments = getRadialSegmentCount(ensembleManager.locus);
