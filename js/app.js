@@ -76,7 +76,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     ribbon = new Ribbon();
     noodle = new Noodle();
-
     ballAndStick = new BallAndStick();
 
     ensembleManager = new EnsembleManager();

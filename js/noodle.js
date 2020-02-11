@@ -13,10 +13,6 @@ class Noodle {
     constructor () {
     }
 
-    static getRenderStyle() {
-        return 'render-style-noodle';
-    }
-
     configure(trace) {
 
         this.dispose();
@@ -102,6 +98,10 @@ class Noodle {
 
     static getCountMultiplier(curveLength) {
         return Math.round( Math.max(1, curveLength / 16000) );
+    }
+
+    static getRenderStyle() {
+        return 'render-style-noodle';
     }
 
 }

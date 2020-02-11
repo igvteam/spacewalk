@@ -18,10 +18,6 @@ class BallAndStick {
         this.stickCurves = undefined;
     }
 
-    static getRenderStyle() {
-        return 'render-style-ball-stick';
-    }
-
     configure(trace) {
 
         this.dispose();
@@ -182,6 +178,10 @@ class BallAndStick {
 
     getBounds() {
         return EnsembleManager.getBoundsWithTrace(this.trace);
+    }
+
+    static getRenderStyle() {
+        return 'render-style-ball-stick';
     }
 }
 

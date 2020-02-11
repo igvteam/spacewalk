@@ -1,6 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import EnsembleManager from "./ensembleManager.js";
-import {igvPanel, sceneManager} from "./app.js";
+import {eventBus, igvPanel, sceneManager} from "./app.js";
 import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
 import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
 import FatLine from "./threejs_es6/fatlines/fatLine.js";
@@ -12,10 +12,21 @@ let fatLineMaterial;
 class Ribbon {
 
     constructor() {
+        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseEnter", this);
+        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseLeave", this);
     }
 
-    static getRenderStyle() {
-        return 'render-style-ribbon';
+    receiveEvent({ type, data }) {
+
+        if (sceneManager.renderStyle === Noodle.getRenderStyle()) {
+
+            if ("ColorRampMaterialProviderCanvasDidMouseEnter" === type) {
+                this.show();
+            } else if ("ColorRampMaterialProviderCanvasDidMouseLeave" === type) {
+                this.hide();
+            }
+
+        }
     }
 
     configure(trace) {
@@ -35,13 +46,7 @@ class Ribbon {
 
         console.timeEnd(str);
 
-        // TODO: !!!!!!!!!!!!!!!! THIS IS A HACK !!!!!!!!!!!!!!!!
-        if (sceneManager.renderStyle === Noodle.getRenderStyle()) {
-            this.show();
-        } else {
-            this.hide();
-        }
-
+        this.hide();
 
     }
 
@@ -89,6 +94,10 @@ class Ribbon {
     getBounds() {
         return EnsembleManager.getBoundsWithTrace(this.trace);
     }
+
+    static getRenderStyle() {
+        return 'render-style-ribbon';
+    }
 }
 
 const createFatSpline = (curve, materialProvider) => {
@@ -113,7 +122,7 @@ const createFatSpline = (curve, materialProvider) => {
     fatLineGeometry.setPositions( vertices );
     fatLineGeometry.setColors( colors );
 
-    fatLineMaterial = new FatLineMaterial( { linewidth: /*2*/3, vertexColors: THREE.VertexColors } );
+    fatLineMaterial = new FatLineMaterial( { linewidth: 2, vertexColors: THREE.VertexColors } );
 
     let mesh = new FatLine(fatLineGeometry, fatLineMaterial);
     mesh.computeLineDistances();
