@@ -21,12 +21,12 @@ class Panel {
             this.initializeLayout(xFunction, yFunction, container);
         }
 
-        const namespace = `panel.${ hic.igv.guid() }`;
+        this.namespace = `panel.${ hic.igv.guid() }`;
 
         const $drag_handle = this.$panel.find('.spacewalk_card_drag_container');
         makeDraggable(panel, $drag_handle.get(0));
 
-        $drag_handle.on(`mousedown.${ namespace }`, event => {
+        $drag_handle.on(`mousedown.${ this.namespace }`, event => {
             eventBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
@@ -36,12 +36,12 @@ class Panel {
             this.dismiss();
         });
 
-        this.$panel.on(`mouseenter.${ namespace }`, (event) => {
+        this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();
             eventBus.post({ type: "DidEnterGUI" });
         });
 
-        this.$panel.on(`mouseleave.${ namespace }`, (event) => {
+        this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
             eventBus.post({ type: "DidLeaveGUI" });
         });

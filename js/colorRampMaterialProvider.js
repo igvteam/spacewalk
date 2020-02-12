@@ -58,12 +58,12 @@ class ColorRampMaterialProvider {
 
         $canvasContainer.on(('mouseenter.' + namespace), (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'ColorRampMaterialProviderCanvasDidMouseEnter', data: 'ColorRampMaterialProviderCanvasDidMouseEnter' });
+            eventBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
         });
 
         $canvasContainer.on(('mouseleave.' + namespace), (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'ColorRampMaterialProviderCanvasDidMouseLeave', data: 'ColorRampMaterialProviderCanvasDidMouseLeave' });
+            eventBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
             this.repaint();
         });
 

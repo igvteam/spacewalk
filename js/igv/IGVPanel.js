@@ -33,6 +33,16 @@ class IGVPanel extends Panel {
 
         });
 
+        this.$panel.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
+        });
+
+        this.$panel.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+        });
+
         eventBus.subscribe("DidChangeMaterialProvider", this);
         eventBus.subscribe('DidLoadEnsembleFile', this);
     }
@@ -99,6 +109,16 @@ class IGVPanel extends Panel {
                 this.materialProvider = colorRampMaterialProvider;
                 setMaterialProvider(this.materialProvider);
             }
+        });
+
+        $(this.browser.trackContainerDiv).on(`mouseenter.${ this.namespace }`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidEnterGUI', data: 'DidEnterGUI' });
+        });
+
+        $(this.browser.trackContainerDiv).on(`mouseleave.${ this.namespace }`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
         });
 
         this.addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));

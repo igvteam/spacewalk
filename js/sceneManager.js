@@ -77,11 +77,9 @@ class SceneManager {
             if (data === Noodle.getRenderStyle()) {
                 this.renderStyle = Noodle.getRenderStyle();
                 ballAndStick.hide();
-                // ribbon.show();
                 noodle.show();
             } else {
                 this.renderStyle = BallAndStick.getRenderStyle();
-                // ribbon.hide();
                 noodle.hide();
                 ballAndStick.show();
             }

@@ -12,17 +12,17 @@ let fatLineMaterial;
 class Ribbon {
 
     constructor() {
-        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseEnter", this);
-        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseLeave", this);
+        eventBus.subscribe("DidEnterGenomicNavigator", this);
+        eventBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
     receiveEvent({ type, data }) {
 
         if (sceneManager.renderStyle === Noodle.getRenderStyle()) {
 
-            if ("ColorRampMaterialProviderCanvasDidMouseEnter" === type) {
+            if ("DidEnterGenomicNavigator" === type) {
                 this.show();
-            } else if ("ColorRampMaterialProviderCanvasDidMouseLeave" === type) {
+            } else if ("DidLeaveGenomicNavigator" === type) {
                 this.hide();
             }
 
