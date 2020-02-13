@@ -50825,30 +50825,6 @@ function guid$1  () {
     return ("0000" + (Math.random() * Math.pow(36, 4) << 0).toString(36)).slice(-4);
 }
 
-let getMouseXY$1 = (domElement, { clientX, clientY }) => {
-
-    // DOMRect object with eight properties: left, top, right, bottom, x, y, width, height
-    const { left, top, width, height } = domElement.getBoundingClientRect();
-
-    const x = clientX - left;
-    const y = clientY - top;
-    return { x, y, xNormalized: x/width, yNormalized: y/height };
-
-};
-
-/**
- * Translate the mouse coordinates for the event to the coordinates for the given target element
- * @param event
- * @param domElement
- * @returns {{x: number, y: number}}
- */
-function translateMouseCoordinates$1(event, domElement) {
-
-    const { clientX, clientY } = event;
-    const { x, y } = getMouseXY$1(domElement, { clientX, clientY });
-    return { x, y }
-}
-
 const httpMessages$1 =
     {
         "401": "Access unauthorized",
@@ -67018,8 +66994,6 @@ BinaryHeap$2.prototype = {
  * THE SOFTWARE.
  *
  */
-
-const DRAG_THRESHOLD = 2;
 const DOUBLE_TAP_DIST_THRESHOLD = 20;
 const DOUBLE_TAP_TIME_THRESHOLD = 300;
 
@@ -67687,32 +67661,16 @@ ContactMatrixView.prototype.stopSpinner = function () {
     this.spinnerCount = Math.max(0, this.spinnerCount);   // This should not be neccessary
 };
 
-
 function addMouseHandlers$2($viewport) {
 
-    var self = this,
-        isMouseDown = false,
-        isSweepZooming = false,
-        mouseDown,
-        mouseLast,
-        mouseOver,
-        lastWheelTime;
+    let self = this;
+    let mouseDown;
+    let mouseLast;
+    let mouseOver;
 
     this.isDragging = false;
 
     if (!this.browser.isMobile) {
-
-        $viewport.dblclick(function (e) {
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            var mouseX = e.offsetX || e.layerX,
-                mouseY = e.offsetY || e.layerX;
-
-            self.browser.zoomAndCenter(1, mouseX, mouseY);
-
-        });
 
         $viewport.on('mouseover', function (e) {
             mouseOver = true;
@@ -67723,7 +67681,6 @@ function addMouseHandlers$2($viewport) {
         });
 
         $viewport.on('mousedown', function (e) {
-            var eFixed;
 
             e.preventDefault();
             e.stopPropagation();
@@ -67735,35 +67692,17 @@ function addMouseHandlers$2($viewport) {
             mouseLast = {x: e.offsetX, y: e.offsetY};
             mouseDown = {x: e.offsetX, y: e.offsetY};
 
-            isSweepZooming = (true === e.altKey);
-            if (isSweepZooming) {
-                eFixed = $$1.event.fix(e);
-                self.sweepZoom.initialize({x: eFixed.pageX, y: eFixed.pageY});
-            }
-
-            isMouseDown = true;
-
         });
 
         $viewport.on('mousemove', function (e) {
 
-            var coords,
-                eFixed,
-                xy;
-
             e.preventDefault();
             e.stopPropagation();
 
-            coords =
-                {
-                    x: e.offsetX,
-                    y: e.offsetY
-                };
-
             // Sets pageX and pageY for browsers that don't support them
-            eFixed = $$1.event.fix(e);
+            const eFixed = $$1.event.fix(e);
 
-            xy =
+            const xy =
                 {
                     x: eFixed.pageX - $viewport.offset().left,
                     y: eFixed.pageY - $viewport.offset().top
@@ -67773,7 +67712,6 @@ function addMouseHandlers$2($viewport) {
             xy.xNormalized = xy.x / width;
             xy.yNormalized = xy.y / height;
 
-
             self.browser.eventBus.post(HICEvent("UpdateContactMapMousePosition", xy, false));
 
             if (true === self.willShowCrosshairs) {
@@ -67781,34 +67719,7 @@ function addMouseHandlers$2($viewport) {
                 self.browser.showCrosshairs();
             }
 
-            if (isMouseDown) { // Possibly dragging
-
-                if (isSweepZooming) {
-
-                    self.sweepZoom.update({x: eFixed.pageX, y: eFixed.pageY});
-
-                } else if (mouseDown.x && Math.abs(coords.x - mouseDown.x) > DRAG_THRESHOLD) {
-
-                    self.isDragging = true;
-
-                    var dx = mouseLast.x - coords.x;
-                    var dy = mouseLast.y - coords.y;
-
-                    // If matrix data is updating shift current map image while we wait
-                    if (self.updating) {
-                        shiftCurrentImage(self, -dx, -dy);
-                    }
-
-                    self.browser.shiftPixels(dx, dy);
-
-                }
-
-                mouseLast = coords;
-            }
-
-
         });
-        //, 10));
 
         $viewport.on('mouseup', panMouseUpOrMouseOut);
 
@@ -67820,12 +67731,6 @@ function addMouseHandlers$2($viewport) {
             panMouseUpOrMouseOut();
         });
 
-        // Mousewheel events -- ie exposes event only via addEventListener, no onwheel attribute
-        // NOte from spec -- trackpads commonly map pinch to mousewheel + ctrl
-
-        $viewport[0].addEventListener("wheel", mouseWheelHandler, 250, false);
-
-        // document level events
         $$1(document).on('keydown.contact_matrix_view', function (e) {
             if (undefined === self.willShowCrosshairs && true === mouseOver && true === e.shiftKey) {
                 self.willShowCrosshairs = true;
@@ -67839,62 +67744,11 @@ function addMouseHandlers$2($viewport) {
             self.browser.eventBus.post(HICEvent('DidHideCrosshairs', 'DidHideCrosshairs', false));
         });
 
-        // for sweep-zoom allow user to sweep beyond viewport extent
-        // sweep area clamps since viewport mouse handlers stop firing
-        // when the viewport boundary is crossed.
-        $$1(document).on('mouseup.contact_matrix_view', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            if (isSweepZooming) {
-                isSweepZooming = false;
-                self.sweepZoom.commit();
-            }
-        });
     }
 
     function panMouseUpOrMouseOut(e) {
-
-        if (true === self.isDragging) {
-            self.isDragging = false;
-            self.browser.eventBus.post(HICEvent("DragStopped"));
-        }
-
-        isMouseDown = false;
         mouseDown = mouseLast = undefined;
     }
-
-    function mouseWheelHandler(e) {
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        var t = Date.now();
-
-        if (lastWheelTime === undefined || (t - lastWheelTime > 1000)) {
-
-            // cross-browser wheel delta  -- Firefox returns a "detail" object that is opposite in sign to wheelDelta
-            var direction = e.deltaY < 0 ? 1 : -1,
-                coords = translateMouseCoordinates$1(e, $viewport[0]),
-                x = coords.x,
-                y = coords.y;
-            self.browser.wheelClickZoom(direction, x, y);
-            lastWheelTime = t;
-        }
-
-    }
-
-
-    function shiftCurrentImage(self, dx, dy) {
-        var canvasWidth = self.$canvas.width(),
-            canvasHeight = self.$canvas.height(),
-            imageData;
-
-        imageData = self.ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-        self.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        self.ctx.putImageData(imageData, dx, dy);
-    }
-
 }
 
 
@@ -71077,7 +70931,9 @@ const createNavBar = (browser, $root) => {
     browser.$contactMaplabel = $hic_navbar_container.find("div[id$='contact-map-hic-nav-bar-map-label']");
 
     browser.$menuPresentDismiss = $hic_navbar_container.find('.fa-bars');
-    browser.$menuPresentDismiss.on('click', e => browser.toggleMenu());
+    browser.$menuPresentDismiss.hide();
+
+    // browser.$menuPresentDismiss.on('click', e => browser.toggleMenu());
 
     browser.$browser_panel_delete_button = $hic_navbar_container.find('.fa-minus-circle');
     browser.$browser_panel_delete_button.on('click', e => deleteBrowserPanel(browser) );
@@ -71092,6 +70948,9 @@ const createNavBar = (browser, $root) => {
 
     $hic_navbar_container.append($$1(html_control_map_hic_nav_bar_map_container));
 
+    const $html_control_map_hic_nav_bar_map_container = $hic_navbar_container.find("div[id$='control-map-hic-nav-bar-map-container']");
+    $html_control_map_hic_nav_bar_map_container.hide();
+
     browser.$controlMaplabel = $hic_navbar_container.find("div[id$='control-map-hic-nav-bar-map-label']");
 
     const html_upper_hic_nav_bar_widget_container = `<div id="${ browser.id }-upper-hic-nav-bar-widget-container"></div>`;
@@ -71099,6 +70958,9 @@ const createNavBar = (browser, $root) => {
 
     const html_lower_hic_nav_bar_widget_container = `<div id="${ browser.id }-lower-hic-nav-bar-widget-container"></div>`;
     $hic_navbar_container.append($$1(html_lower_hic_nav_bar_widget_container));
+
+    const $html_upper_hic_nav_bar_widget_container = $hic_navbar_container.find("div[id$='upper-hic-nav-bar-widget-container']");
+    $html_upper_hic_nav_bar_widget_container.hide();
 
 };
 
