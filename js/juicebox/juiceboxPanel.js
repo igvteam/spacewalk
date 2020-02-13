@@ -77,6 +77,10 @@ class JuiceboxPanel extends Panel {
             console.warn(error.message);
         }
 
+        const $kids = $('.hic-navbar-container').children('div');
+        $kids.eq(1).hide(); // control label container
+        $kids.eq(2).hide(); // lower widget container
+
         this.browser.eventBus.subscribe("DidHideCrosshairs", this);
 
         this.browser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {

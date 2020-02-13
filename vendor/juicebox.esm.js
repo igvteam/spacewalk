@@ -70933,7 +70933,7 @@ const createNavBar = (browser, $root) => {
     browser.$menuPresentDismiss = $hic_navbar_container.find('.fa-bars');
     browser.$menuPresentDismiss.hide();
 
-    // browser.$menuPresentDismiss.on('click', e => browser.toggleMenu());
+    browser.$menuPresentDismiss.on('click', e => browser.toggleMenu());
 
     browser.$browser_panel_delete_button = $hic_navbar_container.find('.fa-minus-circle');
     browser.$browser_panel_delete_button.on('click', e => deleteBrowserPanel(browser) );
@@ -70949,7 +70949,7 @@ const createNavBar = (browser, $root) => {
     $hic_navbar_container.append($$1(html_control_map_hic_nav_bar_map_container));
 
     const $html_control_map_hic_nav_bar_map_container = $hic_navbar_container.find("div[id$='control-map-hic-nav-bar-map-container']");
-    $html_control_map_hic_nav_bar_map_container.hide();
+    // $html_control_map_hic_nav_bar_map_container.hide();
 
     browser.$controlMaplabel = $hic_navbar_container.find("div[id$='control-map-hic-nav-bar-map-label']");
 
@@ -70960,7 +70960,7 @@ const createNavBar = (browser, $root) => {
     $hic_navbar_container.append($$1(html_lower_hic_nav_bar_widget_container));
 
     const $html_upper_hic_nav_bar_widget_container = $hic_navbar_container.find("div[id$='upper-hic-nav-bar-widget-container']");
-    $html_upper_hic_nav_bar_widget_container.hide();
+    // $html_upper_hic_nav_bar_widget_container.hide();
 
 };
 
