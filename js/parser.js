@@ -1,4 +1,5 @@
-import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
+// import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
+import hic from '../vendor/juicebox.esm.js';
 import { hideSpinner, showSpinner } from "./app.js";
 import { ensembleManager } from "./app.js";
 import GenomicDataset from "./genomicDataset.js";

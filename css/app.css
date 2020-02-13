@@ -588,14 +588,6 @@ div#spacewalk_info_panel {
       cursor: pointer;
       background-color: #3b5c7f; }
 
-#igv-encode-spinner-container {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center; }
-
 #spacewalk-spinner-container {
   pointer-events: none;
   position: absolute;

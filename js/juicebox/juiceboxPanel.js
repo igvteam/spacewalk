@@ -1,5 +1,6 @@
 import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
-import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
+// import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
+import hic from '../../vendor/juicebox.esm.js';
 import Panel from "../panel.js";
 import { ensembleManager, eventBus } from "../app.js";
 import {getUrlParams} from "../session.js";
@@ -18,17 +19,31 @@ class JuiceboxPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
+        this.$panel.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
+        });
+
+        this.$panel.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+        });
+
         eventBus.subscribe('DidLoadEnsembleFile', this);
+
     }
 
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });
 
-        if ("DidLoadEnsembleFile" === type) {
+        if ('DidLoadEnsembleFile' === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
+
+        } else if ('DidHideCrosshairs') {
+            eventBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
 
         }
     }
@@ -62,10 +77,21 @@ class JuiceboxPanel extends Panel {
             console.warn(error.message);
         }
 
+        this.browser.eventBus.subscribe("DidHideCrosshairs", this);
+
+        this.browser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidEnterGUI', data: 'DidEnterGUI' });
+        });
+
+        this.browser.contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
+        });
+
         this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
         });
-
 
     }
 
