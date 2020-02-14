@@ -67739,9 +67739,17 @@ function addMouseHandlers$2($viewport) {
         });
 
         $$1(document).on('keyup.contact_matrix_view', function (e) {
+
             self.browser.hideCrosshairs();
             self.willShowCrosshairs = undefined;
-            self.browser.eventBus.post(HICEvent('DidHideCrosshairs', 'DidHideCrosshairs', false));
+
+            const str = "div[id$='viewport']:hover";
+            const $selection = $$1(str);
+
+            if (0 === $selection.length) ; else {
+                self.browser.eventBus.post(HICEvent('DidHideCrosshairs', 'DidHideCrosshairs', false));
+            }
+
         });
 
     }
@@ -70901,7 +70909,8 @@ LayoutController.prototype.doLayoutWithRootContainerSize = function (size) {
     this.browser.updateLayout();
 };
 
-const getNavbarHeight = () => 2 * (nav_bar_label_height + nav_bar_widget_container_height + (2 * nav_bar_widget_container_margin));
+// const getNavbarHeight = () => 2 * (nav_bar_label_height + nav_bar_widget_container_height + (2 * nav_bar_widget_container_margin));
+const getNavbarHeight = () => nav_bar_label_height + nav_bar_widget_container_height + (2 * nav_bar_widget_container_margin);
 
 const getNavbarContainer = browser => browser.$root.find('.hic-navbar-container');
 
@@ -70949,7 +70958,7 @@ const createNavBar = (browser, $root) => {
     $hic_navbar_container.append($$1(html_control_map_hic_nav_bar_map_container));
 
     const $html_control_map_hic_nav_bar_map_container = $hic_navbar_container.find("div[id$='control-map-hic-nav-bar-map-container']");
-    // $html_control_map_hic_nav_bar_map_container.hide();
+    $html_control_map_hic_nav_bar_map_container.hide();
 
     browser.$controlMaplabel = $hic_navbar_container.find("div[id$='control-map-hic-nav-bar-map-label']");
 
@@ -70960,7 +70969,7 @@ const createNavBar = (browser, $root) => {
     $hic_navbar_container.append($$1(html_lower_hic_nav_bar_widget_container));
 
     const $html_upper_hic_nav_bar_widget_container = $hic_navbar_container.find("div[id$='upper-hic-nav-bar-widget-container']");
-    // $html_upper_hic_nav_bar_widget_container.hide();
+    $html_upper_hic_nav_bar_widget_container.hide();
 
 };
 

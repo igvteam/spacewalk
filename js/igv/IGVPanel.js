@@ -113,12 +113,12 @@ class IGVPanel extends Panel {
 
         $(this.browser.trackContainerDiv).on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidEnterGUI', data: 'DidEnterGUI' });
+            eventBus.post({ type: 'DidEnterGUI', data: this });
         });
 
         $(this.browser.trackContainerDiv).on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
+            eventBus.post({ type: 'DidLeaveGUI', data: this });
         });
 
         this.addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));

@@ -39,12 +39,12 @@ class Panel {
 
         this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();
-            eventBus.post({ type: "DidEnterGUI" });
+            eventBus.post({ type: 'DidEnterGUI', data: this });
         });
 
         this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
-            eventBus.post({ type: "DidLeaveGUI" });
+            eventBus.post({ type: 'DidLeaveGUI', data: this });
         });
 
         eventBus.subscribe("ToggleUIControl", this);

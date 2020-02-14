@@ -85,12 +85,12 @@ class JuiceboxPanel extends Panel {
 
         this.browser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidEnterGUI', data: 'DidEnterGUI' });
+            eventBus.post({ type: 'DidEnterGUI', data: this });
         });
 
         this.browser.contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
+            eventBus.post({ type: 'DidLeaveGUI', data: this });
         });
 
         this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
