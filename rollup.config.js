@@ -29,7 +29,6 @@ module.exports =
                                 src:
                                     [
                                         'css/app.css',
-                                        'css/juicebox.css',
                                         'css/spectrum.css'
                                     ],
                                 dest: 'dist/css/'
