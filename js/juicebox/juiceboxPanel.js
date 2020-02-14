@@ -1,6 +1,5 @@
 import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
-// import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
-import hic from '../../vendor/juicebox.esm.js';
+import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Panel from "../panel.js";
 import { ensembleManager, eventBus } from "../app.js";
 import {getUrlParams} from "../session.js";

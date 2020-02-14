@@ -1,5 +1,4 @@
-// import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
-import hic from '../vendor/juicebox.esm.js';
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { makeDraggable } from "./draggable.js";
 import { eventBus } from "./app.js";
 import { setPanelVisibility } from "./guiManager.js";
