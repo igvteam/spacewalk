@@ -20,6 +20,8 @@ class CameraLightingRig extends OrbitControls {
         this.doUpdateCameraPose = true;
 
         this.enableKeys = false;
+
+        this.enablePan = false;
     }
 
     configure ({ fov, position, centroid, boundingDiameter }) {
