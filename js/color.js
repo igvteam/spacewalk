@@ -1,6 +1,23 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { lerp, clamp, random } from './math.js';
 
+export const getColorListWithXYZList = (materialProvider, xyzList) =>  {
+
+    let colorList = [];
+
+    xyzList
+        .map((xyz, i, array) => {
+            let interpolant = i / (array.length - 1);
+            return materialProvider.colorForInterpolant(interpolant);
+        })
+        .forEach((rgb) => {
+            const { r, g, b } = rgb;
+            colorList.push(r, g, b);
+        });
+
+    return colorList;
+};
+
 export const setGeometryAttributeColorListWithColorThreeJS = (colorList, colorThreeJS) => {
     const { r, g, b } = colorThreeJS;
     const rgb = [ r, g, b ];

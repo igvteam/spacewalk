@@ -18,17 +18,31 @@ class JuiceboxPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
+        this.$panel.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
+        });
+
+        this.$panel.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+        });
+
         eventBus.subscribe('DidLoadEnsembleFile', this);
+
     }
 
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });
 
-        if ("DidLoadEnsembleFile" === type) {
+        if ('DidLoadEnsembleFile' === type) {
 
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
+
+        } else if ('DidHideCrosshairs') {
+            eventBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
 
         }
     }
@@ -62,10 +76,25 @@ class JuiceboxPanel extends Panel {
             console.warn(error.message);
         }
 
+        const $kids = $('.hic-navbar-container').children('div');
+        $kids.eq(1).hide(); // control label container
+        $kids.eq(2).hide(); // lower widget container
+
+        this.browser.eventBus.subscribe("DidHideCrosshairs", this);
+
+        this.browser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidEnterGUI', data: this });
+        });
+
+        this.browser.contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
+            event.stopPropagation();
+            eventBus.post({ type: 'DidLeaveGUI', data: this });
+        });
+
         this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
         });
-
 
     }
 

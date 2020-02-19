@@ -1,10 +1,16 @@
-#igv-encode-spinner-container {
-  width: 100%;
+.igv-app-dropdown-item-cloud-storage {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center; }
+  justify-content: flex-start;
+  align-items: center;
+  height: 18px;
+  margin-top: 4px;
+  margin-bottom: 4px; }
+  .igv-app-dropdown-item-cloud-storage div:first-child {
+    margin-right: 4px; }
+  .igv-app-dropdown-item-cloud-storage div:last-child {
+    margin-left: 4px; }
 
 #hic-modal-button-container {
   display: flex;
@@ -31,7 +37,7 @@
   width: 14px;
   height: 14px; }
 
-#hicEncodeModal > .modal-dialog {
+#hic-encode-modal > .modal-dialog {
   max-width: 90% !important;
   width: 90% !important; }
 
@@ -39,8 +45,8 @@
   position: relative;
   left: 0;
   right: 0;
-  width: 852px;
-  height: 1000px;
+  width: 860px;
+  height: 940px;
   margin: 4px;
   background-color: white;
   border-style: solid;
@@ -415,15 +421,11 @@
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  height: 148px;
   color: #5f5f5f;
   font-family: "Open Sans", sans-serif;
   font-size: 14px;
   font-weight: 400;
-  background-color: #f7f7f7;
-  border-bottom-style: solid;
-  border-bottom-width: thin;
-  border-bottom-color: transparent; }
+  background-color: #f7f7f7; }
   .hic-navbar-container div[id$="hic-nav-bar-map-container"] {
     display: flex;
     flex-flow: row;
@@ -439,9 +441,6 @@
       overflow: hidden;
       vertical-align: middle;
       line-height: 36px;
-      border-bottom-style: solid;
-      border-bottom-width: thin;
-      border-bottom-color: transparent;
       background-color: transparent; }
     .hic-navbar-container div[id$="hic-nav-bar-map-container"] .hic-nav-bar-button-container {
       height: 100%;
@@ -471,10 +470,6 @@
     height: 36px;
     margin-top: 4px;
     margin-bottom: 4px; }
-  .hic-navbar-container .hic-nav-bar-shim {
-    width: 100%;
-    height: 4px;
-    background-color: transparent; }
 
 .hic-chromosome-goto-container {
   width: 75%; }
@@ -633,14 +628,14 @@ div[id$="x-track-container"] {
   div[id$="x-track-container"] div[id$="track-shim"] {
     width: 0px;
     height: 100%;
-    margin-right: 32px; }
+    margin-right: 40px; }
   div[id$="x-track-container"] div[id$="x-tracks"] {
     position: relative;
     display: flex;
     flex-flow: column;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    width: calc(100% - (0px + 32px + 20px));
+    width: calc(100% - (0px + 40px + 20px));
     height: 100%;
     margin-right: 20px; }
     div[id$="x-track-container"] div[id$="x-tracks"] div[id$="y-track-guide"] {
@@ -696,7 +691,7 @@ div[id$="content-container"] {
   flex-wrap: nowrap;
   justify-content: space-between;
   width: 100%;
-  height: calc(100% - (148px + 0px));
+  height: calc(100% - (80px + 0px));
   background-color: white; }
   div[id$="content-container"] div[id$="x-axis-container"] {
     display: flex;
@@ -704,9 +699,9 @@ div[id$="content-container"] {
     flex-wrap: nowrap;
     justify-content: flex-end;
     width: 100%;
-    height: 32px; }
+    height: 40px; }
     div[id$="content-container"] div[id$="x-axis-container"] div[id$="x-axis"] {
-      width: calc(100% - (0px + 32px + 20px));
+      width: calc(100% - (0px + 40px + 20px));
       height: 100%;
       margin-right: 20px;
       background-color: white; }
@@ -745,7 +740,7 @@ div[id$="content-container"] {
     flex-wrap: nowrap;
     justify-content: flex-end;
     width: 100%;
-    height: calc(100% - (32px + 20px));
+    height: calc(100% - (40px + 20px));
     background-color: white; }
     div[id$="content-container"] div[id$="y-tracks-y-axis-viewport-y-scrollbar"] div[id$="y-tracks"] {
       position: relative;
@@ -785,7 +780,7 @@ div[id$="content-container"] {
           margin-top: -16px;
           background-color: rgba(255, 255, 255, 0); }
     div[id$="content-container"] div[id$="y-tracks-y-axis-viewport-y-scrollbar"] div[id$="y-axis"] {
-      width: 32px;
+      width: 40px;
       height: 100%;
       margin-bottom: 20px;
       background-color: white; }
@@ -825,7 +820,7 @@ div[id$="content-container"] {
       position: relative;
       left: 0;
       top: 0;
-      width: calc(100% - (0px + 32px + 20px));
+      width: calc(100% - (0px + 40px + 20px));
       height: 100%;
       overflow-x: hidden;
       overflow-y: hidden; }
@@ -915,7 +910,7 @@ div[id$="content-container"] {
     div[id$="content-container"] div[id$="x-scrollbar-container"] div[id$="x-axis-scrollbar-container"] {
       display: block;
       position: relative;
-      width: calc(100% - (0px + 32px + 20px));
+      width: calc(100% - (0px + 40px + 20px));
       height: 100%;
       margin-right: 20px;
       background-color: #efefef; }
@@ -998,18 +993,5 @@ div[id$="content-container"] {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none; }
-
-.modal-backdrop {
-  background-color: transparent; }
-
-.hidden-text {
-  color: transparent; }
-
-.site-widget {
-  float: left;
-  margin-left: 4px;
-  margin-right: 32px; }
-  .site-widget ul {
-    z-index: 2048; }
 
 /*# sourceMappingURL=juicebox.css.map */

@@ -9,6 +9,7 @@ import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import Panel from "./panel.js";
 import PointCloud from "./pointCloud.js";
+import Ribbon from "./ribbon.js";
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import GUIManager, { doConfigurePanelHidden } from "./guiManager.js";
@@ -25,6 +26,7 @@ import { saveSession, loadSession } from "./session.js";
 let eventBus = new EventBus();
 
 let pointCloud;
+let ribbon;
 let noodle;
 let ballAndStick;
 let parser;
@@ -72,8 +74,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     pointCloud = new PointCloud();
 
+    ribbon = new Ribbon();
     noodle = new Noodle();
-
     ballAndStick = new BallAndStick();
 
     ensembleManager = new EnsembleManager();
@@ -107,6 +109,8 @@ const renderLoop = () => {
     if (sceneManager.isGoodToGo()) {
 
         pointCloud.renderLoopHelper();
+
+        ribbon.renderLoopHelper();
 
         noodle.renderLoopHelper();
 
@@ -197,4 +201,4 @@ const hideSpinner = () => {
     console.log('hide spinner');
 };
 
-export { eventBus, pointCloud, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel };
+export { eventBus, pointCloud, ribbon, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel };

@@ -77,10 +77,6 @@ class PointCloud {
 
     }
 
-    static getRenderStyle() {
-        return 'render-style-point-cloud';
-    }
-
     configure(trace) {
 
         this.dispose();
@@ -166,6 +162,9 @@ class PointCloud {
 
     }
 
+    static getRenderStyle() {
+        return 'render-style-point-cloud';
+    }
 }
 
 export default PointCloud;
