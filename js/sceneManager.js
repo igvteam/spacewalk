@@ -1,4 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import { EffectComposer } from "../node_modules/three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "../node_modules/three/examples/jsm/postprocessing/RenderPass.js";
 import EnsembleManager from "./ensembleManager.js";
 import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
@@ -37,10 +39,13 @@ class SceneManager {
 
         // stub configuration
         this.scene = scene;
-        // this.scene.background = this.background;
 
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
+
+        this.effectComposer = new EffectComposer( renderer);
+        this.renderPass = new RenderPass(scene, this.cameraLightingRig.object);
+        this.effectComposer.addPass(this.renderPass);
 
         $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
 
@@ -138,7 +143,8 @@ class SceneManager {
 
         // Scene
         this.scene = scene;
-        // this.scene.background = this.background;
+
+        this.renderPass.scene = scene;
 
         this.cameraLightingRig.configure({fov, position: cameraPosition, centroid, boundingDiameter});
 
@@ -221,8 +227,8 @@ class SceneManager {
             this.gnomon.renderLoopHelper();
         }
 
-        this.renderer.render(this.scene, this.cameraLightingRig.object);
-
+        // this.renderer.render(this.scene, this.cameraLightingRig.object);
+        this.effectComposer.render();
     }
 
     getRendererClearColorState() {
