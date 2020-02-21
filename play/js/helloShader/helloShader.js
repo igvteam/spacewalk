@@ -64,30 +64,34 @@ let main = async(threejs_canvas) => {
             isSpecularMap: false
         };
 
-    diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
+    diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig, async () => {
 
-    const specularCubicMapMaterialConfig =
-        {
-            // textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
-            textureRoot: '../../texture/cubic/specular/aerodynamics_workshop/',
-            suffix: '.png',
-            isSpecularMap: true
-        };
+        const specularCubicMapMaterialConfig =
+            {
+                // textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
+                textureRoot: '../../texture/cubic/specular/aerodynamics_workshop/',
+                suffix: '.png',
+                isSpecularMap: true
+            };
 
-    specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
+        specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig, async (cubicTexture) => {
 
-    // scene.background = specularCubicMapManager.cubicTexture;
+            scene.background = cubicTexture;
 
-    const textureLoader = new THREE.TextureLoader();
-    textureLoader.load('../../texture/uv.png', texture => {
-        scene.background = texture;
+            // const textureLoader = new THREE.TextureLoader();
+            // textureLoader.load('../../texture/uv.png', texture => {
+            //     scene.background = texture;
+            // });
+
+            // scene.background = appleCrayonColorThreeJS('iron');
+
+            await setup(scene, renderer, camera, orbitControl);
+
+            renderer.render( scene, camera );
+
+        });
+
     });
-
-    // scene.background = appleCrayonColorThreeJS('iron');
-
-    await setup(scene, renderer, camera, orbitControl);
-
-    renderer.render( scene, camera );
 
 };
 
@@ -134,8 +138,8 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     // geometry = geometry.toNonIndexed();
 
 
-    // let meshA = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
-    let meshA = new THREE.Mesh(geometry, showSTMaterial);
+    let meshA = new THREE.Mesh(geometry, specularCubicMapManager.material);
+    // let meshA = new THREE.Mesh(geometry, showSTMaterial);
     meshA.position.set(dimen, 0, 0);
     scene.add( meshA );
 

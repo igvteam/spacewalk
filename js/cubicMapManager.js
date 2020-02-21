@@ -2,7 +2,7 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 
 class CubicMapManager {
 
-    constructor ({ textureRoot, suffix, vertexShaderName, fragmentShaderName, isSpecularMap }) {
+    constructor ({ textureRoot, suffix, vertexShaderName, fragmentShaderName, isSpecularMap }, callback) {
 
         // const paths = pathsPosNegStyleWithRoot(textureRoot, suffix);
         const paths = pathsOpenEXRStyleWithRoot(textureRoot, suffix);
@@ -19,6 +19,8 @@ class CubicMapManager {
 
             this.material = isSpecularMap ? specularMaterial(cubicTexture) : diffuseMaterial(cubicTexture, vertexShaderName, fragmentShaderName);
             this.material.side = THREE.DoubleSide;
+
+            callback(cubicTexture);
         };
 
         const onProgress = () => { };
@@ -55,10 +57,14 @@ function diffuseMaterial (cubicTexture, vertID, fragID) {
 
 function specularMaterial (cubicTexture) {
 
-    let { uniforms, vertexShader, fragmentShader } = THREE.ShaderLib.cube;
-    uniforms.tCube.value = cubicTexture;
+    // return new THREE.MeshLambertMaterial( { envMap: cubicTexture } );
 
-    return new THREE.ShaderMaterial( { uniforms, vertexShader, fragmentShader, depthWrite:false, side:THREE.BackSide } );
+    let { uniforms, vertexShader, fragmentShader } = THREE.ShaderLib.cube;
+
+    const shaderMaterial = new THREE.ShaderMaterial( { uniforms, vertexShader, fragmentShader, depthWrite:false, side:THREE.BackSide } );
+    shaderMaterial.envMap = cubicTexture;
+
+    return shaderMaterial;
 }
 
 function pathsPosNegStyleWithRoot(root, suffix) {
