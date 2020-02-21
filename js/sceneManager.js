@@ -1,6 +1,9 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { EffectComposer } from "../node_modules/three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "../node_modules/three/examples/jsm/postprocessing/RenderPass.js";
+import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from '../node_modules/three/examples/jsm/shaders/FXAAShader.js';
+
 import EnsembleManager from "./ensembleManager.js";
 import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
@@ -16,6 +19,8 @@ import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, eventBus, co
 import { getGUIRenderStyle } from "./guiManager.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud' , 'ribbon', 'noodle', 'ball' , 'stick' ]);
+
+const AAScaleFactor = 1;
 
 class SceneManager {
 
@@ -44,8 +49,14 @@ class SceneManager {
         this.cameraLightingRig.addToScene(this.scene);
 
         this.effectComposer = new EffectComposer( renderer);
+
         this.renderPass = new RenderPass(scene, this.cameraLightingRig.object);
         this.effectComposer.addPass(this.renderPass);
+
+        this.fxAA = new ShaderPass( FXAAShader );
+        setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
+        this.effectComposer.addPass( this.fxAA );
+        this.fxAA.enabled = false;
 
         $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
 
@@ -189,6 +200,10 @@ class SceneManager {
 
             this.renderer.setSize(window.innerWidth, window.innerHeight);
 
+            this.effectComposer.setSize(window.innerWidth, window.innerHeight);
+
+            setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
+
             this.cameraLightingRig.object.aspect = window.innerWidth/window.innerHeight;
             this.cameraLightingRig.object.updateProjectionMatrix();
         }
@@ -245,7 +260,12 @@ class SceneManager {
         this.cameraLightingRig.resetCamera();
     }
 
+
 }
+
+const setAA = (fxAA, scaleFactor, width, height) => {
+    fxAA.uniforms[ 'resolution' ].value.set( scaleFactor/width, scaleFactor/height );
+};
 
 export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 

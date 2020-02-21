@@ -173,26 +173,15 @@
 
 		composer = new EffectComposer( renderer );
 
-		var renderPass = new RenderPass( scene, camera );
-		composer.addPass( renderPass );
+		composer.addPass( new RenderPass( scene, camera ) );
 
-		outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
+		const { innerWidth, innerHeight } = window;
+
+		outlinePass = new OutlinePass( new THREE.Vector2( innerWidth, innerHeight ), scene, camera );
 		composer.addPass( outlinePass );
 
-		// var onLoad = function ( texture ) {
-		//
-		// 	outlinePass.patternTexture = texture;
-		// 	texture.wrapS = THREE.RepeatWrapping;
-		// 	texture.wrapT = THREE.RepeatWrapping;
-		//
-		// };
-		//
-		// var loader = new THREE.TextureLoader();
-		//
-		// loader.load( 'textures/tri_pattern.jpg', onLoad );
-
 		effectFXAA = new ShaderPass( FXAAShader );
-		effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
+		effectFXAA.uniforms[ 'resolution' ].value.set( 1/innerWidth, 1/innerHeight );
 		composer.addPass( effectFXAA );
 
 		window.addEventListener( 'resize', onWindowResize, false );
@@ -254,16 +243,15 @@
 
 	function onWindowResize() {
 
-		var width = window.innerWidth;
-		var height = window.innerHeight;
+		const { innerWidth: width, innerHeight: height } = window;
 
-		camera.aspect = width / height;
+		camera.aspect = width/height;
 		camera.updateProjectionMatrix();
 
 		renderer.setSize( width, height );
 		composer.setSize( width, height );
 
-		effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
+		effectFXAA.uniforms[ 'resolution' ].value.set( 1/width, 1/height );
 
 	}
 
