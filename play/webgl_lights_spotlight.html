@@ -14,13 +14,14 @@
 	</head>
 	<body>
 
-		<script src="js/three.js"></script>
-		<script src="js/controls/DEPRICATED/OrbitControls.js"></script>
-		<script src="js/libs/dat.gui.min.js"></script>
 
-		<script>
+	<script type="module">
 
-			var renderer, scene, camera;
+		import * as THREE from "../node_modules/three/build/three.module.js";
+		import { OrbitControls } from "../node_modules/three/examples/jsm/controls/OrbitControls.js";
+		import { GUI } from '../node_modules/three/examples/jsm/libs/dat.gui.module.js';
+
+		var renderer, scene, camera;
 
 			var spotLight, lightHelper, shadowCameraHelper;
 
@@ -43,7 +44,7 @@
 				camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 1000 );
 				camera.position.set( 65, 8, - 10 );
 
-				var controls = new THREE.OrbitControls( camera, renderer.domElement );
+				var controls = new OrbitControls( camera, renderer.domElement );
 				controls.addEventListener( 'change', render );
 				controls.minDistance = 20;
 				controls.maxDistance = 500;
@@ -121,7 +122,7 @@
 
 			function buildGui() {
 
-				gui = new dat.GUI();
+				gui = new GUI();
 
 				var params = {
 					'light color': spotLight.color.getHex(),
