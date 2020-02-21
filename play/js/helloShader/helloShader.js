@@ -1,7 +1,7 @@
-import * as THREE from '../../../js/threejs_es6/three.module.js';
-import OrbitControls from '../../../js/threejs_es6/orbit-controls-es6.js';
+import * as THREE from "../../../node_modules/three/build/three.module.js";
+import { OrbitControls } from "../../../node_modules/three/examples/jsm/controls/OrbitControls.js";
 import CubicMapManager from '../../../js/cubicMapManager.js';
-import { appleCrayonNames, appleCrayonColorHexValue } from '../../../js/color.js';
+import { appleCrayonNames, appleCrayonColorThreeJS, appleCrayonColorHexValue } from '../../../js/color.js';
 
 let scene;
 let renderer;
@@ -76,8 +76,13 @@ let main = async(threejs_canvas) => {
 
     specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
 
-    scene.background = specularCubicMapManager.cubicTexture;
-    // scene.background = new THREE.TextureLoader().load( "../../texture/uv.png" );
+    // scene.background = specularCubicMapManager.cubicTexture;
+
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load('../../texture/uv.png', texture => {
+        scene.background = texture;
+    });
+
     // scene.background = appleCrayonColorThreeJS('iron');
 
     await setup(scene, renderer, camera, orbitControl);
@@ -129,13 +134,13 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     // geometry = geometry.toNonIndexed();
 
 
-    let meshA = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
-    // let meshA = new THREE.Mesh(geometry, showSTMaterial);
+    // let meshA = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
+    let meshA = new THREE.Mesh(geometry, showSTMaterial);
     meshA.position.set(dimen, 0, 0);
     scene.add( meshA );
 
-    let meshB = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
-    // let meshB = new THREE.Mesh(geometry, showSTMaterial);
+    // let meshB = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
+    let meshB = new THREE.Mesh(geometry, showSTMaterial);
     meshB.position.set(-dimen, 0, 0);
     scene.add( meshB );
 

@@ -2,20 +2,30 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
-THREE.SavePass = function ( renderTarget ) {
+import {
+	LinearFilter,
+	RGBFormat,
+	ShaderMaterial,
+	UniformsUtils,
+	WebGLRenderTarget
+} from "../../../build/three.module.js";
+import { Pass } from "./Pass.js";
+import { CopyShader } from "../../js_old_school/shaders/CopyShader.js";
 
-	THREE.Pass.call( this );
+var SavePass = function ( renderTarget ) {
 
-	if ( THREE.CopyShader === undefined )
-		console.error( "THREE.SavePass relies on THREE.CopyShader" );
+	Pass.call( this );
 
-	var shader = THREE.CopyShader;
+	if ( CopyShader === undefined )
+		console.error( "SavePass relies on CopyShader" );
+
+	var shader = CopyShader;
 
 	this.textureID = "tDiffuse";
 
-	this.uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+	this.uniforms = UniformsUtils.clone( shader.uniforms );
 
-	this.material = new THREE.ShaderMaterial( {
+	this.material = new ShaderMaterial( {
 
 		uniforms: this.uniforms,
 		vertexShader: shader.vertexShader,
@@ -27,20 +37,20 @@ THREE.SavePass = function ( renderTarget ) {
 
 	if ( this.renderTarget === undefined ) {
 
-		this.renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat, stencilBuffer: false } );
+		this.renderTarget = new WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: LinearFilter, magFilter: LinearFilter, format: RGBFormat, stencilBuffer: false } );
 		this.renderTarget.texture.name = "SavePass.rt";
 
 	}
 
 	this.needsSwap = false;
 
-	this.fsQuad = new THREE.Pass.FullScreenQuad( this.material );
+	this.fsQuad = new Pass.FullScreenQuad( this.material );
 
 };
 
-THREE.SavePass.prototype = Object.assign( Object.create( THREE.Pass.prototype ), {
+SavePass.prototype = Object.assign( Object.create( Pass.prototype ), {
 
-	constructor: THREE.SavePass,
+	constructor: SavePass,
 
 	render: function ( renderer, writeBuffer, readBuffer ) {
 
@@ -57,3 +67,5 @@ THREE.SavePass.prototype = Object.assign( Object.create( THREE.Pass.prototype ),
 	}
 
 } );
+
+export { SavePass };

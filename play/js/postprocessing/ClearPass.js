@@ -2,9 +2,12 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-THREE.ClearPass = function ( clearColor, clearAlpha ) {
 
-	THREE.Pass.call( this );
+import { Pass } from "./Pass.js";
+
+var ClearPass = function ( clearColor, clearAlpha ) {
+
+	Pass.call( this );
 
 	this.needsSwap = false;
 
@@ -13,11 +16,11 @@ THREE.ClearPass = function ( clearColor, clearAlpha ) {
 
 };
 
-THREE.ClearPass.prototype = Object.assign( Object.create( THREE.Pass.prototype ), {
+ClearPass.prototype = Object.assign( Object.create( Pass.prototype ), {
 
-	constructor: THREE.ClearPass,
+	constructor: ClearPass,
 
-	render: function ( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
+	render: function ( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
 
 		var oldClearColor, oldClearAlpha;
 
@@ -42,3 +45,5 @@ THREE.ClearPass.prototype = Object.assign( Object.create( THREE.Pass.prototype )
 	}
 
 } );
+
+export { ClearPass };

@@ -2,41 +2,62 @@
  * @author bhouston / http://clara.io/
  */
 
-THREE.CubeTexturePass = function ( camera, envMap, opacity ) {
+import {
+	BackSide,
+	BoxBufferGeometry,
+	Mesh,
+	PerspectiveCamera,
+	Scene,
+	ShaderLib,
+	ShaderMaterial
+} from "../../../build/three.module.js";
+import { Pass } from "./Pass.js";
 
-	THREE.Pass.call( this );
+var CubeTexturePass = function ( camera, envMap, opacity ) {
+
+	Pass.call( this );
 
 	this.camera = camera;
 
 	this.needsSwap = false;
 
-	this.cubeShader = THREE.ShaderLib[ 'cube' ];
-	this.cubeMesh = new THREE.Mesh(
-		new THREE.BoxBufferGeometry( 10, 10, 10 ),
-		new THREE.ShaderMaterial( {
+	this.cubeShader = ShaderLib[ 'cube' ];
+	this.cubeMesh = new Mesh(
+		new BoxBufferGeometry( 10, 10, 10 ),
+		new ShaderMaterial( {
 			uniforms: this.cubeShader.uniforms,
 			vertexShader: this.cubeShader.vertexShader,
 			fragmentShader: this.cubeShader.fragmentShader,
 			depthTest: false,
 			depthWrite: false,
-			side: THREE.BackSide
+			side: BackSide
 		} )
 	);
+
+	Object.defineProperty( this.cubeMesh.material, 'envMap', {
+
+		get: function () {
+
+			return this.uniforms.envMap.value;
+
+		}
+
+	} );
 
 	this.envMap = envMap;
 	this.opacity = ( opacity !== undefined ) ? opacity : 1.0;
 
-	this.cubeScene = new THREE.Scene();
-	this.cubeCamera = new THREE.PerspectiveCamera();
+	this.cubeScene = new Scene();
+	this.cubeCamera = new PerspectiveCamera();
 	this.cubeScene.add( this.cubeMesh );
 
 };
 
-THREE.CubeTexturePass.prototype = Object.assign( Object.create( THREE.Pass.prototype ), {
+CubeTexturePass.prototype = Object.assign( Object.create( Pass.prototype ), {
 
-	constructor: THREE.CubeTexturePass,
+	constructor: CubeTexturePass,
 
-	render: function ( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
+	render: function ( renderer, writeBuffer, readBuffer/*, deltaTime, maskActive*/ ) {
 
 		var oldAutoClear = renderer.autoClear;
 		renderer.autoClear = false;
@@ -44,8 +65,8 @@ THREE.CubeTexturePass.prototype = Object.assign( Object.create( THREE.Pass.proto
 		this.cubeCamera.projectionMatrix.copy( this.camera.projectionMatrix );
 		this.cubeCamera.quaternion.setFromRotationMatrix( this.camera.matrixWorld );
 
-		this.cubeMesh.material.uniforms[ "tCube" ].value = this.envMap;
-		this.cubeMesh.material.uniforms[ "opacity" ].value = this.opacity;
+		this.cubeMesh.material.uniforms.envMap.value = this.envMap;
+		this.cubeMesh.material.uniforms.opacity.value = this.opacity;
 		this.cubeMesh.material.transparent = ( this.opacity < 1.0 );
 
 		renderer.setRenderTarget( this.renderToScreen ? null : readBuffer );
@@ -57,3 +78,5 @@ THREE.CubeTexturePass.prototype = Object.assign( Object.create( THREE.Pass.proto
 	}
 
 } );
+
+export { CubeTexturePass };
