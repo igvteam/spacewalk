@@ -56,27 +56,27 @@ let main = async(threejs_canvas) => {
 
     const diffuseCubicMapMaterialConfig =
         {
-            // textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
-            textureRoot: '../../texture/cubic/specular/aerodynamics_workshop/',
+            textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
+            // textureRoot: '../../texture/cubic/specular/aerodynamics_workshop/',
             suffix: '.png',
             vertexShaderName: 'diffuse_cube_vert',
             fragmentShaderName: 'diffuse_cube_frag',
             isSpecularMap: false
         };
 
-    diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig, async () => {
+    diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig, async (diffuseCubeTexture) => {
 
         const specularCubicMapMaterialConfig =
             {
-                // textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
-                textureRoot: '../../texture/cubic/specular/aerodynamics_workshop/',
+                textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
+                // textureRoot: '../../texture/cubic/specular/aerodynamics_workshop/',
                 suffix: '.png',
                 isSpecularMap: true
             };
 
-        specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig, async (cubicTexture) => {
+        specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig, async (specularCubeTexture) => {
 
-            scene.background = cubicTexture;
+            scene.background = specularCubeTexture;
 
             // const textureLoader = new THREE.TextureLoader();
             // textureLoader.load('../../texture/uv.png', texture => {
@@ -92,6 +92,9 @@ let main = async(threejs_canvas) => {
         });
 
     });
+
+
+
 
 };
 
@@ -143,8 +146,8 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     meshA.position.set(dimen, 0, 0);
     scene.add( meshA );
 
-    // let meshB = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
-    let meshB = new THREE.Mesh(geometry, showSTMaterial);
+    let meshB = new THREE.Mesh(geometry, diffuseCubicMapManager.material);
+    // let meshB = new THREE.Mesh(geometry, showSTMaterial);
     meshB.position.set(-dimen, 0, 0);
     scene.add( meshB );
 

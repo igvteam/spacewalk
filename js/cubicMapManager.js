@@ -1,4 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import {appleCrayonColorHexValue} from "./color.js";
 
 class CubicMapManager {
 
@@ -13,7 +14,7 @@ class CubicMapManager {
 
             cubicTexture.format   = THREE.RGBFormat;
             cubicTexture.mapping  = THREE.CubeReflectionMapping;
-            cubicTexture.encoding = THREE.sRGBEncoding;
+            // cubicTexture.encoding = THREE.sRGBEncoding;
 
             this.cubicTexture = cubicTexture;
 
@@ -47,7 +48,7 @@ function diffuseMaterial (cubicTexture, vertID, fragID) {
                         }
                 },
 
-              vertexShader: document.getElementById( vertID ).textContent,
+            vertexShader: document.getElementById( vertID ).textContent,
             fragmentShader: document.getElementById( fragID ).textContent
         };
 
@@ -57,12 +58,12 @@ function diffuseMaterial (cubicTexture, vertID, fragID) {
 
 function specularMaterial (cubicTexture) {
 
-    // return new THREE.MeshLambertMaterial( { envMap: cubicTexture } );
+    const shaderMaterial = new THREE.MeshLambertMaterial( { color: appleCrayonColorHexValue('snow'), envMap: cubicTexture, combine: THREE.MixOperation, reflectivity: 1 } );
 
-    let { uniforms, vertexShader, fragmentShader } = THREE.ShaderLib.cube;
+    // let { uniforms, vertexShader, fragmentShader } = THREE.ShaderLib.cube;
 
-    const shaderMaterial = new THREE.ShaderMaterial( { uniforms, vertexShader, fragmentShader, depthWrite:false, side:THREE.BackSide } );
-    shaderMaterial.envMap = cubicTexture;
+    // const shaderMaterial = new THREE.ShaderMaterial( { uniforms, vertexShader, fragmentShader, depthWrite:false, side:THREE.BackSide } );
+    // shaderMaterial.envMap = cubicTexture;
 
     return shaderMaterial;
 }
