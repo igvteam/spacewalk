@@ -17,6 +17,7 @@ import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, eventBus, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 import { getGUIRenderStyle } from "./guiManager.js";
+import { specularCubicTexture } from "./materialLibrary.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud' , 'ribbon', 'noodle', 'ball' , 'stick' ]);
 
@@ -29,7 +30,6 @@ class SceneManager {
         this.stickMaterial = stickMaterial;
 
         this.background = background;
-        // this.background = specularCubicTexture;
 
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -154,6 +154,7 @@ class SceneManager {
 
         // Scene
         this.scene = scene;
+        this.scene.background = this.background;
 
         this.renderPass.scene = scene;
 
@@ -246,14 +247,19 @@ class SceneManager {
         this.effectComposer.render();
     }
 
-    getRendererClearColorState() {
-        const { r, g, b } = this.renderer.getClearColor();
+    setBackground(rgbJS) {
+        this.background = rgbJS;
+        this.scene.background = this.background;
+    }
+
+    getBackgroundState() {
+        const { r, g, b } = this.background;
         return  { r, g, b }
     }
 
-    setRendererClearColorState(json) {
+    setBackgroundState(json) {
         const { r, g, b } = json;
-        this.renderer.setClearColor(new THREE.Color(r, g, b));
+        this.setBackground(new THREE.Color(r, g, b));
     }
 
     resetCamera() {
@@ -275,7 +281,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     stickMaterial.side = THREE.DoubleSide;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
+    // renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
+    // renderer.setClearColor (appleCrayonColorThreeJS('strawberry'));
 
     const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), (1) );
 
@@ -288,11 +295,15 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     cameraLightingRig.setPose(position, centroid);
 
     const background = appleCrayonColorThreeJS('nickel');
-    // const background = new THREE.TextureLoader().load( 'texture/scene-background-grey-0.png' );
+    // const background = new THREE.TextureLoader().load( 'texture/uv.png' );
+    // const background = specularCubicTexture;
+
+    const scene = new THREE.Scene();
+    scene.background = background;
 
     const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
 
-    return { container, scene: new THREE.Scene(), stickMaterial, background, renderer, cameraLightingRig, picker };
+    return { container, scene, stickMaterial, background, renderer, cameraLightingRig, picker };
 
 };
 

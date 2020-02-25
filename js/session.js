@@ -90,7 +90,7 @@ const getCompressedSession = () => {
 
     json.gnomonColor = sceneManager.gnomon.getColorState();
     json.groundplaneColor = sceneManager.groundPlane.getColorState();
-    json.rendererClearColor = sceneManager.getRendererClearColorState();
+    json.rendererClearColor = sceneManager.getBackgroundState();
 
     const jsonString = JSON.stringify( json );
 
@@ -168,7 +168,7 @@ const loadSession = async (url) => {
 
         sceneManager.groundPlane.setColorState(groundplaneColor);
 
-        sceneManager.setRendererClearColorState(rendererClearColor);
+        sceneManager.setBackgroundState(rendererClearColor);
 
     }
 

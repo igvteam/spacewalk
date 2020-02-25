@@ -3,14 +3,18 @@ import {appleCrayonColorHexValue} from "./color.js";
 
 class CubicMapManager {
 
-    constructor ({ textureRoot, suffix, vertexShaderName, fragmentShaderName, isSpecularMap }, callback) {
+    constructor ({ textureRoot, suffix, vertexShaderName, fragmentShaderName, isSpecularMap }) {
 
-        // const paths = pathsPosNegStyleWithRoot(textureRoot, suffix);
-        const paths = pathsOpenEXRStyleWithRoot(textureRoot, suffix);
+        this.onLoad = async () => {
 
-        const textureLoader = new THREE.CubeTextureLoader();
+            // const paths = pathsPosNegStyleWithRoot(textureRoot, suffix);
+            const paths = pathsOpenEXRStyleWithRoot(textureRoot, suffix);
 
-        const onLoad = (cubicTexture) => {
+            const promise = new Promise(resolve => {
+                new THREE.CubeTextureLoader().load(paths, resolve);
+            });
+
+            const cubicTexture = await promise;
 
             cubicTexture.format   = THREE.RGBFormat;
             cubicTexture.mapping  = THREE.CubeReflectionMapping;
@@ -21,19 +25,13 @@ class CubicMapManager {
             this.material = isSpecularMap ? specularMaterial(cubicTexture) : diffuseMaterial(cubicTexture, vertexShaderName, fragmentShaderName);
             this.material.side = THREE.DoubleSide;
 
-            callback(cubicTexture);
         };
-
-        const onProgress = () => { };
-
-        const onError = (error) => {
-            console.log(error.message)
-        };
-
-        textureLoader.load( paths, onLoad, onProgress, onError );
 
     }
 
+    async loadTexture () {
+        await this.onLoad();
+    }
 }
 
 function diffuseMaterial (cubicTexture, vertID, fragID) {

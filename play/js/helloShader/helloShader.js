@@ -64,37 +64,32 @@ let main = async(threejs_canvas) => {
             isSpecularMap: false
         };
 
-    diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig, async (diffuseCubeTexture) => {
+    diffuseCubicMapManager = new CubicMapManager(diffuseCubicMapMaterialConfig);
+    await diffuseCubicMapManager.loadTexture();
 
-        const specularCubicMapMaterialConfig =
-            {
-                textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
-                // textureRoot: '../../texture/cubic/specular/aerodynamics_workshop/',
-                suffix: '.png',
-                isSpecularMap: true
-            };
+    const specularCubicMapMaterialConfig =
+        {
+            textureRoot: '../../texture/cubic/diagnostic/threejs_format/',
+            // textureRoot: '../../texture/cubic/specular/aerodynamics_workshop/',
+            suffix: '.png',
+            isSpecularMap: true
+        };
 
-        specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig, async (specularCubeTexture) => {
+    specularCubicMapManager = new CubicMapManager(specularCubicMapMaterialConfig);
+    await specularCubicMapManager.loadTexture();
 
-            scene.background = specularCubeTexture;
+    scene.background = specularCubicMapManager.cubicTexture;
 
-            // const textureLoader = new THREE.TextureLoader();
-            // textureLoader.load('../../texture/uv.png', texture => {
-            //     scene.background = texture;
-            // });
+    // const textureLoader = new THREE.TextureLoader();
+    // textureLoader.load('../../texture/uv.png', texture => {
+    //     scene.background = texture;
+    // });
 
-            // scene.background = appleCrayonColorThreeJS('iron');
+    // scene.background = appleCrayonColorThreeJS('iron');
 
-            await setup(scene, renderer, camera, orbitControl);
+    await setup(scene, renderer, camera, orbitControl);
 
-            renderer.render( scene, camera );
-
-        });
-
-    });
-
-
-
+    renderer.render( scene, camera );
 
 };
 
