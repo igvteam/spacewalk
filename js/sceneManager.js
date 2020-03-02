@@ -23,6 +23,8 @@ const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hul
 
 const AAScaleFactor = 1;
 
+const doMultipassRendering = false;
+
 class SceneManager {
 
     constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker }) {
@@ -48,15 +50,9 @@ class SceneManager {
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
 
-        this.effectComposer = new EffectComposer( renderer);
-
-        this.renderPass = new RenderPass(scene, this.cameraLightingRig.object);
-        this.effectComposer.addPass(this.renderPass);
-
-        this.fxAA = new ShaderPass( FXAAShader );
-        setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
-        this.effectComposer.addPass( this.fxAA );
-        this.fxAA.enabled = false;
+        if (doMultipassRendering) {
+            this.setupMultipassRendering(this.scene, this.renderer, this.cameraLightingRig);
+        }
 
         $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
 
@@ -65,6 +61,20 @@ class SceneManager {
         eventBus.subscribe('DidSelectTrace', this);
         eventBus.subscribe('DidLoadEnsembleFile', this);
         eventBus.subscribe('RenderStyleDidChange', this);
+
+    }
+
+    setupMultipassRendering(scene, renderer, cameraLightingRig) {
+
+        this.effectComposer = new EffectComposer( renderer);
+
+        this.renderPass = new RenderPass(scene, cameraLightingRig.object);
+        this.effectComposer.addPass(this.renderPass);
+
+        this.fxAA = new ShaderPass( FXAAShader );
+        setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
+        this.effectComposer.addPass( this.fxAA );
+        this.fxAA.enabled = false;
 
     }
 
@@ -156,7 +166,9 @@ class SceneManager {
         this.scene = scene;
         this.scene.background = this.background;
 
-        this.renderPass.scene = scene;
+        if (doMultipassRendering) {
+            this.renderPass.scene = scene;
+        }
 
         this.cameraLightingRig.configure({fov, position: cameraPosition, centroid, boundingDiameter});
 
@@ -201,9 +213,10 @@ class SceneManager {
 
             this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-            this.effectComposer.setSize(window.innerWidth, window.innerHeight);
-
-            setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
+            if (doMultipassRendering) {
+                this.effectComposer.setSize(window.innerWidth, window.innerHeight);
+                setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
+            }
 
             this.cameraLightingRig.object.aspect = window.innerWidth/window.innerHeight;
             this.cameraLightingRig.object.updateProjectionMatrix();
@@ -243,8 +256,13 @@ class SceneManager {
             this.gnomon.renderLoopHelper();
         }
 
-        // this.renderer.render(this.scene, this.cameraLightingRig.object);
-        this.effectComposer.render();
+        if (doMultipassRendering) {
+            this.effectComposer.render();
+        } else {
+            this.renderer.render(this.scene, this.cameraLightingRig.object);
+        }
+
+
     }
 
     setBackground(rgbJS) {
