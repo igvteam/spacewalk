@@ -21,17 +21,11 @@
 
 <div id="container"></div>
 
-<script src="../js/three.js"></script>
-<script src="../js/WebGL.js"></script>
-
-<script src="../js/controls/OrbitControls.js"></script>
-<script src="../js/CurveExtras.js"></script>
+<script src='../../node_modules/three/build/three.js'></script>
+<script src='../../node_modules/three/examples/js/controls/OrbitControls.js'></script>
+<script src="../../node_modules/three/examples/js/curves/CurveExtras.js"></script>
 
 <script>
-
-	if ( false === WEBGL.isWebGLAvailable() ) {
-		document.body.appendChild( WEBGL.getWebGLErrorMessage() );
-	}
 
 	THREE.ShaderLib.customDepthRGBA = { // this is a cut-and-paste of the depth shader -- modified to accommodate instancing for this app
 

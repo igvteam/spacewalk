@@ -34,8 +34,9 @@
 			varying vec3 vNormalEyeSpace;
 			void main() {
 
-				// Use the normalMatrix to convert the world space normal to eye space
+                // normalMatrix: Convert normal from WorldSpace to EyeSpace
 				// normalMatrix = transpose( inverse( modelViewMatrix ) )
+
 				vNormalEyeSpace = normalMatrix * vec4(normal, 1.0).xyz;
 
 	            vNormalWorldSpace = inverseTransformDirection(vNormalEyeSpace, viewMatrix);

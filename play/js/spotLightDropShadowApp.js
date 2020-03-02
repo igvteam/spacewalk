@@ -1,7 +1,7 @@
-import * as THREE from '../../js/threejs_es6/three.module.js';
-import OrbitControls from "../../js/threejs_es6/orbit-controls-es6.js";
+import * as THREE from "../../node_modules/three/build/three.module.js";
+import { OrbitControls } from "../../node_modules/three/examples/jsm/controls/OrbitControls.js";
 import { appleCrayonColorThreeJS } from '../../js/color.js'
-import SpotLightDropShadow from "../../js/spotLightDropShadow.js";
+import SpotLightDropShadow from "./spotLightDropShadow.js";
 
 let spotlightDropshadow;
 

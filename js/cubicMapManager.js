@@ -1,36 +1,37 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import {appleCrayonColorHexValue} from "./color.js";
 
 class CubicMapManager {
 
     constructor ({ textureRoot, suffix, vertexShaderName, fragmentShaderName, isSpecularMap }) {
 
-        // const paths = pathsPosNegStyleWithRoot(textureRoot, suffix);
-        const paths = pathsOpenEXRStyleWithRoot(textureRoot, suffix);
+        this.onLoad = async () => {
 
-        const textureLoader = new THREE.CubeTextureLoader();
+            // const paths = pathsPosNegStyleWithRoot(textureRoot, suffix);
+            const paths = pathsOpenEXRStyleWithRoot(textureRoot, suffix);
 
-        const onLoad = (cubicTexture) => {
+            const promise = new Promise(resolve => {
+                new THREE.CubeTextureLoader().load(paths, resolve);
+            });
+
+            const cubicTexture = await promise;
 
             cubicTexture.format   = THREE.RGBFormat;
             cubicTexture.mapping  = THREE.CubeReflectionMapping;
-            cubicTexture.encoding = THREE.sRGBEncoding;
+            // cubicTexture.encoding = THREE.sRGBEncoding;
 
             this.cubicTexture = cubicTexture;
 
             this.material = isSpecularMap ? specularMaterial(cubicTexture) : diffuseMaterial(cubicTexture, vertexShaderName, fragmentShaderName);
             this.material.side = THREE.DoubleSide;
+
         };
-
-        const onProgress = () => { };
-
-        const onError = (error) => {
-            console.log(error.message)
-        };
-
-        textureLoader.load( paths, onLoad, onProgress, onError );
 
     }
 
+    async loadTexture () {
+        await this.onLoad();
+    }
 }
 
 function diffuseMaterial (cubicTexture, vertID, fragID) {
@@ -45,7 +46,7 @@ function diffuseMaterial (cubicTexture, vertID, fragID) {
                         }
                 },
 
-              vertexShader: document.getElementById( vertID ).textContent,
+            vertexShader: document.getElementById( vertID ).textContent,
             fragmentShader: document.getElementById( fragID ).textContent
         };
 
@@ -55,10 +56,14 @@ function diffuseMaterial (cubicTexture, vertID, fragID) {
 
 function specularMaterial (cubicTexture) {
 
-    let { uniforms, vertexShader, fragmentShader } = THREE.ShaderLib.cube;
-    uniforms.tCube.value = cubicTexture;
+    const shaderMaterial = new THREE.MeshLambertMaterial( { color: appleCrayonColorHexValue('snow'), envMap: cubicTexture, combine: THREE.MixOperation, reflectivity: 1 } );
 
-    return new THREE.ShaderMaterial( { uniforms, vertexShader, fragmentShader, depthWrite:false, side:THREE.BackSide } );
+    // let { uniforms, vertexShader, fragmentShader } = THREE.ShaderLib.cube;
+
+    // const shaderMaterial = new THREE.ShaderMaterial( { uniforms, vertexShader, fragmentShader, depthWrite:false, side:THREE.BackSide } );
+    // shaderMaterial.envMap = cubicTexture;
+
+    return shaderMaterial;
 }
 
 function pathsPosNegStyleWithRoot(root, suffix) {

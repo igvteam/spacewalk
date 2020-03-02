@@ -4,14 +4,11 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 // const specularTextureRoot = 'texture/cubic/diagnostic/threejs_format/';
 // const specularTextureRoot = 'texture/cubic/specular/aerodynamics_workshop/';
 // const specularTextureRoot = 'texture/cubic/specular/skybox/';
-// const specularTextureRoot = 'texture/cubic/diagnostic/tissot/';
-const specularTextureRoot = 'texture/cubic/specular/grid/';
-
+const specularTextureRoot = 'texture/cubic/diagnostic/tissot/';
+// const specularTextureRoot = 'texture/cubic/specular/grid/';
 const specularCubicMapManager = new CubicMapManager({ textureRoot: specularTextureRoot, suffix: '.png', isSpecularMap: true });
-const specularCubicTexture = specularCubicMapManager.cubicTexture;
 
 const diffuseTextureRoot = 'texture/cubic/diffuse/tissot/';
-
 const diffuseCubicMapManager = new CubicMapManager({
     textureRoot: diffuseTextureRoot,
     suffix: '.png',
@@ -19,7 +16,30 @@ const diffuseCubicMapManager = new CubicMapManager({
     fragmentShaderName: 'diffuse_cube_frag',
     isSpecularMap: false
 });
-const diffuseCubicTexture = diffuseCubicMapManager.cubicTexture;
+
+let specularCubicTexture = undefined;
+let diffuseCubicTexture = undefined;
+
+const materialManagerLoadCubes = async () => {
+    let str;
+
+    str = `Specular Cubic Texture Load of ${ specularTextureRoot } Complete`;
+    console.time(str);
+
+    await specularCubicMapManager.loadTexture();
+    specularCubicTexture = specularCubicMapManager.cubicTexture;
+
+    console.timeEnd(str);
+
+    str = `Diffuse Cubic Texture Load of ${ diffuseTextureRoot } Complete`;
+    console.time(str);
+
+    await specularCubicMapManager.loadTexture();
+    diffuseCubicTexture = diffuseCubicMapManager.cubicTexture;
+
+    console.timeEnd(str);
+
+};
 
 const showNormalsMaterial = new THREE.MeshNormalMaterial();
 
@@ -53,4 +73,4 @@ const showTConfig =
 
 const showTMaterial = new THREE.ShaderMaterial(showTConfig );
 
-export { diffuseCubicTexture, specularCubicTexture, showNormalsMaterial, showSTMaterial, showSMaterial, showTMaterial };
+export { materialManagerLoadCubes, diffuseCubicTexture, specularCubicTexture, showNormalsMaterial, showSTMaterial, showSMaterial, showTMaterial };

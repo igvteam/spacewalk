@@ -96,7 +96,7 @@ class GUIManager {
                 color: "#f00",
                 move: color => {
                     const { r, g, b } = color.toRgb();
-                    sceneManager.renderer.setClearColor (rgb255ToThreeJSColor(r, g, b));
+                     sceneManager.setBackground(rgb255ToThreeJSColor(r, g, b));
                 }
 
             };

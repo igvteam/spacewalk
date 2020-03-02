@@ -1,4 +1,9 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import { EffectComposer } from "../node_modules/three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "../node_modules/three/examples/jsm/postprocessing/RenderPass.js";
+import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from '../node_modules/three/examples/jsm/shaders/FXAAShader.js';
+
 import EnsembleManager from "./ensembleManager.js";
 import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
@@ -12,8 +17,13 @@ import { getMouseXY } from "./utils.js";
 import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
 import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, eventBus, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 import { getGUIRenderStyle } from "./guiManager.js";
+import { specularCubicTexture } from "./materialLibrary.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud' , 'ribbon', 'noodle', 'ball' , 'stick' ]);
+
+const AAScaleFactor = 1;
+
+const doMultipassRendering = false;
 
 class SceneManager {
 
@@ -22,7 +32,6 @@ class SceneManager {
         this.stickMaterial = stickMaterial;
 
         this.background = background;
-        // this.background = specularCubicTexture;
 
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -37,10 +46,13 @@ class SceneManager {
 
         // stub configuration
         this.scene = scene;
-        // this.scene.background = this.background;
 
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
+
+        if (doMultipassRendering) {
+            this.setupMultipassRendering(this.scene, this.renderer, this.cameraLightingRig);
+        }
 
         $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
 
@@ -49,6 +61,20 @@ class SceneManager {
         eventBus.subscribe('DidSelectTrace', this);
         eventBus.subscribe('DidLoadEnsembleFile', this);
         eventBus.subscribe('RenderStyleDidChange', this);
+
+    }
+
+    setupMultipassRendering(scene, renderer, cameraLightingRig) {
+
+        this.effectComposer = new EffectComposer( renderer);
+
+        this.renderPass = new RenderPass(scene, cameraLightingRig.object);
+        this.effectComposer.addPass(this.renderPass);
+
+        this.fxAA = new ShaderPass( FXAAShader );
+        setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
+        this.effectComposer.addPass( this.fxAA );
+        this.fxAA.enabled = false;
 
     }
 
@@ -138,7 +164,11 @@ class SceneManager {
 
         // Scene
         this.scene = scene;
-        // this.scene.background = this.background;
+        this.scene.background = this.background;
+
+        if (doMultipassRendering) {
+            this.renderPass.scene = scene;
+        }
 
         this.cameraLightingRig.configure({fov, position: cameraPosition, centroid, boundingDiameter});
 
@@ -183,6 +213,11 @@ class SceneManager {
 
             this.renderer.setSize(window.innerWidth, window.innerHeight);
 
+            if (doMultipassRendering) {
+                this.effectComposer.setSize(window.innerWidth, window.innerHeight);
+                setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
+            }
+
             this.cameraLightingRig.object.aspect = window.innerWidth/window.innerHeight;
             this.cameraLightingRig.object.updateProjectionMatrix();
         }
@@ -221,25 +256,40 @@ class SceneManager {
             this.gnomon.renderLoopHelper();
         }
 
-        this.renderer.render(this.scene, this.cameraLightingRig.object);
+        if (doMultipassRendering) {
+            this.effectComposer.render();
+        } else {
+            this.renderer.render(this.scene, this.cameraLightingRig.object);
+        }
+
 
     }
 
-    getRendererClearColorState() {
-        const { r, g, b } = this.renderer.getClearColor();
+    setBackground(rgbJS) {
+        this.background = rgbJS;
+        this.scene.background = this.background;
+    }
+
+    getBackgroundState() {
+        const { r, g, b } = this.background;
         return  { r, g, b }
     }
 
-    setRendererClearColorState(json) {
+    setBackgroundState(json) {
         const { r, g, b } = json;
-        this.renderer.setClearColor(new THREE.Color(r, g, b));
+        this.setBackground(new THREE.Color(r, g, b));
     }
 
     resetCamera() {
         this.cameraLightingRig.resetCamera();
     }
 
+
 }
+
+const setAA = (fxAA, scaleFactor, width, height) => {
+    fxAA.uniforms[ 'resolution' ].value.set( scaleFactor/width, scaleFactor/height );
+};
 
 export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
@@ -249,7 +299,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     stickMaterial.side = THREE.DoubleSide;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
+    // renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
+    // renderer.setClearColor (appleCrayonColorThreeJS('strawberry'));
 
     const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), (1) );
 
@@ -262,11 +313,15 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     cameraLightingRig.setPose(position, centroid);
 
     const background = appleCrayonColorThreeJS('nickel');
-    // const background = new THREE.TextureLoader().load( 'texture/scene-background-grey-0.png' );
+    // const background = new THREE.TextureLoader().load( 'texture/uv.png' );
+    // const background = specularCubicTexture;
+
+    const scene = new THREE.Scene();
+    scene.background = background;
 
     const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
 
-    return { container, scene: new THREE.Scene(), stickMaterial, background, renderer, cameraLightingRig, picker };
+    return { container, scene, stickMaterial, background, renderer, cameraLightingRig, picker };
 
 };
 

@@ -1,5 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import OrbitControls from "./threejs_es6/orbit-controls-es6.js";
+import { OrbitControls } from "../node_modules/three/examples/jsm/controls/OrbitControls.js";
 
 let cameraWorldDirection = new THREE.Vector3();
 let crossed = new THREE.Vector3();
@@ -20,6 +20,8 @@ class CameraLightingRig extends OrbitControls {
         this.doUpdateCameraPose = true;
 
         this.enableKeys = false;
+
+        this.enablePan = false;
     }
 
     configure ({ fov, position, centroid, boundingDiameter }) {

@@ -7,35 +7,27 @@
 		<style>
 			body {
 				background-color: #f0f0f0;
-				margin: 0;
-				overflow: hidden;
+				color: #444;
 			}
-
-			#info {
-				position: absolute;
-				top: 0;
-				width: 100%;
-				padding: 5px;
-				font-size:13px;
-				text-align:center;
+			a {
+				color: #08f;
 			}
 		</style>
 	</head>
 	<body>
 
 		<div id="container"></div>
-		<div id="info"><a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - geometry - catmull spline editor</div>
 
-		<script src="../js/three.js"></script>
+		<script type="module">
 
-		<script src="../js/controls/DragControls.js"></script>
-		<script src="../js/controls/OrbitControls.js"></script>
-		<script src="../js/controls/TransformControls.js"></script>
+			import * as THREE from "../../node_modules/three/build/three.module.js";
+			import { OrbitControls } from "../../node_modules/three/examples/jsm/controls/OrbitControls.js";
 
-		<script src="../js/libs/stats.min.js"></script>
-		<script src="../js/libs/dat.gui.min.js"></script>
+			import Stats from '../../node_modules/three/examples/jsm/libs/stats.module.js';
+			import { GUI } from '../../node_modules/three/examples/jsm/libs/dat.gui.module.js';
 
-		<script>
+			import { DragControls } from '../../node_modules/three/examples/jsm/controls/DragControls.js';
+			import { TransformControls } from '../../node_modules/three/examples/jsm/controls/TransformControls.js';
 
 			String.prototype.format = function () {
 
@@ -50,7 +42,7 @@
 
 			};
 
-			var container;
+			var container, stats;
 			var camera, scene, renderer;
 			var splineHelperObjects = [];
 			var splinePointsLength = 4;
@@ -91,8 +83,10 @@
 				scene.add( new THREE.AmbientLight( 0xf0f0f0 ) );
 				var light = new THREE.SpotLight( 0xffffff, 1.5 );
 				light.position.set( 0, 1500, 200 );
+				light.angle = Math.PI * 0.2;
 				light.castShadow = true;
-				light.shadow = new THREE.LightShadow( new THREE.PerspectiveCamera( 70, 1, 200, 2000 ) );
+				light.shadow.camera.near = 200;
+				light.shadow.camera.far = 2000;
 				light.shadow.bias = - 0.000222;
 				light.shadow.mapSize.width = 1024;
 				light.shadow.mapSize.height = 1024;
@@ -113,7 +107,7 @@
 				helper.material.transparent = true;
 				scene.add( helper );
 
-				//var axes = new THREE.AxesHelper( 1000 );
+				//var axes = new AxesHelper( 1000 );
 				//axes.position.set( - 500, - 500, - 500 );
 				//scene.add( axes );
 
@@ -123,7 +117,10 @@
 				renderer.shadowMap.enabled = true;
 				container.appendChild( renderer.domElement );
 
-				var gui = new dat.GUI();
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+				var gui = new GUI();
 
 				gui.add( params, 'uniform' );
 				gui.add( params, 'tension', 0, 1 ).step( 0.01 ).onChange( function ( value ) {
@@ -131,7 +128,7 @@
 					splines.uniform.tension = value;
 					updateSplineOutline();
 
-				} );
+	} );
 				gui.add( params, 'centripetal' );
 				gui.add( params, 'chordal' );
 				gui.add( params, 'addPoint' );
@@ -140,7 +137,7 @@
 				gui.open();
 
 				// Controls
-				var controls = new THREE.OrbitControls( camera, renderer.domElement );
+				var controls = new OrbitControls( camera, renderer.domElement );
 				controls.damping = 0.2;
 				controls.addEventListener( 'change', render );
 
@@ -156,13 +153,13 @@
 
 				} );
 
-				transformControl = new THREE.TransformControls( camera, renderer.domElement );
+				transformControl = new TransformControls( camera, renderer.domElement );
 				transformControl.addEventListener( 'change', render );
 				transformControl.addEventListener( 'dragging-changed', function ( event ) {
 
 					controls.enabled = ! event.value;
 
-				} );
+	} );
 				scene.add( transformControl );
 
 				// Hiding transform situation is a little in a mess :()
@@ -190,7 +187,7 @@
 
 				} );
 
-				var dragcontrols = new THREE.DragControls( splineHelperObjects, camera, renderer.domElement ); //
+				var dragcontrols = new DragControls( splineHelperObjects, camera, renderer.domElement ); //
 				dragcontrols.enabled = false;
 				dragcontrols.addEventListener( 'hoveron', function ( event ) {
 
@@ -249,7 +246,7 @@
 				}
 
 				var geometry = new THREE.BufferGeometry();
-				geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( ARC_SEGMENTS * 3 ), 3 ) );
+				geometry.setAttribute( 'position', new THREE.BufferAttribute( new Float32Array( ARC_SEGMENTS * 3 ), 3 ) );
 
 				var curve = new THREE.CatmullRomCurve3( positions );
 				curve.curveType = 'catmullrom';
@@ -410,6 +407,8 @@
 
 				requestAnimationFrame( animate );
 				render();
+				stats.update();
+
 			}
 
 			function render() {

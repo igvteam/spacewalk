@@ -22,6 +22,7 @@ import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
 import { saveSession, loadSession } from "./session.js";
+import { materialManagerLoadCubes } from "./materialLibrary.js";
 
 let eventBus = new EventBus();
 
@@ -66,6 +67,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     } catch (e) {
         Alert.presentAlert(e.message);
     }
+
+    await materialManagerLoadCubes();
 
     const root = document.querySelector('#spacewalk-main');
     $(root).append(createGenericSelectModal('spacewalk-igv-app-generic-track-select-modal', 'spacewalk-igv-app-generic-track-select'));
