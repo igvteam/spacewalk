@@ -71,19 +71,17 @@ $spacewalk_spinner_size: 128px;
   height: 14px !important;
 }
 
-#spacewalk_canvas_container {
+#spacewalk-root-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $spacewalk_strawberry;
+}
 
-  width: 100%;
-  width: -moz-available;
-  width: -webkit-fill-available;
-  width: fill-available;
-
-  height: 100%;
-  height: -moz-available;
-  height: -webkit-fill-available;
-  height: fill-available;
-
-  overflow: hidden;
-  background-color: $spacewalk_nickel;
-
+#spacewalk-threejs-container {
+  width: 800px;
+  height:800px;
+  background-color: $spacewalk_aqua;
 }

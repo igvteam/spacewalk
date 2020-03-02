@@ -625,16 +625,17 @@ div#spacewalk_info_panel {
   width: 14px !important;
   height: 14px !important; }
 
-#spacewalk_canvas_container {
-  width: 100%;
-  width: -moz-available;
-  width: -webkit-fill-available;
-  width: fill-available;
-  height: 100%;
-  height: -moz-available;
-  height: -webkit-fill-available;
-  height: fill-available;
-  overflow: hidden;
-  background-color: #888787; }
+#spacewalk-root-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ff2987; }
+
+#spacewalk-threejs-container {
+  width: 800px;
+  height: 800px;
+  background-color: #008cff; }
 
 /*# sourceMappingURL=app.css.map */

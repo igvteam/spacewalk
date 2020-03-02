@@ -34,7 +34,8 @@ class SceneManager {
         this.background = background;
 
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        const { width, height } = container.getBoundingClientRect();
+        renderer.setSize(width, height);
 
         // insert rendering canvas in DOM
         container.appendChild(renderer.domElement);
@@ -54,7 +55,7 @@ class SceneManager {
             this.setupMultipassRendering(this.scene, this.renderer, this.cameraLightingRig);
         }
 
-        $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
+        // $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
 
         eventBus.subscribe("DidSelectSegmentID", this);
         eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
@@ -63,6 +64,11 @@ class SceneManager {
         eventBus.subscribe('RenderStyleDidChange', this);
 
     }
+
+    getRenderContainerSize() {
+        const { width, height } = this.container.getBoundingClientRect();
+        return { width, height };
+    };
 
     setupMultipassRendering(scene, renderer, cameraLightingRig) {
 
@@ -170,7 +176,8 @@ class SceneManager {
             this.renderPass.scene = scene;
         }
 
-        this.cameraLightingRig.configure({fov, position: cameraPosition, centroid, boundingDiameter});
+        const { width, height } = this.getRenderContainerSize();
+        this.cameraLightingRig.configure({fov, aspect: width/height, position: cameraPosition, centroid, boundingDiameter});
 
         this.cameraLightingRig.addToScene(this.scene);
 
@@ -304,7 +311,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), (1) );
 
-    const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (window.innerWidth/window.innerHeight) ];
+    const { width, height } = container.getBoundingClientRect();
+    const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (width/height) ];
     const cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspect, hemisphereLight });
 
     // Nice numbers

@@ -51,7 +51,10 @@ let igvPanel;
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
-    const container = document.getElementById('spacewalk_canvas_container');
+    const container = document.getElementById('spacewalk-root-container');
+
+    // container.webkitRequestFullscreen();
+
     Alert.init(container);
 
     const { userAgent } = window.navigator;
@@ -69,6 +72,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     }
 
     await materialManagerLoadCubes();
+
+
 
     const root = document.querySelector('#spacewalk-main');
     $(root).append(createGenericSelectModal('spacewalk-igv-app-generic-track-select-modal', 'spacewalk-igv-app-generic-track-select'));
@@ -93,7 +98,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
 
-    sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
+    const threejs_container = document.getElementById('spacewalk-threejs-container');
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container: threejs_container, highlightColor }));
 
     await createButtonsPanelsModals(container);
 
