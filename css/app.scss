@@ -18,6 +18,26 @@ $spacewalk_spinner_size: 128px;
 
 @import "igv/file-load-widget";
 
+#spacewalk-root-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $spacewalk_strawberry;
+}
+
+#spacewalk-threejs-container {
+
+  position: absolute;
+
+  //width: 100vw;
+  //height:100vh;
+  width: 1000px;
+  height:1000px;
+  background-color: $spacewalk_aqua;
+}
+
 #spacewalk-spinner-container {
 
   pointer-events:none;
@@ -69,19 +89,4 @@ $spacewalk_spinner_size: 128px;
 .igv-trackgear-container {
   width: 14px !important;
   height: 14px !important;
-}
-
-#spacewalk-root-container {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: $spacewalk_strawberry;
-}
-
-#spacewalk-threejs-container {
-  width: 800px;
-  height:800px;
-  background-color: $spacewalk_aqua;
 }

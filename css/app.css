@@ -588,6 +588,20 @@ div#spacewalk_info_panel {
       cursor: pointer;
       background-color: #3b5c7f; }
 
+#spacewalk-root-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ff2987; }
+
+#spacewalk-threejs-container {
+  position: absolute;
+  width: 1000px;
+  height: 1000px;
+  background-color: #008cff; }
+
 #spacewalk-spinner-container {
   pointer-events: none;
   position: absolute;
@@ -624,18 +638,5 @@ div#spacewalk_info_panel {
 .igv-trackgear-container {
   width: 14px !important;
   height: 14px !important; }
-
-#spacewalk-root-container {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #ff2987; }
-
-#spacewalk-threejs-container {
-  width: 800px;
-  height: 800px;
-  background-color: #008cff; }
 
 /*# sourceMappingURL=app.css.map */

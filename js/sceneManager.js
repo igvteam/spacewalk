@@ -320,8 +320,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const centroid = new THREE.Vector3(133394, 54542, 4288);
     cameraLightingRig.setPose(position, centroid);
 
-    const background = appleCrayonColorThreeJS('nickel');
-    // const background = new THREE.TextureLoader().load( 'texture/uv.png' );
+    // const background = appleCrayonColorThreeJS('nickel');
+    const background = new THREE.TextureLoader().load( 'texture/uv.png' );
     // const background = specularCubicTexture;
 
     const scene = new THREE.Scene();

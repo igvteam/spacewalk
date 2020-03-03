@@ -23,6 +23,7 @@ import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoad
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
 import { saveSession, loadSession } from "./session.js";
 import { materialManagerLoadCubes } from "./materialLibrary.js";
+import {makeDraggable} from "./draggable.js";
 
 let eventBus = new EventBus();
 
@@ -99,6 +100,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
 
     const threejs_container = document.getElementById('spacewalk-threejs-container');
+    makeDraggable(threejs_container, threejs_container);
+
     sceneManager = new SceneManager(sceneManagerConfigurator({ container: threejs_container, highlightColor }));
 
     await createButtonsPanelsModals(container);
