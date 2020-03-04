@@ -100,18 +100,21 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
 
     const threejs_container = document.getElementById('spacewalk-threejs-container');
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container: threejs_container, highlightColor }));
 
     const resizable_threejs_container_config =
         {
+            autoHide: true,
             helper: "spacewalk-threejs-container-resizable-helper",
             stop: ( event, ui ) => {
                 sceneManager.containerResize();
             }
         };
-    $( threejs_container ).resizable(resizable_threejs_container_config);
-    // makeDraggable(threejs_container, threejs_container);
 
-    sceneManager = new SceneManager(sceneManagerConfigurator({ container: threejs_container, highlightColor }));
+    $( sceneManager.container ).resizable(resizable_threejs_container_config);
+
+    makeDraggable(sceneManager.container, sceneManager.container);
+
 
     await createButtonsPanelsModals(container);
 
