@@ -594,16 +594,37 @@ div#spacewalk_info_panel {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #ff2987; }
+  background-color: #d0d0d0; }
 
 #spacewalk-threejs-container {
   position: absolute;
+  top: 128px;
+  left: 128px;
   width: 640px;
   height: 640px;
-  background-color: #008cff; }
+  background-color: #888787; }
+  #spacewalk-threejs-container #spacewalk-threejs-drag-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 32px;
+    background-color: transparent;
+    cursor: grab; }
+    #spacewalk-threejs-container #spacewalk-threejs-drag-container i {
+      color: #6e6e6e;
+      display: block; }
 
 .spacewalk-threejs-container-resizable-helper {
-  border: 2px dotted #00F; }
+  border: 2px dotted #ffffff; }
+
+.ui-resizable-handle {
+  z-index: 1024; }
 
 #spacewalk-spinner-container {
   pointer-events: none;

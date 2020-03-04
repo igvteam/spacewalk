@@ -24,22 +24,54 @@ $spacewalk_spinner_size: 128px;
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: $spacewalk_strawberry;
+  background-color: $spacewalk_silver;
 }
 
 #spacewalk-threejs-container {
 
   position: absolute;
+  top: 128px;
+  left: 128px;
 
   //width: 100vw;
   //height:100vh;
   width: 640px;
   height:640px;
-  background-color: $spacewalk_aqua;
+  background-color: $spacewalk_nickel;
+
+  #spacewalk-threejs-drag-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: $spacewalk_card_drag_container_height;
+    background-color: transparent;
+
+    cursor: grab;
+
+    i {
+      color: $spacewalk_steel;
+      display: block;
+    }
+
+  }
+
 }
 
 .spacewalk-threejs-container-resizable-helper {
-  border: 2px dotted #00F;
+  border: 2px dotted $spacewalk_snow;
+}
+
+
+.ui-resizable-handle {
+  z-index: 1024;
 }
 
 #spacewalk-spinner-container {

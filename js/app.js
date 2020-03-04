@@ -20,7 +20,7 @@ import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./
 import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
-import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
+import { rgb255String, appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
 import { saveSession, loadSession } from "./session.js";
 import { materialManagerLoadCubes } from "./materialLibrary.js";
 import {makeDraggable} from "./draggable.js";
@@ -105,16 +105,28 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const resizable_threejs_container_config =
         {
             autoHide: true,
+            aspectRatio: true,
             helper: "spacewalk-threejs-container-resizable-helper",
             stop: ( event, ui ) => {
                 sceneManager.containerResize();
             }
         };
 
-    $( sceneManager.container ).resizable(resizable_threejs_container_config);
+    $( threejs_container ).resizable(resizable_threejs_container_config);
 
-    makeDraggable(sceneManager.container, sceneManager.container);
+    threejs_container.addEventListener("change", () => renderer.render(scene, camera));
 
+    const threejs_drag_container = threejs_container.querySelector('#spacewalk-threejs-drag-container');
+
+    makeDraggable(threejs_container, threejs_drag_container);
+
+    threejs_drag_container.addEventListener('mouseenter', () => {
+        threejs_drag_container.style.backgroundColor = rgb255String(appleCrayonColorRGB255('snow'));
+    });
+
+    threejs_drag_container.addEventListener('mouseleave', () => {
+        threejs_drag_container.style.backgroundColor = "transparent";
+    });
 
     await createButtonsPanelsModals(container);
 

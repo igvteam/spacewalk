@@ -45,7 +45,6 @@ function drag(event) {
     this.style.top  = `${ dragData.dy + event.screenY }px`;
 
 }
-
 function dragEnd(event) {
 
     if(!dragData) {
