@@ -122,10 +122,12 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     threejs_drag_container.addEventListener('mouseenter', () => {
         threejs_drag_container.style.backgroundColor = rgb255String(appleCrayonColorRGB255('snow'));
+        threejs_drag_container.querySelector('i').style.color = rgb255String(appleCrayonColorRGB255('steel'));
     });
 
     threejs_drag_container.addEventListener('mouseleave', () => {
         threejs_drag_container.style.backgroundColor = "transparent";
+        threejs_drag_container.querySelector('i').style.color = "transparent";
     });
 
     await createButtonsPanelsModals(container);

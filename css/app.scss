@@ -57,7 +57,7 @@ $spacewalk_spinner_size: 128px;
     cursor: grab;
 
     i {
-      color: $spacewalk_steel;
+      color: transparent;
       display: block;
     }
 
@@ -65,10 +65,16 @@ $spacewalk_spinner_size: 128px;
 
 }
 
+// jQuery UI hack
+.ui-widget-content {
+  border: 1px solid transparent;
+  background: transparent;
+  color: transparent;
+}
+
 .spacewalk-threejs-container-resizable-helper {
   border: 2px dotted $spacewalk_snow;
 }
-
 
 .ui-resizable-handle {
   z-index: 1024;

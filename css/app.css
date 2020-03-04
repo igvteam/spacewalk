@@ -617,8 +617,13 @@ div#spacewalk_info_panel {
     background-color: transparent;
     cursor: grab; }
     #spacewalk-threejs-container #spacewalk-threejs-drag-container i {
-      color: #6e6e6e;
+      color: transparent;
       display: block; }
+
+.ui-widget-content {
+  border: 1px solid transparent;
+  background: transparent;
+  color: transparent; }
 
 .spacewalk-threejs-container-resizable-helper {
   border: 2px dotted #ffffff; }
