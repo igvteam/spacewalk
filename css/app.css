@@ -598,9 +598,12 @@ div#spacewalk_info_panel {
 
 #spacewalk-threejs-container {
   position: absolute;
-  width: 1000px;
-  height: 1000px;
+  width: 640px;
+  height: 640px;
   background-color: #008cff; }
+
+.spacewalk-threejs-container-resizable-helper {
+  border: 2px dotted #00F; }
 
 #spacewalk-spinner-container {
   pointer-events: none;

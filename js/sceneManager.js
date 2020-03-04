@@ -214,6 +214,24 @@ class SceneManager {
 
     }
 
+    containerResize() {
+
+        if (this.renderer && this.cameraLightingRig) {
+
+            const { width, height } = this.getRenderContainerSize();
+            this.renderer.setSize(width, height);
+
+            if (doMultipassRendering) {
+                this.effectComposer.setSize(width, height);
+                setAA(this.fxAA, AAScaleFactor, width, height);
+            }
+
+            this.cameraLightingRig.object.aspect = width/height;
+            this.cameraLightingRig.object.updateProjectionMatrix();
+        }
+
+    };
+
     onWindowResize() {
 
         if (this.renderer && this.cameraLightingRig) {
