@@ -20,10 +20,10 @@ import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./
 import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
-import { rgb255String, appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
+import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
 import { saveSession, loadSession } from "./session.js";
 import { materialManagerLoadCubes } from "./materialLibrary.js";
-import Dragger from "./dragger.js";
+import RenderContainerController from "./renderContainerController.js";
 
 let eventBus = new EventBus();
 
@@ -49,7 +49,7 @@ let distanceMapPanel;
 let contactFrequencyMapPanel;
 let juiceboxPanel;
 let igvPanel;
-let threejsDragger;
+let renderContainerController;
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
@@ -75,8 +75,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     await materialManagerLoadCubes();
 
-
-
     const root = document.querySelector('#spacewalk-main');
     $(root).append(createGenericSelectModal('spacewalk-igv-app-generic-track-select-modal', 'spacewalk-igv-app-generic-track-select'));
     $(root).append(createTrackURLModal('spacewalk-igv-app-track-from-url-modal'));
@@ -100,38 +98,9 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
 
-    const threejs_container = document.getElementById('spacewalk-threejs-container');
-    sceneManager = new SceneManager(sceneManagerConfigurator({ container: threejs_container, highlightColor }));
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container:document.getElementById('spacewalk-threejs-container'), highlightColor }));
 
-    const resizable_threejs_container_config =
-        {
-            autoHide: true,
-            aspectRatio: true,
-            helper: "spacewalk-threejs-container-resizable-helper",
-            stop: ( event, ui ) => {
-                sceneManager.containerResize();
-            }
-        };
-
-    $( threejs_container ).resizable(resizable_threejs_container_config);
-
-    threejs_container.addEventListener("change", () => renderer.render(scene, camera));
-
-    const threejs_drag_container = threejs_container.querySelector('#spacewalk-threejs-drag-container');
-
-    const { height } = document.querySelector('.navbar').getBoundingClientRect();
-
-    threejsDragger = new Dragger(threejs_container, threejs_drag_container, container, height);
-
-    threejs_drag_container.addEventListener('mouseenter', () => {
-        threejs_drag_container.style.backgroundColor = rgb255String(appleCrayonColorRGB255('snow'));
-        threejs_drag_container.querySelector('i').style.color = rgb255String(appleCrayonColorRGB255('steel'));
-    });
-
-    threejs_drag_container.addEventListener('mouseleave', () => {
-        threejs_drag_container.style.backgroundColor = "transparent";
-        threejs_drag_container.querySelector('i').style.color = "transparent";
-    });
+    renderContainerController = new RenderContainerController(sceneManager);
 
     await createButtonsPanelsModals(container);
 
@@ -228,6 +197,7 @@ const createButtonsPanelsModals = async container => {
     $(window).on('resize.app', () => {
         let { width, height } = container.getBoundingClientRect();
         eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
+        console.log(`window resize - w: ${ width } h: ${ height }`);
     });
 
 };
