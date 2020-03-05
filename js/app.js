@@ -24,6 +24,7 @@ import { rgb255String, appleCrayonColorRGB255, appleCrayonColorThreeJS, highligh
 import { saveSession, loadSession } from "./session.js";
 import { materialManagerLoadCubes } from "./materialLibrary.js";
 import {makeDraggable} from "./draggable.js";
+import Dragger from "./dragger.js";
 
 let eventBus = new EventBus();
 
@@ -49,6 +50,7 @@ let distanceMapPanel;
 let contactFrequencyMapPanel;
 let juiceboxPanel;
 let igvPanel;
+let threejsDragger;
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
@@ -118,7 +120,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     const threejs_drag_container = threejs_container.querySelector('#spacewalk-threejs-drag-container');
 
-    makeDraggable(threejs_container, threejs_drag_container);
+    threejsDragger = new Dragger(threejs_container, threejs_drag_container, container);
 
     threejs_drag_container.addEventListener('mouseenter', () => {
         threejs_drag_container.style.backgroundColor = rgb255String(appleCrayonColorRGB255('snow'));
