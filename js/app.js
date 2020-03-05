@@ -98,9 +98,9 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
 
-    sceneManager = new SceneManager(sceneManagerConfigurator({ container:document.getElementById('spacewalk-threejs-container'), highlightColor }));
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container: document.getElementById('spacewalk-threejs-container'), highlightColor }));
 
-    renderContainerController = new RenderContainerController(sceneManager);
+    renderContainerController = new RenderContainerController(container, sceneManager);
 
     await createButtonsPanelsModals(container);
 
@@ -197,7 +197,6 @@ const createButtonsPanelsModals = async container => {
     $(window).on('resize.app', () => {
         let { width, height } = container.getBoundingClientRect();
         eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
-        console.log(`window resize - w: ${ width } h: ${ height }`);
     });
 
 };

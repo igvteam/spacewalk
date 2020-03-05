@@ -214,7 +214,7 @@ class SceneManager {
 
     }
 
-    containerResize() {
+    resizeContainer() {
 
         if (this.renderer && this.cameraLightingRig) {
 

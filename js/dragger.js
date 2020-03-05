@@ -47,7 +47,7 @@ class Dragger {
                 this.dragData = undefined;
 
                 const id = target.id;
-                eventBus.post({ type: "DidDragEnd", data: id });
+                eventBus.post({ type: "DraggerDidEnd", data: id });
 
             };
 

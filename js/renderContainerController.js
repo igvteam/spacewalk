@@ -1,25 +1,29 @@
 import Dragger from "./dragger.js";
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
+import { eventBus } from "./app.js";
 
 let dragger;
 
 class RenderContainerController {
 
-    constructor(sceneManager) {
+    constructor(rootContainer, sceneManager) {
+
+        this.rootContainer = rootContainer;
+        this.sceneManager = sceneManager;
 
         const { container } = sceneManager;
+
+        this.setTopLeftPercentages(rootContainer, container);
 
         const config =
             {
                 autoHide: true,
                 aspectRatio: true,
                 helper: "spacewalk-threejs-container-resizable-helper",
-                stop: () => sceneManager.containerResize()
+                stop: () => sceneManager.resizeContainer()
             };
 
         $(container).resizable(config);
-
-        container.addEventListener("change", () => sceneManager.renderer.render(sceneManager.scene, sceneManager.cameraLightingRig.object));
 
         const dragContainer = container.querySelector('#spacewalk-threejs-drag-container');
 
@@ -39,8 +43,35 @@ class RenderContainerController {
             dragContainer.querySelector('i').style.color = "transparent";
         });
 
+        eventBus.subscribe("AppWindowDidResize", this);
+        eventBus.subscribe("DraggerDidEnd", this);
+
     }
 
+    setTopLeftPercentages(rootContainer, sceneContainer) {
+
+        const { width, height } = rootContainer.getBoundingClientRect();
+        const { left, top } = sceneContainer.getBoundingClientRect();
+
+        this.leftPercent = left / width;
+        this.topPercent = top / height;
+    }
+
+    getOffset(rootContainer) {
+        const { width, height } = rootContainer.getBoundingClientRect();
+        const left = Math.floor(this.leftPercent * width);
+        const top = Math.floor(this.topPercent * height);
+        return { top, left };
+    }
+
+    receiveEvent({ type, data }) {
+
+        if ('AppWindowDidResize' === type) {
+            $(this.sceneManager.container).offset(this.getOffset(this.rootContainer))
+        } else if ('DraggerDidEnd' === type) {
+            this.setTopLeftPercentages(this.rootContainer, this.sceneManager.container);
+        }
+    }
 
 }
 
