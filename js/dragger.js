@@ -1,11 +1,12 @@
 import { eventBus } from "./app.js";
+import {clamp} from "./math.js";
 
 const namespace = '.spacewalk_drag';
 let dragData;
 
 class Dragger {
 
-    constructor(target, handle, container) {
+    constructor(target, handle, { xmin, xmax, ymin, ymax }) {
 
         this.target = target;
         this.handle = handle;
@@ -25,8 +26,9 @@ class Dragger {
 
                 event.stopPropagation();
 
-                target.style.left = `${ this.dragData.dx + event.screenX }px`;
-                target.style.top  = `${ this.dragData.dy + event.screenY }px`;
+                const { left, top } = this.getConstrainedDragValue(target, container, event);
+                target.style.left = left;
+                target.style.top  = top;
 
             };
 
@@ -39,8 +41,9 @@ class Dragger {
 
                 event.stopPropagation();
 
-                target.style.left = `${ this.dragData.dx + event.screenX }px`;
-                target.style.top  = `${ this.dragData.dy + event.screenY }px`;
+                const { left, top } = this.getConstrainedDragValue(target, container, event);
+                target.style.left = left;
+                target.style.top  = top;
 
                 $(document).off(namespace);
                 this.dragData = undefined;
@@ -66,7 +69,19 @@ class Dragger {
         });
     }
 
+    getConstrainedDragValue(target, container, { screenX, screenY }) {
 
+        const { width:wc, height:hc } = container.getBoundingClientRect();
+        const { width:w, height:h } = target.getBoundingClientRect();
+
+        let left = this.dragData.dx + screenX;
+        left = clamp(left, 0, wc - w);
+
+        let top = this.dragData.dy + screenY;
+        top = clamp(top, 0, hc - h);
+
+        return { left: `${ left }px`, top: `${ top }px` }
+    }
 }
 
 export default Dragger

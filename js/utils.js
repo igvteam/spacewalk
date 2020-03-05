@@ -1,6 +1,11 @@
 import { ribbon, noodle, ballAndStick, ensembleManager } from "./app.js";
 import {lerp} from "./math.js";
 
+const getContainerBBox = container => {
+    const { x:xmin, y:ymin, width, height } = container.getBoundingClientRect();
+    return { xmin, ymin, xmax:xmin+width, ymax:ymin+height }
+};
+
 const setMaterialProvider = materialProvider => {
     ribbon.updateMaterialProvider(materialProvider);
     noodle.updateMaterialProvider(materialProvider);
@@ -107,6 +112,7 @@ const generateRadiusTable = defaultRadius => {
 };
 
 export {
+    getContainerBBox,
     setMaterialProvider,
     createImage,
     drawWithSharedUint8ClampedArray,

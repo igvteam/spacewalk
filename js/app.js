@@ -23,8 +23,8 @@ import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoad
 import { rgb255String, appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
 import { saveSession, loadSession } from "./session.js";
 import { materialManagerLoadCubes } from "./materialLibrary.js";
-import {makeDraggable} from "./draggable.js";
 import Dragger from "./dragger.js";
+import { getContainerBBox } from "./utils.js";
 
 let eventBus = new EventBus();
 
@@ -120,7 +120,10 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     const threejs_drag_container = threejs_container.querySelector('#spacewalk-threejs-drag-container');
 
-    threejsDragger = new Dragger(threejs_container, threejs_drag_container, container);
+    const { ymax:y } = getContainerBBox(document.querySelector('.navbar'));
+    const { xmin, xmax, ymax } = getContainerBBox(threejs_container);
+
+    threejsDragger = new Dragger(threejs_container, threejs_drag_container, { xmin, xmax, y, ymax });
 
     threejs_drag_container.addEventListener('mouseenter', () => {
         threejs_drag_container.style.backgroundColor = rgb255String(appleCrayonColorRGB255('snow'));
