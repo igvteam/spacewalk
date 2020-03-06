@@ -1,9 +1,9 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import { Line2 } from "../node_modules/three/examples/jsm/lines/Line2.js";
+import { LineMaterial } from "../node_modules/three/examples/jsm/lines/LineMaterial.js";
+import { LineGeometry } from "../node_modules/three/examples/jsm/lines/LineGeometry.js";
 import EnsembleManager from "./ensembleManager.js";
 import {eventBus, igvPanel, sceneManager} from "./app.js";
-import FatLineGeometry from "./threejs_es6/fatlines/fatLineGeometry.js";
-import FatLineMaterial from "./threejs_es6/fatlines/fatLineMaterial.js";
-import FatLine from "./threejs_es6/fatlines/fatLine.js";
 import {getColorListWithXYZList} from "./color.js";
 import Noodle, { NoodleScaleFactor } from "./noodle.js";
 
@@ -117,14 +117,14 @@ const createFatSpline = (curve, materialProvider) => {
         vertices.push(x, y, z);
     }
 
-    let fatLineGeometry = new FatLineGeometry();
+    let fatLineGeometry = new LineGeometry();
 
     fatLineGeometry.setPositions( vertices );
     fatLineGeometry.setColors( colors );
 
-    fatLineMaterial = new FatLineMaterial( { linewidth: 2, vertexColors: THREE.VertexColors } );
+    fatLineMaterial = new LineMaterial( { linewidth: 2, vertexColors: true } );
 
-    let mesh = new FatLine(fatLineGeometry, fatLineMaterial);
+    let mesh = new Line2(fatLineGeometry, fatLineMaterial);
     mesh.computeLineDistances();
     mesh.scale.set( 1, 1, 1 );
     mesh.name = 'ribbon';
