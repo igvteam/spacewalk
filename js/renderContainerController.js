@@ -17,6 +17,7 @@ class RenderContainerController {
 
         const config =
             {
+                handles: "w, sw, s, se, e",
                 autoHide: true,
                 aspectRatio: true,
                 helper: "spacewalk-threejs-container-resizable-helper",
