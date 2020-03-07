@@ -327,8 +327,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     // renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
     // renderer.setClearColor (appleCrayonColorThreeJS('strawberry'));
 
-    const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), (1) );
-
+    // const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('nickel'), (1) );
+    const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('tin'), (1) );
 
     const { width, height } = container.getBoundingClientRect();
     const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (width/height) ];
@@ -339,8 +339,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const centroid = new THREE.Vector3(133394, 54542, 4288);
     cameraLightingRig.setPose(position, centroid);
 
-    const background = appleCrayonColorThreeJS('nickel');
-    // const background = new THREE.TextureLoader().load( 'texture/uv.png' );
+    // const background = appleCrayonColorThreeJS('nickel');
+    const background = new THREE.TextureLoader().load( 'texture/scene-backdrop-grey-ramp.png' );
     // const background = specularCubicTexture;
 
     const scene = new THREE.Scene();
