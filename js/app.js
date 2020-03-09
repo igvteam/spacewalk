@@ -23,6 +23,7 @@ import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoad
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
 import { saveSession, loadSession } from "./session.js";
 import { materialManagerLoadCubes } from "./materialLibrary.js";
+import RenderContainerController from "./renderContainerController.js";
 
 let eventBus = new EventBus();
 
@@ -48,10 +49,14 @@ let distanceMapPanel;
 let contactFrequencyMapPanel;
 let juiceboxPanel;
 let igvPanel;
+let renderContainerController;
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
-    const container = document.getElementById('spacewalk_canvas_container');
+    const container = document.getElementById('spacewalk-root-container');
+
+    // container.webkitRequestFullscreen();
+
     Alert.init(container);
 
     const { userAgent } = window.navigator;
@@ -93,7 +98,9 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
 
-    sceneManager = new SceneManager(sceneManagerConfigurator({ container, highlightColor }));
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container: document.getElementById('spacewalk-threejs-container'), highlightColor }));
+
+    renderContainerController = new RenderContainerController(container, sceneManager);
 
     await createButtonsPanelsModals(container);
 
@@ -175,7 +182,7 @@ const createButtonsPanelsModals = async container => {
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_contact_frequency_map_panel') }));
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
-    await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 400, height: 400});
+    await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 480, height: 480});
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;

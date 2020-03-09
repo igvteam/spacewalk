@@ -20,7 +20,8 @@ class GSDB {
                         loader.load(url)
 
                     }
-                }
+                },
+                pageLength: 100
             };
 
         this.gsdbModal = new ModalTable(gsdbModalConfig);

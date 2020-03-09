@@ -18,6 +18,68 @@ $spacewalk_spinner_size: 128px;
 
 @import "igv/file-load-widget";
 
+#spacewalk-root-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $spacewalk_silver;
+}
+
+#spacewalk-threejs-container {
+
+  position: absolute;
+  top: 128px;
+  left: 128px;
+
+  //width: 100vw;
+  //height:100vh;
+  width: 640px;
+  height:640px;
+  background-color: $spacewalk_nickel;
+
+  #spacewalk-threejs-drag-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: $spacewalk_card_drag_container_height;
+    background-color: transparent;
+
+    cursor: grab;
+
+    i {
+      color: transparent;
+      display: block;
+    }
+
+  }
+
+}
+
+// jQuery UI hack
+.ui-widget-content {
+  border: 1px solid transparent;
+  background: transparent;
+  color: transparent;
+}
+
+.spacewalk-threejs-container-resizable-helper {
+  border: 2px dotted $spacewalk_snow;
+}
+
+.ui-resizable-handle {
+  z-index: 1024;
+}
+
 #spacewalk-spinner-container {
 
   pointer-events:none;
@@ -69,21 +131,4 @@ $spacewalk_spinner_size: 128px;
 .igv-trackgear-container {
   width: 14px !important;
   height: 14px !important;
-}
-
-#spacewalk_canvas_container {
-
-  width: 100%;
-  width: -moz-available;
-  width: -webkit-fill-available;
-  width: fill-available;
-
-  height: 100%;
-  height: -moz-available;
-  height: -webkit-fill-available;
-  height: fill-available;
-
-  overflow: hidden;
-  background-color: $spacewalk_nickel;
-
 }

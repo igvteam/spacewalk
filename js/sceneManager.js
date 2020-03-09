@@ -14,7 +14,7 @@ import PointCloud from "./pointCloud.js";
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
+import { appleCrayonColorThreeJS } from "./color.js";
 import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, eventBus, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 import { getGUIRenderStyle } from "./guiManager.js";
 import { specularCubicTexture } from "./materialLibrary.js";
@@ -34,7 +34,8 @@ class SceneManager {
         this.background = background;
 
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        const { width, height } = container.getBoundingClientRect();
+        renderer.setSize(width, height);
 
         // insert rendering canvas in DOM
         container.appendChild(renderer.domElement);
@@ -54,7 +55,7 @@ class SceneManager {
             this.setupMultipassRendering(this.scene, this.renderer, this.cameraLightingRig);
         }
 
-        $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
+        // $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
 
         eventBus.subscribe("DidSelectSegmentID", this);
         eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
@@ -63,6 +64,11 @@ class SceneManager {
         eventBus.subscribe('RenderStyleDidChange', this);
 
     }
+
+    getRenderContainerSize() {
+        const { width, height } = this.container.getBoundingClientRect();
+        return { width, height };
+    };
 
     setupMultipassRendering(scene, renderer, cameraLightingRig) {
 
@@ -170,7 +176,8 @@ class SceneManager {
             this.renderPass.scene = scene;
         }
 
-        this.cameraLightingRig.configure({fov, position: cameraPosition, centroid, boundingDiameter});
+        const { width, height } = this.getRenderContainerSize();
+        this.cameraLightingRig.configure({fov, aspect: width/height, position: cameraPosition, centroid, boundingDiameter});
 
         this.cameraLightingRig.addToScene(this.scene);
 
@@ -206,6 +213,24 @@ class SceneManager {
         });
 
     }
+
+    resizeContainer() {
+
+        if (this.renderer && this.cameraLightingRig) {
+
+            const { width, height } = this.getRenderContainerSize();
+            this.renderer.setSize(width, height);
+
+            if (doMultipassRendering) {
+                this.effectComposer.setSize(width, height);
+                setAA(this.fxAA, AAScaleFactor, width, height);
+            }
+
+            this.cameraLightingRig.object.aspect = width/height;
+            this.cameraLightingRig.object.updateProjectionMatrix();
+        }
+
+    };
 
     onWindowResize() {
 
@@ -302,9 +327,11 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     // renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
     // renderer.setClearColor (appleCrayonColorThreeJS('strawberry'));
 
-    const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorHexValue('snow'), appleCrayonColorHexValue('nickel'), (1) );
+    // const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('nickel'), (1) );
+    const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('tin'), (1) );
 
-    const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (window.innerWidth/window.innerHeight) ];
+    const { width, height } = container.getBoundingClientRect();
+    const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (width/height) ];
     const cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspect, hemisphereLight });
 
     // Nice numbers
@@ -312,8 +339,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const centroid = new THREE.Vector3(133394, 54542, 4288);
     cameraLightingRig.setPose(position, centroid);
 
-    const background = appleCrayonColorThreeJS('nickel');
-    // const background = new THREE.TextureLoader().load( 'texture/uv.png' );
+    // const background = appleCrayonColorThreeJS('nickel');
+    const background = new THREE.TextureLoader().load( 'texture/scene-backdrop-grey-ramp.png' );
     // const background = specularCubicTexture;
 
     const scene = new THREE.Scene();

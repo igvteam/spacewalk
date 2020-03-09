@@ -1,5 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { OrbitControls } from "../node_modules/three/examples/jsm/controls/OrbitControls.js";
+import {sceneManager} from "./app.js";
 
 let cameraWorldDirection = new THREE.Vector3();
 let crossed = new THREE.Vector3();
@@ -24,9 +25,9 @@ class CameraLightingRig extends OrbitControls {
         this.enablePan = false;
     }
 
-    configure ({ fov, position, centroid, boundingDiameter }) {
+    configure ({ fov, aspect, position, centroid, boundingDiameter }) {
 
-        const [ near, far, aspect ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter, (window.innerWidth/window.innerHeight) ];
+        const [ near, far ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter ];
 
         // to set the camera in a sane pose after it has gotten mangled
         this.resetCamera = () => {
@@ -89,7 +90,9 @@ class CameraLightingRig extends OrbitControls {
 
         // The aspect ratio of the json CameraLightingRig can differ from the app
         // it is being imported into. We recalculate it here.
-        this.setProjection({ fov, near, far, aspect: (window.innerWidth/window.innerHeight) });
+
+        const { width, height } = sceneManager.getRenderContainerSize();
+        this.setProjection({ fov, near, far, aspect: (width/height) });
 
         // const jsonLoader = new THREE.ObjectLoader();
         // this.object = jsonLoader.parse(json);

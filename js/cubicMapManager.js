@@ -1,5 +1,5 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import {appleCrayonColorHexValue} from "./color.js";
+import { appleCrayonColorThreeJS } from "./color.js";
 
 class CubicMapManager {
 
@@ -56,7 +56,7 @@ function diffuseMaterial (cubicTexture, vertID, fragID) {
 
 function specularMaterial (cubicTexture) {
 
-    const shaderMaterial = new THREE.MeshLambertMaterial( { color: appleCrayonColorHexValue('snow'), envMap: cubicTexture, combine: THREE.MixOperation, reflectivity: 1 } );
+    const shaderMaterial = new THREE.MeshLambertMaterial( { color: appleCrayonColorThreeJS('snow'), envMap: cubicTexture, combine: THREE.MixOperation, reflectivity: 1 } );
 
     // let { uniforms, vertexShader, fragmentShader } = THREE.ShaderLib.cube;
 
