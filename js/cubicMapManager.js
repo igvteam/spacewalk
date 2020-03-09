@@ -11,7 +11,7 @@ class CubicMapManager {
             const paths = pathsOpenEXRStyleWithRoot(textureRoot, suffix);
 
             const promise = new Promise(resolve => {
-                new THREE.CubeTextureLoader().load(paths, resolve);
+                new THREE.CubeTextureLoader().setPath(textureRoot).load(paths, resolve);
             });
 
             const cubicTexture = await promise;
@@ -30,7 +30,10 @@ class CubicMapManager {
     }
 
     async loadTexture () {
-        await this.onLoad();
+        const message = await this.onLoad();
+        if (message) {
+            console.log(message);
+        }
     }
 }
 
@@ -68,34 +71,29 @@ function specularMaterial (cubicTexture) {
 
 function pathsPosNegStyleWithRoot(root, suffix) {
 
+    const parts = root.split('/').filter(string => '' !== string);
+    const name = parts.pop();
     const posneg = [ 'pos', 'neg' ];
-    const axes = [ 'x', 'y', 'z' ];
+    const axes = [ 'X', 'Y', 'Z' ];
 
     let names = [];
-    axes.forEach((axis) => { names.push((posneg[ 0 ] + axis)); names.push(posneg[ 1 ] + axis); });
+    axes.forEach((axis) => names.push(`${ name }${ posneg[ 0 ] }${ axis }${ suffix }`, `${ name }${ posneg[ 1 ] }${ axis }${ suffix }`) );
 
-    const paths = names.map((name) => { return root + name + suffix });
-
-    return paths;
+    return names;
 
 }
 
 function pathsOpenEXRStyleWithRoot(root, suffix) {
 
-    let pieces = root.split('/').filter((piece) => { return "" !== piece && '..' !== piece });
-    let prefix = pieces.pop();
-    if ('' === prefix) {
-        prefix = pieces.pop();
-    }
+    const parts = root.split('/').filter(string => '' !== string);
+    const name = parts.pop();
     const posneg = [ '+', '-' ];
     const axes = [ 'X', 'Y', 'Z' ];
 
     let names = [];
-    axes.forEach((axis) => { names.push((prefix + posneg[ 0 ] + axis)); names.push(prefix + posneg[ 1 ] + axis); });
+    axes.forEach((axis) => names.push(`${ name }${ posneg[ 0 ] }${ axis }${ suffix }`, `${ name }${ posneg[ 1 ] }${ axis }${ suffix }`) );
 
-    const paths = names.map((name) => { return root + name + suffix });
-
-    return paths;
+    return names;
 
 }
 

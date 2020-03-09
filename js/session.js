@@ -1,3 +1,4 @@
+import { GLTFExporter } from '../node_modules/three/examples/jsm/exporters/GLTFExporter.js';
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { URIUtils, StringUtils, Zlib } from '../node_modules/igv-utils/src/index.js';
 import Panel from "./panel.js";
@@ -8,7 +9,7 @@ const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/d
 
 const saveSession = async () => {
 
-    const url = getSessionURL();
+    const url = await getSessionURL();
 
     if (url) {
 
@@ -41,13 +42,15 @@ const saveSession = async () => {
 
 };
 
-const getSessionURL = () => {
+const getSessionURL = async () => {
 
     try {
 
         const path = window.location.href.slice();
         const index = path.indexOf("?");
         const prefix = index > 0 ? path.substring(0, index) : path;
+
+        // await helloGLTFExporter(sceneManager.scene);
 
         const spacewalkCompressedSession = getCompressedSession();
 
@@ -64,6 +67,18 @@ const getSessionURL = () => {
         alert(e.message);
         return undefined;
     }
+
+};
+
+const helloGLTFExporter = async (scene) => {
+
+    const promise = new Promise(resolve => {
+        new GLTFExporter().parse(scene, resolve);
+    });
+
+    const gltf = await promise;
+
+    console.log(gltf);
 
 };
 
@@ -90,7 +105,9 @@ const getCompressedSession = () => {
 
     json.gnomonColor = sceneManager.gnomon.getColorState();
     json.groundplaneColor = sceneManager.groundPlane.getColorState();
-    json.rendererClearColor = sceneManager.getBackgroundState();
+
+    json.sceneBackground = sceneManager.getBackgroundState();
+    // json.rendererClearColor = sceneManager.getBackgroundState();
 
     const jsonString = JSON.stringify( json );
 
@@ -145,7 +162,7 @@ const loadSession = async (url) => {
 
         const jsonString = uncompressSession(spacewalk_session_URL);
 
-        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, rendererClearColor } = JSON.parse(jsonString);
+        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, sceneBackground } = JSON.parse(jsonString);
 
         await parser.loadSessionTrace({ url, traceKey });
 
@@ -168,7 +185,7 @@ const loadSession = async (url) => {
 
         sceneManager.groundPlane.setColorState(groundplaneColor);
 
-        sceneManager.setBackgroundState(rendererClearColor);
+        sceneManager.setBackgroundState(sceneBackground);
 
     }
 

@@ -296,8 +296,18 @@ class SceneManager {
     }
 
     getBackgroundState() {
-        const { r, g, b } = this.background;
-        return  { r, g, b }
+
+        if (true === this.scene.background.isColor) {
+            const { r, g, b } = this.scene.background;
+            // console.log('that is a color');
+            return  { r, g, b }
+        } else {
+            console.log('dunno');
+        }
+
+
+        // const { r, g, b } = this.background;
+        // return  { r, g, b }
     }
 
     setBackgroundState(json) {
@@ -339,8 +349,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const centroid = new THREE.Vector3(133394, 54542, 4288);
     cameraLightingRig.setPose(position, centroid);
 
-    // const background = appleCrayonColorThreeJS('nickel');
-    const background = new THREE.TextureLoader().load( 'texture/scene-backdrop-grey-ramp.png' );
+    const background = appleCrayonColorThreeJS('nickel');
+    // const background = new THREE.TextureLoader().load( 'texture/scene-backdrop-grey-ramp.png' );
     // const background = specularCubicTexture;
 
     const scene = new THREE.Scene();
