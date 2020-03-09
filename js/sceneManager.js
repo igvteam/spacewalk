@@ -14,7 +14,7 @@ import PointCloud from "./pointCloud.js";
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
-import { appleCrayonColorHexValue, appleCrayonColorThreeJS } from "./color.js";
+import { appleCrayonColorThreeJS } from "./color.js";
 import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, eventBus, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 import { getGUIRenderStyle } from "./guiManager.js";
 import { specularCubicTexture } from "./materialLibrary.js";
