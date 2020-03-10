@@ -1,12 +1,16 @@
-import * as THREE from "../../../node_modules/three/build/three.module.js";
-import { OrbitControls } from "../../../node_modules/three/examples/jsm/controls/OrbitControls.js";
-
-import { appleCrayonNames, appleCrayonColorHexValue } from '../../../js/color.js';
+import * as THREE from "../../node_modules/three/build/three.module.js";
+import { OrbitControls } from "../../node_modules/three/examples/jsm/controls/OrbitControls.js";
+import { appleCrayonNames, appleCrayonColorHexValue } from '../../js/color.js';
 
 let scene;
 let renderer;
 let camera;
 let orbitControl;
+
+
+document.addEventListener("DOMContentLoaded", async (event) => {
+    await main( document.getElementById('threejs_canvas') );
+});
 
 let main = (threejs_canvas) => {
 

@@ -107,7 +107,6 @@ const getCompressedSession = () => {
     json.groundplaneColor = sceneManager.groundPlane.getColorState();
 
     json.sceneBackground = sceneManager.getBackgroundState();
-    // json.rendererClearColor = sceneManager.getBackgroundState();
 
     const jsonString = JSON.stringify( json );
 

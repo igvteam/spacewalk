@@ -17,7 +17,7 @@ import { getMouseXY } from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
 import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, eventBus, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 import { getGUIRenderStyle } from "./guiManager.js";
-import { specularCubicTexture } from "./materialLibrary.js";
+import { specularCubicTexture, sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud' , 'ribbon', 'noodle', 'ball' , 'stick' ]);
 
@@ -299,20 +299,26 @@ class SceneManager {
 
         if (true === this.scene.background.isColor) {
             const { r, g, b } = this.scene.background;
-            // console.log('that is a color');
             return  { r, g, b }
+        } else if (true === this.scene.background.isTexture) {
+            return 'sceneBackgroundTexture';
         } else {
             console.log('dunno');
         }
 
-
-        // const { r, g, b } = this.background;
-        // return  { r, g, b }
     }
 
     setBackgroundState(json) {
-        const { r, g, b } = json;
-        this.setBackground(new THREE.Color(r, g, b));
+
+        if ('string' === typeof json) {
+            this.background = sceneBackgroundTexture;
+            this.scene.background = this.background;
+        } else if ('object' === typeof json) {
+            const { r, g, b } = json;
+            this.setBackground(new THREE.Color(r, g, b));
+        } else {
+            console.log('dunno');
+        }
     }
 
     resetCamera() {
@@ -327,6 +333,9 @@ const setAA = (fxAA, scaleFactor, width, height) => {
 };
 
 export const sceneManagerConfigurator = ({ container, highlightColor }) => {
+
+    const str = `Scene Manager Configuration Builder Complete`;
+    console.time(str);
 
     // const stickMaterial = showSMaterial;
     // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
@@ -349,14 +358,16 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const centroid = new THREE.Vector3(133394, 54542, 4288);
     cameraLightingRig.setPose(position, centroid);
 
-    const background = appleCrayonColorThreeJS('nickel');
-    // const background = new THREE.TextureLoader().load( 'texture/scene-backdrop-grey-ramp.png' );
+    // const background = appleCrayonColorThreeJS('nickel');
+    const background = sceneBackgroundTexture;
     // const background = specularCubicTexture;
 
     const scene = new THREE.Scene();
     scene.background = background;
 
     const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
+
+    console.timeEnd(str);
 
     return { container, scene, stickMaterial, background, renderer, cameraLightingRig, picker };
 

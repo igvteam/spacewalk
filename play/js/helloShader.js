@@ -1,7 +1,7 @@
-import * as THREE from "../../../node_modules/three/build/three.module.js";
-import { OrbitControls } from "../../../node_modules/three/examples/jsm/controls/OrbitControls.js";
-import CubicMapManager from '../../../js/cubicMapManager.js';
-import { appleCrayonNames, appleCrayonColorThreeJS, appleCrayonColorHexValue } from '../../../js/color.js';
+import * as THREE from "../../node_modules/three/build/three.module.js";
+import { OrbitControls } from "../../node_modules/three/examples/jsm/controls/OrbitControls.js";
+import CubicMapManager from '../../js/cubicMapManager.js';
+import { appleCrayonNames, appleCrayonColorThreeJS, appleCrayonColorHexValue } from '../../js/color.js';
 
 let scene;
 let renderer;
@@ -18,6 +18,10 @@ let showScreenCoordinatesUniforms =
     {
         uXYPixel: new THREE.Uniform(new THREE.Vector2())
     };
+
+document.addEventListener("DOMContentLoaded", async (event) => {
+    await main( document.getElementById('threejs_canvas') );
+});
 
 let main = async(threejs_canvas) => {
 
@@ -45,7 +49,7 @@ let main = async(threejs_canvas) => {
     showScreenCoordinatesMaterial = new THREE.ShaderMaterial(showScreenCoordinatesConfig);
 
     renderer = new THREE.WebGLRenderer({ canvas: threejs_canvas, antialias: true });
-    renderer.setClearColor(appleCrayonColorHexValue('snow'));
+    renderer.setClearColor(appleCrayonColorThreeJS('snow'));
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -108,10 +112,6 @@ let setup = async (scene, renderer, camera, orbitControl) => {
     orbitControl.target = target;
     orbitControl.update();
     orbitControl.addEventListener("change", () => renderer.render(scene, camera));
-
-    // const groundPlane = new THREE.GridHelper(4 * dimen, 4 * dimen, appleCrayonColorHexValue('steel'), appleCrayonColorHexValue('steel'));
-    // groundPlane.position.set(targetX, targetY, targetZ);
-    // scene.add( groundPlane );
 
     let [ rX, rY, rZ ] = [ new THREE.Matrix4(), new THREE.Matrix4(), new THREE.Matrix4() ];
 
