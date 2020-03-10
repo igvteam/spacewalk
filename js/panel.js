@@ -127,11 +127,16 @@ class Panel {
     };
 
     saveLayoutState(container, $panel) {
-        const { width, height } = container.getBoundingClientRect();
-        const { top, left } = $panel.offset();
-        const topPercent = top / height;
-        const leftPercent = left / width;
-        this.layoutState = { topPercent, leftPercent };
+
+        if (this.layoutState) {
+
+            const { width, height } = container.getBoundingClientRect();
+            const { top, left } = $panel.offset();
+            const topPercent = top / height;
+            const leftPercent = left / width;
+            this.layoutState = { topPercent, leftPercent };
+
+        }
     }
 
     static setPanelList(panels) {
