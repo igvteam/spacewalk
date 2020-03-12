@@ -234,6 +234,7 @@ class IGVPanel extends Panel {
     addDataValueMaterialProviderGUI(tracks) {
 
         const dataValueTracks = tracks.filter(track => track.type !== 'ruler' && track.type !== 'sequence' && track.name !== 'Refseq Genes');
+
         for (let track of dataValueTracks) {
 
             if (track.getFeatures && typeof track.getFeatures === "function") {
@@ -242,58 +243,13 @@ class IGVPanel extends Panel {
 
             if (track.featureDescription) {
 
-                const { trackDiv } = track.trackView;
+                configureTrackMaterialProviderGUI(track);
 
-                const $container = $(trackDiv).find('.igv-left-hand-gutter');
-
-                const $div = $('<div>', { class: 'input-group' });
-                $container.append($div);
-
-                track.$input = $('<input>', { type: 'checkbox' });
-                $div.append(track.$input);
-
-                track.$input.on('click.igv-panel.encode-loader', async (e) => {
+                track.$input.on('click.igv-panel-material-provider', async (e) => {
 
                     e.stopPropagation();
 
-                    const { trackContainerDiv } = track.browser;
-
-                    // unselect other track's checkboxes
-                    const $otherInputs = $(trackContainerDiv).find('.input-group input').not(track.$input.get(0));
-                    $otherInputs.prop('checked', false);
-
-                    if (track.$input.prop('checked')) {
-
-                        const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
-
-                        const { name: chr } = chromosome;
-
-                        const { bpPerPixel } = referenceFrame;
-
-                        // If "zoom in" notice is displayed do not paint features on trace
-                        if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
-
-                            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
-
-                        } else {
-
-                            const features = await track.getFeatures(chr, start, end, bpPerPixel);
-
-                            if ('varying' === track.featureDescription) {
-                                const { min, max } = track.dataRange;
-                                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
-
-                            } else {
-                                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
-                            }
-
-                        }
-
-                        this.materialProvider = dataValueMaterialProvider;
-                    } else {
-                        this.materialProvider = colorRampMaterialProvider;
-                    }
-
+                    this.materialProvider = await trackMaterialProviderClickHandler(track);
                     setMaterialProvider(this.materialProvider);
 
                 });
@@ -314,13 +270,35 @@ class IGVPanel extends Panel {
     }
 
     async restoreSessionState(state) {
+        const { trackViews:tvs } = this.browser;
+        let track = tvs.map(tv => tv.track).filter(t => state === t.name).pop();
+        track.$input.trigger('click.igv-panel-material-provider');
+    }
+}
 
-        let track = this.browser.trackViews
-            .map(trackView => trackView.track)
-            .filter((track) => { return state === track.name })
-            .pop();
+const configureTrackMaterialProviderGUI = track => {
 
-        track.$input.prop('checked', true);
+    const { trackDiv } = track.trackView;
+
+    const $container = $(trackDiv).find('.igv-left-hand-gutter');
+
+    const $div = $('<div>', { class: 'input-group' });
+    $container.append($div);
+
+    track.$input = $('<input>', { type: 'checkbox' });
+    $div.append(track.$input);
+
+};
+
+const trackMaterialProviderClickHandler = async track => {
+
+    const { trackContainerDiv } = track.browser;
+
+    // unselect other track's checkboxes
+    const $otherInputs = $(trackContainerDiv).find('.input-group input').not(track.$input.get(0));
+    $otherInputs.prop('checked', false);
+
+    if (track.$input.is(':checked')) {
 
         const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
 
@@ -328,24 +306,31 @@ class IGVPanel extends Panel {
 
         const { bpPerPixel } = referenceFrame;
 
-        const features = await track.getFeatures(chr, start, end, bpPerPixel);
+        // If "zoom in" notice is displayed do not paint features on trace
+        if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
 
-        if ('varying' === track.featureDescription) {
-            const { min, max } = track.dataRange;
-            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
 
         } else {
-            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+
+            const features = await track.getFeatures(chr, start, end, bpPerPixel);
+
+            if ('varying' === track.featureDescription) {
+                const { min, max } = track.dataRange;
+                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+
+            } else {
+                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+            }
+
         }
 
-        this.materialProvider = dataValueMaterialProvider;
-
-        setMaterialProvider(this.materialProvider);
-
-        eventBus .post({ type: "ToggleUIControl", data: { payload: this.$panel.attr('id') } });
-
+        return dataValueMaterialProvider
+    } else {
+         return colorRampMaterialProvider
     }
-}
+
+};
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
