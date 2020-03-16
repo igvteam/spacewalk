@@ -7,6 +7,62 @@ import { getGUIRenderStyle, setGUIRenderStyle } from "./guiManager.js";
 
 const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
 
+const loadSession = async (url) => {
+
+    const params = getUrlParams(url);
+
+    if (params.hasOwnProperty('spacewalk_session_URL')) {
+
+        let { spacewalk_session_URL } = params;
+
+        // spacewalk_session_URL = decodeURIComponent(spacewalk_session_URL);
+
+        const jsonString = uncompressSession(spacewalk_session_URL);
+
+        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, sceneBackground } = JSON.parse(jsonString);
+
+        await parser.loadSessionTrace({ url, traceKey });
+
+        setGUIRenderStyle(renderStyle);
+
+        Panel.setAllPanelVisibility(panelVisibility);
+
+        sceneManager.gnomon.setVisibility(gnomonVisibility);
+
+        sceneManager.groundPlane.setVisibility(groundPlaneVisibility);
+
+        // TODO: Decide whether to restore camera state
+        // sceneManager.cameraLightingRig.setState(cameraLightingRig);
+
+        sceneManager.gnomon.setColorState(gnomonColor);
+
+        sceneManager.groundPlane.setColorState(groundplaneColor);
+
+        sceneManager.setBackgroundState(sceneBackground);
+
+        if ('none' !== igvPanelState) {
+            await igvPanel.restoreSessionState(igvPanelState);
+        }
+
+    }
+
+};
+
+const getUrlParams = url => {
+
+    const search = decodeURIComponent( url.slice( url.indexOf( '?' ) + 1 ) );
+
+    return search
+        .split('&')
+        .reduce((acc, key_value) => {
+
+            const [ key, value ] = key_value.split( '=', 2 );
+            acc[ key ] = value;
+            return acc;
+        }, {});
+
+};
+
 const saveSession = async () => {
 
     const url = await getSessionURL();
@@ -67,18 +123,6 @@ const getSessionURL = async () => {
         alert(e.message);
         return undefined;
     }
-
-};
-
-const helloGLTFExporter = async (scene) => {
-
-    const promise = new Promise(resolve => {
-        new GLTFExporter().parse(scene, resolve);
-    });
-
-    const gltf = await promise;
-
-    console.log(gltf);
 
 };
 
@@ -149,59 +193,15 @@ const uncompressSession = url => {
     }
 };
 
-const loadSession = async (url) => {
+const helloGLTFExporter = async (scene) => {
 
-    const params = getUrlParams(url);
+    const promise = new Promise(resolve => {
+        new GLTFExporter().parse(scene, resolve);
+    });
 
-    if (params.hasOwnProperty('spacewalk_session_URL')) {
+    const gltf = await promise;
 
-        let { spacewalk_session_URL } = params;
-
-        // spacewalk_session_URL = decodeURIComponent(spacewalk_session_URL);
-
-        const jsonString = uncompressSession(spacewalk_session_URL);
-
-        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, sceneBackground } = JSON.parse(jsonString);
-
-        await parser.loadSessionTrace({ url, traceKey });
-
-        if ('none' !== igvPanelState) {
-            await igvPanel.restoreSessionState(igvPanelState);
-        }
-
-        setGUIRenderStyle(renderStyle);
-
-        Panel.setAllPanelVisibility(panelVisibility);
-
-        sceneManager.gnomon.setVisibility(gnomonVisibility);
-
-        sceneManager.groundPlane.setVisibility(groundPlaneVisibility);
-
-        // TODO: Decide whether to restore camera state
-        // sceneManager.cameraLightingRig.setState(cameraLightingRig);
-
-        sceneManager.gnomon.setColorState(gnomonColor);
-
-        sceneManager.groundPlane.setColorState(groundplaneColor);
-
-        sceneManager.setBackgroundState(sceneBackground);
-
-    }
-
-};
-
-const getUrlParams = url => {
-
-    const search = decodeURIComponent( url.slice( url.indexOf( '?' ) + 1 ) );
-
-    return search
-        .split('&')
-        .reduce((acc, key_value) => {
-
-            const [ key, value ] = key_value.split( '=', 2 );
-            acc[ key ] = value;
-            return acc;
-        }, {});
+    console.log(gltf);
 
 };
 
