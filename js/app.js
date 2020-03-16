@@ -24,6 +24,7 @@ import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from 
 import { saveSession, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
+import {getUrlParams} from "./session";
 
 let eventBus = new EventBus();
 
@@ -102,7 +103,9 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     renderContainerController = new RenderContainerController(container, sceneManager);
 
-    await createButtonsPanelsModals(container);
+    const params = getUrlParams(window.location.href);
+
+    await createButtonsPanelsModals(container, params);
 
     guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
@@ -136,7 +139,7 @@ const renderLoop = () => {
 
 };
 
-const createButtonsPanelsModals = async container => {
+const createButtonsPanelsModals = async (container, appLaunchURLParams) => {
 
     $('#spacewalk-reset-camera-button').on('click.spacewalk-reset-camera-button', e => {
         sceneManager.resetCamera();
@@ -186,7 +189,13 @@ const createButtonsPanelsModals = async container => {
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
-    await igvPanel.initialize(igvBrowserConfigurator());
+
+    if (appLaunchURLParams.sessionURL) {
+        const { sessionURL } = appLaunchURLParams;
+        await igvPanel.initialize({ sessionURL });
+    } else {
+        await igvPanel.initialize(igvBrowserConfigurator());
+    }
 
     Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
 
