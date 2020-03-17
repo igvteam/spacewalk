@@ -25,6 +25,8 @@ import { saveSession, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {getUrlParams} from "./session";
+// import {decompressQueryParameter} from '../node_modules/juicebox.js/dist/juicebox.esm.js';
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 
 let eventBus = new EventBus();
 
@@ -185,7 +187,14 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_contact_frequency_map_panel') }));
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
-    await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480 });
+
+    if (juiceboxSessionURL) {
+        const session = JSON.parse(hic.decompressQueryParameter(juiceboxSessionURL.substr(5)));
+        session.initFromUrl = false;
+        await hic.createBrowser($('#spacewalk_juicebox_root_container').get(0), session.browsers[0]);
+    } else {
+        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480 });
+    }
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
