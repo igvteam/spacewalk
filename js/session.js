@@ -7,13 +7,9 @@ import { getGUIRenderStyle, setGUIRenderStyle } from "./guiManager.js";
 
 const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
 
-const loadSession = async (url) => {
+const loadSession = async (spacewalk_session_URL) => {
 
-    const params = getUrlParams(url);
-
-    if (params.hasOwnProperty('spacewalk_session_URL')) {
-
-        let { spacewalk_session_URL } = params;
+    if (spacewalk_session_URL) {
 
         // spacewalk_session_URL = decodeURIComponent(spacewalk_session_URL);
 

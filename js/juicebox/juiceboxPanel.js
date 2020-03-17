@@ -2,7 +2,6 @@ import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Panel from "../panel.js";
 import { ensembleManager, eventBus } from "../app.js";
-import {getUrlParams} from "../session.js";
 
 class JuiceboxPanel extends Panel {
 
@@ -47,38 +46,20 @@ class JuiceboxPanel extends Panel {
         }
     }
 
-    async initialize(browserConfig) {
+    async initialize({ container, width, height }) {
 
         this.locus = 'all';
 
         try {
-            const { container, width, height } = browserConfig;
-
-            const params = getUrlParams(window.location.href);
-
-            let queryString = undefined;
-            if (params.hasOwnProperty('juiceboxData')) {
-
-                const { juiceboxData } = params;
-
-                let decompressed = hic.decompressQueryParameter(juiceboxData);
-
-                decompressed = decompressed.substr(1, decompressed.length - 2);  // Strip leading and trailing bracket
-                const parts = decompressed.split("},{");
-                queryString = decodeURIComponent( parts[ 0 ] );
-            }
-
-            const config = queryString ? { queryString, width, height } : { width, height };
-
-            this.browser = await hic.createBrowser(container, config);
-
+            await hic.initApp(container, { width, height, queryParametersSupported: false });
+            this.browser = hic.HICBrowser.getCurrentBrowser()
         } catch (error) {
             console.warn(error.message);
         }
 
-        const $kids = $('.hic-navbar-container').children('div');
-        $kids.eq(1).hide(); // control label container
-        $kids.eq(2).hide(); // lower widget container
+        // const $kids = $('.hic-navbar-container').children('div');
+        // $kids.eq(1).hide(); // control label container
+        // $kids.eq(2).hide(); // lower widget container
 
         this.browser.eventBus.subscribe("DidHideCrosshairs", this);
 

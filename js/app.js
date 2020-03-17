@@ -103,15 +103,15 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     renderContainerController = new RenderContainerController(container, sceneManager);
 
-    const params = getUrlParams(window.location.href);
+    const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalk_session_URL } = getUrlParams(window.location.href);
 
-    await createButtonsPanelsModals(container, params);
+    await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL);
 
     guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
     renderLoop();
 
-    await loadSession(window.location.href);
+    await loadSession(spacewalk_session_URL);
 
 });
 
@@ -139,7 +139,7 @@ const renderLoop = () => {
 
 };
 
-const createButtonsPanelsModals = async (container, appLaunchURLParams) => {
+const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL) => {
 
     $('#spacewalk-reset-camera-button').on('click.spacewalk-reset-camera-button', e => {
         sceneManager.resetCamera();
@@ -185,14 +185,13 @@ const createButtonsPanelsModals = async (container, appLaunchURLParams) => {
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_contact_frequency_map_panel') }));
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
-    await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 480, height: 480});
+    await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480 });
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
 
-    if (appLaunchURLParams.sessionURL) {
-        const { sessionURL } = appLaunchURLParams;
-        await igvPanel.initialize({ sessionURL });
+    if (igvSessionURL) {
+        await igvPanel.initialize({ sessionURL: igvSessionURL });
     } else {
         await igvPanel.initialize(igvBrowserConfigurator());
     }
