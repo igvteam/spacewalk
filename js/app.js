@@ -1,4 +1,5 @@
 import { Alert, createGenericSelectModal, createTrackURLModal } from '../node_modules/igv-ui/src/index.js'
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import EventBus from "./eventBus.js";
 import GSDB from "./gsdb/gsdb.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -21,12 +22,9 @@ import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { saveSession, loadSession } from "./session.js";
+import { getUrlParams, saveSession, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
-import {getUrlParams} from "./session";
-// import {decompressQueryParameter} from '../node_modules/juicebox.js/dist/juicebox.esm.js';
-import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 
 let eventBus = new EventBus();
 
@@ -188,13 +186,13 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
 
-    if (juiceboxSessionURL) {
-        const session = JSON.parse(hic.decompressQueryParameter(juiceboxSessionURL.substr(5)));
-        session.initFromUrl = false;
-        await hic.createBrowser($('#spacewalk_juicebox_root_container').get(0), session.browsers[0]);
-    } else {
+    // if (juiceboxSessionURL) {
+    //     const session = JSON.parse(hic.decompressQueryParameter(juiceboxSessionURL.substr(5)));
+    //     session.initFromUrl = false;
+    //     await hic.createBrowser($('#spacewalk_juicebox_root_container').get(0), session.browsers[0]);
+    // } else {
         await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480 });
-    }
+    // }
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
@@ -211,9 +209,17 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator( { fileLoader: juiceboxPanel } ));
 
-    $(window).on('resize.app', () => {
-        let { width, height } = container.getBoundingClientRect();
-        eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
+    $(window).on('resize.app', e => {
+
+        const { toElement } = e;
+
+        // HACK to consume resize event fired by jQuery resizable div
+        if (toElement) {
+            // do nothing
+        } else {
+            let { width, height } = container.getBoundingClientRect();
+            eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
+        }
     });
 
 };

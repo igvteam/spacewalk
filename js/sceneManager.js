@@ -55,8 +55,6 @@ class SceneManager {
             this.setupMultipassRendering(this.scene, this.renderer, this.cameraLightingRig);
         }
 
-        // $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
-
         eventBus.subscribe("DidSelectSegmentID", this);
         eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
         eventBus.subscribe('DidSelectTrace', this);
@@ -232,23 +230,6 @@ class SceneManager {
 
     };
 
-    onWindowResize() {
-
-        if (this.renderer && this.cameraLightingRig) {
-
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-
-            if (doMultipassRendering) {
-                this.effectComposer.setSize(window.innerWidth, window.innerHeight);
-                setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
-            }
-
-            this.cameraLightingRig.object.aspect = window.innerWidth/window.innerHeight;
-            this.cameraLightingRig.object.updateProjectionMatrix();
-        }
-
-    };
-
     dispose() {
 
         $(this.container).off('mousemove.spacewalk.picker');
@@ -324,7 +305,6 @@ class SceneManager {
     resetCamera() {
         this.cameraLightingRig.resetCamera();
     }
-
 
 }
 

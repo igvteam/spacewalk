@@ -1,7 +1,18 @@
 import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
+import ModalTable from '../../node_modules/data-modal/js/modalTable.js';
+
 import Panel from "../panel.js";
 import { ensembleManager, eventBus } from "../app.js";
+
+let contactMapDatasource = undefined;
+
+const contactMapSelectHandler = selectionList => {
+    const { url, name } = contactMapDatasource.tableSelectionHandler(selectionList);
+    loadHicFile(url, name);
+};
+
+const contactMapModal = new ModalTable({ id: 'spacewalk-contact-map-modal', title: 'Contact Map', selectHandler:contactMapSelectHandler, pageLength: 100 });
 
 class JuiceboxPanel extends Panel {
 
