@@ -15,12 +15,12 @@ class IGVPanel extends Panel {
 
     constructor ({ container, panel, isHidden }) {
 
-        const xFunction = (cw, w) => {
-            return (cw - w)/2;
+        const xFunction = (wc, wp) => {
+            return (wc - wp)/2;
         };
 
-        const yFunction = (ch, h) => {
-            return ch - (h * 1.1);
+        const yFunction = (hc, hp) => {
+            return hc - (hp * 1.1);
         };
 
         super({ container, panel, isHidden, xFunction, yFunction });
