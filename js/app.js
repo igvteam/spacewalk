@@ -211,14 +211,12 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     $(window).on('resize.app', e => {
 
-        const { toElement } = e;
+        // Prevent responding to resize event sent by jQuery resizable()
+        const status = $(e.target).hasClass('ui-resizable');
 
-        // HACK to consume resize event fired by jQuery resizable div
-        if (toElement) {
-            // do nothing
-        } else {
+        if (false === status) {
             let { width, height } = container.getBoundingClientRect();
-            eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
+            eventBus.post({ type: 'AppWindowDidResize', data: { width, height } });
         }
     });
 
