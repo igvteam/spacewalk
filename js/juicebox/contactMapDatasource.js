@@ -1,4 +1,4 @@
-import { Alert } from '../node_modules/igv-ui/src/index.js'
+import { Alert } from '../../node_modules/igv-ui/src/index.js'
 
 const columns =
     [

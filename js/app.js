@@ -25,6 +25,7 @@ import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from 
 import { getUrlParams, saveSession, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
+import JuiceboxSelectModalController from "./juicebox/juiceboxSelectModalController.js";
 
 let eventBus = new EventBus();
 
@@ -43,6 +44,7 @@ let guiManager;
 let gsdb;
 let spaceWalkFileLoadModal;
 let juiceboxFileLoadModal;
+let juiceboxSelectModalController;
 
 let traceSelectPanel;
 let colorRampPanel;
@@ -208,6 +210,8 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     spaceWalkFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator( { fileLoader: parser } ));
 
     juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator( { fileLoader: juiceboxPanel } ));
+
+    juiceboxSelectModalController = new JuiceboxSelectModalController({ elementID: 'spacewalk-juicebox-select-modal' });
 
     $(window).on('resize.app', e => {
 
