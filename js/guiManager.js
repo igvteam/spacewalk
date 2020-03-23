@@ -35,7 +35,7 @@ class GUIManager {
         });
 
         // Add scene container
-        $widgetPanels = $widgetPanels.add( $(sceneManager.container) );
+        // $widgetPanels = $widgetPanels.add( $(sceneManager.container) );
 
         this.$widgetPanels = $widgetPanels;
 
