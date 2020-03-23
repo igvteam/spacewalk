@@ -41,9 +41,8 @@ class JuiceboxPanel extends Panel {
             const { chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
 
-        } else if ('DidHideCrosshairs') {
+        } else if ('DidHideCrosshairs' === type) {
             eventBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
-
         }
     }
 
@@ -52,17 +51,12 @@ class JuiceboxPanel extends Panel {
         this.locus = 'all';
 
         try {
-            await hic.initApp(container, { width, height, queryParametersSupported: false });
-            this.browser = hic.HICBrowser.getCurrentBrowser()
+            this.browser = await hic.createBrowser(container, { width, height, queryParametersSupported: false })
         } catch (error) {
             console.warn(error.message);
         }
 
-        // const $kids = $('.hic-navbar-container').children('div');
-        // $kids.eq(1).hide(); // control label container
-        // $kids.eq(2).hide(); // lower widget container
-
-        this.browser.eventBus.subscribe("DidHideCrosshairs", this);
+        this.browser.eventBus.subscribe('DidHideCrosshairs', this);
 
         this.browser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
             event.stopPropagation();
