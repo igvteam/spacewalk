@@ -23,6 +23,11 @@ class CameraLightingRig extends OrbitControls {
         this.enableKeys = false;
 
         this.enablePan = false;
+
+        this.enableDamping = true;
+
+        this.dampingFactor = 0.05;
+
     }
 
     configure ({ fov, aspect, position, centroid, boundingDiameter }) {
@@ -139,6 +144,8 @@ class CameraLightingRig extends OrbitControls {
     };
 
     renderLoopHelper() {
+
+        this.update();
 
         // Keep hemisphere light directly above trace model by transforming with camera transform
         this.object.getWorldDirection(cameraWorldDirection);
