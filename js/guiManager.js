@@ -4,8 +4,6 @@ import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import { rgb255ToThreeJSColor } from "./color.js";
 import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
 
-const $spacewalk_ui_manager_panel = $('#spacewalk_ui_manager_panel');
-
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
 
@@ -35,6 +33,9 @@ class GUIManager {
 
             }
         });
+
+        // Add scene container
+        $widgetPanels = $widgetPanels.add( $(sceneManager.container) );
 
         this.$widgetPanels = $widgetPanels;
 

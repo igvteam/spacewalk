@@ -34,6 +34,10 @@ class RenderContainerController {
 
         dragger = new Dragger(container, dragContainer, root_container, height);
 
+        dragContainer.addEventListener('mousedown', () => {
+            eventBus.post({ type: "DidSelectPanel", data: $(container) });
+        });
+
         dragContainer.addEventListener('mouseenter', () => {
             dragContainer.style.backgroundColor = rgb255String(appleCrayonColorRGB255('snow'));
             dragContainer.querySelector('i').style.color = rgb255String(appleCrayonColorRGB255('steel'));
