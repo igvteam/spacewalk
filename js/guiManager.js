@@ -1,6 +1,6 @@
+import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import { rgb255ToThreeJSColor } from "./color.js";
 import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
 
@@ -82,7 +82,11 @@ class GUIManager {
 
         const backgroundColorPickerConfig =
             {
-                color: "#f00",
+                color: 'lightblue',
+                type: 'color',
+                showAlpha: false,
+                showButtons: false,
+                allowEmpty: false,
                 move: color => {
                     const { r, g, b } = color.toRgb();
                      sceneManager.setBackground(rgb255ToThreeJSColor(r, g, b));
@@ -94,7 +98,11 @@ class GUIManager {
 
         const groundplaneColorPickerConfig =
             {
-                color: "#f00",
+                color: 'lightblue',
+                type: 'color',
+                showAlpha: false,
+                showButtons: false,
+                allowEmpty: false,
                 move: color => {
                     const { r, g, b } = color.toRgb();
                     sceneManager.groundPlane.setColor (rgb255ToThreeJSColor(r, g, b));
@@ -106,7 +114,11 @@ class GUIManager {
 
         const gnomonColorPickerConfig =
             {
-                color: "#f00",
+                color: 'lightblue',
+                type: 'color',
+                showAlpha: false,
+                showButtons: false,
+                allowEmpty: false,
                 move: color => {
                     const { r, g, b } = color.toRgb();
                     sceneManager.gnomon.setColor (rgb255ToThreeJSColor(r, g, b));
