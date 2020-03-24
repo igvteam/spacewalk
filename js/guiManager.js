@@ -17,21 +17,9 @@ class GUIManager {
         });
 
         let $widgetPanels = undefined;
-        $panel.find('input').each(function(unused) {
-
-            const id = $(this).attr('data-target');
-
-            if (undefined !== id) {
-
-                const selectionString = `#${id}`;
-
-                if (undefined === $widgetPanels) {
-                    $widgetPanels = $(selectionString)
-                } else {
-                    $widgetPanels = $widgetPanels.add($(selectionString));
-                }
-
-            }
+        $panel.find('input[data-target]').each(function(){
+            const selectionString = `#${ $(this).attr('data-target') }`;
+            $widgetPanels = undefined === $widgetPanels ? $(selectionString) : $widgetPanels.add($(selectionString));
         });
 
         // Add scene container
