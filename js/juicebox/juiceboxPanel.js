@@ -1,6 +1,5 @@
-import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
-
+import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
 import Panel from "../panel.js";
 import { ensembleManager, eventBus } from "../app.js";
 
@@ -46,12 +45,20 @@ class JuiceboxPanel extends Panel {
         }
     }
 
-    async initialize({ container, width, height }) {
+    async initialize({ container, width, height, session }) {
 
-        this.locus = 'all';
 
         try {
-            this.browser = await hic.createBrowser(container, { width, height, queryParametersSupported: false })
+
+            if (session) {
+                await hic.initApp(container, { session, width, height, queryParametersSupported: false });
+            } else {
+                this.locus = 'all';
+                await hic.initApp(container, { width, height, queryParametersSupported: false });
+            }
+
+            this.browser = hic.HICBrowser.currentBrowser;
+
         } catch (error) {
             console.warn(error.message);
         }

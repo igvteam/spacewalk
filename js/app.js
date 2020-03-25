@@ -188,13 +188,11 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
 
-    // if (juiceboxSessionURL) {
-    //     const session = JSON.parse(hic.decompressQueryParameter(juiceboxSessionURL.substr(5)));
-    //     session.initFromUrl = false;
-    //     await hic.createBrowser($('#spacewalk_juicebox_root_container').get(0), session.browsers[0]);
-    // } else {
-        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480 });
-    // }
+    if (juiceboxSessionURL) {
+        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: juiceboxSessionURL });
+    } else {
+        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: undefined });
+    }
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
