@@ -1,7 +1,7 @@
 import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { rgb255ToThreeJSColor } from "./color.js";
+import { rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor } from "./color.js";
 import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
 
 const zIndexPanelSelected = 1124;
@@ -78,55 +78,6 @@ class GUIManager {
         $noodle_radius_control.find('i.fa-plus-circle').on('click.spacewalk-noodle-radius-plus', () => {
             noodle.updateRadius(1);
         });
-
-
-        const backgroundColorPickerConfig =
-            {
-                color: 'lightblue',
-                type: 'color',
-                showAlpha: false,
-                showButtons: false,
-                allowEmpty: false,
-                move: color => {
-                    const { r, g, b } = color.toRgb();
-                     sceneManager.setBackground(rgb255ToThreeJSColor(r, g, b));
-                }
-
-            };
-
-        $('#spacewalk_background_colorpicker').spectrum(backgroundColorPickerConfig);
-
-        const groundplaneColorPickerConfig =
-            {
-                color: 'lightblue',
-                type: 'color',
-                showAlpha: false,
-                showButtons: false,
-                allowEmpty: false,
-                move: color => {
-                    const { r, g, b } = color.toRgb();
-                    sceneManager.groundPlane.setColor (rgb255ToThreeJSColor(r, g, b));
-                }
-
-            };
-
-        $('#spacewalk_ui_manager_groundplane_colorpicker').spectrum(groundplaneColorPickerConfig);
-
-        const gnomonColorPickerConfig =
-            {
-                color: 'lightblue',
-                type: 'color',
-                showAlpha: false,
-                showButtons: false,
-                allowEmpty: false,
-                move: color => {
-                    const { r, g, b } = color.toRgb();
-                    sceneManager.gnomon.setColor (rgb255ToThreeJSColor(r, g, b));
-                }
-
-            };
-
-        $('#spacewalk_ui_manager_gnomon_colorpicker').spectrum(gnomonColorPickerConfig);
 
         eventBus.subscribe("DidSelectPanel", this);
         eventBus.subscribe('DidLoadEnsembleFile', this);
@@ -206,6 +157,25 @@ const configureRenderStyleControl = ($input, renderStyle) => {
         e.preventDefault();
         eventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
     });
+
+};
+
+export const configureColorPicker = ($element, initialColor, callback) => {
+
+    const config =
+        {
+            color: rgb255String(threeJSColorToRGB255(initialColor)),
+            type: 'color',
+            showAlpha: false,
+            showButtons: false,
+            allowEmpty: false,
+            move: color => {
+                const { r, g, b } = color.toRgb();
+                callback(rgb255ToThreeJSColor(r, g, b))
+            }
+        };
+
+    $element.spectrum(config);
 
 };
 
