@@ -66,65 +66,44 @@ struct GeometricContext {
 };
 
 vec3 transformDirection( in vec3 dir, in mat4 matrix ) {
-
 	return normalize( ( matrix * vec4( dir, 0.0 ) ).xyz );
-
 }
 
 vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
-
 	// dir can be either a direction vector or a normal vector
 	// upper-left 3x3 of matrix is assumed to be orthogonal
-
 	return normalize( ( vec4( dir, 0.0 ) * matrix ).xyz );
-
 }
 
 vec3 projectOnPlane(in vec3 point, in vec3 pointOnPlane, in vec3 planeNormal ) {
-
 	float distance = dot( planeNormal, point - pointOnPlane );
-
 	return - distance * planeNormal + point;
-
 }
 
 float sideOfPlane( in vec3 point, in vec3 pointOnPlane, in vec3 planeNormal ) {
-
 	return sign( dot( point - pointOnPlane, planeNormal ) );
-
 }
 
 vec3 linePlaneIntersect( in vec3 pointOnLine, in vec3 lineDirection, in vec3 pointOnPlane, in vec3 planeNormal ) {
-
 	return lineDirection * ( dot( planeNormal, pointOnPlane - pointOnLine ) / dot( planeNormal, lineDirection ) ) + pointOnLine;
-
 }
 
 mat3 transposeMat3( const in mat3 m ) {
-
 	mat3 tmp;
-
 	tmp[ 0 ] = vec3( m[ 0 ].x, m[ 1 ].x, m[ 2 ].x );
 	tmp[ 1 ] = vec3( m[ 0 ].y, m[ 1 ].y, m[ 2 ].y );
 	tmp[ 2 ] = vec3( m[ 0 ].z, m[ 1 ].z, m[ 2 ].z );
-
 	return tmp;
-
 }
 
 // https://en.wikipedia.org/wiki/Relative_luminance
 float linearToRelativeLuminance( const in vec3 color ) {
-
 	vec3 weights = vec3( 0.2126, 0.7152, 0.0722 );
-
 	return dot( weights, color.rgb );
-
 }
 
 bool isPerspectiveMatrix( mat4 m ) {
-
   return m[ 2 ][ 3 ] == - 1.0;
-
 }
 
 vec3 packNormalToRGB( const in vec3 normal ) {
@@ -212,7 +191,6 @@ float perspectiveDepthToViewZ( const in float invClipZ, const in float near, con
 #endif
 
 #ifdef USE_ENVMAP
-
 	uniform float envMapIntensity;
 	uniform float flipEnvMap;
 	uniform int maxMipLevel;
@@ -220,14 +198,13 @@ float perspectiveDepthToViewZ( const in float invClipZ, const in float near, con
 	uniform samplerCube envMap;
 #else
 	uniform sampler2D envMap;
-#endif
-	
+#endif	
 #endif
 
 #ifdef USE_ENVMAP
 	uniform float reflectivity;
 #if defined( USE_BUMPMAP ) || defined( USE_NORMALMAP ) || defined( PHONG )
-	#define ENV_WORLDPOS
+#define ENV_WORLDPOS
 #endif
 #ifdef ENV_WORLDPOS
 	varying vec3 vWorldPosition;
@@ -371,6 +348,7 @@ vec4 textureCubeUV(sampler2D envMap, vec3 sampleDir, float roughness) {
 // split-sum approximation used in indirect specular lighting.
 // via 'environmentBRDF' from "Physically Based Shading on Mobile"
 // https://www.unrealengine.com/blog/physically-based-shading-on-mobile - environmentBRDF for GGX on mobile
+
 vec2 integrateSpecularBRDF( const in float dotNV, const in float roughness ) {
 	const vec4 c0 = vec4( - 1, - 0.0275, - 0.572, 0.022 );
 
@@ -396,9 +374,7 @@ float punctualLightIntensityToIrradianceFactor( const in float lightDistance, co
 	float distanceFalloff = 1.0 / max( pow( lightDistance, decayExponent ), 0.01 );
 
 	if( cutoffDistance > 0.0 ) {
-
 		distanceFalloff *= pow2( saturate( 1.0 - pow4( lightDistance / cutoffDistance ) ) );
-
 	}
 
 	return distanceFalloff;
@@ -406,9 +382,7 @@ float punctualLightIntensityToIrradianceFactor( const in float lightDistance, co
 #else
 
 	if( cutoffDistance > 0.0 && decayExponent > 0.0 ) {
-
 		return pow( saturate( -lightDistance / cutoffDistance + 1.0 ), decayExponent );
-
 	}
 
 	return 1.0;
@@ -967,23 +941,430 @@ vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ) {
 
 #endif
 
-#include <lights_phong_pars_fragment>
-#include <shadowmap_pars_fragment>
-#include <bumpmap_pars_fragment>
-#include <normalmap_pars_fragment>
-#include <specularmap_pars_fragment>
-#include <logdepthbuf_pars_fragment>
-#include <clipping_planes_pars_fragment>
+varying vec3 vViewPosition;
+
+#ifndef FLAT_SHADED
+
+	varying vec3 vNormal;
+
+#endif
+
+
+struct BlinnPhongMaterial {
+
+	vec3	diffuseColor;
+	vec3	specularColor;
+	float	specularShininess;
+	float	specularStrength;
+
+};
+
+void RE_Direct_BlinnPhong( const in IncidentLight directLight, const in GeometricContext geometry, const in BlinnPhongMaterial material, inout ReflectedLight reflectedLight ) {
+
+	float dotNL = saturate( dot( geometry.normal, directLight.direction ) );
+	vec3 irradiance = dotNL * directLight.color;
+
+	#ifndef PHYSICALLY_CORRECT_LIGHTS
+
+		irradiance *= PI; // punctual light
+
+	#endif
+
+	reflectedLight.directDiffuse += irradiance * BRDF_Diffuse_Lambert( material.diffuseColor );
+
+	reflectedLight.directSpecular += irradiance * BRDF_Specular_BlinnPhong( directLight, geometry, material.specularColor, material.specularShininess ) * material.specularStrength;
+
+}
+
+void RE_IndirectDiffuse_BlinnPhong( const in vec3 irradiance, const in GeometricContext geometry, const in BlinnPhongMaterial material, inout ReflectedLight reflectedLight ) {
+
+	reflectedLight.indirectDiffuse += irradiance * BRDF_Diffuse_Lambert( material.diffuseColor );
+
+}
+
+#define RE_Direct				RE_Direct_BlinnPhong
+#define RE_IndirectDiffuse		RE_IndirectDiffuse_BlinnPhong
+
+#define Material_LightProbeLOD( material )	(0)
+
+#ifdef USE_SHADOWMAP
+
+	#if NUM_DIR_LIGHT_SHADOWS > 0
+
+		uniform sampler2D directionalShadowMap[ NUM_DIR_LIGHT_SHADOWS ];
+		varying vec4 vDirectionalShadowCoord[ NUM_DIR_LIGHT_SHADOWS ];
+
+	#endif
+
+	#if NUM_SPOT_LIGHT_SHADOWS > 0
+
+		uniform sampler2D spotShadowMap[ NUM_SPOT_LIGHT_SHADOWS ];
+		varying vec4 vSpotShadowCoord[ NUM_SPOT_LIGHT_SHADOWS ];
+
+	#endif
+
+	#if NUM_POINT_LIGHT_SHADOWS > 0
+
+		uniform sampler2D pointShadowMap[ NUM_POINT_LIGHT_SHADOWS ];
+		varying vec4 vPointShadowCoord[ NUM_POINT_LIGHT_SHADOWS ];
+
+	#endif
+
+	/*
+	#if NUM_RECT_AREA_LIGHTS > 0
+
+		// TODO (abelnation): create uniforms for area light shadows
+
+	#endif
+	*/
+
+	float texture2DCompare( sampler2D depths, vec2 uv, float compare ) {
+
+		return step( compare, unpackRGBAToDepth( texture2D( depths, uv ) ) );
+
+	}
+
+	vec2 texture2DDistribution( sampler2D shadow, vec2 uv ) {
+
+		return unpackRGBATo2Half( texture2D( shadow, uv ) );
+
+	}
+
+	float VSMShadow (sampler2D shadow, vec2 uv, float compare ){
+
+		float occlusion = 1.0;
+
+		vec2 distribution = texture2DDistribution( shadow, uv );
+
+		float hard_shadow = step( compare , distribution.x ); // Hard Shadow
+
+		if (hard_shadow != 1.0 ) {
+
+			float distance = compare - distribution.x ;
+			float variance = max( 0.00000, distribution.y * distribution.y );
+			float softness_probability = variance / (variance + distance * distance ); // Chebeyshevs inequality
+			softness_probability = clamp( ( softness_probability - 0.3 ) / ( 0.95 - 0.3 ), 0.0, 1.0 ); // 0.3 reduces light bleed
+			occlusion = clamp( max( hard_shadow, softness_probability ), 0.0, 1.0 );
+
+		}
+		return occlusion;
+
+	}
+
+	float getShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowBias, float shadowRadius, vec4 shadowCoord ) {
+
+		float shadow = 1.0;
+
+		shadowCoord.xyz /= shadowCoord.w;
+		shadowCoord.z += shadowBias;
+
+		// if ( something && something ) breaks ATI OpenGL shader compiler
+		// if ( all( something, something ) ) using this instead
+
+		bvec4 inFrustumVec = bvec4 ( shadowCoord.x >= 0.0, shadowCoord.x <= 1.0, shadowCoord.y >= 0.0, shadowCoord.y <= 1.0 );
+		bool inFrustum = all( inFrustumVec );
+
+		bvec2 frustumTestVec = bvec2( inFrustum, shadowCoord.z <= 1.0 );
+
+		bool frustumTest = all( frustumTestVec );
+
+		if ( frustumTest ) {
+
+		#if defined( SHADOWMAP_TYPE_PCF )
+
+			vec2 texelSize = vec2( 1.0 ) / shadowMapSize;
+
+			float dx0 = - texelSize.x * shadowRadius;
+			float dy0 = - texelSize.y * shadowRadius;
+			float dx1 = + texelSize.x * shadowRadius;
+			float dy1 = + texelSize.y * shadowRadius;
+			float dx2 = dx0 / 2.0;
+			float dy2 = dy0 / 2.0;
+			float dx3 = dx1 / 2.0;
+			float dy3 = dy1 / 2.0;
+
+			shadow = (
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, dy0 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy0 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, dy0 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, dy2 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy2 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, dy2 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, 0.0 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, 0.0 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy, shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, 0.0 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, 0.0 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, dy3 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy3 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, dy3 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, dy1 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy1 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, dy1 ), shadowCoord.z )
+			) * ( 1.0 / 17.0 );
+
+		#elif defined( SHADOWMAP_TYPE_PCF_SOFT )
+
+			vec2 texelSize = vec2( 1.0 ) / shadowMapSize;
+			float dx = texelSize.x;
+			float dy = texelSize.y;
+
+			vec2 uv = shadowCoord.xy;
+			vec2 f = fract( uv * shadowMapSize + 0.5 );
+			uv -= f * texelSize;
+
+			shadow = (
+				texture2DCompare( shadowMap, uv, shadowCoord.z ) +
+				texture2DCompare( shadowMap, uv + vec2( dx, 0.0 ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, uv + vec2( 0.0, dy ), shadowCoord.z ) +
+				texture2DCompare( shadowMap, uv + texelSize, shadowCoord.z ) +
+				mix( texture2DCompare( shadowMap, uv + vec2( -dx, 0.0 ), shadowCoord.z ), 
+					 texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, 0.0 ), shadowCoord.z ),
+					 f.x ) +
+				mix( texture2DCompare( shadowMap, uv + vec2( -dx, dy ), shadowCoord.z ), 
+					 texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, dy ), shadowCoord.z ),
+					 f.x ) +
+				mix( texture2DCompare( shadowMap, uv + vec2( 0.0, -dy ), shadowCoord.z ), 
+					 texture2DCompare( shadowMap, uv + vec2( 0.0, 2.0 * dy ), shadowCoord.z ),
+					 f.y ) +
+				mix( texture2DCompare( shadowMap, uv + vec2( dx, -dy ), shadowCoord.z ), 
+					 texture2DCompare( shadowMap, uv + vec2( dx, 2.0 * dy ), shadowCoord.z ),
+					 f.y ) +
+				mix( mix( texture2DCompare( shadowMap, uv + vec2( -dx, -dy ), shadowCoord.z ), 
+						  texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, -dy ), shadowCoord.z ),
+						  f.x ),
+					 mix( texture2DCompare( shadowMap, uv + vec2( -dx, 2.0 * dy ), shadowCoord.z ), 
+						  texture2DCompare( shadowMap, uv + vec2( 2.0 * dx, 2.0 * dy ), shadowCoord.z ),
+						  f.x ),
+					 f.y )
+			) * ( 1.0 / 9.0 );
+
+		#elif defined( SHADOWMAP_TYPE_VSM )
+
+			shadow = VSMShadow( shadowMap, shadowCoord.xy, shadowCoord.z );
+
+		#else // no percentage-closer filtering:
+
+			shadow = texture2DCompare( shadowMap, shadowCoord.xy, shadowCoord.z );
+
+		#endif
+
+		}
+
+		return shadow;
+
+	}
+
+	// cubeToUV() maps a 3D direction vector suitable for cube texture mapping to a 2D
+	// vector suitable for 2D texture mapping. This code uses the following layout for the
+	// 2D texture:
+	//
+	// xzXZ
+	//  y Y
+	//
+	// Y - Positive y direction
+	// y - Negative y direction
+	// X - Positive x direction
+	// x - Negative x direction
+	// Z - Positive z direction
+	// z - Negative z direction
+	//
+	// Source and test bed:
+	// https://gist.github.com/tschw/da10c43c467ce8afd0c4
+
+	vec2 cubeToUV( vec3 v, float texelSizeY ) {
+
+		// Number of texels to avoid at the edge of each square
+
+		vec3 absV = abs( v );
+
+		// Intersect unit cube
+
+		float scaleToCube = 1.0 / max( absV.x, max( absV.y, absV.z ) );
+		absV *= scaleToCube;
+
+		// Apply scale to avoid seams
+
+		// two texels less per square (one texel will do for NEAREST)
+		v *= scaleToCube * ( 1.0 - 2.0 * texelSizeY );
+
+		// Unwrap
+
+		// space: -1 ... 1 range for each square
+		//
+		// #X##		dim    := ( 4 , 2 )
+		//  # #		center := ( 1 , 1 )
+
+		vec2 planar = v.xy;
+
+		float almostATexel = 1.5 * texelSizeY;
+		float almostOne = 1.0 - almostATexel;
+
+		if ( absV.z >= almostOne ) {
+
+			if ( v.z > 0.0 )
+				planar.x = 4.0 - v.x;
+
+		} else if ( absV.x >= almostOne ) {
+
+			float signX = sign( v.x );
+			planar.x = v.z * signX + 2.0 * signX;
+
+		} else if ( absV.y >= almostOne ) {
+
+			float signY = sign( v.y );
+			planar.x = v.x + 2.0 * signY + 2.0;
+			planar.y = v.z * signY - 2.0;
+
+		}
+
+		// Transform to UV space
+
+		// scale := 0.5 / dim
+		// translate := ( center + 0.5 ) / dim
+		return vec2( 0.125, 0.25 ) * planar + vec2( 0.375, 0.75 );
+
+	}
+
+	float getPointShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowBias, float shadowRadius, vec4 shadowCoord, float shadowCameraNear, float shadowCameraFar ) {
+
+		vec2 texelSize = vec2( 1.0 ) / ( shadowMapSize * vec2( 4.0, 2.0 ) );
+
+		// for point lights, the uniform @vShadowCoord is re-purposed to hold
+		// the vector from the light to the world-space position of the fragment.
+		vec3 lightToPosition = shadowCoord.xyz;
+
+		// dp = normalized distance from light to fragment position
+		float dp = ( length( lightToPosition ) - shadowCameraNear ) / ( shadowCameraFar - shadowCameraNear ); // need to clamp?
+		dp += shadowBias;
+
+		// bd3D = base direction 3D
+		vec3 bd3D = normalize( lightToPosition );
+
+		#if defined( SHADOWMAP_TYPE_PCF ) || defined( SHADOWMAP_TYPE_PCF_SOFT ) || defined( SHADOWMAP_TYPE_VSM )
+
+			vec2 offset = vec2( - 1, 1 ) * shadowRadius * texelSize.y;
+
+			return (
+				texture2DCompare( shadowMap, cubeToUV( bd3D + offset.xyy, texelSize.y ), dp ) +
+				texture2DCompare( shadowMap, cubeToUV( bd3D + offset.yyy, texelSize.y ), dp ) +
+				texture2DCompare( shadowMap, cubeToUV( bd3D + offset.xyx, texelSize.y ), dp ) +
+				texture2DCompare( shadowMap, cubeToUV( bd3D + offset.yyx, texelSize.y ), dp ) +
+				texture2DCompare( shadowMap, cubeToUV( bd3D, texelSize.y ), dp ) +
+				texture2DCompare( shadowMap, cubeToUV( bd3D + offset.xxy, texelSize.y ), dp ) +
+				texture2DCompare( shadowMap, cubeToUV( bd3D + offset.yxy, texelSize.y ), dp ) +
+				texture2DCompare( shadowMap, cubeToUV( bd3D + offset.xxx, texelSize.y ), dp ) +
+				texture2DCompare( shadowMap, cubeToUV( bd3D + offset.yxx, texelSize.y ), dp )
+			) * ( 1.0 / 9.0 );
+
+		#else // no percentage-closer filtering
+
+			return texture2DCompare( shadowMap, cubeToUV( bd3D, texelSize.y ), dp );
+
+		#endif
+
+	}
+
+#endif
+
+#ifdef USE_BUMPMAP
+
+	uniform sampler2D bumpMap;
+	uniform float bumpScale;
+
+	// Bump Mapping Unparametrized Surfaces on the GPU by Morten S. Mikkelsen
+	// http://api.unrealengine.com/attachments/Engine/Rendering/LightingAndShadows/BumpMappingWithoutTangentSpace/mm_sfgrad_bump.pdf
+
+	// Evaluate the derivative of the height w.r.t. screen-space using forward differencing (listing 2)
+
+	vec2 dHdxy_fwd() {
+
+		vec2 dSTdx = dFdx( vUv );
+		vec2 dSTdy = dFdy( vUv );
+
+		float Hll = bumpScale * texture2D( bumpMap, vUv ).x;
+		float dBx = bumpScale * texture2D( bumpMap, vUv + dSTdx ).x - Hll;
+		float dBy = bumpScale * texture2D( bumpMap, vUv + dSTdy ).x - Hll;
+
+		return vec2( dBx, dBy );
+
+	}
+
+	vec3 perturbNormalArb( vec3 surf_pos, vec3 surf_norm, vec2 dHdxy ) {
+
+		// Workaround for Adreno 3XX dFd*( vec3 ) bug. See #9988
+
+		vec3 vSigmaX = vec3( dFdx( surf_pos.x ), dFdx( surf_pos.y ), dFdx( surf_pos.z ) );
+		vec3 vSigmaY = vec3( dFdy( surf_pos.x ), dFdy( surf_pos.y ), dFdy( surf_pos.z ) );
+		vec3 vN = surf_norm;		// normalized
+
+		vec3 R1 = cross( vSigmaY, vN );
+		vec3 R2 = cross( vN, vSigmaX );
+
+		float fDet = dot( vSigmaX, R1 );
+
+		fDet *= ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+
+		vec3 vGrad = sign( fDet ) * ( dHdxy.x * R1 + dHdxy.y * R2 );
+		return normalize( abs( fDet ) * surf_norm - vGrad );
+
+	}
+
+#endif
+
+#ifdef USE_NORMALMAP
+
+	uniform sampler2D normalMap;
+	uniform vec2 normalScale;
+
+#endif
+
+#ifdef OBJECTSPACE_NORMALMAP
+
+	uniform mat3 normalMatrix;
+
+#endif
+
+#if ! defined ( USE_TANGENT ) && ( defined ( TANGENTSPACE_NORMALMAP ) || defined ( USE_CLEARCOAT_NORMALMAP ) )
+
+	// Per-Pixel Tangent Space Normal Mapping
+	// http://hacksoflife.blogspot.ch/2009/11/per-pixel-tangent-space-normal-mapping.html
+
+	vec3 perturbNormal2Arb( vec3 eye_pos, vec3 surf_norm, vec3 mapN ) {
+
+		// Workaround for Adreno 3XX dFd*( vec3 ) bug. See #9988
+
+		vec3 q0 = vec3( dFdx( eye_pos.x ), dFdx( eye_pos.y ), dFdx( eye_pos.z ) );
+		vec3 q1 = vec3( dFdy( eye_pos.x ), dFdy( eye_pos.y ), dFdy( eye_pos.z ) );
+		vec2 st0 = dFdx( vUv.st );
+		vec2 st1 = dFdy( vUv.st );
+
+		float scale = sign( st1.t * st0.s - st0.t * st1.s ); // we do not care about the magnitude
+
+		vec3 S = normalize( ( q0 * st1.t - q1 * st0.t ) * scale );
+		vec3 T = normalize( ( - q0 * st1.s + q1 * st0.s ) * scale );
+		vec3 N = normalize( surf_norm );
+
+		mat3 tsn = mat3( S, T, N );
+
+		mapN.xy *= ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+
+		return normalize( tsn * mapN );
+
+	}
+
+#endif
+
+#ifdef USE_SPECULARMAP
+	uniform sampler2D specularMap;
+#endif
 
 void main() {
-
-	#include <clipping_planes_fragment>
 
 	vec4 diffuseColor = vec4( diffuse, opacity );
 	ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
 	vec3 totalEmissiveRadiance = emissive;
 
-	#include <logdepthbuf_fragment>
 	#include <map_fragment>
 	#include <color_fragment>
 	#include <alphamap_fragment>
@@ -1010,9 +1391,7 @@ void main() {
 
 	#include <tonemapping_fragment>
 	#include <encodings_fragment>
-	#include <fog_fragment>
 	#include <premultiplied_alpha_fragment>
-	#include <dithering_fragment>
 
 }
 `;
