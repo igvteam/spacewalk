@@ -2,6 +2,7 @@ import igv from '../../node_modules/igv/dist/igv.esm.js';
 import { Alert } from '../../node_modules/igv-ui/src/index.js'
 import { TrackFileLoad } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
 import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
+import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
 import TrackLoadController from "./trackLoadController.js";
 import { setMaterialProvider } from '../utils.js';
 import Panel from "../panel.js";
@@ -324,6 +325,7 @@ const trackMaterialProviderClickHandler = async track => {
 
             if ('varying' === track.featureDescription) {
                 const { min, max } = track.dataRange;
+                console.log(`wig track features. ${ bpPerPixel } start ${ StringUtils.numberFormatter(start) } end ${ StringUtils.numberFormatter(end) } min ${ min } max ${ max }`);
                 dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
 
             } else {
