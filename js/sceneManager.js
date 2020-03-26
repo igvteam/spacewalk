@@ -18,6 +18,7 @@ import { appleCrayonColorThreeJS } from "./color.js";
 import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, eventBus, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 import { getGUIRenderStyle, configureColorPicker } from "./guiManager.js";
 import { specularCubicTexture, sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
+import BackgroundLook from "./backgroundLook.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud' , 'ribbon', 'noodle', 'ball' , 'stick' ]);
 
@@ -27,11 +28,9 @@ const doMultipassRendering = false;
 
 class SceneManager {
 
-    constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker }) {
+    constructor({ container, scene, stickMaterial, backgroundLook, renderer, cameraLightingRig, picker }) {
 
         this.stickMaterial = stickMaterial;
-
-        this.background = background;
 
         renderer.setPixelRatio(window.devicePixelRatio);
         const { width, height } = container.getBoundingClientRect();
@@ -40,6 +39,8 @@ class SceneManager {
         // insert rendering canvas in DOM
         container.appendChild(renderer.domElement);
         this.container = container;
+
+        this.backgroundLook = backgroundLook;
 
         this.renderer = renderer;
 
@@ -168,7 +169,6 @@ class SceneManager {
 
         // Scene
         this.scene = scene;
-        this.scene.background = this.background;
 
         if (doMultipassRendering) {
             this.renderPass.scene = scene;
@@ -268,6 +268,9 @@ class SceneManager {
         if (doMultipassRendering) {
             this.effectComposer.render();
         } else {
+            this.renderer.autoClear = false;
+            this.renderer.clear();
+            this.renderer.render(this.backgroundLook.scene, this.backgroundLook.camera);
             this.renderer.render(this.scene, this.cameraLightingRig.object);
         }
 
@@ -341,18 +344,27 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const centroid = new THREE.Vector3(133394, 54542, 4288);
     cameraLightingRig.setPose(position, centroid);
 
-    // const background = appleCrayonColorThreeJS('nickel');
-    const background = sceneBackgroundTexture;
-    // const background = specularCubicTexture;
+    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
+
+    // const backgroundLookConfig =
+    //     {
+    //         northColor: appleCrayonColorThreeJS('steel'),
+    //         southColor: appleCrayonColorThreeJS('magnesium'),
+    //     };
+
+    const backgroundLookConfig =
+        {
+            northColor: appleCrayonColorThreeJS('strawberry'),
+            southColor: appleCrayonColorThreeJS('spring'),
+        };
+
+    const backgroundLook = new BackgroundLook(backgroundLookConfig);
 
     const scene = new THREE.Scene();
-    scene.background = background;
-
-    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
 
     console.timeEnd(str);
 
-    return { container, scene, stickMaterial, background, renderer, cameraLightingRig, picker };
+    return { container, scene, stickMaterial, backgroundLook, renderer, cameraLightingRig, picker };
 
 };
 
