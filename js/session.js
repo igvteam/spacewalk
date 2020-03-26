@@ -1,3 +1,4 @@
+import { GLTFExporter } from '../node_modules/three/examples/jsm/exporters/GLTFExporter.js';
 import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { URIUtils, StringUtils, Zlib } from '../node_modules/igv-utils/src/index.js';
 import Panel from "./panel.js";
@@ -6,9 +7,61 @@ import { getGUIRenderStyle, setGUIRenderStyle } from "./guiManager.js";
 
 const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
 
+const loadSession = async (spacewalk_session_URL) => {
+
+    if (spacewalk_session_URL) {
+
+        // spacewalk_session_URL = decodeURIComponent(spacewalk_session_URL);
+
+        const jsonString = uncompressSession(spacewalk_session_URL);
+
+        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, sceneBackground } = JSON.parse(jsonString);
+
+        await parser.loadSessionTrace({ url, traceKey });
+
+        setGUIRenderStyle(renderStyle);
+
+        Panel.setAllPanelVisibility(panelVisibility);
+
+        sceneManager.gnomon.setVisibility(gnomonVisibility);
+
+        sceneManager.groundPlane.setVisibility(groundPlaneVisibility);
+
+        // TODO: Decide whether to restore camera state
+        // sceneManager.cameraLightingRig.setState(cameraLightingRig);
+
+        sceneManager.gnomon.setColorState(gnomonColor);
+
+        sceneManager.groundPlane.setColorState(groundplaneColor);
+
+        sceneManager.setBackgroundState(sceneBackground);
+
+        if ('none' !== igvPanelState) {
+            await igvPanel.restoreSessionState(igvPanelState);
+        }
+
+    }
+
+};
+
+const getUrlParams = url => {
+
+    const search = decodeURIComponent( url.slice( url.indexOf( '?' ) + 1 ) );
+
+    return search
+        .split('&')
+        .reduce((acc, key_value) => {
+
+            const [ key, value ] = key_value.split( '=', 2 );
+            acc[ key ] = value;
+            return acc;
+        }, {});
+
+};
+
 const saveSession = async () => {
 
-    const url = getSessionURL();
+    const url = await getSessionURL();
 
     if (url) {
 
@@ -41,13 +94,15 @@ const saveSession = async () => {
 
 };
 
-const getSessionURL = () => {
+const getSessionURL = async () => {
 
     try {
 
         const path = window.location.href.slice();
         const index = path.indexOf("?");
         const prefix = index > 0 ? path.substring(0, index) : path;
+
+        // await helloGLTFExporter(sceneManager.scene);
 
         const spacewalkCompressedSession = getCompressedSession();
 
@@ -90,7 +145,8 @@ const getCompressedSession = () => {
 
     json.gnomonColor = sceneManager.gnomon.getColorState();
     json.groundplaneColor = sceneManager.groundPlane.getColorState();
-    json.rendererClearColor = sceneManager.getBackgroundState();
+
+    json.sceneBackground = sceneManager.getBackgroundState();
 
     const jsonString = JSON.stringify( json );
 
@@ -133,59 +189,15 @@ const uncompressSession = url => {
     }
 };
 
-const loadSession = async (url) => {
+const helloGLTFExporter = async (scene) => {
 
-    const params = getUrlParams(url);
+    const promise = new Promise(resolve => {
+        new GLTFExporter().parse(scene, resolve);
+    });
 
-    if (params.hasOwnProperty('spacewalk_session_URL')) {
+    const gltf = await promise;
 
-        let { spacewalk_session_URL } = params;
-
-        // spacewalk_session_URL = decodeURIComponent(spacewalk_session_URL);
-
-        const jsonString = uncompressSession(spacewalk_session_URL);
-
-        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, rendererClearColor } = JSON.parse(jsonString);
-
-        await parser.loadSessionTrace({ url, traceKey });
-
-        if ('none' !== igvPanelState) {
-            await igvPanel.restoreSessionState(igvPanelState);
-        }
-
-        setGUIRenderStyle(renderStyle);
-
-        Panel.setAllPanelVisibility(panelVisibility);
-
-        sceneManager.gnomon.setVisibility(gnomonVisibility);
-
-        sceneManager.groundPlane.setVisibility(groundPlaneVisibility);
-
-        // TODO: Decide whether to restore camera state
-        // sceneManager.cameraLightingRig.setState(cameraLightingRig);
-
-        sceneManager.gnomon.setColorState(gnomonColor);
-
-        sceneManager.groundPlane.setColorState(groundplaneColor);
-
-        sceneManager.setBackgroundState(rendererClearColor);
-
-    }
-
-};
-
-const getUrlParams = url => {
-
-    const search = decodeURIComponent( url.slice( url.indexOf( '?' ) + 1 ) );
-
-    return search
-        .split('&')
-        .reduce((acc, key_value) => {
-
-            const [ key, value ] = key_value.split( '=', 2 );
-            acc[ key ] = value;
-            return acc;
-        }, {});
+    console.log(gltf);
 
 };
 

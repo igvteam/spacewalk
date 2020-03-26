@@ -618,7 +618,7 @@ div#spacewalk_info_panel {
       display: block; }
 
 .ui-widget-content {
-  border: 1px solid transparent;
+  border: 0 solid;
   background: transparent;
   color: transparent; }
 

@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
     <!-- Spectrum colorpicker CSS -->
-    <link rel="stylesheet" href="css/spectrum.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2@2.0.0/dist/spectrum.min.css">
 
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
@@ -50,7 +50,7 @@
     <script src="https://cdn.jsdelivr.net/npm/igv@2.4.0/dist/igv.min.js"></script>
 
     <!-- Spectrum colorpicker  JS -->
-    <script src="vendor/spectrum.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2@2.0.0/dist/spectrum.min.js"></script>
 
     <!-- Resizable DOM Element Events JS -->
     <script src="vendor/detect-element-resize.js"></script>
@@ -196,7 +196,7 @@
                     <div id="spacewalk-juicebox-load-dropdown-menu"  class="dropdown-menu">
 
                         <!-- select -->
-                        <button id="spacewalk-juicebox-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#hic-contact-map-select-modal">
+                        <button id="spacewalk-juicebox-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-juicebox-select-modal">
                             Select File ...
                         </button>
 
@@ -213,7 +213,7 @@
                         </label>
 
                         <!-- url -->
-                        <button id="spacewalk-juicebox-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#hic-load-url-modal">Map URL ...
+                        <button id="spacewalk-juicebox-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-juicebox-url-modal">Map URL ...
                         </button>
 
                     </div>
@@ -286,11 +286,11 @@
                 <button id="spacewalk-share-button" class="btn btn-secondary btn-sm ml-4 mt-1" type="button">Share</button>
             </li>
 
-            <li>
-                <button id="spacewalk-reset-camera-button" class="btn btn-info btn-sm ml-4 mt-1" type="button">
-                    Reset Camera
-                </button>
-            </li>
+<!--            <li>-->
+<!--                <button id="spacewalk-reset-camera-button" class="btn btn-info btn-sm ml-4 mt-1" type="button">-->
+<!--                    Reset Camera-->
+<!--                </button>-->
+<!--            </li>-->
 
         </ul>
     </div>
@@ -449,7 +449,7 @@
                 </li>
 
                 <!-- background color -->
-                <li class="list-group-item spacewalk-colorpicker-li">
+                <li class="list-group-item spacewalk-colorpicker-li" style="display: none;">
 
                     <div class="input-group">
 
@@ -463,7 +463,7 @@
 
                         <div class="input-group-append">
                             <div class="input-group-text spacewalk-colorpicker-input-group-text">
-                                <input id="spacewalk_background_colorpicker" type="text" class="form-control">
+                                <input id="spacewalk_background_colorpicker" type="text" class="form-control" data-colorpicker="background">
                             </div>
                         </div>
 
@@ -493,7 +493,7 @@
                         <div class="input-group-append">
 
                             <div class="input-group-text spacewalk-colorpicker-input-group-text">
-                                <input id="spacewalk_ui_manager_groundplane_colorpicker" type="text" class="form-control">
+                                <input id="spacewalk_ui_manager_groundplane_colorpicker" type="text" class="form-control" data-colorpicker="groundplane">
                             </div>
 
                         </div>
@@ -524,7 +524,7 @@
                         <div class="input-group-append">
 
                             <div class="input-group-text spacewalk-colorpicker-input-group-text">
-                                <input id="spacewalk_ui_manager_gnomon_colorpicker" type="text" class="form-control">
+                                <input id="spacewalk_ui_manager_gnomon_colorpicker" type="text" class="form-control" data-colorpicker="gnomon">
                             </div>
 
                         </div>
@@ -887,42 +887,8 @@
 
     </div>
 
-    <!-- Contact Map Select Modal -->
-    <div id="hic-contact-map-select-modal" class="modal fade">
-
-        <div class="modal-dialog">
-
-            <div class="modal-content">
-
-                <div class="modal-header">
-
-                    <div class="modal-title">Select File</div>
-
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <div>
-                        <div class="input-group mb-3">
-                            <select class="custom-select">
-                            </select>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
     <!-- Contact Map URL Modal -->
-    <div id="hic-load-url-modal" class="modal fade">
+    <div id="spacewalk-juicebox-url-modal" class="modal fade">
 
         <div class="modal-dialog">
 

@@ -1,4 +1,5 @@
 import { Alert, createGenericSelectModal, createTrackURLModal } from '../node_modules/igv-ui/src/index.js'
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import EventBus from "./eventBus.js";
 import GSDB from "./gsdb/gsdb.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -21,9 +22,10 @@ import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import DataFileLoadModal, { juiceboxFileLoadModalConfigurator, spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { saveSession, loadSession } from "./session.js";
-import { materialManagerLoadCubes } from "./materialLibrary.js";
+import { getUrlParams, saveSession, loadSession } from "./session.js";
+import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
+import JuiceboxSelectModalController from "./juicebox/juiceboxSelectModalController.js";
 
 let eventBus = new EventBus();
 
@@ -42,6 +44,7 @@ let guiManager;
 let gsdb;
 let spaceWalkFileLoadModal;
 let juiceboxFileLoadModal;
+let juiceboxSelectModalController;
 
 let traceSelectPanel;
 let colorRampPanel;
@@ -73,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         Alert.presentAlert(e.message);
     }
 
-    await materialManagerLoadCubes();
+    await initializeMaterialLibrary();
 
     const root = document.querySelector('#spacewalk-main');
     $(root).append(createGenericSelectModal('spacewalk-igv-app-generic-track-select-modal', 'spacewalk-igv-app-generic-track-select'));
@@ -102,13 +105,15 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     renderContainerController = new RenderContainerController(container, sceneManager);
 
-    await createButtonsPanelsModals(container);
+    const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalk_session_URL } = getUrlParams(window.location.href);
+
+    await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL);
 
     guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
     renderLoop();
 
-    await loadSession(window.location.href);
+    await loadSession(spacewalk_session_URL);
 
 });
 
@@ -136,7 +141,7 @@ const renderLoop = () => {
 
 };
 
-const createButtonsPanelsModals = async container => {
+const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL) => {
 
     $('#spacewalk-reset-camera-button').on('click.spacewalk-reset-camera-button', e => {
         sceneManager.resetCamera();
@@ -182,11 +187,21 @@ const createButtonsPanelsModals = async container => {
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_contact_frequency_map_panel') }));
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
-    await juiceboxPanel.initialize({container: $('#spacewalk_juicebox_root_container'), width: 480, height: 480});
+
+    if (juiceboxSessionURL) {
+        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: juiceboxSessionURL });
+    } else {
+        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: undefined });
+    }
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
-    await igvPanel.initialize(igvBrowserConfigurator());
+
+    if (igvSessionURL) {
+        await igvPanel.initialize({ sessionURL: igvSessionURL });
+    } else {
+        await igvPanel.initialize(igvBrowserConfigurator());
+    }
 
     Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
 
@@ -194,9 +209,17 @@ const createButtonsPanelsModals = async container => {
 
     juiceboxFileLoadModal = new DataFileLoadModal(juiceboxFileLoadModalConfigurator( { fileLoader: juiceboxPanel } ));
 
-    $(window).on('resize.app', () => {
-        let { width, height } = container.getBoundingClientRect();
-        eventBus.post({ type: "AppWindowDidResize", data: { width, height } });
+    juiceboxSelectModalController = new JuiceboxSelectModalController({ elementID: 'spacewalk-juicebox-select-modal' });
+
+    $(window).on('resize.app', e => {
+
+        // Prevent responding to resize event sent by jQuery resizable()
+        const status = $(e.target).hasClass('ui-resizable');
+
+        if (false === status) {
+            let { width, height } = container.getBoundingClientRect();
+            eventBus.post({ type: 'AppWindowDidResize', data: { width, height } });
+        }
     });
 
 };

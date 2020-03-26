@@ -58,7 +58,9 @@
 	var specularColor = new THREE.Color();
 
 	init();
-	render();
+	animate();
+
+	// render();
 
 	function init() {
 
@@ -91,7 +93,11 @@
 
 		// CONTROLS
 		cameraControls = new THREE.OrbitControls( camera, renderer.domElement );
-		cameraControls.addEventListener( 'change', render );
+		cameraControls.enablePan = false;
+		cameraControls.enableDamping = true;
+		cameraControls.dampingFactor = 0.05;
+
+		// cameraControls.addEventListener( 'change', render );
 
 		// TEXTURE MAP
 		const textureLoader = new THREE.TextureLoader();
@@ -250,6 +256,13 @@
 	}
 
 
+	function animate () {
+		requestAnimationFrame( animate );
+
+		cameraControls.update();
+
+		render();
+	}
 	//
 
 	function render() {

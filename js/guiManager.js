@@ -1,10 +1,8 @@
+import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import { StringUtils } from '../node_modules/igv-utils/src/index.js'
-import { rgb255ToThreeJSColor } from "./color.js";
+import { rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor } from "./color.js";
 import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
-
-const $spacewalk_ui_manager_panel = $('#spacewalk_ui_manager_panel');
 
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
@@ -19,22 +17,13 @@ class GUIManager {
         });
 
         let $widgetPanels = undefined;
-        $panel.find('input').each(function(unused) {
-
-            const id = $(this).attr('data-target');
-
-            if (undefined !== id) {
-
-                const selectionString = `#${id}`;
-
-                if (undefined === $widgetPanels) {
-                    $widgetPanels = $(selectionString)
-                } else {
-                    $widgetPanels = $widgetPanels.add($(selectionString));
-                }
-
-            }
+        $panel.find('input[data-target]').each(function(){
+            const selectionString = `#${ $(this).attr('data-target') }`;
+            $widgetPanels = undefined === $widgetPanels ? $(selectionString) : $widgetPanels.add($(selectionString));
         });
+
+        // Add scene container
+        // $widgetPanels = $widgetPanels.add( $(sceneManager.container) );
 
         this.$widgetPanels = $widgetPanels;
 
@@ -89,43 +78,6 @@ class GUIManager {
         $noodle_radius_control.find('i.fa-plus-circle').on('click.spacewalk-noodle-radius-plus', () => {
             noodle.updateRadius(1);
         });
-
-
-        const backgroundColorPickerConfig =
-            {
-                color: "#f00",
-                move: color => {
-                    const { r, g, b } = color.toRgb();
-                     sceneManager.setBackground(rgb255ToThreeJSColor(r, g, b));
-                }
-
-            };
-
-        $('#spacewalk_background_colorpicker').spectrum(backgroundColorPickerConfig);
-
-        const groundplaneColorPickerConfig =
-            {
-                color: "#f00",
-                move: color => {
-                    const { r, g, b } = color.toRgb();
-                    sceneManager.groundPlane.setColor (rgb255ToThreeJSColor(r, g, b));
-                }
-
-            };
-
-        $('#spacewalk_ui_manager_groundplane_colorpicker').spectrum(groundplaneColorPickerConfig);
-
-        const gnomonColorPickerConfig =
-            {
-                color: "#f00",
-                move: color => {
-                    const { r, g, b } = color.toRgb();
-                    sceneManager.gnomon.setColor (rgb255ToThreeJSColor(r, g, b));
-                }
-
-            };
-
-        $('#spacewalk_ui_manager_gnomon_colorpicker').spectrum(gnomonColorPickerConfig);
 
         eventBus.subscribe("DidSelectPanel", this);
         eventBus.subscribe('DidLoadEnsembleFile', this);
@@ -205,6 +157,25 @@ const configureRenderStyleControl = ($input, renderStyle) => {
         e.preventDefault();
         eventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
     });
+
+};
+
+export const configureColorPicker = ($element, initialColor, callback) => {
+
+    const config =
+        {
+            color: rgb255String(threeJSColorToRGB255(initialColor)),
+            type: 'color',
+            showAlpha: false,
+            showButtons: false,
+            allowEmpty: false,
+            move: color => {
+                const { r, g, b } = color.toRgb();
+                callback(rgb255ToThreeJSColor(r, g, b))
+            }
+        };
+
+    $element.spectrum(config);
 
 };
 

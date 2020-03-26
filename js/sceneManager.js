@@ -16,8 +16,8 @@ import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
 import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, eventBus, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
-import { getGUIRenderStyle } from "./guiManager.js";
-import { specularCubicTexture } from "./materialLibrary.js";
+import { getGUIRenderStyle, configureColorPicker } from "./guiManager.js";
+import { specularCubicTexture, sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud' , 'ribbon', 'noodle', 'ball' , 'stick' ]);
 
@@ -54,8 +54,6 @@ class SceneManager {
         if (doMultipassRendering) {
             this.setupMultipassRendering(this.scene, this.renderer, this.cameraLightingRig);
         }
-
-        // $(window).on('resize.spacewalk.scenemanager', () => { this.onWindowResize() });
 
         eventBus.subscribe("DidSelectSegmentID", this);
         eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
@@ -186,9 +184,10 @@ class SceneManager {
             this.groundPlane.dispose();
         }
 
-        const position = new THREE.Vector3(centroid.x, min.y, centroid.z);
-        this.groundPlane = new GroundPlane(groundPlaneConfigurator(position, boundingDiameter));
+        this.groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(centroid.x, min.y, centroid.z), boundingDiameter));
         this.scene.add( this.groundPlane );
+
+        configureColorPicker($(`input[data-colorpicker='groundplane']`), this.groundPlane.color, color => this.groundPlane.setColor(color));
 
         // Gnomon
         if (this.gnomon) {
@@ -197,6 +196,8 @@ class SceneManager {
 
         this.gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter));
         this.gnomon.addToScene(this.scene);
+
+        configureColorPicker($(`input[data-colorpicker='gnomon']`), this.gnomon.color, color => this.gnomon.setColor(color));
 
         $(this.container).on('mousemove.spacewalk.picker', (event) => {
 
@@ -227,23 +228,6 @@ class SceneManager {
             }
 
             this.cameraLightingRig.object.aspect = width/height;
-            this.cameraLightingRig.object.updateProjectionMatrix();
-        }
-
-    };
-
-    onWindowResize() {
-
-        if (this.renderer && this.cameraLightingRig) {
-
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-
-            if (doMultipassRendering) {
-                this.effectComposer.setSize(window.innerWidth, window.innerHeight);
-                setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
-            }
-
-            this.cameraLightingRig.object.aspect = window.innerWidth/window.innerHeight;
             this.cameraLightingRig.object.updateProjectionMatrix();
         }
 
@@ -296,19 +280,34 @@ class SceneManager {
     }
 
     getBackgroundState() {
-        const { r, g, b } = this.background;
-        return  { r, g, b }
+
+        if (true === this.scene.background.isColor) {
+            const { r, g, b } = this.scene.background;
+            return  { r, g, b }
+        } else if (true === this.scene.background.isTexture) {
+            return 'sceneBackgroundTexture';
+        } else {
+            console.log('dunno');
+        }
+
     }
 
     setBackgroundState(json) {
-        const { r, g, b } = json;
-        this.setBackground(new THREE.Color(r, g, b));
+
+        if ('string' === typeof json) {
+            this.background = sceneBackgroundTexture;
+            this.scene.background = this.background;
+        } else if ('object' === typeof json) {
+            const { r, g, b } = json;
+            this.setBackground(new THREE.Color(r, g, b));
+        } else {
+            console.log('dunno');
+        }
     }
 
     resetCamera() {
         this.cameraLightingRig.resetCamera();
     }
-
 
 }
 
@@ -317,6 +316,9 @@ const setAA = (fxAA, scaleFactor, width, height) => {
 };
 
 export const sceneManagerConfigurator = ({ container, highlightColor }) => {
+
+    const str = `Scene Manager Configuration Builder Complete`;
+    console.time(str);
 
     // const stickMaterial = showSMaterial;
     // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
@@ -340,13 +342,15 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     cameraLightingRig.setPose(position, centroid);
 
     // const background = appleCrayonColorThreeJS('nickel');
-    const background = new THREE.TextureLoader().load( 'texture/scene-backdrop-grey-ramp.png' );
+    const background = sceneBackgroundTexture;
     // const background = specularCubicTexture;
 
     const scene = new THREE.Scene();
     scene.background = background;
 
     const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
+
+    console.timeEnd(str);
 
     return { container, scene, stickMaterial, background, renderer, cameraLightingRig, picker };
 

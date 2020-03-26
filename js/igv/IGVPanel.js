@@ -15,12 +15,12 @@ class IGVPanel extends Panel {
 
     constructor ({ container, panel, isHidden }) {
 
-        const xFunction = (cw, w) => {
-            return (cw - w)/2;
+        const xFunction = (wc, wp) => {
+            return (wc - wp)/2;
         };
 
-        const yFunction = (ch, h) => {
-            return ch - (h * 1.1);
+        const yFunction = (hc, hp) => {
+            return hc - (hp * 1.1);
         };
 
         super({ container, panel, isHidden, xFunction, yFunction });
@@ -98,79 +98,86 @@ class IGVPanel extends Panel {
             this.genomeDictionary[ genome.id ] = genome;
         }
 
+        this.browser = undefined;
+
         try {
-            this.browser = await igv.createBrowser( this.$panel.find('#spacewalk_igv_root_container').get(0), config );
+            const root = this.$panel.find('#spacewalk_igv_root_container').get(0);
+            this.browser = await igv.createBrowser( root, config );
         } catch (e) {
             Alert.presentAlert(e.message);
         }
 
-        this.browser.on('trackremoved', (track) => {
-            if (track.$input && track.$input.prop('checked')) {
-                this.materialProvider = colorRampMaterialProvider;
-                setMaterialProvider(this.materialProvider);
+        if (this.browser) {
+
+            this.browser.on('trackremoved', (track) => {
+                if (track.$input && track.$input.prop('checked')) {
+                    this.materialProvider = colorRampMaterialProvider;
+                    setMaterialProvider(this.materialProvider);
+                }
+            });
+
+            $(this.browser.trackContainerDiv).on(`mouseenter.${ this.namespace }`, (event) => {
+                event.stopPropagation();
+                eventBus.post({ type: 'DidEnterGUI', data: this });
+            });
+
+            $(this.browser.trackContainerDiv).on(`mouseleave.${ this.namespace }`, (event) => {
+                event.stopPropagation();
+                eventBus.post({ type: 'DidLeaveGUI', data: this });
+            });
+
+            this.addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
+
+            this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
+                IGVMouseHandler({ bp, start, end, interpolant })
+            });
+
+            // TrackFileLoad
+            const trackFileLoadConfig =
+                {
+                    localFileInput: document.querySelector('#spacewalk-igv-app-dropdown-local-track-file-input'),
+                    dropboxButton: document.querySelector('#spacewalk-igv-app-dropdown-dropbox-track-file-button'),
+                    googleEnabled: false,
+                    googleDriveButton: document.querySelector('#spacewalk-igv-app-dropdown-google-drive-track-file-button'),
+                    loadHandler: async configurations => {
+                        return await this.loadTrackList(configurations);
+                    }
+                };
+
+            // ModalTable
+            const encodeModalTableConfig =
+                {
+                    id: "igv-app-encode-modal",
+                    title: "ENCODE",
+                    pageLength: 100,
+                    selectHandler: async configurations => {
+                        return await this.loadTrackList(configurations);
+                    }
+                };
+
+            const dropdownMenu = document.querySelector('#spacewalk-igv-app-track-dropdown-menu');
+            const selectModal = document.querySelector('#spacewalk-igv-app-generic-track-select-modal');
+
+            // TrackLoadController
+            const trackLoadControllerConfig =
+                {
+                    browser: this.browser,
+                    trackRegistryFile: "resources/tracks/trackRegistry.json",
+                    trackLoadModal: document.querySelector('#spacewalk-igv-app-track-from-url-modal'),
+                    trackFileLoad: new TrackFileLoad(trackFileLoadConfig),
+                    encodeModalTable: new ModalTable(encodeModalTableConfig),
+                    dropdownMenu,
+                    selectModal
+                };
+
+            trackLoadController = new TrackLoadController(trackLoadControllerConfig);
+
+            try {
+                await trackLoadController.updateTrackMenus(this.browser, this.browser.genome.id, trackLoadController.trackRegistryFile, dropdownMenu, selectModal);
+            } catch (e) {
+                Alert.presentAlert(e.message);
             }
-        });
 
-        $(this.browser.trackContainerDiv).on(`mouseenter.${ this.namespace }`, (event) => {
-            event.stopPropagation();
-            eventBus.post({ type: 'DidEnterGUI', data: this });
-        });
-
-        $(this.browser.trackContainerDiv).on(`mouseleave.${ this.namespace }`, (event) => {
-            event.stopPropagation();
-            eventBus.post({ type: 'DidLeaveGUI', data: this });
-        });
-
-        this.addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
-
-        this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-            IGVMouseHandler({ bp, start, end, interpolant })
-        });
-
-        // TrackFileLoad
-        const trackFileLoadConfig =
-            {
-                localFileInput: document.querySelector('#spacewalk-igv-app-dropdown-local-track-file-input'),
-                dropboxButton: document.querySelector('#spacewalk-igv-app-dropdown-dropbox-track-file-button'),
-                googleEnabled: false,
-                googleDriveButton: document.querySelector('#spacewalk-igv-app-dropdown-google-drive-track-file-button'),
-                loadHandler: async configurations => {
-                    return await this.loadTrackList(configurations);
-                }
-            };
-
-        // ModalTable
-        const encodeModalTableConfig =
-            {
-                id: "igv-app-encode-modal",
-                title: "ENCODE",
-                pageLength: 100,
-                selectHandler: async configurations => {
-                    return await this.loadTrackList(configurations);
-                }
-            };
-
-        const dropdownMenu = document.querySelector('#spacewalk-igv-app-track-dropdown-menu');
-        const selectModal = document.querySelector('#spacewalk-igv-app-generic-track-select-modal');
-
-        // TrackLoadController
-        const trackLoadControllerConfig =
-            {
-                browser: this.browser,
-                trackRegistryFile: "resources/tracks/trackRegistry.json",
-                trackLoadModal: document.querySelector('#spacewalk-igv-app-track-from-url-modal'),
-                trackFileLoad: new TrackFileLoad(trackFileLoadConfig),
-                encodeModalTable: new ModalTable(encodeModalTableConfig),
-                dropdownMenu,
-                selectModal
-            };
-
-        trackLoadController = new TrackLoadController(trackLoadControllerConfig);
-
-        try {
-            await trackLoadController.updateTrackMenus(this.browser, this.browser.genome.id, trackLoadController.trackRegistryFile, dropdownMenu, selectModal);
-        } catch (e) {
-            Alert.presentAlert(e.message);
         }
 
     }
@@ -234,6 +241,7 @@ class IGVPanel extends Panel {
     addDataValueMaterialProviderGUI(tracks) {
 
         const dataValueTracks = tracks.filter(track => track.type !== 'ruler' && track.type !== 'sequence' && track.name !== 'Refseq Genes');
+
         for (let track of dataValueTracks) {
 
             if (track.getFeatures && typeof track.getFeatures === "function") {
@@ -242,58 +250,13 @@ class IGVPanel extends Panel {
 
             if (track.featureDescription) {
 
-                const { trackDiv } = track.trackView;
+                configureTrackMaterialProviderGUI(track);
 
-                const $container = $(trackDiv).find('.igv-left-hand-gutter');
-
-                const $div = $('<div>', { class: 'input-group' });
-                $container.append($div);
-
-                track.$input = $('<input>', { type: 'checkbox' });
-                $div.append(track.$input);
-
-                track.$input.on('click.igv-panel.encode-loader', async (e) => {
+                track.$input.on('click.igv-panel-material-provider', async (e) => {
 
                     e.stopPropagation();
 
-                    const { trackContainerDiv } = track.browser;
-
-                    // unselect other track's checkboxes
-                    const $otherInputs = $(trackContainerDiv).find('.input-group input').not(track.$input.get(0));
-                    $otherInputs.prop('checked', false);
-
-                    if (track.$input.prop('checked')) {
-
-                        const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
-
-                        const { name: chr } = chromosome;
-
-                        const { bpPerPixel } = referenceFrame;
-
-                        // If "zoom in" notice is displayed do not paint features on trace
-                        if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
-
-                            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
-
-                        } else {
-
-                            const features = await track.getFeatures(chr, start, end, bpPerPixel);
-
-                            if ('varying' === track.featureDescription) {
-                                const { min, max } = track.dataRange;
-                                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
-
-                            } else {
-                                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
-                            }
-
-                        }
-
-                        this.materialProvider = dataValueMaterialProvider;
-                    } else {
-                        this.materialProvider = colorRampMaterialProvider;
-                    }
-
+                    this.materialProvider = await trackMaterialProviderClickHandler(track);
                     setMaterialProvider(this.materialProvider);
 
                 });
@@ -314,13 +277,35 @@ class IGVPanel extends Panel {
     }
 
     async restoreSessionState(state) {
+        const { trackViews:tvs } = this.browser;
+        let track = tvs.map(tv => tv.track).filter(t => state === t.name).pop();
+        track.$input.trigger('click.igv-panel-material-provider');
+    }
+}
 
-        let track = this.browser.trackViews
-            .map(trackView => trackView.track)
-            .filter((track) => { return state === track.name })
-            .pop();
+const configureTrackMaterialProviderGUI = track => {
 
-        track.$input.prop('checked', true);
+    const { trackDiv } = track.trackView;
+
+    const $container = $(trackDiv).find('.igv-left-hand-gutter');
+
+    const $div = $('<div>', { class: 'input-group' });
+    $container.append($div);
+
+    track.$input = $('<input>', { type: 'checkbox' });
+    $div.append(track.$input);
+
+};
+
+const trackMaterialProviderClickHandler = async track => {
+
+    const { trackContainerDiv } = track.browser;
+
+    // unselect other track's checkboxes
+    const $otherInputs = $(trackContainerDiv).find('.input-group input').not(track.$input.get(0));
+    $otherInputs.prop('checked', false);
+
+    if (track.$input.is(':checked')) {
 
         const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
 
@@ -328,24 +313,31 @@ class IGVPanel extends Panel {
 
         const { bpPerPixel } = referenceFrame;
 
-        const features = await track.getFeatures(chr, start, end, bpPerPixel);
+        // If "zoom in" notice is displayed do not paint features on trace
+        if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
 
-        if ('varying' === track.featureDescription) {
-            const { min, max } = track.dataRange;
-            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
 
         } else {
-            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+
+            const features = await track.getFeatures(chr, start, end, bpPerPixel);
+
+            if ('varying' === track.featureDescription) {
+                const { min, max } = track.dataRange;
+                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+
+            } else {
+                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+            }
+
         }
 
-        this.materialProvider = dataValueMaterialProvider;
-
-        setMaterialProvider(this.materialProvider);
-
-        eventBus .post({ type: "ToggleUIControl", data: { payload: this.$panel.attr('id') } });
-
+        return dataValueMaterialProvider
+    } else {
+         return colorRampMaterialProvider
     }
-}
+
+};
 
 const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 
@@ -365,7 +357,12 @@ const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
 };
 
 const igvBrowserConfigurator = () => {
-    return { genome: 'hg19', showRuler: false, showControls: false };
+    return {
+        genome: 'hg19',
+        showRuler: false,
+        showControls: false,
+        queryParametersSupported: false
+    };
 };
 
 export { trackLoadController, igvBrowserConfigurator };

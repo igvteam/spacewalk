@@ -1,6 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import {doConfigureGroundplaneHidden, setGUIGroundplaneVisibility} from "./guiManager.js";
+import { doConfigureGroundplaneHidden, setGUIGroundplaneVisibility } from "./guiManager.js";
 
 class GroundPlane extends THREE.GridHelper {
 
