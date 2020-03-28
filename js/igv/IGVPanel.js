@@ -151,6 +151,7 @@ class IGVPanel extends Panel {
                     id: "igv-app-encode-modal",
                     title: "ENCODE",
                     pageLength: 100,
+                    selectionStyle: 'multi',
                     selectHandler: async configurations => {
                         return await this.loadTrackList(configurations);
                     }

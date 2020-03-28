@@ -9,6 +9,8 @@ class GSDB {
             {
                 id: 'spacewalk-gsdb-modal',
                 title: 'GSDB',
+                selectionStyle: 'single',
+                pageLength: 100,
                 datasource: new GSDBDataSource(),
                 selectHandler: (selections) => {
 
@@ -20,8 +22,7 @@ class GSDB {
                         loader.load(url)
 
                     }
-                },
-                pageLength: 100
+                }
             };
 
         this.gsdbModal = new ModalTable(gsdbModalConfig);

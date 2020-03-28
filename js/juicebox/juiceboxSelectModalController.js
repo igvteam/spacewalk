@@ -13,7 +13,7 @@ class JuiceboxSelectModalController {
             await juiceboxPanel.selectLoad(url, name);
         };
 
-        this.contactMapModal = new ModalTable({ id: elementID, title: 'Contact Map', selectHandler:contactMapSelectHandler, pageLength: 100 });
+        this.contactMapModal = new ModalTable({ id: elementID, title: 'Contact Map', selectionStyle: 'single', pageLength: 100, selectHandler:contactMapSelectHandler });
         this.contactMapModal.setDatasource(datasource);
 
     }
