@@ -1,5 +1,5 @@
-import { Alert, createGenericSelectModal, createTrackURLModal } from '../node_modules/igv-ui/src/index.js'
-import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
+import { createGenericSelectModal, createTrackURLModal } from '../node_modules/igv-ui/src/index.js'
+import { Alert } from '../node_modules/igv-ui/src/index.js';
 import EventBus from "./eventBus.js";
 import GSDB from "./gsdb/gsdb.js";
 import EnsembleManager from "./ensembleManager.js";
