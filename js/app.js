@@ -1,5 +1,6 @@
-import { createGenericSelectModal, createTrackURLModal } from '../node_modules/igv-ui/src/index.js'
-import { Alert } from '../node_modules/igv-ui/src/index.js';
+import igv from '../node_modules/igv/dist/igv.esm.js';
+import { GoogleFilePicker } from '../node_modules/igv-widgets/dist/igv-widgets.js';
+import { Alert, createGenericSelectModal, createTrackURLModal } from '../node_modules/igv-ui/src/index.js'
 import EventBus from "./eventBus.js";
 import GSDB from "./gsdb/gsdb.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -26,6 +27,7 @@ import { getUrlParams, saveSession, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import JuiceboxSelectModalController from "./juicebox/juiceboxSelectModalController.js";
+import { spacewalkConfig } from "../spacewalk-config.js";
 
 let eventBus = new EventBus();
 
@@ -53,12 +55,11 @@ let contactFrequencyMapPanel;
 let juiceboxPanel;
 let igvPanel;
 let renderContainerController;
+let googleEnabled = false;
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
     const container = document.getElementById('spacewalk-root-container');
-
-    // container.webkitRequestFullscreen();
 
     Alert.init(container);
 
@@ -75,6 +76,48 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     } catch (e) {
         Alert.presentAlert(e.message);
     }
+
+    const enableGoogle = spacewalkConfig.clientId && 'CLIENT_ID' !== spacewalkConfig.clientId && (window.location.protocol === "https:" || window.location.host === "localhost");
+
+    if (enableGoogle) {
+
+        let browser;
+        const googleConfig =
+            {
+                callback: async () => {
+
+                    try {
+                        await GoogleFilePicker.init(spacewalkConfig.clientId, igv.oauth, igv.google);
+                        googleEnabled = true;
+                    } catch (e) {
+                        console.error(e);
+                        Alert.presentAlert(e.message)
+                    }
+
+                    if (googleEnabled) {
+                        GoogleFilePicker.postInit();
+                    }
+
+                    await initializationHelper(container);
+
+                },
+                onerror: async (e) => {
+                    console.error(e);
+                    Alert.presentAlert(e.message)
+
+                    await initializationHelper(container);
+                }
+            };
+
+        gapi.load('client:auth2', googleConfig);
+
+    } else {
+        await initializationHelper(container);
+    }
+
+});
+
+const initializationHelper = async container => {
 
     await initializeMaterialLibrary();
 
@@ -115,31 +158,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     await loadSession(spacewalk_session_URL);
 
-});
-
-const renderLoop = () => {
-
-    requestAnimationFrame( renderLoop );
-
-    if (sceneManager.isGoodToGo()) {
-
-        pointCloud.renderLoopHelper();
-
-        ribbon.renderLoopHelper();
-
-        noodle.renderLoopHelper();
-
-        ballAndStick.renderLoopHelper();
-
-        dataValueMaterialProvider.renderLoopHelper();
-
-        colorRampMaterialProvider.renderLoopHelper();
-
-        sceneManager.renderLoopHelper();
-
-    }
-
-};
+}
 
 const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL) => {
 
@@ -224,6 +243,30 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
 };
 
+const renderLoop = () => {
+
+    requestAnimationFrame( renderLoop );
+
+    if (sceneManager.isGoodToGo()) {
+
+        pointCloud.renderLoopHelper();
+
+        ribbon.renderLoopHelper();
+
+        noodle.renderLoopHelper();
+
+        ballAndStick.renderLoopHelper();
+
+        dataValueMaterialProvider.renderLoopHelper();
+
+        colorRampMaterialProvider.renderLoopHelper();
+
+        sceneManager.renderLoopHelper();
+
+    }
+
+};
+
 const showSpinner = () => {
     document.getElementById('spacewalk-spinner').style.display = 'block';
     console.log('show spinner');
@@ -234,4 +277,4 @@ const hideSpinner = () => {
     console.log('hide spinner');
 };
 
-export { eventBus, pointCloud, ribbon, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel };
+export { googleEnabled, eventBus, pointCloud, ribbon, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel };

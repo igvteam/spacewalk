@@ -5,27 +5,27 @@ import { igvPanel } from "../app.js";
 
 class TrackLoadController {
 
-    constructor({ browser, trackRegistryFile, trackLoadModal, trackFileLoad, encodeModalTable, dropdownMenu, selectModal }) {
+    constructor({ browser, trackRegistryFile, trackLoadModal, multipleTrackFileLoad, encodeModalTable }) {
 
         this.browser = browser;
         this.trackRegistryFile = trackRegistryFile;
         this.encodeModalTable = encodeModalTable;
 
-        let fileLoadWidgetConfig =
+        const config =
             {
                 widgetParent: trackLoadModal.querySelector('.modal-body'),
-                dataTitle: undefined,
-                indexTitle: undefined,
+                dataTitle: 'Track',
+                indexTitle: 'Track Index',
                 mode: 'url',
                 fileLoadManager: new FileLoadManager(),
-                dataOnly: undefined,
-                doURL: undefined
+                dataOnly: false,
+                doURL: true
             };
 
-        this.urlWidget = new FileLoadWidget(fileLoadWidgetConfig);
+        this.urlWidget = new FileLoadWidget(config);
 
         Utils.configureModal(this.urlWidget, trackLoadModal, async fileLoadWidget => {
-            await trackFileLoad.loadPaths(fileLoadWidget.retrievePaths());
+            await multipleTrackFileLoad.ingestPaths(fileLoadWidget.retrievePaths());
             return true;
         });
 
