@@ -1,7 +1,10 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
-import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
 import Panel from "../panel.js";
-import { ensembleManager, eventBus } from "../app.js";
+import ContactMapLoad from "./contactMapLoad.js";
+import { googleEnabled, ensembleManager, eventBus } from "../app.js";
+import { spacewalkConfig } from "../../spacewalk-config.js";
+
+let contactMapLoad;
 
 class JuiceboxPanel extends Panel {
 
@@ -78,6 +81,27 @@ class JuiceboxPanel extends Panel {
         this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
         });
+
+        const $dropdownButton = $('#spacewalk-juicebox-load-dropdown-button');
+        const $dropdowns = $dropdownButton.parent();
+
+        const contactMapLoadConfig =
+            {
+                rootContainer: document.querySelector('#spacewalk-main'),
+                $dropdowns,
+                $localFileInputs: $('#spacewalk-juicebox-load-local-input'),
+                urlLoadModalId: 'spacewalk-juicebox-url-modal',
+                dataModalId: 'spacewalk-contact-map-modal',
+                $dropboxButtons: $('#spacewalk-juicebox-contact-map-dropdown-dropbox-button'),
+                $googleDriveButtons: $('#spacewalk-juicebox-contact-map-dropdown-google-drive-button'),
+                googleEnabled,
+                mapMenu: spacewalkConfig.mapMenu,
+                loadHandler: async (path, name, mapType) => {
+                    await this.load(path)
+                }
+            };
+
+        contactMapLoad = new ContactMapLoad(contactMapLoadConfig);
 
     }
 
@@ -171,28 +195,6 @@ const juiceboxMouseHandler = ({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
     }
 
     eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ] } });
-};
-
-export let juiceboxSelectLoader = async ($selectModal, onChangeConfiguration) => {
-
-    const data = await hic.igv.xhr.loadString('https://aidenlab.org/juicebox/res/mapMenuData.txt');
-    const lines = StringUtils.splitLines(data);
-
-    const $select = $selectModal.find('select');
-
-    for (let line of lines) {
-
-        const tokens = line.split('\t');
-
-        if (tokens.length > 1) {
-            const $option = $('<option value="' + tokens[0] + '">' + tokens[1] + '</option>');
-            $select.append($option);
-        }
-
-    }
-
-    onChangeConfiguration();
-
 };
 
 export default JuiceboxPanel;

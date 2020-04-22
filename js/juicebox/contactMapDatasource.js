@@ -1,12 +1,6 @@
-import { Alert } from '../../node_modules/igv-ui/src/index.js'
+import hic from "../../node_modules/juicebox.js/dist/juicebox.esm.js";
 
-const columns =
-    [
-        '-0-',
-        '-1-',
-        '-2-',
-        'url'
-    ];
+let columns = undefined;
 
 class ContactMapDatasource {
 
@@ -17,10 +11,16 @@ class ContactMapDatasource {
         this.columnDefs =
             [
                 {
-                    targets: [ 3 ], // hide url column
+                    targets: [ 0 ], // NVI
+                    visible: false,
+                    searchable: false
+                },
+                {
+                    targets: [ 10 ], // hide url column
                     visible: false,
                     searchable: false
                 }
+
             ];
 
     }
@@ -36,8 +36,8 @@ class ContactMapDatasource {
     tableSelectionHandler(selectionList){
 
         const obj = selectionList.shift();
-        const url   = obj[ columns[ 3 ] ];
-        const name  = obj[ columns[ 0 ] ];
+        const url   = obj[ columns[ 10 ] ];
+        const name  = obj[ columns[  1 ] ];
         return { url, name }
     };
 
@@ -49,62 +49,37 @@ const fetchData = async path => {
     try {
         response = await fetch(path);
     } catch (e) {
-        Alert.presentAlert(e.message);
+        hic.igv.Alert.presentAlert(e.message);
         return undefined;
     }
 
     if (response) {
-        const data = await response.text();
-        return parseData(data);
+        const obj = await response.json();
+        return parseData(obj);
     } else {
         return undefined;
     }
 };
 
-const parseData = data => {
+const parseData = obj => {
 
-    const regex = /[ \t]+/;
+    const [ path, template ] = Object.entries(obj)[ 0 ];
+    columns = Object.keys(template);
+    columns.push('url');
 
-    const lines = data.split('\n').filter(line => "" !== line);
+    const result = Object.entries(obj).map(([ path, record ]) => {
 
-    const result = lines.map(line => {
+        const cooked = {};
+        Object.assign(cooked, record);
 
-        const list = line.split(regex);
-        const path = list.shift();
-
-        const string = list.join(' ');
-        const parts = string.split('|').map(part => part.trim());
-
-        const obj = {};
-        switch (parts.length) {
-            case 1:
-            {
-                obj[ columns[ 0 ] ] = parts[ 0 ];
-                obj[ columns[ 1 ] ] = '-';
-                obj[ columns[ 2 ] ] = '-';
-                obj[ columns[ 3 ] ] = path;
-                return obj;
-            }
-            case 2:
-            {
-                obj[ columns[ 0 ] ] = parts[ 0 ];
-                obj[ columns[ 1 ] ] = parts[ 1 ];
-                obj[ columns[ 2 ] ] = '-';
-                obj[ columns[ 3 ] ] = path;
-                return obj;
-            }
-            case 3:
-            {
-                obj[ columns[ 0 ] ] = parts[ 0 ];
-                obj[ columns[ 1 ] ] = parts[ 1 ];
-                obj[ columns[ 2 ] ] = parts[ 2 ];
-                obj[ columns[ 3 ] ] = path;
-                return obj;
-            }
-            default:
-                console.error('something is borked');
+        for (let key of Object.keys(template)) {
+            cooked[ key ] = cooked[ key ] || '-';
         }
 
+        const output = {};
+        Object.assign(output, cooked);
+        output['url'] = '-' === cooked[ 'NVI' ] ? `${ path }` : `${ path }?nvi=${ cooked[ 'NVI' ] }`;
+        return output;
     });
 
     return result;

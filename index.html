@@ -146,7 +146,7 @@
 
                 <div class="dropdown">
 
-                    <a id="spacewalk-sw-load-dropdown-button"  data-toggle="dropdown" href="#" class="nav-link dropdown-toggle">
+                    <a id="spacewalk-sw-load-dropdown-button" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
                         Load SpaceWalk File
                     </a>
 
@@ -189,18 +189,18 @@
 
                 <div class="dropdown">
 
-                    <a id="spacewalk-juicebox-load-dropdown-button" data-toggle="dropdown" href="#" class="nav-link dropdown-toggle">
+                    <a id="spacewalk-juicebox-load-dropdown-button"  href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
                         Load Contact Map
                     </a>
 
-                    <div id="spacewalk-juicebox-load-dropdown-menu"  class="dropdown-menu">
+                    <div id="spacewalk-juicebox-load-dropdown-menu" class="dropdown-menu">
 
-                        <!-- select -->
-                        <button id="spacewalk-juicebox-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-juicebox-select-modal">
+                        <!-- Select -->
+                        <button id="spacewalk-juicebox-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-contact-map-modal">
                             Select File ...
                         </button>
 
-                        <!-- local file -->
+                        <!-- Local Map File -->
                         <label class="dropdown-item btn btn-default btn-file">
                             <div>
                                 <div>
@@ -212,8 +212,31 @@
                             </div>
                         </label>
 
-                        <!-- url -->
-                        <button id="spacewalk-juicebox-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-juicebox-url-modal">Map URL ...
+                        <!-- Dropbox -->
+                        <div class="dropdown-item">
+
+                            <div id="spacewalk-juicebox-contact-map-dropdown-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
+
+                                <div>Dropbox File</div>
+                                <div>
+                                    <img src="./img/dropbox-dropdown-menu-item.png" width="18" height="18">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Google Drive -->
+                        <div class="dropdown-item">
+                            <div id="spacewalk-juicebox-contact-map-dropdown-google-drive-button" class="igv-app-dropdown-item-cloud-storage">
+                                <div>Google Drive File</div>
+                                <div><img src="./img/googledrive-dropdown-menu-item.png" width="18" height="18"></div>
+                            </div>
+                        </div>
+
+                        <!-- URL -->
+                        <button id="spacewalk-juicebox-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-juicebox-url-modal">
+                            Map URL ...
                         </button>
 
                     </div>

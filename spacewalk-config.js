@@ -1,5 +1,10 @@
 const spacewalkConfig = {
 
+    mapMenu: {
+        id: 'contact-map-datalist',
+        items: 'https://aidenlab.org/juicebox/res/hicfiles.json'
+    },
+
     genomes: "resources/genomes.json",
 
     trackRegistryFile: "resources/tracks/trackRegistry.json",
