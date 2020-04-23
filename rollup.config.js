@@ -26,22 +26,7 @@ module.exports =
                     targets:
                         [
                             {
-                                src:
-                                    [
-                                        'css/app.css',
-                                        'css/juicebox.css',
-                                        'css/spectrum.css'
-                                    ],
-                                dest: 'dist/css/'
-                            },
-                            {
-                                src: 'css/fontawesome', dest: 'dist/css/'
-                            },
-                            {
-                                src: 'css/img', dest: 'dist/css/'
-                            },
-                            {
-                                src: 'css/webfonts', dest: 'dist/css/'
+                                src: 'spacewalk-config.js', dest: 'dist/'
                             },
                             {
                                 src: 'favicon.ico', dest: 'dist/'
@@ -59,13 +44,27 @@ module.exports =
                                 src: 'resources', dest: 'dist/'
                             },
                             {
+                                src: 'css/fontawesome', dest: 'dist/css/'
+                            },
+                            {
+                                src: 'css/img', dest: 'dist/css/'
+                            },
+                            {
+                                src: 'css/webfonts', dest: 'dist/css/'
+                            },
+                            {
+                                src:
+                                    [
+                                        'css/app.css',
+                                        'css/juicebox.css',
+                                        'css/spectrum.css'
+                                    ],
+                                dest: 'dist/css/'
+                            },
+                            {
                                 src: 'index.html',
                                 dest: 'dist/',
-                                transform: (content) => {
-                                    return content
-                                        .toString()
-                                        .replace(process.env.INDEX_FILE_SRC, process.env.INDEX_FILE_DST);
-                                }
+                                transform: content => content.toString().replace(process.env.INDEX_FILE_SRC, process.env.INDEX_FILE_DST)
                             }
                         ],
                     verbose: true
