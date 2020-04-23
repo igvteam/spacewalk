@@ -1,4 +1,4 @@
-import { Utils, FileLoadManager, FileLoadWidget } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
+import { Utils, FileLoadManager, FileLoadWidget, MultipleTrackFileLoad } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
 import { Alert } from '../../node_modules/igv-ui/src/index.js';
 import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.js';
 import { igvPanel } from "../app.js";
@@ -25,7 +25,7 @@ class TrackLoadController {
         this.urlWidget = new FileLoadWidget(config);
 
         Utils.configureModal(this.urlWidget, trackLoadModal, async fileLoadWidget => {
-            await multipleTrackFileLoad.ingestPaths(fileLoadWidget.retrievePaths());
+            await multipleTrackFileLoad.loadPaths(fileLoadWidget.retrievePaths());
             return true;
         });
 
