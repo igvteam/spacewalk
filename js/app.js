@@ -19,13 +19,13 @@ import TraceSelectPanel from "./traceSelectPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
 import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
-import IGVPanel, {igvBrowserConfigurator} from "./igv/IGVPanel.js";
+import IGVPanel from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
-import DataFileLoadModal, { spaceWalkFileLoadModalConfigurator } from "./dataFileLoadModal.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
 import { getUrlParams, saveSession, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
+import SpacewalkFileLoad from "./spacewalkFileLoad.js";
 
 let eventBus = new EventBus();
 
@@ -42,7 +42,7 @@ let colorRampMaterialProvider;
 let guiManager;
 
 let gsdb;
-let spaceWalkFileLoadModal;
+let spacewalkFileLoad;
 
 let traceSelectPanel;
 let colorRampPanel;
@@ -158,9 +158,23 @@ const initializationHelper = async container => {
 
 const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL) => {
 
-    $('#spacewalk-reset-camera-button').on('click.spacewalk-reset-camera-button', e => {
-        sceneManager.resetCamera();
-    });
+    const spacewalkFileLoadConfig =
+        {
+            rootContainer: document.getElementById('spacewalk-main'),
+            $localFileInput: $('#spacewalk-sw-load-local-input'),
+            urlLoadModalId: 'spacewalk-sw-load-url-modal',
+            $selectModal: $('#spacewalk-sw-load-select-modal'),
+            $dropboxButton: $('#spacewalk-sw-dropbox-button'),
+            $googleDriveButton: $('#spacewalk-sw-google-drive-button'),
+            googleEnabled,
+            fileLoader: parser
+        };
+
+    spacewalkFileLoad = new SpacewalkFileLoad(spacewalkFileLoadConfig);
+
+    // $('#spacewalk-reset-camera-button').on('click.spacewalk-reset-camera-button', e => {
+    //     sceneManager.resetCamera();
+    // });
 
     const $share_url_modal = $('#spacewalk-share-url-modal');
     const $spacewalk_share_url = $('#spacewalk-share-url');
@@ -220,8 +234,6 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
 
-    spaceWalkFileLoadModal = new DataFileLoadModal(spaceWalkFileLoadModalConfigurator( { fileLoader: parser } ));
-
     $(window).on('resize.app', e => {
 
         // Prevent responding to resize event sent by jQuery resizable()
@@ -234,6 +246,52 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     });
 
 };
+
+const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
+
+    const html =
+        `<div id="${id}" class="modal fade">
+            <div class="modal-dialog  modal-lg">
+                <div class="modal-content">
+
+                <div class="modal-header">
+                    <div class="modal-title">Load URL</div>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Enter URL">
+                    </div>
+
+                </div>
+
+                </div>
+            </div>
+        </div>`;
+
+    $(root).append(html);
+
+    const $modal = $(root).find(`#${ id }`);
+    $modal.find('input').on('change', function () {
+
+        const path = $(this).val();
+        $(this).val("");
+
+        $(`#${ id }`).modal('hide');
+
+        input_handler(path);
+
+
+    });
+
+    return html;
+}
 
 const renderLoop = () => {
 
@@ -269,4 +327,4 @@ const hideSpinner = () => {
     console.log('hide spinner');
 };
 
-export { googleEnabled, eventBus, pointCloud, ribbon, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel };
+export { googleEnabled, eventBus, pointCloud, ribbon, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel, appendAndConfigureLoadURLModal };
