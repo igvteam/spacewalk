@@ -1,3 +1,4 @@
+import igv from '../../node_modules/igv/dist/igv.esm.js';
 import { GoogleFilePicker } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
 import ModalTable from '../../node_modules/data-modal/js/modalTable.js';
 import { FileUtils } from '../../node_modules/igv-utils/src/index.js';
@@ -58,14 +59,12 @@ class ContactMapLoad {
         if (true === googleEnabled) {
             $googleDriveButtons.on('click', () => {
 
-                GoogleFilePicker.createDropdownButtonPicker(true, async responses => {
+                GoogleFilePicker.createDropdownButtonPicker(false, async responses => {
 
-                    const paths = responses.map(({ name, url: google_url }) => {
-                        return { filename: name, name, google_url };
-                    });
+                    const paths = responses.map(({ name, url }) => { return { url: igv.google.driveDownloadURL(url), name }; });
 
-                    let { name, google_url: path } = paths[ 0 ];
-                    await loadHandler(path, name, mapType);
+                    let { name, url: path } = paths[ 0 ];
+                    await loadHandler(path, name);
 
                 });
 

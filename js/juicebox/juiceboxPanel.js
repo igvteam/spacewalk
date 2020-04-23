@@ -2,7 +2,6 @@ import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import Panel from "../panel.js";
 import ContactMapLoad from "./contactMapLoad.js";
 import { googleEnabled, ensembleManager, eventBus } from "../app.js";
-import { spacewalkConfig } from "../../spacewalk-config.js";
 
 let contactMapLoad;
 
@@ -97,7 +96,7 @@ class JuiceboxPanel extends Panel {
                 googleEnabled,
                 contactMapMenu: spacewalkConfig.contactMapMenu,
                 loadHandler: async (path, name, mapType) => {
-                    await this.load(path)
+                    await this.load(path, name)
                 }
             };
 
@@ -138,9 +137,12 @@ class JuiceboxPanel extends Panel {
 
     }
 
-    async load(path) {
+    async load(path, name) {
 
-        const name = hic.igv.isFilePath(path) ? path.name : undefined;
+        if (undefined === name) {
+            name = hic.igv.isFilePath(path) ? path.name : undefined;
+        }
+
 
         try {
             await this.browser.loadHicFile({ url: path, name, isControl: false });

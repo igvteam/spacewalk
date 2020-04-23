@@ -32,5 +32,3 @@ const spacewalkConfig =
 
 
     }
-
-export { spacewalkConfig }

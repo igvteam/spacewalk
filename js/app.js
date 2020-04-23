@@ -26,7 +26,6 @@ import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from 
 import { getUrlParams, saveSession, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
-import { spacewalkConfig } from "../spacewalk-config.js";
 
 let eventBus = new EventBus();
 
