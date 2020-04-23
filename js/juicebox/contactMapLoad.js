@@ -8,7 +8,7 @@ let contactMapDatasource = undefined;
 
 class ContactMapLoad {
 
-    constructor({ rootContainer, $dropdowns, $localFileInputs, urlLoadModalId, dataModalId, $dropboxButtons, $googleDriveButtons, googleEnabled, mapMenu, loadHandler }) {
+    constructor({ rootContainer, $dropdowns, $localFileInputs, urlLoadModalId, dataModalId, $dropboxButtons, $googleDriveButtons, googleEnabled, contactMapMenu, loadHandler }) {
 
         $dropdowns.on('show.bs.dropdown', function () {
 
@@ -77,11 +77,11 @@ class ContactMapLoad {
             loadHandler( path, name, mapType );
         });
 
-        if (mapMenu) {
+        if (contactMapMenu) {
 
             this.contactMapModal = new ModalTable({ id: dataModalId, title: 'Contact Map', selectionStyle: 'single', pageLength: 100 });
 
-            const { items: path } = mapMenu;
+            const { items: path } = contactMapMenu;
             contactMapDatasource = new ContactMapDatasource(path);
 
             this.contactMapModal.setDatasource(contactMapDatasource);

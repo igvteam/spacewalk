@@ -216,7 +216,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     if (igvSessionURL) {
         await igvPanel.initialize({ sessionURL: igvSessionURL });
     } else {
-        await igvPanel.initialize(igvBrowserConfigurator());
+        await igvPanel.initialize(spacewalkConfig.igv);
     }
 
     Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);

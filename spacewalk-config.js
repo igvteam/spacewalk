@@ -1,28 +1,36 @@
-const spacewalkConfig = {
+const spacewalkConfig =
+    {
 
-    mapMenu: {
-        id: 'contact-map-datalist',
-        items: 'https://aidenlab.org/juicebox/res/hicfiles.json'
-    },
+        genomes: "resources/genomes.json",
+        trackRegistryFile: "resources/tracks/trackRegistry.json",
 
-    genomes: "resources/genomes.json",
+        // Google client id to enable loading of private Google files
+        clientId: "661332306814-fmasnut050v7qds33tsa2rtvd5tc06sl.apps.googleusercontent.com",
 
-    trackRegistryFile: "resources/tracks/trackRegistry.json",
+        contactMapMenu:
+            {
+                id: 'contact-map-datalist',
+                items: 'https://aidenlab.org/juicebox/res/hicfiles.json'
+            },
 
-    igvConfig:
-        {
-            queryParametersSupported: true,
-            genome: "hg19",
-            apiKey: "AIzaSyCEmqU2lrAgKxJCbnJX87a5F3c9GejCCLA"
-        },
+        igv:
+            {
 
-    clientId: "661332306814-fmasnut050v7qds33tsa2rtvd5tc06sl.apps.googleusercontent.com",
+                genome: 'hg19',
+                showRuler: false,
+                showControls: false,
+                queryParametersSupported: false,
 
-    urlShortener: {
-        provider: "tinyURL"
+                // Google api key to enable loading of public Google files without login.
+                apiKey: "AIzaSyCEmqU2lrAgKxJCbnJX87a5F3c9GejCCLA"
+            },
+
+        urlShortener:
+            {
+                provider: "tinyURL"
+            }
+
+
     }
-
-
-}
 
 export { spacewalkConfig }

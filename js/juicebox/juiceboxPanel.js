@@ -95,7 +95,7 @@ class JuiceboxPanel extends Panel {
                 $dropboxButtons: $('#spacewalk-juicebox-contact-map-dropdown-dropbox-button'),
                 $googleDriveButtons: $('#spacewalk-juicebox-contact-map-dropdown-google-drive-button'),
                 googleEnabled,
-                mapMenu: spacewalkConfig.mapMenu,
+                contactMapMenu: spacewalkConfig.contactMapMenu,
                 loadHandler: async (path, name, mapType) => {
                     await this.load(path)
                 }
