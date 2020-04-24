@@ -1,6 +1,5 @@
-import igv from '../../node_modules/igv/dist/igv.esm.js';
+import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { MultipleTrackFileLoad } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
-import { Alert } from '../../node_modules/igv-ui/src/index.js';
 import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
 import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
 import TrackLoadController from "./trackLoadController.js";
@@ -68,14 +67,14 @@ class IGVPanel extends Panel {
                 try {
                     await this.loadGenomeWithID( genomeAssembly );
                 } catch (e) {
-                    Alert.presentAlert(e.message);
+                    hic.igv.Alert.presentAlert(e.message);
                 }
 
                 try {
                     const str = 'all' === chr ? 'all' : `${ chr }:${ start }-${ end }`;
                     await this.browser.search(str);
                 } catch (e) {
-                    Alert.presentAlert(e.message);
+                    hic.igv.Alert.presentAlert(e.message);
                 }
 
             })();
@@ -89,9 +88,9 @@ class IGVPanel extends Panel {
 
         let genomeList = undefined;
         try {
-            genomeList = await igv.xhr.loadJson(genomesJSONPath, {})
+            genomeList = await hic.igv.xhr.loadJson(genomesJSONPath, {})
         } catch (e) {
-            Alert.presentAlert(e.message);
+            hic.igv.Alert.presentAlert(e.message);
         }
 
         this.genomeDictionary = {};
@@ -103,9 +102,9 @@ class IGVPanel extends Panel {
 
         try {
             const root = this.$panel.find('#spacewalk_igv_root_container').get(0);
-            this.browser = await igv.createBrowser( root, config );
+            this.browser = await hic.igv.createBrowser( root, config );
         } catch (e) {
-            Alert.presentAlert(e.message);
+            hic.igv.Alert.presentAlert(e.message);
         }
 
         if (this.browser) {
@@ -146,8 +145,8 @@ class IGVPanel extends Panel {
                 trackLoader: async (configurations) => {
                     await this.loadTrackList(configurations)
                 },
-                igvxhr: igv.xhr,
-                google: igv.google
+                igvxhr: hic.igv.xhr,
+                google: hic.igv.google
             }));
 
             try {
@@ -155,7 +154,7 @@ class IGVPanel extends Panel {
                 const selectModal = document.querySelector('#spacewalk-igv-app-generic-track-select-modal');
                 await trackLoadController.updateTrackMenus(this.browser, this.browser.genome.id, trackLoadController.trackRegistryFile, dropdownMenu, selectModal);
             } catch (e) {
-                Alert.presentAlert(e.message);
+                hic.igv.Alert.presentAlert(e.message);
             }
 
         }
@@ -174,7 +173,7 @@ class IGVPanel extends Panel {
             try {
                 g = await this.browser.loadGenome(json);
             } catch (e) {
-                Alert.presentAlert(e.message);
+                hic.igv.Alert.presentAlert(e.message);
             }
 
             if (g) {
@@ -184,7 +183,7 @@ class IGVPanel extends Panel {
                     const selectModal = document.querySelector('#spacewalk-igv-app-generic-track-select-modal');
                     await trackLoadController.updateTrackMenus(this.browser, this.browser.genome.id, trackLoadController.trackRegistryFile, dropdownMenu, selectModal);
                 } catch (e) {
-                    Alert.presentAlert(e.message);
+                    hic.igv.Alert.presentAlert(e.message);
                 }
 
             }
@@ -199,7 +198,7 @@ class IGVPanel extends Panel {
         try {
             tracks = await this.browser.loadTrackList( configurations );
         } catch (e) {
-            Alert.presentAlert(e.message);
+            hic.igv.Alert.presentAlert(e.message);
         }
 
         for (let track of tracks) {

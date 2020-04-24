@@ -1,8 +1,8 @@
-import igv from '../node_modules/igv/dist/igv.esm.js';
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { GoogleFilePicker } from '../node_modules/igv-widgets/dist/igv-widgets.js';
 import { FileUtils } from '../node_modules/igv-utils/src/index.js';
-import { eventBus, appendAndConfigureLoadURLModal } from "./app.js";
-
+import { appendAndConfigureLoadURLModal } from "./app.js";
+``
 class SpacewalkFileLoad {
 
     constructor({ rootContainer, $localFileInput, urlLoadModalId, $selectModal, $dropboxButton, $googleDriveButton, googleEnabled, fileLoader }) {
@@ -43,7 +43,7 @@ class SpacewalkFileLoad {
 
                 GoogleFilePicker.createDropdownButtonPicker(false, async responses => {
 
-                    const paths = responses.map(({ name, url }) => { return { url: igv.google.driveDownloadURL(url), name }; });
+                    const paths = responses.map(({ name, url }) => { return { url: hic.igv.google.driveDownloadURL(url), name }; });
 
                     let { name, url } = paths[ 0 ];
                     await fileLoader.load(url);

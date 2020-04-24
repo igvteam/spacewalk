@@ -156,7 +156,7 @@ class Parser {
         let string = undefined;
         try {
             showSpinner();
-            string = await hic.igv.xhr.load(path);
+            string = await hic.igv.xhr.loadString(path);
             hideSpinner();
         } catch (e) {
             hideSpinner();

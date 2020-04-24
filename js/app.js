@@ -1,6 +1,6 @@
-import igv from '../node_modules/igv/dist/igv.esm.js';
+import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { GoogleFilePicker } from '../node_modules/igv-widgets/dist/igv-widgets.js';
-import { Alert, createGenericSelectModal, createTrackURLModal } from '../node_modules/igv-ui/src/index.js'
+import { createGenericSelectModal, createTrackURLModal } from '../node_modules/igv-ui/src/index.js'
 import EventBus from "./eventBus.js";
 import GSDB from "./gsdb/gsdb.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     const container = document.getElementById('spacewalk-root-container');
 
-    Alert.init(container);
+    hic.igv.Alert.init(container);
 
     const { userAgent } = window.navigator;
 
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         }
 
     } catch (e) {
-        Alert.presentAlert(e.message);
+        hic.igv.Alert.presentAlert(e.message);
     }
 
     const enableGoogle = spacewalkConfig.clientId && 'CLIENT_ID' !== spacewalkConfig.clientId && (window.location.protocol === "https:" || window.location.host === "localhost");
@@ -83,11 +83,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                 callback: async () => {
 
                     try {
-                        await GoogleFilePicker.init(spacewalkConfig.clientId, igv.oauth, igv.google);
+                        await GoogleFilePicker.init(spacewalkConfig.clientId, hic.igv.oauth, hic.igv.google);
                         googleEnabled = true;
                     } catch (e) {
                         console.error(e);
-                        Alert.presentAlert(e.message)
+                        hic.igv.Alert.presentAlert(e.message)
                     }
 
                     if (googleEnabled) {
@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                 },
                 onerror: async (e) => {
                     console.error(e);
-                    Alert.presentAlert(e.message)
+                    hic.igv.Alert.presentAlert(e.message)
 
                     await initializationHelper(container);
                 }

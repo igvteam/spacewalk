@@ -1,5 +1,4 @@
-import hic from "../../node_modules/juicebox.js/dist/juicebox.esm.js";
-
+import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 let columns = undefined;
 
 class ContactMapDatasource {

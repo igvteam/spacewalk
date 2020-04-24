@@ -1,4 +1,4 @@
-import igv from '../../node_modules/igv/dist/igv.esm.js';
+import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { GoogleFilePicker } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
 import ModalTable from '../../node_modules/data-modal/js/modalTable.js';
 import { FileUtils } from '../../node_modules/igv-utils/src/index.js';
@@ -62,7 +62,7 @@ class ContactMapLoad {
 
                 GoogleFilePicker.createDropdownButtonPicker(false, async responses => {
 
-                    const paths = responses.map(({ name, url }) => { return { url: igv.google.driveDownloadURL(url), name }; });
+                    const paths = responses.map(({ name, url }) => { return { url: hic.igv.google.driveDownloadURL(url), name }; });
 
                     let { name, url: path } = paths[ 0 ];
                     await loadHandler(path, name);
