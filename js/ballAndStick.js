@@ -1,4 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import { BufferGeometryUtils } from '../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js';
+
 import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import { clamp } from './math.js';
 import EnsembleManager from "./ensembleManager.js";
@@ -93,34 +95,26 @@ class BallAndStick {
     }
 
     createSticks(curves, stickRadius) {
-
-        return curves
-            .map((curve) => {
-
-                const geometry = new THREE.TubeBufferGeometry(curve, 8, stickRadius, 16, false);
-                const material = sceneManager.stickMaterial.clone();
-
-                const mesh = new THREE.Mesh(geometry, material);
-                mesh.name = 'stick';
-
-                return mesh;
-            });
-
+        const geometries = curves.map(curve => new THREE.TubeBufferGeometry(curve, 8, stickRadius, 16, false));
+        const material = sceneManager.stickMaterial.clone();
+        const mesh = new THREE.Mesh(BufferGeometryUtils.mergeBufferGeometries( geometries ), material);
+        mesh.name = 'stick';
+        return mesh;
     }
 
     addToScene (scene) {
         this.balls.forEach(m => scene.add(m));
-        this.sticks.forEach(m => scene.add(m));
+        scene.add(this.sticks);
     }
 
     hide () {
         setVisibility(this.balls, false);
-        setVisibility(this.sticks, false);
+        this.sticks.visible = false
     }
 
     show () {
         setVisibility(this.balls, true);
-        setVisibility(this.sticks, true);
+        this.sticks.visible = true
     }
 
     updateBallRadius(increment) {
@@ -155,10 +149,8 @@ class BallAndStick {
         }
 
         if (this.sticks) {
-            for (let mesh of this.sticks) {
-                mesh.geometry.dispose();
-                mesh.material.dispose();
-            }
+            this.sticks.geometry.dispose();
+            this.sticks.material.dispose();
         }
 
         delete this.stickCurves;
