@@ -113,18 +113,6 @@ class BallAndStick {
         this.sticks.forEach(m => scene.add(m));
     }
 
-    renderLoopHelper () {
-
-        // if (this.balls) {
-        //     for (let mesh of this.balls) {
-        //         mesh.geometry.attributes.position.needsUpdate = true;
-        //         mesh.geometry.attributes.normal.needsUpdate = true;
-        //         mesh.geometry.attributes.uv.needsUpdate = true;
-        //     }
-        // }
-
-    }
-
     hide () {
         setVisibility(this.balls, false);
         setVisibility(this.sticks, false);

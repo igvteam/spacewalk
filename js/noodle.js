@@ -61,10 +61,6 @@ class Noodle {
         scene.add( this.tube );
     }
 
-    renderLoopHelper () {
-        // nuthin'
-    }
-
     hide () {
         this.tube.visible = false;
     }

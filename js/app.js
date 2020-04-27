@@ -303,10 +303,6 @@ const renderLoop = () => {
 
         ribbon.renderLoopHelper();
 
-        noodle.renderLoopHelper();
-
-        ballAndStick.renderLoopHelper();
-
         dataValueMaterialProvider.renderLoopHelper();
 
         colorRampMaterialProvider.renderLoopHelper();
