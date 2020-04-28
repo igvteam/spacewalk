@@ -14,6 +14,7 @@ let ballRadiusTable = undefined;
 let stickRadiusIndex = undefined;
 let stickRadiusTable = undefined;
 
+const stickTesselation = { length: 2, radial: 8 }
 class BallAndStick {
 
     constructor () {
@@ -95,7 +96,7 @@ class BallAndStick {
     }
 
     createSticks(curves, stickRadius) {
-        const geometries = curves.map(curve => new THREE.TubeBufferGeometry(curve, 8, stickRadius, 16, false));
+        const geometries = curves.map(curve => new THREE.TubeBufferGeometry(curve, stickTesselation.length, stickRadius, stickTesselation.radial, false));
         const material = sceneManager.stickMaterial.clone();
         const mesh = new THREE.Mesh(BufferGeometryUtils.mergeBufferGeometries( geometries ), material);
         mesh.name = 'stick';
@@ -129,14 +130,10 @@ class BallAndStick {
     }
 
     updateStickRadius(increment) {
-
         stickRadiusIndex = clamp(stickRadiusIndex + increment, 0, stickRadiusTable.length - 1);
         const radius = stickRadiusTable[ stickRadiusIndex ];
-
-        for (let i = 0; i < this.stickCurves.length; i++) {
-            this.sticks[ i ].geometry.copy(new THREE.TubeBufferGeometry(this.stickCurves[i], 8, radius, 16, false));
-        }
-
+        const geometries = this.stickCurves.map(curve => new THREE.TubeBufferGeometry(curve, stickTesselation.length, radius, stickTesselation.radial, false));
+        this.sticks.geometry.copy(BufferGeometryUtils.mergeBufferGeometries( geometries ));
     }
 
     dispose () {

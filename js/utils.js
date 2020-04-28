@@ -3,7 +3,7 @@ import {lerp} from "./math.js";
 
 const setMaterialProvider = materialProvider => {
     ribbon.updateMaterialProvider(materialProvider);
-    noodle.updateMaterialProvider(materialProvider);
+    // noodle.updateMaterialProvider(materialProvider);
     ballAndStick.updateMaterialProvider(materialProvider);
 };
 

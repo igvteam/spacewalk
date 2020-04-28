@@ -125,7 +125,7 @@ const initializationHelper = async container => {
     pointCloud = new PointCloud();
 
     ribbon = new Ribbon();
-    noodle = new Noodle();
+    // noodle = new Noodle();
     ballAndStick = new BallAndStick();
 
     ensembleManager = new EnsembleManager();

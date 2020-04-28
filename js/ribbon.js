@@ -8,12 +8,13 @@ import {getColorListWithXYZList} from "./color.js";
 import Noodle, { NoodleScaleFactor } from "./noodle.js";
 
 let fatLineMaterial;
+const ribbonWidth = 4/*2*/;
 
 class Ribbon {
 
     constructor() {
-        eventBus.subscribe("DidEnterGenomicNavigator", this);
-        eventBus.subscribe("DidLeaveGenomicNavigator", this);
+        // eventBus.subscribe("DidEnterGenomicNavigator", this);
+        // eventBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
     receiveEvent({ type, data }) {
@@ -40,13 +41,17 @@ class Ribbon {
 
         const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
         this.curve = new THREE.CatmullRomCurve3( vertices );
-        this.curve.arcLengthDivisions = 1000;
+        this.curve.arcLengthDivisions = 1e3;
 
         this.spline = createFatSpline(this.curve, igvPanel.materialProvider);
 
         console.timeEnd(str);
 
-        this.hide();
+        if (sceneManager.renderStyle === Noodle.getRenderStyle()) {
+            this.show();
+        } else {
+            this.hide();
+        }
 
     }
 
@@ -122,7 +127,7 @@ const createFatSpline = (curve, materialProvider) => {
     fatLineGeometry.setPositions( vertices );
     fatLineGeometry.setColors( colors );
 
-    fatLineMaterial = new LineMaterial( { linewidth: 2, vertexColors: true } );
+    fatLineMaterial = new LineMaterial( { linewidth: ribbonWidth, vertexColors: true } );
 
     let mesh = new Line2(fatLineGeometry, fatLineMaterial);
     mesh.computeLineDistances();
@@ -135,8 +140,10 @@ const createFatSpline = (curve, materialProvider) => {
 
 };
 
+export const RibbonScaleFactor = 4e3;
+
 const getFatSplinePointCount = curveLength => {
-    return Noodle.getCountMultiplier(curveLength) * NoodleScaleFactor;
+    return Noodle.getCountMultiplier(curveLength) * RibbonScaleFactor;
 };
 
 export default Ribbon;

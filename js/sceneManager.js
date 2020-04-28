@@ -107,10 +107,12 @@ class SceneManager {
             if (data === Noodle.getRenderStyle()) {
                 this.renderStyle = Noodle.getRenderStyle();
                 ballAndStick.hide();
-                noodle.show();
+                // noodle.show();
+                ribbon.show();
             } else {
                 this.renderStyle = BallAndStick.getRenderStyle();
-                noodle.hide();
+                // noodle.hide();
+                ribbon.hide();
                 ballAndStick.show();
             }
 
@@ -148,8 +150,8 @@ class SceneManager {
             ribbon.configure(trace);
             ribbon.addToScene(scene);
 
-            noodle.configure(trace);
-            noodle.addToScene(scene);
+            // noodle.configure(trace);
+            // noodle.addToScene(scene);
 
             ballAndStick.configure(trace);
             ballAndStick.addToScene(scene);
