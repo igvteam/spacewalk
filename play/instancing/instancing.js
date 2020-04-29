@@ -1,4 +1,7 @@
 import * as THREE from "../../node_modules/three/build/three.module.js";
+import { OrbitControls } from "../../node_modules/three/examples/jsm/controls/OrbitControls.js";
+
+import { appleCrayonColorThreeJS } from "../../js/color.js";
 
 const instanceColorString = 'instanceColor';
 const amount = 8;
@@ -8,6 +11,7 @@ let scene;
 let renderer;
 let mesh;
 let renderLoop;
+let orbitalControls;
 
 const main = container => {
     init(container);
@@ -46,14 +50,16 @@ const init = container => {
         camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 100 );
         camera.position.set( 0, 0, 20 );
 
+        orbitalControls = new OrbitControls( camera, renderer.domElement );
+
         scene = new THREE.Scene();
         scene.add( mesh );
 
         renderLoop = () => {
 
-            const time = Date.now() * 0.001;
-            mesh.rotation.x = Math.sin( time / 4 );
-            mesh.rotation.y = Math.sin( time / 2 );
+            // const time = Date.now() * 0.001;
+            // mesh.rotation.x = Math.sin( time / 4 );
+            // mesh.rotation.y = Math.sin( time / 2 );
 
             renderer.render(scene, camera);
         }
@@ -103,7 +109,7 @@ const getInstancedBufferColorAttribute = instanceCount => {
 const getMaterialWithInstanceColorString = (str, texture) => {
 
     // const material = new THREE.MeshMatcapMaterial( { color: 0xaaaaff, matcap: texture } );
-    const material = new THREE.MeshMatcapMaterial( { matcap: texture } );
+    const material = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('snow') });
 
     material.onBeforeCompile = shader => {
 

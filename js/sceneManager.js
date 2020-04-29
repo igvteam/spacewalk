@@ -25,6 +25,8 @@ const AAScaleFactor = 1;
 
 const doMultipassRendering = false;
 
+const instanceColorString = 'instanceColor';
+
 class SceneManager {
 
     constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker }) {
@@ -94,11 +96,16 @@ class SceneManager {
 
             if (interpolantWindowList) {
 
+                // TODO: sceneManager.receiveEvent. Handle instanced mesh.
+                console.log('TODO: sceneManager.receiveEvent. Handle instanced mesh.');
+
+                return;
+
                 let objects = interpolantWindowList.map(({ index }) => {
                     return ballAndStick.balls[ index ];
                 });
 
-                this.picker.pickHighlighter.configureObjects(objects);
+                this.picker.pickHighlighter.configureInstanceIdList(objects);
 
             }
 
@@ -357,5 +364,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     return { container, scene, stickMaterial, background, renderer, cameraLightingRig, picker };
 
 };
+
+export { instanceColorString }
 
 export default SceneManager;

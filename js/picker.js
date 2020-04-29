@@ -17,7 +17,7 @@ class Picker {
     receiveEvent({ type }) {
 
         if ("DidEnterGUI" === type) {
-            this.pickHighlighter.unhighlight();
+            this.pickHighlighter.unhighlightInstance();
             this.isEnabled = false;
         } else if ("DidLeaveGUI" === type) {
             this.isEnabled = true;
@@ -36,18 +36,20 @@ class Picker {
         if (hitList.length > 0) {
 
             const [ hit ] = hitList;
-            const { object } = hit;
 
-            if (doTrackObject || false === this.pickHighlighter.hasObject(object)) {
+            if (undefined !== hit.instanceId) {
 
-                // const { uv } = hit;
+                console.log(`${ Date.now() }. Picker.intersect instance ID ${ hit.instanceId }.`)
 
-                this.pickHighlighter.configureObjects([ object ]);
-                eventBus.post({ type: "PickerDidHitObject", data: object.uuid });
+                if (doTrackObject || false === this.pickHighlighter.hasInstanceId(hit.instanceId)) {
+                    this.pickHighlighter.configureInstanceIdList(hit.instanceId);
+                    eventBus.post({ type: "PickerDidHitObject", data: hit.instanceId });
+                }
+
             }
 
         } else {
-            this.pickHighlighter.unhighlight();
+            this.pickHighlighter.unhighlightInstance();
             eventBus.post({ type: "PickerDidLeaveObject" });
         }
 
