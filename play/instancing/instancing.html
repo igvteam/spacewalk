@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>three.js webgl - instancing - modified</title>
+	<title>Instancing: Different Material Per Instance</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 </head>
@@ -26,12 +26,15 @@
 
 	function init() {
 
-		renderer = new THREE.WebGLRenderer( { antialias: false } ); // false improves the frame rate
+		// disable anti-aliasing to improve frame rate
+		renderer = new THREE.WebGLRenderer( { antialias: false } );
+
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.outputEncoding = THREE.sRGBEncoding;
+
 		document.body.appendChild( renderer.domElement );
 
-		renderer.outputEncoding = THREE.sRGBEncoding;
 
 		scene = new THREE.Scene();
 
@@ -44,7 +47,7 @@
 			geometry.setAttribute(instanceColorString, getInstancedBufferColorAttribute(instanceCount) );
 			geometry.computeVertexNormals();
 
-			const scaleFactor = 4/amount;
+			const scaleFactor = 0.5;
 			geometry.scale( scaleFactor, scaleFactor, scaleFactor );
 
 			new THREE.TextureLoader().load( '../textures/matcaps/matcap-porcelain-white.jpg', texture => {
