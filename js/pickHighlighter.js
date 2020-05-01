@@ -1,3 +1,9 @@
+import * as THREE from "../node_modules/three/build/three.module.js";
+import { ballAndStick } from "./app.js";
+import { instanceColorString } from "./sceneManager.js";
+
+const tempColor = new THREE.Color();
+
 class PickHighlighter {
 
     constructor (highlightColor) {
@@ -6,9 +12,7 @@ class PickHighlighter {
 
         this.objects = new Set();
         this.objects.clear();
-
         this.instanceId = undefined;
-        this.colorDictionary = {};
     }
 
     hasInstanceId(instanceId) {
@@ -16,24 +20,22 @@ class PickHighlighter {
     }
 
     configureInstanceIdList(instanceId) {
-
         this.unhighlightInstance();
-
         this.instanceId = instanceId
-        // this.colorDictionary[ instanceId ] = instanceId.material.color.clone();
-
         this.highlightInstance();
-
     }
 
     highlightInstance() {
-        // this.instanceId.material.color.copy(this.highlightColor)
+        tempColor.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, this.instanceId * 3);
+        ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
     }
 
     unhighlightInstance() {
-        // this.instanceId.material.color.copy(this.colorDictionary[ this.instanceId ])
+
+        // tempColor.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, this.instanceId * 3);
+        // ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
+
         this.instanceId = undefined;
-        this.colorDictionary = {};
     }
 
     hasObject(candidate) {

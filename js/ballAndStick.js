@@ -60,20 +60,26 @@ class BallAndStick {
         const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
 
         // build rgb list
-        const rgb = [];
+        this.rgb = [];
+
         for (let i = 0; i < vertices.length; i++) {
+
             const { interpolant } = trace[ i ].colorRampInterpolantWindow;
+
             const { r, g, b } = igvPanel.materialProvider.colorForInterpolant(interpolant);
-            rgb.push(r);
-            rgb.push(g);
-            rgb.push(b);
+
+            this.rgb.push(r);
+            this.rgb.push(g);
+            this.rgb.push(b);
 
             this.colorRampInterpolantWindowDictionary[ i.toString() ] = trace[ i ].colorRampInterpolantWindow;
 
         }
 
+        this.rgbFloat32Array = Float32Array.from(this.rgb);
+
         // assign instance color list to canonical geometry
-        geometry.setAttribute(instanceColorString, new THREE.InstancedBufferAttribute(new Float32Array(rgb), 3) );
+        geometry.setAttribute(instanceColorString, new THREE.InstancedBufferAttribute(this.rgbFloat32Array, 3) );
 
         // custom instance material
         const material = getMaterialWithInstanceColorString(instanceColorString);

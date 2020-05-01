@@ -217,7 +217,7 @@ class SceneManager {
                 const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
                 const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
 
-                this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.object, doTrackObject: true });
+                this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.object });
 
             }
         });

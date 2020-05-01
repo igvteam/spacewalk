@@ -25,11 +25,11 @@ class Picker {
 
     }
 
-    intersect({ x ,y, camera, scene, doTrackObject }) {
+    intersect({ x ,y, camera, scene }) {
 
         this.raycaster.setFromCamera({ x, y }, camera);
 
-        let hitList = this.raycaster.intersectObjects(scene.children).filter((item) => {
+        const hitList = this.raycaster.intersectObjects(scene.children).filter((item) => {
             return !exclusionSet.has(item.object.name) && true === item.object.visible;
         });
 
@@ -39,9 +39,9 @@ class Picker {
 
             if (undefined !== hit.instanceId) {
 
-                console.log(`${ Date.now() }. Picker.intersect instance ID ${ hit.instanceId }.`)
+                // console.log(`${ Date.now() }. Picker.intersect(). Hits(${ hitList.length }). Instance ID ${ hit.instanceId }.`)
 
-                if (doTrackObject || false === this.pickHighlighter.hasInstanceId(hit.instanceId)) {
+                if (false === this.pickHighlighter.hasInstanceId(hit.instanceId)) {
                     this.pickHighlighter.configureInstanceIdList(hit.instanceId);
                     eventBus.post({ type: "PickerDidHitObject", data: hit.instanceId });
                 }
