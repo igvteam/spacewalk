@@ -95,18 +95,8 @@ class SceneManager {
             const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
             if (interpolantWindowList) {
-
-                // TODO: sceneManager.receiveEvent. Handle instanced mesh.
-                console.log('TODO: sceneManager.receiveEvent. Handle instanced mesh.');
-
-                return;
-
-                let objects = interpolantWindowList.map(({ index }) => {
-                    return ballAndStick.balls[ index ];
-                });
-
-                this.picker.pickHighlighter.configureInstanceIdList(objects);
-
+                const indices = interpolantWindowList.map(({ index }) => index.toString());
+                this.picker.pickHighlighter.configureWithInstanceId(indices[ 0 ]);
             }
 
         } else if ('RenderStyleDidChange' === type) {

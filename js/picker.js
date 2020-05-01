@@ -1,4 +1,5 @@
 import { eventBus } from "./app.js";
+import ColorRampPanel from "./colorRampPanel.js";
 
 const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'ribbon', 'noodle', 'stick' ]);
 
@@ -14,12 +15,15 @@ class Picker {
         eventBus.subscribe("DidLeaveGUI", this);
     }
 
-    receiveEvent({ type }) {
+    receiveEvent({ type, data }) {
 
         if ("DidEnterGUI" === type) {
             this.pickHighlighter.unhighlightInstance();
             this.isEnabled = false;
         } else if ("DidLeaveGUI" === type) {
+            if (data instanceof ColorRampPanel) {
+                this.pickHighlighter.unhighlightInstance();
+            }
             this.isEnabled = true;
         }
 
@@ -42,7 +46,7 @@ class Picker {
                 // console.log(`${ Date.now() }. Picker.intersect(). Hits(${ hitList.length }). Instance ID ${ hit.instanceId }.`)
 
                 if (false === this.pickHighlighter.hasInstanceId(hit.instanceId)) {
-                    this.pickHighlighter.configureInstanceIdList(hit.instanceId);
+                    this.pickHighlighter.configureWithInstanceId(hit.instanceId);
                     eventBus.post({ type: "PickerDidHitObject", data: hit.instanceId });
                 }
 

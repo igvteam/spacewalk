@@ -61,22 +61,18 @@ class BallAndStick {
 
         // build rgb list
         this.rgb = [];
-
         for (let i = 0; i < vertices.length; i++) {
 
             const { interpolant } = trace[ i ].colorRampInterpolantWindow;
 
-            const { r, g, b } = igvPanel.materialProvider.colorForInterpolant(interpolant);
-
-            this.rgb.push(r);
-            this.rgb.push(g);
-            this.rgb.push(b);
+            this.rgb.push( igvPanel.materialProvider.colorForInterpolant(interpolant) );
 
             this.colorRampInterpolantWindowDictionary[ i.toString() ] = trace[ i ].colorRampInterpolantWindow;
-
         }
 
-        this.rgbFloat32Array = Float32Array.from(this.rgb);
+        const color = new THREE.Color();
+        const thang = new Array(vertices.length).fill().flatMap((_, i) => color.set(this.rgb[ i ]).toArray())
+        this.rgbFloat32Array = Float32Array.from(thang);
 
         // assign instance color list to canonical geometry
         geometry.setAttribute(instanceColorString, new THREE.InstancedBufferAttribute(this.rgbFloat32Array, 3) );
