@@ -1,4 +1,4 @@
-import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
+import igv from '../../node_modules/igv/dist/igv.esm.js';
 import { Utils, FileLoadManager, FileLoadWidget } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
 import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.js';
 import { igvPanel } from "../app.js";
@@ -44,12 +44,12 @@ class TrackLoadController {
         try {
             this.trackRegistry = await this.getTrackRegistry(trackRegistryFile);
         } catch (e) {
-            hic.igv.Alert.presentAlert(e.message);
+            igv.Alert.presentAlert(e.message);
         }
 
         if (undefined === this.trackRegistry) {
             const e = new Error("Error retrieving registry via getTrackRegistry function");
-            hic.igv.Alert.presentAlert(e.message);
+            igv.Alert.presentAlert(e.message);
             throw e;
         }
 
@@ -64,7 +64,7 @@ class TrackLoadController {
         try {
             responses = await Promise.all( paths.map( path => fetch(path) ) )
         } catch (e) {
-            hic.igv.Alert.presentAlert(e.message);
+            igv.Alert.presentAlert(e.message);
         }
 
         let jsons = [];
@@ -72,7 +72,7 @@ class TrackLoadController {
             const promises = responses.map( response => response.json() );
             jsons = await Promise.all( promises )
         } catch (e) {
-            hic.igv.Alert.presentAlert(e.message);
+            igv.Alert.presentAlert(e.message);
         }
 
         let buttonConfigurations = [];
