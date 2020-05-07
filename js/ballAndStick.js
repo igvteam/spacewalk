@@ -4,9 +4,9 @@ import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import { clamp } from './math.js';
 import EnsembleManager from "./ensembleManager.js";
 import { generateRadiusTable } from "./utils.js";
-import { sceneManager, igvPanel } from './app.js'
+import { eventBus, ensembleManager, sceneManager, igvPanel } from './app.js'
 import { instanceColorString } from "./sceneManager.js";
-import {appleCrayonColorThreeJS} from "./color";
+import { appleCrayonColorThreeJS } from "./color.js";
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
@@ -20,8 +20,30 @@ class BallAndStick {
 
     constructor () {
         this.stickCurves = undefined;
+
+        eventBus.subscribe("DidSelectSegmentID", this);
+        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
     }
 
+    receiveEvent({ type, data }) {
+
+        const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
+        const renderStyleConditional = BallAndStick.getRenderStyle() === sceneManager.renderStyle
+
+        if (typeConditional && renderStyleConditional) {
+
+            const { interpolantList } = data;
+
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+
+            if (interpolantWindowList) {
+                const indices = interpolantWindowList.map(({ index }) => index);
+                sceneManager.picker.pickHighlighter.configureWithInstanceIdList(indices);
+            }
+
+        }
+
+    }
     configure(trace) {
 
         this.dispose();

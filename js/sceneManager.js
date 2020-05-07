@@ -57,8 +57,6 @@ class SceneManager {
             this.setupMultipassRendering(this.scene, this.renderer, this.cameraLightingRig);
         }
 
-        eventBus.subscribe("DidSelectSegmentID", this);
-        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
         eventBus.subscribe('DidSelectTrace', this);
         eventBus.subscribe('DidLoadEnsembleFile', this);
         eventBus.subscribe('RenderStyleDidChange', this);
@@ -86,20 +84,7 @@ class SceneManager {
 
     receiveEvent({ type, data }) {
 
-        const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
-
-        if (typeConditional && BallAndStick.getRenderStyle() === this.renderStyle) {
-
-            const { interpolantList } = data;
-
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
-
-            if (interpolantWindowList) {
-                const indices = interpolantWindowList.map(({ index }) => index);
-                this.picker.pickHighlighter.configureWithInstanceIdList(indices);
-            }
-
-        } else if ('RenderStyleDidChange' === type) {
+        if ('RenderStyleDidChange' === type) {
 
             if (data === Noodle.getRenderStyle()) {
                 this.renderStyle = Noodle.getRenderStyle();
