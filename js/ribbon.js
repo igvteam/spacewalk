@@ -4,7 +4,6 @@ import { LineMaterial } from "../node_modules/three/examples/jsm/lines/LineMater
 import { LineGeometry } from "../node_modules/three/examples/jsm/lines/LineGeometry.js";
 import EnsembleManager from "./ensembleManager.js";
 import {eventBus, igvPanel, sceneManager} from "./app.js";
-import {getColorListWithXYZList} from "./color.js";
 import Noodle, { NoodleScaleFactor } from "./noodle.js";
 
 let fatLineMaterial;
@@ -140,10 +139,27 @@ const createFatSpline = (curve, materialProvider) => {
 
 };
 
-export const RibbonScaleFactor = 4e3;
+const getColorListWithXYZList = (materialProvider, xyzList) =>  {
+
+    let colorList = [];
+
+    xyzList
+        .map((xyz, i, array) => {
+            let interpolant = i / (array.length - 1);
+            return materialProvider.colorForInterpolant(interpolant);
+        })
+        .forEach((rgb) => {
+            const { r, g, b } = rgb;
+            colorList.push(r, g, b);
+        });
+
+    return colorList;
+};
 
 const getFatSplinePointCount = curveLength => {
     return Noodle.getCountMultiplier(curveLength) * RibbonScaleFactor;
 };
+
+export const RibbonScaleFactor = 4e3;
 
 export default Ribbon;

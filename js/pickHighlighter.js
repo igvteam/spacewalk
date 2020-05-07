@@ -26,21 +26,30 @@ class PickHighlighter {
 
     highlightInstance() {
 
-        for (let instanceId of this.instanceIdList) {
-            rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
+        if (undefined !== ballAndStick.balls) {
+
+            for (let instanceId of this.instanceIdList) {
+                rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
+            }
+
+            ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
         }
 
-        ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
     }
 
     unhighlightInstance() {
 
-        for (let instanceId of this.instanceIdList) {
-            ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
-        }
+        if (undefined !== ballAndStick.balls) {
 
-        ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
-        this.instanceIdList.clear();
+            for (let instanceId of this.instanceIdList) {
+                ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
+            }
+
+            ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
+
+            this.instanceIdList.clear();
+
+        }
 
     }
 

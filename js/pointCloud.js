@@ -1,5 +1,4 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { setGeometryAttributeColorListWithColorThreeJS } from './color.js';
 import { ensembleManager, eventBus, sceneManager } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
 
@@ -166,5 +165,14 @@ class PointCloud {
         return 'render-style-point-cloud';
     }
 }
+
+export const setGeometryAttributeColorListWithColorThreeJS = (colorList, colorThreeJS) => {
+    const { r, g, b } = colorThreeJS;
+    const rgb = [ r, g, b ];
+
+    for (let i = 0, j = 0; i < colorList.length; i++, j = (j + 1) % 3) {
+        colorList[ i ] = rgb[ j ];
+    }
+};
 
 export default PointCloud;

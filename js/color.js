@@ -1,37 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { lerp, clamp, random } from './math.js';
 
-export const getColorListWithXYZList = (materialProvider, xyzList) =>  {
-
-    let colorList = [];
-
-    xyzList
-        .map((xyz, i, array) => {
-            let interpolant = i / (array.length - 1);
-            return materialProvider.colorForInterpolant(interpolant);
-        })
-        .forEach((rgb) => {
-            const { r, g, b } = rgb;
-            colorList.push(r, g, b);
-        });
-
-    return colorList;
-};
-
-export const setGeometryAttributeColorListWithColorThreeJS = (colorList, colorThreeJS) => {
-    const { r, g, b } = colorThreeJS;
-    const rgb = [ r, g, b ];
-
-    for (let i = 0, j = 0; i < colorList.length; i++, j = (j + 1) % 3) {
-        colorList[ i ] = rgb[ j ];
-    }
-};
-
-export const colorDescriptionRGBOrThreeJS = color => {
-    const { r, g, b } = color;
-    return `rgb(${r.toFixed(3)},${g.toFixed(3)},${b.toFixed(3)})`
-};
-
 export let threeJSColorToRGB255 = (color) => {
 
     const { r, g, b } = color;
