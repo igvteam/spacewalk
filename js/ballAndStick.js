@@ -149,22 +149,21 @@ class BallAndStick {
             return;
         }
 
-        // TODO: ballAndStick.updateMaterialProvider. Handle instanced mesh.
-        console.log('TODO: ballAndStick.updateMaterialProvider. Handle instanced mesh.');
+        const color = new THREE.Color();
+        const values = Object.values(this.colorRampInterpolantWindowDictionary);
+        this.rgb = [];
+        for (let value of values) {
 
-        for (let { interpolant } of this.colorRampInterpolantWindowDictionary) {
-            const color = materialProvider.colorForInterpolant(interpolant);
-            // do something with this color
+            const interpolatedColor = materialProvider.colorForInterpolant(value.interpolant)
+
+            this.rgb.push( interpolatedColor );
+
+            const instanceId = values.indexOf(value)
+
+            color.set(interpolatedColor).toArray(this.rgbFloat32Array, instanceId * 3)
         }
 
-        // this.balls.forEach(mesh => {
-        //
-        //     const { interpolant } = this.colorRampInterpolantWindowDictionary[ mesh.uuid ];
-        //
-        //     const color = materialProvider.colorForInterpolant(interpolant);
-        //
-        //     mesh.material = new THREE.MeshPhongMaterial({ color });
-        // });
+        this.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
     }
 
     dispose () {
