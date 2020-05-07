@@ -46,7 +46,7 @@ class Picker {
                 // console.log(`${ Date.now() }. Picker.intersect(). Hits(${ hitList.length }). Instance ID ${ hit.instanceId }.`)
 
                 if (false === this.pickHighlighter.hasInstanceId(hit.instanceId)) {
-                    this.pickHighlighter.configureWithInstanceId(hit.instanceId);
+                    this.pickHighlighter.configureWithInstanceIdList([ hit.instanceId ]);
                     eventBus.post({ type: "PickerDidHitObject", data: hit.instanceId });
                 }
 

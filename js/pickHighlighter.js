@@ -7,36 +7,40 @@ const rgbTemp = new THREE.Color();
 class PickHighlighter {
 
     constructor (highlightColor) {
-
         this.highlightColor = highlightColor;
-
-        this.objects = new Set();
-        this.objects.clear();
-        this.instanceId = undefined;
+        this.instanceIdList = new Set();
+        this.instanceIdList.clear();
     }
 
     hasInstanceId(instanceId) {
-        return this.instanceId === instanceId;
+        return this.instanceIdList.has(instanceId);
     }
 
-    configureWithInstanceId(instanceId) {
+    configureWithInstanceIdList(instanceIdList) {
         this.unhighlightInstance();
-        this.instanceId = instanceId
+        for (let instanceId of instanceIdList) {
+            this.instanceIdList.add(instanceId);
+        }
         this.highlightInstance();
     }
 
     highlightInstance() {
-        rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, this.instanceId * 3);
+
+        for (let instanceId of this.instanceIdList) {
+            rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
+        }
+
         ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
     }
 
     unhighlightInstance() {
 
-        if (undefined !== this.instanceId) {
-            ballAndStick.rgb[ this.instanceId ].toArray(ballAndStick.rgbFloat32Array, this.instanceId * 3);
-            ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
-            this.instanceId = undefined;
+        for (let instanceId of this.instanceIdList) {
+            ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
         }
+
+        ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
+        this.instanceIdList.clear();
 
     }
 

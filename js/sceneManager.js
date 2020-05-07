@@ -95,8 +95,8 @@ class SceneManager {
             const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
             if (interpolantWindowList) {
-                const indices = interpolantWindowList.map(({ index }) => index.toString());
-                this.picker.pickHighlighter.configureWithInstanceId(indices[ 0 ]);
+                const indices = interpolantWindowList.map(({ index }) => index);
+                this.picker.pickHighlighter.configureWithInstanceIdList(indices);
             }
 
         } else if ('RenderStyleDidChange' === type) {
