@@ -1,44 +1,58 @@
+import * as THREE from "../node_modules/three/build/three.module.js";
+import { ballAndStick } from "./app.js";
+import { instanceColorString } from "./sceneManager.js";
+
+const rgbTemp = new THREE.Color();
+
 class PickHighlighter {
 
     constructor (highlightColor) {
         this.highlightColor = highlightColor;
-
-        this.objects = new Set();
-        this.objects.clear();
-
-        this.colorDictionary = {};
+        this.instanceIdList = new Set();
+        this.instanceIdList.clear();
     }
 
-    hasObject(candidate) {
-        return this.objects.has(candidate);
+    hasInstanceId(instanceId) {
+        return this.instanceIdList.has(instanceId);
     }
 
-    configureObjects(objects) {
-
-        this.unhighlight();
-
-        objects.forEach((object) => {
-            this.objects.add(object);
-            this.colorDictionary[ object.uuid ] = object.material.color.clone();
-        });
-
-        this.highlight();
+    configureWithInstanceIdList(instanceIdList) {
+        this.unhighlightInstance();
+        for (let instanceId of instanceIdList) {
+            this.instanceIdList.add(instanceId);
+        }
+        this.highlightInstance();
     }
 
-    highlight() {
-        this.objects.forEach(object => object.material.color.copy(this.highlightColor));
-    }
+    highlightInstance() {
 
-    unhighlight() {
+        if (undefined !== ballAndStick.balls) {
 
-        this.objects.forEach(object => {
-            object.material.color.copy(this.colorDictionary[ object.uuid ]);
-        });
+            for (let instanceId of this.instanceIdList) {
+                rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
+            }
 
-        this.objects.clear();
-        this.colorDictionary = {};
+            ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
+        }
 
     }
+
+    unhighlightInstance() {
+
+        if (undefined !== ballAndStick.balls) {
+
+            for (let instanceId of this.instanceIdList) {
+                ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
+            }
+
+            ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
+
+            this.instanceIdList.clear();
+
+        }
+
+    }
+
 }
 
 export default PickHighlighter;

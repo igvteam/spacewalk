@@ -2,7 +2,6 @@ import * as THREE from "../node_modules/three/build/three.module.js";
 import Parser from "./parser.js";
 import { eventBus, colorRampMaterialProvider, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 import { includes, degrees } from "./math.js";
-import {appleCrayonColorThreeJS} from "./color.js";
 
 class EnsembleManager {
 
@@ -68,10 +67,7 @@ class EnsembleManager {
                         };
 
                     const geometry = new THREE.BufferGeometry();
-
                     geometry.userData.color = colorRampMaterialProvider.colorForInterpolant(interpolant);
-                    geometry.userData.deemphasizedColor = appleCrayonColorThreeJS('magnesium');
-
                     geometry.userData.material = new THREE.MeshPhongMaterial({ color: geometry.userData.color });
 
                     const xyz = [];

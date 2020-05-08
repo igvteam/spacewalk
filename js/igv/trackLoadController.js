@@ -1,31 +1,31 @@
+import igv from '../../node_modules/igv/dist/igv.esm.js';
 import { Utils, FileLoadManager, FileLoadWidget } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
-import { Alert } from '../../node_modules/igv-ui/src/index.js'
 import EncodeDataSource from '../../node_modules/data-modal/js/encodeDataSource.js';
 import { igvPanel } from "../app.js";
 
 class TrackLoadController {
 
-    constructor({ browser, trackRegistryFile, trackLoadModal, trackFileLoad, encodeModalTable, dropdownMenu, selectModal }) {
+    constructor({ browser, trackRegistryFile, trackLoadModal, multipleTrackFileLoad, encodeModalTable }) {
 
         this.browser = browser;
         this.trackRegistryFile = trackRegistryFile;
         this.encodeModalTable = encodeModalTable;
 
-        let fileLoadWidgetConfig =
+        const config =
             {
                 widgetParent: trackLoadModal.querySelector('.modal-body'),
-                dataTitle: undefined,
-                indexTitle: undefined,
+                dataTitle: 'Track',
+                indexTitle: 'Track Index',
                 mode: 'url',
                 fileLoadManager: new FileLoadManager(),
-                dataOnly: undefined,
-                doURL: undefined
+                dataOnly: false,
+                doURL: true
             };
 
-        this.urlWidget = new FileLoadWidget(fileLoadWidgetConfig);
+        this.urlWidget = new FileLoadWidget(config);
 
         Utils.configureModal(this.urlWidget, trackLoadModal, async fileLoadWidget => {
-            await trackFileLoad.loadPaths(fileLoadWidget.retrievePaths());
+            await multipleTrackFileLoad.loadPaths(fileLoadWidget.retrievePaths());
             return true;
         });
 
@@ -44,12 +44,12 @@ class TrackLoadController {
         try {
             this.trackRegistry = await this.getTrackRegistry(trackRegistryFile);
         } catch (e) {
-            Alert.presentAlert(e.message);
+            igv.Alert.presentAlert(e.message);
         }
 
         if (undefined === this.trackRegistry) {
             const e = new Error("Error retrieving registry via getTrackRegistry function");
-            Alert.presentAlert(e.message);
+            igv.Alert.presentAlert(e.message);
             throw e;
         }
 
@@ -64,7 +64,7 @@ class TrackLoadController {
         try {
             responses = await Promise.all( paths.map( path => fetch(path) ) )
         } catch (e) {
-            Alert.presentAlert(e.message);
+            igv.Alert.presentAlert(e.message);
         }
 
         let jsons = [];
@@ -72,7 +72,7 @@ class TrackLoadController {
             const promises = responses.map( response => response.json() );
             jsons = await Promise.all( promises )
         } catch (e) {
-            Alert.presentAlert(e.message);
+            igv.Alert.presentAlert(e.message);
         }
 
         let buttonConfigurations = [];

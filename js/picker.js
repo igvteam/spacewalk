@@ -1,4 +1,5 @@
 import { eventBus } from "./app.js";
+import ColorRampPanel from "./colorRampPanel.js";
 
 const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'ribbon', 'noodle', 'stick' ]);
 
@@ -14,40 +15,45 @@ class Picker {
         eventBus.subscribe("DidLeaveGUI", this);
     }
 
-    receiveEvent({ type }) {
+    receiveEvent({ type, data }) {
 
         if ("DidEnterGUI" === type) {
-            this.pickHighlighter.unhighlight();
+            this.pickHighlighter.unhighlightInstance();
             this.isEnabled = false;
         } else if ("DidLeaveGUI" === type) {
+            if (data instanceof ColorRampPanel) {
+                this.pickHighlighter.unhighlightInstance();
+            }
             this.isEnabled = true;
         }
 
     }
 
-    intersect({ x ,y, camera, scene, doTrackObject }) {
+    intersect({ x ,y, camera, scene }) {
 
         this.raycaster.setFromCamera({ x, y }, camera);
 
-        let hitList = this.raycaster.intersectObjects(scene.children).filter((item) => {
+        const hitList = this.raycaster.intersectObjects(scene.children).filter((item) => {
             return !exclusionSet.has(item.object.name) && true === item.object.visible;
         });
 
         if (hitList.length > 0) {
 
             const [ hit ] = hitList;
-            const { object } = hit;
 
-            if (doTrackObject || false === this.pickHighlighter.hasObject(object)) {
+            if (undefined !== hit.instanceId) {
 
-                // const { uv } = hit;
+                // console.log(`${ Date.now() }. Picker.intersect(). Hits(${ hitList.length }). Instance ID ${ hit.instanceId }.`)
 
-                this.pickHighlighter.configureObjects([ object ]);
-                eventBus.post({ type: "PickerDidHitObject", data: object.uuid });
+                if (false === this.pickHighlighter.hasInstanceId(hit.instanceId)) {
+                    this.pickHighlighter.configureWithInstanceIdList([ hit.instanceId ]);
+                    eventBus.post({ type: "PickerDidHitObject", data: hit.instanceId });
+                }
+
             }
 
         } else {
-            this.pickHighlighter.unhighlight();
+            this.pickHighlighter.unhighlightInstance();
             eventBus.post({ type: "PickerDidLeaveObject" });
         }
 

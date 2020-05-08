@@ -1365,33 +1365,371 @@ void main() {
 	ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
 	vec3 totalEmissiveRadiance = emissive;
 
-	#include <map_fragment>
-	#include <color_fragment>
-	#include <alphamap_fragment>
-	#include <alphatest_fragment>
-	#include <specularmap_fragment>
-	#include <normal_fragment_begin>
-	#include <normal_fragment_maps>
-	#include <emissivemap_fragment>
+#ifdef USE_MAP
+	vec4 texelColor = texture2D( map, vUv );
+	texelColor = mapTexelToLinear( texelColor );
+	diffuseColor *= texelColor;
+#endif
+
+#ifdef USE_COLOR
+	diffuseColor.rgb *= vColor;
+#endif
+
+#ifdef USE_ALPHAMAP
+	diffuseColor.a *= texture2D( alphaMap, vUv ).g;
+#endif
+
+#ifdef ALPHATEST
+	if ( diffuseColor.a < ALPHATEST ) discard;
+#endif
+
+	float specularStrength;
+#ifdef USE_SPECULARMAP
+	vec4 texelSpecular = texture2D( specularMap, vUv );
+	specularStrength = texelSpecular.r;
+#else
+	specularStrength = 1.0;
+#endif
+
+#ifdef FLAT_SHADED
+
+	// Workaround for Adreno/Nexus5 not able able to do dFdx( vViewPosition ) ...
+	vec3 fdx = vec3( dFdx( vViewPosition.x ), dFdx( vViewPosition.y ), dFdx( vViewPosition.z ) );
+	vec3 fdy = vec3( dFdy( vViewPosition.x ), dFdy( vViewPosition.y ), dFdy( vViewPosition.z ) );
+	vec3 normal = normalize( cross( fdx, fdy ) );
+
+#else
+
+	vec3 normal = normalize( vNormal );
+
+#ifdef DOUBLE_SIDED
+	normal = normal * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+#endif
+
+	#ifdef USE_TANGENT
+
+		vec3 tangent = normalize( vTangent );
+		vec3 bitangent = normalize( vBitangent );
+
+		#ifdef DOUBLE_SIDED
+			tangent = tangent * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+			bitangent = bitangent * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+		#endif
+
+		#if defined( TANGENTSPACE_NORMALMAP ) || defined( USE_CLEARCOAT_NORMALMAP )
+			mat3 vTBN = mat3( tangent, bitangent, normal );
+		#endif
+
+	#endif
+
+#endif
+
+    // non perturbed normal for clearcoat among others
+    vec3 geometryNormal = normal;
+
+#ifdef OBJECTSPACE_NORMALMAP
+
+	normal = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0; // overrides both flatShading and attribute normals
+
+	#ifdef FLIP_SIDED
+		normal = - normal;
+	#endif
+
+	#ifdef DOUBLE_SIDED
+		normal = normal * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+	#endif
+
+	normal = normalize( normalMatrix * normal );
+
+#elif defined( TANGENTSPACE_NORMALMAP )
+
+	vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;
+	mapN.xy *= normalScale;
+
+	#ifdef USE_TANGENT
+		normal = normalize( vTBN * mapN );
+	#else
+		normal = perturbNormal2Arb( -vViewPosition, normal, mapN );
+	#endif
+
+#elif defined( USE_BUMPMAP )
+	normal = perturbNormalArb( -vViewPosition, normal, dHdxy_fwd() );
+#endif
+
+#ifdef USE_EMISSIVEMAP
+	vec4 emissiveColor = texture2D( emissiveMap, vUv );
+	emissiveColor.rgb = emissiveMapTexelToLinear( emissiveColor ).rgb;
+	totalEmissiveRadiance *= emissiveColor.rgb;
+#endif
 
 	// accumulation
-	#include <lights_phong_fragment>
-	#include <lights_fragment_begin>
-	#include <lights_fragment_maps>
-	#include <lights_fragment_end>
+	BlinnPhongMaterial material;
+    material.diffuseColor = diffuseColor.rgb;
+    material.specularColor = specular;
+    material.specularShininess = shininess;
+    material.specularStrength = specularStrength;
+    
+	/**
+ * This is a template that can be used to light a material, it uses pluggable
+ * RenderEquations (RE)for specific lighting scenarios.
+ *
+ * Instructions for use:
+ * - Ensure that both RE_Direct, RE_IndirectDiffuse and RE_IndirectSpecular are defined
+ * - If you have defined an RE_IndirectSpecular, you need to also provide a Material_LightProbeLOD. <---- ???
+ * - Create a material parameter that is to be passed as the third parameter to your lighting functions.
+ *
+ * TODO:
+ * - Add area light support.
+ * - Add sphere light support.
+ * - Add diffuse light probe (irradiance cubemap) support.
+ */
+
+GeometricContext geometry;
+
+geometry.position = - vViewPosition;
+geometry.normal = normal;
+geometry.viewDir = ( isOrthographic ) ? vec3( 0, 0, 1 ) : normalize( vViewPosition );
+
+#ifdef CLEARCOAT
+
+	geometry.clearcoatNormal = clearcoatNormal;
+
+#endif
+
+IncidentLight directLight;
+
+#if ( NUM_POINT_LIGHTS > 0 ) && defined( RE_Direct )
+
+	PointLight pointLight;
+	#if defined( USE_SHADOWMAP ) && NUM_POINT_LIGHT_SHADOWS > 0
+	PointLightShadow pointLightShadow;
+	#endif
+
+	#pragma unroll_loop_start
+	for ( int i = 0; i < NUM_POINT_LIGHTS; i ++ ) {
+
+		pointLight = pointLights[ i ];
+
+		getPointDirectLightIrradiance( pointLight, geometry, directLight );
+
+		#if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_POINT_LIGHT_SHADOWS )
+		pointLightShadow = pointLightShadows[ i ];
+		directLight.color *= all( bvec2( directLight.visible, receiveShadow ) ) ? getPointShadow( pointShadowMap[ i ], pointLightShadow.shadowMapSize, pointLightShadow.shadowBias, pointLightShadow.shadowRadius, vPointShadowCoord[ i ], pointLightShadow.shadowCameraNear, pointLightShadow.shadowCameraFar ) : 1.0;
+		#endif
+
+		RE_Direct( directLight, geometry, material, reflectedLight );
+
+	}
+	#pragma unroll_loop_end
+
+#endif
+
+#if ( NUM_SPOT_LIGHTS > 0 ) && defined( RE_Direct )
+
+	SpotLight spotLight;
+	#if defined( USE_SHADOWMAP ) && NUM_SPOT_LIGHT_SHADOWS > 0
+	SpotLightShadow spotLightShadow;
+	#endif
+
+	#pragma unroll_loop_start
+	for ( int i = 0; i < NUM_SPOT_LIGHTS; i ++ ) {
+
+		spotLight = spotLights[ i ];
+
+		getSpotDirectLightIrradiance( spotLight, geometry, directLight );
+
+		#if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_SPOT_LIGHT_SHADOWS )
+		spotLightShadow = spotLightShadows[ i ];
+		directLight.color *= all( bvec2( directLight.visible, receiveShadow ) ) ? getShadow( spotShadowMap[ i ], spotLightShadow.shadowMapSize, spotLightShadow.shadowBias, spotLightShadow.shadowRadius, vSpotShadowCoord[ i ] ) : 1.0;
+		#endif
+
+		RE_Direct( directLight, geometry, material, reflectedLight );
+
+	}
+	#pragma unroll_loop_end
+
+#endif
+
+#if ( NUM_DIR_LIGHTS > 0 ) && defined( RE_Direct )
+
+	DirectionalLight directionalLight;
+	#if defined( USE_SHADOWMAP ) && NUM_DIR_LIGHT_SHADOWS > 0
+	DirectionalLightShadow directionalLightShadow;
+	#endif
+
+	#pragma unroll_loop_start
+	for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
+
+		directionalLight = directionalLights[ i ];
+
+		getDirectionalDirectLightIrradiance( directionalLight, geometry, directLight );
+
+		#if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_DIR_LIGHT_SHADOWS )
+		directionalLightShadow = directionalLightShadows[ i ];
+		directLight.color *= all( bvec2( directLight.visible, receiveShadow ) ) ? getShadow( directionalShadowMap[ i ], directionalLightShadow.shadowMapSize, directionalLightShadow.shadowBias, directionalLightShadow.shadowRadius, vDirectionalShadowCoord[ i ] ) : 1.0;
+		#endif
+
+		RE_Direct( directLight, geometry, material, reflectedLight );
+
+	}
+	#pragma unroll_loop_end
+
+#endif
+
+#if ( NUM_RECT_AREA_LIGHTS > 0 ) && defined( RE_Direct_RectArea )
+
+	RectAreaLight rectAreaLight;
+
+	#pragma unroll_loop_start
+	for ( int i = 0; i < NUM_RECT_AREA_LIGHTS; i ++ ) {
+
+		rectAreaLight = rectAreaLights[ i ];
+		RE_Direct_RectArea( rectAreaLight, geometry, material, reflectedLight );
+
+	}
+	#pragma unroll_loop_end
+
+#endif
+
+#if defined( RE_IndirectDiffuse )
+
+	vec3 iblIrradiance = vec3( 0.0 );
+
+	vec3 irradiance = getAmbientLightIrradiance( ambientLightColor );
+
+	irradiance += getLightProbeIrradiance( lightProbe, geometry );
+
+	#if ( NUM_HEMI_LIGHTS > 0 )
+
+		#pragma unroll_loop_start
+		for ( int i = 0; i < NUM_HEMI_LIGHTS; i ++ ) {
+
+			irradiance += getHemisphereLightIrradiance( hemisphereLights[ i ], geometry );
+
+		}
+		#pragma unroll_loop_end
+
+	#endif
+
+#endif
+
+#if defined( RE_IndirectSpecular )
+
+	vec3 radiance = vec3( 0.0 );
+	vec3 clearcoatRadiance = vec3( 0.0 );
+
+#endif
+
+#if defined( RE_IndirectDiffuse )
+	#ifdef USE_LIGHTMAP
+		vec4 lightMapTexel= texture2D( lightMap, vUv2 );
+		vec3 lightMapIrradiance = lightMapTexelToLinear( lightMapTexel ).rgb * lightMapIntensity;
+		#ifndef PHYSICALLY_CORRECT_LIGHTS
+			lightMapIrradiance *= PI; // factor of PI should not be present; included here to prevent breakage
+		#endif
+		irradiance += lightMapIrradiance;
+	#endif
+	#if defined( USE_ENVMAP ) && defined( STANDARD ) && defined( ENVMAP_TYPE_CUBE_UV )
+		iblIrradiance += getLightProbeIndirectIrradiance( /*lightProbe,*/ geometry, maxMipLevel );
+	#endif
+#endif
+
+#if defined( USE_ENVMAP ) && defined( RE_IndirectSpecular )
+	radiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry.viewDir, geometry.normal, material.specularRoughness, maxMipLevel );
+	#ifdef CLEARCOAT
+		clearcoatRadiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry.viewDir, geometry.clearcoatNormal, material.clearcoatRoughness, maxMipLevel );
+	#endif
+#endif
+
+#if defined( RE_IndirectDiffuse )
+	RE_IndirectDiffuse( irradiance, geometry, material, reflectedLight );
+#endif
+#if defined( RE_IndirectSpecular )
+	RE_IndirectSpecular( radiance, iblIrradiance, clearcoatRadiance, geometry, material, reflectedLight );
+#endif
 
 	// modulation
-	#include <aomap_fragment>
+#ifdef USE_AOMAP
+	// reads channel R, compatible with a combined OcclusionRoughnessMetallic (RGB) texture
+	float ambientOcclusion = ( texture2D( aoMap, vUv2 ).r - 1.0 ) * aoMapIntensity + 1.0;
+	reflectedLight.indirectDiffuse *= ambientOcclusion;
+	#if defined( USE_ENVMAP ) && defined( STANDARD )
+		float dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );
+		reflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );
+	#endif
+#endif
 
 	vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
 
-	#include <envmap_fragment>
+#ifdef USE_ENVMAP
+
+	#ifdef ENV_WORLDPOS
+
+		vec3 cameraToFrag;
+		
+		if ( isOrthographic ) {
+			cameraToFrag = normalize( vec3( - viewMatrix[ 0 ][ 2 ], - viewMatrix[ 1 ][ 2 ], - viewMatrix[ 2 ][ 2 ] ) );
+		}  else {
+			cameraToFrag = normalize( vWorldPosition - cameraPosition );
+		}
+
+		// Transforming Normal Vectors with the Inverse Transformation
+		vec3 worldNormal = inverseTransformDirection( normal, viewMatrix );
+
+		#ifdef ENVMAP_MODE_REFLECTION
+			vec3 reflectVec = reflect( cameraToFrag, worldNormal );
+		#else
+			vec3 reflectVec = refract( cameraToFrag, worldNormal, refractionRatio );
+		#endif
+
+	#else
+		vec3 reflectVec = vReflect;
+	#endif
+
+	#ifdef ENVMAP_TYPE_CUBE
+		vec4 envColor = textureCube( envMap, vec3( flipEnvMap * reflectVec.x, reflectVec.yz ) );
+	#elif defined( ENVMAP_TYPE_CUBE_UV )
+		vec4 envColor = textureCubeUV( envMap, reflectVec, 0.0 );
+	#elif defined( ENVMAP_TYPE_EQUIREC )
+		vec2 sampleUV;
+		reflectVec = normalize( reflectVec );
+		sampleUV.y = asin( clamp( reflectVec.y, - 1.0, 1.0 ) ) * RECIPROCAL_PI + 0.5;
+		sampleUV.x = atan( reflectVec.z, reflectVec.x ) * RECIPROCAL_PI2 + 0.5;
+		vec4 envColor = texture2D( envMap, sampleUV );
+	#elif defined( ENVMAP_TYPE_SPHERE )
+		reflectVec = normalize( reflectVec );
+		vec3 reflectView = normalize( ( viewMatrix * vec4( reflectVec, 0.0 ) ).xyz + vec3( 0.0, 0.0, 1.0 ) );
+		vec4 envColor = texture2D( envMap, reflectView.xy * 0.5 + 0.5 );
+	#else
+		vec4 envColor = vec4( 0.0 );
+	#endif
+
+	#ifndef ENVMAP_TYPE_CUBE_UV
+		envColor = envMapTexelToLinear( envColor );
+	#endif
+
+	#ifdef ENVMAP_BLENDING_MULTIPLY
+		outgoingLight = mix( outgoingLight, outgoingLight * envColor.xyz, specularStrength * reflectivity );
+	#elif defined( ENVMAP_BLENDING_MIX )
+		outgoingLight = mix( outgoingLight, envColor.xyz, specularStrength * reflectivity );
+	#elif defined( ENVMAP_BLENDING_ADD )
+		outgoingLight += envColor.xyz * specularStrength * reflectivity;
+	#endif
+
+#endif
 
 	gl_FragColor = vec4( outgoingLight, diffuseColor.a );
 
-	#include <tonemapping_fragment>
-	#include <encodings_fragment>
-	#include <premultiplied_alpha_fragment>
+#if defined( TONE_MAPPING )
+	gl_FragColor.rgb = toneMapping( gl_FragColor.rgb );
+#endif
+
+	gl_FragColor = linearToOutputTexel( gl_FragColor );
+	
+#ifdef PREMULTIPLIED_ALPHA
+	// Get get normal blending with premultipled, use with CustomBlending, OneFactor, OneMinusSrcAlphaFactor, AddEquation.
+	gl_FragColor.rgb *= gl_FragColor.a;
+#endif
 
 }
 `;

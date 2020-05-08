@@ -1,9 +1,12 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { setGeometryAttributeColorListWithColorThreeJS } from './color.js';
 import { ensembleManager, eventBus, sceneManager } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
+import { appleCrayonColorThreeJS } from "./color.js";
 
 const pointSize = 128;
+
+const deemphasizedColor = appleCrayonColorThreeJS('magnesium')
+
 class PointCloud {
 
     constructor () {
@@ -45,8 +48,9 @@ class PointCloud {
     receiveEvent({ type, data }) {
 
         const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
+        const renderStyleConditional = PointCloud.getRenderStyle() === sceneManager.renderStyle
 
-        if (typeConditional && sceneManager.renderStyle === PointCloud.getRenderStyle()) {
+        if (typeConditional && renderStyleConditional) {
 
             if (this.meshList) {
 
@@ -55,21 +59,10 @@ class PointCloud {
                 const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
                 if (interpolantWindowList) {
+                    this.highlight(interpolantWindowList)
+                }
 
-                    for (let mesh of this.meshList) {
-                        mesh.material = this.deemphasizedMaterial;
-                        setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.deemphasizedColor)
-                    }
-
-                    for (let { index } of interpolantWindowList) {
-                        let mesh = this.meshList[ index ];
-                        mesh.material = this.material;
-                        setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
-                    }
-
-                } // if (interpolantWindowList)
-
-            } // if (this.meshList)
+            }
 
         } else if ("DidLeaveGUI" === type) {
             this.unHighlight();
@@ -149,6 +142,21 @@ class PointCloud {
         return pointCloudManager.getBounds();
     }
 
+    highlight(interpolantWindowList) {
+
+        for (let mesh of this.meshList) {
+            mesh.material = this.deemphasizedMaterial;
+            setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, deemphasizedColor)
+        }
+
+        for (let { index } of interpolantWindowList) {
+            let mesh = this.meshList[ index ];
+            mesh.material = this.material;
+            setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
+        }
+
+    }
+
     unHighlight() {
 
         if (this.meshList) {
@@ -166,5 +174,14 @@ class PointCloud {
         return 'render-style-point-cloud';
     }
 }
+
+export const setGeometryAttributeColorListWithColorThreeJS = (colorList, colorThreeJS) => {
+    const { r, g, b } = colorThreeJS;
+    const rgb = [ r, g, b ];
+
+    for (let i = 0, j = 0; i < colorList.length; i++, j = (j + 1) % 3) {
+        colorList[ i ] = rgb[ j ];
+    }
+};
 
 export default PointCloud;

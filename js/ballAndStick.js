@@ -1,10 +1,12 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
+import { BufferGeometryUtils } from '../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js';
 import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import { clamp } from './math.js';
 import EnsembleManager from "./ensembleManager.js";
 import { generateRadiusTable } from "./utils.js";
-
-import { sceneManager, igvPanel } from './app.js'
+import { eventBus, ensembleManager, sceneManager, igvPanel } from './app.js'
+import { instanceColorString } from "./sceneManager.js";
+import { appleCrayonColorThreeJS } from "./color.js";
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
@@ -12,12 +14,36 @@ let ballRadiusTable = undefined;
 let stickRadiusIndex = undefined;
 let stickRadiusTable = undefined;
 
+const stickTesselation = { length: 2, radial: 8 }
+
 class BallAndStick {
 
     constructor () {
         this.stickCurves = undefined;
+
+        eventBus.subscribe("DidSelectSegmentID", this);
+        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
     }
 
+    receiveEvent({ type, data }) {
+
+        const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
+        const renderStyleConditional = BallAndStick.getRenderStyle() === sceneManager.renderStyle
+
+        if (typeConditional && renderStyleConditional) {
+
+            const { interpolantList } = data;
+
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+
+            if (interpolantWindowList) {
+                const indices = interpolantWindowList.map(({ index }) => index);
+                sceneManager.picker.pickHighlighter.configureWithInstanceIdList(indices);
+            }
+
+        }
+
+    }
     configure(trace) {
 
         this.dispose();
@@ -46,93 +72,79 @@ class BallAndStick {
         }
     }
 
-    updateMaterialProvider (materialProvider) {
-
-        if (undefined === this.balls) {
-            return;
-        }
-
-        this.balls.forEach(mesh => {
-
-            const { interpolant } = this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ];
-
-            const color = materialProvider.colorForInterpolant(interpolant);
-
-            mesh.material = new THREE.MeshPhongMaterial({ color });
-        });
-    }
-
     createBalls(trace, ballRadius) {
 
-        // Segment ID dictionay. 3D Object UUID is key.
-        this.meshUUID_ColorRampInterpolantWindow_Dictionary = {};
+        this.colorRampInterpolantWindowDictionary = {};
 
-        return EnsembleManager.getSingleCentroidVerticesWithTrace(trace)
-            .map((vertex, index) => {
+        // canonical geometry (ball)
+        const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
 
-                const geometry = new THREE.SphereBufferGeometry(1, 32, 16);
+        const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
 
-                const { interpolant } = trace[ index ].colorRampInterpolantWindow;
-                const color = igvPanel.materialProvider.colorForInterpolant(interpolant);
-                const material = new THREE.MeshPhongMaterial({ color });
+        // build rgb list
+        this.rgb = [];
+        for (let i = 0; i < vertices.length; i++) {
 
-                const mesh = new THREE.Mesh(geometry, material);
+            const { interpolant } = trace[ i ].colorRampInterpolantWindow;
 
-                mesh.name = 'ball';
+            this.rgb.push( igvPanel.materialProvider.colorForInterpolant(interpolant) );
 
-                const { x, y, z } = vertex;
-                mesh.position.set(x, y, z);
-                mesh.scale.setScalar(ballRadius);
+            this.colorRampInterpolantWindowDictionary[ i.toString() ] = trace[ i ].colorRampInterpolantWindow;
+        }
 
-                this.meshUUID_ColorRampInterpolantWindow_Dictionary[ mesh.uuid ] = trace[ index ].colorRampInterpolantWindow;
+        const color = new THREE.Color();
+        const thang = new Array(vertices.length).fill().flatMap((_, i) => color.set(this.rgb[ i ]).toArray())
+        this.rgbFloat32Array = Float32Array.from(thang);
 
-                return mesh;
+        // assign instance color list to canonical geometry
+        geometry.setAttribute(instanceColorString, new THREE.InstancedBufferAttribute(this.rgbFloat32Array, 3) );
 
-            });
+        // custom instance material
+        const material = getMaterialWithInstanceColorString(instanceColorString);
+
+        // Instance mesh
+        const mesh = new THREE.InstancedMesh(geometry, material, vertices.length);
+        mesh.name = 'ball';
+
+        // layout each instance of the mesh
+        const proxy = new THREE.Object3D();
+        vertices.forEach((vertex, i) => {
+
+            const { x, y, z } = vertex
+            proxy.position.set(x, y, z);
+
+            proxy.scale.setScalar(ballRadius);
+
+            proxy.updateMatrix();
+
+            mesh.setMatrixAt(i++, proxy.matrix);
+        });
+
+        return mesh;
 
     }
 
     createSticks(curves, stickRadius) {
-
-        return curves
-            .map((curve) => {
-
-                const geometry = new THREE.TubeBufferGeometry(curve, 8, stickRadius, 16, false);
-                const material = sceneManager.stickMaterial.clone();
-
-                const mesh = new THREE.Mesh(geometry, material);
-                mesh.name = 'stick';
-
-                return mesh;
-            });
-
+        const geometries = curves.map(curve => new THREE.TubeBufferGeometry(curve, stickTesselation.length, stickRadius, stickTesselation.radial, false));
+        const material = sceneManager.stickMaterial.clone();
+        const mesh = new THREE.Mesh(BufferGeometryUtils.mergeBufferGeometries( geometries ), material);
+        mesh.name = 'stick';
+        return mesh;
     }
 
     addToScene (scene) {
-        this.balls.forEach(m => scene.add(m));
-        this.sticks.forEach(m => scene.add(m));
-    }
-
-    renderLoopHelper () {
-
-        // if (this.balls) {
-        //     for (let mesh of this.balls) {
-        //         mesh.geometry.attributes.position.needsUpdate = true;
-        //         mesh.geometry.attributes.normal.needsUpdate = true;
-        //         mesh.geometry.attributes.uv.needsUpdate = true;
-        //     }
-        // }
-
+        scene.add(this.balls);
+        scene.add(this.sticks);
     }
 
     hide () {
-        setVisibility(this.balls, false);
-        setVisibility(this.sticks, false);
+        this.balls.visible = false
+        this.sticks.visible = false;
     }
 
     show () {
-        setVisibility(this.balls, true);
-        setVisibility(this.sticks, true);
+        this.balls.visible = true
+        this.sticks.visible = true
     }
 
     updateBallRadius(increment) {
@@ -147,30 +159,45 @@ class BallAndStick {
     }
 
     updateStickRadius(increment) {
-
         stickRadiusIndex = clamp(stickRadiusIndex + increment, 0, stickRadiusTable.length - 1);
         const radius = stickRadiusTable[ stickRadiusIndex ];
+        const geometries = this.stickCurves.map(curve => new THREE.TubeBufferGeometry(curve, stickTesselation.length, radius, stickTesselation.radial, false));
+        this.sticks.geometry.copy(BufferGeometryUtils.mergeBufferGeometries( geometries ));
+    }
 
-        for (let i = 0; i < this.stickCurves.length; i++) {
-            this.sticks[ i ].geometry.copy(new THREE.TubeBufferGeometry(this.stickCurves[i], 8, radius, 16, false));
+    updateMaterialProvider (materialProvider) {
+
+        if (undefined === this.balls) {
+            return;
         }
 
+        const color = new THREE.Color();
+        const values = Object.values(this.colorRampInterpolantWindowDictionary);
+        this.rgb = [];
+        for (let value of values) {
+
+            const interpolatedColor = materialProvider.colorForInterpolant(value.interpolant)
+
+            this.rgb.push( interpolatedColor );
+
+            const instanceId = values.indexOf(value)
+
+            color.set(interpolatedColor).toArray(this.rgbFloat32Array, instanceId * 3)
+        }
+
+        this.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
     }
 
     dispose () {
 
         if (this.balls) {
-            for (let mesh of this.balls) {
-                mesh.geometry.dispose();
-                mesh.material.dispose();
-            }
+            this.balls.geometry.dispose();
+            this.balls.material.dispose();
         }
 
         if (this.sticks) {
-            for (let mesh of this.sticks) {
-                mesh.geometry.dispose();
-                mesh.material.dispose();
-            }
+            this.sticks.geometry.dispose();
+            this.sticks.material.dispose();
         }
 
         delete this.stickCurves;
@@ -183,6 +210,49 @@ class BallAndStick {
     static getRenderStyle() {
         return 'render-style-ball-stick';
     }
+}
+
+const getMaterialWithInstanceColorString = (str) => {
+
+    const material = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('snow') });
+
+    material.onBeforeCompile = shader => {
+
+        const colorParsChunk =
+            [
+                `attribute vec3 ${ str };`,
+                `varying vec3 v_${ str };`,
+                '#include <common>'
+            ].join( '\n' );
+
+        const instanceColorChunk =
+            [
+                '#include <begin_vertex>',
+                `v_${ str } = ${ str };`
+            ].join( '\n' );
+
+        shader.vertexShader = shader.vertexShader
+            .replace( '#include <common>', colorParsChunk )
+            .replace( '#include <begin_vertex>', instanceColorChunk );
+
+        const fragmentParsChunk =
+            [
+                `varying vec3 v_${ str };`,
+                '#include <common>'
+            ].join( '\n' );
+
+        const colorChunk =
+            [
+                `vec4 diffuseColor = vec4( diffuse * v_${ str }, opacity );`
+            ].join( '\n' );
+
+        shader.fragmentShader = shader.fragmentShader
+            .replace( '#include <common>', fragmentParsChunk )
+            .replace( 'vec4 diffuseColor = vec4( diffuse, opacity );', colorChunk );
+
+    };
+
+    return material;
 }
 
 export const computeAverageCurveDistance = curves => {

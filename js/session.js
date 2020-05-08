@@ -34,7 +34,8 @@ const loadSession = async (spacewalk_session_URL) => {
 
         sceneManager.groundPlane.setColorState(groundplaneColor);
 
-        sceneManager.setBackgroundState(sceneBackground);
+        // TODO: Figure out how do deal with background shader
+        // sceneManager.setBackgroundState(sceneBackground);
 
         if ('none' !== igvPanelState) {
             await igvPanel.restoreSessionState(igvPanelState);
@@ -146,7 +147,7 @@ const getCompressedSession = () => {
     json.gnomonColor = sceneManager.gnomon.getColorState();
     json.groundplaneColor = sceneManager.groundPlane.getColorState();
 
-    json.sceneBackground = sceneManager.getBackgroundState();
+    // json.sceneBackground = sceneManager.getBackgroundState();
 
     const jsonString = JSON.stringify( json );
 

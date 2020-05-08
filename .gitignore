@@ -11,6 +11,8 @@
 /node_modules/.bin/cake
 /node_modules
 
+/play/raw_image_project/data
+
 *.iml
 
 .sass-cache

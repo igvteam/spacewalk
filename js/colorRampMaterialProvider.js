@@ -88,9 +88,10 @@ class ColorRampMaterialProvider {
 
         if ("PickerDidHitObject" === type) {
 
-            const objectUUID = data;
-            if (ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[ objectUUID ]) {
-                this.highlightWithInterpolantWindowList([ ballAndStick.meshUUID_ColorRampInterpolantWindow_Dictionary[objectUUID] ])
+            const key = data.toString();
+
+            if (ballAndStick.colorRampInterpolantWindowDictionary[ key ]) {
+                this.highlightWithInterpolantWindowList([ ballAndStick.colorRampInterpolantWindowDictionary[ key ] ])
             }
 
         } else if ("PickerDidLeaveObject" === type) {

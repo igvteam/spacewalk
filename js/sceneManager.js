@@ -25,6 +25,8 @@ const AAScaleFactor = 1;
 
 const doMultipassRendering = false;
 
+const instanceColorString = 'instanceColor';
+
 class SceneManager {
 
     constructor({ container, scene, stickMaterial, background, renderer, cameraLightingRig, picker }) {
@@ -55,8 +57,6 @@ class SceneManager {
             this.setupMultipassRendering(this.scene, this.renderer, this.cameraLightingRig);
         }
 
-        eventBus.subscribe("DidSelectSegmentID", this);
-        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
         eventBus.subscribe('DidSelectTrace', this);
         eventBus.subscribe('DidLoadEnsembleFile', this);
         eventBus.subscribe('RenderStyleDidChange', this);
@@ -84,33 +84,17 @@ class SceneManager {
 
     receiveEvent({ type, data }) {
 
-        const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
-
-        if (typeConditional && BallAndStick.getRenderStyle() === this.renderStyle) {
-
-            const { interpolantList } = data;
-
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
-
-            if (interpolantWindowList) {
-
-                let objects = interpolantWindowList.map(({ index }) => {
-                    return ballAndStick.balls[ index ];
-                });
-
-                this.picker.pickHighlighter.configureObjects(objects);
-
-            }
-
-        } else if ('RenderStyleDidChange' === type) {
+        if ('RenderStyleDidChange' === type) {
 
             if (data === Noodle.getRenderStyle()) {
                 this.renderStyle = Noodle.getRenderStyle();
                 ballAndStick.hide();
-                noodle.show();
+                // noodle.show();
+                ribbon.show();
             } else {
                 this.renderStyle = BallAndStick.getRenderStyle();
-                noodle.hide();
+                // noodle.hide();
+                ribbon.hide();
                 ballAndStick.show();
             }
 
@@ -148,8 +132,8 @@ class SceneManager {
             ribbon.configure(trace);
             ribbon.addToScene(scene);
 
-            noodle.configure(trace);
-            noodle.addToScene(scene);
+            // noodle.configure(trace);
+            // noodle.addToScene(scene);
 
             ballAndStick.configure(trace);
             ballAndStick.addToScene(scene);
@@ -208,7 +192,7 @@ class SceneManager {
                 const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
                 const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
 
-                this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.object, doTrackObject: true });
+                this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.object });
 
             }
         });
@@ -355,5 +339,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     return { container, scene, stickMaterial, background, renderer, cameraLightingRig, picker };
 
 };
+
+export { instanceColorString }
 
 export default SceneManager;
