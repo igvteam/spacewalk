@@ -87,6 +87,18 @@ class ContactMapLoad {
             this.contactMapModal.setDatasource(contactMapDatasource);
 
             this.contactMapModal.selectHandler = async selectionList => {
+
+                // const table = this.contactMapModal.$table.DataTable();
+                //
+                // const filterFunction = (value, index) => {
+                //     return true
+                // }
+                //
+                // const columns_0 = table.columns( 0 );
+                // const data = columns_0.data();
+                // const flatten = data.flatten();
+                // const filtered = table.columns( 0 ).data().flatten().filter( filterFunction );
+
                 const { url, name } = contactMapDatasource.tableSelectionHandler(selectionList);
                 await loadHandler(url, name, mapType);
             };
