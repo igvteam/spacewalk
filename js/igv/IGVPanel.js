@@ -63,7 +63,7 @@ class IGVPanel extends Panel {
 
             (async () => {
 
-                const { genomeAssembly, chr, genomicStart: start, genomicEnd: end } = data;
+                const { genomeAssembly, chr, genomicStart, genomicEnd } = data;
 
                 try {
                     await this.loadGenomeWithID( genomeAssembly );
@@ -72,7 +72,7 @@ class IGVPanel extends Panel {
                 }
 
                 try {
-                    const str = 'all' === chr ? 'all' : `${ chr }:${ start }-${ end }`;
+                    const str = 'all' === chr ? 'all' : `${ chr }:${ genomicStart }-${ genomicEnd }`;
                     await this.browser.search(str);
                 } catch (e) {
                     igv.Alert.presentAlert(e.message);
@@ -151,9 +151,7 @@ class IGVPanel extends Panel {
             }));
 
             try {
-                const dropdownMenu = document.querySelector('#spacewalk-igv-app-track-dropdown-menu');
-                const selectModal = document.querySelector('#spacewalk-igv-app-generic-track-select-modal');
-                await trackLoadController.updateTrackMenus(this.browser, this.browser.genome.id, trackLoadController.trackRegistryFile, dropdownMenu, selectModal);
+                await trackLoadController.updateTrackMenus(this.browser.genome.id);
             } catch (e) {
                 igv.Alert.presentAlert(e.message);
             }
@@ -170,19 +168,17 @@ class IGVPanel extends Panel {
 
             const json = this.genomeDictionary[ genomeID ];
 
-            let g = undefined;
+            let genome = undefined;
             try {
-                g = await this.browser.loadGenome(json);
+                genome = await this.browser.loadGenome(json);
             } catch (e) {
                 igv.Alert.presentAlert(e.message);
             }
 
-            if (g) {
+            if (genome) {
 
                 try {
-                    const dropdownMenu = document.querySelector('#spacewalk-igv-app-track-dropdown-menu');
-                    const selectModal = document.querySelector('#spacewalk-igv-app-generic-track-select-modal');
-                    await trackLoadController.updateTrackMenus(this.browser, this.browser.genome.id, trackLoadController.trackRegistryFile, dropdownMenu, selectModal);
+                    await trackLoadController.updateTrackMenus(genome.id);
                 } catch (e) {
                     igv.Alert.presentAlert(e.message);
                 }
@@ -284,16 +280,14 @@ const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $googleDr
             google
         };
 
-
-    // const dropdownMenu = document.querySelector('#spacewalk-igv-app-track-dropdown-menu');
-    // const selectModal = document.querySelector('#spacewalk-igv-app-generic-track-select-modal');
-
     return {
         browser,
         trackRegistryFile,
         trackLoadModal: $('#spacewalk-igv-app-track-from-url-modal').get(0),
         multipleTrackFileLoad: new MultipleTrackFileLoad(multipleTrackFileLoadConfig),
-        encodeModalTable: new ModalTable(encodeModalTableConfig)
+        encodeModalTable: new ModalTable(encodeModalTableConfig),
+        $dropdownMenu: $('#spacewalk-igv-app-track-dropdown-menu'),
+        $selectModal: $('#spacewalk-igv-app-generic-track-select-modal')
     }
 
 }

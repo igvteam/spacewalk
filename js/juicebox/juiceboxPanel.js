@@ -39,7 +39,7 @@ class JuiceboxPanel extends Panel {
 
         if ('DidLoadEnsembleFile' === type) {
 
-            const { chr, genomicStart, genomicEnd } = data;
+            const { genomeAssembly, chr, genomicStart, genomicEnd } = data;
             this.goto({ chr, start: genomicStart, end: genomicEnd });
 
         } else if ('DidHideCrosshairs' === type) {
