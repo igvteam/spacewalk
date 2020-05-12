@@ -1,6 +1,6 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { GoogleFilePicker } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
-import ModalTable from '../../node_modules/data-modal/js/modalTable.js';
+import ModalTable from './juiceboxModalTable.js';
 import { FileUtils } from '../../node_modules/igv-utils/src/index.js';
 import ContactMapDatasource from "./contactMapDatasource.js";
 import { appendAndConfigureLoadURLModal } from "../app.js";
@@ -87,18 +87,6 @@ class ContactMapLoad {
             this.contactMapModal.setDatasource(contactMapDatasource);
 
             this.contactMapModal.selectHandler = async selectionList => {
-
-                // const table = this.contactMapModal.$table.DataTable();
-                //
-                // const filterFunction = (value, index) => {
-                //     return true
-                // }
-                //
-                // const columns_0 = table.columns( 0 );
-                // const data = columns_0.data();
-                // const flatten = data.flatten();
-                // const filtered = table.columns( 0 ).data().flatten().filter( filterFunction );
-
                 const { url, name } = contactMapDatasource.tableSelectionHandler(selectionList);
                 await loadHandler(url, name, mapType);
             };
