@@ -1,4 +1,4 @@
-class ModalTable {
+class FilteredModalTable {
 
     constructor(args) {
 
@@ -80,21 +80,47 @@ class ModalTable {
     }
 
     remove() {
+
+        if (this.api) {
+            this.api.destroy()
+        }
+
+        if (this.$datatableContainer) {
+            this.$datatableContainer.empty()
+        }
+
         this.$modal.remove()
     }
 
-    setDatasource(datasource) {
-        this.datasource = datasource
+    removeTable() {
+
+        if (this.api) {
+            this.api.destroy()
+        }
+
         this.$datatableContainer.empty()
-        this.$table = undefined
+    }
+
+    setDatasource(datasource) {
+
+        if (this.api) {
+            this.api.destroy()
+        }
+
+        this.$datatableContainer.empty()
+
+        this.datasource = datasource
     }
 
     async buildTable () {
 
-        if (undefined === this.$table && this.datasource) {
+        let $table = this.$datatableContainer.find('table');
 
-            this.$table = $('<table cellpadding="0" cellspacing="0" border="0" class="display"></table>')
-            this.$datatableContainer.append(this.$table)
+        if (0 === $table.length && this.datasource) {
+
+            // $table = $('<table cellpadding="0" cellspacing="0" border="0" class="display"></table>')
+            $table = $('<table class="display"></table>')
+            this.$datatableContainer.append($table)
 
             try {
 
@@ -122,18 +148,18 @@ class ModalTable {
                     config.columnDefs = this.datasource.columnDefs;
                 }
 
-                // jQuery object
-                this.$dataTable = this.$table.dataTable()
-
                 // API object
-                this.api = this.$table.DataTable(config)
+                this.api = $table.DataTable(config)
 
                 // layout table
                 this.api.columns.adjust().draw()
 
-                if (this.referenceGenome) {
-                    this.api.rows( (index, data) => this.referenceGenome !== data[ 'reference genome' ] ).remove().draw();
-                }
+                // if (this.referenceGenome) {
+                //     this.api.rows( (index, data) => this.referenceGenome !== data[ 'reference genome' ] ).remove().draw();
+                // }
+
+                // jQuery object
+                this.$dataTable = $table.dataTable()
 
             } catch (e) {
                 console.error(e)
@@ -144,16 +170,19 @@ class ModalTable {
     }
 
     getSelectedTableRowsData($rows) {
-        const tableData = this.tableData
         const result = []
+
         if ($rows.length > 0) {
+
             $rows.removeClass('selected')
-            const api = this.$table.api()
+
+            const self = this;
             $rows.each(function () {
-                const index = api.row(this).index()
-                result.push(tableData[index])
+                const index = self.api.row(this).index()
+                result.push(this.tableData[index])
             })
         }
+
         return result
     }
 
@@ -169,4 +198,4 @@ class ModalTable {
 
 }
 
-export default ModalTable
+export default FilteredModalTable

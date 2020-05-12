@@ -1,6 +1,6 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { GoogleFilePicker } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
-import ModalTable from './juiceboxModalTable.js';
+import FilteredModalTable from '../filteredModalTable.js';
 import { FileUtils } from '../../node_modules/igv-utils/src/index.js';
 import ContactMapDatasource from "./contactMapDatasource.js";
 import { eventBus, appendAndConfigureLoadURLModal } from "../app.js";
@@ -78,7 +78,7 @@ class ContactMapLoad {
 
         if (contactMapMenu) {
 
-            this.contactMapModal = new ModalTable({ id: dataModalId, title: 'Contact Map', selectionStyle: 'single', pageLength: 100 });
+            this.contactMapModal = new FilteredModalTable({ id: dataModalId, title: 'Contact Map', selectionStyle: 'single', pageLength: 100 });
 
             const { items: path } = contactMapMenu;
             this.contactMapModal.setDatasource(new ContactMapDatasource(path));
@@ -96,6 +96,7 @@ class ContactMapLoad {
     receiveEvent({ data }) {
         const { genomeAssembly } = data;
         this.contactMapModal.referenceGenome = genomeAssembly;
+        this.contactMapModal.removeTable();
     }
 
 }
