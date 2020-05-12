@@ -3,10 +3,9 @@ import { GoogleFilePicker } from '../../node_modules/igv-widgets/dist/igv-widget
 import ModalTable from './juiceboxModalTable.js';
 import { FileUtils } from '../../node_modules/igv-utils/src/index.js';
 import ContactMapDatasource from "./contactMapDatasource.js";
-import { appendAndConfigureLoadURLModal } from "../app.js";
+import { eventBus, appendAndConfigureLoadURLModal } from "../app.js";
 
 let mapType = undefined;
-let contactMapDatasource = undefined;
 
 class ContactMapLoad {
 
@@ -82,17 +81,23 @@ class ContactMapLoad {
             this.contactMapModal = new ModalTable({ id: dataModalId, title: 'Contact Map', selectionStyle: 'single', pageLength: 100 });
 
             const { items: path } = contactMapMenu;
-            contactMapDatasource = new ContactMapDatasource(path);
-
-            this.contactMapModal.setDatasource(contactMapDatasource);
+            this.contactMapModal.setDatasource(new ContactMapDatasource(path));
 
             this.contactMapModal.selectHandler = async selectionList => {
-                const { url, name } = contactMapDatasource.tableSelectionHandler(selectionList);
+                const { url, name } = this.contactMapModal.datasource.tableSelectionHandler(selectionList);
                 await loadHandler(url, name, mapType);
             };
         }
 
+        eventBus.subscribe('DidLoadEnsembleFile', this);
+
     }
+
+    receiveEvent({ data }) {
+        const { genomeAssembly } = data;
+        this.contactMapModal.referenceGenome = genomeAssembly;
+    }
+
 }
 
 export default ContactMapLoad

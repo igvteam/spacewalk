@@ -2,7 +2,10 @@ class ModalTable {
 
     constructor(args) {
 
+        this.referenceGenome = undefined;
+
         this.datasource = args.datasource
+
         this.selectHandler = args.selectHandler
 
         this.pageLength = args.pageLength || 10
@@ -88,7 +91,7 @@ class ModalTable {
 
     async buildTable () {
 
-        if (!this.$table && this.datasource) {
+        if (undefined === this.$table && this.datasource) {
 
             this.$table = $('<table cellpadding="0" cellspacing="0" border="0" class="display"></table>')
             this.$datatableContainer.append(this.$table)
@@ -119,23 +122,18 @@ class ModalTable {
                     config.columnDefs = this.datasource.columnDefs;
                 }
 
-                // the API object
+                // jQuery object
+                this.$dataTable = this.$table.dataTable()
+
+                // API object
                 this.api = this.$table.DataTable(config)
 
-                // draw table
+                // layout table
                 this.api.columns.adjust().draw()
 
-                const rowFilter = (index, data) => {
-
-                    // reference genome column
-                    const referenceGenome = data[ 'reference genome' ];
-                    return 'hg19' !== referenceGenome;
+                if (this.referenceGenome) {
+                    this.api.rows( (index, data) => this.referenceGenome !== data[ 'reference genome' ] ).remove().draw();
                 }
-
-                this.api.rows( rowFilter ).remove().draw();
-
-                // the datatables jQuery object
-                this.$dataTable = this.$table.dataTable()
 
             } catch (e) {
                 console.error(e)
@@ -144,7 +142,6 @@ class ModalTable {
             }
         }
     }
-
 
     getSelectedTableRowsData($rows) {
         const tableData = this.tableData
@@ -160,18 +157,15 @@ class ModalTable {
         return result
     }
 
-
     startSpinner () {
         if (this.$spinner)
             this.$spinner.show()
     }
 
-
     stopSpinner () {
         if (this.$spinner)
             this.$spinner.hide()
     }
-
 
 }
 
