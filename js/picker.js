@@ -39,7 +39,9 @@ class Picker {
 
         if (hitList.length > 0) {
 
-            const [ hit ] = hitList;
+            // hit list contains all instances along the ray of intersection.
+            // select the first
+            const hit = hitList[ 0 ];
 
             if (undefined !== hit.instanceId) {
 

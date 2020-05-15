@@ -177,9 +177,10 @@ class FilteredModalTable {
             $rows.removeClass('selected')
 
             const self = this;
+
             $rows.each(function () {
                 const index = self.api.row(this).index()
-                result.push(this.tableData[index])
+                result.push(self.tableData[index])
             })
         }
 

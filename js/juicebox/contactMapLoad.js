@@ -1,8 +1,8 @@
 import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
 import { GoogleFilePicker } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
 import FilteredModalTable from '../filteredModalTable.js';
-import { FileUtils } from '../../node_modules/igv-utils/src/index.js';
 import ContactMapDatasource from "./contactMapDatasource.js";
+import { FileUtils } from '../../node_modules/igv-utils/src/index.js';
 import { eventBus, appendAndConfigureLoadURLModal } from "../app.js";
 
 let mapType = undefined;
