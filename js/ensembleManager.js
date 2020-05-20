@@ -54,7 +54,19 @@ class EnsembleManager {
 
                 if (positions.length > 0) {
 
+                    const geometry = new THREE.BufferGeometry();
+
+                    const xyz = positions.flatMap(({ x, y, z }) => [ parseFloat(x), parseFloat(y), parseFloat(z)])
+                    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
+
                     const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart);
+
+                    geometry.userData.color = colorRampMaterialProvider.colorForInterpolant(interpolant);
+
+                    const rgb = positions.flatMap(ignore => [ geometry.userData.color.r, geometry.userData.color.g, geometry.userData.color.b ])
+                    const attribute = new THREE.Float32BufferAttribute(rgb, 3);
+                    attribute.setUsage( true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage );
+                    geometry.setAttribute('color', attribute );
 
                     let colorRampInterpolantWindow =
                         {
@@ -65,26 +77,6 @@ class EnsembleManager {
                             genomicLocation: centroidBP,
                             segmentIndex: keyValuePairs.indexOf(keyValuePair)
                         };
-
-                    const geometry = new THREE.BufferGeometry();
-                    geometry.userData.color = colorRampMaterialProvider.colorForInterpolant(interpolant);
-                    geometry.userData.material = new THREE.MeshPhongMaterial({ color: geometry.userData.color });
-
-                    const xyz = [];
-                    const rgb = [];
-                    for(let { x, y, z } of positions){
-
-                        xyz.push(x, y, z);
-
-                        const { r, g, b } = geometry.userData.color;
-                        rgb.push(r, g, b);
-                    }
-
-                    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
-
-                    const attribute = new THREE.Float32BufferAttribute(rgb, 3);
-                    attribute.setUsage( true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage );
-                    geometry.setAttribute('color', attribute );
 
                     this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
 
