@@ -146,13 +146,13 @@ class PointCloud {
 
         for (let mesh of this.meshList) {
             mesh.material = this.deemphasizedMaterial;
-            setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, deemphasizedColor)
+            setGeometryColorAttribute(mesh.geometry.attributes.color.array, deemphasizedColor)
         }
 
         for (let { index } of interpolantWindowList) {
             let mesh = this.meshList[ index ];
             mesh.material = this.material;
-            setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
+            setGeometryColorAttribute(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
         }
 
     }
@@ -163,7 +163,7 @@ class PointCloud {
 
             for (let mesh of this.meshList) {
                 mesh.material = this.material;
-                setGeometryAttributeColorListWithColorThreeJS(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
+                setGeometryColorAttribute(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
             }
 
         }
@@ -175,13 +175,12 @@ class PointCloud {
     }
 }
 
-export const setGeometryAttributeColorListWithColorThreeJS = (colorList, colorThreeJS) => {
-    const { r, g, b } = colorThreeJS;
-    const rgb = [ r, g, b ];
+export const setGeometryColorAttribute = (colorList, colorThreeJS) => {
 
-    for (let i = 0, j = 0; i < colorList.length; i++, j = (j + 1) % 3) {
-        colorList[ i ] = rgb[ j ];
+    for (let c = 0; c < colorList.length; c++) {
+        colorThreeJS.toArray(colorList, c * 3);
     }
+
 };
 
 export default PointCloud;

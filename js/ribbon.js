@@ -60,7 +60,7 @@ class Ribbon {
             return;
         }
 
-        let colors = getColorListWithXYZList(materialProvider, this.spline.xyzList);
+        let colors = getRGBListWithMaterialAndLength(materialProvider, this.spline.xyzList.length);
         this.spline.mesh.geometry.setColors( colors );
 
     }
@@ -114,7 +114,7 @@ const createFatSpline = (curve, materialProvider) => {
     // const xyzList = curve.getPoints( pointCount );
     const xyzList = curve.getSpacedPoints( pointCount );
 
-    let colors = getColorListWithXYZList(materialProvider, xyzList);
+    let colors = getRGBListWithMaterialAndLength(materialProvider, xyzList.length);
 
     let vertices = [];
     for (let { x, y, z } of xyzList ) {
@@ -139,21 +139,15 @@ const createFatSpline = (curve, materialProvider) => {
 
 };
 
-const getColorListWithXYZList = (materialProvider, xyzList) =>  {
+const getRGBListWithMaterialAndLength = (materialProvider, length) =>  {
 
-    let colorList = [];
+    let rgbList = new Float32Array(length * 3)
 
-    xyzList
-        .map((xyz, i, array) => {
-            let interpolant = i / (array.length - 1);
-            return materialProvider.colorForInterpolant(interpolant);
-        })
-        .forEach((rgb) => {
-            const { r, g, b } = rgb;
-            colorList.push(r, g, b);
-        });
+    for (let i = 0; i < length; i++) {
+        materialProvider.colorForInterpolant(i / (length - 1)).toArray(rgbList, i * 3)
+    }
 
-    return colorList;
+    return rgbList
 };
 
 const getFatSplinePointCount = curveLength => {
