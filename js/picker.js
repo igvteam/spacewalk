@@ -1,5 +1,4 @@
 import { eventBus } from "./app.js";
-import ColorRampPanel from "./colorRampPanel.js";
 
 const exclusionSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'noodle', 'stick' ]);
 
@@ -9,15 +8,16 @@ class Picker {
 
         this.raycaster = raycaster;
         this.pickerHighlighterDictionary = pickerHighlighterDictionary;
+
         this.isEnabled = true;
 
-        eventBus.subscribe("DidEnterGUI", this);
-        eventBus.subscribe("DidLeaveGUI", this);
+        eventBus.subscribe("DidEnterGenomicNavigator", this);
+        eventBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidEnterGUI" === type) {
+        if ("DidEnterGenomicNavigator" === type) {
 
             for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
                 pickHighlighter.unhighlight();
@@ -25,13 +25,12 @@ class Picker {
 
             this.isEnabled = false;
 
-        } else if ("DidLeaveGUI" === type) {
-            if (data instanceof ColorRampPanel) {
+        } else if ("DidLeaveGenomicNavigator" === type) {
 
-                for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
-                    pickHighlighter.unhighlight();
-                }
+            for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
+                pickHighlighter.unhighlight();
             }
+
             this.isEnabled = true;
         }
 
@@ -51,15 +50,17 @@ class Picker {
             if (undefined !== hit.instanceId) {
                 this.pickerHighlighterDictionary[ 'ball' ].processHit(hit);
             } else if (hit.object && 'point_cloud' === hit.object.name) {
-                this.pickerHighlighterDictionary[ 'pointCloud' ].processHit(hit.object);
+
+                // TODO: Find a better approach to hitting point clouds
+                // this.pickerHighlighterDictionary[ 'pointCloud' ].processHit(hit.object);
             }
 
 
         } else {
 
-            // for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
-            //     pickHighlighter.unhighlight();
-            // }
+            for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
+                pickHighlighter.unhighlight();
+            }
 
             eventBus.post({ type: "PickerDidLeaveObject" });
         }

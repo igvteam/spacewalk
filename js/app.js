@@ -124,7 +124,7 @@ const initializationHelper = async container => {
     $(root).append(createTrackURLModal('spacewalk-igv-app-track-from-url-modal'));
     parser = new Parser();
 
-    pointCloud = new PointCloud({ pickHighlighter: new PointCloudPickHighlighter(highlightColor) });
+    pointCloud = new PointCloud({ pickHighlighter: new PointCloudPickHighlighter(highlightColor), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
     ribbon = new Ribbon();
     // noodle = new Noodle();

@@ -5,13 +5,12 @@ import { appleCrayonColorThreeJS } from "./color.js";
 
 const pointSize = 128;
 
-const deemphasizedColor = appleCrayonColorThreeJS('magnesium')
-
 class PointCloud {
 
-    constructor ({ pickHighlighter }) {
+    constructor ({ pickHighlighter, deemphasizedColor }) {
 
         this.pickHighlighter = pickHighlighter;
+        this.deemphasizedColor = deemphasizedColor;
 
         const materialConfig =
             {

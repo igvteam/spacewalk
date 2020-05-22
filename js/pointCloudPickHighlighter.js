@@ -44,6 +44,9 @@ class PointCloudPickHighlighter {
 
     highlight() {
         if (undefined !== pointCloud.meshList) {
+            for (let object of pointCloud.meshList) {
+                setGeometryColorAttribute(object.geometry.attributes.color.array, pointCloud.deemphasizedColor)
+            }
             for (let object of this.objects) {
                 setGeometryColorAttribute(object.geometry.attributes.color.array, this.highlightColor)
             }
@@ -52,9 +55,13 @@ class PointCloudPickHighlighter {
 
     unhighlight() {
         if (undefined !== pointCloud.meshList) {
-            for (let object of this.objects) {
+            for (let object of pointCloud.meshList) {
                 setGeometryColorAttribute(object.geometry.attributes.color.array, object.geometry.userData.color)
             }
+
+            // for (let object of this.objects) {
+            //     setGeometryColorAttribute(object.geometry.attributes.color.array, object.geometry.userData.color)
+            // }
         }
     }
 
