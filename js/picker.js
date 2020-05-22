@@ -5,10 +5,10 @@ const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull
 
 class Picker {
 
-    constructor({ raycaster, pickHighlighter }) {
+    constructor({ raycaster, pickerHighlighterList }) {
 
         this.raycaster = raycaster;
-        this.pickHighlighter = pickHighlighter;
+        this.pickerHighlighterList = pickerHighlighterList;
         this.isEnabled = true;
 
         eventBus.subscribe("DidEnterGUI", this);
@@ -18,11 +18,19 @@ class Picker {
     receiveEvent({ type, data }) {
 
         if ("DidEnterGUI" === type) {
-            this.pickHighlighter.unhighlightInstance();
+
+            for (let pickHighlighter of this.pickerHighlighterList) {
+                pickHighlighter.unhighlight();
+            }
+
             this.isEnabled = false;
+
         } else if ("DidLeaveGUI" === type) {
             if (data instanceof ColorRampPanel) {
-                this.pickHighlighter.unhighlightInstance();
+
+                for (let pickHighlighter of this.pickerHighlighterList) {
+                    pickHighlighter.unhighlight();
+                }
             }
             this.isEnabled = true;
         }
@@ -33,30 +41,35 @@ class Picker {
 
         this.raycaster.setFromCamera({ x, y }, camera);
 
-        const hitList = this.raycaster.intersectObjects(scene.children).filter((item) => {
-            return !exclusionSet.has(item.object.name) && true === item.object.visible;
-        });
+        const hitList = this.raycaster.intersectObjects(scene.children).filter(item => !exclusionSet.has(item.object.name) && true === item.object.visible);
 
         if (hitList.length > 0) {
 
-            // hit list contains all instances along the ray of intersection.
-            // select the first
-            const hit = hitList[ 0 ];
-
-            if (undefined !== hit.instanceId) {
-
-                // console.log(`${ Date.now() }. Picker.intersect(). Hits(${ hitList.length }). Instance ID ${ hit.instanceId }.`)
-
-                if (false === this.pickHighlighter.hasInstanceId(hit.instanceId)) {
-                    this.pickHighlighter.configureWithInstanceIdList([ hit.instanceId ]);
-                    eventBus.post({ type: "PickerDidHitObject", data: hit.instanceId });
-                }
-
+            // Hit list contains all instances along the ray of intersection. Select the first.
+            const [ hit ] = hitList;
+            for (let pickHighlighter of this.pickerHighlighterList) {
+                pickHighlighter.processHit(hit);
             }
 
         } else {
-            this.pickHighlighter.unhighlightInstance();
+
+            for (let pickHighlighter of this.pickerHighlighterList) {
+                pickHighlighter.unhighlight();
+            }
+
             eventBus.post({ type: "PickerDidLeaveObject" });
+        }
+
+    }
+
+    POINTLIST_VERSION_intersect({ x ,y, camera, scene }) {
+
+        this.raycaster.setFromCamera({ x, y }, camera);
+
+        const pointCloudHitList = this.raycaster.intersectObjects(scene.children).filter(item => 'point_cloud' === item.object.name);
+
+        if (pointCloudHitList.length > 0) {
+            console.log('the hits just keep on coming');
         }
 
     }

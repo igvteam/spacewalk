@@ -1,6 +1,7 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { ballAndStick } from "./app.js";
 import { instanceColorString } from "./sceneManager.js";
+import {eventBus} from "./app.js";
 
 const rgbTemp = new THREE.Color();
 
@@ -12,19 +13,28 @@ class PickHighlighter {
         this.instanceIdList.clear();
     }
 
+    processHit(hit) {
+        if (undefined !== hit.instanceId) {
+            if (false === this.hasInstanceId(hit.instanceId)) {
+                this.configureWithInstanceIdList([ hit.instanceId ]);
+                eventBus.post({ type: "PickerDidHitObject", data: hit.instanceId });
+            }
+        }
+    }
+
     hasInstanceId(instanceId) {
         return this.instanceIdList.has(instanceId);
     }
 
     configureWithInstanceIdList(instanceIdList) {
-        this.unhighlightInstance();
+        this.unhighlight();
         for (let instanceId of instanceIdList) {
             this.instanceIdList.add(instanceId);
         }
-        this.highlightInstance();
+        this.highlight();
     }
 
-    highlightInstance() {
+    highlight() {
 
         if (undefined !== ballAndStick.balls) {
 
@@ -37,7 +47,7 @@ class PickHighlighter {
 
     }
 
-    unhighlightInstance() {
+    unhighlight() {
 
         if (undefined !== ballAndStick.balls) {
 

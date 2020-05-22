@@ -7,7 +7,6 @@ import { FXAAShader } from '../node_modules/three/examples/jsm/shaders/FXAAShade
 import EnsembleManager from "./ensembleManager.js";
 import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
-import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
 import Noodle from "./noodle.js";
 import PointCloud from "./pointCloud.js";
@@ -332,7 +331,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const scene = new THREE.Scene();
     scene.background = background;
 
-    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
+    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickerHighlighterList: [ ballAndStick.pickHighlighter ]} );
 
     console.timeEnd(str);
 

@@ -79,22 +79,13 @@ class ColorRampMaterialProvider {
 
         eventBus.subscribe("DidLeaveGUI", this);
         eventBus.subscribe("PickerDidLeaveObject", this);
-        eventBus.subscribe("PickerDidHitObject", this);
         eventBus.subscribe("DidSelectSegmentID", this);
         eventBus.subscribe('DidLoadEnsembleFile', this);
     }
 
     receiveEvent({ type, data }) {
 
-        if ("PickerDidHitObject" === type) {
-
-            const key = data.toString();
-
-            if (ballAndStick.colorRampInterpolantWindowDictionary[ key ]) {
-                this.highlightWithInterpolantWindowList([ ballAndStick.colorRampInterpolantWindowDictionary[ key ] ])
-            }
-
-        } else if ("PickerDidLeaveObject" === type) {
+         if ("PickerDidLeaveObject" === type) {
             this.repaint()
         } else if ("DidSelectSegmentID" === type) {
 

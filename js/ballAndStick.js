@@ -4,7 +4,7 @@ import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import { clamp } from './math.js';
 import EnsembleManager from "./ensembleManager.js";
 import { generateRadiusTable } from "./utils.js";
-import { eventBus, ensembleManager, sceneManager, igvPanel } from './app.js'
+import { eventBus, ensembleManager, sceneManager, igvPanel, colorRampMaterialProvider } from './app.js'
 import { instanceColorString } from "./sceneManager.js";
 import { appleCrayonColorThreeJS } from "./color.js";
 
@@ -18,9 +18,13 @@ const stickTesselation = { length: 2, radial: 8 }
 
 class BallAndStick {
 
-    constructor () {
+    constructor ({ pickHighlighter }) {
+
+        this.pickHighlighter = pickHighlighter;
+
         this.stickCurves = undefined;
 
+        eventBus.subscribe("PickerDidHitObject", this);
         eventBus.subscribe("DidSelectSegmentID", this);
         eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
     }
@@ -38,7 +42,15 @@ class BallAndStick {
 
             if (interpolantWindowList) {
                 const indices = interpolantWindowList.map(({ index }) => index);
-                sceneManager.picker.pickHighlighter.configureWithInstanceIdList(indices);
+                this.pickHighlighter.configureWithInstanceIdList(indices);
+            }
+
+        } else if ('PickerDidHitObject' === type) {
+
+            const key = data.toString();
+
+            if (this.colorRampInterpolantWindowDictionary[ key ]) {
+                colorRampMaterialProvider.highlightWithInterpolantWindowList([ this.colorRampInterpolantWindowDictionary[ key ] ])
             }
 
         }
