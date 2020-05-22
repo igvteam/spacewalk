@@ -27,6 +27,7 @@ import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import SpacewalkFileLoad from "./spacewalkFileLoad.js";
 import BallPickHighlighter from "./ballPickHighlighter.js";
+import PointCloudPickHighlighter from "./pointCloudPickHighlighter";
 
 let eventBus = new EventBus();
 
@@ -123,7 +124,7 @@ const initializationHelper = async container => {
     $(root).append(createTrackURLModal('spacewalk-igv-app-track-from-url-modal'));
     parser = new Parser();
 
-    pointCloud = new PointCloud();
+    pointCloud = new PointCloud({ pickHighlighter: new PointCloudPickHighlighter(highlightColor) });
 
     ribbon = new Ribbon();
     // noodle = new Noodle();

@@ -18,7 +18,7 @@ import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, eventBus, co
 import { getGUIRenderStyle, configureColorPicker } from "./guiManager.js";
 import { specularCubicTexture, sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 
-const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud' , 'ribbon', 'noodle', 'ball' , 'stick' ]);
+const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'noodle', 'ball' , 'stick' ]);
 
 const AAScaleFactor = 1;
 
@@ -331,7 +331,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const scene = new THREE.Scene();
     scene.background = background;
 
-    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickerHighlighterDictionary: { ball: ballAndStick.pickHighlighter } } );
+    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickerHighlighterDictionary: { ball: ballAndStick.pickHighlighter, pointCloud: pointCloud.pickHighlighter } } );
 
     console.timeEnd(str);
 

@@ -1,66 +1,63 @@
-import * as THREE from "../node_modules/three/build/three.module.js";
-import { instanceColorString } from "./sceneManager.js";
-import { eventBus, ballAndStick } from "./app.js";
-
-const rgbTemp = new THREE.Color();
+import { colorRampMaterialProvider, pointCloud } from "./app.js";
+import { setGeometryColorAttribute } from "./pointCloud.js";
 
 class PointCloudPickHighlighter {
 
     constructor (highlightColor) {
-        this.highlightColor = highlightColor;
-        this.list = [];
+        this.highlightColor = highlightColor
+        this.objects = []
     }
 
     processHit(hit) {
-        if (undefined !== hit.instanceId) {
-            if (false === this.hasInstanceId(hit.instanceId)) {
-                this.configureWithInstanceIdList([ hit.instanceId ]);
-                eventBus.post({ type: "PickerDidHitObject", data: hit.instanceId });
+
+    console.log(`${ Date.now() } PointCloudPickHighlighter.processHit(${ pointCloud.meshList.indexOf(hit) })`)
+
+        for (let object of this.objects) {
+            if (object === hit) {
+                return;
             }
         }
+
+        this.configureObjectList([ hit ]);
+
     }
 
-    hasInstanceId(instanceId) {
-        return this.list.has(instanceId);
-    }
+    hasObject(candidate) {
 
-    configureWithInstanceIdList(list) {
-        this.unhighlight();
-        for (let instanceId of list) {
-            this.list.add(instanceId);
+        for (let object of this.objects) {
+            if (object === candidate) {
+                return true;
+            }
         }
-        this.highlight();
+
+        return false;
+    }
+
+    configureObjectList(objectList) {
+        this.unhighlight()
+        this.objects = [];
+        for (let o of objectList) {
+            this.objects.push(o)
+        }
+        this.highlight()
     }
 
     highlight() {
-
-        if (undefined !== ballAndStick.balls) {
-
-            for (let instanceId of this.list) {
-                rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
+        if (undefined !== pointCloud.meshList) {
+            for (let object of this.objects) {
+                setGeometryColorAttribute(object.geometry.attributes.color.array, this.highlightColor)
             }
-
-            ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
         }
-
     }
 
     unhighlight() {
-
-        if (undefined !== ballAndStick.balls) {
-
-            for (let instanceId of this.list) {
-                ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
+        if (undefined !== pointCloud.meshList) {
+            for (let object of this.objects) {
+                setGeometryColorAttribute(object.geometry.attributes.color.array, object.geometry.userData.color)
             }
-
-            ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
-
-            this.list.clear();
-
         }
-
     }
 
 }
 
-export default PointCloudPickHighlighter;
+export default PointCloudPickHighlighter

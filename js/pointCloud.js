@@ -9,7 +9,9 @@ const deemphasizedColor = appleCrayonColorThreeJS('magnesium')
 
 class PointCloud {
 
-    constructor () {
+    constructor ({ pickHighlighter }) {
+
+        this.pickHighlighter = pickHighlighter;
 
         const materialConfig =
             {
@@ -39,7 +41,6 @@ class PointCloud {
         this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );
         this.deemphasizedMaterial.side = THREE.DoubleSide;
 
-        eventBus.subscribe("DidLeaveGUI", this);
         eventBus.subscribe("DidSelectSegmentID", this);
         eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
 
@@ -50,22 +51,18 @@ class PointCloud {
         const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
         const renderStyleConditional = PointCloud.getRenderStyle() === sceneManager.renderStyle
 
-        if (typeConditional && renderStyleConditional) {
+        if (this.meshList && typeConditional && renderStyleConditional) {
 
-            if (this.meshList) {
+            const { interpolantList } = data;
 
-                const { interpolantList } = data;
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
-                const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
-
-                if (interpolantWindowList) {
-                    this.highlight(interpolantWindowList)
-                }
+            if (interpolantWindowList) {
+                const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ]);
+                this.pickHighlighter.configureObjectList(objectList);
 
             }
 
-        } else if ("DidLeaveGUI" === type) {
-            this.unHighlight();
         }
 
     }
@@ -142,40 +139,40 @@ class PointCloud {
         return pointCloudManager.getBounds();
     }
 
-    highlight(interpolantWindowList) {
+    // highlight(interpolantWindowList) {
+    //
+    //     for (let mesh of this.meshList) {
+    //         mesh.material = this.deemphasizedMaterial;
+    //         setGeometryColorAttribute(mesh.geometry.attributes.color.array, deemphasizedColor)
+    //     }
+    //
+    //     for (let { index } of interpolantWindowList) {
+    //         let mesh = this.meshList[ index ];
+    //         mesh.material = this.material;
+    //         setGeometryColorAttribute(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
+    //     }
+    //
+    // }
 
-        for (let mesh of this.meshList) {
-            mesh.material = this.deemphasizedMaterial;
-            setGeometryColorAttribute(mesh.geometry.attributes.color.array, deemphasizedColor)
-        }
-
-        for (let { index } of interpolantWindowList) {
-            let mesh = this.meshList[ index ];
-            mesh.material = this.material;
-            setGeometryColorAttribute(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
-        }
-
-    }
-
-    unHighlight() {
-
-        if (this.meshList) {
-
-            for (let mesh of this.meshList) {
-                mesh.material = this.material;
-                setGeometryColorAttribute(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
-            }
-
-        }
-
-    }
+    // unHighlight() {
+    //
+    //     if (this.meshList) {
+    //
+    //         for (let mesh of this.meshList) {
+    //             mesh.material = this.material;
+    //             setGeometryColorAttribute(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
+    //         }
+    //
+    //     }
+    //
+    // }
 
     static getRenderStyle() {
         return 'render-style-point-cloud';
     }
 }
 
-export const setGeometryColorAttribute = (colorList, colorThreeJS) => {
+const setGeometryColorAttribute = (colorList, colorThreeJS) => {
 
     for (let c = 0; c < colorList.length; c++) {
         colorThreeJS.toArray(colorList, c * 3);
@@ -183,4 +180,5 @@ export const setGeometryColorAttribute = (colorList, colorThreeJS) => {
 
 };
 
+export { setGeometryColorAttribute }
 export default PointCloud;

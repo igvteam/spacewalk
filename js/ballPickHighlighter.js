@@ -1,6 +1,6 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { instanceColorString } from "./sceneManager.js";
-import { eventBus, ballAndStick } from "./app.js";
+import { colorRampMaterialProvider, ballAndStick } from "./app.js";
 
 const rgbTemp = new THREE.Color();
 
@@ -14,8 +14,15 @@ class BallPickHighlighter {
 
     processHit(hit) {
         if (false === this.hasInstanceId(hit.instanceId)) {
+
             this.configureWithInstanceIdList([ hit.instanceId ]);
-            eventBus.post({ type: "PickerDidHitObject", data: hit.instanceId });
+
+            const key = hit.instanceId.toString();
+
+            if (ballAndStick.colorRampInterpolantWindowDictionary[ key ]) {
+                colorRampMaterialProvider.highlightWithInterpolantWindowList([ ballAndStick.colorRampInterpolantWindowDictionary[ key ] ])
+            }
+
         }
     }
 

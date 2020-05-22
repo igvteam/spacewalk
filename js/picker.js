@@ -1,7 +1,7 @@
 import { eventBus } from "./app.js";
 import ColorRampPanel from "./colorRampPanel.js";
 
-const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'ribbon', 'noodle', 'stick' ]);
+const exclusionSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'noodle', 'stick' ]);
 
 class Picker {
 
@@ -50,13 +50,16 @@ class Picker {
 
             if (undefined !== hit.instanceId) {
                 this.pickerHighlighterDictionary[ 'ball' ].processHit(hit);
+            } else if (hit.object && 'point_cloud' === hit.object.name) {
+                this.pickerHighlighterDictionary[ 'pointCloud' ].processHit(hit.object);
             }
+
 
         } else {
 
-            for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
-                pickHighlighter.unhighlight();
-            }
+            // for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
+            //     pickHighlighter.unhighlight();
+            // }
 
             eventBus.post({ type: "PickerDidLeaveObject" });
         }
