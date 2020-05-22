@@ -1,16 +1,14 @@
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { ballAndStick } from "./app.js";
 import { instanceColorString } from "./sceneManager.js";
-import {eventBus} from "./app.js";
+import { eventBus, ballAndStick } from "./app.js";
 
 const rgbTemp = new THREE.Color();
 
-class PickHighlighter {
+class PointCloudPickHighlighter {
 
     constructor (highlightColor) {
         this.highlightColor = highlightColor;
-        this.instanceIdList = new Set();
-        this.instanceIdList.clear();
+        this.list = [];
     }
 
     processHit(hit) {
@@ -23,13 +21,13 @@ class PickHighlighter {
     }
 
     hasInstanceId(instanceId) {
-        return this.instanceIdList.has(instanceId);
+        return this.list.has(instanceId);
     }
 
-    configureWithInstanceIdList(instanceIdList) {
+    configureWithInstanceIdList(list) {
         this.unhighlight();
-        for (let instanceId of instanceIdList) {
-            this.instanceIdList.add(instanceId);
+        for (let instanceId of list) {
+            this.list.add(instanceId);
         }
         this.highlight();
     }
@@ -38,7 +36,7 @@ class PickHighlighter {
 
         if (undefined !== ballAndStick.balls) {
 
-            for (let instanceId of this.instanceIdList) {
+            for (let instanceId of this.list) {
                 rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
             }
 
@@ -51,13 +49,13 @@ class PickHighlighter {
 
         if (undefined !== ballAndStick.balls) {
 
-            for (let instanceId of this.instanceIdList) {
+            for (let instanceId of this.list) {
                 ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
             }
 
             ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
 
-            this.instanceIdList.clear();
+            this.list.clear();
 
         }
 
@@ -65,4 +63,4 @@ class PickHighlighter {
 
 }
 
-export default PickHighlighter;
+export default PointCloudPickHighlighter;

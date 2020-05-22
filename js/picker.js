@@ -5,10 +5,10 @@ const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull
 
 class Picker {
 
-    constructor({ raycaster, pickerHighlighterList }) {
+    constructor({ raycaster, pickerHighlighterDictionary }) {
 
         this.raycaster = raycaster;
-        this.pickerHighlighterList = pickerHighlighterList;
+        this.pickerHighlighterDictionary = pickerHighlighterDictionary;
         this.isEnabled = true;
 
         eventBus.subscribe("DidEnterGUI", this);
@@ -19,7 +19,7 @@ class Picker {
 
         if ("DidEnterGUI" === type) {
 
-            for (let pickHighlighter of this.pickerHighlighterList) {
+            for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
                 pickHighlighter.unhighlight();
             }
 
@@ -28,7 +28,7 @@ class Picker {
         } else if ("DidLeaveGUI" === type) {
             if (data instanceof ColorRampPanel) {
 
-                for (let pickHighlighter of this.pickerHighlighterList) {
+                for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
                     pickHighlighter.unhighlight();
                 }
             }
@@ -47,13 +47,14 @@ class Picker {
 
             // Hit list contains all instances along the ray of intersection. Select the first.
             const [ hit ] = hitList;
-            for (let pickHighlighter of this.pickerHighlighterList) {
-                pickHighlighter.processHit(hit);
+
+            if (undefined !== hit.instanceId) {
+                this.pickerHighlighterDictionary[ 'ball' ].processHit(hit);
             }
 
         } else {
 
-            for (let pickHighlighter of this.pickerHighlighterList) {
+            for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
                 pickHighlighter.unhighlight();
             }
 

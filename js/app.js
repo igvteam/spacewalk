@@ -26,7 +26,7 @@ import { getUrlParams, saveSession, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import SpacewalkFileLoad from "./spacewalkFileLoad.js";
-import PickHighlighter from "./pickHighlighter.js";
+import BallPickHighlighter from "./ballPickHighlighter.js";
 
 let eventBus = new EventBus();
 
@@ -127,7 +127,7 @@ const initializationHelper = async container => {
 
     ribbon = new Ribbon();
     // noodle = new Noodle();
-    ballAndStick = new BallAndStick({ pickHighlighter: new PickHighlighter(highlightColor) });
+    ballAndStick = new BallAndStick({ pickHighlighter: new BallPickHighlighter(highlightColor) });
 
     ensembleManager = new EnsembleManager();
 

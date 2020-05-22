@@ -1,0 +1,65 @@
+import * as THREE from "../node_modules/three/build/three.module.js";
+import { instanceColorString } from "./sceneManager.js";
+import { eventBus, ballAndStick } from "./app.js";
+
+const rgbTemp = new THREE.Color();
+
+class BallPickHighlighter {
+
+    constructor (highlightColor) {
+        this.highlightColor = highlightColor;
+        this.instanceIdList = new Set();
+        this.instanceIdList.clear();
+    }
+
+    processHit(hit) {
+        if (false === this.hasInstanceId(hit.instanceId)) {
+            this.configureWithInstanceIdList([ hit.instanceId ]);
+            eventBus.post({ type: "PickerDidHitObject", data: hit.instanceId });
+        }
+    }
+
+    hasInstanceId(instanceId) {
+        return this.instanceIdList.has(instanceId);
+    }
+
+    configureWithInstanceIdList(instanceIdList) {
+        this.unhighlight();
+        for (let instanceId of instanceIdList) {
+            this.instanceIdList.add(instanceId);
+        }
+        this.highlight();
+    }
+
+    highlight() {
+
+        if (undefined !== ballAndStick.balls) {
+
+            for (let instanceId of this.instanceIdList) {
+                rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
+            }
+
+            ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
+        }
+
+    }
+
+    unhighlight() {
+
+        if (undefined !== ballAndStick.balls) {
+
+            for (let instanceId of this.instanceIdList) {
+                ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
+            }
+
+            ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
+
+            this.instanceIdList.clear();
+
+        }
+
+    }
+
+}
+
+export default BallPickHighlighter;

@@ -331,7 +331,7 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const scene = new THREE.Scene();
     scene.background = background;
 
-    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickerHighlighterList: [ ballAndStick.pickHighlighter ]} );
+    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickerHighlighterDictionary: { ball: ballAndStick.pickHighlighter } } );
 
     console.timeEnd(str);
 
