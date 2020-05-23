@@ -76,8 +76,6 @@ class ColorRampMaterialProvider {
         const { r, g, b } = highlightColor;
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
-
-        eventBus.subscribe("DidLeaveGUI", this);
         eventBus.subscribe("PickerDidLeaveObject", this);
         eventBus.subscribe("DidSelectSegmentID", this);
         eventBus.subscribe('DidLoadEnsembleFile', this);
@@ -96,7 +94,7 @@ class ColorRampMaterialProvider {
                 this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
             }
 
-        } else if ("DidLeaveGUI" === type || 'DidLoadEnsembleFile' === type) {
+        } else if ('DidLoadEnsembleFile' === type) {
             this.repaint()
         }
     }
