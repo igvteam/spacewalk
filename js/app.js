@@ -1,4 +1,4 @@
-import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
+import hic from '../node_modules/juicebox.js/dist/js/juicebox.esm.js';
 import { GoogleFilePicker } from '../node_modules/igv-widgets/dist/igv-widgets.js';
 import { createGenericSelectModal, createTrackURLModal } from '../node_modules/igv-ui/src/index.js'
 import EventBus from "./eventBus.js";
@@ -27,7 +27,7 @@ import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import SpacewalkFileLoad from "./spacewalkFileLoad.js";
 import BallPickHighlighter from "./ballPickHighlighter.js";
-import PointCloudPickHighlighter from "./pointCloudPickHighlighter";
+import PointCloudPickHighlighter from "./pointCloudPickHighlighter.js";
 
 let eventBus = new EventBus();
 

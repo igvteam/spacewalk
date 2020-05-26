@@ -1,4 +1,4 @@
-import hic from '../../node_modules/juicebox.js/dist/juicebox.esm.js';
+import hic from '../../node_modules/juicebox.js/dist/js/juicebox.esm.js';
 import Panel from "../panel.js";
 import ContactMapLoad from "./contactMapLoad.js";
 import { googleEnabled, ensembleManager, eventBus } from "../app.js";
