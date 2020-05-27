@@ -48,7 +48,8 @@ class PointCloudPickHighlighter {
                 setGeometryColorAttribute(object.geometry.attributes.color.array, pointCloud.deemphasizedColor)
             }
             for (let object of this.objects) {
-                setGeometryColorAttribute(object.geometry.attributes.color.array, this.highlightColor)
+                // setGeometryColorAttribute(object.geometry.attributes.color.array, this.highlightColor)
+                setGeometryColorAttribute(object.geometry.attributes.color.array, object.geometry.userData.color)
             }
         }
     }
