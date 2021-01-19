@@ -37,13 +37,15 @@ class JuiceboxPanel extends Panel {
         super.receiveEvent({ type, data });
 
         if ("DidChangeGenome" === type) {
-            console.log(`JuiceboxPanel did change genome to ${ data.genomeID }`)
+            console.log(`JuiceboxPanel - DidChangeGenome - genome id ${ data.genomeID }`)
         } else if ('DidLoadEnsembleFile' === type) {
 
             const { genomeAssembly, chr, genomicStart, genomicEnd } = data
 
-            if (this.browser.genome && genomeAssembly !== this.browser.genome.id) {
+            console.log(`JuiceboxPanel - DidLoadEnsembleFile - genome id ${ genomeAssembly }`)
 
+            if (this.browser.genome && genomeAssembly !== this.browser.genome.id) {
+                this.browser.reset()
             } else {
                 this.goto({ chr, start: genomicStart, end: genomicEnd })
             }

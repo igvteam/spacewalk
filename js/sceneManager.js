@@ -215,22 +215,21 @@ class SceneManager {
             this.cameraLightingRig.object.updateProjectionMatrix();
         }
 
-    };
+    }
 
     dispose() {
 
-        $(this.container).off('mousemove.spacewalk.picker');
+        $(this.container).off('mousemove.spacewalk.picker')
 
         if (this.scene) {
 
-            let disposable = this.scene.children.filter(child => {
-                return disposableSet.has(child.name);
-            });
+            let disposable = this.scene.children.filter(child => disposableSet.has(child.name))
 
-            disposable.forEach(d => this.scene.remove(d));
+            for (let d of disposable) {
+                this.scene.remove(d)
+            }
 
-            this.scene.dispose();
-            delete this.scene;
+            delete this.scene
         }
     }
 

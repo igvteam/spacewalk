@@ -10,13 +10,11 @@ $spacewalk_spinner_size: 128px;
 @import "color_ramp_panel";
 @import "distance_map_panel";
 @import "contact_frequence_map_panel";
-@import "juicebox_panel";
+@import "juicebox/juicebox_panel";
 @import "igv/igv_panel";
 
 @import "ui_manager";
 @import "info_panel";
-
-@import "igv/file-load-widget";
 
 #spacewalk-root-container {
   position: absolute;

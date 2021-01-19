@@ -40,7 +40,7 @@ class IGVPanel extends Panel {
         super.receiveEvent({ type, data });
 
         if ("DidChangeGenome" === type) {
-            console.log(`IGVPanel did change genome to ${ data.genomeID }`)
+            console.log(`IGVPanel - DidChangeGenome - genome id ${ data.genomeID }`)
         } else if ("DidChangeMaterialProvider" === type) {
 
             this.materialProvider = data;
@@ -53,6 +53,8 @@ class IGVPanel extends Panel {
             (async () => {
 
                 const { genomeAssembly, chr, genomicStart: start, genomicEnd: end } = data;
+
+                console.log(`IGVPanel - DidLoadEnsembleFile - genome id ${ genomeAssembly }`)
 
                 try {
                     await this.loadGenomeWithID( genomeAssembly );
