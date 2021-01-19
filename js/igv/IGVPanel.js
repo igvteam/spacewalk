@@ -1,16 +1,9 @@
-// import hic from '../../node_modules/juicebox.js/dist/js/juicebox.esm.js';
-import igv from '../../node_modules/igv/dist/igv.esm.js';
-import { MultipleTrackFileLoad } from '../../node_modules/igv-widgets/dist/igv-widgets.js';
-import ModalTable from '../../node_modules/data-modal/js/modalTable.js'
-import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
-import TrackLoadController from "./trackLoadController.js";
+import { EventBus, AlertSingleton, createTrackWidgetsWithTrackRegistry } from '../../node_modules/igv-widgets/dist/igv-widgets.js'
+import { igvxhr, StringUtils } from '../../node_modules/igv-utils/src/index.js'
+import igv from './igv.esm.js'
 import { setMaterialProvider } from '../utils.js';
 import Panel from "../panel.js";
-import { googleEnabled, colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, eventBus } from "../app.js";
-
-let trackLoadController;
-
-const genomesJSONPath = "resources/genomes.json";
+import { googleEnabled, colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager } from "../app.js";
 
 class IGVPanel extends Panel {
 
@@ -26,56 +19,52 @@ class IGVPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
-        addResizeListener(panel, () => {
-
-            if (this.browser) {
-                this.browser.resize();
-            }
-
-        });
-
         this.$panel.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
+            EventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
         });
 
         this.$panel.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+            EventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         });
 
-        eventBus.subscribe("DidChangeMaterialProvider", this);
-        eventBus.subscribe('DidLoadEnsembleFile', this);
+        EventBus.globalBus.subscribe("DidChangeMaterialProvider", this)
+        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
+        EventBus.globalBus.subscribe('DidChangeGenome', this)
+
     }
 
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });
 
-        if ("DidChangeMaterialProvider" === type) {
+        if ("DidChangeGenome" === type) {
+            console.log(`IGVPanel did change genome to ${ data.genomeID }`)
+        } else if ("DidChangeMaterialProvider" === type) {
 
             this.materialProvider = data;
 
-            const { trackContainerDiv } = this.browser;
-            $(trackContainerDiv).find('.input-group input').prop('checked', false);
+            const { trackContainer } = this.browser;
+            $(trackContainer).find('.input-group input').prop('checked', false);
 
         } else if ("DidLoadEnsembleFile" === type) {
 
             (async () => {
 
-                const { genomeAssembly, chr, genomicStart, genomicEnd } = data;
+                const { genomeAssembly, chr, genomicStart: start, genomicEnd: end } = data;
 
                 try {
                     await this.loadGenomeWithID( genomeAssembly );
                 } catch (e) {
-                    igv.Alert.presentAlert(e.message);
+                    AlertSingleton.present(e.message);
                 }
 
                 try {
-                    const str = 'all' === chr ? 'all' : `${ chr }:${ genomicStart }-${ genomicEnd }`;
+                    const str = 'all' === chr ? 'all' : `${ chr }:${ start }-${ end }`;
                     await this.browser.search(str);
                 } catch (e) {
-                    igv.Alert.presentAlert(e.message);
+                    AlertSingleton.present(e.message);
                 }
 
             })();
@@ -85,13 +74,13 @@ class IGVPanel extends Panel {
 
     }
 
-    async initialize(config) {
+    async initialize({ genomes, trackRegistryFile, igvConfig }) {
 
         let genomeList = undefined;
         try {
-            genomeList = await igv.xhr.loadJson(genomesJSONPath, {})
+            genomeList = await igvxhr.loadJson(genomes, {})
         } catch (e) {
-            igv.Alert.presentAlert(e.message);
+            AlertSingleton.present(e.message);
         }
 
         this.genomeDictionary = {};
@@ -102,60 +91,70 @@ class IGVPanel extends Panel {
         this.browser = undefined;
 
         try {
-            const root = this.$panel.find('#spacewalk_igv_root_container').get(0);
-            this.browser = await igv.createBrowser( root, config );
+            const root = this.$panel.find('#spacewalk_igv_root_container').get(0)
+            this.browser = await igv.createBrowser( root, igvConfig )
         } catch (e) {
-            igv.Alert.presentAlert(e.message);
+            AlertSingleton.present(e.message)
         }
 
         if (this.browser) {
 
-            this.browser.on('trackremoved', (track) => {
+            createTrackWidgetsWithTrackRegistry(
+                $(this.container),
+                $('#hic-track-dropdown-menu'),
+                $('#hic-local-track-file-input'),
+                $('#hic-track-dropdown-dropbox-button'),
+                googleEnabled,
+                $('#hic-track-dropdown-google-drive-button'),
+                ['hic-encode-signal-modal', 'hic-encode-other-modal'],
+                'hic-app-track-load-url-modal',
+                'hic-app-track-select-modal',
+                undefined,
+                trackRegistryFile,
+                (configurations) => {
+                    this.loadTrackList(configurations)
+                })
+
+            addResizeListener(this.panel, () => this.browser.resize())
+
+            this.browser.on('trackremoved', track => {
                 if (track.$input && track.$input.prop('checked')) {
-                    this.materialProvider = colorRampMaterialProvider;
-                    setMaterialProvider(this.materialProvider);
+                    this.materialProvider = colorRampMaterialProvider
+                    setMaterialProvider(this.materialProvider)
                 }
+            })
+
+            $(this.browser.trackContainer).on(`mouseenter.${ this.namespace }`, (event) => {
+                event.stopPropagation();
+                EventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
             });
 
-            $(this.browser.trackContainerDiv).on(`mouseenter.${ this.namespace }`, (event) => {
+            $(this.browser.trackContainer).on(`mouseleave.${ this.namespace }`, (event) => {
                 event.stopPropagation();
-                eventBus.post({ type: 'DidEnterGUI', data: this });
+                EventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
             });
 
-            $(this.browser.trackContainerDiv).on(`mouseleave.${ this.namespace }`, (event) => {
-                event.stopPropagation();
-                eventBus.post({ type: 'DidLeaveGUI', data: this });
+            this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
+
+                if (undefined === ensembleManager || undefined === ensembleManager.locus) {
+                    return;
+                }
+
+                const { genomicStart, genomicEnd } = ensembleManager.locus;
+
+                const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
+
+                if (xRejection) {
+                    return;
+                }
+
+                EventBus.globalBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ] } });
+
             });
 
             this.addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
 
-            this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
-                IGVMouseHandler({ bp, start, end, interpolant })
-            });
-
-            let $googleDriveButton = $('#spacewalk-igv-app-dropdown-google-drive-track-file-button');
-            if (!googleEnabled) {
-                $googleDriveButton.parent().hide();
-                $googleDriveButton = undefined;
-            }
-
-            trackLoadController = new TrackLoadController(trackLoadControllerConfigurator({
-                browser: this.browser,
-                trackRegistryFile: "resources/tracks/trackRegistry.json",
-                $googleDriveButton,
-                trackLoader: async (configurations) => {
-                    await this.loadTrackList(configurations)
-                },
-                igvxhr: igv.xhr,
-                google: igv.google
-            }));
-
-            try {
-                await trackLoadController.updateTrackMenus(this.browser.genome.id);
-            } catch (e) {
-                igv.Alert.presentAlert(e.message);
-            }
-
+            EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: this.browser.genome.id }})
         }
 
     }
@@ -168,21 +167,15 @@ class IGVPanel extends Panel {
 
             const json = this.genomeDictionary[ genomeID ];
 
-            let genome = undefined;
+            let g = undefined;
             try {
-                genome = await this.browser.loadGenome(json);
+                g = await this.browser.loadGenome(json);
             } catch (e) {
-                igv.Alert.presentAlert(e.message);
+                AlertSingleton.present(e.message);
             }
 
-            if (genome) {
-
-                try {
-                    await trackLoadController.updateTrackMenus(genome.id);
-                } catch (e) {
-                    igv.Alert.presentAlert(e.message);
-                }
-
+            if (g) {
+                EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID }})
             }
 
         }
@@ -195,7 +188,7 @@ class IGVPanel extends Panel {
         try {
             tracks = await this.browser.loadTrackList( configurations );
         } catch (e) {
-            igv.Alert.presentAlert(e.message);
+            AlertSingleton.present(e.message);
         }
 
         for (let track of tracks) {
@@ -225,7 +218,15 @@ class IGVPanel extends Panel {
 
             if (track.featureDescription) {
 
-                configureTrackMaterialProviderGUI(track);
+                const { trackDiv } = track.trackView;
+
+                const $container = $(trackDiv).find('.igv-left-hand-gutter');
+
+                const $div = $('<div>', { class: 'input-group' });
+                $container.append($div);
+
+                track.$input = $('<input>', { type: 'checkbox' });
+                $div.append(track.$input);
 
                 track.$input.on('click.igv-panel-material-provider', async (e) => {
 
@@ -234,11 +235,11 @@ class IGVPanel extends Panel {
                     this.materialProvider = await trackMaterialProviderClickHandler(track);
                     setMaterialProvider(this.materialProvider);
 
-                });
+                })
 
             }
         }
-    };
+    }
 
     getSessionState() {
 
@@ -258,69 +259,17 @@ class IGVPanel extends Panel {
     }
 }
 
-const trackLoadControllerConfigurator = ({ browser, trackRegistryFile, $googleDriveButton, trackLoader, igvxhr, google }) => {
-
-    const encodeModalTableConfig =
-        {
-            id: "igv-app-encode-modal",
-            title: "ENCODE",
-            selectionStyle: 'multi',
-            pageLength: 100,
-            selectHandler: async configurations => await trackLoader( configurations )
-        };
-
-    const multipleTrackFileLoadConfig =
-        {
-            $localFileInput: $('#spacewalk-igv-app-dropdown-local-track-file-input'),
-            $dropboxButton: $('#spacewalk-igv-app-dropdown-dropbox-track-file-button'),
-            $googleDriveButton,
-            fileLoadHandler: async configurations => await trackLoader(configurations),
-            multipleFileSelection: true,
-            igvxhr,
-            google
-        };
-
-    return {
-        browser,
-        trackRegistryFile,
-        trackLoadModal: $('#spacewalk-igv-app-track-from-url-modal').get(0),
-        multipleTrackFileLoad: new MultipleTrackFileLoad(multipleTrackFileLoadConfig),
-        encodeModalTable: new ModalTable(encodeModalTableConfig),
-        $dropdownMenu: $('#spacewalk-igv-app-track-dropdown-menu'),
-        $selectModal: $('#spacewalk-igv-app-generic-track-select-modal')
-    }
-
-}
-
-const configureTrackMaterialProviderGUI = track => {
-
-    const { trackDiv } = track.trackView;
-
-    const $container = $(trackDiv).find('.igv-left-hand-gutter');
-
-    const $div = $('<div>', { class: 'input-group' });
-    $container.append($div);
-
-    track.$input = $('<input>', { type: 'checkbox' });
-    $div.append(track.$input);
-
-};
-
 const trackMaterialProviderClickHandler = async track => {
 
-    const { trackContainerDiv } = track.browser;
+    const { trackContainer } = track.browser;
 
     // unselect other track's checkboxes
-    const $otherInputs = $(trackContainerDiv).find('.input-group input').not(track.$input.get(0));
+    const $otherInputs = $(trackContainer).find('.input-group input').not(track.$input.get(0));
     $otherInputs.prop('checked', false);
 
     if (track.$input.is(':checked')) {
 
-        const { chromosome, start, end, referenceFrame } = track.browser.genomicStateList[ 0 ];
-
-        const { name: chr } = chromosome;
-
-        const { bpPerPixel } = referenceFrame;
+        const { chr, start, initialEnd:end, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
 
         // If "zoom in" notice is displayed do not paint features on trace
         if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
@@ -344,37 +293,9 @@ const trackMaterialProviderClickHandler = async track => {
 
         return dataValueMaterialProvider
     } else {
-         return colorRampMaterialProvider
+        return colorRampMaterialProvider
     }
 
-};
+}
 
-const IGVMouseHandler = ({ bp, start, end, interpolant }) => {
-
-    if (undefined === ensembleManager || undefined === ensembleManager.locus) {
-        return;
-    }
-
-    const { genomicStart, genomicEnd } = ensembleManager.locus;
-
-    const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
-
-    if (xRejection) {
-        return;
-    }
-
-    eventBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ] } });
-};
-
-const igvBrowserConfigurator = () => {
-    return {
-        genome: 'hg19',
-        showRuler: false,
-        showControls: false,
-        queryParametersSupported: false
-    };
-};
-
-export { trackLoadController, igvBrowserConfigurator };
-
-export default IGVPanel;
+export default IGVPanel

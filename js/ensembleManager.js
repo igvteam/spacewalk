@@ -1,6 +1,7 @@
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import * as THREE from "../node_modules/three/build/three.module.js";
 import Parser from "./parser.js";
-import { eventBus, colorRampMaterialProvider, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
+import { colorRampMaterialProvider, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 import { includes, degrees } from "./math.js";
 
 class EnsembleManager {
@@ -103,7 +104,7 @@ class EnsembleManager {
 
         const initialKey = traceKey || '0';
         this.currentTrace = this.getTraceWithName(initialKey);
-        eventBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, trace: this.currentTrace } });
+        EventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, trace: this.currentTrace } });
 
     }
 

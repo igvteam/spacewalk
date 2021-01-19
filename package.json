@@ -10,13 +10,11 @@
     "start": "http-server -a localhost dist"
   },
   "dependencies": {
-    "data-modal": "github:igvteam/data-modal",
+    "data-modal": "github:igvteam/data-modal#v1.1.0",
     "http-server": "^0.12.3",
-    "igv": "^2.5.5",
-    "igv-ui": "github:igvteam/igv-ui",
-    "igv-utils": "github:igvteam/igv-utils",
-    "igv-widgets": "github:igvteam/igv-widgets",
-    "juicebox.js": "^1.5.0",
+    "igv-ui": "github:igvteam/igv-ui#a409ba5c",
+    "igv-utils": "github:igvteam/igv-utils#v1.2.3",
+    "igv-widgets": "github:igvteam/igv-widgets#3ea87945",
     "kd3d": "github:turner/kd3d",
     "node-fetch": "^2.6.0",
     "three": "^0.116.1"

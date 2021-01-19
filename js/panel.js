@@ -1,7 +1,7 @@
-import hic from '../node_modules/juicebox.js/dist/js/juicebox.esm.js';
-import { makeDraggable } from "./draggable.js";
-import { eventBus } from "./app.js";
-import { setPanelVisibility } from "./guiManager.js";
+import { EventBus, AlertSingleton } from '../node_modules/igv-widgets/dist/igv-widgets.js'
+import { DOMUtils } from '../node_modules/igv-utils/src/index.js'
+import { makeDraggable } from "./draggable.js"
+import { setPanelVisibility } from "./guiManager.js"
 
 let panelList = undefined;
 
@@ -19,34 +19,34 @@ class Panel {
         this.xFunction = xFunction;
         this.yFunction = yFunction;
 
-        this.namespace = `panel.${ hic.igv.guid() }`;
+        this.namespace = `panel.${ DOMUtils.guid() }`;
 
         const $drag_handle = this.$panel.find('.spacewalk_card_drag_container');
         makeDraggable(panel, $drag_handle.get(0));
 
         $drag_handle.on(`mousedown.${ this.namespace }`, event => {
-            eventBus.post({ type: "DidSelectPanel", data: this.$panel });
+            EventBus.globalBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
         const $closer = this.$panel.find('i.fa-times-circle');
-        $closer.on(`click.${ hic.igv.guid() }`, event => {
+        $closer.on(`click.${ DOMUtils.guid() }`, event => {
             event.stopPropagation();
             this.dismiss();
         });
 
         this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidEnterGUI', data: this });
+            EventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
         });
 
         this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidLeaveGUI', data: this });
+            EventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
         });
 
-        eventBus.subscribe("ToggleUIControl", this);
-        eventBus.subscribe("AppWindowDidResize", this);
-        eventBus.subscribe("DidDragEnd", this);
+        EventBus.globalBus.subscribe("ToggleUIControl", this);
+        EventBus.globalBus.subscribe("AppWindowDidResize", this);
+        EventBus.globalBus.subscribe("DidDragEnd", this);
 
     }
 

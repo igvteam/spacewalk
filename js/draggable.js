@@ -1,4 +1,4 @@
-import { eventBus } from "./app.js";
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 
 const namespace = '.spacewalk_drag';
 let dragData;
@@ -61,7 +61,7 @@ function dragEnd(event) {
     dragData = undefined;
 
     const id = $(this).attr('id');
-    eventBus.post({ type: "DidDragEnd", data: id });
+    EventBus.globalBus.post({ type: "DidDragEnd", data: id });
 
 }
 

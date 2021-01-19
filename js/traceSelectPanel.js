@@ -1,7 +1,8 @@
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import { clamp } from './math.js'
 import Panel from "./panel.js";
 import {hideSpinner, showSpinner} from "./app.js";
-import { ensembleManager, eventBus } from "./app.js";
+import { ensembleManager } from "./app.js";
 
 let currentNumber = undefined;
 class TraceSelectPanel extends Panel {
@@ -60,7 +61,7 @@ class TraceSelectPanel extends Panel {
 
         $(document).on('keyup.trace_select', handleKeyUp);
 
-        eventBus.subscribe('DidLoadEnsembleFile', this);
+        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 
@@ -92,7 +93,7 @@ class TraceSelectPanel extends Panel {
 
             const trace = ensembleManager.getTraceWithName(key);
             ensembleManager.currentTrace = trace;
-            eventBus.post({ type: "DidSelectTrace", data: { trace } });
+            EventBus.globalBus.post({ type: "DidSelectTrace", data: { trace } });
 
             hideSpinner();
         }, 0);

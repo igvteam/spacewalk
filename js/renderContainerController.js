@@ -1,6 +1,6 @@
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import Dragger from "./dragger.js";
 import { appleCrayonColorRGB255, rgb255String } from "./color.js";
-import { eventBus } from "./app.js";
 
 let dragger;
 
@@ -35,7 +35,7 @@ class RenderContainerController {
         dragger = new Dragger(container, dragContainer, root_container, height);
 
         // dragContainer.addEventListener('mousedown', () => {
-        //     eventBus.post({ type: "DidSelectPanel", data: $(container) });
+        //     EventBus.globalBus.post({ type: "DidSelectPanel", data: $(container) });
         // });
 
         dragContainer.addEventListener('mouseenter', () => {
@@ -48,8 +48,8 @@ class RenderContainerController {
             dragContainer.querySelector('i').style.color = "transparent";
         });
 
-        eventBus.subscribe("AppWindowDidResize", this);
-        eventBus.subscribe("DraggerDidEnd", this);
+        EventBus.globalBus.subscribe("AppWindowDidResize", this);
+        EventBus.globalBus.subscribe("DraggerDidEnd", this);
 
     }
 

@@ -1,6 +1,7 @@
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import { setMaterialProvider } from './utils.js';
 import Panel from './panel.js';
-import { eventBus, colorRampMaterialProvider } from "./app.js";
+import { colorRampMaterialProvider } from "./app.js";
 
 class ColorRampPanel extends Panel {
 
@@ -26,11 +27,11 @@ class ColorRampPanel extends Panel {
         this.$panel.on('click.color-ramp-panel', (event) => {
             event.stopPropagation();
             setMaterialProvider(colorRampMaterialProvider);
-            eventBus.post({ type: "DidChangeMaterialProvider", data: colorRampMaterialProvider });
+            EventBus.globalBus.post({ type: "DidChangeMaterialProvider", data: colorRampMaterialProvider });
         });
 
-        eventBus.subscribe('DidSelectTrace', this);
-        eventBus.subscribe('DidLoadEnsembleFile', this);
+        EventBus.globalBus.subscribe('DidSelectTrace', this);
+        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 

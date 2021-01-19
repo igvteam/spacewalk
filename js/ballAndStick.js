@@ -1,10 +1,11 @@
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { BufferGeometryUtils } from '../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js';
 import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import { clamp } from './math.js';
 import EnsembleManager from "./ensembleManager.js";
 import { generateRadiusTable } from "./utils.js";
-import { eventBus, ensembleManager, sceneManager, igvPanel } from './app.js'
+import { ensembleManager, sceneManager, igvPanel } from './app.js'
 import { instanceColorString } from "./sceneManager.js";
 import { appleCrayonColorThreeJS } from "./color.js";
 
@@ -24,8 +25,8 @@ class BallAndStick {
 
         this.stickCurves = undefined;
 
-        eventBus.subscribe("DidSelectSegmentID", this);
-        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
+        EventBus.globalBus.subscribe("DidSelectSegmentID", this);
+        EventBus.globalBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
     }
 
     receiveEvent({ type, data }) {

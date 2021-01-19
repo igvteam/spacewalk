@@ -1,4 +1,4 @@
-import { eventBus } from "./app.js";
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 
 const exclusionSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'noodle', 'stick' ]);
 
@@ -11,8 +11,8 @@ class Picker {
 
         this.isEnabled = true;
 
-        eventBus.subscribe("DidEnterGenomicNavigator", this);
-        eventBus.subscribe("DidLeaveGenomicNavigator", this);
+        EventBus.globalBus.subscribe("DidEnterGenomicNavigator", this);
+        EventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
     receiveEvent({ type, data }) {
@@ -62,7 +62,7 @@ class Picker {
                 pickHighlighter.unhighlight();
             }
 
-            eventBus.post({ type: "PickerDidLeaveObject" });
+            EventBus.globalBus.post({ type: "PickerDidLeaveObject" });
         }
 
     }

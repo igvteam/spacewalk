@@ -1,4 +1,4 @@
-import { eventBus } from "./app.js";
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import {clamp} from "./math.js";
 
 const namespace = '.spacewalk_drag';
@@ -47,7 +47,7 @@ class Dragger {
                 this.dragData = undefined;
 
                 const id = target.id;
-                eventBus.post({ type: "DraggerDidEnd", data: id });
+                EventBus.globalBus.post({ type: "DraggerDidEnd", data: id });
 
             };
 

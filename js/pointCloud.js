@@ -1,5 +1,6 @@
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { ensembleManager, eventBus, sceneManager } from "./app.js";
+import { ensembleManager, sceneManager } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
 import { appleCrayonColorThreeJS } from "./color.js";
 
@@ -40,8 +41,8 @@ class PointCloud {
         this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );
         this.deemphasizedMaterial.side = THREE.DoubleSide;
 
-        eventBus.subscribe("DidSelectSegmentID", this);
-        eventBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
+        EventBus.globalBus.subscribe("DidSelectSegmentID", this);
+        EventBus.globalBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
 
     }
 

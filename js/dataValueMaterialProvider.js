@@ -1,6 +1,7 @@
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { rgb255, rgb255Lerp, rgb255String, greyScale255, rgb255ToThreeJSColor } from './color.js';
-import { eventBus, ensembleManager, sceneManager } from "./app.js";
+import { ensembleManager, sceneManager } from "./app.js";
 
 let rgbTexture;
 let alphaTexture;
@@ -51,8 +52,8 @@ class DataValueMaterialProvider {
 
         this.featureRects = undefined;
 
-        eventBus.subscribe("DidLeaveGUI", this);
-        eventBus.subscribe("DidSelectSegmentID", this);
+        EventBus.globalBus.subscribe("DidLeaveGUI", this);
+        EventBus.globalBus.subscribe("DidSelectSegmentID", this);
     }
 
     receiveEvent({ type, data }) {

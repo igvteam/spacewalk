@@ -1,3 +1,4 @@
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { EffectComposer } from "../node_modules/three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "../node_modules/three/examples/jsm/postprocessing/RenderPass.js";
@@ -14,7 +15,7 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, eventBus, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
+import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 import { getGUIRenderStyle, configureColorPicker } from "./guiManager.js";
 import { specularCubicTexture, sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 
@@ -56,9 +57,9 @@ class SceneManager {
             this.setupMultipassRendering(this.scene, this.renderer, this.cameraLightingRig);
         }
 
-        eventBus.subscribe('DidSelectTrace', this);
-        eventBus.subscribe('DidLoadEnsembleFile', this);
-        eventBus.subscribe('RenderStyleDidChange', this);
+        EventBus.globalBus.subscribe('DidSelectTrace', this);
+        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+        EventBus.globalBus.subscribe('RenderStyleDidChange', this);
 
     }
 

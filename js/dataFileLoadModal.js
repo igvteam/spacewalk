@@ -1,4 +1,4 @@
-import { eventBus } from "./app.js";
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 
 let currentURL = undefined;
 
@@ -104,7 +104,7 @@ const configureSelectOnChange = ($select, $selectModal, fileLoader) => {
 const loadURL = ({ url, name, fileLoader, $modal }) => {
 
     $modal.modal('hide');
-    eventBus.post({ type: "DidLeaveGUI" });
+    EventBus.globalBus.post({ type: "DidLeaveGUI" });
 
     fileLoader.load(url);
 
@@ -112,7 +112,7 @@ const loadURL = ({ url, name, fileLoader, $modal }) => {
 
 const loadFile = (file, fileLoader) => {
 
-    eventBus.post({ type: "DidLeaveGUI" });
+    EventBus.globalBus.post({ type: "DidLeaveGUI" });
     fileLoader.load(file);
 
 };

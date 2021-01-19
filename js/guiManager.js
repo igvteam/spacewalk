@@ -1,8 +1,9 @@
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
 import { rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor } from "./color.js";
-import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
+import { noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
 
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
@@ -79,8 +80,8 @@ class GUIManager {
             noodle.updateRadius(1);
         });
 
-        eventBus.subscribe("DidSelectPanel", this);
-        eventBus.subscribe('DidLoadEnsembleFile', this);
+        EventBus.globalBus.subscribe("DidSelectPanel", this);
+        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 
@@ -141,7 +142,7 @@ const configureVisibilityControl = (input_id_list, $panel) => {
                 sceneManager.gnomon.toggle();
             } else {
                 const payload = $input.data('target');
-                eventBus .post({ type: 'ToggleUIControl', data: { payload } });
+                EventBus.globalBus.post({ type: 'ToggleUIControl', data: { payload } });
             }
         });
 
@@ -155,7 +156,7 @@ const configureRenderStyleControl = ($input, renderStyle) => {
 
     $input.on('change.gui_manager.render_style_ball_stick', (e) => {
         e.preventDefault();
-        eventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
+        EventBus.globalBus.post({ type: "RenderStyleDidChange", data: $(e.target).val() });
     });
 
 };
@@ -190,10 +191,10 @@ export const setGUIRenderStyle = renderStyle => {
 
     if (renderStyle === Noodle.getRenderStyle()) {
         $ui_manager_panel.find('#spacewalk-render-style-noodle').prop('checked', true);
-        eventBus .post({ type: "RenderStyleDidChange", data: renderStyle });
+        EventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
     } else if (renderStyle === BallAndStick.getRenderStyle()) {
         $ui_manager_panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
-        eventBus .post({ type: "RenderStyleDidChange", data: renderStyle });
+        EventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
     }
 
 };

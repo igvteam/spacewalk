@@ -1,9 +1,10 @@
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import * as THREE from "../node_modules/three/build/three.module.js";
 import EnsembleManager from "./ensembleManager.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
-import { ballAndStick, colorMapManager, ensembleManager, eventBus } from "./app.js";
+import { ballAndStick, colorMapManager, ensembleManager } from "./app.js";
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
@@ -58,12 +59,12 @@ class ColorRampMaterialProvider {
 
         $canvasContainer.on(('mouseenter.' + namespace), (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
+            EventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
         });
 
         $canvasContainer.on(('mouseleave.' + namespace), (event) => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+            EventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
             this.repaint();
         });
 
@@ -76,9 +77,9 @@ class ColorRampMaterialProvider {
         const { r, g, b } = highlightColor;
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
-        eventBus.subscribe("PickerDidLeaveObject", this);
-        eventBus.subscribe("DidSelectSegmentID", this);
-        eventBus.subscribe('DidLoadEnsembleFile', this);
+        EventBus.globalBus.subscribe("PickerDidLeaveObject", this);
+        EventBus.globalBus.subscribe("DidSelectSegmentID", this);
+        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
     }
 
     receiveEvent({ type, data }) {
@@ -112,7 +113,7 @@ class ColorRampMaterialProvider {
 
         if (interpolantWindowList) {
             this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
-            eventBus.post({ type: 'ColorRampMaterialProviderCanvasDidMouseMove', data: { interpolantList } });
+            EventBus.globalBus.post({ type: 'ColorRampMaterialProviderCanvasDidMouseMove', data: { interpolantList } });
         }
 
     };

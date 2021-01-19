@@ -1,9 +1,10 @@
+import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { Line2 } from "../node_modules/three/examples/jsm/lines/Line2.js";
 import { LineMaterial } from "../node_modules/three/examples/jsm/lines/LineMaterial.js";
 import { LineGeometry } from "../node_modules/three/examples/jsm/lines/LineGeometry.js";
 import EnsembleManager from "./ensembleManager.js";
-import {eventBus, igvPanel, sceneManager} from "./app.js";
+import {igvPanel, sceneManager} from "./app.js";
 import Noodle, { NoodleScaleFactor } from "./noodle.js";
 
 let fatLineMaterial;
@@ -12,8 +13,8 @@ const ribbonWidth = 4/*2*/;
 class Ribbon {
 
     constructor() {
-        // eventBus.subscribe("DidEnterGenomicNavigator", this);
-        // eventBus.subscribe("DidLeaveGenomicNavigator", this);
+        // EventBus.globalBus.subscribe("DidEnterGenomicNavigator", this);
+        // EventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
     receiveEvent({ type, data }) {
