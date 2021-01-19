@@ -186,13 +186,13 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_contact_frequency_map_panel') }));
 
-    // juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
 
-    // if (juiceboxSessionURL) {
-    //     await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: juiceboxSessionURL });
-    // } else {
-    //     await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: undefined });
-    // }
+    if (juiceboxSessionURL) {
+        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: juiceboxSessionURL });
+    } else {
+        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: undefined });
+    }
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
     igvPanel.materialProvider = colorRampMaterialProvider;
