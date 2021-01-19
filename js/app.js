@@ -1,6 +1,5 @@
 import { AlertSingleton, EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import {GoogleAuth} from '../node_modules/igv-utils/src/index.js'
-import GSDB from "./gsdb/gsdb.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
@@ -103,8 +102,6 @@ const initializationHelper = async container => {
 
     ensembleManager = new EnsembleManager();
 
-    gsdb = new GSDB(parser);
-
     colorMapManager = new ColorMapManager();
     await colorMapManager.configure();
 
@@ -136,6 +133,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
             rootContainer: document.getElementById('spacewalk-main'),
             $localFileInput: $('#spacewalk-sw-load-local-input'),
             urlLoadModalId: 'spacewalk-sw-load-url-modal',
+            gsdbModalId: 'spacewalk-gsdb-modal',
             $selectModal: $('#spacewalk-sw-load-select-modal'),
             $dropboxButton: $('#spacewalk-sw-dropbox-button'),
             $googleDriveButton: $('#spacewalk-sw-google-drive-button'),
@@ -196,14 +194,14 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     //     await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: undefined });
     // }
 
-    // igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
-    // igvPanel.materialProvider = colorRampMaterialProvider;
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
+    igvPanel.materialProvider = colorRampMaterialProvider;
 
-    // if (igvSessionURL) {
-    //     await igvPanel.initialize({ sessionURL: igvSessionURL });
-    // } else {
-    //     await igvPanel.initialize(spacewalkConfig.igv);
-    // }
+    if (igvSessionURL) {
+        await igvPanel.initialize({ sessionURL: igvSessionURL });
+    } else {
+        await igvPanel.initialize(spacewalkConfig);
+    }
 
     Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
 
