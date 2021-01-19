@@ -141,7 +141,7 @@
     <div id="spacewalk-navbar-content" class="collapse navbar-collapse d-flex flex-row ml-5">
         <ul class="navbar-nav">
 
-            <!-- .sw Files -->
+            <!-- Spacewalk (.sw) Files -->
             <li class="nav-item">
 
                 <div class="dropdown">
@@ -158,7 +158,8 @@
                         </button>
 
                         <!-- select -->
-                        <button id="spacewalk-sw-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-sw-load-select-modal">Select From List ...
+                        <button id="spacewalk-sw-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-sw-load-select-modal">
+                            Select From List ...
                         </button>
 
                         <!-- local file -->
@@ -211,25 +212,30 @@
 
                 <div class="dropdown">
 
-                    <a id="spacewalk-juicebox-load-dropdown-button"  href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                    <a id="hic-contact-map-dropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
                         Load Contact Map
                     </a>
 
-                    <div id="spacewalk-juicebox-load-dropdown-menu" class="dropdown-menu">
+                    <div id="hic-contact-map-dropdown-menu" class="dropdown-menu">
 
                         <!-- Select -->
-                        <button id="spacewalk-juicebox-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-contact-map-modal">
-                            Select File ...
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#hic-contact-map-modal">
+                            Juicebox Archive
+                        </a>
+
+                        <!-- ENCODE hosted maps -->
+                        <button id="hic-encode-hosted-contact-map-presentation-button" class="dropdown-item disabled"
+                                type="button" data-toggle="modal" data-target="#hic-encode-hosted-contact-map-modal">ENCODE
                         </button>
 
                         <!-- Local Map File -->
                         <label class="dropdown-item btn btn-default btn-file">
-                            <div>
+                            <div class="igv-app-dropdown-item-cloud-storage">
                                 <div>
-                                    Local File ...
+                                    Local File
                                 </div>
                                 <div>
-                                    <input id="spacewalk-juicebox-load-local-input" type="file" name="file" style="display: none;">
+                                    <input name="contact-map" type="file" style="display: none;">
                                 </div>
                             </div>
                         </label>
@@ -237,30 +243,26 @@
                         <!-- Dropbox -->
                         <div class="dropdown-item">
 
-                            <div id="spacewalk-juicebox-contact-map-dropdown-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
+                            <div id="hic-contact-map-dropdown-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
 
                                 <div>Dropbox File</div>
                                 <div>
                                     <img src="./img/dropbox-dropdown-menu-item.png" width="18" height="18">
                                 </div>
-
                             </div>
 
                         </div>
 
                         <!-- Google Drive -->
                         <div class="dropdown-item">
-                            <div id="spacewalk-juicebox-contact-map-dropdown-google-drive-button" class="igv-app-dropdown-item-cloud-storage">
+                            <div id="hic-contact-map-dropdown-google-drive-button" class="igv-app-dropdown-item-cloud-storage">
                                 <div>Google Drive File</div>
                                 <div><img src="./img/googledrive-dropdown-menu-item.png" width="18" height="18"></div>
                             </div>
                         </div>
 
                         <!-- URL -->
-                        <button id="spacewalk-juicebox-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-juicebox-url-modal">
-                            Map URL ...
-                        </button>
-
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#hic-load-url-modal">URL</a>
                     </div>
 
                 </div>
@@ -272,21 +274,21 @@
 
                 <div class="dropdown">
 
-                    <a id="spacewalk-igv-load-dropdown-button" data-toggle="dropdown" href="#" class="nav-link dropdown-toggle">
+                    <a id="hic-track-dropdown-button" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
                         Load Genomic Track
                     </a>
 
-                    <!-- -->
-                    <div id="spacewalk-igv-app-track-dropdown-menu" class="dropdown-menu">
+                    <div id="hic-track-dropdown-menu" class="dropdown-menu">
 
-                        <!-- local file -->
+                        <!-- Local File -->
                         <label class="dropdown-item btn btn-default btn-file">
-                            <div class="spacewalk-igv-app-dropdown-item-cloud-storage">
+                            <div class="igv-app-dropdown-item-cloud-storage">
                                 <div>
                                     Local File ...
                                 </div>
                                 <div>
-                                    <input id="spacewalk-igv-app-dropdown-local-track-file-input" type="file" name="file" multiple style="display: none;">
+                                    <input id="hic-local-track-file-input" name="local-track-file" type="file"
+                                           style="display: none;">
                                 </div>
                             </div>
                         </label>
@@ -294,31 +296,29 @@
                         <!-- Dropbox -->
                         <div class="dropdown-item">
 
-                            <div id="spacewalk-igv-app-dropdown-dropbox-track-file-button" class="spacewalk-igv-app-dropdown-item-cloud-storage">
+                            <div id="hic-track-dropdown-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
 
-                                <div>Dropbox</div>
-                                <div><img src="img/dropbox-dropdown-menu-item.png" width="18" height="18"></div>
-                                <div>...</div>
-
+                                <div>Dropbox File</div>
+                                <div>
+                                    <img src="./img/dropbox-dropdown-menu-item.png" width="18" height="18">
+                                </div>
                             </div>
 
                         </div>
 
                         <!-- Google Drive -->
                         <div class="dropdown-item">
-                            <div id="spacewalk-igv-app-dropdown-google-drive-track-file-button" class="spacewalk-igv-app-dropdown-item-cloud-storage">
-                                <div>Google Drive</div>
-                                <div><img src="img/googledrive-dropdown-menu-item.png" width="18" height="18"></div>
-                                <div>...</div>
+                            <div id="hic-track-dropdown-google-drive-button" class="igv-app-dropdown-item-cloud-storage">
+                                <div>Google Drive File</div>
+                                <img src="./img/googledrive-dropdown-menu-item.png" width="18" height="18">
                             </div>
                         </div>
 
                         <!-- URL -->
-                        <button class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-igv-app-track-from-url-modal">
-                            URL ...
-                        </button>
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#track-load-url-modal">URL ...</a>
 
-                        <div class="dropdown-divider"></div>
+                        <div id="hic-annotations-section" class="dropdown-divider">
+                        </div>
 
                     </div>
 
@@ -331,11 +331,11 @@
                 <button id="spacewalk-share-button" class="btn btn-secondary btn-sm ml-4 mt-1" type="button">Share</button>
             </li>
 
-<!--            <li>-->
-<!--                <button id="spacewalk-reset-camera-button" class="btn btn-info btn-sm ml-4 mt-1" type="button">-->
-<!--                    Reset Camera-->
-<!--                </button>-->
-<!--            </li>-->
+            <!--            <li>-->
+            <!--                <button id="spacewalk-reset-camera-button" class="btn btn-info btn-sm ml-4 mt-1" type="button">-->
+            <!--                    Reset Camera-->
+            <!--                </button>-->
+            <!--            </li>-->
 
         </ul>
     </div>

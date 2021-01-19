@@ -2,9 +2,27 @@
   "name": "spacewalk",
   "version": "0.1.0",
   "description": "3D Chromosome Visualization Tool",
-  "keywords": [],
-  "author": "Douglass Turner and Jim Robinson",
+  "author": {
+    "name": "Douglass Turner"
+  },
+  "contributors": [
+    {
+      "name": "Jim Robinson"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/igvteam/spacewalk/issues"
+  },
+  "keywords": [
+    "spacewalk",
+    "genomics",
+    "visualization"
+  ],
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/igvteam/spacewalk.git"
+  },
   "scripts": {
     "build": "npx rollup --config && node scripts/injectRuntime.js",
     "start": "http-server -a localhost dist"
@@ -17,7 +35,7 @@
     "igv-widgets": "github:igvteam/igv-widgets#3ea87945",
     "kd3d": "github:turner/kd3d",
     "node-fetch": "^2.6.0",
-    "three": "^0.116.1"
+    "three": "^0.124.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
