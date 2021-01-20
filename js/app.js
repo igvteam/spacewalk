@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         }
 
     } catch (e) {
-        AlertSingleton.present.presentAlert(e.message);
+        AlertSingleton.present(e.message)
     }
 
     const { clientId, apiKey } = spacewalkConfig
