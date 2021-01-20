@@ -1,5 +1,5 @@
 import { GLTFExporter } from '../node_modules/three/examples/jsm/exporters/GLTFExporter.js';
-import hic from './juicebox/juicebox.esm.js'
+import hic from '../node_modules/juicebox.js/dist/js/juicebox.esm.js'
 import { URIUtils, StringUtils, Zlib } from '../node_modules/igv-utils/src/index.js';
 import Panel from "./panel.js";
 import { parser, ensembleManager, igvPanel, sceneManager } from "./app.js";

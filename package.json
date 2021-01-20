@@ -33,6 +33,7 @@
     "igv-ui": "github:igvteam/igv-ui#a409ba5c",
     "igv-utils": "github:igvteam/igv-utils#v1.2.3",
     "igv-widgets": "github:igvteam/igv-widgets#3ea87945",
+    "juicebox.js": "^2.1.5",
     "kd3d": "github:turner/kd3d",
     "node-fetch": "^2.6.0",
     "three": "^0.124.0"
