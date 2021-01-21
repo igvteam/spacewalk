@@ -21,10 +21,7 @@ module.exports =
         plugins:
             [
                 resolve(),
-                babel(
-                    {
-                        exclude: 'node_modules/**'
-                    }),
+                babel({ exclude: 'node_modules/**' }),
                 copy({
                     targets:
                         [
