@@ -30,6 +30,7 @@
   "dependencies": {
     "data-modal": "github:igvteam/data-modal#v1.1.0",
     "http-server": "^0.12.3",
+    "igv": "^2.7.4",
     "igv-utils": "github:igvteam/igv-utils#v1.2.3",
     "igv-widgets": "github:igvteam/igv-widgets#3ea87945",
     "kd3d": "github:turner/kd3d",

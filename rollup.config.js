@@ -34,8 +34,6 @@ module.exports =
                                         'css/spectrum.css',
                                         'js/juicebox/css/juicebox.css',
                                         'js/juicebox/css/img'
-                                        // 'node_modules/juicebox.js/dist/css/juicebox.css',
-                                        // 'node_modules/juicebox.js/dist/css/img'
                                     ],
                                 dest: 'dist/css/'
                             },

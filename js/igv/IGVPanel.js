@@ -1,6 +1,6 @@
 import { EventBus, AlertSingleton, createTrackWidgetsWithTrackRegistry } from '../../node_modules/igv-widgets/dist/igv-widgets.js'
 import { igvxhr, StringUtils } from '../../node_modules/igv-utils/src/index.js'
-import igv from './igv.esm.js'
+import igv from '../../node_modules/igv/dist/igv.esm.js'
 import { setMaterialProvider } from '../utils.js';
 import Panel from "../panel.js";
 import { googleEnabled, colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager } from "../app.js";
