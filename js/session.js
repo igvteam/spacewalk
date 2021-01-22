@@ -1,9 +1,9 @@
-import { GLTFExporter } from '../node_modules/three/examples/jsm/exporters/GLTFExporter.js';
-import hic from '../node_modules/juicebox.js/dist/js/juicebox.esm.js'
-import { URIUtils, StringUtils, Zlib } from '../node_modules/igv-utils/src/index.js';
-import Panel from "./panel.js";
-import { parser, ensembleManager, igvPanel, sceneManager } from "./app.js";
-import { getGUIRenderStyle, setGUIRenderStyle } from "./guiManager.js";
+import { GLTFExporter } from '../node_modules/three/examples/jsm/exporters/GLTFExporter.js'
+import hic from './juicebox/js/juicebox.esm.js'
+import { URIUtils, StringUtils, Zlib } from '../node_modules/igv-utils/src/index.js'
+import Panel from './panel.js'
+import { parser, ensembleManager, igvPanel, sceneManager } from './app.js'
+import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
 
 const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
 

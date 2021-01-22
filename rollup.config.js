@@ -1,9 +1,9 @@
 // rollup.config.js
 import resolve from '@rollup/plugin-node-resolve';
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
 import copy from 'rollup-plugin-copy'
 
-process.env.JUICEBOX_CSS_SRC = '<link rel="stylesheet" href="node_modules/juicebox.js/dist/css/juicebox.css"/>';
+process.env.JUICEBOX_CSS_SRC = '<link rel="stylesheet" href="js/juicebox/css/juicebox.css"/>';
 process.env.JUICEBOX_CSS_DST = '<link rel="stylesheet" href="css/juicebox.css">';
 
 process.env.INDEX_FILE_SRC = '<script type="module" src="js/app.js"></script>';
@@ -26,34 +26,30 @@ module.exports =
                     targets:
                         [
                             {
-                                src: 'spacewalk-config.js', dest: 'dist/'
-                            },
-                            {
-                                src: 'favicon.ico', dest: 'dist/'
-                            },
-                            {
-                                src: 'vendor', dest: 'dist/'
-                            },
-                            {
-                                src: 'img', dest: 'dist/'
-                            },
-                            {
-                                src: 'texture', dest: 'dist/'
-                            },
-                            {
-                                src: 'resources', dest: 'dist/'
-                            },
-                            {
                                 src:
                                     [
                                         'css/fontawesome',
                                         'css/webfonts',
                                         'css/app.css',
                                         'css/spectrum.css',
-                                        'node_modules/juicebox.js/dist/css/juicebox.css',
-                                        'node_modules/juicebox.js/dist/css/img'
+                                        'js/juicebox/css/juicebox.css',
+                                        'js/juicebox/css/img'
+                                        // 'node_modules/juicebox.js/dist/css/juicebox.css',
+                                        // 'node_modules/juicebox.js/dist/css/img'
                                     ],
                                 dest: 'dist/css/'
+                            },
+                            {
+                                src:
+                                [
+                                    'favicon.ico',
+                                    'img',
+                                    'texture',
+                                    'vendor',
+                                    'resources',
+                                    'spacewalk-config.js'
+                                ],
+                                dest: 'dist/'
                             },
                             {
                                 src: 'index.html',

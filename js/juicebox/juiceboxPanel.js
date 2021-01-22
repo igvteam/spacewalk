@@ -1,8 +1,8 @@
 import { EventBus, AlertSingleton } from '../../node_modules/igv-widgets/dist/igv-widgets.js'
-import hic from '../../node_modules/juicebox.js/dist/js/juicebox.esm.js'
-import Panel from "../panel.js"
-import configureContactMapLoaders from "./contactMapLoad.js";
-import { googleEnabled, ensembleManager } from "../app.js"
+import hic from './js/juicebox.esm.js'
+import Panel from '../panel.js'
+import configureContactMapLoaders from './contactMapLoad.js'
+import { googleEnabled, ensembleManager } from '../app.js'
 
 class JuiceboxPanel extends Panel {
 
