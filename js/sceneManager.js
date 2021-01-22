@@ -18,6 +18,7 @@ import { appleCrayonColorThreeJS } from "./color.js";
 import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
 import { getGUIRenderStyle, configureColorPicker } from "./guiManager.js";
 import { specularCubicTexture, sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
+import Ribbon from "./ribbon";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'noodle', 'ball' , 'stick' ]);
 
@@ -86,16 +87,14 @@ class SceneManager {
 
         if ('RenderStyleDidChange' === type) {
 
-            if (data === Noodle.getRenderStyle()) {
-                this.renderStyle = Noodle.getRenderStyle();
-                ballAndStick.hide();
-                // noodle.show();
-                ribbon.show();
-            } else {
-                this.renderStyle = BallAndStick.getRenderStyle();
-                // noodle.hide();
-                ribbon.hide();
-                ballAndStick.show();
+            if (data === Ribbon.getRenderStyle()) {
+                this.renderStyle = Ribbon.getRenderStyle()
+                ballAndStick.hide()
+                ribbon.show()
+            } else if (data === BallAndStick.getRenderStyle()) {
+                this.renderStyle = BallAndStick.getRenderStyle()
+                ribbon.hide()
+                ballAndStick.show()
             }
 
         }  else if ('DidLoadEnsembleFile' === type) {

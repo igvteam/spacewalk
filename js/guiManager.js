@@ -1,6 +1,7 @@
 import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import { StringUtils } from '../node_modules/igv-utils/src/index.js'
 import Noodle from "./noodle.js";
+import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import { rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor } from "./color.js";
 import { noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
@@ -45,7 +46,7 @@ class GUIManager {
 
         configureRenderStyleControl($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
 
-        configureRenderStyleControl($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
+        configureRenderStyleControl($panel.find('#spacewalk-render-style-noodle'), Ribbon.getRenderStyle());
 
         // ball radius
         const $ball_radius_control = $('#spacewalk-ball-radius-control');
@@ -182,14 +183,14 @@ export const configureColorPicker = ($element, initialColor, callback) => {
 
 export const getGUIRenderStyle = () => {
     const id = $('#spacewalk_ui_manager_panel').find("input:radio[name='spacewalk-render-style']:checked").attr('id');
-    return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Noodle.getRenderStyle();
+    return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Ribbon.getRenderStyle();
 };
 
 export const setGUIRenderStyle = renderStyle => {
 
     const $ui_manager_panel = $('#spacewalk_ui_manager_panel');
 
-    if (renderStyle === Noodle.getRenderStyle()) {
+    if (renderStyle === Ribbon.getRenderStyle()) {
         $ui_manager_panel.find('#spacewalk-render-style-noodle').prop('checked', true);
         EventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
     } else if (renderStyle === BallAndStick.getRenderStyle()) {

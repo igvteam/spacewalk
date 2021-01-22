@@ -48,6 +48,7 @@ class BallAndStick {
         }
 
     }
+    
     configure(trace) {
 
         this.dispose();

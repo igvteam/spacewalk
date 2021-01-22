@@ -4,7 +4,7 @@ import { Line2 } from "../node_modules/three/examples/jsm/lines/Line2.js";
 import { LineMaterial } from "../node_modules/three/examples/jsm/lines/LineMaterial.js";
 import { LineGeometry } from "../node_modules/three/examples/jsm/lines/LineGeometry.js";
 import EnsembleManager from "./ensembleManager.js";
-import {igvPanel, sceneManager} from "./app.js";
+import {ensembleManager, igvPanel, sceneManager} from "./app.js";
 import Noodle, { NoodleScaleFactor } from "./noodle.js";
 
 let fatLineMaterial;
@@ -15,20 +15,50 @@ class Ribbon {
     constructor() {
         // EventBus.globalBus.subscribe("DidEnterGenomicNavigator", this);
         // EventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
+
+        EventBus.globalBus.subscribe("DidSelectSegmentID", this);
+        EventBus.globalBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
+
     }
 
     receiveEvent({ type, data }) {
 
-        if (sceneManager.renderStyle === Noodle.getRenderStyle()) {
+        const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
+        const renderStyleConditional = Ribbon.getRenderStyle() === sceneManager.renderStyle
 
-            if ("DidEnterGenomicNavigator" === type) {
-                this.show();
-            } else if ("DidLeaveGenomicNavigator" === type) {
-                this.hide();
+        if (this.spline && typeConditional && renderStyleConditional) {
+
+            const { interpolantList } = data
+
+            const string = interpolantList.map((interpolant, index ) => `  ${ index } ${ interpolant.toFixed(3) }`)
+
+
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+
+            if (interpolantWindowList) {
+
+                console.log(`Ribbon - receiveEvent ${ string }`)
+
+                // const indices = interpolantWindowList.map(({ index }) => index);
+                // this.pickHighlighter.configureWithInstanceIdList(indices);
             }
 
         }
+
     }
+
+    // receiveEvent({ type, data }) {
+    //
+    //     if (sceneManager.renderStyle === Noodle.getRenderStyle()) {
+    //
+    //         if ("DidEnterGenomicNavigator" === type) {
+    //             this.show();
+    //         } else if ("DidLeaveGenomicNavigator" === type) {
+    //             this.hide();
+    //         }
+    //
+    //     }
+    // }
 
     configure(trace) {
 
