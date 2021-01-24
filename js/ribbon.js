@@ -1,68 +1,52 @@
 import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
-import * as THREE from "../node_modules/three/build/three.module.js";
-import { Line2 } from "../node_modules/three/examples/jsm/lines/Line2.js";
-import { LineMaterial } from "../node_modules/three/examples/jsm/lines/LineMaterial.js";
-import { LineGeometry } from "../node_modules/three/examples/jsm/lines/LineGeometry.js";
-import EnsembleManager from "./ensembleManager.js";
-import {ensembleManager, igvPanel, sceneManager} from "./app.js";
-import Noodle, { NoodleScaleFactor } from "./noodle.js";
+import * as THREE from "../node_modules/three/build/three.module.js"
+import { Line2 } from "../node_modules/three/examples/jsm/lines/Line2.js"
+import { LineMaterial } from "../node_modules/three/examples/jsm/lines/LineMaterial.js"
+import { LineGeometry } from "../node_modules/three/examples/jsm/lines/LineGeometry.js"
+import EnsembleManager from "./ensembleManager.js"
+import {igvPanel, sceneManager} from "./app.js"
+import Noodle from "./noodle.js"
+import {appleCrayonColorThreeJS} from "./color.js";
 
-let fatLineMaterial;
-const ribbonWidth = 4/*2*/;
+let fatLineMaterial
+const ribbonWidth = 4/*2*/
+const beadRadiusScalefactor = 1/(6e1)
 
 class Ribbon {
 
     constructor() {
-        // EventBus.globalBus.subscribe("DidEnterGenomicNavigator", this);
-        // EventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
-
-        EventBus.globalBus.subscribe("DidSelectSegmentID", this);
-        EventBus.globalBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
-
+        EventBus.globalBus.subscribe('DidSelectSegmentID', this)
+        EventBus.globalBus.subscribe('DidLeaveGenomicNavigator', this)
+        EventBus.globalBus.subscribe('ColorRampMaterialProviderCanvasDidMouseMove', this)
     }
 
     receiveEvent({ type, data }) {
 
-        const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
-        const renderStyleConditional = Ribbon.getRenderStyle() === sceneManager.renderStyle
+        if (this.spline && Ribbon.getRenderStyle() === sceneManager.renderStyle) {
 
-        if (this.spline && typeConditional && renderStyleConditional) {
+            if ('DidLeaveGenomicNavigator' === type) {
+                this.beads[ 0 ].visible = this.beads[ 1 ].visible = false
+            } else if ('ColorRampMaterialProviderCanvasDidMouseMove' === type || 'DidSelectSegmentID' === type) {
 
-            const { interpolantList } = data
+                const { interpolantList } = data
 
-            const string = interpolantList.map((interpolant, index ) => `  ${ index } ${ interpolant.toFixed(3) }`)
+                for (let interpolant of interpolantList) {
 
+                    const { x, y, z } = this.curve.getPointAt(interpolant)
+                    const index = interpolantList.indexOf(interpolant)
+                    this.beads[ index ].position.set(x, y, z)
+                    this.beads[ index ].visible = true
+                }
 
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
-
-            if (interpolantWindowList) {
-
-                console.log(`Ribbon - receiveEvent ${ string }`)
-
-                // const indices = interpolantWindowList.map(({ index }) => index);
-                // this.pickHighlighter.configureWithInstanceIdList(indices);
             }
 
         }
 
     }
 
-    // receiveEvent({ type, data }) {
-    //
-    //     if (sceneManager.renderStyle === Noodle.getRenderStyle()) {
-    //
-    //         if ("DidEnterGenomicNavigator" === type) {
-    //             this.show();
-    //         } else if ("DidLeaveGenomicNavigator" === type) {
-    //             this.hide();
-    //         }
-    //
-    //     }
-    // }
-
     configure(trace) {
 
-        this.dispose();
+        this.dispose()
 
         this.trace = trace;
 
@@ -77,10 +61,10 @@ class Ribbon {
 
         console.timeEnd(str);
 
-        if (sceneManager.renderStyle === Noodle.getRenderStyle()) {
-            this.show();
+        if (sceneManager.renderStyle === Ribbon.getRenderStyle()) {
+            this.show()
         } else {
-            this.hide();
+            this.hide()
         }
 
     }
@@ -97,7 +81,28 @@ class Ribbon {
     }
 
     addToScene (scene) {
-        scene.add( this.spline.mesh );
+
+        scene.add( this.spline.mesh )
+
+        const { center, radius } = this.getBounds()
+
+        this.beads = []
+
+        const material = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('maraschino') })
+        const geometry = new THREE.SphereGeometry( radius * beadRadiusScalefactor, 64, 32 )
+        this.beads[ 0 ] = new THREE.Mesh( geometry, material )
+        this.beads[ 1 ] = new THREE.Mesh( geometry, material )
+
+        scene.add( this.beads[ 0 ] )
+        scene.add( this.beads[ 1 ] )
+
+        const { x, y, z } = center
+        this.beads[ 0 ].position.set(x, y, z)
+        this.beads[ 1 ].position.set(x, y, z)
+
+        this.beads[ 0 ].visible = false
+        this.beads[ 1 ].visible = false
+
     }
 
     renderLoopHelper () {
@@ -109,29 +114,44 @@ class Ribbon {
     }
 
     hide () {
-        this.spline.mesh.visible = false;
+        this.spline.mesh.visible = false
+
+        if (this.beads) {
+            this.beads[ 0 ].visible = false
+            this.beads[ 1 ].visible = false
+        }
     }
 
     show () {
-        this.spline.mesh.visible = true;
+        this.spline.mesh.visible = true
+
+        // if (this.beads) {
+        //     this.beads[ 0 ].visible = true
+        //     this.beads[ 1 ].visible = true
+        // }
     }
 
     dispose () {
 
         if (this.spline) {
-            this.spline.mesh.material.dispose();
-            this.spline.mesh.geometry.dispose();
-            // [ this.spline.mesh.material, this.spline.mesh.geometry ].forEach(item => item.dispose())
+            this.spline.mesh.material.dispose()
+            this.spline.mesh.geometry.dispose()
         }
 
+        if (this.beads) {
+            for (let { geometry, material } of this.beads) {
+                material.dispose()
+                geometry.dispose()
+            }
+        }
     }
 
     getBounds() {
-        return EnsembleManager.getBoundsWithTrace(this.trace);
+        return EnsembleManager.getBoundsWithTrace(this.trace)
     }
 
     static getRenderStyle() {
-        return 'render-style-ribbon';
+        return 'render-style-ribbon'
     }
 }
 

@@ -73,21 +73,21 @@ class JuiceboxPanel extends Panel {
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
         }
 
-        this.browser.eventBus.subscribe('DidHideCrosshairs', this);
+        this.browser.eventBus.subscribe('DidHideCrosshairs', this)
 
         this.browser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
-            event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
-        });
+            event.stopPropagation()
+            EventBus.globalBus.post({ type: 'DidEnterGUI', data: this })
+        })
 
         this.browser.contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
-        });
+            EventBus.globalBus.post({ type: 'DidLeaveGUI', data: this })
+        })
 
         this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
-        });
+        })
 
         const $dropdownButton = $('#hic-contact-map-dropdown')
         const $dropdowns = $dropdownButton.parent()
@@ -105,9 +105,9 @@ class JuiceboxPanel extends Panel {
                 googleEnabled,
                 mapMenu: spacewalkConfig.contactMapMenu,
                 loadHandler: (path, name, mapType) => this.loadHicFile(path, name, mapType)
-            };
+            }
 
-        configureContactMapLoaders(contactMapLoadConfig);
+        configureContactMapLoaders(contactMapLoadConfig)
 
     }
 
@@ -190,25 +190,25 @@ class JuiceboxPanel extends Panel {
 function juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) {
 
     if (undefined === ensembleManager || undefined === ensembleManager.locus) {
-        return;
+        return
     }
 
-    const { genomicStart, genomicEnd } = ensembleManager.locus;
+    const { genomicStart, genomicEnd } = ensembleManager.locus
 
-    const trivialRejection = startXBP > genomicEnd || endXBP < genomicStart || startYBP > genomicEnd || endYBP < genomicStart;
+    const trivialRejection = startXBP > genomicEnd || endXBP < genomicStart || startYBP > genomicEnd || endYBP < genomicStart
 
     if (trivialRejection) {
-        return;
+        return
     }
 
-    const xRejection = xBP < genomicStart || xBP > genomicEnd;
-    const yRejection = yBP < genomicStart || yBP > genomicEnd;
+    const xRejection = xBP < genomicStart || xBP > genomicEnd
+    const yRejection = yBP < genomicStart || yBP > genomicEnd
 
     if (xRejection || yRejection) {
-        return;
+        return
     }
 
-    EventBus.globalBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ] } });
+    EventBus.globalBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolantX, interpolantY ] } })
 }
 
 export default JuiceboxPanel;

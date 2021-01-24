@@ -38,7 +38,6 @@ let dataValueMaterialProvider;
 let colorRampMaterialProvider;
 let guiManager;
 
-let gsdb;
 let spacewalkFileLoad;
 
 let traceSelectPanel;
