@@ -48,7 +48,7 @@ class BallAndStick {
         }
 
     }
-    
+
     configure(trace) {
 
         this.dispose();
@@ -206,10 +206,6 @@ class BallAndStick {
         }
 
         delete this.stickCurves;
-    }
-
-    getBounds() {
-        return EnsembleManager.getBoundsWithTrace(this.trace);
     }
 
     static getRenderStyle() {

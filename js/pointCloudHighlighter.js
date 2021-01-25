@@ -1,7 +1,7 @@
-import { colorRampMaterialProvider, pointCloud } from "./app.js";
+import { pointCloud } from "./app.js";
 import { setGeometryColorAttribute } from "./pointCloud.js";
 
-class PointCloudPickHighlighter {
+class PointCloudHighlighter {
 
     constructor (highlightColor) {
         this.highlightColor = highlightColor
@@ -10,7 +10,7 @@ class PointCloudPickHighlighter {
 
     processHit(hit) {
 
-    console.log(`${ Date.now() } PointCloudPickHighlighter.processHit(${ pointCloud.meshList.indexOf(hit) })`)
+    console.log(`${ Date.now() } PointCloudHighlighter.processHit(${ pointCloud.meshList.indexOf(hit) })`)
 
         for (let object of this.objects) {
             if (object === hit) {
@@ -68,4 +68,4 @@ class PointCloudPickHighlighter {
 
 }
 
-export default PointCloudPickHighlighter
+export default PointCloudHighlighter

@@ -84,7 +84,7 @@ class Ribbon {
 
         scene.add( this.spline.mesh )
 
-        const { center, radius } = this.getBounds()
+        const { center, radius } = EnsembleManager.getBoundsWithTrace(this.trace)
 
         this.beads = []
 
@@ -144,10 +144,6 @@ class Ribbon {
                 geometry.dispose()
             }
         }
-    }
-
-    getBounds() {
-        return EnsembleManager.getBoundsWithTrace(this.trace)
     }
 
     static getRenderStyle() {

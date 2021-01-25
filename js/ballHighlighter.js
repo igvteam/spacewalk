@@ -4,7 +4,7 @@ import { colorRampMaterialProvider, ballAndStick } from "./app.js";
 
 const rgbTemp = new THREE.Color();
 
-class BallPickHighlighter {
+class BallHighlighter {
 
     constructor (highlightColor) {
         this.highlightColor = highlightColor;
@@ -69,4 +69,4 @@ class BallPickHighlighter {
 
 }
 
-export default BallPickHighlighter;
+export default BallHighlighter;

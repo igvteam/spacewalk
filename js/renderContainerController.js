@@ -1,7 +1,7 @@
 import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
-import Dragger from "./dragger.js";
+import Dragger from './dragger.js'
 
-let dragger;
+let dragger
 
 class RenderContainerController {
 

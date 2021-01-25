@@ -88,10 +88,6 @@ class Noodle {
 
     }
 
-    getBounds() {
-        return EnsembleManager.getBoundsWithTrace(this.trace);
-    }
-
     static getCountMultiplier(curveLength) {
         return Math.round( Math.max(1, curveLength / 16000) );
     }

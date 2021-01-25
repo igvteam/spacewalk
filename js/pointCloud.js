@@ -2,7 +2,6 @@ import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import * as THREE from "../node_modules/three/build/three.module.js";
 import { ensembleManager, sceneManager } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
-import { appleCrayonColorThreeJS } from "./color.js";
 
 const pointSize = 128;
 
@@ -71,6 +70,8 @@ class PointCloud {
 
         this.dispose();
 
+        this.trace = trace
+
         this.meshList = this.createPointCloud(trace);
 
         if (sceneManager.renderStyle === PointCloud.getRenderStyle()) {
@@ -134,38 +135,6 @@ class PointCloud {
         }
 
     }
-
-    getBounds() {
-        return pointCloudManager.getBounds();
-    }
-
-    // highlight(interpolantWindowList) {
-    //
-    //     for (let mesh of this.meshList) {
-    //         mesh.material = this.deemphasizedMaterial;
-    //         setGeometryColorAttribute(mesh.geometry.attributes.color.array, deemphasizedColor)
-    //     }
-    //
-    //     for (let { index } of interpolantWindowList) {
-    //         let mesh = this.meshList[ index ];
-    //         mesh.material = this.material;
-    //         setGeometryColorAttribute(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
-    //     }
-    //
-    // }
-
-    // unHighlight() {
-    //
-    //     if (this.meshList) {
-    //
-    //         for (let mesh of this.meshList) {
-    //             mesh.material = this.material;
-    //             setGeometryColorAttribute(mesh.geometry.attributes.color.array, mesh.geometry.userData.color)
-    //         }
-    //
-    //     }
-    //
-    // }
 
     static getRenderStyle() {
         return 'render-style-point-cloud';

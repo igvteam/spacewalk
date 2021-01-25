@@ -23,8 +23,8 @@ import { getUrlParams, saveSession, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
-import BallPickHighlighter from "./ballPickHighlighter.js";
-import PointCloudPickHighlighter from "./pointCloudPickHighlighter.js";
+import BallHighlighter from "./ballHighlighter.js";
+import PointCloudHighlighter from "./pointCloudHighlighter.js";
 
 let pointCloud;
 let ribbon;
@@ -90,11 +90,11 @@ const initializationHelper = async container => {
 
     parser = new Parser();
 
-    pointCloud = new PointCloud({ pickHighlighter: new PointCloudPickHighlighter(highlightColor), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
+    pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(highlightColor), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
     ribbon = new Ribbon();
     // noodle = new Noodle();
-    ballAndStick = new BallAndStick({ pickHighlighter: new BallPickHighlighter(highlightColor) });
+    ballAndStick = new BallAndStick({ pickHighlighter: new BallHighlighter(highlightColor) });
 
     ensembleManager = new EnsembleManager();
 
