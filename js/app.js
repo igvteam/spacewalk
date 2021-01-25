@@ -22,7 +22,7 @@ import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from 
 import { getUrlParams, saveSession, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
-import SpacewalkFileLoad from "./spacewalkFileLoad.js";
+import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallPickHighlighter from "./ballPickHighlighter.js";
 import PointCloudPickHighlighter from "./pointCloudPickHighlighter.js";
 
@@ -37,9 +37,6 @@ let sceneManager;
 let dataValueMaterialProvider;
 let colorRampMaterialProvider;
 let guiManager;
-
-let spacewalkFileLoad;
-
 let traceSelectPanel;
 let colorRampPanel;
 let distanceMapPanel;
@@ -140,7 +137,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
             fileLoader: parser
         };
 
-    spacewalkFileLoad = new SpacewalkFileLoad(spacewalkFileLoadConfig);
+    createSpacewalkFileLoaders(spacewalkFileLoadConfig)
 
     // $('#spacewalk-reset-camera-button').on('click.spacewalk-reset-camera-button', e => {
     //     sceneManager.resetCamera();
