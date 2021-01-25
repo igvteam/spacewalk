@@ -1,6 +1,5 @@
 import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import Dragger from "./dragger.js";
-import { appleCrayonColorRGB255, rgb255String } from "./color.js";
 
 let dragger;
 
@@ -24,29 +23,17 @@ class RenderContainerController {
                 stop: () => sceneManager.resizeContainer()
             };
 
-        $(container).resizable(config);
+        $(container).resizable(config)
 
-        const dragContainer = container.querySelector('#spacewalk-threejs-drag-container');
+        const draggerConfig =
+            {
+                target: container,
+                handle: container.querySelector('#spacewalk-threejs-drag-container'),
+                container: document.getElementById('spacewalk-root-container'),
+                topConstraint: document.querySelector('.navbar').getBoundingClientRect().height
+            }
 
-        const { height } = document.querySelector('.navbar').getBoundingClientRect();
-
-        const root_container = document.getElementById('spacewalk-root-container');
-
-        dragger = new Dragger(container, dragContainer, root_container, height);
-
-        // dragContainer.addEventListener('mousedown', () => {
-        //     EventBus.globalBus.post({ type: "DidSelectPanel", data: $(container) });
-        // });
-
-        dragContainer.addEventListener('mouseenter', () => {
-            dragContainer.style.backgroundColor = rgb255String(appleCrayonColorRGB255('snow'));
-            dragContainer.querySelector('i').style.color = rgb255String(appleCrayonColorRGB255('steel'));
-        });
-
-        dragContainer.addEventListener('mouseleave', () => {
-            dragContainer.style.backgroundColor = "transparent";
-            dragContainer.querySelector('i').style.color = "transparent";
-        });
+        dragger = new Dragger(draggerConfig)
 
         EventBus.globalBus.subscribe("AppWindowDidResize", this);
         EventBus.globalBus.subscribe("DraggerDidEnd", this);

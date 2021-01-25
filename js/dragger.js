@@ -1,15 +1,26 @@
 import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
-import {clamp} from "./math.js";
+import {clamp} from './math.js'
+import {appleCrayonColorRGB255, rgb255String} from './color.js'
 
 const namespace = '.spacewalk_drag';
 
 class Dragger {
 
-    constructor(target, handle, container, topConstraint) {
+    constructor({ target, handle, container, topConstraint }) {
 
         this.target = target;
         this.handle = handle;
         this.dragData = undefined;
+
+        handle.addEventListener('mouseenter', () => {
+            handle.style.backgroundColor = rgb255String(appleCrayonColorRGB255('snow'))
+            handle.querySelector('i').style.color = rgb255String(appleCrayonColorRGB255('steel'))
+        });
+
+        handle.addEventListener('mouseleave', () => {
+            handle.style.backgroundColor = "transparent"
+            handle.querySelector('i').style.color = "transparent"
+        });
 
         $(handle).on(`mousedown.${ namespace }`, event => {
 
@@ -64,7 +75,7 @@ class Dragger {
             $(document).on(`mouseleave.${ namespace }`, endDrag);
             $(document).on(`mouseexit.${  namespace }`, endDrag);
 
-        });
+        })
     }
 
     getConstrainedDragValue(target, container, topConstraint, { screenX, screenY }) {
