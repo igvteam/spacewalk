@@ -1,7 +1,5 @@
 import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
-import Dragger from './dragger.js'
-
-let dragger
+import { configureRenderContainerDrag } from './renderContainerDrag.js'
 
 class RenderContainerController {
 
@@ -33,7 +31,7 @@ class RenderContainerController {
                 topConstraint: document.querySelector('.navbar').getBoundingClientRect().height
             }
 
-        dragger = new Dragger(draggerConfig)
+        configureRenderContainerDrag(draggerConfig)
 
         EventBus.globalBus.subscribe("AppWindowDidResize", this);
         EventBus.globalBus.subscribe("DraggerDidEnd", this);
