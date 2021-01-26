@@ -11,6 +11,7 @@ const spacewalkConfig =
         igvConfig:
             {
                 genome: 'hg19',
+                showTrackLabels: false,
                 showRuler: false,
                 showControls: false,
                 showCursorTrackingGuide: true,

@@ -2,7 +2,7 @@ import { EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
 import {clamp} from './math.js'
 import {appleCrayonColorRGB255, rgb255String} from './color.js'
 
-const namespace = '.spacewalk_drag'
+const namespace = '.spacewalk-render-container-drag'
 
 let dragData = undefined
 
@@ -11,32 +11,29 @@ function configureRenderContainerDrag({ target, handle, container, topConstraint
     const doDrag = event => {
 
         if(undefined === dragData) {
-            console.log("No drag data!");
-            return;
+            return
         }
 
-        const { left, top } = getConstrainedDragValue(target, container, topConstraint, event);
-        target.style.left = left;
-        target.style.top  = top;
+        const { left, top } = getConstrainedDragValue(target, container, topConstraint, event)
+        target.style.left = left
+        target.style.top  = top
 
     }
 
     const endDrag = event => {
 
         if(undefined === dragData) {
-            console.log("No drag data!");
-            return;
+            return
         }
 
         const { left, top } = getConstrainedDragValue(target, container, topConstraint, event);
-        target.style.left = left;
-        target.style.top  = top;
+        target.style.left = left
+        target.style.top  = top
 
-        $(document).off(namespace);
-        dragData = undefined;
+        $(document).off(namespace)
+        dragData = undefined
 
-        const id = target.id;
-        EventBus.globalBus.post({ type: "DraggerDidEnd", data: id });
+        EventBus.globalBus.post({ type: "DidEndRenderContainerDrag" })
 
     };
 

@@ -150,7 +150,7 @@ class IGVPanel extends Panel {
                     return;
                 }
 
-                EventBus.globalBus.post({ type: 'DidSelectSegmentID', data: { interpolantList: [ interpolant ] } });
+                EventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { interpolantList: [ interpolant ] } });
 
             });
 

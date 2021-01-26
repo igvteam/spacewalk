@@ -23,7 +23,7 @@ class RenderContainerController {
 
         $(container).resizable(config)
 
-        const draggerConfig =
+        const dragConfig =
             {
                 target: container,
                 handle: container.querySelector('#spacewalk-threejs-drag-container'),
@@ -31,10 +31,10 @@ class RenderContainerController {
                 topConstraint: document.querySelector('.navbar').getBoundingClientRect().height
             }
 
-        configureRenderContainerDrag(draggerConfig)
+        configureRenderContainerDrag(dragConfig)
 
         EventBus.globalBus.subscribe("AppWindowDidResize", this);
-        EventBus.globalBus.subscribe("DraggerDidEnd", this);
+        EventBus.globalBus.subscribe("DidEndRenderContainerDrag", this);
 
     }
 
@@ -58,7 +58,7 @@ class RenderContainerController {
 
         if ('AppWindowDidResize' === type) {
             $(this.sceneManager.container).offset(this.getOffset(this.rootContainer))
-        } else if ('DraggerDidEnd' === type) {
+        } else if ('DidEndRenderContainerDrag' === type) {
             this.setTopLeftPercentages(this.rootContainer, this.sceneManager.container);
         }
     }

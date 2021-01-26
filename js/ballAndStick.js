@@ -25,24 +25,25 @@ class BallAndStick {
 
         this.stickCurves = undefined;
 
-        EventBus.globalBus.subscribe("DidSelectSegmentID", this);
-        EventBus.globalBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
+        EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
+        EventBus.globalBus.subscribe("DidUpdateColorRampInterpolant", this);
     }
 
     receiveEvent({ type, data }) {
 
-        const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
-        const renderStyleConditional = BallAndStick.getRenderStyle() === sceneManager.renderStyle
+        if (this.balls && BallAndStick.getRenderStyle() === sceneManager.renderStyle) {
 
-        if (this.balls && typeConditional && renderStyleConditional) {
+            if ("DidUpdateGenomicInterpolant" === type || "DidUpdateColorRampInterpolant" === type) {
 
-            const { interpolantList } = data;
+                const { interpolantList } = data;
 
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+                const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
-            if (interpolantWindowList) {
-                const indices = interpolantWindowList.map(({ index }) => index);
-                this.pickHighlighter.configureWithInstanceIdList(indices);
+                if (interpolantWindowList) {
+                    const indices = interpolantWindowList.map(({ index }) => index);
+                    this.pickHighlighter.configureWithInstanceIdList(indices);
+                }
+
             }
 
         }

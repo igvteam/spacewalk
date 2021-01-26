@@ -46,7 +46,7 @@ class Panel {
 
         EventBus.globalBus.subscribe("ToggleUIControl", this);
         EventBus.globalBus.subscribe("AppWindowDidResize", this);
-        EventBus.globalBus.subscribe("DidDragEnd", this);
+        EventBus.globalBus.subscribe("DidEndDrag", this);
 
     }
 
@@ -109,7 +109,7 @@ class Panel {
                 this.$panel.offset(this.getOffset());
             }
 
-        } else if ('DidDragEnd' === type && data && data === this.$panel.attr('id')) {
+        } else if ('DidEndDrag' === type && data && data === this.$panel.attr('id')) {
             this.setTopLeftPercentages(true);
         }
     }

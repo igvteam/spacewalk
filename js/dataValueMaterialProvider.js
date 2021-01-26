@@ -53,12 +53,12 @@ class DataValueMaterialProvider {
         this.featureRects = undefined;
 
         EventBus.globalBus.subscribe("DidLeaveGUI", this);
-        EventBus.globalBus.subscribe("DidSelectSegmentID", this);
+        EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidSelectSegmentID" === type) {
+        if ("DidUpdateGenomicInterpolant" === type) {
 
             const { interpolantList } = data;
             this.highlight(interpolantList);

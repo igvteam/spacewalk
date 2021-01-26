@@ -78,7 +78,7 @@ class ColorRampMaterialProvider {
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
         EventBus.globalBus.subscribe("PickerDidLeaveObject", this);
-        EventBus.globalBus.subscribe("DidSelectSegmentID", this);
+        EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
         EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
     }
 
@@ -86,7 +86,7 @@ class ColorRampMaterialProvider {
 
          if ("PickerDidLeaveObject" === type) {
             this.repaint()
-        } else if ("DidSelectSegmentID" === type) {
+        } else if ("DidUpdateGenomicInterpolant" === type) {
 
             const { interpolantList } = data;
             const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
@@ -113,7 +113,7 @@ class ColorRampMaterialProvider {
 
         if (interpolantWindowList) {
             this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
-            EventBus.globalBus.post({ type: 'ColorRampMaterialProviderCanvasDidMouseMove', data: { interpolantList } });
+            EventBus.globalBus.post({ type: 'DidUpdateColorRampInterpolant', data: { interpolantList } });
         }
 
     };

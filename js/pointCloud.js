@@ -40,14 +40,14 @@ class PointCloud {
         this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );
         this.deemphasizedMaterial.side = THREE.DoubleSide;
 
-        EventBus.globalBus.subscribe("DidSelectSegmentID", this);
-        EventBus.globalBus.subscribe("ColorRampMaterialProviderCanvasDidMouseMove", this);
+        EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
+        EventBus.globalBus.subscribe("DidUpdateColorRampInterpolant", this);
 
     }
 
     receiveEvent({ type, data }) {
 
-        const typeConditional = "DidSelectSegmentID" === type || "ColorRampMaterialProviderCanvasDidMouseMove" === type;
+        const typeConditional = "DidUpdateGenomicInterpolant" === type || "DidUpdateColorRampInterpolant" === type;
         const renderStyleConditional = PointCloud.getRenderStyle() === sceneManager.renderStyle
 
         if (this.meshList && typeConditional && renderStyleConditional) {
