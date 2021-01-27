@@ -286,11 +286,12 @@ class IGVPanel extends Panel {
 
 const getMaterialProvider = async track => {
 
-    const { trackContainer } = track.browser;
-
     // unselect other track's checkboxes
-    const $otherInputs = $(trackContainer).find('.input-group input').not(track.$input.get(0));
-    $otherInputs.prop('checked', false);
+    for (let { track:otherTrack } of track.browser.trackViews) {
+        if (otherTrack !== track && otherTrack.$input) {
+            otherTrack.$input.prop('checked', false)
+        }
+    }
 
     if (track.$input.is(':checked')) {
 
