@@ -1,6 +1,6 @@
 import { EventBus, AlertSingleton, createTrackWidgetsWithTrackRegistry } from '../../node_modules/igv-widgets/dist/igv-widgets.js'
 import { igvxhr, StringUtils } from '../../node_modules/igv-utils/src/index.js'
-import igv from '../../node_modules/igv/dist/igv.esm.js'
+import igv from './igv.esm.js'
 import { setMaterialProvider } from '../utils.js';
 import Panel from "../panel.js";
 import { googleEnabled, colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager } from "../app.js";
@@ -101,22 +101,6 @@ class IGVPanel extends Panel {
 
         if (this.browser) {
 
-            createTrackWidgetsWithTrackRegistry(
-                $(this.container),
-                $('#hic-track-dropdown-menu'),
-                $('#hic-local-track-file-input'),
-                $('#hic-track-dropdown-dropbox-button'),
-                googleEnabled,
-                $('#hic-track-dropdown-google-drive-button'),
-                ['hic-encode-signal-modal', 'hic-encode-other-modal'],
-                'hic-app-track-load-url-modal',
-                'hic-app-track-select-modal',
-                undefined,
-                trackRegistryFile,
-                (configurations) => {
-                    this.loadTrackList(configurations)
-                })
-
             addResizeListener(this.panel, async () => {
 
                 let str = `all`
@@ -168,6 +152,22 @@ class IGVPanel extends Panel {
             });
 
             this.addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track));
+
+            createTrackWidgetsWithTrackRegistry(
+                $(this.container),
+                $('#hic-track-dropdown-menu'),
+                $('#hic-local-track-file-input'),
+                $('#hic-track-dropdown-dropbox-button'),
+                googleEnabled,
+                $('#hic-track-dropdown-google-drive-button'),
+                ['hic-encode-signal-modal', 'hic-encode-other-modal'],
+                'hic-app-track-load-url-modal',
+                'hic-app-track-select-modal',
+                undefined,
+                trackRegistryFile,
+                (configurations) => {
+                    this.loadTrackList(configurations)
+                })
 
             EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: this.browser.genome.id }})
         }
