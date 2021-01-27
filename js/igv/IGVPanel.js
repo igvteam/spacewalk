@@ -19,12 +19,12 @@ class IGVPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
-        this.$panel.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
+        this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();
             EventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
         });
 
-        this.$panel.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
+        this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
             EventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         });
@@ -117,7 +117,20 @@ class IGVPanel extends Panel {
                     this.loadTrackList(configurations)
                 })
 
-            addResizeListener(this.panel, () => this.browser.resize())
+            addResizeListener(this.panel, async () => {
+
+                let str = `all`
+
+                if (ensembleManager.locus) {
+                    const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                    str = `${ chr }:${ genomicStart }-${ genomicEnd }`
+                }
+
+                await this.browser.resize()
+
+                // console.log(`locus ${ str }`)
+                await this.browser.search(str)
+            })
 
             this.browser.on('trackremoved', track => {
                 if (track.$input && track.$input.prop('checked')) {
@@ -219,28 +232,38 @@ class IGVPanel extends Panel {
             }
 
             if (track.featureDescription) {
-
-                const { trackDiv } = track.trackView;
-
-                const $container = $(trackDiv).find('.igv-left-hand-gutter');
-
-                const $div = $('<div>', { class: 'input-group' });
-                $container.append($div);
-
-                track.$input = $('<input>', { type: 'checkbox' });
-                $div.append(track.$input);
-
-                track.$input.on('click.igv-panel-material-provider', async (e) => {
-
-                    e.stopPropagation();
-
-                    this.materialProvider = await trackMaterialProviderClickHandler(track);
-                    setMaterialProvider(this.materialProvider);
-
-                })
-
+                this.configureMaterialProviderWidget(track)
             }
         }
+    }
+
+    configureMaterialProviderWidget(track) {
+
+        const { trackDiv } = track.trackView
+
+        const $leftHandGutter = $(trackDiv).find('.igv-left-hand-gutter')
+
+        $leftHandGutter.css({ position:'relative' })
+
+        const $canvas = $leftHandGutter.find('canvas')
+        $canvas.css({ position:'absolute', top:0, left:0 })
+
+        const $input_div = $('<div>')
+        $leftHandGutter.append($input_div)
+        $input_div.css({ position:'absolute', top:0, left:0, 'background-color': 'transparent', 'z-index': 4096 })
+
+        const $input = $('<input>', { type: 'checkbox' })
+        $input_div.append($input)
+
+        track.$input = $input
+
+        $input.on(`click.${ this.namespace }`, async (e) => {
+            e.stopPropagation()
+            this.materialProvider = await getMaterialProvider(track)
+            setMaterialProvider(this.materialProvider)
+        })
+
+
     }
 
     getSessionState() {
@@ -261,7 +284,7 @@ class IGVPanel extends Panel {
     }
 }
 
-const trackMaterialProviderClickHandler = async track => {
+const getMaterialProvider = async track => {
 
     const { trackContainer } = track.browser;
 
