@@ -31641,35 +31641,6 @@ function isMobile() {
     return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 }
 
-function throttle(fn, threshhold, scope) {
-    var last,
-        deferTimer;
-
-    threshhold || (threshhold = 200);
-
-    return function () {
-        var context,
-            now,
-            args;
-
-        context = scope || this;
-        now = +new Date;
-        args = arguments;
-
-        if (last && now < last + threshhold) {
-            // hold on to it
-            clearTimeout(deferTimer);
-            deferTimer = setTimeout(function () {
-                last = now;
-                fn.apply(context, args);
-            }, threshhold);
-        } else {
-            last = now;
-            fn.apply(context, args);
-        }
-    }
-}
-
 /*
  *  The MIT License (MIT)
  *
@@ -41081,15 +41052,9 @@ function computeCumulativeOffsets() {
  *
  */
 
-
-/**
- * @author Jim Robinson
- */
-
-
 class State {
 
-    constructor(chr1, chr2, zoom, x, y, pixelSize, normalization) {
+    constructor(chr1, chr2, zoom, x, y, width, height, pixelSize, normalization) {
 
         if (Number.isNaN(pixelSize)) {
             pixelSize = 1;
@@ -41110,6 +41075,8 @@ class State {
             }
             this.zoom = zoom;
             this.pixelSize = pixelSize;
+            this.width = width;
+            this.height = height;
 
             if ("undefined" === normalization) {
                 console.log("No normalization defined !!!");
@@ -41121,7 +41088,12 @@ class State {
     }
 
     stringify() {
-        return "" + this.chr1 + "," + this.chr2 + "," + this.zoom + "," + this.x + "," + this.y + "," + this.pixelSize + "," + this.normalization;
+        if (this.normalization) {
+            return `${this.chr1},${this.chr2},${this.zoom},${this.x},${this.y},${this.width},${this.height},${this.pixelSize},${this.normalization}`
+        } else {
+            return `${this.chr1},${this.chr2},${this.zoom},${this.x},${this.y},${this.width},${this.height},${this.pixelSize}`
+        }
+
     }
 
     clone() {
@@ -41135,17 +41107,51 @@ class State {
     }
 
     static parse(string) {
+
         const tokens = string.split(",");
-        return new State(
-            parseInt(tokens[0]),    // chr1
-            parseInt(tokens[1]),    // chr2
-            parseFloat(tokens[2]), // zoom
-            parseFloat(tokens[3]), // x
-            parseFloat(tokens[4]), // y
-            parseFloat(tokens[5]), // pixelSize
-            tokens.length > 6 ? tokens[6] : "NONE"   // normalization
-        )
+
+        if (tokens.length <= 7) {
+
+            // Backwards compatibility
+            return new State(
+                parseInt(tokens[0]),    // chr1
+                parseInt(tokens[1]),    // chr2
+                parseFloat(tokens[2]), // zoom
+                parseFloat(tokens[3]), // x
+                parseFloat(tokens[4]), // y
+                defaultSize.width,      // width
+                defaultSize.height,     // height
+                parseFloat(tokens[5]), // pixelSize
+                tokens.length > 6 ? tokens[6] : "NONE"   // normalization
+            )
+        } else {
+
+            return new State(
+                parseInt(tokens[0]),    // chr1
+                parseInt(tokens[1]),    // chr2
+                parseFloat(tokens[2]), // zoom
+                parseFloat(tokens[3]), // x
+                parseFloat(tokens[4]), // y
+                parseInt(tokens[5]), // width
+                parseInt(tokens[6]), // height
+                parseFloat(tokens[7]), // pixelSize
+                tokens.length > 8 ? tokens[8] : "NONE"   // normalization
+            )
+        }
+
     }
+
+    static default(configOrUndefined) {
+
+        if (configOrUndefined) {
+            return new State(0, 0, 0, 0, 0, configOrUndefined.width, configOrUndefined.height, 1, "NONE")
+        } else {
+            return new State(0, 0, 0, 0, 0, defaultSize.width, defaultSize.height, 1, "NONE")
+        }
+
+    }
+
+
 }
 
 /*
@@ -41651,10 +41657,6 @@ class RatioColorScale {
  * THE SOFTWARE.
  *
  */
-
-const DRAG_THRESHOLD = 2;
-const DOUBLE_TAP_DIST_THRESHOLD = 20;
-const DOUBLE_TAP_TIME_THRESHOLD = 300;
 
 const imageTileDimension = 685;
 
@@ -42276,62 +42278,33 @@ class ContactMatrixView {
         this.spinnerCount = Math.max(0, this.spinnerCount);   // This should not be neccessary
     }
 
-
     addMouseHandlers($viewport) {
 
         let isMouseDown = false;
-        let isSweepZooming = false;
         let mouseDown;
         let mouseLast;
         let mouseOver;
 
         const panMouseUpOrMouseOut = (e) => {
-            if (true === this.isDragging) {
-                this.isDragging = false;
-                this.browser.eventBus.post(HICEvent("DragStopped"));
-            }
+            // if (true === this.isDragging) {
+            //     this.isDragging = false;
+            //     this.browser.eventBus.post(HICEvent("DragStopped"));
+            // }
             isMouseDown = false;
             mouseDown = mouseLast = undefined;
         };
-
-        // function shiftCurrentImage(self, dx, dy) {
-        //     var canvasWidth = self.$canvas.width(),
-        //         canvasHeight = self.$canvas.height(),
-        //         imageData;
-        //
-        //     imageData = self.ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-        //     self.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        //     self.ctx.putImageData(imageData, dx, dy);
-        // }
-        //
-        // function mouseWheelHandler(e) {
-        //     e.preventDefault();
-        //     e.stopPropagation();
-        //
-        //     const t = Date.now();
-        //     if (lastWheelTime === undefined || (t - lastWheelTime > 1000)) {
-        //         // cross-browser wheel delta  -- Firefox returns a "detail" object that is opposite in sign to wheelDelta
-        //         var direction = e.deltaY < 0 ? 1 : -1,
-        //             coords = DOMUtils.translateMouseCoordinates(e, $viewport[0]),
-        //             x = coords.x,
-        //             y = coords.y;
-        //         self.browser.wheelClickZoom(direction, x, y);
-        //         lastWheelTime = t;
-        //     }
-        // }
-
 
         this.isDragging = false;
 
         if (!this.browser.isMobile) {
 
-            $viewport.dblclick((e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const mouseX = e.offsetX || e.layerX;
-                const mouseY = e.offsetY || e.layerX;
-                this.browser.zoomAndCenter(1, mouseX, mouseY);
-            });
+            // $viewport.dblclick((e) => {
+            //     e.preventDefault();
+            //     e.stopPropagation();
+            //     const mouseX = e.offsetX || e.layerX
+            //     const mouseY = e.offsetY || e.layerX;
+            //     this.browser.zoomAndCenter(1, mouseX, mouseY);
+            // });
 
             $viewport.on('mouseover', (e) => mouseOver = true);
 
@@ -42349,11 +42322,11 @@ class ContactMatrixView {
                 mouseLast = {x: e.offsetX, y: e.offsetY};
                 mouseDown = {x: e.offsetX, y: e.offsetY};
 
-                isSweepZooming = (true === e.altKey);
-                if (isSweepZooming) {
-                    const eFixed = $.event.fix(e);
-                    this.sweepZoom.initialize({x: eFixed.pageX, y: eFixed.pageY});
-                }
+                // isSweepZooming = (true === e.altKey);
+                // if (isSweepZooming) {
+                //     const eFixed = $.event.fix(e);
+                //     this.sweepZoom.initialize({x: eFixed.pageX, y: eFixed.pageY});
+                // }
 
                 isMouseDown = true;
 
@@ -42382,7 +42355,6 @@ class ContactMatrixView {
                 xy.xNormalized = xy.x / width;
                 xy.yNormalized = xy.y / height;
 
-
                 this.browser.eventBus.post(HICEvent("UpdateContactMapMousePosition", xy, false));
 
                 if (true === this.willShowCrosshairs) {
@@ -42392,22 +42364,22 @@ class ContactMatrixView {
 
                 if (isMouseDown) { // Possibly dragging
 
-                    if (isSweepZooming) {
-                        this.sweepZoom.update({x: eFixed.pageX, y: eFixed.pageY});
-
-                    } else if (mouseDown.x && Math.abs(coords.x - mouseDown.x) > DRAG_THRESHOLD) {
-
-                        this.isDragging = true;
-                        const dx = mouseLast.x - coords.x;
-                        const dy = mouseLast.y - coords.y;
-
-                        // If matrix data is updating shift current map image while we wait
-                        //if (this.updating) {
-                        //    shiftCurrentImage(this, -dx, -dy);
-                        //}
-
-                        this.browser.shiftPixels(dx, dy);
-                    }
+                    // if (isSweepZooming) {
+                    //     this.sweepZoom.update({x: eFixed.pageX, y: eFixed.pageY});
+                    //
+                    // } else if (mouseDown.x && Math.abs(coords.x - mouseDown.x) > DRAG_THRESHOLD) {
+                    //
+                    //     this.isDragging = true;
+                    //     const dx = mouseLast.x - coords.x;
+                    //     const dy = mouseLast.y - coords.y;
+                    //
+                    //     // If matrix data is updating shift current map image while we wait
+                    //     //if (this.updating) {
+                    //     //    shiftCurrentImage(this, -dx, -dy);
+                    //     //}
+                    //
+                    //     this.browser.shiftPixels(dx, dy);
+                    // }
 
                     mouseLast = coords;
                 }
@@ -42443,183 +42415,18 @@ class ContactMatrixView {
             // for sweep-zoom allow user to sweep beyond viewport extent
             // sweep area clamps since viewport mouse handlers stop firing
             // when the viewport boundary is crossed.
-            $(document).on('mouseup.contact_matrix_view', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (isSweepZooming) {
-                    isSweepZooming = false;
-                    this.sweepZoom.commit();
-                }
-            });
+            // $(document).on('mouseup.contact_matrix_view', (e) => {
+            //     e.preventDefault();
+            //     e.stopPropagation();
+            //     if (isSweepZooming) {
+            //         isSweepZooming = false;
+            //         this.sweepZoom.commit();
+            //     }
+            // })
         }
     }
 
-
-    /**
-     * Add touch handlers.  Touches are mapped to one of the following application level events
-     *  - double tap, equivalent to double click
-     *  - move
-     *  - pinch
-     *
-     * @param $viewport
-     */
-
-    addTouchHandlers($viewport) {
-
-        let lastTouch, pinch;
-        const viewport = $viewport[0];
-
-        /**
-         * Touch start -- 3 possibilities
-         *   (1) beginning of a drag (pan)
-         *   (2) first tap of a double tap
-         *   (3) beginning of a pinch
-         */
-        viewport.ontouchstart = (ev) => {
-
-            ev.preventDefault();
-            ev.stopPropagation();
-
-            var touchCoords = translateTouchCoordinates(ev.targetTouches[0], viewport),
-                offsetX = touchCoords.x,
-                offsetY = touchCoords.y,
-                count = ev.targetTouches.length,
-                timeStamp = ev.timeStamp || Date.now(),
-                resolved = false,
-                dx, dy, dist, direction;
-
-            if (count === 2) {
-                touchCoords = translateTouchCoordinates(ev.targetTouches[0], viewport);
-                offsetX = (offsetX + touchCoords.x) / 2;
-                offsetY = (offsetY + touchCoords.y) / 2;
-            }
-
-            // NOTE: If the user makes simultaneous touches, the browser may fire a
-            // separate touchstart event for each touch point. Thus if there are
-            // two simultaneous touches, the first touchstart event will have
-            // targetTouches length of one and the second event will have a length
-            // of two.  In this case replace previous touch with this one and return
-            if (lastTouch && (timeStamp - lastTouch.timeStamp < DOUBLE_TAP_TIME_THRESHOLD) && ev.targetTouches.length > 1 && lastTouch.count === 1) {
-                lastTouch = {x: offsetX, y: offsetY, timeStamp: timeStamp, count: ev.targetTouches.length};
-                return;
-            }
-
-
-            if (lastTouch && (timeStamp - lastTouch.timeStamp < DOUBLE_TAP_TIME_THRESHOLD)) {
-
-                direction = (lastTouch.count === 2 || count === 2) ? -1 : 1;
-                dx = lastTouch.x - offsetX;
-                dy = lastTouch.y - offsetY;
-                dist = Math.sqrt(dx * dx + dy * dy);
-
-                if (dist < DOUBLE_TAP_DIST_THRESHOLD) {
-                    this.browser.zoomAndCenter(direction, offsetX, offsetY);
-                    lastTouch = undefined;
-                    resolved = true;
-                }
-            }
-
-            if (!resolved) {
-                lastTouch = {x: offsetX, y: offsetY, timeStamp: timeStamp, count: ev.targetTouches.length};
-            }
-        };
-
-        viewport.ontouchmove = throttle((ev) => {
-
-            var touchCoords1, touchCoords2, t;
-
-            ev.preventDefault();
-            ev.stopPropagation();
-
-            if (ev.targetTouches.length === 2) {
-
-                // Update pinch  (assuming 2 finger movement is a pinch)
-                touchCoords1 = translateTouchCoordinates(ev.targetTouches[0], viewport);
-                touchCoords2 = translateTouchCoordinates(ev.targetTouches[1], viewport);
-
-                t = {
-                    x1: touchCoords1.x,
-                    y1: touchCoords1.y,
-                    x2: touchCoords2.x,
-                    y2: touchCoords2.y
-                };
-
-                if (pinch) {
-                    pinch.end = t;
-                } else {
-                    pinch = {start: t};
-                }
-            } else {
-                // Assuming 1 finger movement is a drag
-
-                var touchCoords = translateTouchCoordinates(ev.targetTouches[0], viewport),
-                    offsetX = touchCoords.x,
-                    offsetY = touchCoords.y;
-                if (lastTouch) {
-                    var dx = lastTouch.x - offsetX,
-                        dy = lastTouch.y - offsetY;
-                    if (!isNaN(dx) && !isNaN(dy)) {
-                        this.isDragging = true;
-                        this.browser.shiftPixels(lastTouch.x - offsetX, lastTouch.y - offsetY);
-                    }
-                }
-
-                lastTouch = {
-                    x: offsetX,
-                    y: offsetY,
-                    timeStamp: ev.timeStamp || Date.now(),
-                    count: ev.targetTouches.length
-                };
-            }
-
-        }, 50);
-
-        viewport.ontouchend = (ev) => {
-
-            ev.preventDefault();
-            ev.stopPropagation();
-
-            if (pinch && pinch.end !== undefined) {
-
-                var startT = pinch.start,
-                    endT = pinch.end,
-                    dxStart = startT.x2 - startT.x1,
-                    dyStart = startT.y2 - startT.y1,
-                    dxEnd = endT.x2 - endT.x1,
-                    dyEnd = endT.y2 - endT.y1,
-                    distStart = Math.sqrt(dxStart * dxStart + dyStart * dyStart),
-                    distEnd = Math.sqrt(dxEnd * dxEnd + dyEnd * dyEnd),
-                    scale = distEnd / distStart,
-                    deltaX = (endT.x1 + endT.x2) / 2 - (startT.x1 + startT.x2) / 2,
-                    deltaY = (endT.y1 + endT.y2) / 2 - (startT.y1 + startT.y2) / 2,
-                    anchorPx = (startT.x1 + startT.x2) / 2,
-                    anchorPy = (startT.y1 + startT.y2) / 2;
-
-                if (scale < 0.8 || scale > 1.2) {
-                    lastTouch = undefined;
-                    this.browser.pinchZoom(anchorPx, anchorPy, scale);
-                }
-            } else if (this.isDragging) {
-                this.isDragging = false;
-                this.browser.eventBus.post(HICEvent("DragStopped"));
-            }
-
-            // a touch end always ends a pinch
-            pinch = undefined;
-
-        };
-
-        function translateTouchCoordinates(e, target) {
-
-            var $target = $(target),
-                posx,
-                posy;
-            posx = e.pageX - $target.offset().left;
-            posy = e.pageY - $target.offset().top;
-            return {x: posx, y: posy}
-        }
-
-    }
+    addTouchHandlers($viewport) {}
 
 }
 
@@ -44194,7 +44001,6 @@ class ScrollbarWidget {
 const DEFAULT_PIXEL_SIZE = 1;
 const MAX_PIXEL_SIZE = 12;
 const DEFAULT_ANNOTATION_COLOR = "rgb(22, 129, 198)";
-const defaultState = new State(0, 0, 0, 0, 0, 1, "NONE");
 
 class HICBrowser {
 
@@ -44269,7 +44075,7 @@ class HICBrowser {
 
         this.hideCrosshairs();
 
-        this.state = config.state ? config.state : defaultState.clone();
+        this.state = config.state ? config.state : State.default();
 
         this.pending = new Map();
 
@@ -44704,7 +44510,7 @@ class HICBrowser {
             } else if (config.synchState && this.canBeSynched(config.synchState)) {
                 this.syncState(config.synchState);
             } else {
-                await this.setState(defaultState.clone());
+                await this.setState(State.default(this.config));
             }
 
 
@@ -45782,6 +45588,24 @@ function getAllBrowsers() {
 // Set default values for config properties
 function setDefaults(config) {
 
+    if (config.state) {
+
+        if (isString(config.state)) {
+            config.state = State.parse(config.state);
+        } else {
+            // copy
+            config.state = new State(
+                config.state.chr1,
+                config.state.chr2,
+                config.state.zoom,
+                config.state.x,
+                config.state.y,
+                config.width,
+                config.height,
+                config.state.pixelSize,
+                config.state.normalization);
+        }
+    }
 
     if (config.figureMode === true) {
         config.showLocusGoto = false;
@@ -45789,10 +45613,10 @@ function setDefaults(config) {
         config.showChromosomeSelector = false;
     } else {
         if (undefined === config.width) {
-            config.width = defaultSize.width;
+            config.width = config.state ? config.state.width : defaultSize.width;
         }
         if (undefined === config.height) {
-            config.height = defaultSize.height;
+            config.height = config.state ? config.state.height : defaultSize.height;
         }
         if (undefined === config.showLocusGoto) {
             config.showLocusGoto = true;
@@ -45805,19 +45629,9 @@ function setDefaults(config) {
         }
     }
 
-    if (config.state) {
-
-        if (isString(config.state)) {
-            config.state = State.parse(config.state);
-        } else {
-            // copy
-            config.state = new State(config.state.chr1, config.state.chr2, config.state.zoom, config.state.x,
-                config.state.y, config.state.pixelSize, config.state.normalization);
-        }
-    }
 }
 
-const version$1 = "2.1.5";
+const version$1 = "2.1.6";
  //, commit}
 
 function toJSON() {
@@ -46282,6 +46096,7 @@ var index = {
     compressedSession,
     createBrowser,
     getCurrentBrowser,
+    setCurrentBrowser,
     getAllBrowsers,
     igvxhr,
     EventBus
