@@ -76,7 +76,7 @@ class IGVPanel extends Panel {
 
     }
 
-    async initialize({ genomes, trackRegistryFile, igvConfig }) {
+    async initialize({ genomes, trackRegistryFile, igvConfig, session }) {
 
         let genomeList = undefined;
         try {
@@ -92,9 +92,18 @@ class IGVPanel extends Panel {
 
         this.browser = undefined;
 
+        const root = this.$panel.find('#spacewalk_igv_root_container').get(0)
+
         try {
-            const root = this.$panel.find('#spacewalk_igv_root_container').get(0)
-            this.browser = await igv.createBrowser( root, igvConfig )
+            if (session) {
+                const sessionConfig = JSON.parse(StringUtils.uncompressString(session.substr(5)))
+                const { showTrackLabels, showRuler, showControls,showCursorTrackingGuide } = igvConfig
+                const mergedConfig = { ...sessionConfig, ...({ showTrackLabels, showRuler, showControls,showCursorTrackingGuide }) }
+                this.browser = await igv.createBrowser( root, mergedConfig )
+            } else {
+                this.browser = await igv.createBrowser( root, igvConfig )
+            }
+
         } catch (e) {
             AlertSingleton.present(e.message)
         }
@@ -266,21 +275,26 @@ class IGVPanel extends Panel {
 
     }
 
+    toJSON() {
+        return this.browser.toJSON()
+    }
+
     getSessionState() {
 
-        for (let track of this.browser.trackViews.map(trackView => trackView.track)) {
+        for (let track of this.browser.trackViews.map(({ track } ) => track)) {
             if (track.$input && track.$input.prop('checked')) {
-                return track.name;
+                return track.name
             }
         }
 
-        return 'none';
+        return 'none'
     }
 
     async restoreSessionState(state) {
-        const { trackViews:tvs } = this.browser;
-        let track = tvs.map(tv => tv.track).filter(t => state === t.name).pop();
-        track.$input.trigger('click.igv-panel-material-provider');
+        const { trackViews } = this.browser
+        const list = trackViews.map(({ track }) => track).filter(track => state === track.name)
+        const track = list[ 0 ]
+        track.$input.trigger('click.igv-panel-material-provider')
     }
 }
 

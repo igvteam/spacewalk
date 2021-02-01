@@ -1,21 +1,16 @@
-import { GLTFExporter } from '../node_modules/three/examples/jsm/exporters/GLTFExporter.js'
 import hic from './juicebox/js/juicebox.esm.js'
-import { URIUtils, StringUtils, Zlib } from '../node_modules/igv-utils/src/index.js'
+import { URIUtils, StringUtils, URLShortener, Zlib } from '../node_modules/igv-utils/src/index.js'
 import Panel from './panel.js'
-import { parser, ensembleManager, igvPanel, sceneManager } from './app.js'
+import { parser, igvPanel, ensembleManager, sceneManager } from './app.js'
 import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
 
-const tinyURLService = 'https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/';
+const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
-const loadSession = async (spacewalk_session_URL) => {
+const loadSession = async (spacewalkSessionURL) => {
 
-    if (spacewalk_session_URL) {
+    if (spacewalkSessionURL) {
 
-        // spacewalk_session_URL = decodeURIComponent(spacewalk_session_URL);
-
-        const jsonString = uncompressSession(spacewalk_session_URL);
-
-        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, sceneBackground } = JSON.parse(jsonString);
+        const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, sceneBackground } = JSON.parse( uncompressSession(spacewalkSessionURL) )
 
         await parser.loadSessionTrace({ url, traceKey });
 
@@ -60,120 +55,48 @@ const getUrlParams = url => {
 
 };
 
-const saveSession = async () => {
+async function getShareURL() {
 
-    const url = await getSessionURL();
+    const spacewalkCompressedSession = getCompressedSession()
+    const igvCompressedSession = igvPanel.browser.compressedSession()
 
-    if (url) {
+    // Note format is: session=blob:${StringUtils.compressString(jsonString)}
+    const juiceboxCompressedSession = hic.compressedSession()
 
-        let response;
+    const path = window.location.href.slice()
+    const index = path.indexOf("?")
+    const prefix = index > 0 ? path.substring(0, index) : path
 
-        const useService = `${ tinyURLService }${ url }`;
-        try {
-            response = await fetch(useService);
-        } catch (error) {
-            console.warn(error.message);
-            return;
-        }
+    const url = `${ prefix }?spacewalkSessionURL=blob:${ spacewalkCompressedSession }&sessionURL=blob:${ igvCompressedSession }&${ juiceboxCompressedSession }`
 
-        if (200 !== response.status) {
-            console.log('ERROR: bad response status');
-        }
+    return urlShortener.shortenURL(url)
 
-        let tinyURL = undefined;
-        try {
-            tinyURL = await response.text();
-        } catch (error) {
-            console.warn(error.message);
-        }
+}
 
-        return tinyURL;
+function getCompressedSession() {
 
-    } else {
-        return undefined;
+    const json = parser.toJSON()
+    json.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace)
+    json.igvPanelState = igvPanel.getSessionState()
+    json.renderStyle = getGUIRenderStyle()
+    json.panelVisibility = {}
+
+    for (let panel of Panel.getPanelList()) {
+        json.panelVisibility[ panel.constructor.name ] = true === panel.isHidden ? 'hidden' : 'visible'
     }
 
-};
-
-const getSessionURL = async () => {
-
-    try {
-
-        const path = window.location.href.slice();
-        const index = path.indexOf("?");
-        const prefix = index > 0 ? path.substring(0, index) : path;
-
-        // await helloGLTFExporter(sceneManager.scene);
-
-        const spacewalkCompressedSession = getCompressedSession();
-
-        const igvCompressedSession = igvPanel.browser.compressedSession();
-
-        const juiceboxCompressedSession = hic.getCompressedDataString();
-
-        const sessionURL = `${ prefix }?spacewalk_session_URL=data:${ spacewalkCompressedSession }&sessionURL=data:${ igvCompressedSession }&${ juiceboxCompressedSession }`;
-
-        return encodeURIComponent( sessionURL );
-
-    } catch (e) {
-        console.error(e);
-        alert(e.message);
-        return undefined;
-    }
-
-};
-
-const getCompressedSession = () => {
-
-    let json = parser.toJSON();
-
-    json.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace);
-
-    json.igvPanelState = igvPanel.getSessionState();
-
-    json.renderStyle = getGUIRenderStyle();
-
-    json.panelVisibility = {};
-    Panel.getPanelList().forEach( panel => {
-        json.panelVisibility[ panel.constructor.name ] = true === panel.isHidden ? 'hidden' : 'visible';
-    });
-
-    json.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden';
-
-    json.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden';
-
-    json.cameraLightingRig = sceneManager.cameraLightingRig.getState();
-
-    json.gnomonColor = sceneManager.gnomon.getColorState();
-    json.groundplaneColor = sceneManager.groundPlane.getColorState();
+    json.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden'
+    json.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden'
+    json.cameraLightingRig = sceneManager.cameraLightingRig.getState()
+    json.gnomonColor = sceneManager.gnomon.getColorState()
+    json.groundplaneColor = sceneManager.groundPlane.getColorState()
 
     // json.sceneBackground = sceneManager.getBackgroundState();
 
-    const jsonString = JSON.stringify( json );
+    return StringUtils.compressString( JSON.stringify( json ) )
+}
 
-    return getCompressedString(jsonString);
-};
-
-const getCompressedString = string => {
-
-    const bytes = [];
-
-    for (let i = 0; i < string.length; i++) {
-        bytes.push(string.charCodeAt(i));
-    }
-
-    const compressedBytes = new Zlib.RawDeflate(bytes).compress();
-
-    const compressedString = compressedBytes
-        .reduce((accumulator, byte) => {
-            return accumulator + String.fromCharCode(byte)
-        }, '');
-
-    let base64EncodedString = btoa(compressedString);
-    return base64EncodedString.replace(/\+/g, '.').replace(/\//g, '_').replace(/=/g, '-');   // URL safe
-};
-
-const uncompressSession = url => {
+function uncompressSession(url) {
 
     if (url.indexOf('/gzip;base64') > 0) {
 
@@ -188,18 +111,6 @@ const uncompressSession = url => {
         let enc = url.substring(5);
         return StringUtils.uncompressString(enc, Zlib);
     }
-};
+}
 
-const helloGLTFExporter = async (scene) => {
-
-    const promise = new Promise(resolve => {
-        new GLTFExporter().parse(scene, resolve);
-    });
-
-    const gltf = await promise;
-
-    console.log(gltf);
-
-};
-
-export { saveSession, getUrlParams, loadSession };
+export { getShareURL, getUrlParams, loadSession };

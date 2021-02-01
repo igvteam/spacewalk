@@ -1,4 +1,5 @@
 import { EventBus, AlertSingleton } from '../../node_modules/igv-widgets/dist/igv-widgets.js'
+import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
 import hic from './js/juicebox.esm.js'
 import Panel from '../panel.js'
 import configureContactMapLoaders from './contactMapLoad.js'
@@ -60,10 +61,17 @@ class JuiceboxPanel extends Panel {
         try {
 
             if (session) {
-                await hic.init(container, { session, width, height, queryParametersSupported: false });
+                const sessionConfig = JSON.parse(StringUtils.uncompressString(session.substr(5)))
+                if ('{}' === sessionConfig.browsers[ 0 ]) {
+                    this.locus = 'all';
+                    await hic.init(container, { width, height, queryParametersSupported: false })
+                } else {
+                    await hic.restoreSession(container, sessionConfig)
+                }
+
             } else {
                 this.locus = 'all';
-                await hic.init(container, { width, height, queryParametersSupported: false });
+                await hic.init(container, { width, height, queryParametersSupported: false })
             }
 
             this.browser = hic.getCurrentBrowser()
@@ -184,6 +192,11 @@ class JuiceboxPanel extends Panel {
     isContactMapLoaded() {
         return (this.browser && this.browser.dataset);
     }
+
+    toJSON() {
+        return this.browser.toJSON()
+    }
+
 
 }
 

@@ -22,12 +22,6 @@ const spacewalkConfig =
             {
                 id: 'contact-map-datalist',
                 items: 'https://aidenlab.org/juicebox/res/hicfiles.json'
-            },
-
-        urlShortener:
-            {
-                provider: "tinyURL"
             }
-
 
     }

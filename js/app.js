@@ -19,7 +19,7 @@ import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./
 import IGVPanel from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { getUrlParams, saveSession, loadSession } from "./session.js";
+import { getUrlParams, getShareURL, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
@@ -110,7 +110,7 @@ const initializationHelper = async container => {
 
     renderContainerController = new RenderContainerController(container, sceneManager);
 
-    const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalk_session_URL } = getUrlParams(window.location.href);
+    const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = getUrlParams(window.location.href);
 
     await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL);
 
@@ -118,7 +118,7 @@ const initializationHelper = async container => {
 
     renderLoop();
 
-    await loadSession(spacewalk_session_URL);
+    await loadSession(spacewalkSessionURL)
 
 }
 
@@ -148,15 +148,11 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     $('#spacewalk-share-button').on('click.spacewalk-share-button', async e => {
 
-        const url = await saveSession();
+        const url = await getShareURL()
 
         if (url) {
-
-            console.log(`session: ${ url }`);
-
             $spacewalk_share_url.val( url );
             $spacewalk_share_url.get(0).select();
-
             $share_url_modal.modal('show');
         }
 
@@ -185,16 +181,16 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
 
     if (juiceboxSessionURL) {
-        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: juiceboxSessionURL });
+        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: juiceboxSessionURL })
     } else {
-        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: undefined });
+        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: undefined })
     }
 
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') })
     igvPanel.materialProvider = colorRampMaterialProvider;
 
     if (igvSessionURL) {
-        await igvPanel.initialize({ sessionURL: igvSessionURL });
+        await igvPanel.initialize({ ...spacewalkConfig, ...({ session: igvSessionURL }) })
     } else {
         await igvPanel.initialize(spacewalkConfig);
     }

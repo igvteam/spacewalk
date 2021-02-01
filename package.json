@@ -34,7 +34,7 @@
     "igv-widgets": "github:igvteam/igv-widgets#3ea87945",
     "kd3d": "github:turner/kd3d",
     "node-fetch": "^2.6.0",
-    "three": "^0.124.0"
+    "three": "^0.125.2"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
