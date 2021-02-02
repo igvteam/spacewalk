@@ -143,32 +143,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     //     sceneManager.resetCamera();
     // });
 
-    const $share_url_modal = $('#spacewalk-share-url-modal');
-    const $spacewalk_share_url = $('#spacewalk-share-url');
-
-    $('#spacewalk-share-button').on('click.spacewalk-share-button', async e => {
-
-        const url = await getShareURL()
-
-        if (url) {
-            $spacewalk_share_url.val( url );
-            $spacewalk_share_url.get(0).select();
-            $share_url_modal.modal('show');
-        }
-
-    });
-
-    $('#spacewalk-copy-link').on('click.spacewalk-copy-link', e => {
-
-        $spacewalk_share_url.get(0).select();
-
-        const success = document.execCommand('copy');
-        if (success) {
-            $share_url_modal.modal('hide');
-        } else {
-            alert("Copy not successful");
-        }
-    });
+    createShareWidgets($('#spacewalk-main'), $('#spacewalk-share-button'), 'spacewalk-share-modal')
 
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_trace_select_panel') });
 
@@ -209,6 +184,79 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     });
 
 };
+
+const createShareWidgets = ($container, $share_button, share_modal_id) => {
+
+    const modal =
+        `<div id="${ share_modal_id }" class="modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <div class="modal-title">Share</div>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-default">COPY</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>`
+
+    $container.append($(modal))
+    const $share_modal = $(`#${ share_modal_id }`)
+
+    const $share_input = $share_modal.find('input')
+
+    $share_button.on('click.spacewalk-share-button', async e => {
+
+        let url = undefined
+        try {
+            url = await getShareURL()
+        } catch (e) {
+            AlertSingleton.present(e.message)
+            return
+        }
+
+        if (url) {
+            $share_input.val( url )
+            $share_input.get(0).select()
+            $share_modal.modal('show')
+        }
+
+    })
+
+    const $copy_button = $share_modal.find('button')
+
+    $copy_button.on('click.spacewalk-copy', e => {
+
+        $share_input.get(0).select()
+
+        const success = document.execCommand('copy')
+        if (success) {
+            $share_modal.modal('hide')
+        } else {
+            alert("Copy not successful")
+        }
+    })
+
+}
 
 const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
 
