@@ -130,7 +130,6 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
             $localFileInput: $('#spacewalk-sw-load-local-input'),
             urlLoadModalId: 'spacewalk-sw-load-url-modal',
             gsdbModalId: 'spacewalk-gsdb-modal',
-            $selectModal: $('#spacewalk-sw-load-select-modal'),
             $dropboxButton: $('#spacewalk-sw-dropbox-button'),
             $googleDriveButton: $('#spacewalk-sw-google-drive-button'),
             googleEnabled,
