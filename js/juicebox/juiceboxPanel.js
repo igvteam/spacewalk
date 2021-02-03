@@ -2,8 +2,7 @@ import { EventBus, AlertSingleton } from '../../node_modules/igv-widgets/dist/ig
 import { StringUtils } from '../../node_modules/igv-utils/src/index.js'
 import hic from './js/juicebox.esm.js'
 import Panel from '../panel.js'
-import configureContactMapLoaders from './contactMapLoad.js'
-import { googleEnabled, ensembleManager } from '../app.js'
+import { ensembleManager } from '../app.js'
 
 class JuiceboxPanel extends Panel {
 
@@ -61,12 +60,11 @@ class JuiceboxPanel extends Panel {
         try {
 
             if (session) {
-                const sessionConfig = JSON.parse(StringUtils.uncompressString(session.substr(5)))
-                if ('{}' === sessionConfig.browsers[ 0 ]) {
+                if ('{}' === session.browsers[ 0 ]) {
                     this.locus = 'all';
                     await hic.init(container, { width, height, queryParametersSupported: false })
                 } else {
-                    await hic.restoreSession(container, sessionConfig)
+                    await hic.restoreSession(container, session)
                 }
 
             } else {
@@ -80,6 +78,14 @@ class JuiceboxPanel extends Panel {
             console.warn(error.message)
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
         }
+
+        if (this.browser) {
+            this.configureMouseHandlers()
+        }
+
+    }
+
+    configureMouseHandlers() {
 
         this.browser.eventBus.subscribe('DidHideCrosshairs', this)
 
@@ -96,26 +102,6 @@ class JuiceboxPanel extends Panel {
         this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
         })
-
-        const $dropdownButton = $('#hic-contact-map-dropdown')
-        const $dropdowns = $dropdownButton.parent()
-
-        const contactMapLoadConfig =
-            {
-                rootContainer: document.querySelector('#spacewalk-main'),
-                $dropdowns,
-                $localFileInputs: $dropdowns.find('input'),
-                urlLoadModalId: 'hic-load-url-modal',
-                dataModalId: 'hic-contact-map-modal',
-                encodeHostedModalId: 'hic-encode-hosted-contact-map-modal',
-                $dropboxButtons: $dropdowns.find('div[id$="-map-dropdown-dropbox-button"]'),
-                $googleDriveButtons: $dropdowns.find('div[id$="-map-dropdown-google-drive-button"]'),
-                googleEnabled,
-                mapMenu: spacewalkConfig.contactMapMenu,
-                loadHandler: (path, name, mapType) => this.loadHicFile(path, name, mapType)
-            }
-
-        configureContactMapLoaders(contactMapLoadConfig)
 
     }
 

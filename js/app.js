@@ -1,5 +1,5 @@
-import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem } from '../node_modules/igv-widgets/dist/igv-widgets.js'
-import { GoogleAuth, igvxhr } from '../node_modules/igv-utils/src/index.js'
+import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from '../node_modules/igv-widgets/dist/igv-widgets.js'
+import {GoogleAuth, igvxhr, StringUtils} from '../node_modules/igv-utils/src/index.js'
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
@@ -19,12 +19,13 @@ import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./
 import IGVPanel from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { getUrlParams, getShareURL, loadSessionURL, toJSON } from "./session.js";
+import { getUrlParams, getShareURL, loadSessionURL, toJSON, loadSession } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
+import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
 
 let pointCloud;
 let ribbon;
@@ -156,13 +157,8 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
         'spacewalk-session-url-modal',
         'spacewalk-session-save-modal',
         googleEnabled,
-        async config => {
-            await browser.loadSession(config)
-        },
-        () => {
-                const json = toJSON()
-            console.log(json)
-        });
+        async json => await loadSession(json),
+        () => toJSON());
 
 
     createShareWidgets($main, $('#spacewalk-share-button'), 'spacewalk-share-modal')
@@ -177,26 +173,81 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
 
+    const juiceboxInitializationConfig =
+        {
+            container: $('#spacewalk_juicebox_root_container').get(0),
+            width: 480,
+            height: 480
+        }
     if (juiceboxSessionURL) {
-        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: juiceboxSessionURL })
-    } else {
-        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: undefined })
+        juiceboxInitializationConfig.session = JSON.parse(StringUtils.uncompressString(juiceboxSessionURL.substr(5)))
     }
+    await juiceboxPanel.initialize(juiceboxInitializationConfig)
+
+    const $dropdownButton = $('#hic-contact-map-dropdown')
+    const $dropdowns = $dropdownButton.parent()
+
+    const contactMapLoadConfig =
+        {
+            rootContainer: document.querySelector('#spacewalk-main'),
+            $dropdowns,
+            $localFileInputs: $dropdowns.find('input'),
+            urlLoadModalId: 'hic-load-url-modal',
+            dataModalId: 'hic-contact-map-modal',
+            encodeHostedModalId: 'hic-encode-hosted-contact-map-modal',
+            $dropboxButtons: $dropdowns.find('div[id$="-map-dropdown-dropbox-button"]'),
+            $googleDriveButtons: $dropdowns.find('div[id$="-map-dropdown-google-drive-button"]'),
+            googleEnabled,
+            mapMenu: spacewalkConfig.contactMapMenu,
+            loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path, name, mapType)
+        }
+
+    configureContactMapLoaders(contactMapLoadConfig)
 
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') })
     igvPanel.materialProvider = colorRampMaterialProvider;
 
     if (igvSessionURL) {
-        await igvPanel.initialize({ ...spacewalkConfig, ...({ session: igvSessionURL }) })
-    } else {
-        await igvPanel.initialize(spacewalkConfig);
+        spacewalkConfig.session = JSON.parse(StringUtils.uncompressString(igvSessionURL.substr(5)))
     }
+    await igvPanel.initialize(spacewalkConfig)
+
+    addResizeListener(igvPanel.panel, async () => {
+
+        if (igvPanel.browser) {
+
+            let str = `all`
+
+            if (ensembleManager.locus) {
+                const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                str = `${ chr }:${ genomicStart }-${ genomicEnd }`
+            }
+
+            await igvPanel.browser.resize()
+            await igvPanel.browser.search(str)
+
+        }
+
+    })
+
+    createTrackWidgetsWithTrackRegistry(
+        $(igvPanel.container),
+        $('#hic-track-dropdown-menu'),
+        $('#hic-local-track-file-input'),
+        $('#hic-track-dropdown-dropbox-button'),
+        googleEnabled,
+        $('#hic-track-dropdown-google-drive-button'),
+        ['hic-encode-signal-modal', 'hic-encode-other-modal'],
+        'hic-app-track-load-url-modal',
+        'hic-app-track-select-modal',
+        undefined,
+        spacewalkConfig.trackRegistryFile,
+        (configurations) => igvPanel.loadTrackList(configurations))
+
+    EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
+
 
     Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
-
-
-
-
 
     $(window).on('resize.app', e => {
 
@@ -210,6 +261,46 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     });
 
 };
+
+let genomeDictionary = undefined
+async function loadGenomeWithID(browser, genomeID) {
+
+    if (undefined === genomeDictionary) {
+
+        let genomeList = undefined;
+        try {
+            genomeList = await igvxhr.loadJson(spacewalkConfig.genomes, {})
+        } catch (e) {
+            AlertSingleton.present(e.message)
+        }
+
+        genomeDictionary = {}
+        for (let genome of genomeList) {
+            genomeDictionary[ genome.id ] = genome;
+        }
+
+    }
+
+    if (genomeID !== browser.genome.id) {
+
+        browser.removeAllTracks()
+
+        const json = genomeDictionary[ genomeID ];
+
+        let g = undefined;
+        try {
+            g = await browser.loadGenome(json);
+        } catch (e) {
+            AlertSingleton.present(e.message);
+        }
+
+        if (g) {
+            EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID }})
+        }
+
+    }
+
+}
 
 const createShareWidgets = ($container, $share_button, share_modal_id) => {
 
@@ -360,4 +451,4 @@ const hideSpinner = () => {
     console.log('hide spinner');
 };
 
-export { googleEnabled, pointCloud, ribbon, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel, appendAndConfigureLoadURLModal };
+export { googleEnabled, pointCloud, ribbon, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel, appendAndConfigureLoadURLModal, loadGenomeWithID };
