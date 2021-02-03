@@ -6,7 +6,7 @@ import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
-const loadSession = async (spacewalkSessionURL) => {
+const loadSessionURL = async spacewalkSessionURL => {
 
     if (spacewalkSessionURL) {
 
@@ -96,6 +96,35 @@ function getCompressedSession() {
     return StringUtils.compressString( JSON.stringify( json ) )
 }
 
+function toJSON () {
+
+    const json = { spacewalk: {} }
+
+    json.spacewalk = parser.toJSON()
+    json.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace)
+    json.igvPanelState = igvPanel.getSessionState()
+    json.renderStyle = getGUIRenderStyle()
+    json.panelVisibility = {}
+
+    for (let panel of Panel.getPanelList()) {
+        json.panelVisibility[ panel.constructor.name ] = true === panel.isHidden ? 'hidden' : 'visible'
+    }
+
+    json.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden'
+    json.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden'
+    json.cameraLightingRig = sceneManager.cameraLightingRig.getState()
+    json.gnomonColor = sceneManager.gnomon.getColorState()
+    json.groundplaneColor = sceneManager.groundPlane.getColorState()
+
+    // json.sceneBackground = sceneManager.getBackgroundState()
+
+    json.igv = igvPanel.browser.toJSON()
+    json.juicebox = hic.toJSON()
+
+    return json
+
+}
+
 function uncompressSession(url) {
 
     if (url.indexOf('/gzip;base64') > 0) {
@@ -113,4 +142,4 @@ function uncompressSession(url) {
     }
 }
 
-export { getShareURL, getUrlParams, loadSession };
+export { getShareURL, getUrlParams, loadSessionURL, toJSON };

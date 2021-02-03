@@ -1,5 +1,5 @@
-import { AlertSingleton, EventBus } from '../node_modules/igv-widgets/dist/igv-widgets.js'
-import {GoogleAuth} from '../node_modules/igv-utils/src/index.js'
+import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem } from '../node_modules/igv-widgets/dist/igv-widgets.js'
+import { GoogleAuth, igvxhr } from '../node_modules/igv-utils/src/index.js'
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
@@ -19,7 +19,7 @@ import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./
 import IGVPanel from "./igv/IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { getUrlParams, getShareURL, loadSession } from "./session.js";
+import { getUrlParams, getShareURL, loadSessionURL, toJSON } from "./session.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
@@ -118,7 +118,7 @@ const initializationHelper = async container => {
 
     renderLoop();
 
-    await loadSession(spacewalkSessionURL)
+    await loadSessionURL(spacewalkSessionURL)
 
 }
 
@@ -142,7 +142,30 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     //     sceneManager.resetCamera();
     // });
 
-    createShareWidgets($('#spacewalk-main'), $('#spacewalk-share-button'), 'spacewalk-share-modal')
+    // Session - Dropbox and Google Drive buttons
+    $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-app-dropdown-dropbox-session-file-button'));
+    $('div#spacewalk-session-dropdown-menu > :nth-child(2)').after(googleDriveDropdownItem('igv-app-dropdown-google-drive-session-file-button'));
+
+    const $main = $('#spacewalk-main')
+    createSessionWidgets($main,
+        igvxhr,
+        'spacewalk',
+        'igv-app-dropdown-local-session-file-input',
+        'igv-app-dropdown-dropbox-session-file-button',
+        'igv-app-dropdown-google-drive-session-file-button',
+        'spacewalk-session-url-modal',
+        'spacewalk-session-save-modal',
+        googleEnabled,
+        async config => {
+            await browser.loadSession(config)
+        },
+        () => {
+                const json = toJSON()
+            console.log(json)
+        });
+
+
+    createShareWidgets($main, $('#spacewalk-share-button'), 'spacewalk-share-modal')
 
     traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_trace_select_panel') });
 
@@ -170,6 +193,10 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     }
 
     Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
+
+
+
+
 
     $(window).on('resize.app', e => {
 

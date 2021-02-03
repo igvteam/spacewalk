@@ -325,6 +325,49 @@
 
             </li>
 
+            <!-- Session -->
+            <li class="nav-item">
+                <div class="dropdown">
+
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                        Session
+                    </a>
+
+                    <div id="spacewalk-session-dropdown-menu" class="dropdown-menu">
+
+                        <!-- Session Local file -->
+                        <label class="dropdown-item btn btn-default btn-file">
+                            <div class="igv-app-dropdown-item-cloud-storage">
+                                <div>
+                                    Local File ...
+                                </div>
+                                <div>
+                                    <input id="igv-app-dropdown-local-session-file-input" type="file" name="file" style="display: none;">
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Session Dropbox -->
+
+                        <!-- Session Google Drive -->
+
+                        <!-- Session URL -->
+                        <button class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-session-url-modal">
+                            Load URL ...
+                        </button>
+
+                        <div class="dropdown-divider"></div>
+
+                        <!-- Save Session Local file -->
+                        <button class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-session-save-modal">
+                            Save ...
+                        </button>
+
+                    </div>
+
+                </div>
+            </li>
+
             <!-- Bookmark -->
             <li class="nav-item">
                 <button id="spacewalk-share-button" class="btn btn-secondary btn-sm ml-4 mt-1" type="button">Share</button>
@@ -808,50 +851,6 @@
                     </canvas>
                     <canvas id="spacewalk_contact_frequency_map_canvas_ensemble" class="tab-pane active">
                     </canvas>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- SW File Select Modal -->
-    <div id="spacewalk-sw-load-select-modal" class="modal fade">
-
-        <div class="modal-dialog">
-
-            <div class="modal-content">
-
-                <div class="modal-header">
-
-                    <div class="modal-title">Select File</div>
-
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-                    <div>
-                        <div class="input-group my-3">
-
-                            <div class="spinner-border" style="display: none;">
-                                <!-- spinner border-radius: .25rem; -->
-                            </div>
-
-                            <select class="form-control selectpicker" data-live-search="true" title="Select an ensemble" data-width="100%">
-                                <option value="https://www.dropbox.com/s/o61ix7cnnfxvylm/A549_chr21-28-30Mb.sw?dl=0">A549 chr21:28-30</option>
-                                <option value="https://www.dropbox.com/s/xw1n2vpt4ohppw2/HCT116_chr21-28-30Mb_6h_auxin.sw?dl=0">HCT116 6h_auxin chr21:28-30</option>
-                                <option value="https://www.dropbox.com/s/lf4s45fwcdu5wfn/HCT116_chr21-28-30Mb_untreated.sw?dl=0">HCT116 untreated chr21:28-30</option>
-                                <option value="https://www.dropbox.com/s/7wfnkgd7kej4aub/IMR90_chr21-18-20Mb.sw?dl=0">IMR90 chr21:18-20</option>
-                                <option value="https://www.dropbox.com/s/wyhuv5frqo0q5gb/IMR90_chr21-28-30Mb.sw?dl=0">IMR90 chr21:28-30</option>
-                                <option value="https://www.dropbox.com/s/fkqk2mtl20inicl/K562_chr21-28-30Mb.sw?dl=0">K562 chr21:28-30</option>
-                                <option value="https://www.dropbox.com/s/dzsmcn8yu9zrv2q/Nir%20et%20al.bed?dl=0">Nir et al</option>
-                            </select>
-                        </div>
-                    </div>
                 </div>
 
             </div>
