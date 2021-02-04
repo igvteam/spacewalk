@@ -89,12 +89,12 @@ class JuiceboxPanel extends Panel {
 
         this.browser.eventBus.subscribe('DidHideCrosshairs', this)
 
-        this.browser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
+        this.browser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation()
             EventBus.globalBus.post({ type: 'DidEnterGUI', data: this })
         })
 
-        this.browser.contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
+        this.browser.contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
             EventBus.globalBus.post({ type: 'DidLeaveGUI', data: this })
         })
