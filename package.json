@@ -27,15 +27,6 @@
     "build": "npx rollup --config && node scripts/injectRuntime.js",
     "start": "http-server -a localhost dist"
   },
-  "dependencies": {
-    "data-modal": "github:igvteam/data-modal#v1.1.0",
-    "http-server": "^0.12.3",
-    "igv-utils": "github:igvteam/igv-utils#v1.2.3",
-    "igv-widgets": "github:igvteam/igv-widgets#3ea87945",
-    "kd3d": "github:turner/kd3d",
-    "node-fetch": "^2.6.0",
-    "three": "^0.125.2"
-  },
   "devDependencies": {
     "@babel/core": "^7.9.6",
     "@babel/preset-env": "^7.9.6",
@@ -46,5 +37,14 @@
     "minimist": ">=0.2.1",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-terser": "^5.3.0"
+  },
+  "dependencies": {
+    "data-modal": "github:igvteam/data-modal#544f5cf9",
+    "http-server": "^0.12.3",
+    "igv-utils": "github:igvteam/igv-utils#v1.2.3",
+    "igv-widgets": "github:igvteam/igv-widgets#c0041b1f",
+    "kd3d": "github:turner/kd3d",
+    "node-fetch": "^2.6.0",
+    "three": "^0.125.2"
   }
 }
