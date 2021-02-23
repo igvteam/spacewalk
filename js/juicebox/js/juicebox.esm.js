@@ -24577,38 +24577,52 @@ class TrackBase {
 
         // Create copy of config, minus transient properties (convention is name starts with '_')
         const state = {};
-        for(let key of Object.keys(this.config)) {
-            if(!key.startsWith("_")) {
+        for (let key of Object.keys(this.config)) {
+            if (!key.startsWith("_")) {
                 state[key] = this.config[key];
             }
         }
 
         // Update original config values with any changes
-        for(let key of Object.keys(state)) {
-            if(key.startsWith("_")) continue;   // transient property
+        for (let key of Object.keys(state)) {
+            if (key.startsWith("_")) continue;   // transient property
             const value = this[key];
             if (value && (isSimpleType(value) || typeof value === "boolean")) {
                 state[key] = value;
             }
         }
 
-        if(this.color) state.color = this.color;
-        if(this.altColor) state.altColor = this.altColor;
+        if (this.color) state.color = this.color;
+        if (this.altColor) state.altColor = this.altColor;
 
         // Flatten dataRange if present
         if (!this.autoscale && this.dataRange) {
-            state.min = this.dataRange.min;
-            state.max = this.dataRange.max;
+            if (state.min !== undefined && state.min !== null) {
+                state.min = this.dataRange.min;
+            }
+            if (state.max !== undefined && state.max !== null) {
+                state.max = this.dataRange.max;
+            }
         }
 
         // Check for non-json-if-yable properties.  Perhaps we should test what can be saved.
-        for(let key of Object.keys(state)) {
-            if(typeof state[key] === 'function') {
-                throw Error(`Property '${key}' of track '${this.name} is a function. Functions cannot be saved in sessions.` );
-            } if(state[key] instanceof File) {
+        for (let key of Object.keys(state)) {
+            if (typeof state[key] === 'function') {
+                throw Error(`Property '${key}' of track '${this.name} is a function. Functions cannot be saved in sessions.`);
+            }
+            if (state[key] instanceof File) {
                 throw Error(`Property '${key}' of track '${this.name} is a local File. Local file references cannot be saved in sessions.`);
-            } if(state[key] instanceof Promise) {
-                throw Error(`Property '${key}' of track '${this.name} is a Promise. Promises cannot be saved in sessions.` );
+            }
+            if (state[key] instanceof Promise) {
+                throw Error(`Property '${key}' of track '${this.name} is a Promise. Promises cannot be saved in sessions.`);
+            }
+        }
+
+        // Remove properties with undefined values, no reason to save these
+        let keys = Object.keys(state);
+        for (let key of keys) {
+            if (state[key] === undefined) {
+                delete state[key];
             }
         }
 
@@ -24676,7 +24690,7 @@ class TrackBase {
                     }
                     break;
                 case "viewlimits":
-                    if(!this.config.autoscale) {   // autoscale in the config has precedence
+                    if (!this.config.autoscale) {   // autoscale in the config has precedence
                         tokens = properties[key].split(":");
                         let min = 0;
                         let max;
@@ -29455,7 +29469,7 @@ class FeatureTrack extends TrackBase {
         // Set maxRows -- protects against pathological feature packing cases (# of rows of overlapping feaures)
         this.maxRows = config.maxRows === undefined ? 1000 : config.maxRows;
 
-        this.displayMode = config.displayMode || "EXPANDED";    // COLLAPSED | EXPANDED | SQUISHED
+        this.displayMode = config.displayMode || "COLLAPSED";    // COLLAPSED | EXPANDED | SQUISHED
         this.labelDisplayMode = config.labelDisplayMode;
 
         if (config._featureSource) {
@@ -39505,7 +39519,7 @@ class Matrix {
         this.chr2 = chr2;
         this.bpZoomData = [];
         this.fragZoomData = [];
-        for(let zd of zoomDataList) {
+        for (let zd of zoomDataList) {
             if (zd.zoom.unit === "BP") {
                 this.bpZoomData.push(zd);
             } else {
@@ -39560,6 +39574,15 @@ class Matrix {
     getZoomDataByIndex(index, unit) {
         const zdArray = "FRAG" === unit ? this.fragZoomData : this.bpZoomData;
         return zdArray[index]
+    }
+
+    static getKey(chrIdx1, chrIdx2) {
+        if (chrIdx1 > chrIdx2) {
+            const tmp = chrIdx1;
+            chrIdx1 = chrIdx2;
+            chrIdx2 = tmp;
+        }
+        return `${chrIdx1}_${chrIdx2}`;
     }
 
     static parseMatrix(data, chromosomes) {
@@ -39618,7 +39641,7 @@ class LRU {
         // refresh key
         if (this.map.has(key)) this.map.delete(key);
         // evict oldest
-        else if (this.map.size == this.max) {
+        else if (this.map.size === this.max) {
             this.map.delete(this.first());
         }
         this.map.set(key, val);
@@ -39984,11 +40007,11 @@ class HicFile {
     }
 
     async getMatrix(chrIdx1, chrIdx2) {
-        const key = `${chrIdx1}__${chrIdx2}`;
+        const key = Matrix.getKey(chrIdx1, chrIdx2);
         if (this.matrixCache.has(key)) {
             return this.matrixCache.get(key);
         } else {
-            const matrix = this.readMatrix(chrIdx1, chrIdx2);
+            const matrix = await this.readMatrix(chrIdx1, chrIdx2);
             this.matrixCache.set(key, matrix);
             return matrix;
         }
@@ -40004,12 +40027,11 @@ class HicFile {
             chrIdx2 = tmp;
         }
 
-        const key = "" + chrIdx1 + "_" + chrIdx2;
+        const key = Matrix.getKey(chrIdx1 , chrIdx2);
         const idx = this.masterIndex[key];
         if (!idx) {
             return undefined
         }
-
         const data = await this.file.read(idx.start, idx.size);
         if (!data) {
             return undefined
@@ -40690,14 +40712,7 @@ class Dataset {
 
         this.hicFile = this.straw.hicFile;
         await this.hicFile.init();
-        this.matrixCache = {};
-        this.blockCache = {};
-        this.blockCacheKeys = [];
-        this.normVectorCache = {};
         this.normalizationTypes = ['NONE'];
-
-        // Cache at most 10 blocks
-        this.blockCacheLimit = isMobile() ? 4 : 10;
 
         this.genomeId = this.hicFile.genomeId;
         this.chromosomes = this.hicFile.chromosomes;
@@ -40721,29 +40736,11 @@ class Dataset {
     }
 
     clearCaches() {
-        this.matrixCache = {};
-        this.blockCache = {};
-        this.normVectorCache = {};
         this.colorScaleCache = {};
     }
 
     async getMatrix(chr1, chr2) {
-        if (chr1 > chr2) {
-            const tmp = chr1;
-            chr1 = chr2;
-            chr2 = tmp;
-        }
-        const key = `${chr1}_${chr2}`;
-
-        if (this.matrixCache.hasOwnProperty(key)) {
-            return this.matrixCache[key];
-
-        } else {
-            const matrix = await this.hicFile.readMatrix(chr1, chr2);
-            this.matrixCache[key] = matrix;
-            return matrix;
-
-        }
+        return this.hicFile.getMatrix(chr1, chr2)
     }
 
     getZoomIndexForBinSize(binSize, unit) {
@@ -44271,10 +44268,11 @@ class HICBrowser {
     genomicState(axis) {
 
         let width = this.contactMatrixView.getViewDimensions().width;
+        let resolution = this.dataset.bpResolutions[this.state.zoom];
         const bpp =
             (this.dataset.chromosomes[this.state.chr1].name.toLowerCase() === "all") ?
                 this.genome.getGenomeLength() / width :
-                this.dataset.bpResolutions[this.state.zoom] / this.state.pixelSize;
+                resolution / this.state.pixelSize;
 
         const gs = {
             bpp: bpp
@@ -44282,11 +44280,11 @@ class HICBrowser {
 
         if (axis === "x") {
             gs.chromosome = this.dataset.chromosomes[this.state.chr1];
-            gs.startBP = this.state.x * bpp;
+            gs.startBP = this.state.x * resolution;
             gs.endBP = gs.startBP + bpp * width;
         } else {
             gs.chromosome = this.dataset.chromosomes[this.state.chr2];
-            gs.startBP = this.state.y * bpp;
+            gs.startBP = this.state.y * resolution;
             gs.endBP = gs.startBP + bpp * this.contactMatrixView.getViewDimensions().height;
         }
         return gs;
@@ -44370,37 +44368,24 @@ class HICBrowser {
         }
     }
 
-    loadNormalizationFile(url) {
-
-        var self = this;
+    async loadNormalizationFile(url) {
 
         if (!this.dataset) return;
+        this.eventBus.post(HICEvent("NormalizationFileLoad", "start"));
 
-        self.eventBus.post(HICEvent("NormalizationFileLoad", "start"));
+        const normVectors = await this.dataset.hicFile.readNormalizationVectorFile(url, this.dataset.chromosomes);
+        for (let type of normVectors['types']) {
+            if (!this.dataset.normalizationTypes) {
+                this.dataset.normalizationTypes = [];
+            }
+            if (!this.dataset.normalizationTypes.includes(type)) {
+                this.dataset.normalizationTypes.push(type);
+            }
+            this.eventBus.post(HICEvent("NormVectorIndexLoad", this.dataset));
+        }
 
-        return this.dataset.hicFile.readNormalizationVectorFile(url, this.dataset.chromosomes)
-
-            .then(function (normVectors) {
-
-                Object.assign(self.dataset.normVectorCache, normVectors);
-
-                for (let type of normVectors['types']) {
-
-                    if (!self.dataset.normalizationTypes) {
-                        self.dataset.normalizationTypes = [];
-                    }
-                    if (!self.dataset.normalizationTypes.includes(type)) {
-                        self.dataset.normalizationTypes.push(type);
-                    }
-
-                    self.eventBus.post(HICEvent("NormVectorIndexLoad", self.dataset));
-
-                }
-
-                return normVectors;
-            })
-
-    };
+        return normVectors;
+    }
 
     /**
      * Render the XY pair of tracks.
@@ -44739,7 +44724,7 @@ class HICBrowser {
                     zoomChanged = newZoom !== this.state.zoom;
                     newPixelSize = Math.min(MAX_PIXEL_SIZE, newBinSize / targetBinSize);
                 }
-                const z = await minZoom.call(this, this.state.chr1, this.state.chr2);
+                const z = await this.minZoom(this.state.chr1, this.state.chr2);
 
 
                 if (!this.resolutionLocked && scaleFactor < 1 && newZoom < z) {
@@ -44747,7 +44732,7 @@ class HICBrowser {
                     this.setChromosomes(0, 0);
                 } else {
 
-                    const minPS = await minPixelSize.call(this, this.state.chr1, this.state.chr2, newZoom);
+                    const minPS = await this.minPixelSize(this.state.chr1, this.state.chr2, newZoom);
 
                     const state = this.state;
 
@@ -44831,7 +44816,7 @@ class HICBrowser {
                 (direction > 0 && this.state.zoom === resolutions[resolutions.length - 1].index) ||
                 (direction < 0 && this.state.zoom === resolutions[0].index)) {
 
-                const minPS = await minPixelSize.call(this, this.state.chr1, this.state.chr2, this.state.zoom);
+                const minPS = await this.minPixelSize(this.state.chr1, this.state.chr2, this.state.zoom);
                 const state = this.state;
                 const newPixelSize = Math.max(Math.min(MAX_PIXEL_SIZE, state.pixelSize * (direction > 0 ? 2 : 0.5)), minPS);
 
@@ -44883,7 +44868,7 @@ class HICBrowser {
             const newResolution = bpResolutions[zoom];
             const newXCenter = xCenter * (currentResolution / newResolution);
             const newYCenter = yCenter * (currentResolution / newResolution);
-            const minPS = await minPixelSize.call(this, this.state.chr1, this.state.chr2, zoom);
+            const minPS = await this.minPixelSize(this.state.chr1, this.state.chr2, zoom);
             const state = this.state;
             const newPixelSize = Math.max(DEFAULT_PIXEL_SIZE, minPS);
             const zoomChanged = (state.zoom !== zoom);
@@ -44916,14 +44901,14 @@ class HICBrowser {
         try {
             this.startSpinner();
 
-            const z = await minZoom.call(this, chr1, chr2);
+            const z = await this.minZoom(chr1, chr2);
             this.state.chr1 = Math.min(chr1, chr2);
             this.state.chr2 = Math.max(chr1, chr2);
             this.state.x = 0;
             this.state.y = 0;
             this.state.zoom = z;
 
-            const minPS = await minPixelSize.call(this, this.state.chr1, this.state.chr2, this.state.zoom);
+            const minPS = await this.minPixelSize(this.state.chr1, this.state.chr2, this.state.zoom);
             this.state.pixelSize = Math.min(100, Math.max(DEFAULT_PIXEL_SIZE, minPS));
 
             let event = HICEvent("LocusChange", {state: this.state, resolutionChanged: true, chrChanged: true});
@@ -44971,7 +44956,7 @@ class HICBrowser {
         const chrChanged = !this.state || this.state.chr1 !== state.chr1 || this.state.chr2 !== state.chr2;
         this.state = state;
         // Possibly adjust pixel size
-        const minPS = await minPixelSize.call(this, this.state.chr1, this.state.chr2, this.state.zoom);
+        const minPS = await this.minPixelSize(this.state.chr1, this.state.chr2, this.state.zoom);
         this.state.pixelSize = Math.max(state.pixelSize, minPS);
 
         let hicEvent = new HICEvent("LocusChange", {
@@ -45226,13 +45211,13 @@ class HICBrowser {
 
             } finally {
                 this.updating = false;
-                if(this.pending.size > 0) {
+                if (this.pending.size > 0) {
                     const events = [];
-                    for(let [k, v] of this.pending) {
+                    for (let [k, v] of this.pending) {
                         events.push(v);
                     }
                     this.pending.clear();
-                    for(let e of events) {
+                    for (let e of events) {
                         this.update(e);
                     }
                 }
@@ -45336,6 +45321,37 @@ class HICBrowser {
         }
 
         return jsonOBJ;
+    }
+
+
+    async minZoom(chr1, chr2) {
+
+        const viewDimensions = this.contactMatrixView.getViewDimensions();
+        const chromosome1 = this.dataset.chromosomes[chr1];
+        const chromosome2 = this.dataset.chromosomes[chr2];
+        const chr1Length = chromosome1.size;
+        const chr2Length = chromosome2.size;
+        const binSize = Math.max(chr1Length / viewDimensions.width, chr2Length / viewDimensions.height);
+
+        const matrix = await this.dataset.getMatrix(chr1, chr2);
+        if (!matrix) {
+            throw new Error(`Data not avaiable for chromosomes ${chromosome1.name} - ${chromosome2.name}`);
+        }
+        return matrix.findZoomForResolution(binSize);
+    }
+
+    async minPixelSize(chr1, chr2, z) {
+
+        const viewDimensions = this.contactMatrixView.getViewDimensions();
+        const chr1Length = this.dataset.chromosomes[chr1].size;
+        const chr2Length = this.dataset.chromosomes[chr2].size;
+
+        const matrix = await this.dataset.getMatrix(chr1, chr2);
+        const zd = matrix.getZoomDataByIndex(z, "BP");
+        const binSize = zd.zoom.binSize;
+        const nBins1 = chr1Length / binSize;
+        const nBins2 = chr2Length / binSize;
+        return (Math.min(viewDimensions.width / nBins1, viewDimensions.height / nBins2));
 
     }
 }
@@ -45354,37 +45370,6 @@ function extractName(config) {
     } else {
         return config.name;
     }
-}
-
-async function minZoom(chr1, chr2) {
-
-    const viewDimensions = this.contactMatrixView.getViewDimensions();
-    const chromosome1 = this.dataset.chromosomes[chr1];
-    const chromosome2 = this.dataset.chromosomes[chr2];
-    const chr1Length = chromosome1.size;
-    const chr2Length = chromosome2.size;
-    const binSize = Math.max(chr1Length / viewDimensions.width, chr2Length / viewDimensions.height);
-
-    const matrix = await this.dataset.getMatrix(chr1, chr2);
-    if (!matrix) {
-        throw new Error(`Data not avaiable for chromosomes ${chromosome1.name} - ${chromosome2.name}`);
-    }
-    return matrix.findZoomForResolution(binSize);
-}
-
-async function minPixelSize(chr1, chr2, z) {
-
-    const viewDimensions = this.contactMatrixView.getViewDimensions();
-    const chr1Length = this.dataset.chromosomes[chr1].size;
-    const chr2Length = this.dataset.chromosomes[chr2].size;
-
-    const matrix = await this.dataset.getMatrix(chr1, chr2);
-    const zd = matrix.getZoomDataByIndex(z, "BP");
-    const binSize = zd.zoom.binSize;
-    const nBins1 = chr1Length / binSize;
-    const nBins2 = chr2Length / binSize;
-    return (Math.min(viewDimensions.width / nBins1, viewDimensions.height / nBins2));
-
 }
 
 function getNviString(dataset) {
@@ -45631,7 +45616,7 @@ function setDefaults(config) {
 
 }
 
-const version$1 = "2.1.6";
+const version$1 = "2.1.8";
  //, commit}
 
 function toJSON() {
