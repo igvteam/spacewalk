@@ -18,7 +18,7 @@ class RulerViewport extends TrackViewport {
 
         this.$viewport.get(0).dataset.rulerTrack = 'rulerTrack';
 
-        this.rulerSweeper = new RulerSweeper(this)
+        // this.rulerSweeper = new RulerSweeper(this)
 
         const viewport = this.$viewport.get(0)
 
@@ -47,21 +47,21 @@ class RulerViewport extends TrackViewport {
 
     addMouseHandlers() {
 
-        this.addMultiLocusPanelCloseHandler(this.multiLocusPanelCloseButton)
-
-        this.addRulerLableClickHandler(this.rulerLabel)
-
-        if (GenomeUtils.isWholeGenomeView(this.referenceFrame.chr)) {
-            this.addViewportClickHandler(this.$viewport.get(0))
-        } else {
-            this.removeViewportClickHandler(this.$viewport.get(0))
-        }
+        // this.addMultiLocusPanelCloseHandler(this.multiLocusPanelCloseButton)
+        //
+        // this.addRulerLableClickHandler(this.rulerLabel)
+        //
+        // if (GenomeUtils.isWholeGenomeView(this.referenceFrame.chr)) {
+        //     this.addViewportClickHandler(this.$viewport.get(0))
+        // } else {
+        //     this.removeViewportClickHandler(this.$viewport.get(0))
+        // }
     }
 
     removeMouseHandlers() {
-        this.removeMultiLocusPanelCloseHandler(this.multiLocusPanelCloseButton)
-        this.removeRulerLableClickHandler(this.rulerLabel)
-        this.removeViewportClickHandler(this.$viewport.get(0))
+        // this.removeMultiLocusPanelCloseHandler(this.multiLocusPanelCloseButton)
+        // this.removeRulerLableClickHandler(this.rulerLabel)
+        // this.removeViewportClickHandler(this.$viewport.get(0))
     }
 
     addMultiLocusPanelCloseHandler(multiLocusPanelCloseButton) {
@@ -198,7 +198,7 @@ class RulerViewport extends TrackViewport {
     stopSpinner() {}
 
     dispose() {
-        this.rulerSweeper.dispose()
+        // this.rulerSweeper.dispose()
         super.dispose()
     }
 }
