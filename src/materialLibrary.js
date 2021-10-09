@@ -1,6 +1,50 @@
 import CubicMapManager from "./cubicMapManager.js";
 import * as THREE from "three";
 
+const shaderLibrary =
+    {
+        init: () => {
+
+            // ST
+            const showSTConfig =
+                {
+                    uniforms: { showS:  { value: 1 }, showT:  { value: 1 } },
+                    vertexShader: document.getElementById( 'show_st_vert' ).textContent,
+                    fragmentShader: document.getElementById( 'show_st_frag' ).textContent
+                }
+
+            shaderLibrary.showSTMaterial = new THREE.ShaderMaterial(showSTConfig )
+
+            // S
+            const showSConfig =
+                {
+                    uniforms: { showS:  { value: 1 }, showT:  { value: 0 } },
+                    vertexShader: document.getElementById( 'show_st_vert' ).textContent,
+                    fragmentShader: document.getElementById( 'show_st_frag' ).textContent
+                }
+
+            shaderLibrary.showSMaterial = new THREE.ShaderMaterial(showSConfig )
+
+            // T
+            const showTConfig =
+                {
+                    uniforms: { showS:  { value: 0 }, showT:  { value: 1 } },
+                    vertexShader: document.getElementById( 'show_st_vert' ).textContent,
+                    fragmentShader: document.getElementById( 'show_st_frag' ).textContent
+                }
+
+            shaderLibrary.showTMaterial = new THREE.ShaderMaterial(showTConfig )
+
+        },
+
+        showSTMaterial: undefined,
+
+        showSMaterial: undefined,
+
+        showTMaterial: undefined
+
+    }
+
 // const specularTextureRoot = 'texture/cubic/diagnostic/threejs_format/';
 // const specularTextureRoot = 'texture/cubic/specular/aerodynamics_workshop/';
 // const specularTextureRoot = 'texture/cubic/specular/skybox/';
@@ -22,35 +66,6 @@ let diffuseCubicTexture = undefined;
 
 const showNormalsMaterial = new THREE.MeshNormalMaterial();
 
-// ST
-const showSTConfig =
-    {
-        uniforms: { showS:  { value: 1 }, showT:  { value: 1 } },
-        vertexShader: document.getElementById( 'show_st_vert' ).textContent,
-        fragmentShader: document.getElementById( 'show_st_frag' ).textContent
-    };
-
-const showSTMaterial = new THREE.ShaderMaterial(showSTConfig );
-
-// S
-const showSConfig =
-    {
-        uniforms: { showS:  { value: 1 }, showT:  { value: 0 } },
-        vertexShader: document.getElementById( 'show_st_vert' ).textContent,
-        fragmentShader: document.getElementById( 'show_st_frag' ).textContent
-    };
-
-const showSMaterial = new THREE.ShaderMaterial(showSConfig );
-
-// T
-const showTConfig =
-    {
-        uniforms: { showS:  { value: 0 }, showT:  { value: 1 } },
-        vertexShader: document.getElementById( 'show_st_vert' ).textContent,
-        fragmentShader: document.getElementById( 'show_st_frag' ).textContent
-    };
-
-const showTMaterial = new THREE.ShaderMaterial(showTConfig );
 
 const sceneBackgroundDiagnosticTextureFile = 'texture/uv.png';
 let sceneBackgroundDiagnosticTexture = undefined;
@@ -59,6 +74,8 @@ const sceneBackgroundTextureFile = 'texture/scene-backdrop-grey-ramp.png';
 let sceneBackgroundTexture = undefined;
 
 const initializeMaterialLibrary = async () => {
+
+    shaderLibrary.init()
 
     let str;
 
@@ -102,4 +119,4 @@ const initializeMaterialLibrary = async () => {
 
 };
 
-export { initializeMaterialLibrary, sceneBackgroundDiagnosticTexture, sceneBackgroundTexture, diffuseCubicTexture, specularCubicTexture, showNormalsMaterial, showSTMaterial, showSMaterial, showTMaterial };
+export { initializeMaterialLibrary, sceneBackgroundDiagnosticTexture, sceneBackgroundTexture, diffuseCubicTexture, specularCubicTexture, showNormalsMaterial, shaderLibrary };
