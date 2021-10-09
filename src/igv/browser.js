@@ -1657,14 +1657,14 @@ class Browser {
         this.addWindowResizeHandler()
         this.addRootMouseUpHandler()
         this.addRootMouseLeaveHandler()
-        this.addColumnContainerEventHandlers()
+        // this.addColumnContainerEventHandlers()
     }
 
     removeMouseHandlers() {
         this.removeWindowResizeHandler()
         this.removeRootMouseUpHandler()
         this.removeRootMouseLeaveHandler()
-        this.removeColumnContainerEventHandlers()
+        // this.removeColumnContainerEventHandlers()
     }
 
     addWindowResizeHandler() {

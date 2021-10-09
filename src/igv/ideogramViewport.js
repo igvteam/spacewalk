@@ -50,12 +50,11 @@ class IdeogramViewport extends TrackViewport {
     }
 
     addMouseHandlers() {
-        this.addViewportClickHandler(this.$viewport.get(0))
+        // this.addViewportClickHandler(this.$viewport.get(0))
     }
 
     removeMouseHandlers() {
-        this.removeViewportClickHandler(this.$viewport.get(0))
-
+        // this.removeViewportClickHandler(this.$viewport.get(0))
     }
 
     addViewportClickHandler(viewport) {
@@ -123,6 +122,7 @@ class IdeogramViewport extends TrackViewport {
     }
 
     startSpinner() {}
+    
     stopSpinner() {}
 
 }
