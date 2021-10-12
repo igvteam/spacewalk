@@ -59,10 +59,6 @@ class PointCloudHighlighter {
             for (let object of pointCloud.meshList) {
                 setGeometryColorAttribute(object.geometry.attributes.color.array, object.geometry.userData.color)
             }
-
-            // for (let object of this.objects) {
-            //     setGeometryColorAttribute(object.geometry.attributes.color.array, object.geometry.userData.color)
-            // }
         }
     }
 

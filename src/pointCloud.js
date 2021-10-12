@@ -72,7 +72,13 @@ class PointCloud {
 
         this.trace = trace
 
-        this.meshList = this.createPointCloud(trace);
+        this.meshList = trace
+            .map(({ geometry }) => {
+                const mesh = new THREE.Points( geometry, this.material );
+                mesh.name = 'point_cloud';
+                return mesh;
+            });
+
 
         if (sceneManager.renderStyle === PointCloud.getRenderStyle()) {
             this.show();
@@ -81,17 +87,6 @@ class PointCloud {
         }
 
     }
-
-    createPointCloud(trace) {
-
-        return trace
-            .map(({ geometry }) => {
-                let mesh = new THREE.Points( geometry, this.material );
-                mesh.name = 'point_cloud';
-                return mesh;
-            });
-
-    };
 
     updateMaterialProvider (materialProvider) {
         // do stuff
