@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { colorRampMaterialProvider, ballAndStick } from "./app.js";
+import { ensembleManager, colorRampMaterialProvider, ballAndStick } from "./app.js";
 
 const rgbTemp = new THREE.Color();
 
@@ -13,15 +13,8 @@ class BallHighlighter {
 
     processHit(hit) {
         if (false === this.hasInstanceId(hit.instanceId)) {
-
             this.configureWithInstanceIdList([ hit.instanceId ]);
-
-            const key = hit.instanceId.toString();
-
-            if (ballAndStick.colorRampInterpolantWindowDictionary[ key ]) {
-                colorRampMaterialProvider.highlightWithInterpolantWindowList([ ballAndStick.colorRampInterpolantWindowDictionary[ key ] ])
-            }
-
+            colorRampMaterialProvider.highlightWithInterpolantWindowList([ ensembleManager.currentTrace[ hit.instanceId ].colorRampInterpolantWindow ])
         }
     }
 
@@ -39,7 +32,7 @@ class BallHighlighter {
 
     highlight() {
 
-        if (undefined !== ballAndStick.balls) {
+        if (ballAndStick.balls && this.instanceIdList) {
 
             for (let instanceId of this.instanceIdList) {
                 rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
@@ -52,7 +45,7 @@ class BallHighlighter {
 
     unhighlight() {
 
-        if (undefined !== ballAndStick.balls) {
+        if (ballAndStick.balls && this.instanceIdList) {
 
             for (let instanceId of this.instanceIdList) {
                 ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
