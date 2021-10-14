@@ -6,7 +6,6 @@ import { clamp } from './math.js';
 import EnsembleManager from "./ensembleManager.js";
 import { generateRadiusTable } from "./utils.js";
 import { ensembleManager, sceneManager, igvPanel } from './app.js'
-import { instanceColorString } from "./sceneManager.js";
 import { appleCrayonColorThreeJS } from "./color.js";
 
 let ballRadiusIndex = undefined;
@@ -63,9 +62,9 @@ class BallAndStick {
         const averageCurveDistance  = computeAverageCurveDistance(this.stickCurves);
         console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`);
 
-        stickRadiusTable = generateRadiusTable(0.5e-1 * averageCurveDistance);
-        stickRadiusIndex = Math.floor( stickRadiusTable.length/2 );
-        this.sticks = this.createSticks(this.stickCurves, stickRadiusTable[ stickRadiusIndex ]);
+        // stickRadiusTable = generateRadiusTable(0.5e-1 * averageCurveDistance);
+        // stickRadiusIndex = Math.floor( stickRadiusTable.length/2 );
+        // this.sticks = this.createSticks(this.stickCurves, stickRadiusTable[ stickRadiusIndex ]);
 
         ballRadiusTable = generateRadiusTable(2e-1 * averageCurveDistance);
         ballRadiusIndex = Math.floor( ballRadiusTable.length/2 );
@@ -79,6 +78,68 @@ class BallAndStick {
     }
 
     createBalls(trace, ballRadius) {
+
+        const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace)
+
+        // canonical ball geometry
+        const widthSegments = 32
+        const heightSegments = 16
+        const geometry = new THREE.SphereBufferGeometry(1, widthSegments, heightSegments)
+        geometry.computeVertexNormals()
+
+        console.log(`Ball&Stick. Create ${ StringUtils.numberFormatter(vertices.length) } balls. Tesselation width ${ widthSegments } height ${ heightSegments }`);
+
+        // material stuff
+        this.colorRampInterpolantWindowDictionary = {}
+        this.rgb = []
+        for (let i = 0; i < vertices.length; i++) {
+            const { interpolant } = trace[ i ].colorRampInterpolantWindow
+            this.rgb.push( igvPanel.materialProvider.colorForInterpolant(interpolant) )
+            this.colorRampInterpolantWindowDictionary[ i.toString() ] = trace[ i ].colorRampInterpolantWindow
+        }
+
+        const color = new THREE.Color();
+        const list = new Array(vertices.length).fill().flatMap((_, i) => color.set(this.rgb[ i ]).toArray())
+        this.rgbFloat32Array = Float32Array.from(list)
+
+        // assign instance color list to canonical geometry
+        geometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(this.rgbFloat32Array, 3) )
+
+        // custom instance material
+        const material = getMaterialWithInstanceColorString('instanceColor')
+        // const material = new THREE.MeshNormalMaterial()
+
+        const mesh = new THREE.InstancedMesh(geometry, material, vertices.length)
+
+        const matrix = new THREE.Matrix4()
+
+        const xyz = new THREE.Vector3()
+        const rotation = new THREE.Euler()
+        const quaternion = new THREE.Quaternion()
+        const scale = new THREE.Vector3()
+
+        vertices.forEach(({ x, y, z }, i) => {
+
+            xyz.x = x
+            xyz.y = y
+            xyz.z = z
+
+            rotation.x = 0
+            rotation.y = 0
+            rotation.z = 0
+            quaternion.setFromEuler( rotation )
+
+            scale.setScalar(ballRadius)
+
+            matrix.compose(xyz, quaternion, scale)
+
+            mesh.setMatrixAt(i++, matrix)
+        })
+
+        return mesh
+    }
+
+    __createBalls(trace, ballRadius) {
 
         this.colorRampInterpolantWindowDictionary = {};
 
@@ -99,31 +160,31 @@ class BallAndStick {
         }
 
         const color = new THREE.Color();
-        const thang = new Array(vertices.length).fill().flatMap((_, i) => color.set(this.rgb[ i ]).toArray())
-        this.rgbFloat32Array = Float32Array.from(thang);
+        const list = new Array(vertices.length).fill().flatMap((_, i) => color.set(this.rgb[ i ]).toArray())
+        this.rgbFloat32Array = Float32Array.from(list);
 
         // assign instance color list to canonical geometry
-        geometry.setAttribute(instanceColorString, new THREE.InstancedBufferAttribute(this.rgbFloat32Array, 3) );
+        geometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(this.rgbFloat32Array, 3) );
 
         // custom instance material
-        const material = getMaterialWithInstanceColorString(instanceColorString);
+        const material = getMaterialWithInstanceColorString('instanceColor');
 
         // Instance mesh
         const mesh = new THREE.InstancedMesh(geometry, material, vertices.length);
         mesh.name = 'ball';
 
         // layout each instance of the mesh
-        const proxy = new THREE.Object3D();
+        const ballProxy = new THREE.Object3D();
         vertices.forEach((vertex, i) => {
 
             const { x, y, z } = vertex
-            proxy.position.set(x, y, z);
+            ballProxy.position.set(x, y, z);
 
-            proxy.scale.setScalar(ballRadius);
+            ballProxy.scale.setScalar(ballRadius);
 
-            proxy.updateMatrix();
+            ballProxy.updateMatrix();
 
-            mesh.setMatrixAt(i++, proxy.matrix);
+            mesh.setMatrixAt(i++, ballProxy.matrix);
         });
 
         return mesh;
@@ -139,24 +200,24 @@ class BallAndStick {
     }
 
     addToScene (scene) {
-        scene.add(this.balls);
-        scene.add(this.sticks);
+        scene.add(this.balls)
+        // scene.add(this.sticks)
     }
 
     hide () {
         this.balls.visible = false
-        this.sticks.visible = false;
+        // this.sticks.visible = false
     }
 
     show () {
         this.balls.visible = true
-        this.sticks.visible = true
+        // this.sticks.visible = true
     }
 
     updateBallRadius(increment) {
 
-        ballRadiusIndex = clamp(ballRadiusIndex + increment, 0, ballRadiusTable.length - 1);
-        const radius = ballRadiusTable[ ballRadiusIndex ];
+        ballRadiusIndex = clamp(ballRadiusIndex + increment, 0, ballRadiusTable.length - 1)
+        const radius = ballRadiusTable[ ballRadiusIndex ]
 
         for (let mesh of this.balls) {
             mesh.scale.setScalar(radius);
@@ -191,7 +252,7 @@ class BallAndStick {
             color.set(interpolatedColor).toArray(this.rgbFloat32Array, instanceId * 3)
         }
 
-        this.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
+        this.balls.geometry.attributes.instanceColor.needsUpdate = true;
     }
 
     dispose () {

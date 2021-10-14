@@ -1,11 +1,6 @@
+import EnsembleManager from "./ensembleManager.js";
 import { EventBus } from 'igv-widgets'
 import * as THREE from "three";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
-
-import EnsembleManager from "./ensembleManager.js";
 import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
 import BallAndStick from "./ballAndStick.js";
@@ -14,18 +9,15 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import { pointCloud, ribbon, ballAndStick, ensembleManager, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
+import { pointCloud, ribbon, ballAndStick, ensembleManager, contactFrequencyMapPanel, distanceMapPanel, sceneManager } from "./app.js";
 import { getGUIRenderStyle, configureColorPicker } from "./guiManager.js";
 import { specularCubicTexture, sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 import Ribbon from './ribbon.js'
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
-const AAScaleFactor = 1;
-
-const doMultipassRendering = false;
-
-const instanceColorString = 'instanceColor';
+let mouseX = undefined
+let mouseY = undefined
 
 class SceneManager {
 
@@ -53,33 +45,16 @@ class SceneManager {
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
 
-        if (doMultipassRendering) {
-            this.setupMultipassRendering(this.scene, this.renderer, this.cameraLightingRig);
-        }
-
         EventBus.globalBus.subscribe('DidSelectTrace', this);
         EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
         EventBus.globalBus.subscribe('RenderStyleDidChange', this);
+
 
     }
 
     getRenderContainerSize() {
         const { width, height } = this.container.getBoundingClientRect();
         return { width, height };
-    };
-
-    setupMultipassRendering(scene, renderer, cameraLightingRig) {
-
-        this.effectComposer = new EffectComposer( renderer);
-
-        this.renderPass = new RenderPass(scene, cameraLightingRig.object);
-        this.effectComposer.addPass(this.renderPass);
-
-        this.fxAA = new ShaderPass( FXAAShader );
-        setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
-        this.effectComposer.addPass( this.fxAA );
-        this.fxAA.enabled = false;
-
     }
 
     receiveEvent({ type, data }) {
@@ -149,10 +124,6 @@ class SceneManager {
         this.scene = scene;
         this.scene.background = this.background;
 
-        if (doMultipassRendering) {
-            this.renderPass.scene = scene;
-        }
-
         const { width, height } = this.getRenderContainerSize();
         this.cameraLightingRig.configure({fov, aspect: width/height, position: cameraPosition, centroid, boundingDiameter});
 
@@ -181,14 +152,9 @@ class SceneManager {
         $(this.container).on('mousemove.spacewalk.picker', (event) => {
 
             if (true === this.picker.isEnabled) {
-
-                const xy = getMouseXY(this.renderer.domElement, event);
-
-                const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
-                const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
-
-                this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.object });
-
+                const { x, y } = getMouseXY(this.renderer.domElement, event);
+                mouseX =  ( x / this.renderer.domElement.clientWidth  ) * 2 - 1;
+                mouseY = -( y / this.renderer.domElement.clientHeight ) * 2 + 1;
             }
         });
 
@@ -201,11 +167,6 @@ class SceneManager {
             const { width, height } = this.getRenderContainerSize();
             this.renderer.setSize(width, height);
 
-            if (doMultipassRendering) {
-                this.effectComposer.setSize(width, height);
-                setAA(this.fxAA, AAScaleFactor, width, height);
-            }
-
             this.cameraLightingRig.object.aspect = width/height;
             this.cameraLightingRig.object.updateProjectionMatrix();
         }
@@ -215,6 +176,7 @@ class SceneManager {
     dispose() {
 
         $(this.container).off('mousemove.spacewalk.picker')
+        mouseX = mouseY = undefined
 
         if (this.scene) {
 
@@ -226,10 +188,11 @@ class SceneManager {
 
             delete this.scene
         }
+
     }
 
     isGoodToGo() {
-        return (this.scene && this.cameraLightingRig);
+        return this.scene && this.cameraLightingRig
     }
 
     renderLoopHelper() {
@@ -239,16 +202,14 @@ class SceneManager {
         if (this.groundPlane) {
             this.groundPlane.renderLoopHelper();
         }
+
         if (this.gnomon) {
             this.gnomon.renderLoopHelper();
         }
 
-        if (doMultipassRendering) {
-            this.effectComposer.render();
-        } else {
-            this.renderer.render(this.scene, this.cameraLightingRig.object);
-        }
+        this.picker.intersect({ x:mouseX, y:mouseY, scene:this.scene, camera:this.cameraLightingRig.object });
 
+        this.renderer.render(this.scene, this.cameraLightingRig.object)
 
     }
 
@@ -289,11 +250,7 @@ class SceneManager {
 
 }
 
-const setAA = (fxAA, scaleFactor, width, height) => {
-    fxAA.uniforms[ 'resolution' ].value.set( scaleFactor/width, scaleFactor/height );
-};
-
-export const sceneManagerConfigurator = ({ container, highlightColor }) => {
+const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     const str = `Scene Manager Configuration Builder Complete`;
     console.time(str);
@@ -332,8 +289,8 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     return { container, scene, stickMaterial, background, renderer, cameraLightingRig, picker };
 
-};
+}
 
-export { instanceColorString }
+export { sceneManagerConfigurator }
 
 export default SceneManager;

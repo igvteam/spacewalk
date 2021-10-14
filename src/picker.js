@@ -38,31 +38,35 @@ class Picker {
 
     intersect({ x ,y, camera, scene }) {
 
-        this.raycaster.setFromCamera({ x, y }, camera);
+        if (x && y) {
 
-        const hitList = this.raycaster.intersectObjects(scene.children).filter(item => !exclusionSet.has(item.object.name) && true === item.object.visible);
+            this.raycaster.setFromCamera({ x, y }, camera);
 
-        if (hitList.length > 0) {
+            const hitList = this.raycaster.intersectObjects(scene.children).filter(item => !exclusionSet.has(item.object.name) && true === item.object.visible);
 
-            // Hit list contains all instances along the ray of intersection. Select the first.
-            const [ hit ] = hitList;
+            if (hitList.length > 0) {
 
-            if (undefined !== hit.instanceId) {
-                this.pickerHighlighterDictionary[ 'ball' ].processHit(hit);
-            } else if (hit.object && 'point_cloud' === hit.object.name) {
+                // Hit list contains all instances along the ray of intersection. Select the first.
+                const [ hit ] = hitList;
 
-                // TODO: Find a better approach to hitting point clouds
-                // this.pickerHighlighterDictionary[ 'pointCloud' ].processHit(hit.object);
+                if (undefined !== hit.instanceId) {
+                    this.pickerHighlighterDictionary[ 'ball' ].processHit(hit);
+                } else if (hit.object && 'point_cloud' === hit.object.name) {
+
+                    // TODO: Find a better approach to hitting point clouds
+                    // this.pickerHighlighterDictionary[ 'pointCloud' ].processHit(hit.object);
+                }
+
+
+            } else {
+
+                for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
+                    pickHighlighter.unhighlight();
+                }
+
+                EventBus.globalBus.post({ type: "PickerDidLeaveObject" });
             }
 
-
-        } else {
-
-            for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
-                pickHighlighter.unhighlight();
-            }
-
-            EventBus.globalBus.post({ type: "PickerDidLeaveObject" });
         }
 
     }

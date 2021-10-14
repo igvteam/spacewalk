@@ -1,9 +1,12 @@
+import Stats from 'three/examples/jsm/libs/stats.module.js'
+import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
+
 import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from 'igv-widgets'
 import {GoogleAuth, igvxhr, StringUtils} from 'igv-utils'
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
-import SceneManager, {sceneManagerConfigurator} from "./sceneManager.js";
+import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import Panel from "./panel.js";
@@ -25,6 +28,10 @@ import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
+
+let stats
+let gui
+let guiStatsEl
 
 let pointCloud;
 let ribbon;
@@ -115,9 +122,50 @@ const initializationHelper = async container => {
 
     guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
-    renderLoop();
+    // frame rate
+    stats = new Stats()
+    document.body.appendChild( stats.dom )
+
+    // draw calls
+    // gui = new GUI()
+    //
+    // const perfFolder = gui.addFolder('Performance')
+    //
+    // guiStatsEl = document.createElement('li')
+    // guiStatsEl.classList.add('gui-stats')
+    // guiStatsEl.innerHTML = '<i>GPU draw calls</i>: 1'
+    //
+    // perfFolder.__ul.appendChild( guiStatsEl )
+    // perfFolder.open()
+
 
     await loadSessionURL(spacewalkSessionURL)
+
+    renderLoop()
+
+}
+
+function renderLoop() {
+
+    requestAnimationFrame( renderLoop )
+
+    render()
+
+}
+
+function render () {
+
+    pointCloud.renderLoopHelper()
+
+    ribbon.renderLoopHelper()
+
+    dataValueMaterialProvider.renderLoopHelper()
+
+    colorRampMaterialProvider.renderLoopHelper()
+
+    sceneManager.renderLoopHelper()
+
+    stats.update()
 
 }
 
@@ -418,26 +466,6 @@ const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
 
     return html;
 }
-
-const renderLoop = () => {
-
-    requestAnimationFrame( renderLoop );
-
-    if (sceneManager.isGoodToGo()) {
-
-        pointCloud.renderLoopHelper();
-
-        ribbon.renderLoopHelper();
-
-        dataValueMaterialProvider.renderLoopHelper();
-
-        colorRampMaterialProvider.renderLoopHelper();
-
-        sceneManager.renderLoopHelper();
-
-    }
-
-};
 
 const showSpinner = () => {
     document.getElementById('spacewalk-spinner').style.display = 'block';

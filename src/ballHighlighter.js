@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { instanceColorString } from "./sceneManager.js";
 import { colorRampMaterialProvider, ballAndStick } from "./app.js";
 
 const rgbTemp = new THREE.Color();
@@ -46,7 +45,7 @@ class BallHighlighter {
                 rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
             }
 
-            ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
+            ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true;
         }
 
     }
@@ -59,7 +58,7 @@ class BallHighlighter {
                 ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
             }
 
-            ballAndStick.balls.geometry.attributes[ instanceColorString ].needsUpdate = true;
+            ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true;
 
             this.instanceIdList.clear();
 
