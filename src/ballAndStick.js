@@ -22,8 +22,6 @@ class BallAndStick {
 
         this.pickHighlighter = pickHighlighter;
 
-        this.stickCurves = undefined;
-
         EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
         EventBus.globalBus.subscribe("DidUpdateColorRampInterpolant", this);
     }
@@ -55,16 +53,13 @@ class BallAndStick {
 
         this.trace = trace;
 
-        if (undefined === this.stickCurves) {
-            this.stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVerticesWithTrace(trace));
-        }
-
-        const averageCurveDistance  = computeAverageCurveDistance(this.stickCurves);
-        console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`);
+        const stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVerticesWithTrace(trace))
+        const averageCurveDistance  = computeAverageCurveDistance(stickCurves)
+        console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`)
 
         stickRadiusTable = generateRadiusTable(0.5e-1 * averageCurveDistance);
         stickRadiusIndex = Math.floor( stickRadiusTable.length/2 );
-        this.sticks = this.createSticks(this.stickCurves, stickRadiusTable[ stickRadiusIndex ]);
+        this.sticks = this.createSticks(trace, stickRadiusTable[ stickRadiusIndex ]);
 
         ballRadiusTable = generateRadiusTable(2e-1 * averageCurveDistance);
         ballRadiusIndex = Math.floor( ballRadiusTable.length/2 );
@@ -85,12 +80,12 @@ class BallAndStick {
         const geometry = new THREE.SphereBufferGeometry(1, widthSegments, heightSegments)
         geometry.computeVertexNormals()
 
-        console.log(`Ball&Stick. Create ${ StringUtils.numberFormatter(trace.length) } balls. Tesselation width ${ widthSegments } height ${ heightSegments }`);
+        console.log(`Ball&Stick. Create ${ StringUtils.numberFormatter(trace.length) } balls. Tesselation width ${ widthSegments } height ${ heightSegments }`)
 
         // material stuff
         this.rgb = trace.map(({ colorRampInterpolantWindow }) => igvPanel.materialProvider.colorForInterpolant(colorRampInterpolantWindow.interpolant))
 
-        const color = new THREE.Color();
+        const color = new THREE.Color()
         const list = new Array(trace.length).fill().flatMap((_, i) => color.set(this.rgb[ i ]).toArray())
         this.rgbFloat32Array = Float32Array.from(list)
 
@@ -130,12 +125,48 @@ class BallAndStick {
         return mesh
     }
 
-    createSticks(curves, stickRadius) {
-        const geometries = curves.map(curve => new THREE.TubeBufferGeometry(curve, stickTesselation.length, stickRadius, stickTesselation.radial, false));
+
+    createSticks(trace, stickRadius) {
+
+        const geometries = []
+        const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace)
+
+        const endPoints = []
+        for (let i = 0; i < vertices.length - 1; i++) {
+            endPoints.push({ a: vertices[ i ], b: vertices[ i + 1 ] })
+        }
+
+        for (let { a, b } of endPoints) {
+
+            // stick has length equal to distance between endpoints
+            const distance = a.distanceTo( b )
+            const cylinder = new THREE.CylinderGeometry(stickRadius, stickRadius, distance, stickTesselation.radial, stickTesselation.length)
+
+            // stick endpoints define the axis of stick alignment
+            const { x:ax, y:ay, z:az } = a
+            const { x:bx, y:by, z:bz } = b
+            const stickAxis = new THREE.Vector3(bx-ax, by-ay, bz-az).normalize()
+
+            // Use quaternion to rotate cylinder from default to target orientation
+            const quaternion = new THREE.Quaternion()
+            const cylinderUpAxis = new THREE.Vector3( 0, 1, 0 )
+            quaternion.setFromUnitVectors(cylinderUpAxis, stickAxis)
+            cylinder.applyQuaternion(quaternion)
+
+            // Translate oriented stick to location between endpoints
+            cylinder.translate((bx+ax)/2, (by+ay)/2, (bz+az)/2)
+
+            // add to geometry list
+            geometries.push(cylinder)
+
+        }
+
+        // Aggregate geometry list into single BufferGeometry
         const material = sceneManager.stickMaterial.clone();
         const mesh = new THREE.Mesh(mergeBufferGeometries( geometries ), material);
         mesh.name = 'stick';
         return mesh;
+
     }
 
     addToScene (scene) {
@@ -167,8 +198,8 @@ class BallAndStick {
     updateStickRadius(increment) {
         stickRadiusIndex = clamp(stickRadiusIndex + increment, 0, stickRadiusTable.length - 1);
         const radius = stickRadiusTable[ stickRadiusIndex ];
-        const geometries = this.stickCurves.map(curve => new THREE.TubeBufferGeometry(curve, stickTesselation.length, radius, stickTesselation.radial, false));
-        this.sticks.geometry.copy(mergeBufferGeometries( geometries ));
+        // const geometries = this.stickCurves.map(curve => new THREE.TubeBufferGeometry(curve, stickTesselation.length, radius, stickTesselation.radial, false));
+        // this.sticks.geometry.copy(mergeBufferGeometries( geometries ));
     }
 
     updateMaterialProvider (materialProvider) {
@@ -201,13 +232,34 @@ class BallAndStick {
             this.sticks.geometry.dispose();
             this.sticks.material.dispose();
         }
-
-        delete this.stickCurves;
     }
 
     static getRenderStyle() {
         return 'render-style-ball-stick';
     }
+}
+
+function computeAverageCurveDistance (curves) {
+
+    let acc = 0;
+    const sum = curves
+        .reduce((accumulator, curve) => {
+            accumulator += curve.getLength();
+            return accumulator;
+        }, acc);
+
+    return sum / curves.length;
+
+}
+
+function createStickCurves (vertices) {
+
+    let curves = [];
+    for (let i = 0, j = 1; j < vertices.length; ++i, ++j) {
+        curves.push( new THREE.CatmullRomCurve3([ vertices[i], vertices[j] ]) );
+    }
+
+    return curves;
 }
 
 function getColorRampMaterial(instanceColor){
@@ -252,29 +304,6 @@ function getColorRampMaterial(instanceColor){
 
     return material;
 }
-
-export const computeAverageCurveDistance = curves => {
-
-    let acc = 0;
-    const sum = curves
-        .reduce((accumulator, curve) => {
-            accumulator += curve.getLength();
-            return accumulator;
-        }, acc);
-
-    return sum / curves.length;
-
-};
-
-export const createStickCurves = (vertices) => {
-
-    let curves = [];
-    for (let i = 0, j = 1; j < vertices.length; ++i, ++j) {
-        curves.push( new THREE.CatmullRomCurve3([ vertices[i], vertices[j] ]) );
-    }
-
-    return curves;
-};
 
 let setVisibility = (objects, isVisible) => {
     objects.forEach(object => object.visible = isVisible);
