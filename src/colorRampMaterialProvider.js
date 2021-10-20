@@ -77,16 +77,13 @@ class ColorRampMaterialProvider {
         const { r, g, b } = highlightColor;
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
-        EventBus.globalBus.subscribe("PickerDidLeaveObject", this);
         EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
         EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
     }
 
     receiveEvent({ type, data }) {
 
-         if ("PickerDidLeaveObject" === type) {
-            this.repaint()
-        } else if ("DidUpdateGenomicInterpolant" === type) {
+        if ("DidUpdateGenomicInterpolant" === type) {
 
             const { interpolantList } = data;
             const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
@@ -102,18 +99,19 @@ class ColorRampMaterialProvider {
 
     onCanvasMouseMove(canvas, event) {
 
-        if (undefined === ensembleManager.currentTrace) {
-            return;
-        }
+        if (ensembleManager.currentTrace) {
 
-        let { yNormalized } = getMouseXY(canvas, event);
-        const interpolantList = [ 1.0 - yNormalized ];
+            let { yNormalized } = getMouseXY(canvas, event);
+            const interpolantList = [ 1.0 - yNormalized ];
 
-        const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
-        if (interpolantWindowList) {
-            this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
-            EventBus.globalBus.post({ type: 'DidUpdateColorRampInterpolant', data: { interpolantList } });
+            if (interpolantWindowList) {
+
+                // Rely on pickerHighlighter.highlight() to call this.highlightWithInterpolantWindowList()
+                EventBus.globalBus.post({ type: 'DidUpdateColorRampInterpolant', data: { interpolantList } });
+            }
+
         }
 
     };
@@ -132,14 +130,12 @@ class ColorRampMaterialProvider {
             return;
         }
 
-        this.repaint();
-
         const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
 
         // clear highlight canvas
         this.highlight_ctx.clearRect(0, 0, width, height);
 
-        // paint alpha map opacque
+        // paint alpha map opaque
         this.alphamap_ctx.fillStyle = alpha_visible;
         this.alphamap_ctx.fillRect(0, 0, width, height);
 
@@ -163,7 +159,6 @@ class ColorRampMaterialProvider {
                 const yy = height - (h + y);
 
                 const h_rendered = Math.max(1, h);
-                // console.log(`paintWithInterpolantWindowList yy ${ yy} h_rendered ${ h_rendered }`);
                 this.highlight_ctx.fillRect(0, yy, width, h_rendered);
                 this.alphamap_ctx.fillRect(0, yy, width, h_rendered);
 
@@ -185,8 +180,6 @@ class ColorRampMaterialProvider {
         this.rgb_ctx.fillRect(0, 0, width, height);
 
         const colorRampInterpolantWindows = Object.values(ensembleManager.currentTrace).map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow);
-
-        // console.log(`max possible segments ${ ensembleManager.maximumSegmentID } trace count ${ colorRampInterpolantWindows.length }`);
 
         for (let { interpolant, start, end } of colorRampInterpolantWindows) {
 

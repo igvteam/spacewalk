@@ -7,6 +7,7 @@ import EnsembleManager from "./ensembleManager.js";
 import { generateRadiusTable } from "./utils.js";
 import { ensembleManager, sceneManager, igvPanel } from './app.js'
 import { appleCrayonColorThreeJS } from "./color.js";
+import ColorRampMaterialProvider from "./colorRampMaterialProvider";
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
@@ -37,8 +38,8 @@ class BallAndStick {
                 const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
                 if (interpolantWindowList) {
-                    const indices = interpolantWindowList.map(({ index }) => index);
-                    this.pickHighlighter.configureWithInstanceIdList(indices);
+                    const instanceIdList = interpolantWindowList.map(({ index }) => index)
+                    this.pickHighlighter.configureWithInstanceIdList(instanceIdList);
                 }
 
             }

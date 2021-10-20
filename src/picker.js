@@ -1,4 +1,5 @@
 import { EventBus } from 'igv-widgets'
+import {colorRampMaterialProvider} from "./app.js";
 
 const exclusionSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'stick' ]);
 
@@ -19,26 +20,28 @@ class Picker {
 
         if ("DidEnterGenomicNavigator" === type) {
 
-            for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
-                pickHighlighter.unhighlight();
-            }
-
             this.isEnabled = false;
+
+            for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
+                pickHighlighter.unhighlight()
+            }
 
         } else if ("DidLeaveGenomicNavigator" === type) {
 
+            this.isEnabled = true;
+
             for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
-                pickHighlighter.unhighlight();
+                pickHighlighter.unhighlight()
             }
 
-            this.isEnabled = true;
+
         }
 
     }
 
     intersect({ x ,y, camera, scene }) {
 
-        if (x && y) {
+        if (true === this.isEnabled && x && y) {
 
             this.raycaster.setFromCamera({ x, y }, camera);
 
@@ -50,9 +53,8 @@ class Picker {
                 const [ hit ] = hitList;
 
                 if (undefined !== hit.instanceId) {
-                    this.pickerHighlighterDictionary[ 'ball' ].processHit(hit);
+                    this.pickerHighlighterDictionary.ballHighlighter.processHit(hit);
                 } else if (hit.object && 'point_cloud' === hit.object.name) {
-
                     // TODO: Find a better approach to hitting point clouds
                     // this.pickerHighlighterDictionary[ 'pointCloud' ].processHit(hit.object);
                 }
@@ -61,10 +63,14 @@ class Picker {
             } else {
 
                 for (let pickHighlighter of Object.values(this.pickerHighlighterDictionary)) {
-                    pickHighlighter.unhighlight();
+
+                    if (pickHighlighter.instanceIdList) {
+                        console.log(`${ Date.now() } Picker - ballHighlighter.unhighlight() then  colorRampMaterialProvider.repaint()`)
+                        pickHighlighter.unhighlight()
+                        colorRampMaterialProvider.repaint()
+                    }
                 }
 
-                EventBus.globalBus.post({ type: "PickerDidLeaveObject" });
             }
 
         }

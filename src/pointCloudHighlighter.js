@@ -5,29 +5,35 @@ class PointCloudHighlighter {
 
     constructor (highlightColor) {
         this.highlightColor = highlightColor
-        this.objects = []
+        this.objects = undefined
     }
 
     processHit(hit) {
 
-    console.log(`${ Date.now() } PointCloudHighlighter.processHit(${ pointCloud.meshList.indexOf(hit) })`)
+        if (this.objects) {
 
-        for (let object of this.objects) {
-            if (object === hit) {
-                return;
+            for (let object of this.objects) {
+                if (object === hit) {
+                    return;
+                }
             }
-        }
 
-        this.configureObjectList([ hit ]);
+            this.configureObjectList([ hit ]);
+
+        }
 
     }
 
     hasObject(candidate) {
 
-        for (let object of this.objects) {
-            if (object === candidate) {
-                return true;
+        if (this.objects) {
+
+            for (let object of this.objects) {
+                if (object === candidate) {
+                    return true;
+                }
             }
+
         }
 
         return false;

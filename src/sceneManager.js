@@ -151,11 +151,10 @@ class SceneManager {
 
         $(this.container).on('mousemove.spacewalk.picker', (event) => {
 
-            if (true === this.picker.isEnabled) {
-                const { x, y } = getMouseXY(this.renderer.domElement, event);
-                mouseX =  ( x / this.renderer.domElement.clientWidth  ) * 2 - 1;
-                mouseY = -( y / this.renderer.domElement.clientHeight ) * 2 + 1;
-            }
+            const { x, y } = getMouseXY(this.renderer.domElement, event);
+            mouseX =  ( x / this.renderer.domElement.clientWidth  ) * 2 - 1;
+            mouseY = -( y / this.renderer.domElement.clientHeight ) * 2 + 1;
+
         });
 
     }
@@ -283,7 +282,7 @@ const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const scene = new THREE.Scene();
     scene.background = background;
 
-    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickerHighlighterDictionary: { ball: ballAndStick.pickHighlighter, pointCloud: pointCloud.pickHighlighter } } );
+    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickerHighlighterDictionary: { ballHighlighter: ballAndStick.pickHighlighter/*, pointCloudHighlighter: pointCloud.pickHighlighter*/ } } );
 
     console.timeEnd(str);
 
