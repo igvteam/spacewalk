@@ -8,40 +8,21 @@ class PointCloudHighlighter {
         this.objects = undefined
     }
 
-    processHit(hit) {
-
-        if (this.objects) {
-
-            for (let object of this.objects) {
-                if (object === hit) {
-                    return;
-                }
-            }
-
-            this.configureObjectList([ hit ]);
-
-        }
-
-    }
-
-    hasObject(candidate) {
-
-        if (this.objects) {
-
-            for (let object of this.objects) {
-                if (object === candidate) {
-                    return true;
-                }
-            }
-
-        }
-
-        return false;
-    }
-
     configureObjectList(objectList) {
+
+        if (this.objects && this.objects.length === objectList.length) {
+
+            const delta = objectList.filter((object, i) => object.uuid !== this.objects[ i ].uuid)
+            if (0 === delta.length) {
+                return
+            }
+
+        }
+
+        console.log(`${ Date.now() } PointCloudHighlighter - configureObjectList(objectList)`)
+
         this.unhighlight()
-        this.objects = [];
+        this.objects = []
         for (let o of objectList) {
             this.objects.push(o)
         }
@@ -61,11 +42,14 @@ class PointCloudHighlighter {
     }
 
     unhighlight() {
+
         if (undefined !== pointCloud.meshList) {
             for (let object of pointCloud.meshList) {
                 setGeometryColorAttribute(object.geometry.attributes.color.array, object.geometry.userData.color)
             }
         }
+
+        this.objects = undefined
     }
 
 }

@@ -42,7 +42,7 @@ class PointCloud {
 
         EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
         EventBus.globalBus.subscribe("DidUpdateColorRampInterpolant", this);
-
+        EventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
     receiveEvent({ type, data }) {
@@ -62,6 +62,8 @@ class PointCloud {
 
             }
 
+        } else if ("DidLeaveGenomicNavigator" === type) {
+            this.pickHighlighter.unhighlight()
         }
 
     }
