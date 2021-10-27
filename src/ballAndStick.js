@@ -24,14 +24,13 @@ class BallAndStick {
         this.pickHighlighter = pickHighlighter;
 
         EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
-        EventBus.globalBus.subscribe("DidUpdateColorRampInterpolant", this);
-    }
+     }
 
     receiveEvent({ type, data }) {
 
         if (this.balls && BallAndStick.getRenderStyle() === sceneManager.renderStyle) {
 
-            if ("DidUpdateGenomicInterpolant" === type || "DidUpdateColorRampInterpolant" === type) {
+            if ("DidUpdateGenomicInterpolant" === type) {
 
                 const { interpolantList } = data;
 

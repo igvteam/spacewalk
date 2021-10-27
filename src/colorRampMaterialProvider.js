@@ -85,11 +85,16 @@ class ColorRampMaterialProvider {
 
         if ("DidUpdateGenomicInterpolant" === type) {
 
-            const { interpolantList } = data;
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+            const { poster, interpolantList } = data
 
-            if (interpolantWindowList) {
-                this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
+            if (this !== poster) {
+
+                const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+
+                if (interpolantWindowList) {
+                    this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
+                }
+
             }
 
         } else if ('DidLoadEnsembleFile' === type) {
@@ -109,7 +114,7 @@ class ColorRampMaterialProvider {
             if (interpolantWindowList) {
 
                 // Rely on pickerHighlighter.highlight() to call this.highlightWithInterpolantWindowList()
-                EventBus.globalBus.post({ type: 'DidUpdateColorRampInterpolant', data: { interpolantList } });
+                EventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } });
             }
 
         }

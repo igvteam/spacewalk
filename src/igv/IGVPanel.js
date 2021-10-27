@@ -159,7 +159,7 @@ class IGVPanel extends Panel {
                 return;
             }
 
-            EventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { interpolantList: [ interpolant ] } });
+            EventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList: [ interpolant ] } });
 
         })
 

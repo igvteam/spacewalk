@@ -41,16 +41,12 @@ class PointCloud {
         this.deemphasizedMaterial.side = THREE.DoubleSide;
 
         EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
-        EventBus.globalBus.subscribe("DidUpdateColorRampInterpolant", this);
         EventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
     receiveEvent({ type, data }) {
 
-        const typeConditional = "DidUpdateGenomicInterpolant" === type || "DidUpdateColorRampInterpolant" === type;
-        const renderStyleConditional = PointCloud.getRenderStyle() === sceneManager.renderStyle
-
-        if (this.meshList && typeConditional && renderStyleConditional) {
+        if (this.meshList && "DidUpdateGenomicInterpolant" === type && PointCloud.getRenderStyle() === sceneManager.renderStyle) {
 
             const { interpolantList } = data;
 

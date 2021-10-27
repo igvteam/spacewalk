@@ -207,7 +207,7 @@ function juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
         return
     }
 
-    EventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { interpolantList: [ interpolantX, interpolantY ] } })
+    EventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList: [ interpolantX, interpolantY ] } })
 }
 
 export default JuiceboxPanel;

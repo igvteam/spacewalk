@@ -16,7 +16,6 @@ class Ribbon {
     constructor() {
         EventBus.globalBus.subscribe('DidUpdateGenomicInterpolant', this)
         EventBus.globalBus.subscribe('DidLeaveGenomicNavigator', this)
-        EventBus.globalBus.subscribe('DidUpdateColorRampInterpolant', this)
     }
 
     receiveEvent({ type, data }) {
@@ -25,7 +24,7 @@ class Ribbon {
 
             if ('DidLeaveGenomicNavigator' === type) {
                 this.beads[ 0 ].visible = this.beads[ 1 ].visible = false
-            } else if ('DidUpdateColorRampInterpolant' === type || 'DidUpdateGenomicInterpolant' === type) {
+            } else if ('DidUpdateGenomicInterpolant' === type) {
 
                 const { interpolantList } = data
 
