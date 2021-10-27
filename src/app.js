@@ -258,24 +258,6 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     }
     await igvPanel.initialize(spacewalkConfig)
 
-    addResizeListener(igvPanel.panel, async () => {
-
-        if (igvPanel.browser) {
-
-            let str = `all`
-
-            if (ensembleManager.locus) {
-                const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-                str = `${ chr }:${ genomicStart }-${ genomicEnd }`
-            }
-
-            await igvPanel.browser.resize()
-            await igvPanel.browser.search(str)
-
-        }
-
-    })
-
     createTrackWidgetsWithTrackRegistry(
         $(igvPanel.container),
         $('#hic-track-dropdown-menu'),

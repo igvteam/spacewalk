@@ -45,7 +45,7 @@ class Picker {
             } else {
 
                 if (ballAndStick.pickHighlighter.instanceIdList) {
-                    console.log(`${ Date.now() } Picker - ballHighlighter.unhighlight() then  colorRampMaterialProvider.repaint()`)
+                    // console.log(`${ Date.now() } Picker - ballHighlighter.unhighlight() then  colorRampMaterialProvider.repaint()`)
                     ballAndStick.pickHighlighter.unhighlight()
                     colorRampMaterialProvider.repaint()
                 }

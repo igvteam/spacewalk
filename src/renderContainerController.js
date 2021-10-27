@@ -18,10 +18,12 @@ class RenderContainerController {
                 autoHide: true,
                 aspectRatio: true,
                 helper: "spacewalk-threejs-container-resizable-helper",
-                stop: () => sceneManager.resizeContainer()
+                stop: () => {
+                    sceneManager.resizeContainer()
+                }
             };
 
-        $(container).resizable(config)
+        $(sceneManager.container).resizable(config)
 
         const dragConfig =
             {

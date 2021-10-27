@@ -262,8 +262,6 @@ div.navbar-brand {
     margin-left: 4px; }
 
 #spacewalk_igv_panel.card {
-  resize: both;
-  overflow: scroll;
   width: 600px;
   height: unset;
   align-items: center;
@@ -271,6 +269,7 @@ div.navbar-brand {
   #spacewalk_igv_panel.card #spacewalk_igv_container.card-body {
     height: unset; }
     #spacewalk_igv_panel.card #spacewalk_igv_container.card-body #spacewalk_igv_root_container {
+      overflow: scroll;
       width: 100%;
       height: 100%;
       border-style: solid;
@@ -397,8 +396,8 @@ div#spacewalk_info_panel {
   position: absolute;
   top: 128px;
   left: 128px;
-  width: 640px;
-  height: 640px;
+  width: 480px;
+  height: 480px;
   background-color: #888787; }
   #spacewalk-threejs-container #spacewalk-threejs-drag-container {
     position: absolute;
@@ -464,3 +463,5 @@ div#spacewalk_info_panel {
 .igv-trackgear-container {
   width: 14px !important;
   height: 14px !important; }
+
+/*# sourceMappingURL=app.css.map */

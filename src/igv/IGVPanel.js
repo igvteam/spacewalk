@@ -3,7 +3,7 @@ import { igvxhr, StringUtils } from 'igv-utils'
 import igv from './index.js'
 import { setMaterialProvider } from '../utils.js';
 import Panel from "../panel.js";
-import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, loadGenomeWithID } from "../app.js";
+import { colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, loadGenomeWithID } from "../app.js";
 
 class IGVPanel extends Panel {
 
@@ -94,6 +94,32 @@ class IGVPanel extends Panel {
         } catch (e) {
             AlertSingleton.present(e.message)
         }
+
+        const config =
+            {
+                handles: "w, sw, s, se, e",
+                autoHide: true,
+                // aspectRatio: true,
+                helper: "spacewalk-threejs-container-resizable-helper",
+                stop: async () => {
+
+                    if (this.browser) {
+
+                        let str = `all`
+
+                        if (ensembleManager.locus) {
+                            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                            str = `${ chr }:${ genomicStart }-${ genomicEnd }`
+                        }
+
+                        this.browser.resize()
+                        this.browser.search(str)
+
+                    }
+                }
+            };
+
+        this.$panel.resizable(config)
 
         if (this.browser) {
             this.configureMouseHandlers()
