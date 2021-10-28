@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-import { DOMUtils } from 'igv-utils';
+import {DOMUtils} from "igv-utils"
 
 class CursorGuideButton {
 

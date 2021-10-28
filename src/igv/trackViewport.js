@@ -2,7 +2,7 @@
  * Created by dat on 9/16/16.
  */
 
-import {Popover} from 'igv-ui'
+import {Popover, Alert} from 'igv-ui'
 import Viewport from "./viewport.js";
 import {DOMUtils, FileUtils} from "igv-utils";
 import C2S from "./canvas2svg.js"

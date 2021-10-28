@@ -24,7 +24,8 @@
  * THE SOFTWARE.
  */
 
-import {DOMUtils} from "igv-utils";
+import {DOMUtils} from 'igv-utils'
+import {lerp} from '../../math.js'
 
 class CursorGuide {
 
@@ -55,19 +56,18 @@ class CursorGuide {
             this.horizontalGuide.style.top = `${ y }px`
 
             const target = document.elementFromPoint(event.clientX, event.clientY)
-            const parent = target.parentElement
 
             let viewport = undefined;
-
-            if (parent.classList.contains('igv-viewport-content')) {
-                viewport = parent.parentElement
-            } else if (parent.classList.contains('igv-viewport') && target.classList.contains('igv-viewport-content')) {
-                viewport = parent
+            if (target.parentElement.classList.contains('igv-viewport-content')) {
+                viewport = target.parentElement.parentElement
+            } else if (target.parentElement.classList.contains('igv-viewport') && target.classList.contains('igv-viewport-content')) {
+                viewport = target.parentElement
             }
 
             if (viewport && browser.getRulerTrackView()) {
 
                 this.verticalGuide.style.left = `${ x }px`
+                // console.log(`CursorGuide mouseMoveHandler verticalGuide.style.left ${ x }`)
 
                 const columns = browser.root.querySelectorAll('.igv-column')
                 let index = undefined
@@ -79,17 +79,18 @@ class CursorGuide {
                 }
 
                 const rulerViewport = browser.getRulerTrackView().viewports[ index ]
-                rulerViewport.mouseMove(event)
+                const result = rulerViewport.mouseMove(event)
 
-                // if (result) {
-                //
-                //     const { bp, start, end, interpolant } = result;
-                //
-                //     if (this.customMouseHandler) {
-                //         this.customMouseHandler({ bp, start, end, interpolant });
-                //     }
-                //
-                // }
+                if (result) {
+
+                    const { start, bp, end } = result
+                    const interpolant = (bp - start)/(end - start)
+
+                    if (this.customMouseHandler) {
+                        this.customMouseHandler({ start, bp, end, interpolant });
+                    }
+
+                }
 
             }
 
@@ -98,6 +99,24 @@ class CursorGuide {
 
     removeMouseHandler() {
         this.columnContainer.removeEventListener('mousemove', this.boundMouseMoveHandler)
+    }
+
+    updateWithInterpolant(interpolant) {
+
+        // Column Container Viewport
+        const { x:xc } = this.columnContainer.getBoundingClientRect()
+
+        // Ruler Viewport
+        const viewport = this.browser.getRulerTrackView().viewports[ 0 ].$viewport.get(0)
+        const { x, width } = viewport.getBoundingClientRect()
+        // console.log(`CursorGuide columnContainer x ${ xc } viewport ${ x }`)
+
+        const left = x - xc
+        const pixel = Math.floor(lerp(left, width + left, interpolant))
+
+        // console.log(`CursorGuide verticalGuide.style.left ${ pixel }`)
+
+        this.verticalGuide.style.left = `${ pixel }px`
     }
 
     setVisibility (showCursorTrackingGuide) {
@@ -128,6 +147,5 @@ class CursorGuide {
     }
 
 }
-
 
 export default CursorGuide;

@@ -29,6 +29,7 @@ class IGVPanel extends Panel {
             EventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         });
 
+        EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
         EventBus.globalBus.subscribe("DidChangeMaterialProvider", this)
         EventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
         EventBus.globalBus.subscribe('DidChangeGenome', this)
@@ -39,7 +40,12 @@ class IGVPanel extends Panel {
 
         super.receiveEvent({ type, data });
 
-        if ("DidChangeGenome" === type) {
+        if ("DidUpdateGenomicInterpolant" === type) {
+            const { poster, interpolantList } = data
+            if (colorRampMaterialProvider === poster) {
+                this.browser.cursorGuide.updateWithInterpolant(interpolantList[ 0 ])
+            }
+        } else if ("DidChangeGenome" === type) {
             console.log(`IGVPanel - DidChangeGenome - genome id ${ data.genomeID }`)
         } else if ("DidChangeMaterialProvider" === type) {
 
@@ -135,12 +141,12 @@ class IGVPanel extends Panel {
             }
         })
 
-        $(this.browser.trackContainer).on(`mouseenter.${ this.namespace }`, (event) => {
+        this.browser.columnContainer.addEventListener('mouseenter', event => {
             event.stopPropagation();
             EventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
         })
 
-        $(this.browser.trackContainer).on(`mouseleave.${ this.namespace }`, (event) => {
+        this.browser.columnContainer.addEventListener('mouseleave', event => {
             event.stopPropagation();
             EventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
         })

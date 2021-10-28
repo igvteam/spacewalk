@@ -1,4 +1,3 @@
-
 import {Icon, DOMUtils, IGVMath, StringUtils} from "igv-utils";
 import TrackViewport from "./trackViewport.js";
 import RulerSweeper from "./rulerSweeper.js";
@@ -18,7 +17,7 @@ class RulerViewport extends TrackViewport {
 
         this.$viewport.get(0).dataset.rulerTrack = 'rulerTrack';
 
-        // this.rulerSweeper = new RulerSweeper(this)
+        this.rulerSweeper = new RulerSweeper(this)
 
         const viewport = this.$viewport.get(0)
 
@@ -47,21 +46,21 @@ class RulerViewport extends TrackViewport {
 
     addMouseHandlers() {
 
-        // this.addMultiLocusPanelCloseHandler(this.multiLocusPanelCloseButton)
-        //
-        // this.addRulerLableClickHandler(this.rulerLabel)
-        //
-        // if (GenomeUtils.isWholeGenomeView(this.referenceFrame.chr)) {
-        //     this.addViewportClickHandler(this.$viewport.get(0))
-        // } else {
-        //     this.removeViewportClickHandler(this.$viewport.get(0))
-        // }
+        this.addMultiLocusPanelCloseHandler(this.multiLocusPanelCloseButton)
+
+        this.addRulerLableClickHandler(this.rulerLabel)
+
+        if (GenomeUtils.isWholeGenomeView(this.referenceFrame.chr)) {
+            this.addViewportClickHandler(this.$viewport.get(0))
+        } else {
+            this.removeViewportClickHandler(this.$viewport.get(0))
+        }
     }
 
     removeMouseHandlers() {
-        // this.removeMultiLocusPanelCloseHandler(this.multiLocusPanelCloseButton)
-        // this.removeRulerLableClickHandler(this.rulerLabel)
-        // this.removeViewportClickHandler(this.$viewport.get(0))
+        this.removeMultiLocusPanelCloseHandler(this.multiLocusPanelCloseButton)
+        this.removeRulerLableClickHandler(this.rulerLabel)
+        this.removeViewportClickHandler(this.$viewport.get(0))
     }
 
     addMultiLocusPanelCloseHandler(multiLocusPanelCloseButton) {
@@ -167,13 +166,16 @@ class RulerViewport extends TrackViewport {
             const isWholeGenome = (this.browser.isMultiLocusWholeGenomeView() || GenomeUtils.isWholeGenomeView(this.referenceFrame.chr));
 
             if (isWholeGenome) {
-                this.$tooltip.hide();
-                return;
+                this.$tooltip.hide()
+                return undefined
             }
 
             const { x } = DOMUtils.translateMouseCoordinates(event, this.$viewport.get(0))
-            const { start, bpPerPixel } = this.referenceFrame
+            const { start, bpPerPixel, end } = this.referenceFrame
             const bp = Math.round(0.5 + start + Math.max(0, x) * bpPerPixel)
+
+            // const derivedPixel = this.referenceFrame.toPixels(bp - this.referenceFrame.start)
+            // console.log(`pixel ${ x } derivedPixel ${ derivedPixel }`)
 
             this.$tooltipContent.text( StringUtils.numberFormatter(bp) )
 
@@ -190,6 +192,8 @@ class RulerViewport extends TrackViewport {
                 }
             }, toolTipTimeout)
 
+            return { start, bp, end }
+
         }
 
     }
@@ -198,7 +202,7 @@ class RulerViewport extends TrackViewport {
     stopSpinner() {}
 
     dispose() {
-        // this.rulerSweeper.dispose()
+        this.rulerSweeper.dispose()
         super.dispose()
     }
 }

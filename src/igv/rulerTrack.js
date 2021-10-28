@@ -23,8 +23,8 @@
  * THE SOFTWARE.
  */
 
+import {IGVColor, StringUtils} from "igv-utils"
 import IGVGraphics from "./igv-canvas.js";
-import {IGVColor, StringUtils} from "igv-utils";
 import GenomeUtils from "./genome/genome.js";
 
 const numberFormatter = StringUtils.numberFormatter;
