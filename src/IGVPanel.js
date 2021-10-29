@@ -1,9 +1,9 @@
 import { EventBus, AlertSingleton } from 'igv-widgets'
 import { igvxhr, StringUtils } from 'igv-utils'
-import igv from './index.js'
-import { setMaterialProvider } from '../utils.js';
-import Panel from "../panel.js";
-import { colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, loadGenomeWithID } from "../app.js";
+import igv from './igv'
+import { setMaterialProvider } from './utils.js';
+import Panel from "./panel.js";
+import { colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, loadGenomeWithID } from "./app.js";
 
 class IGVPanel extends Panel {
 

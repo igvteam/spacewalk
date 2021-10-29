@@ -1,8 +1,8 @@
 import { EventBus, AlertSingleton } from 'igv-widgets'
 import { StringUtils } from 'igv-utils'
-import hic from './index.js'
-import Panel from '../panel.js'
-import { ensembleManager } from '../app.js'
+import hic from './juicebox'
+import Panel from './panel.js'
+import { ensembleManager } from './app.js'
 
 class JuiceboxPanel extends Panel {
 
