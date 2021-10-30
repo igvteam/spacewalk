@@ -1,8 +1,8 @@
 import { EventBus, AlertSingleton } from 'igv-widgets'
-import { StringUtils } from 'igv-utils'
 import hic from './juicebox'
 import Panel from './panel.js'
 import { ensembleManager } from './app.js'
+import {Globals} from './juicebox/globals.js';
 
 class JuiceboxPanel extends Panel {
 
@@ -29,26 +29,29 @@ class JuiceboxPanel extends Panel {
         });
 
         EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
-        EventBus.globalBus.subscribe('DidChangeGenome', this)
     }
 
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });
 
-        if ("DidChangeGenome" === type) {
-            console.log(`JuiceboxPanel - DidChangeGenome - genome id ${ data.genomeID }`)
-        } else if ('DidLoadEnsembleFile' === type) {
+        if ('DidLoadEnsembleFile' === type) {
 
             const { genomeAssembly, chr, genomicStart, genomicEnd } = data
 
             console.log(`JuiceboxPanel - DidLoadEnsembleFile - genome id ${ genomeAssembly }`)
 
-            if (this.browser.genome && genomeAssembly !== this.browser.genome.id) {
-                this.browser.reset()
-            } else {
-                this.goto({ chr, start: genomicStart, end: genomicEnd })
+            // if (Globals.currentBrowser.genome && genomeAssembly !== Globals.currentBrowser.genome.id) {
+            //     Globals.currentBrowser.reset()
+            // } else {
+            //     this.goto({ chr, start: genomicStart, end: genomicEnd })
+            // }
+
+            if (Globals.currentBrowser.genome && genomeAssembly !== Globals.currentBrowser.genome.id) {
+                alert(`Juicebox assemply ${ Globals.currentBrowser.genome.id } differs from Ensemble assembly ${ genomeAssembly }`)
             }
+
+            this.goto({ chr, start: genomicStart, end: genomicEnd })
 
         } else if ('DidHideCrosshairs' === type) {
             EventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
@@ -72,14 +75,12 @@ class JuiceboxPanel extends Panel {
                 await hic.init(container, { width, height, queryParametersSupported: false })
             }
 
-            this.browser = hic.getCurrentBrowser()
-
         } catch (error) {
             console.warn(error.message)
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
         }
 
-        if (this.browser) {
+        if (Globals.currentBrowser) {
             this.configureMouseHandlers()
         }
 
@@ -87,19 +88,19 @@ class JuiceboxPanel extends Panel {
 
     configureMouseHandlers() {
 
-        this.browser.eventBus.subscribe('DidHideCrosshairs', this)
+        Globals.currentBrowser.eventBus.subscribe('DidHideCrosshairs', this)
 
-        this.browser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }`, (event) => {
+        Globals.currentBrowser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation()
             EventBus.globalBus.post({ type: 'DidEnterGUI', data: this })
         })
 
-        this.browser.contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }`, (event) => {
+        Globals.currentBrowser.contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
             EventBus.globalBus.post({ type: 'DidLeaveGUI', data: this })
         })
 
-        this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+        Globals.currentBrowser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
         })
 
@@ -111,7 +112,7 @@ class JuiceboxPanel extends Panel {
 
         if (this.isContactMapLoaded()) {
             try {
-                await this.browser.parseGotoInput(this.locus);
+                await Globals.currentBrowser.parseGotoInput(this.locus);
             } catch (error) {
                 console.warn(error.message);
             }
@@ -122,7 +123,7 @@ class JuiceboxPanel extends Panel {
     async selectLoad(path, name) {
 
         try {
-            await this.browser.loadHicFile({ url: path, name, isControl: false });
+            await Globals.currentBrowser.loadHicFile({ url: path, name, isControl: false });
             $('#spacewalk_info_panel_juicebox').text( this.blurb() );
         } catch (error) {
             console.warn(error.message);
@@ -131,7 +132,7 @@ class JuiceboxPanel extends Panel {
         this.present();
 
         try {
-            await this.browser.parseGotoInput(this.locus);
+            await Globals.currentBrowser.parseGotoInput(this.locus);
         } catch (e) {
             console.warn(e.message);
         }
@@ -140,7 +141,6 @@ class JuiceboxPanel extends Panel {
 
     async loadHicFile(url, name, mapType) {
 
-        const browser = hic.getCurrentBrowser()
         try {
             const isControl = ('control-map' === mapType)
 
@@ -149,8 +149,8 @@ class JuiceboxPanel extends Panel {
             if (isControl) {
                 // do nothing
             } else {
-                browser.reset()
-                await browser.loadHicFile(config)
+                Globals.currentBrowser.reset()
+                await Globals.currentBrowser.loadHicFile(config)
             }
 
             $('#spacewalk_info_panel_juicebox').text( this.blurb() )
@@ -160,9 +160,9 @@ class JuiceboxPanel extends Panel {
         }
 
         try {
-            await browser.parseGotoInput(this.locus)
+            await Globals.currentBrowser.parseGotoInput(this.locus)
             this.present()
-            EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: browser.genome.id }})
+            EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: Globals.currentBrowser.genome.id }})
 
         } catch (e) {
             console.warn(e.message)
@@ -172,15 +172,15 @@ class JuiceboxPanel extends Panel {
     }
 
     blurb() {
-        return `${ this.browser.$contactMaplabel.text() }`
+        return `${ Globals.currentBrowser.$contactMaplabel.text() }`
     }
 
     isContactMapLoaded() {
-        return (this.browser && this.browser.dataset);
+        return (Globals.currentBrowser && Globals.currentBrowser.dataset);
     }
 
     toJSON() {
-        return this.browser.toJSON()
+        return Globals.currentBrowser.toJSON()
     }
 
 

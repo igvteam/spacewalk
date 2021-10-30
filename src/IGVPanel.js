@@ -32,8 +32,6 @@ class IGVPanel extends Panel {
         EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
         EventBus.globalBus.subscribe("DidChangeMaterialProvider", this)
         EventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
-        EventBus.globalBus.subscribe('DidChangeGenome', this)
-
     }
 
     receiveEvent({ type, data }) {
@@ -45,8 +43,6 @@ class IGVPanel extends Panel {
             if (colorRampMaterialProvider === poster) {
                 this.browser.cursorGuide.updateWithInterpolant(interpolantList[ 0 ])
             }
-        } else if ("DidChangeGenome" === type) {
-            console.log(`IGVPanel - DidChangeGenome - genome id ${ data.genomeID }`)
         } else if ("DidChangeMaterialProvider" === type) {
 
             this.materialProvider = data;

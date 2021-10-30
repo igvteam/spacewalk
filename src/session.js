@@ -31,7 +31,6 @@ async function loadIGVSession(session) {
 
 async function loadJuiceboxSession(session) {
     await hic.restoreSession($('#spacewalk_juicebox_root_container').get(0), session)
-    juiceboxPanel.browser = hic.getCurrentBrowser()
     juiceboxPanel.configureMouseHandlers()
 }
 

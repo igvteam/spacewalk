@@ -53,9 +53,9 @@ async function restoreSession(container, session) {
 
     await createBrowserList(container, session);
 
-    if (false !== session.syncDatasets) {
-        syncBrowsers();
-    }
+    // if (false !== session.syncDatasets) {
+    //     syncBrowsers();
+    // }
 
 }
 
