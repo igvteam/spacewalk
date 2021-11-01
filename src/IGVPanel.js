@@ -165,7 +165,7 @@ class IGVPanel extends Panel {
 
         })
 
-        this.addDataValueMaterialProviderGUI(this.browser.trackViews.map(trackView => trackView.track))
+        this.addDataValueMaterialProviderGUI(this.browser.trackViews.map(({ track } ) => track))
 
     }
 
@@ -195,46 +195,48 @@ class IGVPanel extends Panel {
 
     addDataValueMaterialProviderGUI(tracks) {
 
-        const dataValueTracks = tracks.filter(track => track.type !== 'ruler' && track.type !== 'sequence' && track.name !== 'Refseq Genes');
+        const dataValueTracks = getDataValueTracks(tracks)
 
-        for (let track of dataValueTracks) {
+        if (dataValueTracks) {
 
-            if (track.getFeatures && typeof track.getFeatures === "function") {
-                track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
+            for (let track of dataValueTracks) {
+
+                if (track.getFeatures && typeof track.getFeatures === "function") {
+                    track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
+                }
+
+                if (track.featureDescription) {
+
+                    console.log('unhide input')
+
+                    // const { trackDiv } = track.trackView
+                    //
+                    // const $leftHandGutter = $(trackDiv).find('.igv-left-hand-gutter')
+                    //
+                    // $leftHandGutter.css({ position:'relative' })
+                    //
+                    // const $canvas = $leftHandGutter.find('canvas')
+                    // $canvas.css({ position:'absolute', top:0, left:0 })
+                    //
+                    // const $input_div = $('<div>')
+                    // $leftHandGutter.append($input_div)
+                    // $input_div.css({ position:'absolute', top:0, left:0, 'background-color': 'transparent', 'z-index': 4096 })
+                    //
+                    // const $input = $('<input>', { type: 'checkbox' })
+                    // $input_div.append($input)
+                    //
+                    // track.$input = $input
+                    //
+                    // $input.on(`click.${ this.namespace }`, async (e) => {
+                    //     e.stopPropagation()
+                    //     this.materialProvider = await getMaterialProvider(track)
+                    //     setMaterialProvider(this.materialProvider)
+                    // })
+
+                }
             }
 
-            if (track.featureDescription) {
-                this.configureMaterialProviderWidget(track)
-            }
         }
-    }
-
-    configureMaterialProviderWidget(track) {
-
-        const { trackDiv } = track.trackView
-
-        const $leftHandGutter = $(trackDiv).find('.igv-left-hand-gutter')
-
-        $leftHandGutter.css({ position:'relative' })
-
-        const $canvas = $leftHandGutter.find('canvas')
-        $canvas.css({ position:'absolute', top:0, left:0 })
-
-        const $input_div = $('<div>')
-        $leftHandGutter.append($input_div)
-        $input_div.css({ position:'absolute', top:0, left:0, 'background-color': 'transparent', 'z-index': 4096 })
-
-        const $input = $('<input>', { type: 'checkbox' })
-        $input_div.append($input)
-
-        track.$input = $input
-
-        $input.on(`click.${ this.namespace }`, async (e) => {
-            e.stopPropagation()
-            this.materialProvider = await getMaterialProvider(track)
-            setMaterialProvider(this.materialProvider)
-        })
-
 
     }
 
@@ -259,6 +261,18 @@ class IGVPanel extends Panel {
         const track = list[ 0 ]
         track.$input.trigger('click.igv-panel-material-provider')
     }
+}
+
+function getDataValueTracks(tracks) {
+
+    const result = tracks.filter(track => track.type !== 'ideogram' && track.type !== 'ruler' && track.type !== 'sequence' && track.name !== 'Refseq Genes')
+
+    if (result.length > 0) {
+        return result
+    } else {
+        return undefined
+    }
+
 }
 
 const getMaterialProvider = async track => {

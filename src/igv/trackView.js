@@ -93,25 +93,33 @@ class TrackView {
 
     createAxis(browser, track) {
 
-        const axis = DOMUtils.div();
+        const axis = DOMUtils.div()
+
         browser.columnContainer.querySelector('.igv-axis-column').appendChild(axis);
 
         axis.style.height = `${track.height}px`;
 
         if (typeof track.paintAxis === 'function') {
-            if (track.dataRange) {
-                axis.addEventListener('click', () => {
-                    browser.dataRangeDialog.configure(this);
-                    browser.dataRangeDialog.present($(browser.columnContainer));
-                })
-            }
+
+            // if (track.dataRange) {
+            //     axis.addEventListener('click', () => {
+            //         browser.dataRangeDialog.configure(this);
+            //         browser.dataRangeDialog.present($(browser.columnContainer));
+            //     })
+            // }
 
 
             const {width, height} = axis.getBoundingClientRect();
+
             this.axisCanvas = document.createElement('canvas');
             this.axisCanvas.style.width = `${width}px`;
             this.axisCanvas.style.height = `${height}px`;
             axis.appendChild(this.axisCanvas);
+
+            const input = document.createElement('input')
+            input.setAttribute('type', 'checkbox')
+            axis.appendChild(input)
+
         }
 
         return axis

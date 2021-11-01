@@ -5,7 +5,6 @@ import DataRangeDialog from "./ui/dataRangeDialog.js";
 import IGVGraphics from "./igv-canvas.js";
 import {createBrowser, createTrack, removeAllBrowsers, removeBrowser, visibilityChange} from './igv-create.js';
 import {doAutoscale} from "./util/igvUtils.js";
-import embedCss from "./embedCss.js";
 import version from "./version.js"
 import TrackView from "./trackView.js"
 import {igvxhr, oauth} from "igv-utils"
@@ -24,10 +23,7 @@ import {
     randomRGBConstantAlpha
 } from './util/colorPalletes.js'
 
-
 const setApiKey = igvxhr.setApiKey;
-
-embedCss();
 
 function setGoogleOauthToken(accessToken) {
     return oauth.setToken(accessToken);
