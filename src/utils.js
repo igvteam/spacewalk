@@ -1,5 +1,48 @@
-import { ribbon, ballAndStick, ensembleManager } from "./app.js";
+import {ribbon, ballAndStick, ensembleManager, dataValueMaterialProvider, colorRampMaterialProvider} from "./app.js";
 import {lerp} from "./math.js";
+import {StringUtils} from 'igv-utils';
+
+
+async function getMaterialProvider (track) {
+
+    // unselect other track's checkboxes
+    for (let trackView of track.browser.trackViews) {
+        if (trackView.track !== track && trackView.materialProviderInput) {
+            $(trackView.materialProviderInput).prop('checked', false)
+        }
+    }
+
+    if ($(track.trackView.materialProviderInput).is(':checked')) {
+
+        const { chr, start, end, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
+
+        // If "zoom in" notice is displayed do not paint features on trace
+        if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
+            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
+        } else {
+
+            const features = await track.getFeatures(chr, start, end, bpPerPixel);
+
+            const { min, max } = track.trackView.dataRange()
+            console.log(`wig track features. ${ bpPerPixel } start ${ StringUtils.numberFormatter(start) } end ${ StringUtils.numberFormatter(end) } min ${ min } max ${ max }`);
+            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+
+            // if ('varying' === track.featureDescription) {
+            //     const { min, max } = track.dataRange;
+            //     console.log(`wig track features. ${ bpPerPixel } start ${ StringUtils.numberFormatter(start) } end ${ StringUtils.numberFormatter(end) } min ${ min } max ${ max }`);
+            //     dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+            // } else {
+            //     dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+            // }
+
+        }
+
+        return dataValueMaterialProvider
+    } else {
+        return colorRampMaterialProvider
+    }
+
+}
 
 const setMaterialProvider = materialProvider => {
     ribbon.updateMaterialProvider(materialProvider);
@@ -106,6 +149,7 @@ const generateRadiusTable = defaultRadius => {
 };
 
 export {
+    getMaterialProvider,
     setMaterialProvider,
     createImage,
     drawWithSharedUint8ClampedArray,

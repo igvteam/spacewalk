@@ -165,8 +165,6 @@ class IGVPanel extends Panel {
 
         })
 
-        this.addDataValueMaterialProviderGUI(this.browser.trackViews.map(({ track } ) => track))
-
     }
 
     async loadTrackList(configurations) {
@@ -178,66 +176,15 @@ class IGVPanel extends Panel {
             AlertSingleton.present(e.message);
         }
 
-        for (let track of tracks) {
-            track.trackView.setTrackLabelName(track.trackView, track.config.name);
+        for (let { trackView, config } of tracks) {
+            trackView.setTrackLabelName(trackView, config.name);
         }
 
-        this.addDataValueMaterialProviderGUI(tracks);
-
-        this.present();
-
-
+        this.present()
     }
 
     loadTrack(trackConfiguration) {
         this.loadTrackList([trackConfiguration]);
-    }
-
-    addDataValueMaterialProviderGUI(tracks) {
-
-        const dataValueTracks = getDataValueTracks(tracks)
-
-        if (dataValueTracks) {
-
-            for (let track of dataValueTracks) {
-
-                if (track.getFeatures && typeof track.getFeatures === "function") {
-                    track.featureDescription = ('wig' === track.type) ? 'varying' : 'constant';
-                }
-
-                if (track.featureDescription) {
-
-                    console.log('unhide input')
-
-                    // const { trackDiv } = track.trackView
-                    //
-                    // const $leftHandGutter = $(trackDiv).find('.igv-left-hand-gutter')
-                    //
-                    // $leftHandGutter.css({ position:'relative' })
-                    //
-                    // const $canvas = $leftHandGutter.find('canvas')
-                    // $canvas.css({ position:'absolute', top:0, left:0 })
-                    //
-                    // const $input_div = $('<div>')
-                    // $leftHandGutter.append($input_div)
-                    // $input_div.css({ position:'absolute', top:0, left:0, 'background-color': 'transparent', 'z-index': 4096 })
-                    //
-                    // const $input = $('<input>', { type: 'checkbox' })
-                    // $input_div.append($input)
-                    //
-                    // track.$input = $input
-                    //
-                    // $input.on(`click.${ this.namespace }`, async (e) => {
-                    //     e.stopPropagation()
-                    //     this.materialProvider = await getMaterialProvider(track)
-                    //     setMaterialProvider(this.materialProvider)
-                    // })
-
-                }
-            }
-
-        }
-
     }
 
     toJSON() {
@@ -261,58 +208,6 @@ class IGVPanel extends Panel {
         const track = list[ 0 ]
         track.$input.trigger('click.igv-panel-material-provider')
     }
-}
-
-function getDataValueTracks(tracks) {
-
-    const result = tracks.filter(track => track.type !== 'ideogram' && track.type !== 'ruler' && track.type !== 'sequence' && track.name !== 'Refseq Genes')
-
-    if (result.length > 0) {
-        return result
-    } else {
-        return undefined
-    }
-
-}
-
-const getMaterialProvider = async track => {
-
-    // unselect other track's checkboxes
-    for (let { track:otherTrack } of track.browser.trackViews) {
-        if (otherTrack !== track && otherTrack.$input) {
-            otherTrack.$input.prop('checked', false)
-        }
-    }
-
-    if (track.$input.is(':checked')) {
-
-        const { chr, start, initialEnd:end, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
-
-        // If "zoom in" notice is displayed do not paint features on trace
-        if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
-
-            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
-
-        } else {
-
-            const features = await track.getFeatures(chr, start, end, bpPerPixel);
-
-            if ('varying' === track.featureDescription) {
-                const { min, max } = track.dataRange;
-                console.log(`wig track features. ${ bpPerPixel } start ${ StringUtils.numberFormatter(start) } end ${ StringUtils.numberFormatter(end) } min ${ min } max ${ max }`);
-                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
-
-            } else {
-                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
-            }
-
-        }
-
-        return dataValueMaterialProvider
-    } else {
-        return colorRampMaterialProvider
-    }
-
 }
 
 export default IGVPanel

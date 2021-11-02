@@ -29,6 +29,8 @@ import SampleNameViewport from './sampleNameViewport.js';
 import MenuPopup from "./ui/menuPopup.js";
 import MenuUtils from "./ui/menuUtils.js";
 import {createViewport} from "./util/igvUtils.js";
+import {getMaterialProvider, setMaterialProvider} from "../utils.js";
+import {igvPanel} from "../app.js";
 
 const scrollbarExclusionTypes = new Set(['ruler', 'sequence', 'ideogram'])
 const colorPickerExclusionTypes = new Set(['ruler', 'sequence', 'ideogram'])
@@ -119,6 +121,15 @@ class TrackView {
             const input = document.createElement('input')
             input.setAttribute('type', 'checkbox')
             axis.appendChild(input)
+
+            input.addEventListener('click', async e => {
+                e.stopPropagation()
+                igvPanel.materialProvider = await getMaterialProvider(track)
+                setMaterialProvider(igvPanel.materialProvider)
+
+            })
+
+            this.materialProviderInput = input
 
         }
 
