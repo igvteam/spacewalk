@@ -107,7 +107,7 @@ const initializationHelper = async container => {
     colorMapManager = new ColorMapManager();
     await colorMapManager.configure();
 
-    dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
+    dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
 
     const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
@@ -158,8 +158,6 @@ function render () {
     pointCloud.renderLoopHelper()
 
     ribbon.renderLoopHelper()
-
-    dataValueMaterialProvider.renderLoopHelper()
 
     colorRampMaterialProvider.renderLoopHelper()
 
