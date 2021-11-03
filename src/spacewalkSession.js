@@ -19,7 +19,10 @@ async function loadSession(json) {
 
     await loadIGVSession(json.igv)
 
-    await loadJuiceboxSession(json.juicebox)
+    if (json.juicebox) {
+        await loadJuiceboxSession(json.juicebox)
+    }
+
 
     await loadSpacewalkSession(json.spacewalk)
 }
@@ -142,11 +145,17 @@ function toJSON () {
     const igv = igvPanel.browser.toJSON()
 
     const juicebox = hic.toJSON()
-
+    
     return { spacewalk, igv, juicebox }
 
-}
+    // if (hic.Globals.currentBrowser && hic.Globals.currentBrowser.dataset ) {
+    //     const juicebox = hic.toJSON()
+    //     return { spacewalk, igv, juicebox }
+    // } else {
+    //     return { spacewalk, igv }
+    // }
 
+}
 
 function uncompressSession(url) {
 

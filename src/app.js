@@ -21,7 +21,7 @@ import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { getUrlParams, getShareURL, loadSessionURL, toJSON, loadSession } from "./session.js";
+import { getUrlParams, getShareURL, loadSessionURL, toJSON, loadSession } from "./spacewalkSession.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'

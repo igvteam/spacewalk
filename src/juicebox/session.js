@@ -5,29 +5,36 @@ import { createBrowserList } from "./hicBrowserLifecycle.js"
 
 
 function toJSON() {
-    const jsonOBJ = {};
     const browserJson = [];
     for (let browser of getAllBrowsers()) {
-        browserJson.push(browser.toJSON());
-    }
-    jsonOBJ.browsers = browserJson;
-
-    if (Globals.selectedGene) {
-        jsonOBJ["selectedGene"] = Globals.selectedGene;
-    }
-
-    const captionDiv = document.getElementById('hic-caption');
-    if (captionDiv) {
-        var captionText = captionDiv.textContent;
-        if (captionText) {
-            captionText = captionText.trim();
-            if (captionText) {
-                jsonOBJ.caption = captionText;
-            }
+        if (browser.dataset) {
+            browserJson.push(browser.toJSON());
         }
     }
 
-    return jsonOBJ;
+    if (0 === browserJson.length) {
+        return undefined
+    } else {
+        const jsonOBJ = {};
+        jsonOBJ.browsers = browserJson;
+
+        if (Globals.selectedGene) {
+            jsonOBJ["selectedGene"] = Globals.selectedGene;
+        }
+
+        const captionDiv = document.getElementById('hic-caption');
+        if (captionDiv) {
+            var captionText = captionDiv.textContent;
+            if (captionText) {
+                captionText = captionText.trim();
+                if (captionText) {
+                    jsonOBJ.caption = captionText;
+                }
+            }
+        }
+
+        return jsonOBJ;
+    }
 }
 
 function compressedSession() {
