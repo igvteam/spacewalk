@@ -167,7 +167,7 @@ const select_modal =
                                 <option value="https://www.dropbox.com/s/7wfnkgd7kej4aub/IMR90_chr21-18-20Mb.sw?dl=0">IMR90 chr21:18-20</option>
                                 <option value="https://www.dropbox.com/s/wyhuv5frqo0q5gb/IMR90_chr21-28-30Mb.sw?dl=0">IMR90 chr21:28-30</option>
                                 <option value="https://www.dropbox.com/s/fkqk2mtl20inicl/K562_chr21-28-30Mb.sw?dl=0">K562 chr21:28-30</option>
-                                <option value="https://www.dropbox.com/s/dzsmcn8yu9zrv2q/Nir%20et%20al.bed?dl=0">Nir et al</option>
+<!--                                <option value="https://www.dropbox.com/s/dzsmcn8yu9zrv2q/Nir%20et%20al.bed?dl=0">Nir et al</option>-->
                             </select>
                         </div>
                     </div>
