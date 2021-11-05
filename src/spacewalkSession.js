@@ -17,19 +17,24 @@ const loadSessionURL = async spacewalkSessionURL => {
 
 async function loadSession(json) {
 
-    await loadIGVSession(json.igv)
+    await loadSpacewalkSession(json.spacewalk)
 
     if (json.juicebox) {
         await loadJuiceboxSession(json.juicebox)
     }
 
-
-    await loadSpacewalkSession(json.spacewalk)
+    await loadIGVSession(json.spacewalk, json.igv)
 }
 
-async function loadIGVSession(session) {
-    await igvPanel.browser.loadSession(session)
+async function loadIGVSession(spacewalk, igv) {
+
+    await igvPanel.browser.loadSession(igv)
     igvPanel.configureMouseHandlers()
+
+    if ('none' !== spacewalk.igvPanelState) {
+        await igvPanel.restoreSessionState(spacewalk.igvPanelState);
+    }
+
 }
 
 async function loadJuiceboxSession(session) {
@@ -59,10 +64,6 @@ async function loadSpacewalkSession (session) {
 
     // TODO: Figure out how do deal with background shader
     // sceneManager.setBackgroundState(sceneBackground);
-
-    if ('none' !== igvPanelState) {
-        await igvPanel.restoreSessionState(igvPanelState);
-    }
 
 }
 
@@ -145,7 +146,7 @@ function toJSON () {
     const igv = igvPanel.browser.toJSON()
 
     const juicebox = hic.toJSON()
-    
+
     return { spacewalk, igv, juicebox }
 
     // if (hic.Globals.currentBrowser && hic.Globals.currentBrowser.dataset ) {

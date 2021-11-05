@@ -162,8 +162,6 @@ class JuiceboxPanel extends Panel {
         try {
             await Globals.currentBrowser.parseGotoInput(this.locus)
             this.present()
-            EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: Globals.currentBrowser.genome.id }})
-
         } catch (e) {
             console.warn(e.message)
             AlertSingleton.present(`Error navigating to locus ${ e.message }`)

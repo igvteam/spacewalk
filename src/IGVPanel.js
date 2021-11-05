@@ -3,7 +3,8 @@ import { igvxhr, StringUtils } from 'igv-utils'
 import igv from './igv'
 import { setMaterialProvider } from './utils.js';
 import Panel from "./panel.js";
-import { colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, loadGenomeWithID } from "./app.js";
+import { colorRampMaterialProvider, ensembleManager } from "./app.js";
+import { spacewalkConfig } from "./spacewalk-config.js";
 
 class IGVPanel extends Panel {
 
@@ -52,6 +53,8 @@ class IGVPanel extends Panel {
 
         } else if ("DidLoadEnsembleFile" === type) {
 
+            return
+
             (async () => {
 
                 const { genomeAssembly, chr, genomicStart: start, genomicEnd: end } = data;
@@ -59,7 +62,7 @@ class IGVPanel extends Panel {
                 console.log(`IGVPanel - DidLoadEnsembleFile - genome id ${ genomeAssembly }`)
 
                 try {
-                    await loadGenomeWithID(this.browser, genomeAssembly);
+                    await loadGenomeWithID(this.browser, spacewalkConfig.genomes, genomeAssembly);
                 } catch (e) {
                     AlertSingleton.present(e.message);
                 }
@@ -131,7 +134,7 @@ class IGVPanel extends Panel {
     configureMouseHandlers () {
 
         this.browser.on('trackremoved', track => {
-            if (track.$input && track.$input.prop('checked')) {
+            if (track.trackView.materialProviderInput && $(track.trackView.materialProviderInput).prop('checked')) {
                 this.materialProvider = colorRampMaterialProvider
                 setMaterialProvider(this.materialProvider)
             }
@@ -193,9 +196,9 @@ class IGVPanel extends Panel {
 
     getSessionState() {
 
-        for (let track of this.browser.trackViews.map(({ track } ) => track)) {
-            if (track.$input && track.$input.prop('checked')) {
-                return track.name
+        for (let trackView of this.browser.trackViews) {
+            if (trackView.track.materialProviderInput && $(trackView.track.materialProviderInput).prop('checked')) {
+                return trackView.track.name
             }
         }
 
@@ -203,11 +206,49 @@ class IGVPanel extends Panel {
     }
 
     async restoreSessionState(state) {
+
         const { trackViews } = this.browser
-        const list = trackViews.map(({ track }) => track).filter(track => state === track.name)
-        const track = list[ 0 ]
-        track.$input.trigger('click.igv-panel-material-provider')
+        const [ track ] = trackViews.map(({ track }) => track).filter(track => state === track.name)
+
+        $(track.trackView.materialProviderInput).trigger('click.igv-panel-material-provider')
     }
+}
+
+let genomeDictionary = undefined
+
+async function loadGenomeWithID(browser, genomes, genomeID) {
+
+    if (undefined === genomeDictionary) {
+
+        let genomeList = undefined;
+        try {
+            genomeList = await igvxhr.loadJson(genomes, {})
+        } catch (e) {
+            AlertSingleton.present(e.message)
+        }
+
+        genomeDictionary = {}
+        for (let genome of genomeList) {
+            genomeDictionary[ genome.id ] = genome;
+        }
+
+    }
+
+    // if (genomeID !== browser.genome.id) {
+
+        browser.removeAllTracks()
+
+        const json = genomeDictionary[ genomeID ];
+
+        let g = undefined;
+        try {
+            g = await browser.loadGenome(json);
+        } catch (e) {
+            AlertSingleton.present(e.message);
+        }
+
+    // }
+
 }
 
 export default IGVPanel

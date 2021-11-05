@@ -28,6 +28,7 @@ import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
+import { spacewalkConfig } from "./spacewalk-config.js";
 
 let stats
 let gui
@@ -288,46 +289,6 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
 };
 
-let genomeDictionary = undefined
-async function loadGenomeWithID(browser, genomeID) {
-
-    if (undefined === genomeDictionary) {
-
-        let genomeList = undefined;
-        try {
-            genomeList = await igvxhr.loadJson(spacewalkConfig.genomes, {})
-        } catch (e) {
-            AlertSingleton.present(e.message)
-        }
-
-        genomeDictionary = {}
-        for (let genome of genomeList) {
-            genomeDictionary[ genome.id ] = genome;
-        }
-
-    }
-
-    if (genomeID !== browser.genome.id) {
-
-        browser.removeAllTracks()
-
-        const json = genomeDictionary[ genomeID ];
-
-        let g = undefined;
-        try {
-            g = await browser.loadGenome(json);
-        } catch (e) {
-            AlertSingleton.present(e.message);
-        }
-
-        if (g) {
-            EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID }})
-        }
-
-    }
-
-}
-
 const createShareWidgets = ($container, $share_button, share_modal_id) => {
 
     const modal =
@@ -457,4 +418,4 @@ const hideSpinner = () => {
     console.log('hide spinner');
 };
 
-export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel, appendAndConfigureLoadURLModal, loadGenomeWithID };
+export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel, appendAndConfigureLoadURLModal };
