@@ -17,7 +17,8 @@ class SpacewalkEventBus {
     }
 
     unsubscribe(eventType, object) {
-
+        const current = [...subscribers[ eventType ]]
+        subscribers[ eventType ] = current.filter(candidate => candidate !== object)
     }
 
     post (event) {

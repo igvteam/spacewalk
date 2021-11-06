@@ -4,6 +4,7 @@ import hic from './juicebox/index.js'
 import Panel from './panel.js'
 import {parser, igvPanel, juiceboxPanel, ensembleManager, sceneManager} from './app.js'
 import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
@@ -43,6 +44,10 @@ async function loadJuiceboxSession(session) {
 }
 
 async function loadSpacewalkSession (session) {
+
+    SpacewalkEventBus.globalBus.unsubscribe('DidLoadEnsembleFile', igvPanel)
+    SpacewalkEventBus.globalBus.unsubscribe('DidLoadEnsembleFile', juiceboxPanel)
+
     const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, sceneBackground } = session
 
     await parser.loadSessionTrace({ url, traceKey });
@@ -64,6 +69,9 @@ async function loadSpacewalkSession (session) {
 
     // TODO: Figure out how do deal with background shader
     // sceneManager.setBackgroundState(sceneBackground);
+
+    SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', igvPanel)
+    SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', juiceboxPanel)
 
 }
 

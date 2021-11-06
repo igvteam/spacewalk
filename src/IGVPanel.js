@@ -196,7 +196,7 @@ class IGVPanel extends Panel {
     getSessionState() {
 
         for (let trackView of this.browser.trackViews) {
-            if (trackView.track.materialProviderInput && $(trackView.track.materialProviderInput).prop('checked')) {
+            if (trackView.materialProviderInput && $(trackView.materialProviderInput).prop('checked')) {
                 return trackView.track.name
             }
         }
