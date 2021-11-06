@@ -1,8 +1,8 @@
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
-
-import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from 'igv-widgets'
+import { AlertSingleton, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from 'igv-widgets'
 import {GoogleAuth, igvxhr, StringUtils} from 'igv-utils'
+import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
@@ -271,7 +271,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
         spacewalkConfig.trackRegistryFile,
         (configurations) => igvPanel.loadTrackList(configurations))
 
-    EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
+    SpacewalkEventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
 
     Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
@@ -283,7 +283,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
         if (false === status) {
             let { width, height } = container.getBoundingClientRect();
-            EventBus.globalBus.post({ type: 'AppWindowDidResize', data: { width, height } });
+            SpacewalkEventBus.globalBus.post({ type: 'AppWindowDidResize', data: { width, height } });
         }
     });
 

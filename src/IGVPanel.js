@@ -1,6 +1,7 @@
-import { EventBus, AlertSingleton } from 'igv-widgets'
+import { AlertSingleton } from 'igv-widgets'
 import { igvxhr, StringUtils } from 'igv-utils'
 import igv from './igv'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import { setMaterialProvider } from './utils.js';
 import Panel from "./panel.js";
 import { colorRampMaterialProvider, ensembleManager } from "./app.js";
@@ -22,17 +23,17 @@ class IGVPanel extends Panel {
 
         this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
+            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
         });
 
         this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         });
 
-        EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
-        EventBus.globalBus.subscribe("DidChangeMaterialProvider", this)
-        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
+        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
+        SpacewalkEventBus.globalBus.subscribe("DidChangeMaterialProvider", this)
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
     }
 
     receiveEvent({ type, data }) {
@@ -52,8 +53,6 @@ class IGVPanel extends Panel {
             $(trackContainer).find('.input-group input').prop('checked', false);
 
         } else if ("DidLoadEnsembleFile" === type) {
-
-            return
 
             (async () => {
 
@@ -142,12 +141,12 @@ class IGVPanel extends Panel {
 
         this.browser.columnContainer.addEventListener('mouseenter', event => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
+            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
         })
 
         this.browser.columnContainer.addEventListener('mouseleave', event => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
         })
 
         this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
@@ -164,7 +163,7 @@ class IGVPanel extends Panel {
                 return;
             }
 
-            EventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList: [ interpolant ] } });
+            SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList: [ interpolant ] } });
 
         })
 

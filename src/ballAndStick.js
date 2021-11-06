@@ -1,4 +1,4 @@
-import { EventBus } from 'igv-widgets'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
 import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { StringUtils } from 'igv-utils'
@@ -23,7 +23,7 @@ class BallAndStick {
 
         this.pickHighlighter = pickHighlighter;
 
-        EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
+        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
      }
 
     receiveEvent({ type, data }) {

@@ -1,4 +1,4 @@
-import { EventBus } from 'igv-widgets'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three"
 import { Line2 } from "three/examples/jsm/lines/Line2.js"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
@@ -14,8 +14,8 @@ const beadRadiusScalefactor = 1/(6e1)
 class Ribbon {
 
     constructor() {
-        EventBus.globalBus.subscribe('DidUpdateGenomicInterpolant', this)
-        EventBus.globalBus.subscribe('DidLeaveGenomicNavigator', this)
+        SpacewalkEventBus.globalBus.subscribe('DidUpdateGenomicInterpolant', this)
+        SpacewalkEventBus.globalBus.subscribe('DidLeaveGenomicNavigator', this)
     }
 
     receiveEvent({ type, data }) {

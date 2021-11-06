@@ -1,5 +1,6 @@
-import { EventBus, AlertSingleton } from 'igv-widgets'
-import hic from './juicebox'
+import { AlertSingleton } from 'igv-widgets'
+import hic from './juicebox/index.js'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import { ensembleManager } from './app.js'
 import {Globals} from './juicebox/globals.js';
@@ -20,15 +21,15 @@ class JuiceboxPanel extends Panel {
 
         this.$panel.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
+            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
         });
 
         this.$panel.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         });
 
-        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
     }
 
     receiveEvent({ type, data }) {
@@ -54,7 +55,7 @@ class JuiceboxPanel extends Panel {
             this.goto({ chr, start: genomicStart, end: genomicEnd })
 
         } else if ('DidHideCrosshairs' === type) {
-            EventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
         }
     }
 
@@ -92,12 +93,12 @@ class JuiceboxPanel extends Panel {
 
         Globals.currentBrowser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation()
-            EventBus.globalBus.post({ type: 'DidEnterGUI', data: this })
+            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGUI', data: this })
         })
 
         Globals.currentBrowser.contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidLeaveGUI', data: this })
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: this })
         })
 
         Globals.currentBrowser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
@@ -205,7 +206,7 @@ function juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
         return
     }
 
-    EventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList: [ interpolantX, interpolantY ] } })
+    SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList: [ interpolantX, interpolantY ] } })
 }
 
 export default JuiceboxPanel;

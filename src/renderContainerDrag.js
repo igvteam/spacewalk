@@ -1,4 +1,4 @@
-import { EventBus } from 'igv-widgets'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import {clamp} from './math.js'
 import {appleCrayonColorRGB255, rgb255String} from './color.js'
 
@@ -33,7 +33,7 @@ function configureRenderContainerDrag({ target, handle, container, topConstraint
         $(document).off(namespace)
         dragData = undefined
 
-        EventBus.globalBus.post({ type: "DidEndRenderContainerDrag" })
+        SpacewalkEventBus.globalBus.post({ type: "DidEndRenderContainerDrag" })
 
     };
 

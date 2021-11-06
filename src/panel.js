@@ -1,5 +1,5 @@
-import { EventBus, AlertSingleton } from 'igv-widgets'
 import { DOMUtils } from 'igv-utils'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import { makeDraggable } from "./draggable.js"
 import { setPanelVisibility } from "./guiManager.js"
 
@@ -25,7 +25,7 @@ class Panel {
         makeDraggable(panel, $drag_handle.get(0));
 
         $drag_handle.on(`mousedown.${ this.namespace }`, event => {
-            EventBus.globalBus.post({ type: "DidSelectPanel", data: this.$panel });
+            SpacewalkEventBus.globalBus.post({ type: "DidSelectPanel", data: this.$panel });
         });
 
         const $closer = this.$panel.find('i.fa-times-circle');
@@ -36,17 +36,17 @@ class Panel {
 
         this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
+            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
         });
 
         this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
         });
 
-        EventBus.globalBus.subscribe("ToggleUIControl", this);
-        EventBus.globalBus.subscribe("AppWindowDidResize", this);
-        EventBus.globalBus.subscribe("DidEndDrag", this);
+        SpacewalkEventBus.globalBus.subscribe("ToggleUIControl", this);
+        SpacewalkEventBus.globalBus.subscribe("AppWindowDidResize", this);
+        SpacewalkEventBus.globalBus.subscribe("DidEndDrag", this);
 
     }
 

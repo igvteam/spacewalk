@@ -1,4 +1,4 @@
-import { EventBus } from 'igv-widgets'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import { clamp } from './math.js'
 import Panel from "./panel.js";
 import {hideSpinner, showSpinner} from "./app.js";
@@ -61,7 +61,7 @@ class TraceSelectPanel extends Panel {
 
         $(document).on('keyup.trace_select', handleKeyUp);
 
-        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 
@@ -93,7 +93,7 @@ class TraceSelectPanel extends Panel {
 
             const trace = ensembleManager.getTraceWithName(key);
             ensembleManager.currentTrace = trace;
-            EventBus.globalBus.post({ type: "DidSelectTrace", data: { trace } });
+            SpacewalkEventBus.globalBus.post({ type: "DidSelectTrace", data: { trace } });
 
             hideSpinner();
         }, 0);

@@ -1,4 +1,4 @@
-import { EventBus } from 'igv-widgets'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
 import Parser from "./parser.js";
 import { colorRampMaterialProvider, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
@@ -104,7 +104,7 @@ class EnsembleManager {
 
         const initialKey = traceKey || '0';
         this.currentTrace = this.getTraceWithName(initialKey);
-        EventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, trace: this.currentTrace } });
+        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, trace: this.currentTrace } });
 
     }
 

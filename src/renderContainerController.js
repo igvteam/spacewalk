@@ -1,4 +1,4 @@
-import { EventBus } from 'igv-widgets'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import { configureRenderContainerDrag } from './renderContainerDrag.js'
 
 class RenderContainerController {
@@ -35,8 +35,8 @@ class RenderContainerController {
 
         configureRenderContainerDrag(dragConfig)
 
-        EventBus.globalBus.subscribe("AppWindowDidResize", this);
-        EventBus.globalBus.subscribe("DidEndRenderContainerDrag", this);
+        SpacewalkEventBus.globalBus.subscribe("AppWindowDidResize", this);
+        SpacewalkEventBus.globalBus.subscribe("DidEndRenderContainerDrag", this);
 
     }
 

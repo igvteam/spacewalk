@@ -1,4 +1,4 @@
-import { EventBus } from 'igv-widgets'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
 import EnsembleManager from "./ensembleManager.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
@@ -59,12 +59,12 @@ class ColorRampMaterialProvider {
 
         $canvasContainer.on(('mouseenter.' + namespace), (event) => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
+            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
         });
 
         $canvasContainer.on(('mouseleave.' + namespace), (event) => {
             event.stopPropagation();
-            EventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
             this.repaint();
         });
 
@@ -77,8 +77,8 @@ class ColorRampMaterialProvider {
         const { r, g, b } = highlightColor;
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
 
-        EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
-        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
     }
 
     receiveEvent({ type, data }) {
@@ -114,7 +114,7 @@ class ColorRampMaterialProvider {
             if (interpolantWindowList) {
 
                 // Rely on pickerHighlighter.highlight() to call this.highlightWithInterpolantWindowList()
-                EventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } });
+                SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } });
             }
 
         }

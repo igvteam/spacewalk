@@ -1,4 +1,4 @@
-import { EventBus } from 'igv-widgets'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
 import { ensembleManager, sceneManager } from "./app.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -40,8 +40,8 @@ class PointCloud {
         this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );
         this.deemphasizedMaterial.side = THREE.DoubleSide;
 
-        EventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
-        EventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
+        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
+        SpacewalkEventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
     receiveEvent({ type, data }) {

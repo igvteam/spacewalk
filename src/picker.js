@@ -1,4 +1,4 @@
-import { EventBus } from 'igv-widgets'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import {ballAndStick, colorRampMaterialProvider} from './app.js';
 
 const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud', 'ribbon', 'stick' ]);
@@ -9,8 +9,8 @@ class Picker {
         this.raycaster = raycaster;
         this.isEnabled = true;
 
-        EventBus.globalBus.subscribe("DidEnterGenomicNavigator", this);
-        EventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
+        SpacewalkEventBus.globalBus.subscribe("DidEnterGenomicNavigator", this);
+        SpacewalkEventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
     receiveEvent({ type, data }) {

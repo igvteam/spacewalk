@@ -1,5 +1,5 @@
 import EnsembleManager from "./ensembleManager.js";
-import { EventBus } from 'igv-widgets'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
 import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
@@ -45,9 +45,9 @@ class SceneManager {
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
 
-        EventBus.globalBus.subscribe('DidSelectTrace', this);
-        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
-        EventBus.globalBus.subscribe('RenderStyleDidChange', this);
+        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+        SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', this);
 
 
     }

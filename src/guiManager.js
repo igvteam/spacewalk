@@ -1,4 +1,4 @@
-import { EventBus } from 'igv-widgets'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import { StringUtils } from 'igv-utils'
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
@@ -69,8 +69,8 @@ class GUIManager {
             ballAndStick.updateStickRadius(1);
         });
 
-        EventBus.globalBus.subscribe("DidSelectPanel", this);
-        EventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+        SpacewalkEventBus.globalBus.subscribe("DidSelectPanel", this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 
@@ -131,7 +131,7 @@ const configureVisibilityControl = (input_id_list, $panel) => {
                 sceneManager.gnomon.toggle();
             } else {
                 const payload = $input.data('target');
-                EventBus.globalBus.post({ type: 'ToggleUIControl', data: { payload } });
+                SpacewalkEventBus.globalBus.post({ type: 'ToggleUIControl', data: { payload } });
             }
         });
 
@@ -145,7 +145,7 @@ const configureRenderStyleControl = ($input, renderStyle) => {
 
     $input.on('change.gui_manager.render_style_ball_stick', (e) => {
         e.preventDefault();
-        EventBus.globalBus.post({ type: "RenderStyleDidChange", data: $(e.target).val() });
+        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: $(e.target).val() });
     });
 
 };
@@ -180,10 +180,10 @@ export const setGUIRenderStyle = renderStyle => {
 
     if (renderStyle === Ribbon.getRenderStyle()) {
         $ui_manager_panel.find('#spacewalk-render-style-ribbon').prop('checked', true);
-        EventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
+        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
     } else if (renderStyle === BallAndStick.getRenderStyle()) {
         $ui_manager_panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
-        EventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
+        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
     }
 
 };
