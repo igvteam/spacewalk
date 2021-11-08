@@ -125,7 +125,6 @@ class BallAndStick {
         return mesh
     }
 
-
     createSticks(trace, stickRadius) {
 
         const geometries = []

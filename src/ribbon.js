@@ -7,7 +7,6 @@ import EnsembleManager from "./ensembleManager.js"
 import {igvPanel, sceneManager} from "./app.js"
 import {appleCrayonColorThreeJS} from "./color.js";
 
-let fatLineMaterial
 const ribbonWidth = 4/*2*/
 const beadRadiusScalefactor = 1/(6e1)
 
@@ -68,14 +67,10 @@ class Ribbon {
     }
 
     updateMaterialProvider (materialProvider) {
-
-        if (undefined === this.spline) {
-            return;
+        if (this.spline) {
+            const colors = getRGBListWithMaterialAndLength(materialProvider, this.spline.xyzList.length)
+            this.spline.mesh.geometry.setColors(colors)
         }
-
-        let colors = getRGBListWithMaterialAndLength(materialProvider, this.spline.xyzList.length);
-        this.spline.mesh.geometry.setColors( colors );
-
     }
 
     addToScene (scene) {
@@ -104,11 +99,10 @@ class Ribbon {
     }
 
     renderLoopHelper () {
-
-        if (fatLineMaterial) {
-            fatLineMaterial.resolution.set(window.innerWidth, window.innerHeight);
+        if (this.spline) {
+            this.spline.mesh.material.resolution.set(window.innerWidth, window.innerHeight)
+            this.updateMaterialProvider(igvPanel.materialProvider)
         }
-
     }
 
     hide () {
@@ -160,7 +154,6 @@ const createFatSpline = (curve, materialProvider) => {
     const str = `createFatSpline. ${ pointCount } vertices and colors.`;
     console.time(str);
 
-    // const xyzList = curve.getPoints( pointCount );
     const xyzList = curve.getSpacedPoints( pointCount );
 
     let colors = getRGBListWithMaterialAndLength(materialProvider, xyzList.length);
@@ -175,7 +168,7 @@ const createFatSpline = (curve, materialProvider) => {
     fatLineGeometry.setPositions( vertices );
     fatLineGeometry.setColors( colors );
 
-    fatLineMaterial = new LineMaterial( { linewidth: ribbonWidth, vertexColors: true } );
+    const fatLineMaterial = new LineMaterial( { linewidth: ribbonWidth, vertexColors: true } );
 
     let mesh = new Line2(fatLineGeometry, fatLineMaterial);
     mesh.computeLineDistances();
