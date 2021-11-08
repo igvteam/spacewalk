@@ -1,6 +1,6 @@
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
-import { AlertSingleton, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from 'igv-widgets'
+import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from 'igv-widgets'
 import {GoogleAuth, igvxhr, StringUtils} from 'igv-utils'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -271,8 +271,8 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
         spacewalkConfig.trackRegistryFile,
         (configurations) => igvPanel.loadTrackList(configurations))
 
-    SpacewalkEventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
-
+    // Event bus specifically dedicated to IGV Track Menu
+    EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
     Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
 
