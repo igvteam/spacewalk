@@ -95,21 +95,15 @@ class TrackView {
 
     createAxis(browser, track) {
 
+        const exclusionTrackTypes = new Set(['ruler', 'sequence', 'ideogram'])
+
         const axis = DOMUtils.div()
 
         browser.columnContainer.querySelector('.igv-axis-column').appendChild(axis);
 
         axis.style.height = `${track.height}px`;
 
-        if (typeof track.paintAxis === 'function') {
-
-            // if (track.dataRange) {
-            //     axis.addEventListener('click', () => {
-            //         browser.dataRangeDialog.configure(this);
-            //         browser.dataRangeDialog.present($(browser.columnContainer));
-            //     })
-            // }
-
+        if (false === exclusionTrackTypes.has(track.type)) {
 
             const {width, height} = axis.getBoundingClientRect();
 

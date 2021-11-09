@@ -23,9 +23,12 @@ async function getMaterialProvider (track) {
 
             const features = await track.getFeatures(chr, start, end, bpPerPixel);
 
-            const { min, max } = track.trackView.dataRange()
-            console.log(`wig track features. ${ bpPerPixel } start ${ StringUtils.numberFormatter(start) } end ${ StringUtils.numberFormatter(end) } min ${ min } max ${ max }`);
-            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+            if (track.trackView.dataRange()) {
+                const { min, max } = track.trackView.dataRange()
+                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+            } else {
+                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features });
+            }
 
             // if ('varying' === track.featureDescription) {
             //     const { min, max } = track.dataRange;

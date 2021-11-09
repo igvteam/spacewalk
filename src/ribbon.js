@@ -8,7 +8,7 @@ import {igvPanel, sceneManager} from "./app.js"
 import {appleCrayonColorThreeJS} from "./color.js";
 
 const ribbonWidth = 4/*2*/
-const beadRadiusScalefactor = 1/(6e1)
+const highlightBeadRadiusScalefactor = 1/(6e1)
 
 class Ribbon {
 
@@ -22,7 +22,7 @@ class Ribbon {
         if (this.spline && Ribbon.getRenderStyle() === sceneManager.renderStyle) {
 
             if ('DidLeaveGenomicNavigator' === type) {
-                this.beads[ 0 ].visible = this.beads[ 1 ].visible = false
+                this.highlightBeads[ 0 ].visible = this.highlightBeads[ 1 ].visible = false
             } else if ('DidUpdateGenomicInterpolant' === type) {
 
                 const { interpolantList } = data
@@ -31,8 +31,8 @@ class Ribbon {
 
                     const { x, y, z } = this.curve.getPointAt(interpolant)
                     const index = interpolantList.indexOf(interpolant)
-                    this.beads[ index ].position.set(x, y, z)
-                    this.beads[ index ].visible = true
+                    this.highlightBeads[ index ].position.set(x, y, z)
+                    this.highlightBeads[ index ].visible = true
                 }
 
             }
@@ -68,7 +68,7 @@ class Ribbon {
 
     updateMaterialProvider (materialProvider) {
         if (this.spline) {
-            const colors = getRGBListWithMaterialAndLength(materialProvider, this.spline.xyzList.length)
+            const colors = getRGBListWithMaterialAndLength(materialProvider, 1 + this.spline.vertexCount)
             this.spline.mesh.geometry.setColors(colors)
         }
     }
@@ -79,47 +79,47 @@ class Ribbon {
 
         const { center, radius } = EnsembleManager.getBoundsWithTrace(this.trace)
 
-        this.beads = []
+        this.highlightBeads = []
 
         const material = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('maraschino') })
-        const geometry = new THREE.SphereGeometry( radius * beadRadiusScalefactor, 64, 32 )
-        this.beads[ 0 ] = new THREE.Mesh( geometry, material )
-        this.beads[ 1 ] = new THREE.Mesh( geometry, material )
+        const geometry = new THREE.SphereGeometry( radius * highlightBeadRadiusScalefactor, 64, 32 )
+        this.highlightBeads[ 0 ] = new THREE.Mesh( geometry, material )
+        this.highlightBeads[ 1 ] = new THREE.Mesh( geometry, material )
 
-        scene.add( this.beads[ 0 ] )
-        scene.add( this.beads[ 1 ] )
+        scene.add( this.highlightBeads[ 0 ] )
+        scene.add( this.highlightBeads[ 1 ] )
 
         const { x, y, z } = center
-        this.beads[ 0 ].position.set(x, y, z)
-        this.beads[ 1 ].position.set(x, y, z)
+        this.highlightBeads[ 0 ].position.set(x, y, z)
+        this.highlightBeads[ 1 ].position.set(x, y, z)
 
-        this.beads[ 0 ].visible = false
-        this.beads[ 1 ].visible = false
+        this.highlightBeads[ 0 ].visible = false
+        this.highlightBeads[ 1 ].visible = false
 
     }
 
     renderLoopHelper () {
         if (this.spline) {
             this.spline.mesh.material.resolution.set(window.innerWidth, window.innerHeight)
-            this.updateMaterialProvider(igvPanel.materialProvider)
+            // this.updateMaterialProvider(igvPanel.materialProvider)
         }
     }
 
     hide () {
         this.spline.mesh.visible = false
 
-        if (this.beads) {
-            this.beads[ 0 ].visible = false
-            this.beads[ 1 ].visible = false
+        if (this.highlightBeads) {
+            this.highlightBeads[ 0 ].visible = false
+            this.highlightBeads[ 1 ].visible = false
         }
     }
 
     show () {
         this.spline.mesh.visible = true
 
-        // if (this.beads) {
-        //     this.beads[ 0 ].visible = true
-        //     this.beads[ 1 ].visible = true
+        // if (this.highlightBeads) {
+        //     this.highlightBeads[ 0 ].visible = true
+        //     this.highlightBeads[ 1 ].visible = true
         // }
     }
 
@@ -130,8 +130,8 @@ class Ribbon {
             this.spline.mesh.geometry.dispose()
         }
 
-        if (this.beads) {
-            for (let { geometry, material } of this.beads) {
+        if (this.highlightBeads) {
+            for (let { geometry, material } of this.highlightBeads) {
                 material.dispose()
                 geometry.dispose()
             }
@@ -147,41 +147,41 @@ class Ribbon {
     }
 }
 
-const createFatSpline = (curve, materialProvider) => {
+function createFatSpline(curve, materialProvider) {
 
     const pointCount = getFatSplinePointCount(curve.getLength());
 
     const str = `createFatSpline. ${ pointCount } vertices and colors.`;
     console.time(str);
 
-    const xyzList = curve.getSpacedPoints( pointCount );
+    const xyzList = curve.getSpacedPoints( pointCount )
 
-    let colors = getRGBListWithMaterialAndLength(materialProvider, xyzList.length);
+    const colors = getRGBListWithMaterialAndLength(materialProvider, xyzList.length);
 
-    let vertices = [];
+    const vertices = [];
     for (let { x, y, z } of xyzList ) {
         vertices.push(x, y, z);
     }
 
-    let fatLineGeometry = new LineGeometry();
+    const geometry = new LineGeometry();
 
-    fatLineGeometry.setPositions( vertices );
-    fatLineGeometry.setColors( colors );
+    geometry.setPositions( vertices )
+    geometry.setColors( colors )
 
-    const fatLineMaterial = new LineMaterial( { linewidth: ribbonWidth, vertexColors: true } );
+    const material = new LineMaterial( { linewidth: ribbonWidth, vertexColors: true } );
 
-    let mesh = new Line2(fatLineGeometry, fatLineMaterial);
+    const mesh = new Line2(geometry, material);
     mesh.computeLineDistances();
     mesh.scale.set( 1, 1, 1 );
     mesh.name = 'ribbon';
 
     console.timeEnd(str);
 
-    return { mesh, xyzList };
+    return { mesh, vertexCount: xyzList.length };
 
-};
+}
 
-const getRGBListWithMaterialAndLength = (materialProvider, length) =>  {
+function getRGBListWithMaterialAndLength(materialProvider, length) {
 
     let rgbList = new Float32Array(length * 3)
 
@@ -190,12 +190,12 @@ const getRGBListWithMaterialAndLength = (materialProvider, length) =>  {
     }
 
     return rgbList
-};
+}
 
-const getFatSplinePointCount = curveLength => {
-    return Ribbon.getCountMultiplier(curveLength) * RibbonScaleFactor;
-};
+const RibbonScaleFactor = 4e3
 
-export const RibbonScaleFactor = 4e3;
+function getFatSplinePointCount(curveLength) {
+    return Ribbon.getCountMultiplier(curveLength) * RibbonScaleFactor
+}
 
 export default Ribbon;

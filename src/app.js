@@ -408,14 +408,12 @@ const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
     return html;
 }
 
-const showSpinner = () => {
-    document.getElementById('spacewalk-spinner').style.display = 'block';
-    console.log('show spinner');
-};
+function showSpinner() {
+    document.getElementById('spacewalk-spinner').style.display = 'block'
+}
 
-const hideSpinner = () => {
-    document.getElementById('spacewalk-spinner').style.display = 'none';
-    console.log('hide spinner');
-};
+function hideSpinner() {
+    document.getElementById('spacewalk-spinner').style.display = 'none'
+}
 
 export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel, appendAndConfigureLoadURLModal };
