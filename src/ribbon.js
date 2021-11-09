@@ -68,7 +68,7 @@ class Ribbon {
 
     updateMaterialProvider (materialProvider) {
         if (this.spline) {
-            const colors = getRGBListWithMaterialAndLength(materialProvider, 1 + this.spline.vertexCount)
+            const colors = getRGBListWithMaterialAndLength(materialProvider, this.spline.vertexCount)
             this.spline.mesh.geometry.setColors(colors)
         }
     }

@@ -7,8 +7,7 @@ import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
-import TextureBasedDataValueMaterialProvider from './textureBasedDataValueMaterialProvider.js';
-import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
+import DataValueMaterialProvider from './dataValueMaterialProvider.js';
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import Panel from "./panel.js";
 import PointCloud from "./pointCloud.js";
@@ -109,8 +108,7 @@ const initializationHelper = async container => {
     colorMapManager = new ColorMapManager();
     await colorMapManager.configure();
 
-    // dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
-    dataValueMaterialProvider = new TextureBasedDataValueMaterialProvider({ width:2048, height:64, colorMinimum:appleCrayonColorRGB255('silver'), colorMaximum:appleCrayonColorRGB255('blueberry') })
+    dataValueMaterialProvider = new DataValueMaterialProvider({ width:8192, height:16, colorMinimum:appleCrayonColorRGB255('silver'), colorMaximum:appleCrayonColorRGB255('blueberry') })
 
     const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
     colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
