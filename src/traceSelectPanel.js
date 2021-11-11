@@ -59,7 +59,7 @@ class TraceSelectPanel extends Panel {
             }
         };
 
-        $(document).on('keyup.trace_select', handleKeyUp);
+        // $(document).on('keyup.trace_select', handleKeyUp);
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
