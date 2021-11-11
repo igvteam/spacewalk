@@ -1,5 +1,6 @@
+import * as THREE from 'three'
+import { MeshLine, MeshLineMaterial } from './THREE.MeshLine.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import * as THREE from "three"
 import { Line2 } from "three/examples/jsm/lines/Line2.js"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
@@ -7,7 +8,8 @@ import EnsembleManager from "./ensembleManager.js"
 import {igvPanel, sceneManager} from "./app.js"
 import {appleCrayonColorThreeJS} from "./color.js";
 
-const ribbonWidth = 4/*2*/
+// const ribbonWidth = 4
+const ribbonWidth = 8
 const highlightBeadRadiusScalefactor = 1/(6e1)
 
 class Ribbon {
@@ -54,7 +56,7 @@ class Ribbon {
         this.curve = new THREE.CatmullRomCurve3( vertices );
         this.curve.arcLengthDivisions = 1e3;
 
-        this.spline = createFatSpline(this.curve, igvPanel.materialProvider);
+        this.spline = createMeshLine(this.curve, igvPanel.materialProvider.rgbTexture);
 
         console.timeEnd(str);
 
@@ -67,6 +69,11 @@ class Ribbon {
     }
 
     updateMaterialProvider (materialProvider) {
+
+
+        return
+
+
         if (this.spline) {
             const colors = getRGBListWithMaterialAndLength(materialProvider, this.spline.vertexCount)
             this.spline.mesh.geometry.setColors(colors)
@@ -99,6 +106,10 @@ class Ribbon {
     }
 
     renderLoopHelper () {
+
+        return
+
+
         if (this.spline) {
             this.spline.mesh.material.resolution.set(window.innerWidth, window.innerHeight)
             // this.updateMaterialProvider(igvPanel.materialProvider)
@@ -145,6 +156,32 @@ class Ribbon {
     static getRenderStyle() {
         return 'render-style-ribbon'
     }
+}
+
+function createMeshLine(curve, texture) {
+
+    const pointCount = getFatSplinePointCount(curve.getLength())
+    const points = curve.getSpacedPoints( pointCount )
+
+    const geometry = new THREE.BufferGeometry()
+    const xyz = points.flatMap(({ x, y, z }) => [ x, y, z ])
+    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) )
+
+    const line = new MeshLine()
+    line.setGeometry(geometry)
+
+    const materialConfig =
+        {
+            map: texture,
+            useMap: true,
+            color: appleCrayonColorThreeJS('honeydew'),
+            lineWidth: ribbonWidth,
+        }
+    const material = new MeshLineMaterial( materialConfig)
+
+    const mesh = new THREE.Mesh(line, material)
+
+    return { mesh, vertexCount: points.length }
 }
 
 function createFatSpline(curve, materialProvider) {

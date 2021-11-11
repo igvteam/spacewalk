@@ -28,14 +28,21 @@ class TraceSelectPanel extends Panel {
         this.$button_plus = $('#spacewalk_trace_select_button_plus');
 
         this.$button_minus.on('click.trace_select_button_minus', (e) => {
+            e.preventDefault()
+            e.stopPropagation()
             this.broadcastUpdate( clamp(currentNumber - 1, 0, this.howmany - 1) );
         });
 
         this.$button_plus.on('click.trace_select_button_plus', (e) => {
+            e.preventDefault()
+            e.stopPropagation()
             this.broadcastUpdate( clamp(currentNumber + 1, 0, this.howmany - 1));
         });
 
         this.$input.on('keyup.trace_select_input', (e) => {
+
+            e.preventDefault()
+            e.stopPropagation()
 
             // enter (return) key pressed
             if (13 === e.keyCode) {
@@ -43,23 +50,6 @@ class TraceSelectPanel extends Panel {
             }
 
         });
-
-        const handleKeyUp = (e) => {
-
-            e.preventDefault();
-
-            const arrowKeyControl =
-                {
-                    'ArrowLeft': () => { this.updateStructureKey(-1) },
-                    'ArrowRight': () => { this.updateStructureKey( 1) },
-                };
-
-            if (arrowKeyControl[ e.key ]) {
-                arrowKeyControl[ e.key ]();
-            }
-        };
-
-        // $(document).on('keyup.trace_select', handleKeyUp);
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
