@@ -168,12 +168,12 @@ function createMeshLine(curve, texture) {
     geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) )
 
     const line = new MeshLine()
-    line.setGeometry(geometry)
+    line.setPoints(geometry.getAttribute("position").array)
 
     const materialConfig =
         {
-            // map: texture,
-            // useMap: true,
+            map: texture,
+            useMap: true,
             color: appleCrayonColorThreeJS('lemon'),
             lineWidth: ribbonWidth,
         }

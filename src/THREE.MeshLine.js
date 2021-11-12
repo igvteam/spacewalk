@@ -21,9 +21,6 @@ class MeshLine extends THREE.BufferGeometry {
 
     this.widthCallback = null
 
-    // Used to raycast
-    this.matrixWorld = new THREE.Matrix4()
-
     Object.defineProperties(this, {
       // this is now a bufferGeometry
       // add getter to support previous api
@@ -59,124 +56,22 @@ class MeshLine extends THREE.BufferGeometry {
   }
 }
 
-MeshLine.prototype.setMatrixWorld = function(matrixWorld) {
-  this.matrixWorld = matrixWorld
-}
-
-// setting via a geometry is rather superfluous
-// as you're creating a unecessary geometry just to throw away
-// but exists to support previous api
-MeshLine.prototype.setGeometry = function(g, c) {
-  // as the input geometry are mutated we store them
-  // for later retreival when necessary (declaritive architectures)
-  this._geometry = g
-  this.setPoints(g.getAttribute("position").array, c)
-}
-
-MeshLine.prototype.setPoints = function(points, wcb) {
-  if (!(points instanceof Float32Array) && !(points instanceof Array)) {
-    console.error(
-        "ERROR: The BufferArray of points is not instancied correctly."
-    );
-    return;
-  }
+MeshLine.prototype.setPoints = function(points) {
   // as the points are mutated we store them
   // for later retreival when necessary (declaritive architectures)
   this._points = points;
-  this.widthCallback = wcb;
   this.positions = [];
   this.counters = [];
-  if (points.length && points[0] instanceof THREE.Vector3) {
-    // could transform Vector3 array into the array used below
-    // but this approach will only loop through the array once
-    // and is more performant
-    for (var j = 0; j < points.length; j++) {
-      var p = points[j];
-      var c = j / points.length;
-      this.positions.push(p.x, p.y, p.z);
-      this.positions.push(p.x, p.y, p.z);
-      this.counters.push(c);
-      this.counters.push(c);
-    }
-  } else {
-    for (var j = 0; j < points.length; j += 3) {
-      var c = j / points.length;
-      this.positions.push(points[j], points[j + 1], points[j + 2]);
-      this.positions.push(points[j], points[j + 1], points[j + 2]);
-      this.counters.push(c);
-      this.counters.push(c);
-    }
+  for (var j = 0; j < points.length; j += 3) {
+    var c = j / points.length;
+    this.positions.push(points[j], points[j + 1], points[j + 2]);
+    this.positions.push(points[j], points[j + 1], points[j + 2]);
+    this.counters.push(c);
+    this.counters.push(c);
   }
   this.process();
 }
 
-function MeshLineRaycast(raycaster, intersects) {
-  var inverseMatrix = new THREE.Matrix4()
-  var ray = new THREE.Ray()
-  var sphere = new THREE.Sphere()
-  var interRay = new THREE.Vector3()
-  var geometry = this.geometry
-  // Checking boundingSphere distance to ray
-
-  if (!geometry.boundingSphere) geometry.computeBoundingSphere()
-  sphere.copy(geometry.boundingSphere)
-  sphere.applyMatrix4(this.matrixWorld)
-
-  if (raycaster.ray.intersectSphere(sphere, interRay) === false) {
-    return
-  }
-
-  inverseMatrix.copy( this.matrixWorld ).invert();
-  ray.copy(raycaster.ray).applyMatrix4(inverseMatrix)
-
-  var vStart = new THREE.Vector3()
-  var vEnd = new THREE.Vector3()
-  var interSegment = new THREE.Vector3()
-  var step = this instanceof THREE.LineSegments ? 2 : 1
-  var index = geometry.index
-  var attributes = geometry.attributes
-
-  if (index !== null) {
-    var indices = index.array
-    var positions = attributes.position.array
-    var widths = attributes.width.array
-
-    for (var i = 0, l = indices.length - 1; i < l; i += step) {
-      var a = indices[i]
-      var b = indices[i + 1]
-
-      vStart.fromArray(positions, a * 3)
-      vEnd.fromArray(positions, b * 3)
-      var width = widths[Math.floor(i / 3)] !== undefined ? widths[Math.floor(i / 3)] : 1
-      var precision = raycaster.params.Line.threshold + (this.material.lineWidth * width) / 2
-      var precisionSq = precision * precision
-
-      var distSq = ray.distanceSqToSegment(vStart, vEnd, interRay, interSegment)
-
-      if (distSq > precisionSq) continue
-
-      interRay.applyMatrix4(this.matrixWorld) //Move back to world space for distance calculation
-
-      var distance = raycaster.ray.origin.distanceTo(interRay)
-
-      if (distance < raycaster.near || distance > raycaster.far) continue
-
-      intersects.push({
-        distance: distance,
-        // What do we want? intersection point on the ray or on the segment??
-        // point: raycaster.ray.at( distance ),
-        point: interSegment.clone().applyMatrix4(this.matrixWorld),
-        index: i,
-        face: null,
-        faceIndex: null,
-        object: this,
-      })
-      // make event only fire once
-      i = l
-    }
-  }
-}
-MeshLine.prototype.raycast = MeshLineRaycast
 MeshLine.prototype.compareV3 = function(a, b) {
   var aa = a * 6
   var ab = b * 6
@@ -299,67 +194,6 @@ MeshLine.prototype.process = function() {
 
   this.computeBoundingSphere()
   this.computeBoundingBox()
-}
-
-function memcpy(src, srcOffset, dst, dstOffset, length) {
-  var i
-
-  src = src.subarray || src.slice ? src : src.buffer
-  dst = dst.subarray || dst.slice ? dst : dst.buffer
-
-  src = srcOffset
-      ? src.subarray
-          ? src.subarray(srcOffset, length && srcOffset + length)
-          : src.slice(srcOffset, length && srcOffset + length)
-      : src
-
-  if (dst.set) {
-    dst.set(src, dstOffset)
-  } else {
-    for (i = 0; i < src.length; i++) {
-      dst[i + dstOffset] = src[i]
-    }
-  }
-
-  return dst
-}
-
-/**
- * Fast method to advance the line by one position.  The oldest position is removed.
- * @param position
- */
-MeshLine.prototype.advance = function(position) {
-  var positions = this._attributes.position.array
-  var previous = this._attributes.previous.array
-  var next = this._attributes.next.array
-  var l = positions.length
-
-  // PREVIOUS
-  memcpy(positions, 0, previous, 0, l)
-
-  // POSITIONS
-  memcpy(positions, 6, positions, 0, l - 6)
-
-  positions[l - 6] = position.x
-  positions[l - 5] = position.y
-  positions[l - 4] = position.z
-  positions[l - 3] = position.x
-  positions[l - 2] = position.y
-  positions[l - 1] = position.z
-
-  // NEXT
-  memcpy(positions, 6, next, 0, l - 6)
-
-  next[l - 6] = position.x
-  next[l - 5] = position.y
-  next[l - 4] = position.z
-  next[l - 3] = position.x
-  next[l - 2] = position.y
-  next[l - 1] = position.z
-
-  this._attributes.position.needsUpdate = true
-  this._attributes.previous.needsUpdate = true
-  this._attributes.next.needsUpdate = true
 }
 
 THREE.ShaderChunk['meshline_vert'] = [

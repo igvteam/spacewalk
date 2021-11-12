@@ -1,6 +1,7 @@
 
 import {appleCrayonColorRGB255, rgb255Lerp, rgb255String, rgb255ToThreeJSColor} from "./color.js";
 import { createImage, readFileAsDataURL } from './utils.js';
+import {lerp} from "./math";
 
 export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
 export const defaultColormapPath = 'resources/colormaps/peter_kovesi/CET-R2.csv';
@@ -31,7 +32,7 @@ class ColorMapManager {
             console.warn(e.message);
         }
 
-        this.colorMapCanvas =  await createColormapCanvas(defaultColormapPath)
+        this.colorMapCanvas =  await createColormapCanvas(defaultColormapPath, 2048, 32)
 
     }
 
@@ -102,7 +103,7 @@ class ColorMapManager {
 
 }
 
-async function createColormapCanvas(path) {
+async function createColormapCanvas(path, width, height) {
 
     let response
 
@@ -130,24 +131,33 @@ async function createColormapCanvas(path) {
             return undefined
         }
 
-        const list = rgbListWithString(string).map(({ rgb255String }) => {
+        const fillStyles = rgbListWithString(string).map(({ rgb255String }) => {
             return rgb255String
         })
 
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
-        ctx.canvas.width = list.length
-        ctx.canvas.height = 16
+        // ctx.canvas.width = fillStyles.length
+        // ctx.canvas.height = 32
+        ctx.canvas.width = width
+        ctx.canvas.height = height
 
         ctx.fillStyle = rgb255String(appleCrayonColorRGB255('snow'))
-        ctx.fillRect(0, 0, ctx.canvas.height, ctx.canvas.height)
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
-        let x = 0
-        for (let str of list) {
-            ctx.fillStyle = str
-            ctx.fillRect(x, 0, 1, ctx.canvas.height)
-            ++x
+        for (let i = 0; i < width; i++) {
+            const x = Math.floor(lerp(0, fillStyles.length - 1, i/(width - 1)))
+            ctx.fillStyle = fillStyles[ x ]
+            ctx.fillRect(i, 0, 1, ctx.canvas.height)
         }
+
+        // let x = 0
+        // for (let str of fillStyles) {
+        //     // ctx.fillStyle = str
+        //     ctx.fillStyle = x < 5 ? rgb255String(appleCrayonColorRGB255('maraschino')) : str
+        //     ctx.fillRect(x, 0, 1, ctx.canvas.height)
+        //     ++x
+        // }
 
         return canvas
     } else {
