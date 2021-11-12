@@ -5,7 +5,7 @@ import { Line2 } from "three/examples/jsm/lines/Line2.js"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
 import EnsembleManager from "./ensembleManager.js"
-import {igvPanel, sceneManager} from "./app.js"
+import {colorRampMaterialProvider, igvPanel, sceneManager} from "./app.js"
 import {appleCrayonColorThreeJS} from "./color.js";
 
 // const ribbonWidth = 4
@@ -56,7 +56,7 @@ class Ribbon {
         this.curve = new THREE.CatmullRomCurve3( vertices );
         this.curve.arcLengthDivisions = 1e3;
 
-        this.spline = createMeshLine(this.curve, igvPanel.materialProvider.rgbTexture);
+        this.spline = createMeshLine(this.curve, colorRampMaterialProvider.materialTexture);
 
         console.timeEnd(str);
 
@@ -172,9 +172,9 @@ function createMeshLine(curve, texture) {
 
     const materialConfig =
         {
-            map: texture,
-            useMap: true,
-            color: appleCrayonColorThreeJS('honeydew'),
+            // map: texture,
+            // useMap: true,
+            color: appleCrayonColorThreeJS('lemon'),
             lineWidth: ribbonWidth,
         }
     const material = new MeshLineMaterial( materialConfig)

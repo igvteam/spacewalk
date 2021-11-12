@@ -3,13 +3,12 @@ import * as THREE from "three";
 import EnsembleManager from "./ensembleManager.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
-import { defaultColormapName } from "./colorMapManager.js";
+import {createColormapCanvas, defaultColormapName} from "./colorMapManager.js";
 import { colorMapManager, ensembleManager } from "./app.js";
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
-let rgbTexture;
-let alphaTexture;
+let rgbTexture
 class ColorRampMaterialProvider {
 
     constructor({ $canvasContainer, highlightColor }) {
@@ -35,20 +34,10 @@ class ColorRampMaterialProvider {
         rgbTexture = new THREE.CanvasTexture(this.rgb_ctx.canvas);
         rgbTexture.center.set(0.5, 0.5);
         rgbTexture.rotation = -Math.PI/2.0;
-        rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
+        // rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
+        this.rgbTexture = rgbTexture
 
-        // alpha
-        alphaTexture = new THREE.CanvasTexture(this.alphamap_ctx.canvas);
-        alphaTexture.center.set(0.5, 0.5);
-        alphaTexture.rotation = -Math.PI/2.0;
-        alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
-
-        let material = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });
-        material.alphaTest = 0.5;
-        material.side = THREE.DoubleSide;
-        material.transparent = true;
-
-        this.material = material;
+        this.materialTexture = new THREE.CanvasTexture(colorMapManager.colorMapCanvas)
 
         const namespace = 'color-ramp-material-provider';
 
@@ -215,10 +204,6 @@ class ColorRampMaterialProvider {
 
         if (rgbTexture) {
             rgbTexture.needsUpdate = true;
-        }
-
-        if (alphaTexture) {
-            alphaTexture.needsUpdate = true;
         }
 
     }

@@ -1,8 +1,9 @@
 
-import { rgb255String, rgb255ToThreeJSColor } from "./color.js";
+import {appleCrayonColorRGB255, rgb255Lerp, rgb255String, rgb255ToThreeJSColor} from "./color.js";
 import { createImage, readFileAsDataURL } from './utils.js';
 
 export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
+export const defaultColormapPath = 'resources/colormaps/peter_kovesi/CET-R2.csv';
 
 class ColorMapManager {
 
@@ -29,6 +30,8 @@ class ColorMapManager {
         } catch (e) {
             console.warn(e.message);
         }
+
+        this.colorMapCanvas =  await createColormapCanvas(defaultColormapPath)
 
     }
 
@@ -99,12 +102,67 @@ class ColorMapManager {
 
 }
 
-const retrieveRGB = (rgbList, interpolant, key) => {
+async function createColormapCanvas(path) {
+
+    let response
+
+    try {
+        response = await fetch(path)
+    } catch (error) {
+        console.error(error.message)
+        return undefined
+    }
+
+    if (200 !== response.status) {
+        console.error('ERROR: bad response status')
+        return undefined
+    }
+
+    const suffix = path.split('.').pop()
+
+    if ('csv' === suffix) {
+
+        let string = undefined
+        try {
+            string = await response.text()
+        } catch (e) {
+            console.error(e.message)
+            return undefined
+        }
+
+        const list = rgbListWithString(string).map(({ rgb255String }) => {
+            return rgb255String
+        })
+
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        ctx.canvas.width = list.length
+        ctx.canvas.height = 16
+
+        ctx.fillStyle = rgb255String(appleCrayonColorRGB255('snow'))
+        ctx.fillRect(0, 0, ctx.canvas.height, ctx.canvas.height)
+
+        let x = 0
+        for (let str of list) {
+            ctx.fillStyle = str
+            ctx.fillRect(x, 0, 1, ctx.canvas.height)
+            ++x
+        }
+
+        return canvas
+    } else {
+        console.error(`ERROR: unsupported file type with suffix ${ suffix }`)
+        return undefined
+    }
+
+}
+
+function retrieveRGB(rgbList, interpolant, key) {
     const index = Math.floor(interpolant * (rgbList.length - 1));
     return rgbList[ index ][ key ];
-};
+}
 
-const rgbListWithImage = image => {
+function rgbListWithImage(image) {
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -128,9 +186,9 @@ const rgbListWithImage = image => {
 
     return rgbList;
 
-};
+}
 
-const rgbListWithString = string => {
+function rgbListWithString(string) {
 
     const lines = string.split(/\r?\n/);
 
@@ -160,14 +218,16 @@ const rgbListWithString = string => {
 
         });
 
-};
+}
 
-let isKennethMorland = (name) => {
-    return name.indexOf('kenneth_moreland') > 0;
-};
+function isKennethMorland(name) {
+    return name.indexOf('kenneth_moreland') > 0
+}
 
-let isPeterKovesi = (name) => {
-    return name.indexOf('peter_kovesi') > 0;
-};
+function isPeterKovesi(name) {
+    return name.indexOf('peter_kovesi') > 0
+}
 
-export default ColorMapManager;
+export { createColormapCanvas }
+
+export default ColorMapManager
