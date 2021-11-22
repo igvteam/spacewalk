@@ -1,10 +1,10 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import * as THREE from "three";
 import EnsembleManager from "./ensembleManager.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
-import { colorMapManager, ensembleManager } from "./app.js";
+import {colorMapManager, ensembleManager, sceneManager} from "./app.js";
+import Ribbon from './ribbon.js';
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
@@ -21,34 +21,10 @@ class ColorRampMaterialProvider {
         fitToContainer(canvas);
         this.highlight_ctx = canvas.getContext('2d');
 
-        // ramp rgb canvas
+        // color ramp canvas
         canvas = $canvasContainer.find('#spacewalk_color_ramp_canvas_rgb').get(0);
         fitToContainer(canvas);
         this.rgb_ctx = canvas.getContext('2d');
-
-        // alpha canvas indicating highlighted region of rgb canvas
-        canvas = $canvasContainer.find('#spacewalk_color_ramp_canvas_alpha').get(0);
-        fitToContainer(canvas);
-        this.alphamap_ctx = canvas.getContext('2d');
-
-        // rgb
-        rgbTexture = new THREE.CanvasTexture(this.rgb_ctx.canvas);
-        rgbTexture.center.set(0.5, 0.5);
-        rgbTexture.rotation = -Math.PI/2.0;
-        rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
-
-        // alpha
-        alphaTexture = new THREE.CanvasTexture(this.alphamap_ctx.canvas);
-        alphaTexture.center.set(0.5, 0.5);
-        alphaTexture.rotation = -Math.PI/2.0;
-        alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
-
-        let material = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });
-        material.alphaTest = 0.5;
-        material.side = THREE.DoubleSide;
-        material.transparent = true;
-
-        this.material = material;
 
         const namespace = 'color-ramp-material-provider';
 
@@ -87,7 +63,7 @@ class ColorRampMaterialProvider {
 
             const { poster, interpolantList } = data
 
-            if (this !== poster) {
+            if (this !== poster || sceneManager.renderStyle === Ribbon.getRenderStyle()) {
 
                 const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
@@ -135,37 +111,24 @@ class ColorRampMaterialProvider {
             return;
         }
 
-        const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
-
         // clear highlight canvas
-        this.highlight_ctx.clearRect(0, 0, width, height);
-
-        // paint alpha map opaque
-        this.alphamap_ctx.fillStyle = alpha_visible;
-        this.alphamap_ctx.fillRect(0, 0, width, height);
+        this.highlight_ctx.clearRect(0, 0, this.highlight_ctx.canvas.width, this.highlight_ctx.canvas.height);
 
         if (interpolantWindowList) {
 
             // set highlight color
             this.highlight_ctx.fillStyle = this.highlightColor;
 
-            // paint alpha map transparent
-            this.alphamap_ctx.clearRect(0, 0, width, height);
-
-            // set opaque color
-            this.alphamap_ctx.fillStyle = alpha_visible;
-
             for (let interpolantWindow of interpolantWindowList) {
 
                 const { start, end } = interpolantWindow;
-                const h = Math.round((end - start) * height);
-                const y = Math.round(start * height);
+                const h = Math.round((end - start) * this.highlight_ctx.canvas.height);
+                const y = Math.round(start * this.highlight_ctx.canvas.height);
 
-                const yy = height - (h + y);
+                const yy = this.highlight_ctx.canvas.height - (h + y);
 
                 const h_rendered = Math.max(1, h);
-                this.highlight_ctx.fillRect(0, yy, width, h_rendered);
-                this.alphamap_ctx.fillRect(0, yy, width, h_rendered);
+                this.highlight_ctx.fillRect(0, yy, this.highlight_ctx.canvas.width, h_rendered);
 
             }
 
@@ -179,10 +142,9 @@ class ColorRampMaterialProvider {
             return;
         }
 
-        const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
-
+        // repaint color ramp
         this.rgb_ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
-        this.rgb_ctx.fillRect(0, 0, width, height);
+        this.rgb_ctx.fillRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
 
         const colorRampInterpolantWindows = Object.values(ensembleManager.currentTrace).map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow);
 
@@ -190,21 +152,16 @@ class ColorRampMaterialProvider {
 
             this.rgb_ctx.fillStyle = colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
 
-            const h = Math.ceil((end - start) * height);
-            const y = Math.round(start * (height));
+            const h = Math.ceil((end - start) * this.rgb_ctx.canvas.height);
+            const y = Math.round(start * (this.rgb_ctx.canvas.height));
 
-            const yy = Math.max(0, height - (h + y));
+            const yy = Math.max(0, this.rgb_ctx.canvas.height - (h + y));
 
-            this.rgb_ctx.fillRect(0, yy, width, h);
+            this.rgb_ctx.fillRect(0, yy, this.rgb_ctx.canvas.width, h);
         }
 
         // clear highlight canvas
-        this.highlight_ctx.clearRect(0, 0, width, height);
-
-        // paint alpha map opaque
-        this.alphamap_ctx.fillStyle = alpha_visible;
-        this.alphamap_ctx.fillRect(0, 0, width, height);
-
+        this.highlight_ctx.clearRect(0, 0, this.highlight_ctx.canvas.width, this.highlight_ctx.canvas.height);
     }
 
     colorForInterpolant(interpolant) {

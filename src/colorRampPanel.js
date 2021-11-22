@@ -24,12 +24,6 @@ class ColorRampPanel extends Panel {
         // footer
         this.$footer = this.$panel.find('#spacewalk_color_ramp_footer');
 
-        this.$panel.on('click.color-ramp-panel', (event) => {
-            event.stopPropagation();
-            setMaterialProvider(colorRampMaterialProvider);
-            SpacewalkEventBus.globalBus.post({ type: "DidChangeMaterialProvider", data: colorRampMaterialProvider });
-        });
-
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
