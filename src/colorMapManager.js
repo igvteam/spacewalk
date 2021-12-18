@@ -2,6 +2,10 @@
 import { rgb255String, rgb255ToThreeJSColor } from "./color.js";
 import { createImage, readFileAsDataURL } from './utils.js';
 
+// import peter_kovesi from './resources/colormaps/peter_kovesi/CET-R2.csv'
+import bintu_et_al from './resources/colormaps/bintu_et_al/bintu_et_al.png'
+import juicebox_default from './resources/colormaps/juicebox_default/juicebox_default.png'
+
 export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
 
 class ColorMapManager {
@@ -12,20 +16,21 @@ class ColorMapManager {
 
     async configure () {
 
+        // try {
+        //     await this.addMap({ name: defaultColormapName, path: peter_kovesi });
+        // } catch (e) {
+        //     console.warn(e.message);
+        // }
+
         try {
-            await this.addMap({ name: defaultColormapName, path: 'resources/colormaps/peter_kovesi/CET-R2.csv' });
+            await this.addMap({ name: defaultColormapName, path: bintu_et_al });
+            // await this.addMap({ name: 'bintu_et_al', path: bintu_et_al });
         } catch (e) {
             console.warn(e.message);
         }
 
         try {
-            await this.addMap({ name: 'bintu_et_al', path: 'resources/colormaps/bintu_et_al/bintu_et_al.png' });
-        } catch (e) {
-            console.warn(e.message);
-        }
-
-        try {
-            await this.addMap({ name: 'juicebox_default', path: 'resources/colormaps/juicebox_default/juicebox_default.png' });
+            await this.addMap({ name: 'juicebox_default', path: juicebox_default });
         } catch (e) {
             console.warn(e.message);
         }
@@ -33,6 +38,8 @@ class ColorMapManager {
     }
 
     async addMap({name, path}) {
+
+        // http://localhost:1234/bintu_et_al.b227709b.png?1639864182060
 
         this.dictionary[ name ] = { path, rgb: undefined };
 
@@ -49,7 +56,8 @@ class ColorMapManager {
             console.log('ERROR: bad response status');
         }
 
-        const suffix = path.split('.').pop();
+        const last = path.split('.').pop()
+        const [ suffix, discard ] = last.split('?')
 
         if ('csv' === suffix) {
 

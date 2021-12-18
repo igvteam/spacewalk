@@ -11,7 +11,7 @@ import { getMouseXY } from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
 import { pointCloud, ribbon, ballAndStick, ensembleManager, contactFrequencyMapPanel, distanceMapPanel, sceneManager } from "./app.js";
 import { getGUIRenderStyle, configureColorPicker } from "./guiManager.js";
-import { specularCubicTexture, sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
+import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 import Ribbon from './ribbon.js'
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
@@ -277,7 +277,6 @@ const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     // const background = appleCrayonColorThreeJS('nickel');
     const background = sceneBackgroundTexture;
-    // const background = specularCubicTexture;
 
     const scene = new THREE.Scene();
     scene.background = background;

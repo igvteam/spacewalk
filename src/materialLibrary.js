@@ -1,6 +1,15 @@
 import CubicMapManager from "./cubicMapManager.js";
 import * as THREE from "three";
 
+import show_st_vert from './glsl/show_st.vert'
+import show_st_frag from './glsl/show_st.frag'
+
+import diffuse_cube_vert from './glsl/diffuse_cube.vert'
+import diffuse_cube_frag from './glsl/diffuse_cube.frag'
+
+import sceneBackgroundDiagnosticTextureFile from './texture/uv.png'
+import sceneBackgroundTextureFile from './texture/scene-backdrop-grey-ramp.png'
+
 const shaderLibrary =
     {
         init: () => {
@@ -9,8 +18,8 @@ const shaderLibrary =
             const showSTConfig =
                 {
                     uniforms: { showS:  { value: 1 }, showT:  { value: 1 } },
-                    vertexShader: document.getElementById( 'show_st_vert' ).textContent,
-                    fragmentShader: document.getElementById( 'show_st_frag' ).textContent
+                    vertexShader: show_st_vert,
+                    fragmentShader: show_st_frag
                 }
 
             shaderLibrary.showSTMaterial = new THREE.ShaderMaterial(showSTConfig )
@@ -19,8 +28,8 @@ const shaderLibrary =
             const showSConfig =
                 {
                     uniforms: { showS:  { value: 1 }, showT:  { value: 0 } },
-                    vertexShader: document.getElementById( 'show_st_vert' ).textContent,
-                    fragmentShader: document.getElementById( 'show_st_frag' ).textContent
+                    vertexShader: show_st_vert,
+                    fragmentShader: show_st_frag
                 }
 
             shaderLibrary.showSMaterial = new THREE.ShaderMaterial(showSConfig )
@@ -29,8 +38,8 @@ const shaderLibrary =
             const showTConfig =
                 {
                     uniforms: { showS:  { value: 0 }, showT:  { value: 1 } },
-                    vertexShader: document.getElementById( 'show_st_vert' ).textContent,
-                    fragmentShader: document.getElementById( 'show_st_frag' ).textContent
+                    vertexShader: show_st_vert,
+                    fragmentShader: show_st_frag
                 }
 
             shaderLibrary.showTMaterial = new THREE.ShaderMaterial(showTConfig )
@@ -45,21 +54,21 @@ const shaderLibrary =
 
     }
 
-// const specularTextureRoot = 'texture/cubic/diagnostic/threejs_format/';
-// const specularTextureRoot = 'texture/cubic/specular/aerodynamics_workshop/';
-// const specularTextureRoot = 'texture/cubic/specular/skybox/';
-const specularTextureRoot = 'texture/cubic/diagnostic/tissot/';
-// const specularTextureRoot = 'texture/cubic/specular/grid/';
-const specularCubicMapManager = new CubicMapManager({ textureRoot: specularTextureRoot, suffix: '.png', isSpecularMap: true });
+// const specularTextureRoot = './texture/cubic/diagnostic/threejs_format/';
+// const specularTextureRoot = './texture/cubic/specular/aerodynamics_workshop/';
+// const specularTextureRoot = './texture/cubic/specular/skybox/';
+//const specularTextureRoot = './texture/cubic/diagnostic/tissot/';
+// const specularTextureRoot = './texture/cubic/specular/grid/';
+//const specularCubicMapManager = new CubicMapManager({ textureRoot: specularTextureRoot, suffix: '.png', isSpecularMap: true });
 
-const diffuseTextureRoot = 'texture/cubic/diagnostic/tissot/';
-const diffuseCubicMapManager = new CubicMapManager({
-    textureRoot: diffuseTextureRoot,
-    suffix: '.png',
-    vertexShaderName: 'diffuse_cube_vert',
-    fragmentShaderName: 'diffuse_cube_frag',
-    isSpecularMap: false
-});
+//const diffuseTextureRoot = './texture/cubic/diagnostic/tissot/';
+// const diffuseCubicMapManager = new CubicMapManager({
+//     textureRoot: diffuseTextureRoot,
+//     suffix: '.png',
+//     vertexShader: diffuse_cube_vert,
+//     fragmentShader: diffuse_cube_frag,
+//     isSpecularMap: false
+// });
 
 let specularCubicTexture = undefined;
 let diffuseCubicTexture = undefined;
@@ -67,10 +76,10 @@ let diffuseCubicTexture = undefined;
 const showNormalsMaterial = new THREE.MeshNormalMaterial();
 
 
-const sceneBackgroundDiagnosticTextureFile = 'texture/uv.png';
+// const sceneBackgroundDiagnosticTextureFile = './texture/uv.png';
 let sceneBackgroundDiagnosticTexture = undefined;
 
-const sceneBackgroundTextureFile = 'texture/scene-backdrop-grey-ramp.png';
+// const sceneBackgroundTextureFile = './texture/scene-backdrop-grey-ramp.png';
 let sceneBackgroundTexture = undefined;
 
 const initializeMaterialLibrary = async () => {
@@ -79,23 +88,23 @@ const initializeMaterialLibrary = async () => {
 
     let str;
 
-    str = `Specular Cubic Texture Load of ${ specularTextureRoot } Complete`;
-    console.time(str);
+    // str = `Specular Cubic Texture Load of ${ specularTextureRoot } Complete`;
+    // console.time(str);
 
-    await specularCubicMapManager.loadTexture();
-    specularCubicTexture = specularCubicMapManager.cubicTexture;
+    // await specularCubicMapManager.loadTexture();
+    // specularCubicTexture = specularCubicMapManager.cubicTexture;
 
-    console.timeEnd(str);
+    // console.timeEnd(str);
 
-    str = `Diffuse Cubic Texture Load of ${ diffuseTextureRoot } Complete`;
-    console.time(str);
+    // str = `Diffuse Cubic Texture Load of ${ diffuseTextureRoot } Complete`;
+    // console.time(str);
 
-    await diffuseCubicMapManager.loadTexture();
-    diffuseCubicTexture = diffuseCubicMapManager.cubicTexture;
+    // await diffuseCubicMapManager.loadTexture();
+    // diffuseCubicTexture = diffuseCubicMapManager.cubicTexture;
 
-    console.timeEnd(str);
+    // console.timeEnd(str);
 
-    str = `Scene Background Texture Load of ${ sceneBackgroundTextureFile } Complete`;
+    str = `Scene Background Texture Load Complete`;
     console.time(str);
 
     const sceneBackgroundTexturePromise = new Promise(resolve => {
@@ -106,7 +115,7 @@ const initializeMaterialLibrary = async () => {
 
     console.timeEnd(str);
 
-    str = `Scene Background Diagnostic Texture Load of ${ sceneBackgroundDiagnosticTextureFile } Complete`;
+    str = `Scene Background Diagnostic Texture Load Complete`;
     console.time(str);
 
     const sceneBackgroundDiagnosticTexturePromise = new Promise(resolve => {
@@ -119,4 +128,4 @@ const initializeMaterialLibrary = async () => {
 
 };
 
-export { initializeMaterialLibrary, sceneBackgroundDiagnosticTexture, sceneBackgroundTexture, diffuseCubicTexture, specularCubicTexture, showNormalsMaterial, shaderLibrary };
+export { initializeMaterialLibrary, sceneBackgroundDiagnosticTexture, sceneBackgroundTexture, showNormalsMaterial, shaderLibrary };

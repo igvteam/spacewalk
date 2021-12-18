@@ -1,24 +1,20 @@
 {
+  "source": "src/index.html",
   "scripts": {
-    "start": "snowpack dev",
-    "build": "snowpack build",
-    "production": "http-server -a localhost build",
-    "test": "echo \"This template does not include a test runner by default.\" && exit 1",
-    "format": "prettier --write \"src/**/*.js\"",
-    "lint": "prettier --check \"src/**/*.js\""
+    "start": "parcel",
+    "build": "parcel build"
   },
   "devDependencies": {
-    "@snowpack/plugin-webpack": "^3.0.0",
+    "@parcel/transformer-glsl": "^2.0.1",
+    "@parcel/transformer-sass": "^2.0.1",
     "btoa": "^1.2.1",
-    "canvas-confetti": "^1.2.0",
     "data-modal": "github:igvteam/data-modal#spacewalk",
-    "http-server": "^13.0.2",
     "igv-ui": "github:igvteam/igv-ui#v1.2.1",
     "igv-utils": "github:igvteam/igv-utils#v1.3.4",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
     "kd3d": "github:turner/kd3d",
-    "prettier": "^2.2.1",
-    "snowpack": "^3.8.8",
+    "parcel": "^2.0.1",
+    "parcel-plugin-asset-csv": "^0.1.5",
     "three": "^0.134.0"
   }
 }

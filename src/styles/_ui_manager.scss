@@ -1,0 +1,131 @@
+$spacewalk_ui_manager_panel_size: 300px;
+
+//$spacewalk_ui_manager_button_top: 64px + $spacewalk_navbar_height;
+$spacewalk_ui_manager_button_top: 150px;
+
+$spacewalk_ui_manager_panel_top: 48px + $spacewalk_ui_manager_button_top;
+$spacewalk_ui_manager_left: 32px;
+$spacewalk_ui_manager_margin: 6px;
+
+$spacewalk-ball-stick-control-y-margin: 4px;
+
+// ui manager
+#spacewalk_ui_manager_button {
+
+  z-index: 2048;
+
+  position: absolute;
+  top: $spacewalk_ui_manager_button_top;
+  left: $spacewalk_ui_manager_left;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+
+  i {
+    color: $spacewalk_aluminum;
+    display: block;
+  }
+
+  i:hover {
+    cursor: pointer;
+    color: $spacewalk_iron;
+  }
+}
+
+#spacewalk_ui_manager_panel.card {
+
+  z-index: 2048;
+  background-color: $spacewalk_tungsten;
+  border-color: $spacewalk_tungsten;
+
+  top: $spacewalk_ui_manager_panel_top;
+  left: $spacewalk_ui_manager_left;
+
+  width: $spacewalk_ui_manager_panel_size;
+  height: auto;
+
+  .list-group {
+    margin-top: $spacewalk_ui_manager_margin;
+    margin-bottom: $spacewalk_ui_manager_margin;
+  }
+
+  .list-group:first-child {
+    margin-top: 2 * $spacewalk_ui_manager_margin;
+  }
+
+  .list-group:last-child {
+    margin-bottom: unset;
+  }
+
+  li {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    input {
+      cursor: pointer;
+      display: block;
+    }
+  }
+}
+
+li#spacewalk_ui_manager_render_styles {
+  >div {
+    width: -webkit-fill-available;
+  }
+}
+
+.spacewalk-ball-stick-control {
+
+  font-size: .9rem;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+
+  >div {
+    margin-top: $spacewalk-ball-stick-control-y-margin;
+  }
+
+  >div:first-child {
+    margin-left: 32px;
+  }
+
+  >div:last-child {
+    margin-bottom: $spacewalk-ball-stick-control-y-margin;
+  }
+
+  i.fas {
+    color: $spacewalk_tin;
+  }
+
+  i.fas:first-child {
+    margin-right: 8px;
+  }
+
+  i.fas:hover {
+    cursor: pointer;
+    color: $spacewalk_tungsten;
+  }
+
+}
+
+.spacewalk-colorpicker-li {
+  padding: unset;
+}
+
+.spacewalk-colorpicker-input {
+  border: unset;
+}
+
+.spacewalk-colorpicker-input-group-text {
+  background-color: transparent;
+  border: unset;
+}
+

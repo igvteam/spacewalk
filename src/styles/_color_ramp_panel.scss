@@ -1,0 +1,85 @@
+
+$spacewalk_color_ramp_canvas_width: 40px;
+
+$spacewalk_color_ramp_panel_width: 80px;
+$spacewalk_color_ramp_panel_height: 600px;
+
+$spacewalk_text_box_height: 32px;
+$spacewalk_color_ramp_panel_padding: 12px;
+
+#spacewalk_color_ramp_panel.card {
+
+  width: $spacewalk_color_ramp_panel_width;
+  height: $spacewalk_color_ramp_panel_height;
+
+  //padding-left: $spacewalk_color_ramp_panel_padding;
+  //padding-right: $spacewalk_color_ramp_panel_padding;
+
+  #spacewalk_color_ramp_widget_container.card-body {
+
+    width: 100%;
+    height: $spacewalk_color_ramp_panel_height;
+
+    font-size: 16px;
+
+    // header text
+    #spacewalk_color_ramp_header {
+      width: 100%;
+      height: $spacewalk_text_box_height;
+
+      line-height: $spacewalk_text_box_height;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    // ramp
+    #spacewalk_color_ramp_canvas_container {
+      position: relative;
+
+      cursor: pointer;
+
+      width: $spacewalk_color_ramp_canvas_width;
+      height: calc(98% - 2 * #{$spacewalk_text_box_height} - #{$spacewalk_card_drag_container_height});
+
+      canvas {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      canvas#spacewalk_color_ramp_point_cloud_canvas_highlight {
+        z-index: 192;
+      }
+
+      canvas#spacewalk_color_ramp_canvas_highlight {
+        z-index: 128;
+      }
+
+      canvas#spacewalk_color_ramp_point_cloud_canvas_rgb {
+        z-index: 64;
+      }
+
+      canvas#spacewalk_color_ramp_canvas_rgb {
+        z-index: inherit;
+      }
+
+      canvas#spacewalk_color_ramp_canvas_alpha {
+        z-index: -128;
+      }
+
+    }
+
+    // footer text
+    #spacewalk_color_ramp_footer {
+      width: 100%;
+      height: $spacewalk_text_box_height;
+
+      line-height: $spacewalk_text_box_height;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+  }
+
+}
