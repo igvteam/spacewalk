@@ -12,9 +12,7 @@
     "igv-ui": "github:igvteam/igv-ui#v1.2.1",
     "igv-utils": "github:igvteam/igv-utils#v1.3.4",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
-    "kd3d": "github:turner/kd3d",
     "parcel": "^2.0.1",
-    "parcel-plugin-asset-csv": "^0.1.5",
     "three": "^0.134.0"
   }
 }

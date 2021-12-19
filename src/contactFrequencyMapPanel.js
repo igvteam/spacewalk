@@ -1,4 +1,4 @@
-import KDBush from 'kd3d'
+import KDBush from './kd3d/kd3d.js'
 import { clamp } from "./math.js";
 import { hideSpinner, showSpinner } from './app.js';
 import Panel from "./panel.js";
