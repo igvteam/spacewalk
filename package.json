@@ -1,18 +1,20 @@
 {
-  "source": "src/index.html",
+  "name": "Spacewalk",
+  "version": "1.1.1",
   "scripts": {
-    "start": "parcel",
-    "build": "parcel build"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "@parcel/transformer-glsl": "^2.0.1",
-    "@parcel/transformer-sass": "^2.0.1",
     "btoa": "^1.2.1",
     "data-modal": "github:igvteam/data-modal#spacewalk",
     "igv-ui": "github:igvteam/igv-ui#v1.2.1",
     "igv-utils": "github:igvteam/igv-utils#v1.3.4",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
-    "parcel": "^2.0.1",
-    "three": "^0.134.0"
+    "sass": "^1.45.0",
+    "three": "^0.134.0",
+    "vite": "^2.7.4",
+    "vite-plugin-glsl": "^0.0.5"
   }
 }

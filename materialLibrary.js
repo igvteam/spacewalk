@@ -57,29 +57,25 @@ const shaderLibrary =
 // const specularTextureRoot = './texture/cubic/diagnostic/threejs_format/';
 // const specularTextureRoot = './texture/cubic/specular/aerodynamics_workshop/';
 // const specularTextureRoot = './texture/cubic/specular/skybox/';
-//const specularTextureRoot = './texture/cubic/diagnostic/tissot/';
+const specularTextureRoot = './texture/cubic/diagnostic/tissot/';
 // const specularTextureRoot = './texture/cubic/specular/grid/';
-//const specularCubicMapManager = new CubicMapManager({ textureRoot: specularTextureRoot, suffix: '.png', isSpecularMap: true });
+const specularCubicMapManager = new CubicMapManager({ textureRoot: specularTextureRoot, suffix: '.png', isSpecularMap: true });
 
-//const diffuseTextureRoot = './texture/cubic/diagnostic/tissot/';
-// const diffuseCubicMapManager = new CubicMapManager({
-//     textureRoot: diffuseTextureRoot,
-//     suffix: '.png',
-//     vertexShader: diffuse_cube_vert,
-//     fragmentShader: diffuse_cube_frag,
-//     isSpecularMap: false
-// });
+const diffuseTextureRoot = './texture/cubic/diagnostic/tissot/';
+const diffuseCubicMapManager = new CubicMapManager({
+    textureRoot: diffuseTextureRoot,
+    suffix: '.png',
+    vertexShader: diffuse_cube_vert,
+    fragmentShader: diffuse_cube_frag,
+    isSpecularMap: false
+});
 
 let specularCubicTexture = undefined;
 let diffuseCubicTexture = undefined;
 
 const showNormalsMaterial = new THREE.MeshNormalMaterial();
 
-
-// const sceneBackgroundDiagnosticTextureFile = './texture/uv.png';
 let sceneBackgroundDiagnosticTexture = undefined;
-
-// const sceneBackgroundTextureFile = './texture/scene-backdrop-grey-ramp.png';
 let sceneBackgroundTexture = undefined;
 
 const initializeMaterialLibrary = async () => {
@@ -88,21 +84,21 @@ const initializeMaterialLibrary = async () => {
 
     let str;
 
-    // str = `Specular Cubic Texture Load of ${ specularTextureRoot } Complete`;
-    // console.time(str);
+    str = `Specular Cubic Texture Load of ${ specularTextureRoot } Complete`;
+    console.time(str);
 
-    // await specularCubicMapManager.loadTexture();
-    // specularCubicTexture = specularCubicMapManager.cubicTexture;
+    await specularCubicMapManager.loadTexture();
+    specularCubicTexture = specularCubicMapManager.cubicTexture;
 
-    // console.timeEnd(str);
+    console.timeEnd(str);
 
-    // str = `Diffuse Cubic Texture Load of ${ diffuseTextureRoot } Complete`;
-    // console.time(str);
+    str = `Diffuse Cubic Texture Load of ${ diffuseTextureRoot } Complete`;
+    console.time(str);
 
-    // await diffuseCubicMapManager.loadTexture();
-    // diffuseCubicTexture = diffuseCubicMapManager.cubicTexture;
+    await diffuseCubicMapManager.loadTexture();
+    diffuseCubicTexture = diffuseCubicMapManager.cubicTexture;
 
-    // console.timeEnd(str);
+    console.timeEnd(str);
 
     str = `Scene Background Texture Load Complete`;
     console.time(str);
@@ -128,4 +124,4 @@ const initializeMaterialLibrary = async () => {
 
 };
 
-export { initializeMaterialLibrary, sceneBackgroundDiagnosticTexture, sceneBackgroundTexture, showNormalsMaterial, shaderLibrary };
+export { initializeMaterialLibrary, sceneBackgroundDiagnosticTexture, sceneBackgroundTexture, diffuseCubicTexture, specularCubicTexture, showNormalsMaterial, shaderLibrary };

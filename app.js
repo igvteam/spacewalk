@@ -94,30 +94,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
 const initializationHelper = async container => {
 
-    // const path = "resources/tracks/hg19_annotations.json"
-    //
-    // let response
-    // try {
-    //     response = await fetch(path)
-    // } catch (e) {
-    //     AlertSingleton.present(e.message)
-    //     console.error(e)
-    // }
-    //
-    // let txt
-    // try {
-    //     txt = await response.text()
-    // } catch (e) {
-    //     AlertSingleton.present(e.message)
-    //     console.error(e)
-    // }
-    //
-    // console.log(`Track Registry retrieval ${ txt }`)
-
-
-
-
-
     await initializeMaterialLibrary();
 
     parser = new Parser();
