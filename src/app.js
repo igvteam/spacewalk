@@ -94,6 +94,30 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
 const initializationHelper = async container => {
 
+    // const path = "resources/tracks/hg19_annotations.json"
+    //
+    // let response
+    // try {
+    //     response = await fetch(path)
+    // } catch (e) {
+    //     AlertSingleton.present(e.message)
+    //     console.error(e)
+    // }
+    //
+    // let txt
+    // try {
+    //     txt = await response.text()
+    // } catch (e) {
+    //     AlertSingleton.present(e.message)
+    //     console.error(e)
+    // }
+    //
+    // console.log(`Track Registry retrieval ${ txt }`)
+
+
+
+
+
     await initializeMaterialLibrary();
 
     parser = new Parser();
@@ -270,7 +294,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
         'hic-app-track-load-url-modal',
         'hic-app-track-select-modal',
         undefined,
-        spacewalkConfig.trackRegistryFile,
+        spacewalkConfig.trackRegistry,
         (configurations) => igvPanel.loadTrackList(configurations))
 
     // Event bus specifically dedicated to IGV Track Menu

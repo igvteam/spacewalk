@@ -215,16 +215,16 @@ class IGVPanel extends Panel {
 
 let genomeDictionary = undefined
 
-async function loadGenomeWithID(browser, genomes, genomeID) {
+async function loadGenomeWithID(browser, genomeList, genomeID) {
 
     if (undefined === genomeDictionary) {
 
-        let genomeList = undefined;
-        try {
-            genomeList = await igvxhr.loadJson(genomes, {})
-        } catch (e) {
-            AlertSingleton.present(e.message)
-        }
+        // let genomeList = undefined;
+        // try {
+        //     genomeList = await igvxhr.loadJson(genomes, {})
+        // } catch (e) {
+        //     AlertSingleton.present(e.message)
+        // }
 
         genomeDictionary = {}
         for (let genome of genomeList) {

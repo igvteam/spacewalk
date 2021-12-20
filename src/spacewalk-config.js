@@ -1,9 +1,11 @@
+import genomes from './resources/genomes.json'
+import trackRegistry from './resources/tracks/trackRegistry.json'
 const spacewalkConfig =
     {
-            genomes: "resources/genomes.json",
-            trackRegistryFile: "resources/tracks/trackRegistry.json",
-            clientId: "661332306814-fmasnut050v7qds33tsa2rtvd5tc06sl.apps.googleusercontent.com",
-            apiKey: "AIzaSyCEmqU2lrAgKxJCbnJX87a5F3c9GejCCLA",
+            genomes,
+            trackRegistry,
+            // clientId: "661332306814-fmasnut050v7qds33tsa2rtvd5tc06sl.apps.googleusercontent.com",
+            // apiKey: "AIzaSyCEmqU2lrAgKxJCbnJX87a5F3c9GejCCLA",
             igvConfig:
                 {
                         genome: 'hg19',
