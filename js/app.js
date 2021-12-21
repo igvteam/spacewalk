@@ -29,7 +29,7 @@ import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
-import { spacewalkConfig } from "./spacewalk-config.js";
+import { spacewalkConfig } from "../spacewalk-config.js";
 
 let stats
 let gui

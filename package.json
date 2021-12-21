@@ -4,11 +4,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "http-server -a localhost dist"
   },
   "devDependencies": {
     "btoa": "^1.2.1",
     "data-modal": "github:igvteam/data-modal#spacewalk",
+    "http-server": "^14.0.0",
     "igv-ui": "github:igvteam/igv-ui#v1.2.1",
     "igv-utils": "github:igvteam/igv-utils#v1.3.4",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",

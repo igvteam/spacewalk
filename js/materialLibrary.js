@@ -1,14 +1,14 @@
 import CubicMapManager from "./cubicMapManager.js";
 import * as THREE from "three";
 
-import show_st_vert from './glsl/show_st.vert'
-import show_st_frag from './glsl/show_st.frag'
+import show_st_vert from '../glsl/show_st.vert'
+import show_st_frag from '../glsl/show_st.frag'
 
-import diffuse_cube_vert from './glsl/diffuse_cube.vert'
-import diffuse_cube_frag from './glsl/diffuse_cube.frag'
+import diffuse_cube_vert from '../glsl/diffuse_cube.vert'
+import diffuse_cube_frag from '../glsl/diffuse_cube.frag'
 
-import sceneBackgroundDiagnosticTextureFile from './texture/uv.png'
-import sceneBackgroundTextureFile from './texture/scene-backdrop-grey-ramp.png'
+import sceneBackgroundDiagnosticTextureFile from '../texture/uv.png'
+import sceneBackgroundTextureFile from '../texture/scene-backdrop-grey-ramp.png'
 
 const shaderLibrary =
     {
