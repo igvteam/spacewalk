@@ -2,9 +2,9 @@
 import { rgb255String, rgb255ToThreeJSColor } from "./color.js";
 import { createImage, readFileAsDataURL } from './utils.js';
 
-import { peter_kovesi_colors } from '../resources/colormaps/peter_kovesi/peter_kovesi.js'
-import bintu_et_al from '../resources/colormaps/bintu_et_al/bintu_et_al.png'
-import juicebox_default from '../resources/colormaps/juicebox_default/juicebox_default.png'
+import { peter_kovesi_colors } from './peter_kovesi.js'
+import bintu_et_al from '/resources/colormaps/bintu_et_al/bintu_et_al.png'
+import juicebox_default from '/resources/colormaps/juicebox_default/juicebox_default.png'
 
 export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
 

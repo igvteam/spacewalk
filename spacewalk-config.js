@@ -1,5 +1,5 @@
-import genomes from './resources/genomes.json'
-import trackRegistry from './resources/tracks/trackRegistry.json'
+import genomes from '/public/resources/genomes.json'
+import trackRegistry from '/public/resources/tracks/trackRegistry.json'
 const spacewalkConfig =
     {
             genomes,

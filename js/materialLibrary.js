@@ -7,8 +7,8 @@ import show_st_frag from '../glsl/show_st.frag'
 import diffuse_cube_vert from '../glsl/diffuse_cube.vert'
 import diffuse_cube_frag from '../glsl/diffuse_cube.frag'
 
-import sceneBackgroundDiagnosticTextureFile from '../texture/uv.png'
-import sceneBackgroundTextureFile from '../texture/scene-backdrop-grey-ramp.png'
+import sceneBackgroundDiagnosticTextureFile from '/texture/uv.png'
+import sceneBackgroundTextureFile from '/texture/scene-backdrop-grey-ramp.png'
 
 const shaderLibrary =
     {
@@ -54,14 +54,14 @@ const shaderLibrary =
 
     }
 
-// const specularTextureRoot = './texture/cubic/diagnostic/threejs_format/';
-// const specularTextureRoot = './texture/cubic/specular/aerodynamics_workshop/';
-// const specularTextureRoot = './texture/cubic/specular/skybox/';
-const specularTextureRoot = './texture/cubic/diagnostic/tissot/';
-// const specularTextureRoot = './texture/cubic/specular/grid/';
+// const specularTextureRoot = '/texture/cubic/diagnostic/threejs_format/';
+// const specularTextureRoot = '/texture/cubic/specular/aerodynamics_workshop/';
+// const specularTextureRoot = '/texture/cubic/specular/skybox/';
+const specularTextureRoot = '/texture/cubic/diagnostic/tissot/';
+// const specularTextureRoot = '/texture/cubic/specular/grid/';
 const specularCubicMapManager = new CubicMapManager({ textureRoot: specularTextureRoot, suffix: '.png', isSpecularMap: true });
 
-const diffuseTextureRoot = './texture/cubic/diagnostic/tissot/';
+const diffuseTextureRoot = '/texture/cubic/diagnostic/tissot/';
 const diffuseCubicMapManager = new CubicMapManager({
     textureRoot: diffuseTextureRoot,
     suffix: '.png',
