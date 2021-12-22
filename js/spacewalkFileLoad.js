@@ -25,12 +25,12 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
             title: 'GSDB',
             selectionStyle: 'single',
             pageLength: 100,
-            datasource: new GenericDataSource(gsdbDatasourceConfigurator('https://calla.rnet.missouri.edu/genome3d/GSDB/GSDB_JSON_URL_LIST.txt')),
+            datasource: new GenericDataSource(gsdbDatasourceConfigurator('http://calla.rnet.missouri.edu/genome3d/GSDB/GSDB_JSON_URL_LIST.txt')),
             okHandler: (selections) => {
 
                 if (selections.length > 0) {
                     let { name, url } = selections[ 0 ]
-                    url = `https://${ url }`
+                    url = `http://${ url }`
                     fileLoader.load(url)
                 }
             }
