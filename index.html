@@ -574,66 +574,67 @@
         </ul>
       </div>
 
-      <!-- color ramp panel -->
+      <!-- color ramp card -->
       <div id="spacewalk_color_ramp_panel" class="card">
 
-        <div id="spacewalk_color_ramp_widget_container" class="card-body">
+        <ul class="list-group list-group-flush">
 
-          <div class="spacewalk_card_drag_container">
-            <i class="fas fa-square-full"></i>
-            <i class="fas fa-sm fa-grip-horizontal"></i>
-            <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_color_ramp"></i>
-          </div>
+          <!-- color ramp card body -->
+          <li class="list-group-item">
+            <div id="spacewalk_color_ramp_widget_container" class="card-body">
 
-          <div id="spacewalk_color_ramp_header">
-          </div>
-
-          <div id="spacewalk_color_ramp_canvas_container">
-
-            <!--                    <canvas id="spacewalk_color_ramp_point_cloud_canvas_highlight"></canvas>-->
-            <canvas id="spacewalk_color_ramp_canvas_highlight"></canvas>
-
-            <!--                    <canvas id="spacewalk_color_ramp_point_cloud_canvas_rgb"></canvas>-->
-            <canvas id="spacewalk_color_ramp_canvas_rgb"></canvas>
-
-            <canvas id="spacewalk_color_ramp_canvas_alpha"></canvas>
-          </div>
-
-          <div id="spacewalk_color_ramp_footer">
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- trace select panel -->
-      <div id="spacewalk_trace_select_panel" class="card">
-
-        <div class="card-body">
-
-          <div class="spacewalk_card_drag_container">
-            <i class="fas fa-square-full"></i>
-            <i class="fas fa-sm fa-grip-horizontal"></i>
-            <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_trace_select"></i>
-          </div>
-
-          <!-- header -->
-          <div id="spacewalk_trace_select_header" class="text-center">
-
-          </div>
-
-          <!-- trace select widget -->
-          <div class="form-group">
-            <div class="input-group input-group-sm">
-              <input id="spacewalk_trace_select_input" type="text" class="form-control text-center">
-              <div class="input-group-append">
-                <button id="spacewalk_trace_select_button_minus" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
-                <button id="spacewalk_trace_select_button_plus" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+              <div class="spacewalk_card_drag_container">
+                <i class="fas fa-square-full"></i>
+                <i class="fas fa-sm fa-grip-horizontal"></i>
+                <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_color_ramp"></i>
               </div>
-            </div>
-          </div>
 
-        </div>
+              <!-- color-ramp header -->
+              <div id="spacewalk_color_ramp_header">
+              </div>
+
+              <!-- color-ramp widget -->
+              <div id="spacewalk_color_ramp_canvas_container">
+
+                <canvas id="spacewalk_color_ramp_canvas_highlight"></canvas>
+
+                <canvas id="spacewalk_color_ramp_canvas_rgb"></canvas>
+
+                <canvas id="spacewalk_color_ramp_canvas_alpha"></canvas>
+              </div>
+
+              <!-- color-ramp footer -->
+              <div id="spacewalk_color_ramp_footer">
+              </div>
+
+            </div>
+          </li>
+
+          <!-- trace-select card body -->
+          <li class="list-group-item">
+            <div class="card-body">
+
+              <!-- trace-select header -->
+              <div id="spacewalk_trace_select_header" class="text-center">
+
+              </div>
+
+              <!-- trace-select widget -->
+              <div class="form-group">
+                <div class="input-group input-group-sm">
+                  <input id="spacewalk_trace_select_input" type="text" class="form-control text-center">
+                  <div class="input-group-append">
+                    <button id="spacewalk_trace_select_button_minus" class="btn btn-outline-secondary" type="button"><i class="fas fa-minus"></i></button>
+                    <button id="spacewalk_trace_select_button_plus" class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i></button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </li>
+
+        </ul>
+        
 
       </div>
 

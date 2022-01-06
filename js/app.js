@@ -15,7 +15,6 @@ import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import GUIManager, { doConfigurePanelHidden } from "./guiManager.js";
-import TraceSelectPanel from "./traceSelectPanel.js";
 import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
 import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
@@ -48,7 +47,6 @@ let sceneManager;
 let dataValueMaterialProvider;
 let colorRampMaterialProvider;
 let guiManager;
-let traceSelectPanel;
 let colorRampPanel;
 let distanceMapPanel;
 let contactFrequencyMapPanel;
@@ -213,8 +211,6 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     createShareWidgets($main, $('#spacewalk-share-button'), 'spacewalk-share-modal')
 
-    traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_trace_select_panel') });
-
     colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_color_ramp_panel') }) );
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_distance_map_panel') }));
@@ -279,7 +275,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     // Event bus specifically dedicated to IGV Track Menu
     EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
-    Panel.setPanelDictionary([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
+    Panel.setPanelDictionary([colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
 
     $(window).on('resize.app', e => {
 
@@ -421,4 +417,4 @@ function hideSpinner() {
     document.getElementById('spacewalk-spinner').style.display = 'none'
 }
 
-export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel, appendAndConfigureLoadURLModal };
+export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, colorRampPanel, appendAndConfigureLoadURLModal };
