@@ -21,7 +21,7 @@ async function loadSession(json) {
     await loadSpacewalkSession(json.spacewalk)
 
     if (json.juicebox) {
-        await loadJuiceboxSession(json.juicebox)
+        await loadJuiceboxSession(json.spacewalk.locus, json.juicebox)
     }
 
     await loadIGVSession(json.spacewalk, json.igv)
@@ -38,8 +38,10 @@ async function loadIGVSession(spacewalk, igv) {
 
 }
 
-async function loadJuiceboxSession(session) {
+async function loadJuiceboxSession(locus, session) {
     await hic.restoreSession($('#spacewalk_juicebox_root_container').get(0), session)
+    const { chr, genomicStart:start, genomicEnd:end } = locus
+    await juiceboxPanel.goto({ chr, start, end })
     juiceboxPanel.configureMouseHandlers()
 }
 
@@ -135,6 +137,7 @@ function getCompressedSession() {
 function toJSON () {
 
     const spacewalk = parser.toJSON()
+    spacewalk.locus = ensembleManager.locus
     spacewalk.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace)
     spacewalk.igvPanelState = igvPanel.getSessionState()
     spacewalk.renderStyle = getGUIRenderStyle()
