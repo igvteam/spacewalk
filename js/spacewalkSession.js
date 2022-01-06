@@ -54,6 +54,7 @@ async function loadSpacewalkSession (session) {
 
     setGUIRenderStyle(renderStyle);
 
+    // TODO: This does not work
     Panel.setAllPanelVisibility(panelVisibility);
 
     sceneManager.gnomon.setVisibility(gnomonVisibility);
@@ -116,8 +117,8 @@ function getCompressedSession() {
     json.renderStyle = getGUIRenderStyle()
     json.panelVisibility = {}
 
-    for (let panel of Panel.getPanelList()) {
-        json.panelVisibility[ panel.constructor.name ] = true === panel.isHidden ? 'hidden' : 'visible'
+    for (let [key, value] of Object.entries( Panel.getPanelDictionary() )) {
+        json.panelVisibility[ key ] = true === value.isHidden ? 'hidden' : 'visible'
     }
 
     json.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden'
@@ -139,8 +140,8 @@ function toJSON () {
     spacewalk.renderStyle = getGUIRenderStyle()
     spacewalk.panelVisibility = {}
 
-    for (let panel of Panel.getPanelList()) {
-        spacewalk.panelVisibility[ panel.constructor.name ] = true === panel.isHidden ? 'hidden' : 'visible'
+    for (let [key, value] of Object.entries( Panel.getPanelDictionary() )) {
+        spacewalk.panelVisibility[ key ] = true === value.isHidden ? 'hidden' : 'visible'
     }
 
     spacewalk.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden'

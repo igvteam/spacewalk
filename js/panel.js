@@ -3,7 +3,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import { makeDraggable } from "./draggable.js"
 import { setPanelVisibility } from "./guiManager.js"
 
-let panelList = undefined;
+const panelDictionary = {}
 
 class Panel {
 
@@ -114,24 +114,29 @@ class Panel {
         }
     }
 
-    static setPanelList(panels) {
-        panelList = panels;
-    }
-
     static setAllPanelVisibility(panelVisibility) {
 
-        Panel.getPanelList().forEach( panel => {
-            if ('visible' === panelVisibility[ panel.constructor.name ]) {
-                panel.present();
+        for (let [key, value] of Object.entries( Panel.getPanelDictionary() )) {
+
+            if ('visible' === panelVisibility[ key ]) {
+                value.present();
             } else {
-                panel.dismiss();
+                value.dismiss();
             }
-        });
+
+        }
 
     }
 
-    static getPanelList() {
-        return panelList;
+
+    static getPanelDictionary() {
+        return panelDictionary
+    }
+
+    static setPanelDictionary(panels) {
+        for (let panel of panels) {
+            panelDictionary[ panel.getClassName() ] = panel
+        }
     }
 
 }

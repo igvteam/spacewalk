@@ -42,6 +42,8 @@ class DistanceMapPanel extends Panel {
 
     }
 
+    getClassName(){ return 'DistanceMapPanel' }
+
     updateEnsembleAverageDistanceCanvas(ensemble){
 
         const traces = Object.values(ensemble);

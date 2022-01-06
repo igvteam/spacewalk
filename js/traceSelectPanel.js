@@ -65,6 +65,8 @@ class TraceSelectPanel extends Panel {
 
     }
 
+    getClassName(){ return 'TraceSelectPanel' }
+
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });

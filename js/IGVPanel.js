@@ -36,6 +36,8 @@ class IGVPanel extends Panel {
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
     }
 
+    getClassName(){ return 'IGVPanel' }
+
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });

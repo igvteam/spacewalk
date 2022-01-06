@@ -279,7 +279,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     // Event bus specifically dedicated to IGV Track Menu
     EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
-    Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
+    Panel.setPanelDictionary([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
 
     $(window).on('resize.app', e => {
 

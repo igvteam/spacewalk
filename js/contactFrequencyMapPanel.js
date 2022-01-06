@@ -63,6 +63,8 @@ class ContactFrequencyMapPanel extends Panel {
         });
     }
 
+    getClassName(){ return 'ContactFrequencyMapPanel' }
+
     updateEnsembleContactFrequencyCanvas(ensemble) {
 
         for (let f = 0; f < ensembleManager.sharedMapArray.length; f++) ensembleManager.sharedMapArray[ f ] = 0;

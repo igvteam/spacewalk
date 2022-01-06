@@ -32,6 +32,8 @@ class JuiceboxPanel extends Panel {
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
     }
 
+    getClassName(){ return 'JuiceboxPanel' }
+
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });

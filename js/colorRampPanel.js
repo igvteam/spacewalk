@@ -29,6 +29,8 @@ class ColorRampPanel extends Panel {
 
     }
 
+    getClassName(){ return 'ColorRampPanel' }
+
     receiveEvent({ type, data }) {
 
         super.receiveEvent({ type, data });
