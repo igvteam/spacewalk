@@ -90,7 +90,7 @@ $spacewalk_trace_select_panel_width: 160px;
     // trace-select header
     #spacewalk_trace_select_header {
 
-      font-size: 14px;
+      font-size: 1rem;
 
       line-height: $spacewalk_trace_select_panel_label_height;
       vertical-align: center;
@@ -107,7 +107,7 @@ $spacewalk_trace_select_panel_width: 160px;
       margin-bottom: 0.25rem;
 
       input#spacewalk_trace_select_input {
-        font-size: 1.25rem;
+        font-size: 1rem;
       }
 
     }
