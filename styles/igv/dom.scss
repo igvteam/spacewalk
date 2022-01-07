@@ -116,8 +116,16 @@ $igv-zoom-in-notice-height: 16px;
   width: $igv-axis-column-width;
 
   >div {
+    position: relative;
     margin-top: $igv-column-item-margin-top;
     width: 100%;
+    input {
+      z-index: 2048;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
 }
 
