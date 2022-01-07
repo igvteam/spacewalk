@@ -1,7 +1,7 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
 import Parser from "./parser.js";
-import { colorRampMaterialProvider, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
+import { colorRampMaterialProvider, distanceMapPanel, contactFrequencyMapPanel } from "./app.js";
 import { includes, degrees } from "./math.js";
 
 class EnsembleManager {

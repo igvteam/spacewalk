@@ -15,9 +15,10 @@ import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import GUIManager, { doConfigurePanelHidden } from "./guiManager.js";
-import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
-import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
 import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
+import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
+import TraceSelect from './traceSelect.js'
+import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
@@ -46,14 +47,15 @@ let colorMapManager;
 let sceneManager;
 let dataValueMaterialProvider;
 let colorRampMaterialProvider;
-let guiManager;
-let colorRampPanel;
-let distanceMapPanel;
-let contactFrequencyMapPanel;
-let juiceboxPanel;
-let igvPanel;
-let renderContainerController;
-let googleEnabled = false;
+let guiManager
+let distanceMapPanel
+let contactFrequencyMapPanel
+let juiceboxPanel
+let igvPanel
+let traceSelect
+let traceNavigator
+let renderContainerController
+let googleEnabled = false
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
@@ -113,12 +115,11 @@ const initializationHelper = async container => {
     // dataValueMaterialProvider = new DataValueMaterialProvider({ width:8192, height:16, colorMinimum:appleCrayonColorRGB255('silver'), colorMaximum:appleCrayonColorRGB255('blueberry') })
     dataValueMaterialProvider = new DeprecatedDataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
 
-    const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
-    colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
+    colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
-    sceneManager = new SceneManager(sceneManagerConfigurator({ container: document.getElementById('spacewalk-threejs-container'), highlightColor }));
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container: document.querySelector('#spacewalk-threejs-canvas-container'), highlightColor }));
 
-    renderContainerController = new RenderContainerController(container, sceneManager);
+    renderContainerController = new RenderContainerController(container, sceneManager)
 
     const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = getUrlParams(window.location.href);
 
@@ -127,8 +128,8 @@ const initializationHelper = async container => {
     guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
 
     // frame rate
-    stats = new Stats()
-    document.body.appendChild( stats.dom )
+    // stats = new Stats()
+    // document.body.appendChild( stats.dom )
 
     // draw calls
     // gui = new GUI()
@@ -167,11 +168,15 @@ function render () {
 
     sceneManager.renderLoopHelper()
 
-    stats.update()
+    // stats.update()
 
 }
 
 const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL) => {
+
+    traceSelect = new TraceSelect()
+
+    traceNavigator = new TraceNavigator(document.querySelector('#spacewalk-trace-navigator-container'))
 
     const spacewalkFileLoadConfig =
         {
@@ -210,8 +215,6 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
 
     createShareWidgets($main, $('#spacewalk-share-button'), 'spacewalk-share-modal')
-
-    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_color_ramp_panel') }) );
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_distance_map_panel') }));
 
@@ -260,9 +263,9 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     createTrackWidgetsWithTrackRegistry(
         $(igvPanel.container),
-        $('#hic-track-dropdown-menu'),
+        $('#spacewalk-file-dropdown'),
         $('#hic-local-track-file-input'),
-        $('#hic-track-dropdown-dropbox-button'),
+        $('#spacewalk-track-dropbox-button'),
         googleEnabled,
         $('#hic-track-dropdown-google-drive-button'),
         ['hic-encode-signal-modal', 'hic-encode-other-modal'],
@@ -275,7 +278,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     // Event bus specifically dedicated to IGV Track Menu
     EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
-    Panel.setPanelDictionary([colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
+    Panel.setPanelDictionary([distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
 
     $(window).on('resize.app', e => {
 
@@ -417,4 +420,4 @@ function hideSpinner() {
     document.getElementById('spacewalk-spinner').style.display = 'none'
 }
 
-export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, colorRampPanel, appendAndConfigureLoadURLModal };
+export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceNavigator, appendAndConfigureLoadURLModal };

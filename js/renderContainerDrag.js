@@ -37,17 +37,17 @@ function configureRenderContainerDrag({ target, handle, container, topConstraint
 
     };
 
-    handle.addEventListener('mouseenter', (event) => {
-        event.stopPropagation()
-        handle.style.backgroundColor = rgb255String(appleCrayonColorRGB255('snow'))
-        handle.querySelector('i').style.color = rgb255String(appleCrayonColorRGB255('steel'))
-    });
+    // handle.addEventListener('mouseenter', (event) => {
+    //     event.stopPropagation()
+    //     handle.style.backgroundColor = rgb255String(appleCrayonColorRGB255('snow'))
+    //     handle.querySelector('i').style.color = rgb255String(appleCrayonColorRGB255('steel'))
+    // });
 
-    handle.addEventListener('mouseleave', (event) => {
-        event.stopPropagation()
-        handle.style.backgroundColor = "transparent"
-        handle.querySelector('i').style.color = "transparent"
-    });
+    // handle.addEventListener('mouseleave', (event) => {
+    //     event.stopPropagation()
+    //     handle.style.backgroundColor = "transparent"
+    //     handle.querySelector('i').style.color = "transparent"
+    // });
 
     $(handle).on(`mousedown.${ namespace }`, event => {
 

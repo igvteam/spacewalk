@@ -12,49 +12,43 @@ let rgbTexture;
 let alphaTexture;
 class ColorRampMaterialProvider {
 
-    constructor({ $canvasContainer, highlightColor }) {
+    constructor({ canvasContainer, highlightColor }) {
 
-        let canvas;
+        let canvas
 
         // highlight canvas
-        canvas = $canvasContainer.find('#spacewalk_color_ramp_canvas_highlight').get(0);
-        fitToContainer(canvas);
-        this.highlight_ctx = canvas.getContext('2d');
+        canvas = canvasContainer.querySelector('#spacewalk_color_ramp_canvas_highlight')
+        fitToContainer(canvas)
+        this.highlight_ctx = canvas.getContext('2d')
 
         // color ramp canvas
-        canvas = $canvasContainer.find('#spacewalk_color_ramp_canvas_rgb').get(0);
-        fitToContainer(canvas);
-        this.rgb_ctx = canvas.getContext('2d');
+        canvas = canvasContainer.querySelector('#spacewalk_color_ramp_canvas_rgb')
+        fitToContainer(canvas)
+        this.rgb_ctx = canvas.getContext('2d')
 
-        const namespace = 'color-ramp-material-provider';
+        const namespace = 'color-ramp-material-provider'
 
-        $canvasContainer.on(('mousemove.' + namespace), (event) => {
-            event.stopPropagation();
-            this.onCanvasMouseMove(canvas, event);
+        canvasContainer.addEventListener('mousemove', event => {
+            event.stopPropagation()
+            this.onCanvasMouseMove(canvas, event)
         });
 
-        $canvasContainer.on(('mouseenter.' + namespace), (event) => {
-            event.stopPropagation();
-            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
+        canvasContainer.addEventListener('mouseenter', event => {
+            event.stopPropagation()
+            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' })
         });
 
-        $canvasContainer.on(('mouseleave.' + namespace), (event) => {
-            event.stopPropagation();
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
-            this.repaint();
+        canvasContainer.addEventListener('mouseleave', event => {
+            event.stopPropagation()
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' })
+            this.repaint()
         });
 
-        // soak up misc events
-        let eventSink = e => { e.stopPropagation(); };
-        $canvasContainer.on(('mouseup.' + namespace), eventSink);
-        $canvasContainer.on(('mousedown.' + namespace), eventSink);
-        $canvasContainer.on(('click.' + namespace), eventSink);
+        const { r, g, b } = highlightColor
+        this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) )
 
-        const { r, g, b } = highlightColor;
-        this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
-
-        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
-        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this)
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
     }
 
     receiveEvent({ type, data }) {
@@ -134,6 +128,12 @@ class ColorRampMaterialProvider {
 
         }
 
+    }
+
+    resize() {
+        fitToContainer(this.highlight_ctx.canvas)
+        fitToContainer(this.rgb_ctx.canvas)
+        this.repaint()
     }
 
     repaint(){

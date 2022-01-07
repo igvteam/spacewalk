@@ -52,7 +52,7 @@ const setMaterialProvider = materialProvider => {
     ballAndStick.updateMaterialProvider(materialProvider);
 };
 
-let fitToContainer = (canvas, devicePixelRatio) => {
+const fitToContainer = (canvas, devicePixelRatio) => {
 
     canvas.style.width ='100%';
     canvas.style.height ='100%';
@@ -61,7 +61,7 @@ let fitToContainer = (canvas, devicePixelRatio) => {
     canvas.height = devicePixelRatio ? devicePixelRatio * canvas.offsetHeight : canvas.offsetHeight;
 };
 
-let getMouseXY = (domElement, { clientX, clientY }) => {
+const getMouseXY = (domElement, { clientX, clientY }) => {
 
     // a DOMRect object with eight properties: left, top, right, bottom, x, y, width, height
     const { left, top, width, height } = domElement.getBoundingClientRect();

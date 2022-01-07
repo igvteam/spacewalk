@@ -1,12 +1,19 @@
 $spacewalk_navbar_height: 42px;
 $spacewalk_spinner_size: 128px;
 
+//$spacewalk-threejs-canvas-container-size: 512px;
+$spacewalk-threejs-canvas-container-size: 256px;
+
+$spacewalk-threejs-drag-container-height: 32px;
+
+$spacewalk-trace-navigator-width: 48px;
+$spacewalk-trace-navigator-label-height: 32px;
+$spacewalk-trace-navigator-canvas-width: 40px;
+
 @import "color";
 @import "navbar";
 @import "panel";
 @import "data_file_load_modal";
-
-@import "color_ramp_panel";
 @import "distance_map_panel";
 @import "contact_frequence_map_panel";
 @import "juicebox_panel";
@@ -30,19 +37,13 @@ $spacewalk_spinner_size: 128px;
   top: 128px;
   left: 128px;
 
-  //width: 640px;
-  //height:640px;
-
-  width: 480px;
-  height:480px;
-
-  background-color: $spacewalk_nickel;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
 
   #spacewalk-threejs-drag-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -50,16 +51,98 @@ $spacewalk_spinner_size: 128px;
     align-items: center;
 
     width: 100%;
-    height: $spacewalk_card_drag_container_height;
-    background-color: transparent;
+    height: $spacewalk-threejs-drag-container-height;
+    background-color: $spacewalk_snow;
 
     cursor: grab;
 
     i {
-      color: transparent;
+      color: $spacewalk_steel;
       display: block;
     }
 
+  }
+
+  #spacewalk-threejs-trace-navigator-container {
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    #spacewalk-threejs-canvas-container {
+      width: $spacewalk-threejs-canvas-container-size;
+      height:$spacewalk-threejs-canvas-container-size;
+      background-color: $spacewalk_nickel;
+    }
+
+    #spacewalk-trace-navigator-container {
+
+      width: $spacewalk-trace-navigator-width;
+      height: $spacewalk-threejs-canvas-container-size;
+      background-color: white;
+
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      align-items: center;
+
+      #spacewalk-trace-navigator-header {
+        width: 100%;
+        height: $spacewalk-trace-navigator-label-height;
+
+        font-size: .85rem;
+        line-height: $spacewalk-trace-navigator-label-height;
+        vertical-align: middle;
+        text-align: center;
+        background-color: white;
+      }
+
+      #spacewalk-trace-navigator-widget {
+        position: relative;
+        cursor: pointer;
+
+        width: $spacewalk-trace-navigator-canvas-width;
+        height: 100%;
+
+        //background-color: #6495ed;
+
+        canvas {
+          display: block;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+
+        canvas#spacewalk_color_ramp_canvas_highlight {
+          z-index: 128;
+        }
+
+        canvas#spacewalk_color_ramp_canvas_rgb {
+          z-index: inherit;
+        }
+
+        canvas#spacewalk_color_ramp_canvas_alpha {
+          z-index: -128;
+        }
+
+      }
+
+      #spacewalk-trace-navigator-footer {
+        width: 100%;
+        height: $spacewalk-trace-navigator-label-height;
+
+        font-size: .85rem;
+        line-height: $spacewalk-trace-navigator-label-height;
+        vertical-align: middle;
+        text-align: center;
+
+        background-color: white;
+      }
+
+    }
   }
 
 }

@@ -1,4 +1,14 @@
 
+.dropdown-header {
+  color: $spacewalk_tungsten;
+  font-size: 1rem;
+}
+
+.dropdown-item {
+  color: $spacewalk_tungsten;
+  font-size: .875rem;
+}
+
 .navbar {
   padding-top:   0.25rem;
   padding-bottom: 0.25rem;
@@ -11,6 +21,16 @@
 }
 
 .navbar-dark {
+
+  .input-group {
+    margin: .4rem;
+
+    .form-control {
+      height: unset;
+      padding: unset;
+    }
+  }
+
   .navbar-nav {
     .nav-link {
       //text-transform: uppercase;

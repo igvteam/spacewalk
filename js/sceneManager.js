@@ -9,7 +9,7 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import { pointCloud, ribbon, ballAndStick, ensembleManager, contactFrequencyMapPanel, distanceMapPanel, sceneManager } from "./app.js";
+import { pointCloud, ribbon, ballAndStick, ensembleManager, distanceMapPanel, contactFrequencyMapPanel, sceneManager } from "./app.js";
 import { getGUIRenderStyle, configureColorPicker } from "./guiManager.js";
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 import Ribbon from './ribbon.js'
@@ -160,14 +160,37 @@ class SceneManager {
     }
 
     resizeContainer() {
+        const { width, height } =  this.container.getBoundingClientRect()
+        this.renderer.setSize(width, height)
+
+        this.cameraLightingRig.object.aspect = width / height
+        this.cameraLightingRig.object.updateProjectionMatrix()
+
+    }
+
+    _resizeContainer(threejsContainer) {
 
         if (this.renderer && this.cameraLightingRig) {
 
-            const { width, height } = this.getRenderContainerSize();
-            this.renderer.setSize(width, height);
+            const { width:threejsContainerWidth, height:threejsContainerHeight } = threejsContainer.getBoundingClientRect()
 
-            this.cameraLightingRig.object.aspect = width/height;
-            this.cameraLightingRig.object.updateProjectionMatrix();
+            const { height:draggerHeight } = threejsContainer.querySelector('#spacewalk-threejs-drag-container').getBoundingClientRect()
+
+            // const draggerHeight = 32
+            // threejsContainer.querySelector('#spacewalk-threejs-drag-container').style.height = `${ draggerHeight }px`
+
+            const { width:traceNavigatorWidth } = threejsContainer.querySelector('#spacewalk-trace-navigator-container').getBoundingClientRect()
+
+            const h = threejsContainerHeight - draggerHeight
+            const w = threejsContainerWidth - traceNavigatorWidth
+
+            this.container.style.width = `${ w }px`
+            this.container.style.height = `${ h }px`
+
+            this.renderer.setSize(w, h)
+
+            this.cameraLightingRig.object.aspect = w/h
+            this.cameraLightingRig.object.updateProjectionMatrix()
         }
 
     }

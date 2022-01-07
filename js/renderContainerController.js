@@ -1,16 +1,14 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { configureRenderContainerDrag } from './renderContainerDrag.js'
+import { traceNavigator } from './app.js'
 
 class RenderContainerController {
 
     constructor(rootContainer, sceneManager) {
 
-        this.rootContainer = rootContainer;
-        this.sceneManager = sceneManager;
+        const threejsContainer = rootContainer.querySelector('#spacewalk-threejs-container')
 
-        const { container } = sceneManager;
-
-        this.setTopLeftPercentages(rootContainer, container);
+        this.setTopLeftPercentages(rootContainer, threejsContainer);
 
         const config =
             {
@@ -20,16 +18,18 @@ class RenderContainerController {
                 helper: "spacewalk-threejs-container-resizable-helper",
                 stop: () => {
                     sceneManager.resizeContainer()
+                    traceNavigator.resize(sceneManager.container)
                 }
             };
 
         $(sceneManager.container).resizable(config)
+        // $(threejsContainer).resizable(config)
 
         const dragConfig =
             {
-                target: container,
-                handle: container.querySelector('#spacewalk-threejs-drag-container'),
-                container: document.getElementById('spacewalk-root-container'),
+                target: threejsContainer,
+                handle: threejsContainer.querySelector('#spacewalk-threejs-drag-container'),
+                container: rootContainer,
                 topConstraint: document.querySelector('.navbar').getBoundingClientRect().height
             }
 
@@ -38,12 +38,14 @@ class RenderContainerController {
         SpacewalkEventBus.globalBus.subscribe("AppWindowDidResize", this);
         SpacewalkEventBus.globalBus.subscribe("DidEndRenderContainerDrag", this);
 
+        this.sceneManager = sceneManager;
+
     }
 
-    setTopLeftPercentages(rootContainer, sceneContainer) {
+    setTopLeftPercentages(rootContainer, threejsContainer) {
 
         const { width, height } = rootContainer.getBoundingClientRect();
-        const { left, top } = sceneContainer.getBoundingClientRect();
+        const { left, top } = threejsContainer.getBoundingClientRect();
 
         this.leftPercent = left / width;
         this.topPercent = top / height;
@@ -56,14 +58,14 @@ class RenderContainerController {
         return { top, left };
     }
 
-    receiveEvent({ type, data }) {
-
-        if ('AppWindowDidResize' === type) {
-            $(this.sceneManager.container).offset(this.getOffset(this.rootContainer))
-        } else if ('DidEndRenderContainerDrag' === type) {
-            this.setTopLeftPercentages(this.rootContainer, this.sceneManager.container);
-        }
-    }
+    // receiveEvent({ type, data }) {
+    //
+    //     if ('AppWindowDidResize' === type) {
+    //         $(this.sceneManager.container).offset(this.getOffset(this.rootContainer))
+    //     } else if ('DidEndRenderContainerDrag' === type) {
+    //         this.setTopLeftPercentages(this.rootContainer, this.sceneManager.container);
+    //     }
+    // }
 
 }
 
