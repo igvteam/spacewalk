@@ -72,19 +72,10 @@
 
       <ul class="navbar-nav">
 
-        <!-- trace-select widget -->
-        <div class="input-group">
-          <input type="text" class="form-control text-center" id="spacewalk_trace_select_input">
-          <div class="input-group-append">
-            <button id="spacewalk_trace_select_button_minus" class="btn btn-light  btn-sm" type="button"><i class="fas fa-minus"></i></button>
-            <button id="spacewalk_trace_select_button_plus" class="btn btn-light  btn-sm" type="button"><i class="fas fa-plus"></i></button>
-          </div>
-        </div>
-
-        <!-- Resources -->
+        <!-- Files -->
         <li class="nav-item">
 
-          <div class="dropdown mt-1">
+          <div class="dropdown ml-4 mt-1">
 
             <a id="spacewalk-sw-load-dropdown-button" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
               Files
@@ -285,7 +276,7 @@
 
         <!-- Session -->
         <li class="nav-item">
-          <div class="dropdown mt-1">
+          <div class="dropdown ml-2 mt-1">
 
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
               Session
@@ -328,14 +319,17 @@
 
         <!-- Bookmark -->
         <li class="nav-item">
-          <button id="spacewalk-share-button" class="btn btn-secondary btn-sm ml-4 mt-2" type="button">Share</button>
+          <button id="spacewalk-share-button" class="btn btn-secondary btn-sm ml-2 mt-2" type="button">Share</button>
         </li>
 
-        <!--            <li>-->
-        <!--                <button id="spacewalk-reset-camera-button" class="btn btn-info btn-sm ml-4 mt-1" type="button">-->
-        <!--                    Reset Camera-->
-        <!--                </button>-->
-        <!--            </li>-->
+        <!-- trace-select widget -->
+        <div class="ml-4 input-group">
+          <input type="text" class="form-control text-center" id="spacewalk_trace_select_input">
+          <div class="input-group-append">
+            <button id="spacewalk_trace_select_button_minus" class="btn btn-light  btn-sm" type="button"><i class="fas fa-minus"></i></button>
+            <button id="spacewalk_trace_select_button_plus" class="btn btn-light  btn-sm" type="button"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
 
       </ul>
     </div>
