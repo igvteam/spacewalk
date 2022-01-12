@@ -21,20 +21,7 @@ function configureContactMapLoaders({
                                         loadHandler
                                     }) {
 
-    $dropdowns.on('show.bs.dropdown', function () {
-
-        // Contact or Control dropdown button
-        // NOTE:  this in the callback is a DOM element, jquery weirdness
-        const $child = $(this).children('.dropdown-toggle');
-
-        // button id
-        const id = $child.attr('id');
-
-        // Set map type based on dropdown selected, this is a transient variable, set every time this callback
-        // is invoked.
-        mapType = 'hic-contact-map-dropdown' === id ? 'contact-map' : 'control-map';
-
-    });
+    mapType = 'contact-map'
 
     $localFileInputs.on('change', async function (e) {
         const file = ($(this).get(0).files)[0];

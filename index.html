@@ -72,28 +72,16 @@
 
       <ul class="navbar-nav">
 
-        <!-- Files -->
+        <!-- Spacewalk Files -->
         <li class="nav-item">
 
-          <div class="dropdown ml-4 mt-1">
+          <div class="dropdown ml-2 mt-1">
 
-            <a id="spacewalk-sw-load-dropdown-button" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              Files
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+              Spacewalk
             </a>
 
             <ul id="spacewalk-file-dropdown" class="dropdown-menu">
-
-              <!--  Spacewalk Files -->
-              <li><h6 class="dropdown-header">Spacewalk Files</h6></li>
-
-              <!-- GSDB -->
-              <!--                <li>-->
-              <!--                  &lt;!&ndash; TODO: Notify GSDB maintainers to replace http: to https: &ndash;&gt;-->
-              <!--                  <button id="spacewalk-gsdb-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-gsdb-modal">-->
-              <!--                    GSDB Files-->
-              <!--                  </button>-->
-
-              <!--                </li>-->
 
               <!-- Selection List -->
               <li>
@@ -151,11 +139,22 @@
                 </button>
               </li>
 
-              <div class="dropdown-divider">
-              </div>
+            </ul>
 
-              <!--  Genomic Track Files -->
-              <li><h6 class="dropdown-header">Genomic Track Files</h6></li>
+          </div>
+
+        </li>
+
+        <!-- Genomic Files -->
+        <li class="nav-item">
+
+          <div class="dropdown ml-2 mt-1">
+
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+              Genomic
+            </a>
+
+            <ul id="spacewalk-track-dropdown-menu"  class="dropdown-menu">
 
               <!-- Local File -->
               <li>
@@ -187,7 +186,7 @@
               <!-- Google Drive -->
               <li>
                 <div class="dropdown-item">
-                  <div id="hic-track-dropdown-google-drive-button" class="igv-app-dropdown-item-cloud-storage">
+                  <div id="spacewalk-track-dropdown-google-drive-button" class="igv-app-dropdown-item-cloud-storage">
                     <div>Google Drive File</div>
                     <img src="img/googledrive-dropdown-menu-item.png" width="18" height="18">
                   </div>
@@ -202,11 +201,22 @@
               <div id="hic-annotations-section" class="dropdown-divider">
               </div>
 
-              <div class="dropdown-divider">
-              </div>
+            </ul>
 
-              <!--  Contact Map Files -->
-              <li><h6 class="dropdown-header">Contact Map Files</h6></li>
+          </div>
+
+        </li>
+
+        <!-- Juicebox Files -->
+        <li class="nav-item">
+
+          <div class="dropdown ml-2 mt-1">
+
+            <a id="hic-contact-map-dropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+              Juicebox
+            </a>
+
+            <ul class="dropdown-menu">
 
               <!-- Select -->
               <li>

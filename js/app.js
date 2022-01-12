@@ -192,6 +192,61 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     createSpacewalkFileLoaders(spacewalkFileLoadConfig)
 
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') })
+    igvPanel.materialProvider = colorRampMaterialProvider;
+
+    if (igvSessionURL) {
+        spacewalkConfig.session = JSON.parse(StringUtils.uncompressString(igvSessionURL.substr(5)))
+    }
+    await igvPanel.initialize(spacewalkConfig)
+
+    createTrackWidgetsWithTrackRegistry(
+        $(igvPanel.container),
+        $('#spacewalk-track-dropdown-menu'),
+        $('#hic-local-track-file-input'),
+        $('#spacewalk-track-dropbox-button'),
+        googleEnabled,
+        $('#spacewalk-track-dropdown-google-drive-button'),
+        ['hic-encode-signal-modal', 'hic-encode-other-modal'],
+        'hic-app-track-load-url-modal',
+        'hic-app-track-select-modal',
+        undefined,
+        spacewalkConfig.trackRegistry,
+        (configurations) => igvPanel.loadTrackList(configurations))
+
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
+
+    const juiceboxInitializationConfig =
+        {
+            container: $('#spacewalk_juicebox_root_container').get(0),
+            width: 480,
+            height: 480
+        }
+    if (juiceboxSessionURL) {
+        juiceboxInitializationConfig.session = JSON.parse(StringUtils.uncompressString(juiceboxSessionURL.substr(5)))
+    }
+    await juiceboxPanel.initialize(juiceboxInitializationConfig)
+
+    const $dropdownButton = $('#spacewalk-contact-map-dropdown')
+    const $dropdowns = $dropdownButton.parent()
+
+    const contactMapLoadConfig =
+        {
+            rootContainer: document.querySelector('#spacewalk-main'),
+            $dropdowns,
+            $localFileInputs: $dropdowns.find('input'),
+            urlLoadModalId: 'hic-load-url-modal',
+            dataModalId: 'hic-contact-map-modal',
+            encodeHostedModalId: 'hic-encode-hosted-contact-map-modal',
+            $dropboxButtons: $dropdowns.find('div[id$="-map-dropdown-dropbox-button"]'),
+            $googleDriveButtons: $dropdowns.find('div[id$="-map-dropdown-google-drive-button"]'),
+            googleEnabled,
+            mapMenu: spacewalkConfig.contactMapMenu,
+            loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path, name, mapType)
+        }
+
+    configureContactMapLoaders(contactMapLoadConfig)
+
     // $('#spacewalk-reset-camera-button').on('click.spacewalk-reset-camera-button', e => {
     //     sceneManager.resetCamera();
     // });
@@ -213,69 +268,12 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
         async json => await loadSession(json),
         () => toJSON());
 
-
     createShareWidgets($main, $('#spacewalk-share-button'), 'spacewalk-share-modal')
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_distance_map_panel') }));
 
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_contact_frequency_map_panel') }));
 
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
-
-    const juiceboxInitializationConfig =
-        {
-            container: $('#spacewalk_juicebox_root_container').get(0),
-            width: 480,
-            height: 480
-        }
-    if (juiceboxSessionURL) {
-        juiceboxInitializationConfig.session = JSON.parse(StringUtils.uncompressString(juiceboxSessionURL.substr(5)))
-    }
-    await juiceboxPanel.initialize(juiceboxInitializationConfig)
-
-    const $dropdownButton = $('#hic-contact-map-dropdown')
-    const $dropdowns = $dropdownButton.parent()
-
-    const contactMapLoadConfig =
-        {
-            rootContainer: document.querySelector('#spacewalk-main'),
-            $dropdowns,
-            $localFileInputs: $dropdowns.find('input'),
-            urlLoadModalId: 'hic-load-url-modal',
-            dataModalId: 'hic-contact-map-modal',
-            encodeHostedModalId: 'hic-encode-hosted-contact-map-modal',
-            $dropboxButtons: $dropdowns.find('div[id$="-map-dropdown-dropbox-button"]'),
-            $googleDriveButtons: $dropdowns.find('div[id$="-map-dropdown-google-drive-button"]'),
-            googleEnabled,
-            mapMenu: spacewalkConfig.contactMapMenu,
-            loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path, name, mapType)
-        }
-
-    configureContactMapLoaders(contactMapLoadConfig)
-
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') })
-    igvPanel.materialProvider = colorRampMaterialProvider;
-
-    if (igvSessionURL) {
-        spacewalkConfig.session = JSON.parse(StringUtils.uncompressString(igvSessionURL.substr(5)))
-    }
-    await igvPanel.initialize(spacewalkConfig)
-
-    createTrackWidgetsWithTrackRegistry(
-        $(igvPanel.container),
-        $('#spacewalk-file-dropdown'),
-        $('#hic-local-track-file-input'),
-        $('#spacewalk-track-dropbox-button'),
-        googleEnabled,
-        $('#hic-track-dropdown-google-drive-button'),
-        ['hic-encode-signal-modal', 'hic-encode-other-modal'],
-        'hic-app-track-load-url-modal',
-        'hic-app-track-select-modal',
-        undefined,
-        spacewalkConfig.trackRegistry,
-        (configurations) => igvPanel.loadTrackList(configurations))
-
-    // Event bus specifically dedicated to IGV Track Menu
     EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
     Panel.setPanelDictionary([distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
