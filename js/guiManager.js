@@ -4,6 +4,7 @@ import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import { rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor } from "./color.js";
 import { ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
+import {exp} from "three/examples/jsm/renderers/nodes/ShaderNode"
 
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
@@ -14,6 +15,7 @@ class GUIManager {
 
         $button.on('click.gui_manager', (e) => {
             e.preventDefault();
+            e.stopPropagation()
             $panel.toggle();
         });
 
@@ -110,6 +112,155 @@ class GUIManager {
         }
     }
 
+}
+
+export function renderSettingsPanelTemplate () {
+    const html = `<div id="spacewalk-render-settings-panel-template" class="popover" role="tooltip">
+    <div class="arrow"></div>
+    <h3 class="popover-header"></h3>
+    <div class="popover-body"></div>
+</div>`
+
+    return html
+}
+export function GUIPanelMarkup () {
+
+    const _html =
+        `<ul class="list-group list-group-flush">
+    <li class="list-group-item">An item</li>
+    <li class="list-group-item">A second item</li>
+    <li class="list-group-item">A third item</li>
+  </ul>`
+
+    const html =
+
+        `<ul class="list-group list-group-flush">
+
+          <!-- render style -->
+          <li id="spacewalk_ui_manager_render_styles" class="list-group-item">
+            <div>
+
+              <div class="form-check">
+                <input name="spacewalk-render-style" id="spacewalk-render-style-ball-stick" class="form-check-input" type="radio" checked>
+                <label class="form-check-label" for="spacewalk-render-style-ball-stick">Ball & Stick</label>
+              </div>
+
+              <div id="spacewalk-ball-radius-control" class="spacewalk-ball-stick-control">
+                <div>
+                  Ball Radius
+                </div>
+                <div>
+                  <i class="fas fa-minus-circle"></i>
+                  <i class="fas fa-plus-circle"></i>
+                </div>
+              </div>
+
+              <div id="spacewalk-stick-radius-control" class="spacewalk-ball-stick-control">
+                <div>
+                  Stick Radius
+                </div>
+                <div>
+                  <i class="fas fa-minus-circle"></i>
+                  <i class="fas fa-plus-circle"></i>
+                </div>
+              </div>
+
+              <div class="form-check">
+                <input name="spacewalk-render-style" id="spacewalk-render-style-ribbon" class="form-check-input" type="radio">
+                <label class="form-check-label" for="spacewalk-render-style-ribbon">Ribbon</label>
+              </div>
+
+            </div>
+          </li>
+
+          <!-- background color -->
+          <li class="list-group-item spacewalk-colorpicker-li" style="display: none;">
+
+            <div class="input-group">
+
+              <div class="input-group-prepend">
+                            <span class="input-group-text spacewalk-colorpicker-input-group-text">
+                                Background Color
+                            </span>
+              </div>
+
+              <input type="text" class="spacewalk-colorpicker-input form-control">
+
+              <div class="input-group-append">
+                <div class="input-group-text spacewalk-colorpicker-input-group-text">
+                  <input id="spacewalk_background_colorpicker" type="text" class="form-control" data-colorpicker="background">
+                </div>
+              </div>
+
+            </div>
+
+          </li>
+
+          <!-- groundplane -->
+          <li class="list-group-item spacewalk-colorpicker-li">
+
+            <div class="input-group">
+
+              <div class="input-group-prepend">
+
+                <div class="input-group-text spacewalk-colorpicker-input-group-text">
+                  <input id="spacewalk_ui_manager_groundplane" type="checkbox">
+                </div>
+
+                <span class="input-group-text spacewalk-colorpicker-input-group-text">
+                                Ground Plane
+                            </span>
+
+              </div>
+
+              <input type="text" class="spacewalk-colorpicker-input form-control">
+
+              <div class="input-group-append">
+
+                <div class="input-group-text spacewalk-colorpicker-input-group-text">
+                  <input id="spacewalk_ui_manager_groundplane_colorpicker" type="text" class="form-control" data-colorpicker="groundplane">
+                </div>
+
+              </div>
+
+            </div>
+
+          </li>
+
+          <!-- axes (gnomon) -->
+          <li class="list-group-item spacewalk-colorpicker-li">
+
+            <div class="input-group">
+
+              <div class="input-group-prepend">
+
+                <div class="input-group-text spacewalk-colorpicker-input-group-text">
+                  <input id="spacewalk_ui_manager_gnomon" type="checkbox">
+                </div>
+
+                <span class="input-group-text spacewalk-colorpicker-input-group-text">
+                                Axes
+                            </span>
+
+              </div>
+
+              <input type="text" class="spacewalk-colorpicker-input form-control">
+
+              <div class="input-group-append">
+
+                <div class="input-group-text spacewalk-colorpicker-input-group-text">
+                  <input id="spacewalk_ui_manager_gnomon_colorpicker" type="text" class="form-control" data-colorpicker="gnomon">
+                </div>
+
+              </div>
+
+            </div>
+
+          </li>
+
+        </ul>`
+
+    return html
 }
 
 const configureVisibilityControl = (input_id_list, $panel) => {

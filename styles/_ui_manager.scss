@@ -1,22 +1,22 @@
-$spacewalk_ui_manager_panel_size: 300px;
 
-//$spacewalk_ui_manager_button_top: 64px + $spacewalk_navbar_height;
-$spacewalk_ui_manager_button_top: 150px;
+$spacewalk-threejs-settings-button-container_top: 16px;
+$spacewalk-threejs-settings-button-container_left: 16px;
 
-$spacewalk_ui_manager_panel_top: 48px + $spacewalk_ui_manager_button_top;
-$spacewalk_ui_manager_left: 32px;
+$spacewalk_ui_manager_panel_top: 64px;
+$spacewalk_ui_manager_panel_left: 64px;
+
+$spacewalk_ui_manager_panel_width: 300px;
 $spacewalk_ui_manager_margin: 6px;
 
 $spacewalk-ball-stick-control-y-margin: 4px;
 
-// ui manager
-#spacewalk_ui_manager_button {
+#spacewalk-threejs-settings-button-container {
 
   z-index: 2048;
 
   position: absolute;
-  top: $spacewalk_ui_manager_button_top;
-  left: $spacewalk_ui_manager_left;
+  top: $spacewalk-threejs-settings-button-container_top;
+  left: $spacewalk-threejs-settings-button-container_left;
 
   display: flex;
   flex-direction: row;
@@ -38,14 +38,17 @@ $spacewalk-ball-stick-control-y-margin: 4px;
 #spacewalk_ui_manager_panel.card {
 
   z-index: 2048;
-  background-color: $spacewalk_tungsten;
-  border-color: $spacewalk_tungsten;
+
+  position: absolute;
 
   top: $spacewalk_ui_manager_panel_top;
-  left: $spacewalk_ui_manager_left;
+  left: $spacewalk_ui_manager_panel_left;
 
-  width: $spacewalk_ui_manager_panel_size;
+  width: $spacewalk_ui_manager_panel_width;
   height: auto;
+
+  background-color: $spacewalk_tungsten;
+  border-color: $spacewalk_tungsten;
 
   .list-group {
     margin-top: $spacewalk_ui_manager_margin;

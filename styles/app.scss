@@ -72,9 +72,11 @@ $spacewalk-trace-navigator-canvas-width: 40px;
     align-items: flex-start;
 
     #spacewalk-threejs-canvas-container {
+      position: relative;
       width: $spacewalk-threejs-canvas-container-size;
       height:$spacewalk-threejs-canvas-container-size;
       background-color: $spacewalk_nickel;
+
     }
 
     #spacewalk-trace-navigator-container {

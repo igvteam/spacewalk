@@ -125,7 +125,7 @@ const initializationHelper = async container => {
 
     await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL);
 
-    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
+    guiManager = new GUIManager({ $button: $('#spacewalk-threejs-settings-button-container'), $panel: $('#spacewalk_ui_manager_panel') });
 
     // frame rate
     // stats = new Stats()
