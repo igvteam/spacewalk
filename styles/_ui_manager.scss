@@ -47,12 +47,16 @@ $spacewalk-ball-stick-control-y-margin: 4px;
   width: $spacewalk_ui_manager_panel_width;
   height: auto;
 
-  background-color: $spacewalk_tungsten;
+  background-color: rgba(255, 255, 255, 0.25);
   border-color: $spacewalk_tungsten;
 
   .list-group {
     margin-top: $spacewalk_ui_manager_margin;
     margin-bottom: $spacewalk_ui_manager_margin;
+
+    .list-group-item {
+      background-color: transparent;
+    }
   }
 
   .list-group:first-child {
@@ -105,7 +109,7 @@ li#spacewalk_ui_manager_render_styles {
   }
 
   i.fas {
-    color: $spacewalk_tin;
+    color: $spacewalk_tungsten;
   }
 
   i.fas:first-child {
@@ -132,28 +136,33 @@ li.spacewalk-colorpicker-li {
   padding: unset;
 
   .input-group {
+
     display: flex;
     flex-wrap: nowrap;
     align-items: stretch;
     justify-content: space-between;
 
+    .input-group-prepend {
+      .input-group-text {
+        color: $spacewalk_tungsten;
+        background-color: transparent;
+        border: unset;
+      }
+    }
+
     .input-group-append {
       .input-group-text {
+        color: $spacewalk_tungsten;
         border: unset;
         border-radius: unset;
         height: 100%;
         width: 36px;
         padding-left: unset;
         padding-right: unset;
-        background-color: #03f987;
+        background-color: white;
       }
 
     }
   }
-}
-
-.spacewalk-colorpicker-input-group-text {
-  background-color: transparent;
-  border: unset;
 }
 

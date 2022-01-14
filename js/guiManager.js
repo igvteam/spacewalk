@@ -160,7 +160,7 @@ export const configureColorPicker = (element, initialColor, callback) => {
             editorFormat: 'rgb',
             color: rgb255String(threeJSColorToRGB255(initialColor)),
             onChange: ({rgbString}) => {
-                
+
                 element.style.backgroundColor = rgbString
 
                 const [ head, g, tail ] = rgbString.split(',')
