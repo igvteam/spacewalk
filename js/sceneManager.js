@@ -137,7 +137,7 @@ class SceneManager {
         this.groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(centroid.x, min.y, centroid.z), boundingDiameter));
         this.scene.add( this.groundPlane );
 
-        configureColorPicker($(`input[data-colorpicker='groundplane']`), this.groundPlane.color, color => this.groundPlane.setColor(color));
+        configureColorPicker(document.querySelector(`div[data-colorpicker='groundplane']`), this.groundPlane.color, color => this.groundPlane.setColor(color));
 
         // Gnomon
         if (this.gnomon) {
@@ -147,7 +147,7 @@ class SceneManager {
         this.gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter));
         this.gnomon.addToScene(this.scene);
 
-        configureColorPicker($(`input[data-colorpicker='gnomon']`), this.gnomon.color, color => this.gnomon.setColor(color));
+        configureColorPicker(document.querySelector(`div[data-colorpicker='gnomon']`), this.gnomon.color, color => this.gnomon.setColor(color));
 
         $(this.container).on('mousemove.spacewalk.picker', (event) => {
 

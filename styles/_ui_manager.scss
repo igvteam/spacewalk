@@ -119,12 +119,37 @@ li#spacewalk_ui_manager_render_styles {
 
 }
 
-.spacewalk-colorpicker-li {
-  padding: unset;
+.spacewalk-threejs-settings-feature {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
 }
 
-.spacewalk-colorpicker-input {
-  border: unset;
+li.spacewalk-colorpicker-li {
+
+  padding: unset;
+
+  .input-group {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: space-between;
+
+    .input-group-append {
+      .input-group-text {
+        border: unset;
+        border-radius: unset;
+        height: 100%;
+        width: 36px;
+        padding-left: unset;
+        padding-right: unset;
+        background-color: #03f987;
+      }
+
+    }
+  }
 }
 
 .spacewalk-colorpicker-input-group-text {

@@ -342,6 +342,7 @@
         </div>
 
       </ul>
+
     </div>
 
     <div id="spacewalk-help-icon-container" class="btn-group dropleft mr-2">
@@ -425,7 +426,7 @@
           <!-- three-js canvas container -->
           <div id="spacewalk-threejs-canvas-container">
 
-            <!-- UI Manager Button -->
+            <!-- Render Settings Button -->
             <div id="spacewalk-threejs-settings-button-container">
 
               <button id="spacewalk-threejs-settings-button" type="button" class="btn btn-default">
@@ -434,8 +435,8 @@
 
             </div>
 
-            <!-- UI Manager Panel -->
-            <div id="spacewalk_ui_manager_panel" class="card">
+            <!-- Render Settings Panel -->
+            <div id="spacewalk_ui_manager_panel" class="card" style="display: none;">
 
               <!-- trace related items -->
               <ul class="list-group list-group-flush">
@@ -477,54 +478,20 @@
                   </div>
                 </li>
 
-                <!-- background color -->
-                <li class="list-group-item spacewalk-colorpicker-li" style="display: none;">
-
-                  <div class="input-group">
-
-                    <div class="input-group-prepend">
-                            <span class="input-group-text spacewalk-colorpicker-input-group-text">
-                                Background Color
-                            </span>
-                    </div>
-
-                    <input type="text" class="spacewalk-colorpicker-input form-control">
-
-                    <div class="input-group-append">
-                      <div class="input-group-text spacewalk-colorpicker-input-group-text">
-                        <input id="spacewalk_background_colorpicker" type="text" class="form-control" data-colorpicker="background">
-                      </div>
-                    </div>
-
-                  </div>
-
-                </li>
-
                 <!-- groundplane -->
                 <li class="list-group-item spacewalk-colorpicker-li">
 
                   <div class="input-group">
 
                     <div class="input-group-prepend">
-
                       <div class="input-group-text spacewalk-colorpicker-input-group-text">
                         <input id="spacewalk_ui_manager_groundplane" type="checkbox">
                       </div>
-
-                      <span class="input-group-text spacewalk-colorpicker-input-group-text">
-                                Ground Plane
-                            </span>
-
+                      <div class="input-group-text spacewalk-colorpicker-input-group-text">Ground Plane</div>
                     </div>
 
-                    <input type="text" class="spacewalk-colorpicker-input form-control">
-
                     <div class="input-group-append">
-
-                      <div class="input-group-text spacewalk-colorpicker-input-group-text">
-                        <input id="spacewalk_ui_manager_groundplane_colorpicker" type="text" class="form-control" data-colorpicker="groundplane">
-                      </div>
-
+                        <div class="input-group-text" data-colorpicker="groundplane"></div>
                     </div>
 
                   </div>
@@ -537,25 +504,14 @@
                   <div class="input-group">
 
                     <div class="input-group-prepend">
-
                       <div class="input-group-text spacewalk-colorpicker-input-group-text">
                         <input id="spacewalk_ui_manager_gnomon" type="checkbox">
                       </div>
-
-                      <span class="input-group-text spacewalk-colorpicker-input-group-text">
-                                Axes
-                            </span>
-
+                      <span class="input-group-text spacewalk-colorpicker-input-group-text">Axes</span>
                     </div>
 
-                    <input type="text" class="spacewalk-colorpicker-input form-control">
-
                     <div class="input-group-append">
-
-                      <div class="input-group-text spacewalk-colorpicker-input-group-text">
-                        <input id="spacewalk_ui_manager_gnomon_colorpicker" type="text" class="form-control" data-colorpicker="gnomon">
-                      </div>
-
+                        <div class="input-group-text" data-colorpicker="gnomon"></div>
                     </div>
 
                   </div>
