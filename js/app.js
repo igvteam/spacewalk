@@ -174,6 +174,11 @@ function render () {
 
 const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL) => {
 
+    $('.checkbox-menu').on("change", "input[type='checkbox']", () => $(this).closest("li").toggleClass("active", this.checked))
+
+    // to support Viewers navbar item. Checkbox settings.
+    $(document).on('click', '.allow-focus', e => e.stopPropagation())
+
     traceSelect = new TraceSelect()
 
     traceNavigator = new TraceNavigator(document.querySelector('#spacewalk-trace-navigator-container'))
