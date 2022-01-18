@@ -10,11 +10,11 @@ import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
 import DataValueMaterialProvider from './dataValueMaterialProvider.js';
 import DeprecatedDataValueMaterialProvider from "./deprecatedDataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
-import Panel from "./panel.js";
+import Panel, { doInspectPanelVisibilityCheckbox }  from "./panel.js";
 import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
-import GUIManager, { doConfigurePanelHidden } from "./guiManager.js";
+import GUIManager from "./guiManager.js";
 import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
 import TraceSelect from './traceSelect.js'
@@ -125,7 +125,8 @@ const initializationHelper = async container => {
 
     await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL);
 
-    guiManager = new GUIManager({ $button: $('#spacewalk-threejs-settings-button-container'), $panel: $('#spacewalk_ui_manager_panel') });
+    const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
+    guiManager = new GUIManager({ settingsButton, $panel: $('#spacewalk_ui_manager_panel') });
 
     // frame rate
     // stats = new Stats()
@@ -174,10 +175,10 @@ function render () {
 
 const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL) => {
 
-    $('.checkbox-menu').on("change", "input[type='checkbox']", () => $(this).closest("li").toggleClass("active", this.checked))
+    // $('.checkbox-menu').on("change", "input[type='checkbox']", () => $(this).closest("li").toggleClass("active", this.checked))
 
     // to support Viewers navbar item. Checkbox settings.
-    $(document).on('click', '.allow-focus', e => e.stopPropagation())
+    // $(document).on('click', '.allow-focus', e => e.stopPropagation())
 
     traceSelect = new TraceSelect()
 
@@ -197,7 +198,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     createSpacewalkFileLoaders(spacewalkFileLoadConfig)
 
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') })
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
     igvPanel.materialProvider = colorRampMaterialProvider;
 
     if (igvSessionURL) {
@@ -219,7 +220,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
         spacewalkConfig.trackRegistry,
         (configurations) => igvPanel.loadTrackList(configurations))
 
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
 
     const juiceboxInitializationConfig =
         {
@@ -275,13 +276,13 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     createShareWidgets($main, $('#spacewalk-share-button'), 'spacewalk-share-modal')
 
-    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_distance_map_panel') }));
+    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_distance_map_panel')}));
 
-    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_contact_frequency_map_panel') }));
+    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel')}));
 
     EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
-    Panel.setPanelDictionary([distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
+    Panel.setPanelDictionary([ igvPanel, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel ]);
 
     $(window).on('resize.app', e => {
 

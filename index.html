@@ -292,33 +292,33 @@
               Viewers
             </a>
 
-            <ul class="dropdown-menu checkbox-menu allow-focus">
+            <ul id="spacewalk-viewers-dropdown-menu" class="dropdown-menu checkbox-menu allow-focus">
 
               <!-- IGV Viewer -->
               <li >
                 <label>
-                  <input id="spacewalk-igv-checkbox" type="checkbox"> IGV Viewer
+                  <input id="spacewalk_ui_manager_ui_controls_igv" data-target="spacewalk_igv_panel" type="checkbox"> IGV Viewer
                 </label>
               </li>
 
               <!-- Juicebox Viewer -->
               <li >
                 <label>
-                  <input id="spacewalk-juicebox-checkbox" type="checkbox"> Juicebox Viewer
+                  <input id="spacewalk_ui_manager_ui_controls_juicebox" data-target="spacewalk_juicebox_panel" type="checkbox"> Juicebox Viewer
                 </label>
               </li>
 
               <!-- Distance Map -->
               <li >
                 <label>
-                  <input id="spacewalk-distance-map-checkbox" type="checkbox"> Distance Map
+                  <input id="spacewalk_ui_manager_ui_controls_distance_map" data-target="spacewalk_distance_map_panel" type="checkbox"> Distance Map
                 </label>
               </li>
 
               <!-- Contact Frequency Map -->
               <li >
                 <label>
-                  <input id="spacewalk-igv-contact-map-checkbox" type="checkbox"> Contact Frequency Map
+                  <input id="spacewalk_ui_manager_ui_controls_contact_frequency_map" data-target="spacewalk_contact_frequency_map_panel" type="checkbox"> Contact Frequency Map
                 </label>
               </li>
 
@@ -401,7 +401,6 @@
         </div>
       </div>
 
-
     </div>
 
   </nav>
@@ -481,7 +480,6 @@
             <!-- Render Settings Panel -->
             <div id="spacewalk_ui_manager_panel" class="card" style="display: none;">
 
-              <!-- trace related items -->
               <ul class="list-group list-group-flush">
 
                 <!-- render style -->
@@ -563,35 +561,6 @@
 
               </ul>
 
-              <!-- IGV & Juicebox & Distance Map & Contact Map-->
-              <ul class="list-group list-group-flush">
-
-                <!-- IGV -->
-                <li class="list-group-item list-group-item-action">
-                  <input id="spacewalk_ui_manager_ui_controls_igv" data-target="spacewalk_igv_panel" class="mr-2" type="checkbox">
-                  <div>IGV Viewer</div>
-                </li>
-
-                <!-- Juicebox -->
-                <li class="list-group-item list-group-item-action">
-                  <input id="spacewalk_ui_manager_ui_controls_juicebox" data-target="spacewalk_juicebox_panel" class="mr-2" type="checkbox">
-                  <div>Juicebox Viewer</div>
-                </li>
-
-                <!-- Distance Map -->
-                <li class="list-group-item list-group-item-action">
-                  <input id="spacewalk_ui_manager_ui_controls_distance_map" data-target="spacewalk_distance_map_panel" class="mr-2" type="checkbox">
-                  <div>Distance Map</div>
-                </li>
-
-                <!-- Contact Map -->
-                <li class="list-group-item list-group-item-action">
-
-                  <input id="spacewalk_ui_manager_ui_controls_contact_frequency_map" data-target="spacewalk_contact_frequency_map_panel" class="mr-2" type="checkbox">
-                  <div>Contact Map</div>
-                </li>
-
-              </ul>
             </div>
 
           </div>
@@ -694,10 +663,8 @@
 
         </div>
 
-        <!-- distance-map panel body -->
         <div id="spacewalk_distance_map_panel_body" class="card-body p-0">
 
-          <!-- distance-map container -->
           <div id="spacewalk_distance_map_panel_container" class="tab-content">
             <canvas id="spacewalk_distance_map_canvas_trace" class="tab-pane active">
             </canvas>
@@ -709,7 +676,7 @@
 
       </div>
 
-       contact-frequency-map panel
+      <!-- contact-frequency-map panel-->
       <div id="spacewalk_contact_frequency_map_panel" class="card">
 
         <div class="card-header">
@@ -753,10 +720,8 @@
 
         </div>
 
-        <!-- contact-frequency panel body -->
         <div id="spacewalk_contact_frequency_map_panel_body" class="card-body p-0">
 
-          <!-- contact-frequency container -->
           <div id="spacewalk_contact_frequency_map_panel_container" class="tab-content">
             <canvas id="spacewalk_contact_frequency_map_canvas_trace" class="tab-pane">
             </canvas>

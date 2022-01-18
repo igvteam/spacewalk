@@ -1,7 +1,9 @@
 import { DOMUtils } from 'igv-utils'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { makeDraggable } from "./draggable.js"
-import { setPanelVisibility } from "./guiManager.js"
+
+const zIndexPanelSelected = 1124;
+const zIndexPanelUnselected = 1024;
 
 const panelDictionary = {}
 
@@ -25,30 +27,51 @@ class Panel {
         makeDraggable(panel, $drag_handle.get(0));
 
         $drag_handle.on(`mousedown.${ this.namespace }`, event => {
-            SpacewalkEventBus.globalBus.post({ type: "DidSelectPanel", data: this.$panel });
+            event.stopPropagation();
+            event.preventDefault();
+            SpacewalkEventBus.globalBus.post({ type: "DidSelectPanel", data: this.getClassName() })
         });
 
         const $closer = this.$panel.find('i.fa-times-circle');
         $closer.on(`click.${ DOMUtils.guid() }`, event => {
             event.stopPropagation();
+            event.preventDefault();
             this.dismiss();
         });
 
-        this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
+        this.$panel.on(`mouseenter.${ this.namespace }`, event => {
             event.stopPropagation();
+            event.preventDefault();
             SpacewalkEventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
         });
 
-        this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
+        this.$panel.on(`mouseleave.${ this.namespace }`, event => {
             event.stopPropagation();
+            event.preventDefault();
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
         });
 
+        SpacewalkEventBus.globalBus.subscribe("DidSelectPanel", this);
         SpacewalkEventBus.globalBus.subscribe("ToggleUIControl", this);
         SpacewalkEventBus.globalBus.subscribe("AppWindowDidResize", this);
         SpacewalkEventBus.globalBus.subscribe("DidEndDrag", this);
 
     }
+
+    receiveEvent({ type, data }) {
+
+        if ('DidSelectPanel' === type) {
+            this.$panel.css('zIndex', this.getClassName() === data ? zIndexPanelSelected : zIndexPanelUnselected)
+        } else if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
+            true === this.isHidden ? this.present() : this.dismiss()
+        } else if ('AppWindowDidResize' === type && false === this.isHidden) {
+            this.$panel.offset(this.getOffset())
+        } else if ('DidEndDrag' === type && data && data === this.$panel.attr('id')) {
+            this.setTopLeftPercentages(true);
+        }
+    }
+
+    getClassName(){ return 'Panel' }
 
     setTopLeftPercentages(isInitialized) {
 
@@ -77,9 +100,14 @@ class Panel {
     }
 
     dismiss() {
+
         this.isHidden = true;
         this.$panel.offset( { left: -1000, top: -1000 } );
-        setPanelVisibility(this.$panel.attr('id'), false);
+
+        const id = this.$panel.attr('id')
+        const $selection = $(`input[data-target='${ id }']`)
+        $selection.prop('checked', false)
+
     };
 
     present() {
@@ -89,30 +117,11 @@ class Panel {
             this.isHidden = false;
         }
 
-        setPanelVisibility(this.$panel.attr('id'), true);
+        const id = this.$panel.attr('id')
+        const $selection = $(`input[data-target='${ id }']`)
+        $selection.prop('checked', true)
 
     };
-
-    receiveEvent({ type, data }) {
-
-        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
-
-            if (true === this.isHidden) {
-                this.present();
-            } else {
-                this.dismiss();
-            }
-
-        } else if ('AppWindowDidResize' === type) {
-
-            if (false === this.isHidden) {
-                this.$panel.offset(this.getOffset());
-            }
-
-        } else if ('DidEndDrag' === type && data && data === this.$panel.attr('id')) {
-            this.setTopLeftPercentages(true);
-        }
-    }
 
     static setAllPanelVisibility(panelVisibility) {
 
@@ -128,7 +137,6 @@ class Panel {
 
     }
 
-
     static getPanelDictionary() {
         return panelDictionary
     }
@@ -139,6 +147,11 @@ class Panel {
         }
     }
 
+}
+
+export function doInspectPanelVisibilityCheckbox(panelID) {
+    const $selection = $(`input[data-target='${ panelID }']`)
+    return !($selection.prop('checked'))
 }
 
 export default Panel;

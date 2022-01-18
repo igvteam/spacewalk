@@ -5,9 +5,10 @@ $spacewalk_contact_frequency_map_panel_width: 256px;
 
   width: $spacewalk_contact_frequency_map_panel_width;
   height: unset;
-  border: 0;
 
   .card-header {
+
+    padding-top: 0;
 
     .spacewalk_card_drag_container {
       display: flex;
@@ -34,7 +35,6 @@ $spacewalk_contact_frequency_map_panel_width: 256px;
 
       i:last-child {
         cursor: pointer;
-        margin-right: 8px;
       }
     }
 

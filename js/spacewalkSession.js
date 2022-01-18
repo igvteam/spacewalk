@@ -56,7 +56,6 @@ async function loadSpacewalkSession (session) {
 
     setGUIRenderStyle(renderStyle);
 
-    // TODO: This does not work
     Panel.setAllPanelVisibility(panelVisibility);
 
     sceneManager.gnomon.setVisibility(gnomonVisibility);
