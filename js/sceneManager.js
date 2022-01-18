@@ -10,7 +10,7 @@ import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
 import { pointCloud, ribbon, ballAndStick, ensembleManager, distanceMapPanel, contactFrequencyMapPanel, sceneManager } from "./app.js";
-import { getGUIRenderStyle, configureColorPicker } from "./guiManager.js";
+import { getGUIRenderStyle } from "./guiManager.js";
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 import Ribbon from './ribbon.js'
 
@@ -137,8 +137,6 @@ class SceneManager {
         this.groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(centroid.x, min.y, centroid.z), boundingDiameter));
         this.scene.add( this.groundPlane );
 
-        configureColorPicker(document.querySelector(`div[data-colorpicker='groundplane']`), this.groundPlane.color, color => this.groundPlane.setColor(color));
-
         // Gnomon
         if (this.gnomon) {
             this.gnomon.dispose();
@@ -146,8 +144,6 @@ class SceneManager {
 
         this.gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter));
         this.gnomon.addToScene(this.scene);
-
-        configureColorPicker(document.querySelector(`div[data-colorpicker='gnomon']`), this.gnomon.color, color => this.gnomon.setColor(color));
 
         $(this.container).on('mousemove.spacewalk.picker', (event) => {
 

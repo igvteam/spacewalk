@@ -3,7 +3,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import { StringUtils } from 'igv-utils'
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
-import { rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor } from "./color.js";
+import {rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor, rgba255String} from "./color.js"
 import { ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
 
 class GUIManager {
@@ -136,7 +136,7 @@ export function doConfigureGroundplaneHidden() {
     return !($input.prop('checked'))
 }
 
-export function setGUIGroundplaneVisibility(status) {
+export function setGroundplaneVisibilityCheckboxStatus(status) {
     const $input = $('#spacewalk_ui_manager_groundplane')
     $input.prop('checked', status)
 }
@@ -147,7 +147,7 @@ export function doConfigureGnomonHidden() {
     return !($input.prop('checked'))
 }
 
-export function setGUIGnomonVisibility(status) {
+export function setGnomonVisibilityCheckboxStatus(status) {
     const $input = $('#spacewalk_ui_manager_gnomon')
     $input.prop('checked', status)
 }
@@ -159,7 +159,9 @@ export function configureColorPicker(element, initialColor, callback) {
         {
             parent: element,
             popup: 'right',
+            editor: false,
             editorFormat: 'rgb',
+            alpha: false,
             color: rgb255String(threeJSColorToRGB255(initialColor)),
             onChange: ({rgbString}) => {
 
@@ -173,7 +175,17 @@ export function configureColorPicker(element, initialColor, callback) {
             }
         }
 
-        new Picker(config)
+        return new Picker(config)
+
+}
+
+export function updateColorPicker(picker, element, rgb) {
+    const rgb255 = threeJSColorToRGB255(rgb)
+
+    element.style.backgroundColor = rgb255String(rgb255)
+
+    const rgba255 = { ...rgb255, ...{ a: 1 } };
+    picker.setColor(rgba255String(rgba255), true)
 
 }
 

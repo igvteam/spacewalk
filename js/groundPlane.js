@@ -1,6 +1,11 @@
 import * as THREE from "three";
-import { appleCrayonColorThreeJS } from "./color.js";
-import { doConfigureGroundplaneHidden, setGUIGroundplaneVisibility } from "./guiManager.js";
+import {appleCrayonColorThreeJS, rgba255String, threeJSColorToRGB255} from "./color.js"
+import {
+    configureColorPicker,
+    doConfigureGroundplaneHidden,
+    setGroundplaneVisibilityCheckboxStatus,
+    updateColorPicker
+} from "./guiManager.js"
 
 class GroundPlane extends THREE.GridHelper {
 
@@ -18,6 +23,8 @@ class GroundPlane extends THREE.GridHelper {
         this.visible = !(isHidden);
         this.material.transparent = true;
 
+        this.colorPicker = configureColorPicker(document.querySelector(`div[data-colorpicker='groundplane']`), this.color, color => this.setColor(color))
+
     }
 
     getColorState() {
@@ -27,7 +34,8 @@ class GroundPlane extends THREE.GridHelper {
 
     setColorState(json) {
         const { r, g, b } = json;
-        this.setColor(new THREE.Color(r, g, b));
+        this.setColor(new THREE.Color(r, g, b))
+        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='groundplane']`), json)
     }
 
     setColor(color) {
@@ -66,17 +74,17 @@ class GroundPlane extends THREE.GridHelper {
 
     toggle() {
         this.visible = !this.visible;
-        setGUIGroundplaneVisibility(this.visible);
+        setGroundplaneVisibilityCheckboxStatus(this.visible);
     }
 
     present() {
         this.visible = true;
-        setGUIGroundplaneVisibility(this.visible);
+        setGroundplaneVisibilityCheckboxStatus(this.visible);
     }
 
     dismiss() {
         this.visible = false;
-        setGUIGroundplaneVisibility(this.visible);
+        setGroundplaneVisibilityCheckboxStatus(this.visible);
     }
 
     setVisibility(status) {
