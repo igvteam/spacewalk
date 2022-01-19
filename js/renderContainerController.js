@@ -6,9 +6,11 @@ class RenderContainerController {
 
     constructor(rootContainer, sceneManager) {
 
-        const threejsContainer = rootContainer.querySelector('#spacewalk-threejs-container')
+        this.rootContainer = rootContainer
+        this.threejsContainer = rootContainer.querySelector('#spacewalk-threejs-container')
 
-        this.setTopLeftPercentages(rootContainer, threejsContainer);
+        this.setTopLeftPercentages(this.rootContainer, this.threejsContainer)
+
 
         const config =
             {
@@ -23,20 +25,19 @@ class RenderContainerController {
             };
 
         $(sceneManager.container).resizable(config)
-        // $(threejsContainer).resizable(config)
 
         const dragConfig =
             {
-                target: threejsContainer,
-                handle: threejsContainer.querySelector('#spacewalk-threejs-drag-container'),
-                container: rootContainer,
+                target: this.threejsContainer,
+                handle: this.threejsContainer.querySelector('#spacewalk-threejs-drag-container'),
+                container: this.rootContainer,
                 topConstraint: document.querySelector('.navbar').getBoundingClientRect().height
             }
 
         configureRenderContainerDrag(dragConfig)
 
-        SpacewalkEventBus.globalBus.subscribe("AppWindowDidResize", this);
-        SpacewalkEventBus.globalBus.subscribe("DidEndRenderContainerDrag", this);
+        // SpacewalkEventBus.globalBus.subscribe("AppWindowDidResize", this);
+        // SpacewalkEventBus.globalBus.subscribe("DidEndRenderContainerDrag", this);
 
         this.sceneManager = sceneManager;
 
@@ -58,14 +59,14 @@ class RenderContainerController {
         return { top, left };
     }
 
-    // receiveEvent({ type, data }) {
-    //
-    //     if ('AppWindowDidResize' === type) {
-    //         $(this.sceneManager.container).offset(this.getOffset(this.rootContainer))
-    //     } else if ('DidEndRenderContainerDrag' === type) {
-    //         this.setTopLeftPercentages(this.rootContainer, this.sceneManager.container);
-    //     }
-    // }
+    receiveEvent({ type, data }) {
+
+        if ('AppWindowDidResize' === type) {
+            $(this.threejsContainer).offset(this.getOffset(this.rootContainer))
+        } else if ('DidEndRenderContainerDrag' === type) {
+            this.setTopLeftPercentages(this.rootContainer, this.threejsContainer)
+        }
+    }
 
 }
 

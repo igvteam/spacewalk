@@ -184,8 +184,8 @@ export function updateColorPicker(picker, element, rgb) {
 
     element.style.backgroundColor = rgb255String(rgb255)
 
-    const rgba255 = { ...rgb255, ...{ a: 1 } };
-    picker.setColor(rgba255String(rgba255), true)
+    const { r, g, b } = rgb255
+    picker.setColor([ r, g, b, 1 ], true)
 
 }
 
