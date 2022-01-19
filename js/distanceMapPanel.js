@@ -3,6 +3,7 @@ import { colorMapManager, ensembleManager } from "./app.js";
 import { drawWithSharedUint8ClampedArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import EnsembleManager from "./ensembleManager.js";
+import SpacewalkEventBus from "./spacewalkEventBus.js"
 
 const kDistanceUndefined = -1;
 
@@ -39,6 +40,64 @@ class DistanceMapPanel extends Panel {
         this.size = { width: canvas.width, height: canvas.height };
 
         this.ctx_ensemble = canvas.getContext('bitmaprenderer');
+
+        this.doUpdateTrace = this.doUpdateEnsemble = undefined
+
+        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+
+    }
+
+    receiveEvent({ type, data }) {
+
+        if ("DidSelectTrace" === type) {
+
+            const { trace } = data
+            this.trace = trace
+
+            if (false === this.isHidden) {
+                console.log('Calc distance map - trace')
+                this.updateTraceDistanceCanvas(this.trace)
+                this.doUpdateTrace = undefined
+            } else {
+                this.doUpdateTrace = true
+            }
+
+        } else if ("DidLoadEnsembleFile" === type) {
+
+            const { ensemble, trace } = data
+            this.ensemble = ensemble
+            this.trace = trace
+
+            if (false === this.isHidden) {
+                console.log('Calc distance map - trace and ensemble')
+                this.updateEnsembleAverageDistanceCanvas(this.ensemble)
+                this.updateTraceDistanceCanvas(this.trace)
+                this.doUpdateTrace = this.doUpdateEnsemble = undefined
+            } else {
+                this.doUpdateTrace = this.doUpdateEnsemble = true
+            }
+
+        }
+
+        super.receiveEvent({ type, data });
+    }
+
+    present() {
+
+        if (true === this.doUpdateEnsemble) {
+            console.log('Calc distance map - ensemble')
+            this.updateEnsembleAverageDistanceCanvas(this.ensemble)
+            this.doUpdateEnsemble = undefined
+        }
+
+        if (true === this.doUpdateTrace) {
+            console.log('Calc distance map - trace')
+            this.updateTraceDistanceCanvas(this.trace)
+            this.doUpdateTrace = undefined
+        }
+
+        super.present()
 
     }
 

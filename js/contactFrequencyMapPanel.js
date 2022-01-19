@@ -6,6 +6,7 @@ import { colorMapManager, ensembleManager } from "./app.js";
 import {threeJSColorToRGB255} from "./color.js";
 import { drawWithSharedUint8ClampedArray } from "./utils.js";
 import EnsembleManager from "./ensembleManager.js";
+import SpacewalkEventBus from "./spacewalkEventBus.js"
 
 const maxDistanceThreshold = 4096;
 const defaultDistanceThreshold = 256;
@@ -44,23 +45,80 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.distanceThreshold = distanceThreshold;
 
-        let $input = this.$panel.find('#spacewalk_contact_frequency_map_adjustment_select_input');
-        $input.val(distanceThreshold);
+        const input = panel.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
+        input.value = distanceThreshold.toString()
 
-        let $button = this.$panel.find('#spacewalk_contact_frequency_map__button');
-        $button.on('click.spacewalk_contact_frequency_map__button', (e) => {
+        panel.querySelector('#spacewalk_contact_frequency_map__button').addEventListener('click', () => {
 
-            const value = $input.val();
+            const value = input.value
             this.distanceThreshold = clamp(parseInt(value, 10), 0, maxDistanceThreshold);
 
             showSpinner();
             window.setTimeout(() => {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.ensemble);
-                this.updateTraceContactFrequencyCanvas(ensembleManager.currentTrace);
-                hideSpinner();
-            }, 0);
+                this.updateEnsembleContactFrequencyCanvas(this.ensemble)
+                this.updateTraceContactFrequencyCanvas(this.trace)
+                this.doUpdateTrace = this.doUpdateEnsemble = undefined
+                hideSpinner()
+            }, 0)
+        })
 
-        });
+        this.doUpdateTrace = this.doUpdateEnsemble = undefined
+
+        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+
+    }
+
+    receiveEvent({ type, data }) {
+
+        if ("DidSelectTrace" === type) {
+
+            const { trace } = data
+            this.trace = trace
+            this.doUpdateTrace = true
+
+            if (false === this.isHidden) {
+                console.log('Calc contact map - trace')
+                this.updateTraceContactFrequencyCanvas(this.trace)
+                this.doUpdateTrace = undefined
+            }
+
+        } else if ("DidLoadEnsembleFile" === type) {
+
+            const { ensemble, trace } = data
+            this.ensemble = ensemble
+            this.trace = trace
+            this.doUpdateTrace = this.doUpdateEnsemble = true
+
+            if (false === this.isHidden) {
+                console.log('Calc contact map - trace and ensemble')
+                this.updateEnsembleContactFrequencyCanvas(this.ensemble)
+                this.updateTraceContactFrequencyCanvas(this.trace)
+                this.doUpdateTrace = this.doUpdateEnsemble = undefined
+            }
+
+        }
+
+        super.receiveEvent({ type, data });
+
+    }
+
+    present() {
+
+        if (true === this.doUpdateEnsemble) {
+            console.log('Calc contact map - ensemble')
+            this.updateEnsembleContactFrequencyCanvas(this.ensemble)
+            this.doUpdateEnsemble = undefined
+        }
+
+        if (true === this.doUpdateTrace) {
+            console.log('Calc contact map - trace')
+            this.updateTraceContactFrequencyCanvas(this.trace)
+            this.doUpdateTrace = undefined
+        }
+
+        super.present()
+
     }
 
     getClassName(){ return 'ContactFrequencyMapPanel' }

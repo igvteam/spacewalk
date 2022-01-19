@@ -98,13 +98,13 @@ class EnsembleManager {
             this.sharedContactFrequencyMapUint8ClampedArray = new Uint8ClampedArray(this.maximumSegmentID * this.maximumSegmentID * 4);
             this.sharedDistanceMapUint8ClampedArray = new Uint8ClampedArray(this.maximumSegmentID * this.maximumSegmentID * 4);
 
-            contactFrequencyMapPanel.updateEnsembleContactFrequencyCanvas(this.ensemble);
-            distanceMapPanel.updateEnsembleAverageDistanceCanvas(this.ensemble);
+            // contactFrequencyMapPanel.updateEnsembleContactFrequencyCanvas(this.ensemble);
+            // distanceMapPanel.updateEnsembleAverageDistanceCanvas(this.ensemble);
         }
 
         const initialKey = traceKey || '0';
         this.currentTrace = this.getTraceWithName(initialKey);
-        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, trace: this.currentTrace } });
+        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, ensemble: this.ensemble, trace: this.currentTrace } });
 
     }
 

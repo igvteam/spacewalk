@@ -108,8 +108,8 @@ class SceneManager {
             ballAndStick.configure(trace);
             ballAndStick.addToScene(scene);
 
-            contactFrequencyMapPanel.updateTraceContactFrequencyCanvas(trace);
-            distanceMapPanel.updateTraceDistanceCanvas(trace);
+            // contactFrequencyMapPanel.updateTraceContactFrequencyCanvas(trace);
+            // distanceMapPanel.updateTraceDistanceCanvas(trace);
         }
 
         const {min, max, center, radius} = EnsembleManager.getBoundsWithTrace(trace);
