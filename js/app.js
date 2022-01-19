@@ -201,9 +201,11 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
     igvPanel.materialProvider = colorRampMaterialProvider;
 
-    if (igvSessionURL) {
-        spacewalkConfig.session = JSON.parse(StringUtils.uncompressString(igvSessionURL.substr(5)))
-    }
+    // TODO: Resuscitate Shareable URL
+    // if (igvSessionURL) {
+    //     spacewalkConfig.session = JSON.parse(StringUtils.uncompressString(igvSessionURL.substr(5)))
+    // }
+
     await igvPanel.initialize(spacewalkConfig)
 
     createTrackWidgetsWithTrackRegistry(
@@ -222,16 +224,14 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
 
-    const juiceboxInitializationConfig =
-        {
-            container: $('#spacewalk_juicebox_root_container').get(0),
-            width: 480,
-            height: 480
-        }
-    if (juiceboxSessionURL) {
-        juiceboxInitializationConfig.session = JSON.parse(StringUtils.uncompressString(juiceboxSessionURL.substr(5)))
-    }
-    await juiceboxPanel.initialize(juiceboxInitializationConfig)
+    // TODO: Resuscitate Shareable URL
+    // if (juiceboxSessionURL) {
+    //     juiceboxInitializationConfig.session = JSON.parse(StringUtils.uncompressString(juiceboxSessionURL.substr(5)))
+    // }
+
+    // await juiceboxPanel.initialize(juiceboxInitializationConfig)
+
+    await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
 
     const $dropdownButton = $('#spacewalk-contact-map-dropdown')
     const $dropdowns = $dropdownButton.parent()
@@ -247,7 +247,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
             $dropboxButtons: $dropdowns.find('div[id$="-map-dropdown-dropbox-button"]'),
             $googleDriveButtons: $dropdowns.find('div[id$="-map-dropdown-google-drive-button"]'),
             googleEnabled,
-            mapMenu: spacewalkConfig.contactMapMenu,
+            mapMenu: spacewalkConfig.juiceboxConfig.contactMapMenu,
             loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path, name, mapType)
         }
 
@@ -274,7 +274,8 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
         async json => await loadSession(json),
         () => toJSON());
 
-    createShareWidgets($main, $('#spacewalk-share-button'), 'spacewalk-share-modal')
+    // TODO: Resuscitate Shareable URL
+    // createShareWidgets($main, $('#spacewalk-share-button'), 'spacewalk-share-modal')
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_distance_map_panel')}));
 

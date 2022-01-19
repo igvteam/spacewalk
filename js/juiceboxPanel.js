@@ -61,22 +61,13 @@ class JuiceboxPanel extends Panel {
         }
     }
 
-    async initialize({ container, width, height, session }) {
+    async initialize(container, config) {
 
         try {
 
-            if (session) {
-                if ('{}' === session.browsers[ 0 ]) {
-                    this.locus = 'all';
-                    await hic.init(container, { width, height, queryParametersSupported: false })
-                } else {
-                    await hic.restoreSession(container, session)
-                }
-
-            } else {
-                this.locus = 'all';
-                await hic.init(container, { width, height, queryParametersSupported: false })
-            }
+            const { locus, width, height } = config
+            this.locus = locus
+            await hic.init(container, { width, height, queryParametersSupported: false })
 
         } catch (error) {
             console.warn(error.message)
