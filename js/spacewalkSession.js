@@ -22,6 +22,9 @@ async function loadSession(json) {
 
     if (json.juicebox) {
         await loadJuiceboxSession(json.spacewalk.locus, json.juicebox)
+    } else {
+        const { chr, genomicStart, genomicEnd } = json.spacewalk.locus
+        juiceboxPanel.locus = `${chr}:${genomicStart}-${genomicEnd}`
     }
 
     await loadIGVSession(json.spacewalk, json.igv)
