@@ -120,16 +120,16 @@ class DistanceMapPanel extends Panel {
 
         for (let trace of traces) {
 
-            const dev_null = updateDistanceArray(trace);
+            const { distances } = updateDistanceArray(ensembleManager.maximumSegmentID, trace)
 
             // We need to calculate an array of averages where the input data
             // can have missing - kDistanceUndefined - values
 
             // loop of the distance array
-            for (let d = 0; d < ensembleManager.sharedMapArray.length; d++) {
+            for (let d = 0; d < distances.length; d++) {
 
                 // ignore missing data values. they do not participate in the average
-                if (kDistanceUndefined === ensembleManager.sharedMapArray[ d ]) {
+                if (kDistanceUndefined === distances[ d ]) {
                     // do nothing
                 } else {
 
@@ -139,7 +139,7 @@ class DistanceMapPanel extends Panel {
                     if (kDistanceUndefined === average[ d ]) {
 
                         // If this is the first data value at this array index copy it to average.
-                        average[ d ] = ensembleManager.sharedMapArray[ d ];
+                        average[ d ] = distances[ d ];
                     } else {
 
                         // when there is data AND a pre-existing average value at this array index
@@ -147,7 +147,7 @@ class DistanceMapPanel extends Panel {
 
                         // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
                         // https://math.stackexchange.com/questions/106700/incremental-averageing
-                        average[ d ] = average[ d ] + (ensembleManager.sharedMapArray[ d ] - average[ d ]) / counter[ d ];
+                        average[ d ] = average[ d ] + (distances[ d ] - average[ d ]) / counter[ d ];
                     }
 
                 }
@@ -173,40 +173,37 @@ class DistanceMapPanel extends Panel {
         const str = `Distance Map - Update Trace Distance.`;
         console.time(str);
 
-        const maxDistance = updateDistanceArray(trace);
+        const { distances, maxDistance } = updateDistanceArray(ensembleManager.maximumSegmentID, trace)
 
         console.timeEnd(str);
 
-        paintDistanceCanvas(ensembleManager.sharedMapArray, maxDistance);
+        paintDistanceCanvas(distances, maxDistance);
 
         drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, ensembleManager.sharedDistanceMapUint8ClampedArray);
 
     };
 }
 
-const updateDistanceArray = trace => {
+function updateDistanceArray(maximumSegmentID, trace) {
 
-    // const str = `Distance Map - Update Distance Array`;
-    // console.time(str);
+    const traceValues = Object.values(trace);
+    const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
 
-    let mapSize = ensembleManager.maximumSegmentID;
+    const mapSize = maximumSegmentID
 
-    ensembleManager.sharedMapArray.fill(kDistanceUndefined);
+    const distances = new Array(mapSize * mapSize)
+    distances.fill(kDistanceUndefined);
 
     let maxDistance = Number.NEGATIVE_INFINITY;
 
-    const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
-
     let exclusionSet = new Set();
-
-    const traceValues = Object.values(trace);
 
     for (let i = 0; i < vertices.length; i++) {
 
         const { colorRampInterpolantWindow } = traceValues[ i ];
         const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
         const xy_diagonal = i_segmentIndex * mapSize + i_segmentIndex;
-        ensembleManager.sharedMapArray[ xy_diagonal ] = 0;
+        distances[ xy_diagonal ] = 0;
 
         exclusionSet.add(i);
 
@@ -222,20 +219,18 @@ const updateDistanceArray = trace => {
                 const ij =  i_segmentIndex * mapSize + j_segmentIndex;
                 const ji =  j_segmentIndex * mapSize + i_segmentIndex;
 
-                ensembleManager.sharedMapArray[ ij ] = ensembleManager.sharedMapArray[ ji ] = distance;
+                distances[ ij ] = distances[ ji ] = distance;
 
                 maxDistance = Math.max(maxDistance, distance);
             }
 
-        } // for (j)
+        }
 
     }
 
-    // console.timeEnd(str);
+    return { distances, maxDistance }
 
-    return maxDistance;
-
-};
+}
 
 const paintDistanceCanvas = (distances, maximumDistance) => {
 

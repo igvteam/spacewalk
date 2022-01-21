@@ -125,20 +125,21 @@ class ContactFrequencyMapPanel extends Panel {
 
     updateEnsembleContactFrequencyCanvas(ensemble) {
 
-        for (let f = 0; f < ensembleManager.sharedMapArray.length; f++) ensembleManager.sharedMapArray[ f ] = 0;
-
         const traces = Object.values(ensemble);
 
         const str = `Contact Frequency Map - Update Ensemble Frequency Array. ${ traces.length } traces.`;
         console.time(str);
 
+        const values = new Array(ensembleManager.maximumSegmentID * ensembleManager.maximumSegmentID)
+        values.fill(0);
+
         for (let trace of traces) {
-            updateContactFrequencyArray(trace, this.distanceThreshold);
+            updateContactFrequencyArray(ensembleManager.maximumSegmentID, trace, values, this.distanceThreshold);
         }
 
         console.timeEnd(str);
 
-        paintContactFrequencyCanvas(ensembleManager.sharedMapArray);
+        paintContactFrequencyCanvas(values);
 
         drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, ensembleManager.sharedContactFrequencyMapUint8ClampedArray);
 
@@ -146,33 +147,33 @@ class ContactFrequencyMapPanel extends Panel {
 
     updateTraceContactFrequencyCanvas(trace) {
 
-        for (let f = 0; f < ensembleManager.sharedMapArray.length; f++) ensembleManager.sharedMapArray[ f ] = 0;
-
         const str = `Contact Frequency Map - Update Trace Frequency Array.`;
         console.time(str);
 
-        updateContactFrequencyArray(trace, this.distanceThreshold);
+        const values = new Array(ensembleManager.maximumSegmentID * ensembleManager.maximumSegmentID)
+        values.fill(0)
+
+        updateContactFrequencyArray(ensembleManager.maximumSegmentID, trace, values, this.distanceThreshold);
 
         console.timeEnd(str);
 
-        paintContactFrequencyCanvas(ensembleManager.sharedMapArray);
+        paintContactFrequencyCanvas(values);
 
         drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, ensembleManager.sharedContactFrequencyMapUint8ClampedArray);
 
     };
 }
 
-const updateContactFrequencyArray = (trace, distanceThreshold) => {
+function updateContactFrequencyArray(maximumSegmentID, trace, values, distanceThreshold) {
 
-    const mapSize = ensembleManager.maximumSegmentID;
-
+    const traceValues = Object.values(trace);
     const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
+
+    const mapSize = maximumSegmentID
 
     const exclusionSet = new Set();
 
     const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(vertices));
-
-    const traceValues = Object.values(trace);
 
     for (let i = 0; i < vertices.length; i++) {
 
@@ -184,7 +185,7 @@ const updateContactFrequencyArray = (trace, distanceThreshold) => {
         const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
         const xy_diagonal = i_segmentIndex * mapSize + i_segmentIndex;
 
-        ensembleManager.sharedMapArray[ xy_diagonal ]++;
+        values[ xy_diagonal ]++;
 
         const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
 
@@ -198,24 +199,24 @@ const updateContactFrequencyArray = (trace, distanceThreshold) => {
                 const xy = i_segmentIndex * mapSize + j_segmentIndex;
                 const yx = j_segmentIndex * mapSize + i_segmentIndex;
 
-                if (xy > ensembleManager.sharedMapArray.length) {
+                if (xy > values.length) {
                     console.log('xy is bogus index ' + xy);
                 }
 
-                if (yx > ensembleManager.sharedMapArray.length) {
+                if (yx > values.length) {
                     console.log('yx is bogus index ' + yx);
                 }
 
-                ensembleManager.sharedMapArray[ xy ] += 1;
+                values[ xy ] += 1;
 
-                ensembleManager.sharedMapArray[ yx ] = ensembleManager.sharedMapArray[ xy ];
+                values[ yx ] = values[ xy ];
 
             }
         }
 
     }
 
-};
+}
 
 const paintContactFrequencyCanvas = frequencies => {
 

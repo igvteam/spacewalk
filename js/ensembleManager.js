@@ -90,16 +90,8 @@ class EnsembleManager {
         console.timeEnd(str);
 
         if (false === this.isPointCloud) {
-
-            // update shared buffers for distance and contact-frequency maps
-
-            this.sharedMapArray = new Array(this.maximumSegmentID * this.maximumSegmentID);
-
             this.sharedContactFrequencyMapUint8ClampedArray = new Uint8ClampedArray(this.maximumSegmentID * this.maximumSegmentID * 4);
             this.sharedDistanceMapUint8ClampedArray = new Uint8ClampedArray(this.maximumSegmentID * this.maximumSegmentID * 4);
-
-            // contactFrequencyMapPanel.updateEnsembleContactFrequencyCanvas(this.ensemble);
-            // distanceMapPanel.updateEnsembleAverageDistanceCanvas(this.ensemble);
         }
 
         const initialKey = traceKey || '0';
