@@ -91,7 +91,6 @@ class EnsembleManager {
 
         if (false === this.isPointCloud) {
             this.sharedContactFrequencyMapUint8ClampedArray = new Uint8ClampedArray(this.maximumSegmentID * this.maximumSegmentID * 4);
-            this.sharedDistanceMapUint8ClampedArray = new Uint8ClampedArray(this.maximumSegmentID * this.maximumSegmentID * 4);
         }
 
         const initialKey = traceKey || '0';

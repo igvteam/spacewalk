@@ -110,12 +110,10 @@ class DistanceMapPanel extends Panel {
         const str = `Distance Map - Update Ensemble Distance. ${ traces.length } traces.`;
         console.time(str);
 
-        let mapSize = ensembleManager.maximumSegmentID;
-
-        let counter = new Array(mapSize * mapSize);
+        let counter = new Array(ensembleManager.maximumSegmentID * ensembleManager.maximumSegmentID);
         counter.fill(0);
 
-        let average = new Array(mapSize * mapSize);
+        let average = new Array(ensembleManager.maximumSegmentID * ensembleManager.maximumSegmentID);
         average.fill(kDistanceUndefined);
 
         for (let trace of traces) {
@@ -162,9 +160,9 @@ class DistanceMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintDistanceCanvas(average, maxAverageDistance);
+        const canvasArray = populateDistanceCanvasArray(average, ensembleManager.maximumSegmentID, maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
 
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, ensembleManager.sharedDistanceMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, canvasArray)
 
     };
 
@@ -177,9 +175,9 @@ class DistanceMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintDistanceCanvas(distances, maxDistance);
+        const canvasArray = populateDistanceCanvasArray(distances, ensembleManager.maximumSegmentID, maxDistance, colorMapManager.dictionary['juicebox_default'])
 
-        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, ensembleManager.sharedDistanceMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, canvasArray);
 
     };
 }
@@ -189,9 +187,7 @@ function updateDistanceArray(maximumSegmentID, trace) {
     const traceValues = Object.values(trace);
     const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
 
-    const mapSize = maximumSegmentID
-
-    const distances = new Array(mapSize * mapSize)
+    const distances = new Array(maximumSegmentID * maximumSegmentID)
     distances.fill(kDistanceUndefined);
 
     let maxDistance = Number.NEGATIVE_INFINITY;
@@ -202,7 +198,7 @@ function updateDistanceArray(maximumSegmentID, trace) {
 
         const { colorRampInterpolantWindow } = traceValues[ i ];
         const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
-        const xy_diagonal = i_segmentIndex * mapSize + i_segmentIndex;
+        const xy_diagonal = i_segmentIndex * maximumSegmentID + i_segmentIndex;
         distances[ xy_diagonal ] = 0;
 
         exclusionSet.add(i);
@@ -216,8 +212,8 @@ function updateDistanceArray(maximumSegmentID, trace) {
                 const { colorRampInterpolantWindow: colorRampInterpolantWindow_j } = traceValues[ j ];
                 const j_segmentIndex = colorRampInterpolantWindow_j.segmentIndex;
 
-                const ij =  i_segmentIndex * mapSize + j_segmentIndex;
-                const ji =  j_segmentIndex * mapSize + i_segmentIndex;
+                const ij =  i_segmentIndex * maximumSegmentID + j_segmentIndex;
+                const ji =  j_segmentIndex * maximumSegmentID + i_segmentIndex;
 
                 distances[ ij ] = distances[ ji ] = distance;
 
@@ -232,23 +228,22 @@ function updateDistanceArray(maximumSegmentID, trace) {
 
 }
 
-const paintDistanceCanvas = (distances, maximumDistance) => {
+function populateDistanceCanvasArray(distances, maximumSegmentID, maximumDistance, colorMap) {
 
-    const str = `Distance Map - Paint Canvas. Uint8ClampedArray.`;
-    console.time(str);
+    const canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
 
     let i;
 
     i = 0;
     const { r, g, b } = appleCrayonColorRGB255('magnesium');
     for (let x = 0; x < distances.length; x++) {
-        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = r;
-        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = g;
-        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = b;
-        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = 255;
+        canvasArray[i++] = r;
+        canvasArray[i++] = g;
+        canvasArray[i++] = b;
+        canvasArray[i++] = 255;
     }
 
-    const colorMap = colorMapManager.dictionary['juicebox_default'];
+
     const scale = colorMap.length - 1;
 
     i = 0;
@@ -259,27 +254,27 @@ const paintDistanceCanvas = (distances, maximumDistance) => {
             const interpolant = 1.0 - d/maximumDistance;
             const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolant * scale) ][ 'threejs' ]);
 
-            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 0] = r;
-            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 1] = g;
-            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 2] = b;
-            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 3] = 255;
+            canvasArray[i + 0] = r;
+            canvasArray[i + 1] = g;
+            canvasArray[i + 2] = b;
+            canvasArray[i + 3] = 255;
         }
 
         i += 4;
     }
 
-    console.timeEnd(str);
+    return canvasArray
 
-};
+}
 
-export let distanceMapPanelConfigurator = ({ container, isHidden }) => {
+export function distanceMapPanelConfigurator({ container, isHidden }) {
 
     return {
         container,
-        panel: $('#spacewalk_distance_map_panel').get(0),
+        panel: document.querySelector('#spacewalk_distance_map_panel'),
         isHidden
     };
 
-};
+}
 
 export default DistanceMapPanel;
