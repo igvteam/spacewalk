@@ -18,7 +18,7 @@
     "igv-widgets": "github:igvteam/igv-widgets",
     "juicebox.js": "^1.5.0",
     "kd3d": "github:turner/kd3d",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^3.1.1",
     "three": "^0.115.0"
   },
   "devDependencies": {
