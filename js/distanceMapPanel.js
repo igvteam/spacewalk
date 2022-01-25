@@ -2,15 +2,18 @@ import Panel from "./panel.js";
 import { colorMapManager, ensembleManager } from "./app.js";
 import { drawWithSharedUint8ClampedArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
-import EnsembleManager from "./ensembleManager.js";
+import { getSingleCentroidVerticesWithTrace } from "./ensembleManager.js";
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 
 const kDistanceUndefined = -1;
 
-let counters = undefined
-let averages = undefined
-let distances = undefined
-let canvasArray = undefined
+const sharedBuffers =
+    {
+        counters: undefined,
+        averages: undefined,
+        distances: undefined,
+        canvasArray: undefined
+    }
 
 class DistanceMapPanel extends Panel {
 
@@ -117,80 +120,106 @@ class DistanceMapPanel extends Panel {
         const str = `Distance Map - Update Ensemble Distance. ${ traces.length } traces.`;
         console.time(str);
 
-        counters.fill(0);
-        averages.fill(kDistanceUndefined);
+        sharedBuffers.counters.fill(0)
+        sharedBuffers.averages.fill(kDistanceUndefined)
 
-        for (let trace of traces) {
-
-            const traceValues = Object.values(trace);
-            const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
-            const ignored = updateDistanceArray(maximumSegmentID, traceValues, vertices)
-
-            // We need to calculate an array of averages where the input data
-            // can have missing - kDistanceUndefined - values
-
-            // loop of the distance array
-            for (let d = 0; d < distances.length; d++) {
-
-                // ignore missing data values. they do not participate in the average
-                if (kDistanceUndefined === distances[ d ]) {
-                    // do nothing
-                } else {
-
-                    // keep track of how many samples we have at this array index
-                    ++counters[ d ];
-
-                    if (kDistanceUndefined === averages[ d ]) {
-
-                        // If this is the first data value at this array index copy it to average.
-                        averages[ d ] = distances[ d ];
-                    } else {
-
-                        // when there is data AND a pre-existing average value at this array index
-                        // use an incremental averaging approach.
-
-                        // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
-                        // https://math.stackexchange.com/questions/106700/incremental-averageing
-                        averages[ d ] = averages[ d ] + (distances[ d ] - averages[ d ]) / counters[ d ];
-                    }
-
-                }
-            }
-
-        }
+        updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces)
 
         let maxAverageDistance = Number.NEGATIVE_INFINITY;
-        for (let avg of averages) {
+        for (let avg of sharedBuffers.averages) {
             maxAverageDistance = Math.max(maxAverageDistance, avg);
         }
 
         console.timeEnd(str);
 
-        populateDistanceCanvasArray(canvasArray, averages, maximumSegmentID, maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, canvasArray)
+        populateDistanceCanvasArray(sharedBuffers.averages, maximumSegmentID, maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, sharedBuffers.canvasArray)
 
     }
 
     updateTraceDistanceCanvas(maximumSegmentID, trace) {
 
-        const str = `Distance Map - Update Trace Distance.`;
-        console.time(str);
+        const worker = new Worker('./js/distanceMapWorker.js')
+
+        // worker.addEventListener('message', ({ data }) => {
+        //     console.log('DistanceMapWorker says: ', data)
+        // }, false)
+        //
+        // worker.postMessage('updateTraceDistanceCanvas called a web worker. Cool!')
+        //
+        // worker.postMessage(thang)
+
+        const thang = { contact: 2, distance: 4 }
+
+        worker.addEventListener('message', ({ data }) => {
+            const { contact, distance } = data
+            console.log(`DistanceMapWorker says - contact ${ contact } distance ${ distance }`)
+        }, false)
+
+        worker.postMessage(thang)
+
+        // const str = `Distance Map - Update Trace Distance.`;
+        // console.time(str);
 
         const traceValues = Object.values(trace);
-        const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
-        const maxDistance = updateDistanceArray(maximumSegmentID, traceValues, vertices)
+        const vertices = getSingleCentroidVerticesWithTrace(trace);
+        const maxDistance = updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, vertices)
 
-        console.timeEnd(str);
+        // console.timeEnd(str);
 
-        populateDistanceCanvasArray(canvasArray, distances, maximumSegmentID, maxDistance, colorMapManager.dictionary['juicebox_default'])
-        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, canvasArray);
+        populateDistanceCanvasArray(sharedBuffers.distances, maximumSegmentID, maxDistance, colorMapManager.dictionary['juicebox_default'])
+        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, sharedBuffers.canvasArray);
 
     }
 }
 
-function updateDistanceArray(maximumSegmentID, traceValues, vertices) {
+function updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces) {
 
-    distances.fill(kDistanceUndefined);
+    for (let trace of traces) {
+
+        const traceValues = Object.values(trace)
+        const vertices = getSingleCentroidVerticesWithTrace(trace)
+
+        const ignored = updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, vertices)
+
+        // We need to calculate an array of averages where the input data
+        // can have missing - kDistanceUndefined - values
+
+        // loop of the distance array
+        for (let d = 0; d < sharedBuffers.distances.length; d++) {
+
+            // ignore missing data values. they do not participate in the average
+            if (kDistanceUndefined === sharedBuffers.distances[ d ]) {
+                // do nothing
+            } else {
+
+                // keep track of how many samples we have at this array index
+                ++sharedBuffers.counters[ d ];
+
+                if (kDistanceUndefined === sharedBuffers.averages[ d ]) {
+
+                    // If this is the first data value at this array index copy it to average.
+                    sharedBuffers.averages[ d ] = sharedBuffers.distances[ d ];
+                } else {
+
+                    // when there is data AND a pre-existing average value at this array index
+                    // use an incremental averaging approach.
+
+                    // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
+                    // https://math.stackexchange.com/questions/106700/incremental-averageing
+                    sharedBuffers.averages[ d ] = sharedBuffers.averages[ d ] + (sharedBuffers.distances[ d ] - sharedBuffers.averages[ d ]) / sharedBuffers.counters[ d ];
+                }
+
+            }
+        }
+
+    }
+
+}
+
+function updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, vertices) {
+
+    sharedBuffers.distances.fill(kDistanceUndefined);
 
     let maxDistance = Number.NEGATIVE_INFINITY;
 
@@ -201,7 +230,7 @@ function updateDistanceArray(maximumSegmentID, traceValues, vertices) {
         const { colorRampInterpolantWindow } = traceValues[ i ];
         const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
         const xy_diagonal = i_segmentIndex * maximumSegmentID + i_segmentIndex;
-        distances[ xy_diagonal ] = 0;
+        sharedBuffers.distances[ xy_diagonal ] = 0;
 
         exclusionSet.add(i);
 
@@ -217,7 +246,7 @@ function updateDistanceArray(maximumSegmentID, traceValues, vertices) {
                 const ij =  i_segmentIndex * maximumSegmentID + j_segmentIndex;
                 const ji =  j_segmentIndex * maximumSegmentID + i_segmentIndex;
 
-                distances[ ij ] = distances[ ji ] = distance;
+                sharedBuffers.distances[ ij ] = sharedBuffers.distances[ ji ] = distance;
 
                 maxDistance = Math.max(maxDistance, distance);
             }
@@ -230,15 +259,15 @@ function updateDistanceArray(maximumSegmentID, traceValues, vertices) {
 
 }
 
-function populateDistanceCanvasArray(canvasArray, distances, maximumSegmentID, maximumDistance, colorMap) {
+function populateDistanceCanvasArray(distances, maximumSegmentID, maximumDistance, colorMap) {
 
     let i = 0;
     const { r, g, b } = appleCrayonColorRGB255('magnesium');
     for (let x = 0; x < distances.length; x++) {
-        canvasArray[i++] = r;
-        canvasArray[i++] = g;
-        canvasArray[i++] = b;
-        canvasArray[i++] = 255;
+        sharedBuffers.canvasArray[i++] = r;
+        sharedBuffers.canvasArray[i++] = g;
+        sharedBuffers.canvasArray[i++] = b;
+        sharedBuffers.canvasArray[i++] = 255;
     }
 
 
@@ -252,10 +281,10 @@ function populateDistanceCanvasArray(canvasArray, distances, maximumSegmentID, m
             const interpolant = 1.0 - d/maximumDistance;
             const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolant * scale) ][ 'threejs' ]);
 
-            canvasArray[i + 0] = r;
-            canvasArray[i + 1] = g;
-            canvasArray[i + 2] = b;
-            canvasArray[i + 3] = 255;
+            sharedBuffers.canvasArray[i + 0] = r;
+            sharedBuffers.canvasArray[i + 1] = g;
+            sharedBuffers.canvasArray[i + 2] = b;
+            sharedBuffers.canvasArray[i + 3] = 255;
         }
 
         i += 4;
@@ -264,8 +293,8 @@ function populateDistanceCanvasArray(canvasArray, distances, maximumSegmentID, m
 }
 
 function initializeSharedBuffers(maximumSegmentID) {
-    counters = averages = distances = new Array(maximumSegmentID * maximumSegmentID)
-    canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
+    sharedBuffers.counters = sharedBuffers.averages = sharedBuffers.distances = new Array(maximumSegmentID * maximumSegmentID)
+    sharedBuffers.canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
 }
 
 export function distanceMapPanelConfigurator({ container, isHidden }) {

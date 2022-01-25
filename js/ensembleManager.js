@@ -198,15 +198,18 @@ class EnsembleManager {
         return { target:center, position, fov }
     }
 
-    static getSingleCentroidVerticesWithTrace(trace) {
 
-        return Object.values(trace)
-            .map(({ geometry }) => {
-                const [ x, y, z ] = geometry.getAttribute('position').array;
-                return new THREE.Vector3(x, y, z);
-            });
-
-    }
 }
 
+function getSingleCentroidVerticesWithTrace(trace) {
+
+    return Object.values(trace)
+        .map(({ geometry }) => {
+            const [ x, y, z ] = geometry.getAttribute('position').array;
+            return new THREE.Vector3(x, y, z);
+        });
+
+}
+
+export { getSingleCentroidVerticesWithTrace }
 export default EnsembleManager;

@@ -5,11 +5,14 @@ import Panel from "./panel.js";
 import { colorMapManager, ensembleManager } from "./app.js";
 import {threeJSColorToRGB255} from "./color.js";
 import { drawWithSharedUint8ClampedArray } from "./utils.js";
-import EnsembleManager from "./ensembleManager.js";
+import { getSingleCentroidVerticesWithTrace } from "./ensembleManager.js";
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 
-let values = undefined
-let canvasArray = undefined
+const sharedBuffers =
+    {
+        values: undefined,
+        canvasArray: undefined
+    }
 
 const maxDistanceThreshold = 4096;
 const defaultDistanceThreshold = 256;
@@ -130,46 +133,46 @@ class ContactFrequencyMapPanel extends Panel {
 
     updateEnsembleContactFrequencyCanvas(maximumSegmentID, ensemble) {
 
-        const traces = Object.values(ensemble);
+        const traces = Object.values(ensemble)
 
-        const str = `Contact Frequency Map - Update Ensemble Frequency Array. ${ traces.length } traces.`;
-        console.time(str);
+        const str = `Contact Frequency Map - Update Ensemble Frequency Array. ${ traces.length } traces.`
+        console.time(str)
 
-        values.fill(0);
+        sharedBuffers.values.fill(0)
         for (let trace of traces) {
-            const traceValues = Object.values(trace);
-            const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
-            updateContactFrequencyArray(maximumSegmentID, traceValues, vertices, this.distanceThreshold);
+            const traceValues = Object.values(trace)
+            const vertices = getSingleCentroidVerticesWithTrace(trace)
+            updateContactFrequencyArray(sharedBuffers, maximumSegmentID, traceValues, vertices, this.distanceThreshold)
         }
 
-        console.timeEnd(str);
+        console.timeEnd(str)
 
-        populateContactFrequencyCanvasArray(maximumSegmentID, values);
+        populateContactFrequencyCanvasArray(maximumSegmentID, sharedBuffers.values)
 
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, canvasArray);
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, sharedBuffers.canvasArray)
 
-    };
+    }
 
     updateTraceContactFrequencyCanvas(maximumSegmentID, trace) {
 
         const str = `Contact Frequency Map - Update Trace Frequency Array.`;
         console.time(str);
 
-        values.fill(0)
-        const traceValues = Object.values(trace);
-        const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
-        updateContactFrequencyArray(maximumSegmentID, traceValues, vertices, this.distanceThreshold)
+        sharedBuffers.values.fill(0)
+        const traceValues = Object.values(trace)
+        const vertices = getSingleCentroidVerticesWithTrace(trace)
+        updateContactFrequencyArray(sharedBuffers, maximumSegmentID, traceValues, vertices, this.distanceThreshold)
 
         console.timeEnd(str);
 
-        populateContactFrequencyCanvasArray(maximumSegmentID, values);
+        populateContactFrequencyCanvasArray(maximumSegmentID, sharedBuffers.values);
 
-        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, canvasArray);
+        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, sharedBuffers.canvasArray);
 
-    };
+    }
 }
 
-function updateContactFrequencyArray(maximumSegmentID, traceValues, vertices, distanceThreshold) {
+function updateContactFrequencyArray(sharedBuffers, maximumSegmentID, traceValues, vertices, distanceThreshold) {
 
     const mapSize = maximumSegmentID
 
@@ -192,7 +195,7 @@ function updateContactFrequencyArray(maximumSegmentID, traceValues, vertices, di
         const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
         const xy_diagonal = i_segmentIndex * mapSize + i_segmentIndex;
 
-        values[ xy_diagonal ]++;
+        sharedBuffers.values[ xy_diagonal ]++;
 
         const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
 
@@ -206,17 +209,17 @@ function updateContactFrequencyArray(maximumSegmentID, traceValues, vertices, di
                 const xy = i_segmentIndex * mapSize + j_segmentIndex;
                 const yx = j_segmentIndex * mapSize + i_segmentIndex;
 
-                if (xy > values.length) {
+                if (xy > sharedBuffers.values.length) {
                     console.log('xy is bogus index ' + xy);
                 }
 
-                if (yx > values.length) {
+                if (yx > sharedBuffers.values.length) {
                     console.log('yx is bogus index ' + yx);
                 }
 
-                values[ xy ] += 1;
+                sharedBuffers.values[ xy ] += 1;
 
-                values[ yx ] = values[ xy ];
+                sharedBuffers.values[ yx ] = sharedBuffers.values[ xy ];
 
             }
         }
@@ -241,17 +244,17 @@ function populateContactFrequencyCanvasArray(maximumSegmentID, frequencies) {
         const interpolant = Math.floor(frequency * scale);
         const { r, g, b } = threeJSColorToRGB255(colorMap[ interpolant ][ 'threejs' ]);
 
-        canvasArray[i++] = r;
-        canvasArray[i++] = g;
-        canvasArray[i++] = b;
-        canvasArray[i++] = 255;
+        sharedBuffers.canvasArray[i++] = r;
+        sharedBuffers.canvasArray[i++] = g;
+        sharedBuffers.canvasArray[i++] = b;
+        sharedBuffers.canvasArray[i++] = 255;
     }
 
 }
 
 function initializeSharedBuffers(maximumSegmentID) {
-    values = new Array(maximumSegmentID * maximumSegmentID)
-    canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
+    sharedBuffers.values = new Array(maximumSegmentID * maximumSegmentID)
+    sharedBuffers.canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
 }
 
 function kdBushConfiguratorWithTrace(vertices) {
@@ -278,6 +281,6 @@ export let contactFrequencyMapPanelConfigurator = ({ container, isHidden }) => {
         distanceThreshold: defaultDistanceThreshold
     };
 
-};
+}
 
-export default ContactFrequencyMapPanel;
+export default ContactFrequencyMapPanel
