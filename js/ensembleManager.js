@@ -1,7 +1,7 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
 import Parser from "./parser.js";
-import { colorRampMaterialProvider, distanceMapPanel, contactFrequencyMapPanel } from "./app.js";
+import { colorRampMaterialProvider } from "./app.js";
 import { includes, degrees } from "./math.js";
 
 class EnsembleManager {
@@ -88,10 +88,6 @@ class EnsembleManager {
         }
 
         console.timeEnd(str);
-
-        if (false === this.isPointCloud) {
-            this.sharedContactFrequencyMapUint8ClampedArray = new Uint8ClampedArray(this.maximumSegmentID * this.maximumSegmentID * 4);
-        }
 
         const initialKey = traceKey || '0';
         this.currentTrace = this.getTraceWithName(initialKey);

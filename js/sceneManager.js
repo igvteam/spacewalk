@@ -9,7 +9,7 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import { pointCloud, ribbon, ballAndStick, ensembleManager, distanceMapPanel, contactFrequencyMapPanel, sceneManager } from "./app.js";
+import { pointCloud, ribbon, ballAndStick, ensembleManager } from "./app.js";
 import { getGUIRenderStyle } from "./guiManager.js";
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 import Ribbon from './ribbon.js'
@@ -101,15 +101,10 @@ class SceneManager {
             pointCloud.addToScene(scene);
 
         } else {
-
             ribbon.configure(trace);
             ribbon.addToScene(scene);
-
             ballAndStick.configure(trace);
             ballAndStick.addToScene(scene);
-
-            // contactFrequencyMapPanel.updateTraceContactFrequencyCanvas(trace);
-            // distanceMapPanel.updateTraceDistanceCanvas(trace);
         }
 
         const {min, max, center, radius} = EnsembleManager.getBoundsWithTrace(trace);

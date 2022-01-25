@@ -139,9 +139,9 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintContactFrequencyCanvas(values);
+        const canvasArray = populateContactFrequencyCanvasArray(ensembleManager.maximumSegmentID, values);
 
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, ensembleManager.sharedContactFrequencyMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, canvasArray);
 
     };
 
@@ -157,9 +157,9 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.timeEnd(str);
 
-        paintContactFrequencyCanvas(values);
+        const canvasArray = populateContactFrequencyCanvasArray(ensembleManager.maximumSegmentID, values);
 
-        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, ensembleManager.sharedContactFrequencyMapUint8ClampedArray);
+        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, canvasArray);
 
     };
 }
@@ -218,10 +218,9 @@ function updateContactFrequencyArray(maximumSegmentID, trace, values, distanceTh
 
 }
 
-const paintContactFrequencyCanvas = frequencies => {
+function populateContactFrequencyCanvasArray(maximumSegmentID, frequencies) {
 
-    const str = `Contact Frequency Map - Paint Canvas.`;
-    console.time(str);
+    const canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
 
     let maxFrequency = Number.NEGATIVE_INFINITY;
     for (let frequency of frequencies) {
@@ -237,15 +236,15 @@ const paintContactFrequencyCanvas = frequencies => {
         const interpolant = Math.floor(frequency * scale);
         const { r, g, b } = threeJSColorToRGB255(colorMap[ interpolant ][ 'threejs' ]);
 
-        ensembleManager.sharedContactFrequencyMapUint8ClampedArray[i++] = r;
-        ensembleManager.sharedContactFrequencyMapUint8ClampedArray[i++] = g;
-        ensembleManager.sharedContactFrequencyMapUint8ClampedArray[i++] = b;
-        ensembleManager.sharedContactFrequencyMapUint8ClampedArray[i++] = 255;
+        canvasArray[i++] = r;
+        canvasArray[i++] = g;
+        canvasArray[i++] = b;
+        canvasArray[i++] = 255;
     }
 
-    console.timeEnd(str);
+    return canvasArray
 
-};
+}
 
 const kdBushConfiguratorWithTrace = vertices => {
 
