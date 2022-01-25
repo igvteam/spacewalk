@@ -7,6 +7,11 @@ import SpacewalkEventBus from "./spacewalkEventBus.js"
 
 const kDistanceUndefined = -1;
 
+let counters = undefined
+let averages = undefined
+let distances = undefined
+let canvasArray = undefined
+
 class DistanceMapPanel extends Panel {
 
     constructor ({ container, panel, isHidden }) {
@@ -57,7 +62,7 @@ class DistanceMapPanel extends Panel {
 
             if (false === this.isHidden) {
                 console.log('Calc distance map - trace')
-                this.updateTraceDistanceCanvas(this.trace)
+                this.updateTraceDistanceCanvas(ensembleManager.maximumSegmentID, this.trace)
                 this.doUpdateTrace = undefined
             } else {
                 this.doUpdateTrace = true
@@ -69,10 +74,12 @@ class DistanceMapPanel extends Panel {
             this.ensemble = ensemble
             this.trace = trace
 
+            initializeSharedBuffers(ensembleManager.maximumSegmentID)
+
             if (false === this.isHidden) {
                 console.log('Calc distance map - trace and ensemble')
-                this.updateEnsembleAverageDistanceCanvas(this.ensemble)
-                this.updateTraceDistanceCanvas(this.trace)
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.maximumSegmentID, this.ensemble)
+                this.updateTraceDistanceCanvas(ensembleManager.maximumSegmentID, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             } else {
                 this.doUpdateTrace = this.doUpdateEnsemble = true
@@ -87,13 +94,13 @@ class DistanceMapPanel extends Panel {
 
         if (true === this.doUpdateEnsemble) {
             console.log('Calc distance map - ensemble')
-            this.updateEnsembleAverageDistanceCanvas(this.ensemble)
+            this.updateEnsembleAverageDistanceCanvas(ensembleManager.maximumSegmentID, this.ensemble)
             this.doUpdateEnsemble = undefined
         }
 
         if (true === this.doUpdateTrace) {
             console.log('Calc distance map - trace')
-            this.updateTraceDistanceCanvas(this.trace)
+            this.updateTraceDistanceCanvas(ensembleManager.maximumSegmentID, this.trace)
             this.doUpdateTrace = undefined
         }
 
@@ -103,22 +110,21 @@ class DistanceMapPanel extends Panel {
 
     getClassName(){ return 'DistanceMapPanel' }
 
-    updateEnsembleAverageDistanceCanvas(ensemble){
+    updateEnsembleAverageDistanceCanvas(maximumSegmentID, ensemble){
 
         const traces = Object.values(ensemble);
 
         const str = `Distance Map - Update Ensemble Distance. ${ traces.length } traces.`;
         console.time(str);
 
-        let counter = new Array(ensembleManager.maximumSegmentID * ensembleManager.maximumSegmentID);
-        counter.fill(0);
-
-        let average = new Array(ensembleManager.maximumSegmentID * ensembleManager.maximumSegmentID);
-        average.fill(kDistanceUndefined);
+        counters.fill(0);
+        averages.fill(kDistanceUndefined);
 
         for (let trace of traces) {
 
-            const { distances } = updateDistanceArray(ensembleManager.maximumSegmentID, trace)
+            const traceValues = Object.values(trace);
+            const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
+            const ignored = updateDistanceArray(maximumSegmentID, traceValues, vertices)
 
             // We need to calculate an array of averages where the input data
             // can have missing - kDistanceUndefined - values
@@ -132,12 +138,12 @@ class DistanceMapPanel extends Panel {
                 } else {
 
                     // keep track of how many samples we have at this array index
-                    ++counter[ d ];
+                    ++counters[ d ];
 
-                    if (kDistanceUndefined === average[ d ]) {
+                    if (kDistanceUndefined === averages[ d ]) {
 
                         // If this is the first data value at this array index copy it to average.
-                        average[ d ] = distances[ d ];
+                        averages[ d ] = distances[ d ];
                     } else {
 
                         // when there is data AND a pre-existing average value at this array index
@@ -145,7 +151,7 @@ class DistanceMapPanel extends Panel {
 
                         // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
                         // https://math.stackexchange.com/questions/106700/incremental-averageing
-                        average[ d ] = average[ d ] + (distances[ d ] - average[ d ]) / counter[ d ];
+                        averages[ d ] = averages[ d ] + (distances[ d ] - averages[ d ]) / counters[ d ];
                     }
 
                 }
@@ -154,40 +160,36 @@ class DistanceMapPanel extends Panel {
         }
 
         let maxAverageDistance = Number.NEGATIVE_INFINITY;
-        for (let avg of average) {
+        for (let avg of averages) {
             maxAverageDistance = Math.max(maxAverageDistance, avg);
         }
 
         console.timeEnd(str);
 
-        const canvasArray = populateDistanceCanvasArray(average, ensembleManager.maximumSegmentID, maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
-
+        populateDistanceCanvasArray(canvasArray, averages, maximumSegmentID, maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
         drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, canvasArray)
 
-    };
+    }
 
-    updateTraceDistanceCanvas(trace) {
+    updateTraceDistanceCanvas(maximumSegmentID, trace) {
 
         const str = `Distance Map - Update Trace Distance.`;
         console.time(str);
 
-        const { distances, maxDistance } = updateDistanceArray(ensembleManager.maximumSegmentID, trace)
+        const traceValues = Object.values(trace);
+        const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
+        const maxDistance = updateDistanceArray(maximumSegmentID, traceValues, vertices)
 
         console.timeEnd(str);
 
-        const canvasArray = populateDistanceCanvasArray(distances, ensembleManager.maximumSegmentID, maxDistance, colorMapManager.dictionary['juicebox_default'])
-
+        populateDistanceCanvasArray(canvasArray, distances, maximumSegmentID, maxDistance, colorMapManager.dictionary['juicebox_default'])
         drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, canvasArray);
 
-    };
+    }
 }
 
-function updateDistanceArray(maximumSegmentID, trace) {
+function updateDistanceArray(maximumSegmentID, traceValues, vertices) {
 
-    const traceValues = Object.values(trace);
-    const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
-
-    const distances = new Array(maximumSegmentID * maximumSegmentID)
     distances.fill(kDistanceUndefined);
 
     let maxDistance = Number.NEGATIVE_INFINITY;
@@ -224,17 +226,13 @@ function updateDistanceArray(maximumSegmentID, trace) {
 
     }
 
-    return { distances, maxDistance }
+    return maxDistance
 
 }
 
-function populateDistanceCanvasArray(distances, maximumSegmentID, maximumDistance, colorMap) {
+function populateDistanceCanvasArray(canvasArray, distances, maximumSegmentID, maximumDistance, colorMap) {
 
-    const canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
-
-    let i;
-
-    i = 0;
+    let i = 0;
     const { r, g, b } = appleCrayonColorRGB255('magnesium');
     for (let x = 0; x < distances.length; x++) {
         canvasArray[i++] = r;
@@ -263,8 +261,11 @@ function populateDistanceCanvasArray(distances, maximumSegmentID, maximumDistanc
         i += 4;
     }
 
-    return canvasArray
+}
 
+function initializeSharedBuffers(maximumSegmentID) {
+    counters = averages = distances = new Array(maximumSegmentID * maximumSegmentID)
+    canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
 }
 
 export function distanceMapPanelConfigurator({ container, isHidden }) {
