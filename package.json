@@ -19,7 +19,7 @@
     "juicebox.js": "^1.5.0",
     "kd3d": "github:turner/kd3d",
     "node-fetch": "^2.6.0",
-    "three": "^0.115.0"
+    "three": "^0.137.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
