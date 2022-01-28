@@ -51,6 +51,23 @@ class DistanceMapPanel extends Panel {
 
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
+        // this.worker = new Worker('./js/distanceMapWorker.js')
+
+        // this.worker.addEventListener('message', ({ data }) => {
+        //
+        //     console.log('panel received message from worker')
+        //
+        //     if ('trace' === data.traceOrEnsemble) {
+        //         populateDistanceCanvasArray(data.distances, ensembleManager.maximumSegmentID, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
+        //         drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, sharedBuffers.canvasArray)
+        //     } else {
+        //         populateDistanceCanvasArray(data.averages, ensembleManager.maximumSegmentID, data.maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
+        //         drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, sharedBuffers.canvasArray)
+        //     }
+        //
+        //
+        // }, false)
+
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
@@ -113,51 +130,8 @@ class DistanceMapPanel extends Panel {
 
     getClassName(){ return 'DistanceMapPanel' }
 
-    updateEnsembleAverageDistanceCanvas(maximumSegmentID, ensemble){
-
-        const traces = Object.values(ensemble);
-
-        const str = `Distance Map - Update Ensemble Distance. ${ traces.length } traces.`;
-        console.time(str);
-
-        sharedBuffers.counters.fill(0)
-        sharedBuffers.averages.fill(kDistanceUndefined)
-
-        updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces)
-
-        let maxAverageDistance = Number.NEGATIVE_INFINITY;
-        for (let avg of sharedBuffers.averages) {
-            maxAverageDistance = Math.max(maxAverageDistance, avg);
-        }
-
-        console.timeEnd(str);
-
-        populateDistanceCanvasArray(sharedBuffers.averages, maximumSegmentID, maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, sharedBuffers.canvasArray)
-
-    }
-
     updateTraceDistanceCanvas(maximumSegmentID, trace) {
-
-        const worker = new Worker('./js/distanceMapWorker.js')
-
-        // worker.addEventListener('message', ({ data }) => {
-        //     console.log('DistanceMapWorker says: ', data)
-        // }, false)
-        //
-        // worker.postMessage('updateTraceDistanceCanvas called a web worker. Cool!')
-        //
-        // worker.postMessage(thang)
-
-        const thang = { contact: 2, distance: 4 }
-
-        worker.addEventListener('message', ({ data }) => {
-            const { contact, distance } = data
-            console.log(`DistanceMapWorker says - contact ${ contact } distance ${ distance }`)
-        }, false)
-
-        worker.postMessage(thang)
-
+        
         // const str = `Distance Map - Update Trace Distance.`;
         // console.time(str);
 
@@ -171,50 +145,52 @@ class DistanceMapPanel extends Panel {
         drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, sharedBuffers.canvasArray);
 
     }
-}
 
-function updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces) {
+    updateEnsembleAverageDistanceCanvas(maximumSegmentID, ensemble){
 
-    for (let trace of traces) {
+        sharedBuffers.counters.fill(0)
+        sharedBuffers.averages.fill(kDistanceUndefined)
 
-        const traceValues = Object.values(trace)
-        const vertices = getSingleCentroidVerticesWithTrace(trace)
+        const traces = Object.values(ensemble);
+        updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces)
 
-        const ignored = updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, vertices)
-
-        // We need to calculate an array of averages where the input data
-        // can have missing - kDistanceUndefined - values
-
-        // loop of the distance array
-        for (let d = 0; d < sharedBuffers.distances.length; d++) {
-
-            // ignore missing data values. they do not participate in the average
-            if (kDistanceUndefined === sharedBuffers.distances[ d ]) {
-                // do nothing
-            } else {
-
-                // keep track of how many samples we have at this array index
-                ++sharedBuffers.counters[ d ];
-
-                if (kDistanceUndefined === sharedBuffers.averages[ d ]) {
-
-                    // If this is the first data value at this array index copy it to average.
-                    sharedBuffers.averages[ d ] = sharedBuffers.distances[ d ];
-                } else {
-
-                    // when there is data AND a pre-existing average value at this array index
-                    // use an incremental averaging approach.
-
-                    // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
-                    // https://math.stackexchange.com/questions/106700/incremental-averageing
-                    sharedBuffers.averages[ d ] = sharedBuffers.averages[ d ] + (sharedBuffers.distances[ d ] - sharedBuffers.averages[ d ]) / sharedBuffers.counters[ d ];
-                }
-
-            }
+        let maxAverageDistance = Number.NEGATIVE_INFINITY;
+        for (let avg of sharedBuffers.averages) {
+            maxAverageDistance = Math.max(maxAverageDistance, avg);
         }
+
+        populateDistanceCanvasArray(sharedBuffers.averages, maximumSegmentID, maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, sharedBuffers.canvasArray)
 
     }
 
+    __updateTraceDistanceCanvas(maximumSegmentID, trace) {
+
+        const data =
+            {
+                traceOrEnsemble: 'trace',
+                distances: sharedBuffers.distances,
+                maximumSegmentID,
+                trace,
+            }
+
+        this.worker.postMessage(data)
+
+    }
+
+    __updateEnsembleAverageDistanceCanvas(maximumSegmentID, ensemble){
+
+        const data =
+            {
+                traceOrEnsemble: 'ensemble',
+                sharedBuffers,
+                maximumSegmentID,
+                traces: Object.values(ensemble),
+            }
+
+        this.worker.postMessage(data)
+
+    }
 }
 
 function updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, vertices) {
@@ -256,6 +232,50 @@ function updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, 
     }
 
     return maxDistance
+
+}
+
+function updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces) {
+
+    for (let trace of traces) {
+
+        const traceValues = Object.values(trace)
+        const vertices = getSingleCentroidVerticesWithTrace(trace)
+
+        const ignored = updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, vertices)
+
+        // We need to calculate an array of averages where the input data
+        // can have missing - kDistanceUndefined - values
+
+        // loop over distance array
+        for (let d = 0; d < sharedBuffers.distances.length; d++) {
+
+            // ignore missing data values. they do not participate in the average
+            if (kDistanceUndefined === sharedBuffers.distances[ d ]) {
+                // do nothing
+            } else {
+
+                // keep track of how many samples we have at this array index
+                ++sharedBuffers.counters[ d ];
+
+                if (kDistanceUndefined === sharedBuffers.averages[ d ]) {
+
+                    // If this is the first data value at this array index copy it to average.
+                    sharedBuffers.averages[ d ] = sharedBuffers.distances[ d ];
+                } else {
+
+                    // when there is data AND a pre-existing average value at this array index
+                    // use an incremental averaging approach.
+
+                    // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
+                    // https://math.stackexchange.com/questions/106700/incremental-averageing
+                    sharedBuffers.averages[ d ] = sharedBuffers.averages[ d ] + (sharedBuffers.distances[ d ] - sharedBuffers.averages[ d ]) / sharedBuffers.counters[ d ];
+                }
+
+            }
+        }
+
+    }
 
 }
 
