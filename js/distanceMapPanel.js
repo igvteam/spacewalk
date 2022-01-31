@@ -45,22 +45,20 @@ class DistanceMapPanel extends Panel {
 
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
-        // this.worker = new Worker('./js/distanceMapWorker.js')
+        this.worker = new Worker('./js/distanceMapWorker.js')
 
-        // this.worker.addEventListener('message', ({ data }) => {
-        //
-        //     console.log('panel received message from worker')
-        //
-        //     if ('trace' === data.traceOrEnsemble) {
-        //         populateDistanceCanvasArray(data.distances, ensembleManager.maximumSegmentID, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-        //         drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, canvasArray)
-        //     } else {
-        //         populateDistanceCanvasArray(data.averages, ensembleManager.maximumSegmentID, data.maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
-        //         drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, canvasArray)
-        //     }
-        //
-        //
-        // }, false)
+        this.worker.addEventListener('message', ({ data }) => {
+
+            if ('trace' === data.traceOrEnsemble) {
+                populateDistanceCanvasArray(data.workerDistanceBuffer, ensembleManager.maximumSegmentID, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
+                drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, canvasArray)
+            } else {
+                populateDistanceCanvasArray(data.workerDistanceBuffer, ensembleManager.maximumSegmentID, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
+                drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, canvasArray)
+            }
+
+
+        }, false)
 
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
@@ -124,7 +122,7 @@ class DistanceMapPanel extends Panel {
 
     getClassName(){ return 'DistanceMapPanel' }
 
-    updateTraceDistanceCanvas(maximumSegmentID, trace) {
+    __updateTraceDistanceCanvas(maximumSegmentID, trace) {
 
         // const str = `Distance Map - Update Trace Distance.`;
         // console.time(str);
@@ -140,7 +138,7 @@ class DistanceMapPanel extends Panel {
 
     }
 
-    updateEnsembleAverageDistanceCanvas(maximumSegmentID, ensemble){
+    __updateEnsembleAverageDistanceCanvas(maximumSegmentID, ensemble){
         const traces = Object.values(ensemble);
         const averages = updateEnsembleDistanceArray(maximumSegmentID, traces)
         let maxAverageDistance = Number.NEGATIVE_INFINITY;
@@ -153,12 +151,11 @@ class DistanceMapPanel extends Panel {
 
     }
 
-    __updateTraceDistanceCanvas(maximumSegmentID, trace) {
+    updateTraceDistanceCanvas(maximumSegmentID, trace) {
 
         const data =
             {
                 traceOrEnsemble: 'trace',
-                distances: sharedBuffers.distances,
                 maximumSegmentID,
                 trace,
             }
@@ -167,12 +164,11 @@ class DistanceMapPanel extends Panel {
 
     }
 
-    __updateEnsembleAverageDistanceCanvas(maximumSegmentID, ensemble){
+    updateEnsembleAverageDistanceCanvas(maximumSegmentID, ensemble){
 
         const data =
             {
                 traceOrEnsemble: 'ensemble',
-                sharedBuffers,
                 maximumSegmentID,
                 traces: Object.values(ensemble),
             }

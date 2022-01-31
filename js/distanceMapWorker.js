@@ -2,20 +2,52 @@
 self.addEventListener('message', ({ data }) => {
 
     if ('trace' === data.traceOrEnsemble) {
-        const { maxDistance, distances } = updateTraceDistanceArray(data.distances, data.maximumSegmentID, data.trace)
-        self.postMessage({ maxDistance, distances, traceOrEnsemble: data.traceOrEnsemble })
+
+        const str = `Distance Map Worker - Update Trace Distance Array`
+        console.time(str);
+
+        const { maxDistance, distances } = updateTraceDistanceArray(data.maximumSegmentID, data.trace)
+
+        console.timeEnd(str)
+
+        const payload =
+            {
+                traceOrEnsemble: data.traceOrEnsemble,
+                workerDistanceBuffer: distances,
+                maxDistance
+            }
+
+        self.postMessage(payload, [ distances.buffer ])
+
     } else {
-        const { maxAverageDistance, averages } = updateEnsembleDistanceArray(data.sharedBuffers, data.maximumSegmentID, data.traces)
-        self.postMessage({ maxAverageDistance, averages, traceOrEnsemble: data.traceOrEnsemble })
+
+
+        const str = `Distance Map Worker - Update Ensemble Distance Array`
+        console.time(str);
+
+        const { maxAverageDistance, averages } = updateEnsembleDistanceArray(data.maximumSegmentID, data.traces)
+
+        console.timeEnd(str)
+
+        const payload =
+            {
+                traceOrEnsemble: data.traceOrEnsemble,
+                workerDistanceBuffer: averages,
+                maxDistance: maxAverageDistance
+            }
+
+        self.postMessage(payload, [ averages.buffer ])
+
     }
 
 }, false)
 
 const kDistanceUndefined = -1;
 
-function updateTraceDistanceArray(distances, maximumSegmentID, trace) {
+function updateTraceDistanceArray(maximumSegmentID, trace) {
 
-    distances.fill(kDistanceUndefined);
+    const distances = new Float32Array(maximumSegmentID * maximumSegmentID)
+    distances.fill(kDistanceUndefined)
 
     let maxDistance = Number.NEGATIVE_INFINITY;
 
@@ -59,17 +91,17 @@ function updateTraceDistanceArray(distances, maximumSegmentID, trace) {
 
 }
 
-function updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces) {
+function updateEnsembleDistanceArray(maximumSegmentID, traces) {
 
-    sharedBuffers.counters.fill(0)
-    sharedBuffers.averages.fill(kDistanceUndefined)
+    const averages  = new Float32Array(maximumSegmentID * maximumSegmentID)
+    averages.fill(kDistanceUndefined)
+
+    const counters = new Int32Array(maximumSegmentID * maximumSegmentID)
+    counters.fill(0)
 
     for (let trace of traces) {
 
-        const traceValues = Object.values(trace)
-        const vertices = getSingleCentroidVerticesWithTrace(trace)
-
-        const { maxDistance, distances } = updateTraceDistanceArray(sharedBuffers.distances, maximumSegmentID, traceValues, vertices)
+        const { maxDistance, distances } = updateTraceDistanceArray(maximumSegmentID, trace)
 
         // We need to calculate an array of averages where the input data
         // can have missing - kDistanceUndefined - values
@@ -83,12 +115,12 @@ function updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces) {
             } else {
 
                 // keep track of how many samples we have at this array index
-                ++sharedBuffers.counters[ d ];
+                ++counters[ d ];
 
-                if (kDistanceUndefined === sharedBuffers.averages[ d ]) {
+                if (kDistanceUndefined === averages[ d ]) {
 
                     // If this is the first data value at this array index copy it to average.
-                    sharedBuffers.averages[ d ] = distances[ d ];
+                    averages[ d ] = distances[ d ];
                 } else {
 
                     // when there is data AND a pre-existing average value at this array index
@@ -96,7 +128,7 @@ function updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces) {
 
                     // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
                     // https://math.stackexchange.com/questions/106700/incremental-averageing
-                    sharedBuffers.averages[ d ] = sharedBuffers.averages[ d ] + (distances[ d ] - sharedBuffers.averages[ d ]) / sharedBuffers.counters[ d ];
+                    averages[ d ] = averages[ d ] + (distances[ d ] - averages[ d ]) / counters[ d ];
                 }
 
             }
@@ -105,11 +137,11 @@ function updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces) {
     }
 
     let maxAverageDistance = Number.NEGATIVE_INFINITY;
-    for (let avg of sharedBuffers.averages) {
+    for (let avg of averages) {
         maxAverageDistance = Math.max(maxAverageDistance, avg)
     }
 
-    return { maxAverageDistance, averages: sharedBuffers.averages }
+    return { maxAverageDistance, averages }
 }
 
 function getSingleCentroidVerticesWithTrace(trace) {
