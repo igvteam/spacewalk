@@ -1,5 +1,5 @@
 import SpacewalkEventBus from "./spacewalkEventBus.js"
-import {ensembleManager, hideSpinner, showSpinner} from "./app.js"
+import {ensembleManager} from "./app.js"
 import {clamp} from "./math.js"
 
 let currentNumber = undefined
@@ -52,14 +52,10 @@ function broadcastTraceSelection(input, number, howmany) {
     currentNumber = number;
     const key = currentNumber.toString();
 
-    showSpinner();
     window.setTimeout(() => {
-
         const trace = ensembleManager.getTraceWithName(key);
         ensembleManager.currentTrace = trace;
         SpacewalkEventBus.globalBus.post({ type: "DidSelectTrace", data: { trace } });
-
-        hideSpinner();
     }, 0);
 }
 

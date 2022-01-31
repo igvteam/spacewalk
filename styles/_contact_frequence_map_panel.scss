@@ -62,6 +62,7 @@ $spacewalk_contact_frequency_map_panel_width: 256px;
     height: unset;
 
     #spacewalk_contact_frequency_map_panel_container {
+      position: relative;
       width: $spacewalk_contact_frequency_map_panel_width;
       height: $spacewalk_contact_frequency_map_panel_width;
     }

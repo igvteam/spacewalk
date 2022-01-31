@@ -1,6 +1,5 @@
 import KDBush from './kd3d/kd3d.js'
 import { clamp } from "./math.js";
-import { hideSpinner, showSpinner } from './app.js';
 import Panel from "./panel.js";
 import { colorMapManager, ensembleManager } from "./app.js";
 import {threeJSColorToRGB255} from "./color.js";
@@ -59,12 +58,10 @@ class ContactFrequencyMapPanel extends Panel {
             const value = input.value
             this.distanceThreshold = clamp(parseInt(value, 10), 0, maxDistanceThreshold);
 
-            showSpinner();
             window.setTimeout(() => {
                 this.updateEnsembleContactFrequencyCanvas(ensembleManager.maximumSegmentID, this.ensemble)
                 this.updateTraceContactFrequencyCanvas(ensembleManager.maximumSegmentID, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
-                hideSpinner()
             }, 0)
         })
 

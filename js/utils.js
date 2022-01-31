@@ -2,6 +2,13 @@ import {ribbon, ballAndStick, ensembleManager, dataValueMaterialProvider, colorR
 import {lerp} from "./math.js";
 import {StringUtils} from 'igv-utils';
 
+function showGlobalSpinner() {
+    document.getElementById('spacewalk-spinner').style.display = 'block'
+}
+
+function hideGlobalSpinner() {
+    document.getElementById('spacewalk-spinner').style.display = 'none'
+}
 
 async function getMaterialProvider (track) {
 
@@ -152,6 +159,8 @@ const generateRadiusTable = defaultRadius => {
 };
 
 export {
+    showGlobalSpinner,
+    hideGlobalSpinner,
     getMaterialProvider,
     setMaterialProvider,
     createImage,

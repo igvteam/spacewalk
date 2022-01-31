@@ -49,6 +49,8 @@ class DistanceMapPanel extends Panel {
 
         this.worker.addEventListener('message', ({ data }) => {
 
+            document.querySelector('#spacewalk-distance-map-spinner').style.display = 'none'
+
             if ('trace' === data.traceOrEnsemble) {
                 populateDistanceCanvasArray(data.workerDistanceBuffer, ensembleManager.maximumSegmentID, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
                 drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, canvasArray)
@@ -73,7 +75,6 @@ class DistanceMapPanel extends Panel {
             this.trace = trace
 
             if (false === this.isHidden) {
-                console.log('Calc distance map - trace')
                 this.updateTraceDistanceCanvas(ensembleManager.maximumSegmentID, this.trace)
                 this.doUpdateTrace = undefined
             } else {
@@ -89,7 +90,6 @@ class DistanceMapPanel extends Panel {
             initializeSharedBuffers(ensembleManager.maximumSegmentID)
 
             if (false === this.isHidden) {
-                console.log('Calc distance map - trace and ensemble')
                 this.updateEnsembleAverageDistanceCanvas(ensembleManager.maximumSegmentID, this.ensemble)
                 this.updateTraceDistanceCanvas(ensembleManager.maximumSegmentID, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
@@ -105,13 +105,11 @@ class DistanceMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            console.log('Calc distance map - ensemble')
             this.updateEnsembleAverageDistanceCanvas(ensembleManager.maximumSegmentID, this.ensemble)
             this.doUpdateEnsemble = undefined
         }
 
         if (true === this.doUpdateTrace) {
-            console.log('Calc distance map - trace')
             this.updateTraceDistanceCanvas(ensembleManager.maximumSegmentID, this.trace)
             this.doUpdateTrace = undefined
         }
@@ -153,6 +151,8 @@ class DistanceMapPanel extends Panel {
 
     updateTraceDistanceCanvas(maximumSegmentID, trace) {
 
+        document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
+
         const data =
             {
                 traceOrEnsemble: 'trace',
@@ -162,9 +162,14 @@ class DistanceMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
+        clearDistanceCanvasArray(ensembleManager.maximumSegmentID)
+        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, canvasArray)
+
     }
 
     updateEnsembleAverageDistanceCanvas(maximumSegmentID, ensemble){
+
+        document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
         const data =
             {
@@ -174,6 +179,9 @@ class DistanceMapPanel extends Panel {
             }
 
         this.worker.postMessage(data)
+
+        clearDistanceCanvasArray(ensembleManager.maximumSegmentID)
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, canvasArray)
 
     }
 }
@@ -268,6 +276,20 @@ function updateEnsembleDistanceArray(maximumSegmentID, traces) {
     }
 
     return averages
+}
+
+function clearDistanceCanvasArray(maximumSegmentID) {
+
+    const { r, g, b } = appleCrayonColorRGB255('magnesium')
+    const length = maximumSegmentID * maximumSegmentID
+    let i = 0
+    for (let x = 0; x < length; x++) {
+        canvasArray[i++] = r
+        canvasArray[i++] = g
+        canvasArray[i++] = b
+        canvasArray[i++] = 255
+    }
+
 }
 
 function populateDistanceCanvasArray(distances, maximumSegmentID, maximumDistance, colorMap) {

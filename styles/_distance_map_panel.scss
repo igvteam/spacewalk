@@ -54,6 +54,7 @@ $spacewalk_distance_map_panel_width: 256px;
     height: unset;
 
     #spacewalk_distance_map_panel_container {
+      position: relative;
       width: $spacewalk_distance_map_panel_width;
       height: $spacewalk_distance_map_panel_width;
     }

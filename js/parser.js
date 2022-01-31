@@ -1,5 +1,5 @@
 import { FileUtils, igvxhr } from 'igv-utils'
-import { hideSpinner, showSpinner } from "./app.js";
+import { hideGlobalSpinner, showGlobalSpinner } from "./utils.js";
 import { ensembleManager } from "./app.js";
 import GenomicDataset from "./genomicDataset.js";
 import NonGenomicDataset from "./nonGenomicDataset.js";
@@ -155,17 +155,17 @@ class Parser {
 
         let string = undefined;
         try {
-            showSpinner();
+            showGlobalSpinner();
             string = await igvxhr.loadString(path);
-            hideSpinner();
+            hideGlobalSpinner();
         } catch (e) {
-            hideSpinner();
+            hideGlobalSpinner();
             console.error(e.message)
         }
 
-        showSpinner();
+        showGlobalSpinner();
         const payload = this.parse(string);
-        hideSpinner();
+        hideGlobalSpinner();
 
         ensembleManager.ingest(payload, traceKey);
 

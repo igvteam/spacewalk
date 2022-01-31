@@ -164,7 +164,7 @@ $spacewalk-trace-navigator-canvas-width: 40px;
   z-index: 1024;
 }
 
-#spacewalk-spinner-container {
+.spacewalk-spinner-container {
 
   pointer-events:none;
 
@@ -182,16 +182,6 @@ $spacewalk-trace-navigator-canvas-width: 40px;
 
   background-color: transparent;
 
-  .spinner-border {
-
-    pointer-events:none;
-
-    width: $spacewalk_spinner_size;
-    height: $spacewalk_spinner_size;
-
-    color: $spacewalk_mercury;
-    border-width: 0.5rem;
-  }
 }
 
 .modal {

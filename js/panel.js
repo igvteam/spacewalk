@@ -108,7 +108,7 @@ class Panel {
         const $selection = $(`input[data-target='${ id }']`)
         $selection.prop('checked', false)
 
-    };
+    }
 
     present() {
 

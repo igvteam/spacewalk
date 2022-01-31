@@ -591,8 +591,8 @@
       </div>
 
       <!-- general purpose spinner -->
-      <div id="spacewalk-spinner-container" class="d-flex justify-content-center align-items-center" style="background-color:transparent;">
-        <div id="spacewalk-spinner" class="spinner-border" style="display: none;">
+      <div class="spacewalk-spinner-container d-flex justify-content-center align-items-center" style="background-color:transparent;">
+        <div id="spacewalk-spinner" class="spinner-border text-light" style="display:none; width: 8rem; height: 8rem;">
         </div>
       </div>
 
@@ -666,6 +666,12 @@
         <div id="spacewalk_distance_map_panel_body" class="card-body p-0">
 
           <div id="spacewalk_distance_map_panel_container" class="tab-content">
+
+            <div class="spacewalk-spinner-container d-flex align-items-center justify-content-center">
+              <div id="spacewalk-distance-map-spinner" class="spinner-border text-secondary" style="display:none; width: 5rem; height: 5rem;">
+              </div>
+            </div>
+
             <canvas id="spacewalk_distance_map_canvas_trace" class="tab-pane active">
             </canvas>
             <canvas id="spacewalk_distance_map_canvas_ensemble" class="tab-pane">
@@ -723,6 +729,12 @@
         <div id="spacewalk_contact_frequency_map_panel_body" class="card-body p-0">
 
           <div id="spacewalk_contact_frequency_map_panel_container" class="tab-content">
+
+            <div class="spacewalk-spinner-container d-flex align-items-center justify-content-center">
+              <div id="spacewalk-contact-frequency-map-spinner" class="spinner-border text-secondary" style="display:none; width: 5rem; height: 5rem;">
+              </div>
+            </div>
+
             <canvas id="spacewalk_contact_frequency_map_canvas_trace" class="tab-pane">
             </canvas>
             <canvas id="spacewalk_contact_frequency_map_canvas_ensemble" class="tab-pane active">

@@ -417,12 +417,4 @@ const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
     return html;
 }
 
-function showSpinner() {
-    document.getElementById('spacewalk-spinner').style.display = 'block'
-}
-
-function hideSpinner() {
-    document.getElementById('spacewalk-spinner').style.display = 'none'
-}
-
-export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceNavigator, appendAndConfigureLoadURLModal };
+export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceNavigator, appendAndConfigureLoadURLModal };
