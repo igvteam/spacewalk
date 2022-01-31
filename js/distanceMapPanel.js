@@ -2,18 +2,12 @@ import Panel from "./panel.js";
 import { colorMapManager, ensembleManager } from "./app.js";
 import { drawWithSharedUint8ClampedArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
-import { getSingleCentroidVerticesWithTrace } from "./ensembleManager.js";
 import SpacewalkEventBus from "./spacewalkEventBus.js"
+import {clamp} from './math.js'
 
-const kDistanceUndefined = -1;
+const kDistanceUndefined = -1
 
-const sharedBuffers =
-    {
-        counters: undefined,
-        averages: undefined,
-        distances: undefined,
-        canvasArray: undefined
-    }
+let canvasArray = undefined
 
 class DistanceMapPanel extends Panel {
 
@@ -59,10 +53,10 @@ class DistanceMapPanel extends Panel {
         //
         //     if ('trace' === data.traceOrEnsemble) {
         //         populateDistanceCanvasArray(data.distances, ensembleManager.maximumSegmentID, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-        //         drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, sharedBuffers.canvasArray)
+        //         drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, canvasArray)
         //     } else {
         //         populateDistanceCanvasArray(data.averages, ensembleManager.maximumSegmentID, data.maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
-        //         drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, sharedBuffers.canvasArray)
+        //         drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, canvasArray)
         //     }
         //
         //
@@ -131,36 +125,31 @@ class DistanceMapPanel extends Panel {
     getClassName(){ return 'DistanceMapPanel' }
 
     updateTraceDistanceCanvas(maximumSegmentID, trace) {
-        
+
         // const str = `Distance Map - Update Trace Distance.`;
         // console.time(str);
 
         const traceValues = Object.values(trace);
         const vertices = getSingleCentroidVerticesWithTrace(trace);
-        const maxDistance = updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, vertices)
+        const { maxDistance, distances } = updateTraceDistanceArray(maximumSegmentID, traceValues, vertices)
 
         // console.timeEnd(str);
 
-        populateDistanceCanvasArray(sharedBuffers.distances, maximumSegmentID, maxDistance, colorMapManager.dictionary['juicebox_default'])
-        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, sharedBuffers.canvasArray);
+        populateDistanceCanvasArray(distances, maximumSegmentID, maxDistance, colorMapManager.dictionary['juicebox_default'])
+        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, canvasArray);
 
     }
 
     updateEnsembleAverageDistanceCanvas(maximumSegmentID, ensemble){
-
-        sharedBuffers.counters.fill(0)
-        sharedBuffers.averages.fill(kDistanceUndefined)
-
         const traces = Object.values(ensemble);
-        updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces)
-
+        const averages = updateEnsembleDistanceArray(maximumSegmentID, traces)
         let maxAverageDistance = Number.NEGATIVE_INFINITY;
-        for (let avg of sharedBuffers.averages) {
+        for (let avg of averages) {
             maxAverageDistance = Math.max(maxAverageDistance, avg);
         }
 
-        populateDistanceCanvasArray(sharedBuffers.averages, maximumSegmentID, maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, sharedBuffers.canvasArray)
+        populateDistanceCanvasArray(averages, maximumSegmentID, maxAverageDistance, colorMapManager.dictionary['juicebox_default'])
+        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, canvasArray)
 
     }
 
@@ -193,20 +182,20 @@ class DistanceMapPanel extends Panel {
     }
 }
 
-function updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, vertices) {
+function updateTraceDistanceArray(maximumSegmentID, traceValues, vertices) {
 
-    sharedBuffers.distances.fill(kDistanceUndefined);
+    const distances = new Float32Array(maximumSegmentID * maximumSegmentID)
+    distances.fill(kDistanceUndefined)
 
     let maxDistance = Number.NEGATIVE_INFINITY;
 
-    let exclusionSet = new Set();
-
+    const exclusionSet = new Set()
     for (let i = 0; i < vertices.length; i++) {
 
-        const { colorRampInterpolantWindow } = traceValues[ i ];
-        const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
-        const xy_diagonal = i_segmentIndex * maximumSegmentID + i_segmentIndex;
-        sharedBuffers.distances[ xy_diagonal ] = 0;
+        const { colorRampInterpolantWindow } = traceValues[ i ]
+        const i_segmentIndex = colorRampInterpolantWindow.segmentIndex
+        const xy_diagonal = i_segmentIndex * maximumSegmentID + i_segmentIndex
+        distances[ xy_diagonal ] = 0.0
 
         exclusionSet.add(i);
 
@@ -214,7 +203,7 @@ function updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, 
 
             if (false === exclusionSet.has(j)) {
 
-                const distance = vertices[ i ].distanceTo(vertices[ j ]);
+                const distance = distanceTo(vertices[ i ], vertices[ j ])
 
                 const { colorRampInterpolantWindow: colorRampInterpolantWindow_j } = traceValues[ j ];
                 const j_segmentIndex = colorRampInterpolantWindow_j.segmentIndex;
@@ -222,7 +211,7 @@ function updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, 
                 const ij =  i_segmentIndex * maximumSegmentID + j_segmentIndex;
                 const ji =  j_segmentIndex * maximumSegmentID + i_segmentIndex;
 
-                sharedBuffers.distances[ ij ] = sharedBuffers.distances[ ji ] = distance;
+                distances[ ij ] = distances[ ji ] = distance;
 
                 maxDistance = Math.max(maxDistance, distance);
             }
@@ -231,37 +220,42 @@ function updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, 
 
     }
 
-    return maxDistance
+    return { maxDistance, distances }
 
 }
 
-function updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces) {
+function updateEnsembleDistanceArray(maximumSegmentID, traces) {
+
+    const averages  = new Float32Array(maximumSegmentID * maximumSegmentID)
+    averages.fill(kDistanceUndefined)
+
+    const counters = new Int32Array(maximumSegmentID * maximumSegmentID)
+    counters.fill(0)
 
     for (let trace of traces) {
 
         const traceValues = Object.values(trace)
         const vertices = getSingleCentroidVerticesWithTrace(trace)
-
-        const ignored = updateTraceDistanceArray(sharedBuffers, maximumSegmentID, traceValues, vertices)
+        const { distances } = updateTraceDistanceArray(maximumSegmentID, traceValues, vertices)
 
         // We need to calculate an array of averages where the input data
         // can have missing - kDistanceUndefined - values
 
         // loop over distance array
-        for (let d = 0; d < sharedBuffers.distances.length; d++) {
+        for (let d = 0; d < distances.length; d++) {
 
             // ignore missing data values. they do not participate in the average
-            if (kDistanceUndefined === sharedBuffers.distances[ d ]) {
+            if (kDistanceUndefined === distances[ d ]) {
                 // do nothing
             } else {
 
                 // keep track of how many samples we have at this array index
-                ++sharedBuffers.counters[ d ];
+                ++counters[ d ];
 
-                if (kDistanceUndefined === sharedBuffers.averages[ d ]) {
+                if (kDistanceUndefined === averages[ d ]) {
 
                     // If this is the first data value at this array index copy it to average.
-                    sharedBuffers.averages[ d ] = sharedBuffers.distances[ d ];
+                    averages[ d ] = distances[ d ];
                 } else {
 
                     // when there is data AND a pre-existing average value at this array index
@@ -269,7 +263,7 @@ function updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces) {
 
                     // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
                     // https://math.stackexchange.com/questions/106700/incremental-averageing
-                    sharedBuffers.averages[ d ] = sharedBuffers.averages[ d ] + (sharedBuffers.distances[ d ] - sharedBuffers.averages[ d ]) / sharedBuffers.counters[ d ];
+                    averages[ d ] = averages[ d ] + (distances[ d ] - averages[ d ]) / counters[ d ];
                 }
 
             }
@@ -277,6 +271,7 @@ function updateEnsembleDistanceArray(sharedBuffers, maximumSegmentID, traces) {
 
     }
 
+    return averages
 }
 
 function populateDistanceCanvasArray(distances, maximumSegmentID, maximumDistance, colorMap) {
@@ -284,27 +279,34 @@ function populateDistanceCanvasArray(distances, maximumSegmentID, maximumDistanc
     let i = 0;
     const { r, g, b } = appleCrayonColorRGB255('magnesium');
     for (let x = 0; x < distances.length; x++) {
-        sharedBuffers.canvasArray[i++] = r;
-        sharedBuffers.canvasArray[i++] = g;
-        sharedBuffers.canvasArray[i++] = b;
-        sharedBuffers.canvasArray[i++] = 255;
+        canvasArray[i++] = r;
+        canvasArray[i++] = g;
+        canvasArray[i++] = b;
+        canvasArray[i++] = 255;
     }
 
 
     const scale = colorMap.length - 1;
 
     i = 0;
-    for (let d of distances) {
+    for (let distance of distances) {
 
-        if (kDistanceUndefined !== d) {
+        if (kDistanceUndefined !== distance) {
 
-            const interpolant = 1.0 - d/maximumDistance;
-            const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolant * scale) ][ 'threejs' ]);
+            const interpolant = distance/maximumDistance
+            if (interpolant < 0 || 1 < interpolant) {
+                console.log(`${ Date.now() } populateDistanceCanvasArray - interpolant out of range ${ interpolant }`)
+            }
 
-            sharedBuffers.canvasArray[i + 0] = r;
-            sharedBuffers.canvasArray[i + 1] = g;
-            sharedBuffers.canvasArray[i + 2] = b;
-            sharedBuffers.canvasArray[i + 3] = 255;
+            const interpolantFlipped = 1.0 - clamp(interpolant, 0, 1)
+            const interpolantScaled = scale * interpolantFlipped
+
+            const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolantScaled) ][ 'threejs' ]);
+
+            canvasArray[i + 0] = r;
+            canvasArray[i + 1] = g;
+            canvasArray[i + 2] = b;
+            canvasArray[i + 3] = 255;
         }
 
         i += 4;
@@ -313,8 +315,26 @@ function populateDistanceCanvasArray(distances, maximumSegmentID, maximumDistanc
 }
 
 function initializeSharedBuffers(maximumSegmentID) {
-    sharedBuffers.counters = sharedBuffers.averages = sharedBuffers.distances = new Array(maximumSegmentID * maximumSegmentID)
-    sharedBuffers.canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
+    canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
+}
+
+function getSingleCentroidVerticesWithTrace(trace) {
+
+    return Object.values(trace)
+        .map(({ geometry }) => {
+            const [ x, y, z ] = geometry.attributes.position.array
+            return { x, y, z }
+        })
+
+}
+
+function distanceTo(a, b) {
+    return Math.sqrt( distanceToSquared(a, b) )
+}
+
+function distanceToSquared(a, b) {
+    const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z
+    return dx * dx + dy * dy + dz * dz
 }
 
 export function distanceMapPanelConfigurator({ container, isHidden }) {
