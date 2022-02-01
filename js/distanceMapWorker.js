@@ -1,11 +1,11 @@
-import { distanceTo, getSingleCentroidVerticesWithTrace } from './distanceMapWorkerUtils.js'
+import { distanceTo, getSingleCentroidVerticesWithTrace } from './webWorkerUtils.js'
 
 self.addEventListener('message', ({ data }) => {
 
     if ('trace' === data.traceOrEnsemble) {
 
         const str = `Distance Map Worker - Update Trace Distance Array`
-        console.time(str);
+        console.time(str)
 
         const { maxDistance, distances } = updateTraceDistanceArray(data.maximumSegmentID, data.trace)
 
