@@ -33,9 +33,14 @@ class GUIManager {
 
         for (let i = 0; i < inputIDList.length; i++) {
 
-            inputIDList[ i ].addEventListener('change', event => {
+            const input = inputIDList[ i ]
+            input.addEventListener('change', event => {
+
                 event.preventDefault()
                 event.stopPropagation()
+
+                $(input).parents('.dropdown').find('.dropdown-toggle').dropdown('toggle')
+
                 const payload = inputIDList[ i ].dataset.target
                 SpacewalkEventBus.globalBus.post({ type: 'ToggleUIControl', data: { payload } })
             })
