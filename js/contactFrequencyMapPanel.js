@@ -3,7 +3,7 @@ import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import { colorMapManager, ensembleManager } from "./app.js";
 import {threeJSColorToRGB255} from "./color.js";
-import { drawWithSharedUint8ClampedArray } from "./utils.js";
+import { drawWithCanvasArray } from "./utils.js";
 import { getSingleCentroidVerticesWithTrace } from "./ensembleManager.js";
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 
@@ -66,6 +66,12 @@ class ContactFrequencyMapPanel extends Panel {
         })
 
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
+
+        this.worker = new Worker('./js/contactFrequencyMapWorker.js', { type: 'module' })
+
+        this.worker.addEventListener('message', () => {
+            console.log('Message received from contactFrequencyMapWorker')
+        }, false)
 
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
@@ -132,55 +138,35 @@ class ContactFrequencyMapPanel extends Panel {
 
         const traces = Object.values(ensemble)
 
-        const str = `Contact Frequency Map - Update Ensemble Frequency Array. ${ traces.length } traces.`
-        console.time(str)
-
         sharedBuffers.values.fill(0)
         for (let trace of traces) {
-            const traceValues = Object.values(trace)
             const vertices = getSingleCentroidVerticesWithTrace(trace)
-            updateContactFrequencyArray(sharedBuffers, maximumSegmentID, traceValues, vertices, this.distanceThreshold)
+            const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(vertices))
+            updateTraceContactFrequencyArray(sharedBuffers.values, spatialIndex, maximumSegmentID, trace, vertices, this.distanceThreshold)
         }
 
-        console.timeEnd(str)
-
         populateContactFrequencyCanvasArray(maximumSegmentID, sharedBuffers.values)
-
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, sharedBuffers.canvasArray)
-
+        drawWithCanvasArray(this.ctx_ensemble, this.size, sharedBuffers.canvasArray)
     }
 
     updateTraceContactFrequencyCanvas(maximumSegmentID, trace) {
 
-        const str = `Contact Frequency Map - Update Trace Frequency Array.`;
-        console.time(str);
-
         sharedBuffers.values.fill(0)
-        const traceValues = Object.values(trace)
-        const vertices = getSingleCentroidVerticesWithTrace(trace)
-        updateContactFrequencyArray(sharedBuffers, maximumSegmentID, traceValues, vertices, this.distanceThreshold)
 
-        console.timeEnd(str);
+        const vertices = getSingleCentroidVerticesWithTrace(trace)
+        const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(vertices))
+        updateTraceContactFrequencyArray(sharedBuffers.values, spatialIndex, maximumSegmentID, trace, vertices, this.distanceThreshold)
 
         populateContactFrequencyCanvasArray(maximumSegmentID, sharedBuffers.values);
-
-        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, sharedBuffers.canvasArray);
-
+        drawWithCanvasArray(this.ctx_trace, this.size, sharedBuffers.canvasArray);
     }
 }
 
-function updateContactFrequencyArray(sharedBuffers, maximumSegmentID, traceValues, vertices, distanceThreshold) {
-
-    const mapSize = maximumSegmentID
+function updateTraceContactFrequencyArray(values, spatialIndex, maximumSegmentID, trace, vertices, distanceThreshold) {
 
     const exclusionSet = new Set();
 
-    const str = `updateContactFrequencyArray - KDBush spatial index construction.`
-    console.time(str)
-
-    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(vertices))
-
-    console.timeEnd(str)
+    const traceValues = Object.values(trace)
 
     for (let i = 0; i < vertices.length; i++) {
 
@@ -190,9 +176,9 @@ function updateContactFrequencyArray(sharedBuffers, maximumSegmentID, traceValue
         const { colorRampInterpolantWindow } = traceValues[ i ];
 
         const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
-        const xy_diagonal = i_segmentIndex * mapSize + i_segmentIndex;
+        const xy_diagonal = i_segmentIndex * maximumSegmentID + i_segmentIndex;
 
-        sharedBuffers.values[ xy_diagonal ]++;
+        values[ xy_diagonal ]++;
 
         const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
 
@@ -203,24 +189,39 @@ function updateContactFrequencyArray(sharedBuffers, maximumSegmentID, traceValue
 
                 const j_segmentIndex = colorRampInterpolantWindow_j.segmentIndex;
 
-                const xy = i_segmentIndex * mapSize + j_segmentIndex;
-                const yx = j_segmentIndex * mapSize + i_segmentIndex;
+                const xy = i_segmentIndex * maximumSegmentID + j_segmentIndex;
+                const yx = j_segmentIndex * maximumSegmentID + i_segmentIndex;
 
-                if (xy > sharedBuffers.values.length) {
+                if (xy > values.length) {
                     console.log('xy is bogus index ' + xy);
                 }
 
-                if (yx > sharedBuffers.values.length) {
+                if (yx > values.length) {
                     console.log('yx is bogus index ' + yx);
                 }
 
-                sharedBuffers.values[ xy ] += 1;
+                values[ xy ] += 1;
 
-                sharedBuffers.values[ yx ] = sharedBuffers.values[ xy ];
+                values[ yx ] = values[ xy ];
 
             }
         }
 
+    }
+
+}
+
+function updateEnsembleContactFrequencyArray(maximumSegmentID, ensemble) {
+
+    const traces = Object.values(ensemble)
+
+    sharedBuffers.values.fill(0)
+    for (let trace of traces) {
+
+        const vertices = getSingleCentroidVerticesWithTrace(trace)
+        const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(vertices))
+
+        updateTraceContactFrequencyArray(sharedBuffers.values, spatialIndex, maximumSegmentID, trace, vertices, this.distanceThreshold)
     }
 
 }

@@ -1,3 +1,4 @@
+import { distanceTo, getSingleCentroidVerticesWithTrace } from './distanceMapWorkerUtils.js'
 
 self.addEventListener('message', ({ data }) => {
 
@@ -144,21 +145,3 @@ function updateEnsembleDistanceArray(maximumSegmentID, traces) {
     return { maxAverageDistance, averages }
 }
 
-function getSingleCentroidVerticesWithTrace(trace) {
-
-    return Object.values(trace)
-        .map(({ geometry }) => {
-            const [ x, y, z ] = geometry.attributes.position.array
-            return { x, y, z }
-        });
-
-}
-
-function distanceTo(a, b) {
-    return Math.sqrt( distanceToSquared(a, b) )
-}
-
-function distanceToSquared(a, b) {
-    const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z
-    return dx * dx + dy * dy + dz * dz
-}

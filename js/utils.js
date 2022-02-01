@@ -1,6 +1,7 @@
 import {ribbon, ballAndStick, ensembleManager, dataValueMaterialProvider, colorRampMaterialProvider} from "./app.js";
 import {lerp} from "./math.js";
 import {StringUtils} from 'igv-utils';
+import {appleCrayonColorRGB255} from "./color.js"
 
 function showGlobalSpinner() {
     document.getElementById('spacewalk-spinner').style.display = 'block'
@@ -115,6 +116,20 @@ const readFileAsDataURL = async blob => {
     });
 };
 
+function clearCanvasArray(canvasArray, maximumSegmentID) {
+
+    const { r, g, b } = appleCrayonColorRGB255('magnesium')
+    const length = maximumSegmentID * maximumSegmentID
+    let i = 0
+    for (let x = 0; x < length; x++) {
+        canvasArray[i++] = r
+        canvasArray[i++] = g
+        canvasArray[i++] = b
+        canvasArray[i++] = 255
+    }
+
+}
+
 const createImage = imageSource => {
 
     return new Promise((resolve, reject) => {
@@ -126,7 +141,7 @@ const createImage = imageSource => {
 
 };
 
-const drawWithSharedUint8ClampedArray = async (ctx, size, array) => {
+const drawWithCanvasArray = async (ctx, size, array) => {
 
     const { width, height } = size;
 
@@ -163,8 +178,9 @@ export {
     hideGlobalSpinner,
     getMaterialProvider,
     setMaterialProvider,
+    clearCanvasArray,
     createImage,
-    drawWithSharedUint8ClampedArray,
+    drawWithCanvasArray,
     readFileAsDataURL,
     fitToContainer,
     getMouseXY,
