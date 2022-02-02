@@ -7,7 +7,8 @@ self.addEventListener('message', ({ data }) => {
         const str = `Distance Map Worker - Update Trace Distance Array`
         console.time(str)
 
-        const { maxDistance, distances } = updateTraceDistanceArray(data.maximumSegmentID, data.trace)
+        const items = JSON.parse(data.itemsString)
+        const { maxDistance, distances } = updateTraceDistanceArray(data.maximumSegmentID, items)
 
         console.timeEnd(str)
 
@@ -22,11 +23,11 @@ self.addEventListener('message', ({ data }) => {
 
     } else {
 
-
         const str = `Distance Map Worker - Update Ensemble Distance Array`
         console.time(str);
 
-        const { maxAverageDistance, averages } = updateEnsembleDistanceArray(data.maximumSegmentID, data.traces)
+        const essentials = JSON.parse(data.essentialsString)
+        const { maxAverageDistance, averages } = updateEnsembleDistanceArray(data.maximumSegmentID, essentials)
 
         console.timeEnd(str)
 
@@ -45,7 +46,7 @@ self.addEventListener('message', ({ data }) => {
 
 const kDistanceUndefined = -1;
 
-function updateTraceDistanceArray(maximumSegmentID, trace) {
+function updateTraceDistanceArray(maximumSegmentID, items) {
 
     const distances = new Float32Array(maximumSegmentID * maximumSegmentID)
     distances.fill(kDistanceUndefined)
@@ -54,33 +55,24 @@ function updateTraceDistanceArray(maximumSegmentID, trace) {
 
     let exclusionSet = new Set();
 
-    const traceValues = Object.values(trace)
-    const vertices = getSingleCentroidVerticesWithTrace(trace)
+    for (let i = 0; i < items.length; i++) {
 
-    for (let i = 0; i < vertices.length; i++) {
-
-        const { colorRampInterpolantWindow } = traceValues[ i ];
-        const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
-        const xy_diagonal = i_segmentIndex * maximumSegmentID + i_segmentIndex;
+        const { segmentIndex: i_segmentIndex } = items[ i ]
+        const xy_diagonal = i_segmentIndex * maximumSegmentID + i_segmentIndex
         distances[ xy_diagonal ] = 0;
 
         exclusionSet.add(i);
 
-        for (let j = 0; j < vertices.length; j++) {
+        for (let j = 0; j < items.length; j++) {
 
             if (false === exclusionSet.has(j)) {
 
-                // const distance = vertices[ i ].distanceTo(vertices[ j ]);
-                const distance = distanceTo(vertices[ i ], vertices[ j ])
+                const distance = distanceTo(items[ i ], items[ j ])
 
-                const { colorRampInterpolantWindow: colorRampInterpolantWindow_j } = traceValues[ j ];
-                const j_segmentIndex = colorRampInterpolantWindow_j.segmentIndex;
-
+                const { segmentIndex: j_segmentIndex } = items[ j ]
                 const ij =  i_segmentIndex * maximumSegmentID + j_segmentIndex;
                 const ji =  j_segmentIndex * maximumSegmentID + i_segmentIndex;
-
                 distances[ ij ] = distances[ ji ] = distance;
-
                 maxDistance = Math.max(maxDistance, distance);
             }
 
@@ -92,7 +84,7 @@ function updateTraceDistanceArray(maximumSegmentID, trace) {
 
 }
 
-function updateEnsembleDistanceArray(maximumSegmentID, traces) {
+function updateEnsembleDistanceArray(maximumSegmentID, essentials) {
 
     const averages  = new Float32Array(maximumSegmentID * maximumSegmentID)
     averages.fill(kDistanceUndefined)
@@ -100,9 +92,9 @@ function updateEnsembleDistanceArray(maximumSegmentID, traces) {
     const counters = new Int32Array(maximumSegmentID * maximumSegmentID)
     counters.fill(0)
 
-    for (let trace of traces) {
+    for (let items of essentials) {
 
-        const { maxDistance, distances } = updateTraceDistanceArray(maximumSegmentID, trace)
+        const { maxDistance, distances } = updateTraceDistanceArray(maximumSegmentID, items)
 
         // We need to calculate an array of averages where the input data
         // can have missing - kDistanceUndefined - values

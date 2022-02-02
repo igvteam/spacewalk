@@ -4,6 +4,7 @@ import { clearCanvasArray, drawWithCanvasArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 import {clamp} from './math.js'
+import {getSingleCentroidVerticesWithTrace} from "./webWorkerUtils.js"
 
 const kDistanceUndefined = -1
 
@@ -124,11 +125,17 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
+        const items = Object.values(trace)
+            .map(({ colorRampInterpolantWindow, geometry }) => {
+                const [ x, y, z ] = geometry.attributes.position.array
+                return { x, y, z, segmentIndex: colorRampInterpolantWindow.segmentIndex }
+            })
+
         const data =
             {
                 traceOrEnsemble: 'trace',
                 maximumSegmentID,
-                trace,
+                itemsString: JSON.stringify(items),
             }
 
         this.worker.postMessage(data)
@@ -142,11 +149,26 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
+        const str = `updateEnsembleAverageDistanceCanvas - construct essentials array`
+        console.time(str)
+
+        const traces = Object.values(ensemble)
+        const essentials = traces.map(trace => {
+            return Object.values(trace)
+                .map(({ colorRampInterpolantWindow, geometry }) => {
+                    const [ x, y, z ] = geometry.attributes.position.array
+                    return { x, y, z, segmentIndex: colorRampInterpolantWindow.segmentIndex }
+                })
+        })
+
+        console.timeEnd(str)
+
         const data =
             {
                 traceOrEnsemble: 'ensemble',
                 maximumSegmentID,
-                traces: Object.values(ensemble),
+                // traces,
+                essentialsString: JSON.stringify(essentials)
             }
 
         this.worker.postMessage(data)
