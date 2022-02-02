@@ -7,8 +7,8 @@ self.addEventListener('message', ({ data }) => {
     console.time(str)
 
     const values = new Float32Array(data.maximumSegmentID * data.maximumSegmentID)
-    const traces = 'trace' === data.traceOrEnsemble ? [ data.trace ] : Object.values(data.ensemble)
-    calculateContactFrequencies(values, data.maximumSegmentID, traces, data.distanceThreshold)
+    const essentials = 'trace' === data.traceOrEnsemble ? [ JSON.parse(data.itemsString) ] : JSON.parse(data.essentialsString)
+    calculateContactFrequencies(values, data.maximumSegmentID, essentials, data.distanceThreshold)
 
     console.timeEnd(str)
 
@@ -22,56 +22,49 @@ self.addEventListener('message', ({ data }) => {
 
 }, false)
 
-function calculateContactFrequencies(values, maximumSegmentID, traces, distanceThreshold) {
+function calculateContactFrequencies(values, maximumSegmentID, essentials, distanceThreshold) {
     values.fill(0)
-    for (let trace of traces) {
-        accumulateContactFrequencies(values, maximumSegmentID, trace, distanceThreshold)
+    for (let items of essentials) {
+        accumulateContactFrequencies(values, maximumSegmentID, items, distanceThreshold)
     }
 }
 
-function accumulateContactFrequencies(values, maximumSegmentID, trace, distanceThreshold) {
+function accumulateContactFrequencies(values, maximumSegmentID, items, distanceThreshold) {
 
     const exclusionSet = new Set();
 
-    const vertices = getSingleCentroidVerticesWithTrace(trace)
-    const traceValues = Object.values(trace)
-    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(vertices))
+    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(items))
 
-    for (let i = 0; i < vertices.length; i++) {
+    for (let i = 0; i < items.length; i++) {
 
-        const { x, y, z } = vertices[ i ];
+        const { x, y, z, segmentIndex:i_segmentIndex } = items[ i ];
 
-        exclusionSet.add(i);
-        const { colorRampInterpolantWindow } = traceValues[ i ];
-
-        const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
-        const xy_diagonal = i_segmentIndex * maximumSegmentID + i_segmentIndex;
+        exclusionSet.add(i)
+        const xy_diagonal = i_segmentIndex * maximumSegmentID + i_segmentIndex
 
         values[ xy_diagonal ]++;
 
-        const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index));
+        const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index))
 
         if (contact_indices.length > 0) {
             for (let j of contact_indices) {
 
-                const { colorRampInterpolantWindow: colorRampInterpolantWindow_j } = traceValues[ j ];
+                const { segmentIndex:j_segmentIndex } = items[ j ]
 
-                const j_segmentIndex = colorRampInterpolantWindow_j.segmentIndex;
-
-                const xy = i_segmentIndex * maximumSegmentID + j_segmentIndex;
-                const yx = j_segmentIndex * maximumSegmentID + i_segmentIndex;
+                const xy = i_segmentIndex * maximumSegmentID + j_segmentIndex
+                const yx = j_segmentIndex * maximumSegmentID + i_segmentIndex
 
                 if (xy > values.length) {
-                    console.log('xy is bogus index ' + xy);
+                    console.log('xy is bogus index ' + xy)
                 }
 
                 if (yx > values.length) {
-                    console.log('yx is bogus index ' + yx);
+                    console.log('yx is bogus index ' + yx)
                 }
 
-                values[ xy ] += 1;
+                values[ xy ] += 1
 
-                values[ yx ] = values[ xy ];
+                values[ yx ] = values[ xy ]
 
             }
         }

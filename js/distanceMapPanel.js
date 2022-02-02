@@ -149,9 +149,6 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const str = `updateEnsembleAverageDistanceCanvas - construct essentials array`
-        console.time(str)
-
         const traces = Object.values(ensemble)
         const essentials = traces.map(trace => {
             return Object.values(trace)
@@ -160,8 +157,6 @@ class DistanceMapPanel extends Panel {
                     return { x, y, z, segmentIndex: colorRampInterpolantWindow.segmentIndex }
                 })
         })
-
-        console.timeEnd(str)
 
         const data =
             {
