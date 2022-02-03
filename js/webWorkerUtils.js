@@ -7,14 +7,4 @@ function distanceToSquared(a, b) {
     return dx * dx + dy * dy + dz * dz
 }
 
-function getSingleCentroidVerticesWithTrace(trace) {
-
-    return Object.values(trace)
-        .map(({ geometry }) => {
-            const [ x, y, z ] = geometry.attributes.position.array
-            return { x, y, z }
-        });
-
-}
-
-export { distanceTo, getSingleCentroidVerticesWithTrace }
+export { distanceTo }

@@ -4,7 +4,6 @@ import { clearCanvasArray, drawWithCanvasArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 import {clamp} from './math.js'
-import {getSingleCentroidVerticesWithTrace} from "./webWorkerUtils.js"
 
 const kDistanceUndefined = -1
 

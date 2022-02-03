@@ -1,4 +1,4 @@
-import { distanceTo, getSingleCentroidVerticesWithTrace } from './webWorkerUtils.js'
+import { distanceTo } from './webWorkerUtils.js'
 
 self.addEventListener('message', ({ data }) => {
 
@@ -57,21 +57,17 @@ function updateTraceDistanceArray(maximumSegmentID, items) {
 
     for (let i = 0; i < items.length; i++) {
 
-        const { segmentIndex: i_segmentIndex } = items[ i ]
-        const xy_diagonal = i_segmentIndex * maximumSegmentID + i_segmentIndex
-        distances[ xy_diagonal ] = 0;
+        exclusionSet.add(i)
 
-        exclusionSet.add(i);
+        const xy_diagonal = items[ i ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
+        distances[ xy_diagonal ] = 0
 
         for (let j = 0; j < items.length; j++) {
 
             if (false === exclusionSet.has(j)) {
-
+                const ij =  items[ i ].segmentIndex * maximumSegmentID + items[ j ].segmentIndex
+                const ji =  items[ j ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
                 const distance = distanceTo(items[ i ], items[ j ])
-
-                const { segmentIndex: j_segmentIndex } = items[ j ]
-                const ij =  i_segmentIndex * maximumSegmentID + j_segmentIndex;
-                const ji =  j_segmentIndex * maximumSegmentID + i_segmentIndex;
                 distances[ ij ] = distances[ ji ] = distance;
                 maxDistance = Math.max(maxDistance, distance);
             }

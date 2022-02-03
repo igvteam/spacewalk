@@ -1,5 +1,4 @@
 import KDBush from './kd3d/kd3d.js'
-import { getSingleCentroidVerticesWithTrace } from './webWorkerUtils.js'
 
 self.addEventListener('message', ({ data }) => {
 
@@ -37,22 +36,19 @@ function accumulateContactFrequencies(values, maximumSegmentID, items, distanceT
 
     for (let i = 0; i < items.length; i++) {
 
-        const { x, y, z, segmentIndex:i_segmentIndex } = items[ i ];
-
         exclusionSet.add(i)
-        const xy_diagonal = i_segmentIndex * maximumSegmentID + i_segmentIndex
 
-        values[ xy_diagonal ]++;
+        const xy_diagonal = items[ i ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
 
-        const contact_indices = spatialIndex.within(x, y, z, distanceThreshold).filter(index => !exclusionSet.has(index))
+        values[ xy_diagonal ]++
+
+        const contact_indices = spatialIndex.within(items[ i ].x, items[ i ].y, items[ i ].z, distanceThreshold).filter(index => !exclusionSet.has(index))
 
         if (contact_indices.length > 0) {
             for (let j of contact_indices) {
 
-                const { segmentIndex:j_segmentIndex } = items[ j ]
-
-                const xy = i_segmentIndex * maximumSegmentID + j_segmentIndex
-                const yx = j_segmentIndex * maximumSegmentID + i_segmentIndex
+                const xy = items[ i ].segmentIndex * maximumSegmentID + items[ j ].segmentIndex
+                const yx = items[ j ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
 
                 if (xy > values.length) {
                     console.log('xy is bogus index ' + xy)
