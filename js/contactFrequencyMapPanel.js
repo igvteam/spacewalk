@@ -63,6 +63,7 @@ class ContactFrequencyMapPanel extends Panel {
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
         // this.worker = new Worker('./js/contactFrequencyMapWorker.js', { type: 'module' })
+        // NOTE: This syntax is specific to ViteJS
         this.worker = new ContactFrequencyMapWorker()
 
         this.worker.addEventListener('message', ({ data }) => {

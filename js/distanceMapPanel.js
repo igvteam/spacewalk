@@ -48,6 +48,7 @@ class DistanceMapPanel extends Panel {
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
         // this.worker = new Worker('./js/distanceMapWorker.js', { type: 'module' })
+        // NOTE: This syntax is specific to ViteJS
         this.worker = new DistanceMapWorker()
 
         this.worker.addEventListener('message', ({ data }) => {
