@@ -4,6 +4,8 @@ import { clearCanvasArray, drawWithCanvasArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 import {clamp} from './math.js'
+import DistanceMapWorker from './distanceMapWorker?worker'
+import ContactFrequencyMapWorker from "./contactFrequencyMapWorker?worker"
 
 const kDistanceUndefined = -1
 
@@ -45,7 +47,8 @@ class DistanceMapPanel extends Panel {
 
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
-        this.worker = new Worker('./js/distanceMapWorker.js', { type: 'module' })
+        // this.worker = new Worker('./js/distanceMapWorker.js', { type: 'module' })
+        this.worker = new DistanceMapWorker()
 
         this.worker.addEventListener('message', ({ data }) => {
 

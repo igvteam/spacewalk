@@ -4,6 +4,7 @@ import { colorMapManager, ensembleManager } from "./app.js";
 import {threeJSColorToRGB255} from "./color.js";
 import {clearCanvasArray, drawWithCanvasArray} from "./utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
+import ContactFrequencyMapWorker from './contactFrequencyMapWorker?worker'
 
 let canvasArray = undefined
 
@@ -61,7 +62,8 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
-        this.worker = new Worker('./js/contactFrequencyMapWorker.js', { type: 'module' })
+        // this.worker = new Worker('./js/contactFrequencyMapWorker.js', { type: 'module' })
+        this.worker = new ContactFrequencyMapWorker()
 
         this.worker.addEventListener('message', ({ data }) => {
 
