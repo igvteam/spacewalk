@@ -1,5 +1,5 @@
-import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
-import { hideSpinner, showSpinner } from "./app.js";
+import { FileUtils, igvxhr } from 'igv-utils'
+import { hideGlobalSpinner, showGlobalSpinner } from "./utils.js";
 import { ensembleManager } from "./app.js";
 import GenomicDataset from "./genomicDataset.js";
 import NonGenomicDataset from "./nonGenomicDataset.js";
@@ -151,21 +151,21 @@ class Parser {
 
     async load (path, traceKey) {
 
-        this.url = false === hic.igv.isFilePath(path) ? path : undefined;
+        this.url = false === FileUtils.isFilePath(path) ? path : undefined;
 
         let string = undefined;
         try {
-            showSpinner();
-            string = await hic.igv.xhr.loadString(path);
-            hideSpinner();
+            showGlobalSpinner();
+            string = await igvxhr.loadString(path);
+            hideGlobalSpinner();
         } catch (e) {
-            hideSpinner();
+            hideGlobalSpinner();
             console.error(e.message)
         }
 
-        showSpinner();
+        showGlobalSpinner();
         const payload = this.parse(string);
-        hideSpinner();
+        hideGlobalSpinner();
 
         ensembleManager.ingest(payload, traceKey);
 

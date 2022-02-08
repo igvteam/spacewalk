@@ -1,37 +1,45 @@
-import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
-import { GoogleFilePicker } from '../node_modules/igv-widgets/dist/igv-widgets.js';
-import { createGenericSelectModal, createTrackURLModal } from '../node_modules/igv-ui/src/index.js'
-import EventBus from "./eventBus.js";
-import GSDB from "./gsdb/gsdb.js";
+import Stats from 'three/examples/jsm/libs/stats.module.js'
+import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js'
+import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from 'igv-widgets'
+import {GoogleAuth, igvxhr, StringUtils} from 'igv-utils'
+import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
-import SceneManager, {sceneManagerConfigurator} from "./sceneManager.js";
-import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
+import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
+import DataValueMaterialProvider from './dataValueMaterialProvider.js';
+import DeprecatedDataValueMaterialProvider from "./deprecatedDataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
-import Panel from "./panel.js";
+import Panel, { doInspectPanelVisibilityCheckbox }  from "./panel.js";
 import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
-import Noodle from "./noodle.js";
 import BallAndStick from "./ballAndStick.js";
-import GUIManager, { doConfigurePanelHidden } from "./guiManager.js";
-import TraceSelectPanel from "./traceSelectPanel.js";
-import ColorRampPanel, {colorRampPanelConfigurator} from "./colorRampPanel.js";
-import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
+import GUIManager from "./guiManager.js";
 import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
-import IGVPanel from "./igv/IGVPanel.js";
-import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
+import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
+import TraceSelect from './traceSelect.js'
+import TraceNavigator from './traceNavigator.js'
+import IGVPanel from "./IGVPanel.js";
+import JuiceboxPanel from "./juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { getUrlParams, saveSession, loadSession } from "./session.js";
+import { getUrlParams, getShareURL, loadSessionURL, toJSON, loadSession } from "./spacewalkSession.js";
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
-import SpacewalkFileLoad from "./spacewalkFileLoad.js";
+import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
+import BallHighlighter from "./ballHighlighter.js";
+import PointCloudHighlighter from "./pointCloudHighlighter.js";
+import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
+import { spacewalkConfig } from "../spacewalk-config.js";
+import '../styles/igv/dom.scss'
+import '../styles/juicebox/juicebox.scss'
+import '../styles/app.scss'
 
-let eventBus = new EventBus();
+let stats
+let gui
+let guiStatsEl
 
 let pointCloud;
 let ribbon;
-let noodle;
 let ballAndStick;
 let parser;
 let ensembleManager;
@@ -39,25 +47,21 @@ let colorMapManager;
 let sceneManager;
 let dataValueMaterialProvider;
 let colorRampMaterialProvider;
-let guiManager;
-
-let gsdb;
-let spacewalkFileLoad;
-
-let traceSelectPanel;
-let colorRampPanel;
-let distanceMapPanel;
-let contactFrequencyMapPanel;
-let juiceboxPanel;
-let igvPanel;
-let renderContainerController;
-let googleEnabled = false;
+let guiManager
+let distanceMapPanel
+let contactFrequencyMapPanel
+let juiceboxPanel
+let igvPanel
+let traceSelect
+let traceNavigator
+let renderContainerController
+let googleEnabled = false
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
     const container = document.getElementById('spacewalk-root-container');
 
-    hic.igv.Alert.init(container);
+    AlertSingleton.init(container)
 
     const { userAgent } = window.navigator;
 
@@ -70,46 +74,24 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         }
 
     } catch (e) {
-        hic.igv.Alert.presentAlert(e.message);
+        AlertSingleton.present(e.message)
     }
 
-    const enableGoogle = spacewalkConfig.clientId && 'CLIENT_ID' !== spacewalkConfig.clientId && (window.location.protocol === "https:" || window.location.host === "localhost");
+    const { clientId, apiKey } = spacewalkConfig
+    const enableGoogle = clientId && 'CLIENT_ID' !== clientId && (window.location.protocol === "https:" || window.location.host === "localhost")
 
     if (enableGoogle) {
-
-        let browser;
-        const googleConfig =
-            {
-                callback: async () => {
-
-                    try {
-                        await GoogleFilePicker.init(spacewalkConfig.clientId, hic.igv.oauth, hic.igv.google);
-                        googleEnabled = true;
-                    } catch (e) {
-                        console.error(e);
-                        hic.igv.Alert.presentAlert(e.message)
-                    }
-
-                    if (googleEnabled) {
-                        GoogleFilePicker.postInit();
-                    }
-
-                    await initializationHelper(container);
-
-                },
-                onerror: async (e) => {
-                    console.error(e);
-                    hic.igv.Alert.presentAlert(e.message)
-
-                    await initializationHelper(container);
-                }
-            };
-
-        gapi.load('client:auth2', googleConfig);
-
-    } else {
-        await initializationHelper(container);
+        try {
+            await GoogleAuth.init({ clientId, apiKey, scope: 'https://www.googleapis.com/auth/userinfo.profile' })
+            await GoogleAuth.signOut()
+            googleEnabled = true
+        } catch (e) {
+            console.error(e)
+            AlertSingleton.present(e.message)
+        }
     }
+
+    await initializationHelper(container)
 
 });
 
@@ -117,122 +99,191 @@ const initializationHelper = async container => {
 
     await initializeMaterialLibrary();
 
-    const root = document.querySelector('#spacewalk-main');
-    $(root).append(createGenericSelectModal('spacewalk-igv-app-generic-track-select-modal', 'spacewalk-igv-app-generic-track-select'));
-    $(root).append(createTrackURLModal('spacewalk-igv-app-track-from-url-modal'));
     parser = new Parser();
 
-    pointCloud = new PointCloud();
+    pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(highlightColor), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
     ribbon = new Ribbon();
-    // noodle = new Noodle();
-    ballAndStick = new BallAndStick();
+
+    ballAndStick = new BallAndStick({ pickHighlighter: new BallHighlighter(highlightColor) });
 
     ensembleManager = new EnsembleManager();
-
-    gsdb = new GSDB(parser);
 
     colorMapManager = new ColorMapManager();
     await colorMapManager.configure();
 
-    dataValueMaterialProvider = new DataValueMaterialProvider({ width: 2048, height: 64, colorMinimum: appleCrayonColorRGB255('silver'), colorMaximum: appleCrayonColorRGB255('blueberry'), highlightColor:appleCrayonColorThreeJS('maraschino')  });
+    // dataValueMaterialProvider = new DataValueMaterialProvider({ width:8192, height:16, colorMinimum:appleCrayonColorRGB255('silver'), colorMaximum:appleCrayonColorRGB255('blueberry') })
+    dataValueMaterialProvider = new DeprecatedDataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
 
-    const $canvasContainer = $('#spacewalk_color_ramp_canvas_container');
-    colorRampMaterialProvider = new ColorRampMaterialProvider( { $canvasContainer, highlightColor } );
+    colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
-    sceneManager = new SceneManager(sceneManagerConfigurator({ container: document.getElementById('spacewalk-threejs-container'), highlightColor }));
+    sceneManager = new SceneManager(sceneManagerConfigurator({ container: document.querySelector('#spacewalk-threejs-canvas-container'), highlightColor }));
 
-    renderContainerController = new RenderContainerController(container, sceneManager);
+    renderContainerController = new RenderContainerController(container, sceneManager)
 
-    const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalk_session_URL } = getUrlParams(window.location.href);
+    const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = getUrlParams(window.location.href);
 
     await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL);
 
-    guiManager = new GUIManager({ $button: $('#spacewalk_ui_manager_button'), $panel: $('#spacewalk_ui_manager_panel') });
+    const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
+    guiManager = new GUIManager({ settingsButton, $panel: $('#spacewalk_ui_manager_panel') });
 
-    renderLoop();
+    // frame rate
+    // stats = new Stats()
+    // document.body.appendChild( stats.dom )
 
-    await loadSession(spacewalk_session_URL);
+    // draw calls
+    // gui = new GUI()
+    //
+    // const perfFolder = gui.addFolder('Performance')
+    //
+    // guiStatsEl = document.createElement('li')
+    // guiStatsEl.classList.add('gui-stats')
+    // guiStatsEl.innerHTML = '<i>GPU draw calls</i>: 1'
+    //
+    // perfFolder.__ul.appendChild( guiStatsEl )
+    // perfFolder.open()
+
+
+    await loadSessionURL(spacewalkSessionURL)
+
+    renderLoop()
+
+}
+
+function renderLoop() {
+
+    requestAnimationFrame( renderLoop )
+
+    render()
+
+}
+
+function render () {
+
+    pointCloud.renderLoopHelper()
+
+    ribbon.renderLoopHelper()
+
+    colorRampMaterialProvider.renderLoopHelper()
+
+    sceneManager.renderLoopHelper()
+
+    // stats.update()
 
 }
 
 const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL) => {
 
+    // $('.checkbox-menu').on("change", "input[type='checkbox']", () => $(this).closest("li").toggleClass("active", this.checked))
+
+    // to support Viewers navbar item. Checkbox settings.
+    // $(document).on('click', '.allow-focus', e => e.stopPropagation())
+
+    traceSelect = new TraceSelect()
+
+    traceNavigator = new TraceNavigator(document.querySelector('#spacewalk-trace-navigator-container'))
+
     const spacewalkFileLoadConfig =
         {
             rootContainer: document.getElementById('spacewalk-main'),
-            $localFileInput: $('#spacewalk-sw-load-local-input'),
+            localFileInput: document.getElementById('spacewalk-sw-load-local-input'),
             urlLoadModalId: 'spacewalk-sw-load-url-modal',
-            $selectModal: $('#spacewalk-sw-load-select-modal'),
-            $dropboxButton: $('#spacewalk-sw-dropbox-button'),
-            $googleDriveButton: $('#spacewalk-sw-google-drive-button'),
+            gsdbModalId: 'spacewalk-gsdb-modal',
+            dropboxButton: document.getElementById('spacewalk-sw-dropbox-button'),
+            googleDriveButton: document.getElementById('spacewalk-sw-google-drive-button'),
             googleEnabled,
             fileLoader: parser
         };
 
-    spacewalkFileLoad = new SpacewalkFileLoad(spacewalkFileLoadConfig);
+    createSpacewalkFileLoaders(spacewalkFileLoadConfig)
+
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
+    igvPanel.materialProvider = colorRampMaterialProvider;
+
+    // TODO: Resuscitate Shareable URL
+    // if (igvSessionURL) {
+    //     spacewalkConfig.session = JSON.parse(StringUtils.uncompressString(igvSessionURL.substr(5)))
+    // }
+
+    await igvPanel.initialize(spacewalkConfig)
+
+    createTrackWidgetsWithTrackRegistry(
+        $(igvPanel.container),
+        $('#spacewalk-track-dropdown-menu'),
+        $('#hic-local-track-file-input'),
+        $('#spacewalk-track-dropbox-button'),
+        googleEnabled,
+        $('#spacewalk-track-dropdown-google-drive-button'),
+        ['hic-encode-signal-modal', 'hic-encode-other-modal'],
+        'hic-app-track-load-url-modal',
+        'hic-app-track-select-modal',
+        undefined,
+        spacewalkConfig.trackRegistry,
+        (configurations) => igvPanel.loadTrackList(configurations))
+
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
+
+    // TODO: Resuscitate Shareable URL
+    // if (juiceboxSessionURL) {
+    //     juiceboxInitializationConfig.session = JSON.parse(StringUtils.uncompressString(juiceboxSessionURL.substr(5)))
+    // }
+
+    // await juiceboxPanel.initialize(juiceboxInitializationConfig)
+
+    await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
+
+    const $dropdownButton = $('#spacewalk-contact-map-dropdown')
+    const $dropdowns = $dropdownButton.parent()
+
+    const contactMapLoadConfig =
+        {
+            rootContainer: document.querySelector('#spacewalk-main'),
+            $dropdowns,
+            $localFileInputs: $dropdowns.find('input'),
+            urlLoadModalId: 'hic-load-url-modal',
+            dataModalId: 'hic-contact-map-modal',
+            encodeHostedModalId: 'hic-encode-hosted-contact-map-modal',
+            $dropboxButtons: $dropdowns.find('div[id$="-map-dropdown-dropbox-button"]'),
+            $googleDriveButtons: $dropdowns.find('div[id$="-map-dropdown-google-drive-button"]'),
+            googleEnabled,
+            mapMenu: spacewalkConfig.juiceboxConfig.contactMapMenu,
+            loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path, name, mapType)
+        }
+
+    configureContactMapLoaders(contactMapLoadConfig)
 
     // $('#spacewalk-reset-camera-button').on('click.spacewalk-reset-camera-button', e => {
     //     sceneManager.resetCamera();
     // });
 
-    const $share_url_modal = $('#spacewalk-share-url-modal');
-    const $spacewalk_share_url = $('#spacewalk-share-url');
+    // Session - Dropbox and Google Drive buttons
+    $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-app-dropdown-dropbox-session-file-button'));
+    $('div#spacewalk-session-dropdown-menu > :nth-child(2)').after(googleDriveDropdownItem('igv-app-dropdown-google-drive-session-file-button'));
 
-    $('#spacewalk-share-button').on('click.spacewalk-share-button', async e => {
+    const $main = $('#spacewalk-main')
+    createSessionWidgets($main,
+        igvxhr,
+        'spacewalk',
+        'igv-app-dropdown-local-session-file-input',
+        'igv-app-dropdown-dropbox-session-file-button',
+        'igv-app-dropdown-google-drive-session-file-button',
+        'spacewalk-session-url-modal',
+        'spacewalk-session-save-modal',
+        googleEnabled,
+        async json => await loadSession(json),
+        () => toJSON());
 
-        const url = await saveSession();
+    // TODO: Resuscitate Shareable URL
+    // createShareWidgets($main, $('#spacewalk-share-button'), 'spacewalk-share-modal')
 
-        if (url) {
+    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_distance_map_panel')}));
 
-            console.log(`session: ${ url }`);
+    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel')}));
 
-            $spacewalk_share_url.val( url );
-            $spacewalk_share_url.get(0).select();
+    EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
-            $share_url_modal.modal('show');
-        }
-
-    });
-
-    $('#spacewalk-copy-link').on('click.spacewalk-copy-link', e => {
-
-        $spacewalk_share_url.get(0).select();
-
-        const success = document.execCommand('copy');
-        if (success) {
-            $share_url_modal.modal('hide');
-        } else {
-            alert("Copy not successful");
-        }
-    });
-
-    traceSelectPanel = new TraceSelectPanel({ container, panel: $('#spacewalk_trace_select_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_trace_select_panel') });
-
-    colorRampPanel = new ColorRampPanel( colorRampPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_color_ramp_panel') }) );
-
-    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_distance_map_panel') }));
-
-    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doConfigurePanelHidden('spacewalk_contact_frequency_map_panel') }));
-
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_juicebox_panel') });
-
-    if (juiceboxSessionURL) {
-        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: juiceboxSessionURL });
-    } else {
-        await juiceboxPanel.initialize({ container: $('#spacewalk_juicebox_root_container').get(0), width: 480, height: 480, session: undefined });
-    }
-
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doConfigurePanelHidden('spacewalk_igv_panel') });
-    igvPanel.materialProvider = colorRampMaterialProvider;
-
-    if (igvSessionURL) {
-        await igvPanel.initialize({ sessionURL: igvSessionURL });
-    } else {
-        await igvPanel.initialize(spacewalkConfig.igv);
-    }
-
-    Panel.setPanelList([traceSelectPanel, colorRampPanel, distanceMapPanel, contactFrequencyMapPanel, juiceboxPanel, igvPanel]);
+    Panel.setPanelDictionary([ igvPanel, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel ]);
 
     $(window).on('resize.app', e => {
 
@@ -241,11 +292,84 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
         if (false === status) {
             let { width, height } = container.getBoundingClientRect();
-            eventBus.post({ type: 'AppWindowDidResize', data: { width, height } });
+            SpacewalkEventBus.globalBus.post({ type: 'AppWindowDidResize', data: { width, height } });
         }
     });
 
 };
+
+const createShareWidgets = ($container, $share_button, share_modal_id) => {
+
+    const modal =
+        `<div id="${ share_modal_id }" class="modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <div class="modal-title">Share</div>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-default">COPY</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>`
+
+    $container.append($(modal))
+    const $share_modal = $(`#${ share_modal_id }`)
+
+    const $share_input = $share_modal.find('input')
+
+    $share_button.on('click.spacewalk-share-button', async e => {
+
+        let url = undefined
+        try {
+            url = await getShareURL()
+        } catch (e) {
+            AlertSingleton.present(e.message)
+            return
+        }
+
+        if (url) {
+            $share_input.val( url )
+            $share_input.get(0).select()
+            $share_modal.modal('show')
+        }
+
+    })
+
+    const $copy_button = $share_modal.find('button')
+
+    $copy_button.on('click.spacewalk-copy', e => {
+
+        $share_input.get(0).select()
+
+        const success = document.execCommand('copy')
+        if (success) {
+            $share_modal.modal('hide')
+        } else {
+            alert("Copy not successful")
+        }
+    })
+
+}
 
 const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
 
@@ -293,34 +417,4 @@ const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
     return html;
 }
 
-const renderLoop = () => {
-
-    requestAnimationFrame( renderLoop );
-
-    if (sceneManager.isGoodToGo()) {
-
-        pointCloud.renderLoopHelper();
-
-        ribbon.renderLoopHelper();
-
-        dataValueMaterialProvider.renderLoopHelper();
-
-        colorRampMaterialProvider.renderLoopHelper();
-
-        sceneManager.renderLoopHelper();
-
-    }
-
-};
-
-const showSpinner = () => {
-    document.getElementById('spacewalk-spinner').style.display = 'block';
-    console.log('show spinner');
-};
-
-const hideSpinner = () => {
-    document.getElementById('spacewalk-spinner').style.display = 'none';
-    console.log('hide spinner');
-};
-
-export { googleEnabled, eventBus, pointCloud, ribbon, noodle, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, showSpinner, hideSpinner, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceSelectPanel, colorRampPanel, appendAndConfigureLoadURLModal };
+export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceNavigator, appendAndConfigureLoadURLModal };

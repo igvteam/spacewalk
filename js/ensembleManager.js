@@ -1,6 +1,7 @@
-import * as THREE from "../node_modules/three/build/three.module.js";
+import SpacewalkEventBus from './spacewalkEventBus.js'
+import * as THREE from "three";
 import Parser from "./parser.js";
-import { eventBus, colorRampMaterialProvider, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
+import { colorRampMaterialProvider } from "./app.js";
 import { includes, degrees } from "./math.js";
 
 class EnsembleManager {
@@ -54,7 +55,19 @@ class EnsembleManager {
 
                 if (positions.length > 0) {
 
+                    const geometry = new THREE.BufferGeometry();
+
+                    const xyz = positions.flatMap(({ x, y, z }) => [ parseFloat(x), parseFloat(y), parseFloat(z)])
+                    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
+
                     const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart);
+
+                    geometry.userData.color = colorRampMaterialProvider.colorForInterpolant(interpolant);
+
+                    const rgb = positions.flatMap(ignore => [ geometry.userData.color.r, geometry.userData.color.g, geometry.userData.color.b ])
+                    const attribute = new THREE.Float32BufferAttribute(rgb, 3);
+                    attribute.setUsage( true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage );
+                    geometry.setAttribute('color', attribute );
 
                     let colorRampInterpolantWindow =
                         {
@@ -66,26 +79,6 @@ class EnsembleManager {
                             segmentIndex: keyValuePairs.indexOf(keyValuePair)
                         };
 
-                    const geometry = new THREE.BufferGeometry();
-                    geometry.userData.color = colorRampMaterialProvider.colorForInterpolant(interpolant);
-                    geometry.userData.material = new THREE.MeshPhongMaterial({ color: geometry.userData.color });
-
-                    const xyz = [];
-                    const rgb = [];
-                    for(let { x, y, z } of positions){
-
-                        xyz.push(x, y, z);
-
-                        const { r, g, b } = geometry.userData.color;
-                        rgb.push(r, g, b);
-                    }
-
-                    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
-
-                    const attribute = new THREE.Float32BufferAttribute(rgb, 3);
-                    attribute.setUsage( true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage );
-                    geometry.setAttribute('color', attribute );
-
                     this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
 
                 }
@@ -96,22 +89,9 @@ class EnsembleManager {
 
         console.timeEnd(str);
 
-        if (false === this.isPointCloud) {
-
-            // update shared buffers for distance and contact-frequency maps
-
-            this.sharedMapArray = new Array(this.maximumSegmentID * this.maximumSegmentID);
-
-            this.sharedContactFrequencyMapUint8ClampedArray = new Uint8ClampedArray(this.maximumSegmentID * this.maximumSegmentID * 4);
-            this.sharedDistanceMapUint8ClampedArray = new Uint8ClampedArray(this.maximumSegmentID * this.maximumSegmentID * 4);
-
-            contactFrequencyMapPanel.updateEnsembleContactFrequencyCanvas(this.ensemble);
-            distanceMapPanel.updateEnsembleAverageDistanceCanvas(this.ensemble);
-        }
-
         const initialKey = traceKey || '0';
         this.currentTrace = this.getTraceWithName(initialKey);
-        eventBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, trace: this.currentTrace } });
+        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, ensemble: this.ensemble, trace: this.currentTrace } });
 
     }
 
@@ -218,15 +198,18 @@ class EnsembleManager {
         return { target:center, position, fov }
     }
 
-    static getSingleCentroidVerticesWithTrace(trace) {
 
-        return Object.values(trace)
-            .map(({ geometry }) => {
-                const [ x, y, z ] = geometry.getAttribute('position').array;
-                return new THREE.Vector3(x, y, z);
-            });
-
-    }
 }
 
+function getSingleCentroidVerticesWithTrace(trace) {
+
+    return Object.values(trace)
+        .map(({ geometry }) => {
+            const [ x, y, z ] = geometry.getAttribute('position').array;
+            return new THREE.Vector3(x, y, z);
+        });
+
+}
+
+export { getSingleCentroidVerticesWithTrace }
 export default EnsembleManager;

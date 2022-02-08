@@ -1,0 +1,81 @@
+
+.navbar {
+  padding-top:   0.25rem;
+  padding-bottom: 0.25rem;
+
+  padding-left: unset;
+  padding-right: unset;
+
+  height: $spacewalk_navbar_height;
+
+  .navbar-nav {
+    .nav-link {
+      //text-transform: uppercase;
+      font-size: 0.95rem;
+      font-weight: 600;
+      //color: rgba(255,255,255,.5);
+      color: $spacewalk_snow;
+    }
+  }
+
+  .input-group {
+    margin: .4rem;
+
+    .form-control {
+      height: unset;
+      padding: unset;
+    }
+  }
+
+  .dropdown-header {
+    color: white;
+    background-color: $spacewalk_steel;
+    //color: $spacewalk_tungsten;
+    font-size: 1rem;
+  }
+
+  .dropdown-item {
+    color: $spacewalk_tungsten;
+    font-size: .875rem;
+  }
+
+}
+
+div.navbar-brand {
+  color: $spacewalk_snow;
+  background-color: #4A90E2;
+  height: $spacewalk_navbar_height;
+  font-size: 1.5rem;
+  line-height: $spacewalk_navbar_height;
+  font-weight: 200;
+  padding: unset;
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+  margin: unset;
+}
+
+#spacewalk-navbar-content {
+
+  #spacewalk-file-name {
+    color: $spacewalk_snow;
+    font-size: 1rem;
+  }
+}
+
+#spacewalk-help-icon-container {
+
+  width: $spacewalk_navbar_height;
+  height: 100%;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+
+  button {
+    span {
+      color: white;
+    }
+  }
+}

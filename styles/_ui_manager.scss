@@ -1,0 +1,168 @@
+
+$spacewalk-threejs-settings-button-container_top: 16px;
+$spacewalk-threejs-settings-button-container_left: 16px;
+
+$spacewalk_ui_manager_panel_top: 64px;
+$spacewalk_ui_manager_panel_left: 64px;
+
+$spacewalk_ui_manager_panel_width: 300px;
+$spacewalk_ui_manager_margin: 6px;
+
+$spacewalk-ball-stick-control-y-margin: 4px;
+
+#spacewalk-threejs-settings-button-container {
+
+  //z-index: 2048;
+
+  position: absolute;
+  top: $spacewalk-threejs-settings-button-container_top;
+  left: $spacewalk-threejs-settings-button-container_left;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+
+  i {
+    color: $spacewalk_aluminum;
+    display: block;
+  }
+
+  i:hover {
+    cursor: pointer;
+    color: $spacewalk_iron;
+  }
+}
+
+#spacewalk_ui_manager_panel.card {
+
+  z-index: 2048;
+
+  position: absolute;
+
+  top: $spacewalk_ui_manager_panel_top;
+  left: $spacewalk_ui_manager_panel_left;
+
+  width: $spacewalk_ui_manager_panel_width;
+  height: auto;
+
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: $spacewalk_tungsten;
+
+  .list-group {
+    margin-top: $spacewalk_ui_manager_margin;
+    margin-bottom: $spacewalk_ui_manager_margin;
+
+    .list-group-item {
+      background-color: transparent;
+    }
+  }
+
+  .list-group:first-child {
+    margin-top: 2 * $spacewalk_ui_manager_margin;
+  }
+
+  .list-group:last-child {
+    margin-bottom: unset;
+  }
+
+  li {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    input {
+      cursor: pointer;
+      display: block;
+    }
+  }
+}
+
+li#spacewalk_ui_manager_render_styles {
+  >div {
+    width: -webkit-fill-available;
+  }
+}
+
+.spacewalk-ball-stick-control {
+
+  font-size: .9rem;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+
+  >div {
+    margin-top: $spacewalk-ball-stick-control-y-margin;
+  }
+
+  >div:first-child {
+    margin-left: 32px;
+  }
+
+  >div:last-child {
+    margin-bottom: $spacewalk-ball-stick-control-y-margin;
+  }
+
+  i.fas {
+    color: $spacewalk_tungsten;
+  }
+
+  i.fas:first-child {
+    margin-right: 8px;
+  }
+
+  i.fas:hover {
+    cursor: pointer;
+    color: $spacewalk_tungsten;
+  }
+
+}
+
+.spacewalk-threejs-settings-feature {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+li.spacewalk-colorpicker-li {
+
+  padding: unset;
+
+  .input-group {
+
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: space-between;
+
+    .input-group-prepend {
+      .input-group-text {
+        color: $spacewalk_tungsten;
+        background-color: transparent;
+        border: unset;
+      }
+    }
+
+    .input-group-append {
+      .input-group-text {
+        color: $spacewalk_tungsten;
+        border: unset;
+        border-radius: unset;
+        height: 100%;
+        width: 36px;
+        padding-left: unset;
+        padding-right: unset;
+        background-color: white;
+      }
+
+    }
+  }
+}
+

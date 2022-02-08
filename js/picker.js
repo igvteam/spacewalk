@@ -1,64 +1,58 @@
-import { eventBus } from "./app.js";
-import ColorRampPanel from "./colorRampPanel.js";
+import SpacewalkEventBus from './spacewalkEventBus.js'
+import {ballAndStick, colorRampMaterialProvider} from './app.js';
 
-const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud', 'ribbon', 'noodle', 'stick' ]);
+const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud', 'ribbon', 'stick' ]);
 
 class Picker {
 
-    constructor({ raycaster, pickHighlighter }) {
-
+    constructor(raycaster) {
         this.raycaster = raycaster;
-        this.pickHighlighter = pickHighlighter;
         this.isEnabled = true;
 
-        eventBus.subscribe("DidEnterGUI", this);
-        eventBus.subscribe("DidLeaveGUI", this);
+        SpacewalkEventBus.globalBus.subscribe("DidEnterGenomicNavigator", this);
+        SpacewalkEventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidEnterGUI" === type) {
-            this.pickHighlighter.unhighlightInstance();
+        if ("DidEnterGenomicNavigator" === type) {
             this.isEnabled = false;
-        } else if ("DidLeaveGUI" === type) {
-            if (data instanceof ColorRampPanel) {
-                this.pickHighlighter.unhighlightInstance();
-            }
+            ballAndStick.pickHighlighter.unhighlight()
+        } else if ("DidLeaveGenomicNavigator" === type) {
             this.isEnabled = true;
+            ballAndStick.pickHighlighter.unhighlight()
         }
 
     }
 
     intersect({ x ,y, camera, scene }) {
 
-        this.raycaster.setFromCamera({ x, y }, camera);
+        if (true === this.isEnabled && x && y) {
 
-        const hitList = this.raycaster.intersectObjects(scene.children).filter((item) => {
-            return !exclusionSet.has(item.object.name) && true === item.object.visible;
-        });
+            this.raycaster.setFromCamera({ x, y }, camera);
 
-        if (hitList.length > 0) {
+            const hitList = this.raycaster.intersectObjects(scene.children).filter(item => !exclusionSet.has(item.object.name) && true === item.object.visible);
 
-            const [ hit ] = hitList;
+            if (hitList.length > 0) {
 
-            if (undefined !== hit.instanceId) {
+                // Hit list contains all instances along the ray of intersection. Select the first.
+                const [ hit ] = hitList;
 
-                // console.log(`${ Date.now() }. Picker.intersect(). Hits(${ hitList.length }). Instance ID ${ hit.instanceId }.`)
-
-                if (false === this.pickHighlighter.hasInstanceId(hit.instanceId)) {
-                    this.pickHighlighter.configureWithInstanceIdList([ hit.instanceId ]);
-                    eventBus.post({ type: "PickerDidHitObject", data: hit.instanceId });
+                if (undefined !== hit.instanceId) {
+                    ballAndStick.pickHighlighter.processHit(hit)
                 }
 
+            } else {
+
+                if (ballAndStick.pickHighlighter.instanceIdList) {
+                    // console.log(`${ Date.now() } Picker - ballHighlighter.unhighlight() then  colorRampMaterialProvider.repaint()`)
+                    ballAndStick.pickHighlighter.unhighlight()
+                    colorRampMaterialProvider.repaint()
+                }
             }
 
-        } else {
-            this.pickHighlighter.unhighlightInstance();
-            eventBus.post({ type: "PickerDidLeaveObject" });
         }
-
     }
-
 }
 
 export default Picker;

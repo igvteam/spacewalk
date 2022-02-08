@@ -1,19 +1,16 @@
-import Dragger from "./dragger.js";
-import { appleCrayonColorRGB255, rgb255String } from "./color.js";
-import { eventBus } from "./app.js";
-
-let dragger;
+import SpacewalkEventBus from './spacewalkEventBus.js'
+import { configureRenderContainerDrag } from './renderContainerDrag.js'
+import { traceNavigator } from './app.js'
 
 class RenderContainerController {
 
     constructor(rootContainer, sceneManager) {
 
-        this.rootContainer = rootContainer;
-        this.sceneManager = sceneManager;
+        this.rootContainer = rootContainer
+        this.threejsContainer = rootContainer.querySelector('#spacewalk-threejs-container')
 
-        const { container } = sceneManager;
+        this.setTopLeftPercentages(this.rootContainer, this.threejsContainer)
 
-        this.setTopLeftPercentages(rootContainer, container);
 
         const config =
             {
@@ -21,42 +18,35 @@ class RenderContainerController {
                 autoHide: true,
                 aspectRatio: true,
                 helper: "spacewalk-threejs-container-resizable-helper",
-                stop: () => sceneManager.resizeContainer()
+                stop: () => {
+                    sceneManager.resizeContainer()
+                    traceNavigator.resize(sceneManager.container)
+                }
             };
 
-        $(container).resizable(config);
+        $(sceneManager.container).resizable(config)
 
-        const dragContainer = container.querySelector('#spacewalk-threejs-drag-container');
+        const dragConfig =
+            {
+                target: this.threejsContainer,
+                handle: this.threejsContainer.querySelector('#spacewalk-threejs-drag-container'),
+                container: this.rootContainer,
+                topConstraint: document.querySelector('.navbar').getBoundingClientRect().height
+            }
 
-        const { height } = document.querySelector('.navbar').getBoundingClientRect();
+        configureRenderContainerDrag(dragConfig)
 
-        const root_container = document.getElementById('spacewalk-root-container');
+        // SpacewalkEventBus.globalBus.subscribe("AppWindowDidResize", this);
+        // SpacewalkEventBus.globalBus.subscribe("DidEndRenderContainerDrag", this);
 
-        dragger = new Dragger(container, dragContainer, root_container, height);
-
-        // dragContainer.addEventListener('mousedown', () => {
-        //     eventBus.post({ type: "DidSelectPanel", data: $(container) });
-        // });
-
-        dragContainer.addEventListener('mouseenter', () => {
-            dragContainer.style.backgroundColor = rgb255String(appleCrayonColorRGB255('snow'));
-            dragContainer.querySelector('i').style.color = rgb255String(appleCrayonColorRGB255('steel'));
-        });
-
-        dragContainer.addEventListener('mouseleave', () => {
-            dragContainer.style.backgroundColor = "transparent";
-            dragContainer.querySelector('i').style.color = "transparent";
-        });
-
-        eventBus.subscribe("AppWindowDidResize", this);
-        eventBus.subscribe("DraggerDidEnd", this);
+        this.sceneManager = sceneManager;
 
     }
 
-    setTopLeftPercentages(rootContainer, sceneContainer) {
+    setTopLeftPercentages(rootContainer, threejsContainer) {
 
         const { width, height } = rootContainer.getBoundingClientRect();
-        const { left, top } = sceneContainer.getBoundingClientRect();
+        const { left, top } = threejsContainer.getBoundingClientRect();
 
         this.leftPercent = left / width;
         this.topPercent = top / height;
@@ -72,9 +62,9 @@ class RenderContainerController {
     receiveEvent({ type, data }) {
 
         if ('AppWindowDidResize' === type) {
-            $(this.sceneManager.container).offset(this.getOffset(this.rootContainer))
-        } else if ('DraggerDidEnd' === type) {
-            this.setTopLeftPercentages(this.rootContainer, this.sceneManager.container);
+            $(this.threejsContainer).offset(this.getOffset(this.rootContainer))
+        } else if ('DidEndRenderContainerDrag' === type) {
+            this.setTopLeftPercentages(this.rootContainer, this.threejsContainer)
         }
     }
 

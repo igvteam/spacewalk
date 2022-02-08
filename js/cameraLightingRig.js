@@ -1,5 +1,6 @@
-import * as THREE from "../node_modules/three/build/three.module.js";
-import { OrbitControls } from "../node_modules/three/examples/jsm/controls/OrbitControls.js";
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
 import {sceneManager} from "./app.js";
 
 let cameraWorldDirection = new THREE.Vector3();

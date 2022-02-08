@@ -1,9 +1,10 @@
-import * as THREE from "../node_modules/three/build/three.module.js";
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import EnsembleManager from "./ensembleManager.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
-import { ballAndStick, colorMapManager, ensembleManager, eventBus } from "./app.js";
+import {colorMapManager, ensembleManager, sceneManager} from "./app.js";
+import Ribbon from './ribbon.js';
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
@@ -11,119 +12,81 @@ let rgbTexture;
 let alphaTexture;
 class ColorRampMaterialProvider {
 
-    constructor({ $canvasContainer, highlightColor }) {
+    constructor({ canvasContainer, highlightColor }) {
 
-        let canvas;
+        let canvas
 
         // highlight canvas
-        canvas = $canvasContainer.find('#spacewalk_color_ramp_canvas_highlight').get(0);
-        fitToContainer(canvas);
-        this.highlight_ctx = canvas.getContext('2d');
+        canvas = canvasContainer.querySelector('#spacewalk_color_ramp_canvas_highlight')
+        fitToContainer(canvas)
+        this.highlight_ctx = canvas.getContext('2d')
 
-        // ramp rgb canvas
-        canvas = $canvasContainer.find('#spacewalk_color_ramp_canvas_rgb').get(0);
-        fitToContainer(canvas);
-        this.rgb_ctx = canvas.getContext('2d');
+        // color ramp canvas
+        canvas = canvasContainer.querySelector('#spacewalk_color_ramp_canvas_rgb')
+        fitToContainer(canvas)
+        this.rgb_ctx = canvas.getContext('2d')
 
-        // alpha canvas indicating highlighted region of rgb canvas
-        canvas = $canvasContainer.find('#spacewalk_color_ramp_canvas_alpha').get(0);
-        fitToContainer(canvas);
-        this.alphamap_ctx = canvas.getContext('2d');
+        const namespace = 'color-ramp-material-provider'
 
-        // rgb
-        rgbTexture = new THREE.CanvasTexture(this.rgb_ctx.canvas);
-        rgbTexture.center.set(0.5, 0.5);
-        rgbTexture.rotation = -Math.PI/2.0;
-        rgbTexture.minFilter = rgbTexture.magFilter = THREE.NearestFilter;
-
-        // alpha
-        alphaTexture = new THREE.CanvasTexture(this.alphamap_ctx.canvas);
-        alphaTexture.center.set(0.5, 0.5);
-        alphaTexture.rotation = -Math.PI/2.0;
-        alphaTexture.minFilter = alphaTexture.magFilter = THREE.NearestFilter;
-
-        let material = new THREE.MeshPhongMaterial({ map: rgbTexture, alphaMap: alphaTexture });
-        material.alphaTest = 0.5;
-        material.side = THREE.DoubleSide;
-        material.transparent = true;
-
-        this.material = material;
-
-        const namespace = 'color-ramp-material-provider';
-
-        $canvasContainer.on(('mousemove.' + namespace), (event) => {
-            event.stopPropagation();
-            this.onCanvasMouseMove(canvas, event);
+        canvasContainer.addEventListener('mousemove', event => {
+            event.stopPropagation()
+            this.onCanvasMouseMove(canvas, event)
         });
 
-        $canvasContainer.on(('mouseenter.' + namespace), (event) => {
-            event.stopPropagation();
-            eventBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
+        canvasContainer.addEventListener('mouseenter', event => {
+            event.stopPropagation()
+            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' })
         });
 
-        $canvasContainer.on(('mouseleave.' + namespace), (event) => {
-            event.stopPropagation();
-            eventBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
-            this.repaint();
+        canvasContainer.addEventListener('mouseleave', event => {
+            event.stopPropagation()
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' })
+            this.repaint()
         });
 
-        // soak up misc events
-        let eventSink = e => { e.stopPropagation(); };
-        $canvasContainer.on(('mouseup.' + namespace), eventSink);
-        $canvasContainer.on(('mousedown.' + namespace), eventSink);
-        $canvasContainer.on(('click.' + namespace), eventSink);
+        const { r, g, b } = highlightColor
+        this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) )
 
-        const { r, g, b } = highlightColor;
-        this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) );
-
-
-        eventBus.subscribe("DidLeaveGUI", this);
-        eventBus.subscribe("PickerDidLeaveObject", this);
-        eventBus.subscribe("PickerDidHitObject", this);
-        eventBus.subscribe("DidSelectSegmentID", this);
-        eventBus.subscribe('DidLoadEnsembleFile', this);
+        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this)
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
     }
 
     receiveEvent({ type, data }) {
 
-        if ("PickerDidHitObject" === type) {
+        if ("DidUpdateGenomicInterpolant" === type) {
 
-            const key = data.toString();
+            const { poster, interpolantList } = data
 
-            if (ballAndStick.colorRampInterpolantWindowDictionary[ key ]) {
-                this.highlightWithInterpolantWindowList([ ballAndStick.colorRampInterpolantWindowDictionary[ key ] ])
+            if (this !== poster || sceneManager.renderStyle === Ribbon.getRenderStyle()) {
+
+                const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+
+                if (interpolantWindowList) {
+                    this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
+                }
+
             }
 
-        } else if ("PickerDidLeaveObject" === type) {
-            this.repaint()
-        } else if ("DidSelectSegmentID" === type) {
-
-            const { interpolantList } = data;
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
-
-            if (interpolantWindowList) {
-                this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
-            }
-
-        } else if ("DidLeaveGUI" === type || 'DidLoadEnsembleFile' === type) {
+        } else if ('DidLoadEnsembleFile' === type) {
             this.repaint()
         }
     }
 
     onCanvasMouseMove(canvas, event) {
 
-        if (undefined === ensembleManager.currentTrace) {
-            return;
-        }
+        if (ensembleManager.currentTrace) {
 
-        let { yNormalized } = getMouseXY(canvas, event);
-        const interpolantList = [ 1.0 - yNormalized ];
+            let { yNormalized } = getMouseXY(canvas, event);
+            const interpolantList = [ 1.0 - yNormalized ];
 
-        const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
 
-        if (interpolantWindowList) {
-            this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
-            eventBus.post({ type: 'ColorRampMaterialProviderCanvasDidMouseMove', data: { interpolantList } });
+            if (interpolantWindowList) {
+
+                // Rely on pickerHighlighter.highlight() to call this.highlightWithInterpolantWindowList()
+                SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } });
+            }
+
         }
 
     };
@@ -142,45 +105,35 @@ class ColorRampMaterialProvider {
             return;
         }
 
-        this.repaint();
-
-        const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
-
         // clear highlight canvas
-        this.highlight_ctx.clearRect(0, 0, width, height);
-
-        // paint alpha map opacque
-        this.alphamap_ctx.fillStyle = alpha_visible;
-        this.alphamap_ctx.fillRect(0, 0, width, height);
+        this.highlight_ctx.clearRect(0, 0, this.highlight_ctx.canvas.width, this.highlight_ctx.canvas.height);
 
         if (interpolantWindowList) {
 
             // set highlight color
             this.highlight_ctx.fillStyle = this.highlightColor;
 
-            // paint alpha map transparent
-            this.alphamap_ctx.clearRect(0, 0, width, height);
-
-            // set opaque color
-            this.alphamap_ctx.fillStyle = alpha_visible;
-
             for (let interpolantWindow of interpolantWindowList) {
 
                 const { start, end } = interpolantWindow;
-                const h = Math.round((end - start) * height);
-                const y = Math.round(start * height);
+                const h = Math.round((end - start) * this.highlight_ctx.canvas.height);
+                const y = Math.round(start * this.highlight_ctx.canvas.height);
 
-                const yy = height - (h + y);
+                const yy = this.highlight_ctx.canvas.height - (h + y);
 
                 const h_rendered = Math.max(1, h);
-                // console.log(`paintWithInterpolantWindowList yy ${ yy} h_rendered ${ h_rendered }`);
-                this.highlight_ctx.fillRect(0, yy, width, h_rendered);
-                this.alphamap_ctx.fillRect(0, yy, width, h_rendered);
+                this.highlight_ctx.fillRect(0, yy, this.highlight_ctx.canvas.width, h_rendered);
 
             }
 
         }
 
+    }
+
+    resize() {
+        fitToContainer(this.highlight_ctx.canvas)
+        fitToContainer(this.rgb_ctx.canvas)
+        this.repaint()
     }
 
     repaint(){
@@ -189,34 +142,26 @@ class ColorRampMaterialProvider {
             return;
         }
 
-        const { offsetHeight: height, offsetWidth: width } = this.rgb_ctx.canvas;
-
+        // repaint color ramp
         this.rgb_ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
-        this.rgb_ctx.fillRect(0, 0, width, height);
+        this.rgb_ctx.fillRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
 
         const colorRampInterpolantWindows = Object.values(ensembleManager.currentTrace).map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow);
-
-        // console.log(`max possible segments ${ ensembleManager.maximumSegmentID } trace count ${ colorRampInterpolantWindows.length }`);
 
         for (let { interpolant, start, end } of colorRampInterpolantWindows) {
 
             this.rgb_ctx.fillStyle = colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
 
-            const h = Math.ceil((end - start) * height);
-            const y = Math.round(start * (height));
+            const h = Math.ceil((end - start) * this.rgb_ctx.canvas.height);
+            const y = Math.round(start * (this.rgb_ctx.canvas.height));
 
-            const yy = Math.max(0, height - (h + y));
+            const yy = Math.max(0, this.rgb_ctx.canvas.height - (h + y));
 
-            this.rgb_ctx.fillRect(0, yy, width, h);
+            this.rgb_ctx.fillRect(0, yy, this.rgb_ctx.canvas.width, h);
         }
 
         // clear highlight canvas
-        this.highlight_ctx.clearRect(0, 0, width, height);
-
-        // paint alpha map opaque
-        this.alphamap_ctx.fillStyle = alpha_visible;
-        this.alphamap_ctx.fillRect(0, 0, width, height);
-
+        this.highlight_ctx.clearRect(0, 0, this.highlight_ctx.canvas.width, this.highlight_ctx.canvas.height);
     }
 
     colorForInterpolant(interpolant) {

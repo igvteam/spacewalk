@@ -1,34 +1,23 @@
 {
-  "name": "spacewalk",
-  "version": "0.1.0",
-  "description": "3D Chromosome Visualization Tool",
-  "keywords": [],
-  "author": "Douglass Turner and Jim Robinson",
-  "license": "ISC",
+  "name": "Spacewalk",
+  "version": "1.1.1",
   "scripts": {
-    "build": "npx rollup --config && node scripts/injectRuntime.js",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "start": "http-server -a localhost dist"
   },
-  "dependencies": {
-    "data-modal": "github:igvteam/data-modal",
-    "http-server": "^0.12.3",
-    "igv": "^2.5.5",
-    "igv-ui": "github:igvteam/igv-ui",
-    "igv-utils": "github:igvteam/igv-utils",
-    "igv-widgets": "github:igvteam/igv-widgets",
-    "juicebox.js": "^1.5.0",
-    "kd3d": "github:turner/kd3d",
-    "node-fetch": "^2.6.0",
-    "three": "^0.115.0"
-  },
   "devDependencies": {
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
-    "@rollup/plugin-node-resolve": "^7.1.3",
-    "fs-extra": "^8.1.0",
-    "minimist": ">=0.2.1",
-    "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-copy": "^3.3.0",
-    "rollup-plugin-terser": "^5.3.0"
+    "btoa": "^1.2.1",
+    "data-modal": "github:igvteam/data-modal#spacewalk",
+    "http-server": "^14.0.0",
+    "igv-ui": "github:igvteam/igv-ui#v1.2.1",
+    "igv-utils": "github:igvteam/igv-utils#v1.3.4",
+    "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
+    "sass": "^1.49.0",
+    "three": "^0.137.4",
+    "vanilla-picker": "^2.12.1",
+    "vite": "^2.7.13",
+    "vite-plugin-glsl": "^0.0.8"
   }
 }

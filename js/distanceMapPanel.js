@@ -1,10 +1,15 @@
 import Panel from "./panel.js";
 import { colorMapManager, ensembleManager } from "./app.js";
-import { drawWithSharedUint8ClampedArray } from './utils.js';
+import { clearCanvasArray, drawWithCanvasArray } from './utils.js';
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
-import EnsembleManager from "./ensembleManager.js";
+import SpacewalkEventBus from "./spacewalkEventBus.js"
+import {clamp} from './math.js'
+import DistanceMapWorker from './distanceMapWorker?worker'
+import ContactFrequencyMapWorker from "./contactFrequencyMapWorker?worker"
 
-const kDistanceUndefined = -1;
+const kDistanceUndefined = -1
+
+let canvasArray = undefined
 
 class DistanceMapPanel extends Panel {
 
@@ -40,190 +45,190 @@ class DistanceMapPanel extends Panel {
 
         this.ctx_ensemble = canvas.getContext('bitmaprenderer');
 
+        this.doUpdateTrace = this.doUpdateEnsemble = undefined
+
+        // this.worker = new Worker('./js/distanceMapWorker.js', { type: 'module' })
+        // NOTE: This syntax is specific to ViteJS
+        this.worker = new DistanceMapWorker()
+
+        this.worker.addEventListener('message', ({ data }) => {
+
+            document.querySelector('#spacewalk-distance-map-spinner').style.display = 'none'
+
+            if ('trace' === data.traceOrEnsemble) {
+                populateDistanceCanvasArray(data.workerDistanceBuffer, ensembleManager.maximumSegmentID, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
+                drawWithCanvasArray(this.ctx_trace, this.size, canvasArray)
+            } else {
+                populateDistanceCanvasArray(data.workerDistanceBuffer, ensembleManager.maximumSegmentID, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
+                drawWithCanvasArray(this.ctx_ensemble, this.size, canvasArray)
+            }
+
+
+        }, false)
+
+        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+
     }
 
-    updateEnsembleAverageDistanceCanvas(ensemble){
+    receiveEvent({ type, data }) {
 
-        const traces = Object.values(ensemble);
+        if ("DidSelectTrace" === type) {
 
-        const str = `Distance Map - Update Ensemble Distance. ${ traces.length } traces.`;
-        console.time(str);
+            const { trace } = data
+            this.trace = trace
 
-        let mapSize = ensembleManager.maximumSegmentID;
+            if (false === this.isHidden) {
+                this.updateTraceDistanceCanvas(ensembleManager.maximumSegmentID, this.trace)
+                this.doUpdateTrace = undefined
+            } else {
+                this.doUpdateTrace = true
+            }
 
-        let counter = new Array(mapSize * mapSize);
-        counter.fill(0);
+        } else if ("DidLoadEnsembleFile" === type) {
 
-        let average = new Array(mapSize * mapSize);
-        average.fill(kDistanceUndefined);
+            const { ensemble, trace } = data
+            this.ensemble = ensemble
+            this.trace = trace
 
-        for (let trace of traces) {
+            initializeSharedBuffers(ensembleManager.maximumSegmentID)
 
-            const dev_null = updateDistanceArray(trace);
-
-            // We need to calculate an array of averages where the input data
-            // can have missing - kDistanceUndefined - values
-
-            // loop of the distance array
-            for (let d = 0; d < ensembleManager.sharedMapArray.length; d++) {
-
-                // ignore missing data values. they do not participate in the average
-                if (kDistanceUndefined === ensembleManager.sharedMapArray[ d ]) {
-                    // do nothing
-                } else {
-
-                    // keep track of how many samples we have at this array index
-                    ++counter[ d ];
-
-                    if (kDistanceUndefined === average[ d ]) {
-
-                        // If this is the first data value at this array index copy it to average.
-                        average[ d ] = ensembleManager.sharedMapArray[ d ];
-                    } else {
-
-                        // when there is data AND a pre-existing average value at this array index
-                        // use an incremental averaging approach.
-
-                        // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
-                        // https://math.stackexchange.com/questions/106700/incremental-averageing
-                        average[ d ] = average[ d ] + (ensembleManager.sharedMapArray[ d ] - average[ d ]) / counter[ d ];
-                    }
-
-                }
+            if (false === this.isHidden) {
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.maximumSegmentID, this.ensemble)
+                this.updateTraceDistanceCanvas(ensembleManager.maximumSegmentID, this.trace)
+                this.doUpdateTrace = this.doUpdateEnsemble = undefined
+            } else {
+                this.doUpdateTrace = this.doUpdateEnsemble = true
             }
 
         }
 
-        let maxAverageDistance = Number.NEGATIVE_INFINITY;
-        for (let avg of average) {
-            maxAverageDistance = Math.max(maxAverageDistance, avg);
+        super.receiveEvent({ type, data });
+    }
+
+    present() {
+
+        if (true === this.doUpdateEnsemble) {
+            this.updateEnsembleAverageDistanceCanvas(ensembleManager.maximumSegmentID, this.ensemble)
+            this.doUpdateEnsemble = undefined
         }
 
-        console.timeEnd(str);
+        if (true === this.doUpdateTrace) {
+            this.updateTraceDistanceCanvas(ensembleManager.maximumSegmentID, this.trace)
+            this.doUpdateTrace = undefined
+        }
 
-        paintDistanceCanvas(average, maxAverageDistance);
+        super.present()
 
-        drawWithSharedUint8ClampedArray(this.ctx_ensemble, this.size, ensembleManager.sharedDistanceMapUint8ClampedArray);
+    }
 
-    };
+    getClassName(){ return 'DistanceMapPanel' }
 
-    updateTraceDistanceCanvas(trace) {
+    updateTraceDistanceCanvas(maximumSegmentID, trace) {
 
-        const str = `Distance Map - Update Trace Distance.`;
-        console.time(str);
+        document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const maxDistance = updateDistanceArray(trace);
+        const items = Object.values(trace)
+            .map(({ colorRampInterpolantWindow, geometry }) => {
+                const [ x, y, z ] = geometry.attributes.position.array
+                return { x, y, z, segmentIndex: colorRampInterpolantWindow.segmentIndex }
+            })
 
-        console.timeEnd(str);
+        const data =
+            {
+                traceOrEnsemble: 'trace',
+                maximumSegmentID,
+                itemsString: JSON.stringify(items),
+            }
 
-        paintDistanceCanvas(ensembleManager.sharedMapArray, maxDistance);
+        this.worker.postMessage(data)
 
-        drawWithSharedUint8ClampedArray(this.ctx_trace, this.size, ensembleManager.sharedDistanceMapUint8ClampedArray);
+        clearCanvasArray(canvasArray, ensembleManager.maximumSegmentID)
+        drawWithCanvasArray(this.ctx_trace, this.size, canvasArray)
 
-    };
+    }
+
+    updateEnsembleAverageDistanceCanvas(maximumSegmentID, ensemble){
+
+        document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
+
+        const traces = Object.values(ensemble)
+        const essentials = traces.map(trace => {
+            return Object.values(trace)
+                .map(({ colorRampInterpolantWindow, geometry }) => {
+                    const [ x, y, z ] = geometry.attributes.position.array
+                    return { x, y, z, segmentIndex: colorRampInterpolantWindow.segmentIndex }
+                })
+        })
+
+        const data =
+            {
+                traceOrEnsemble: 'ensemble',
+                maximumSegmentID,
+                // traces,
+                essentialsString: JSON.stringify(essentials)
+            }
+
+        this.worker.postMessage(data)
+
+        clearCanvasArray(ensembleManager.maximumSegmentID)
+        drawWithCanvasArray(this.ctx_ensemble, this.size, canvasArray)
+
+    }
 }
 
-const updateDistanceArray = trace => {
+function populateDistanceCanvasArray(distances, maximumSegmentID, maximumDistance, colorMap) {
 
-    // const str = `Distance Map - Update Distance Array`;
-    // console.time(str);
-
-    let mapSize = ensembleManager.maximumSegmentID;
-
-    ensembleManager.sharedMapArray.fill(kDistanceUndefined);
-
-    let maxDistance = Number.NEGATIVE_INFINITY;
-
-    const vertices = EnsembleManager.getSingleCentroidVerticesWithTrace(trace);
-
-    let exclusionSet = new Set();
-
-    const traceValues = Object.values(trace);
-
-    for (let i = 0; i < vertices.length; i++) {
-
-        const { colorRampInterpolantWindow } = traceValues[ i ];
-        const i_segmentIndex = colorRampInterpolantWindow.segmentIndex;
-        const xy_diagonal = i_segmentIndex * mapSize + i_segmentIndex;
-        ensembleManager.sharedMapArray[ xy_diagonal ] = 0;
-
-        exclusionSet.add(i);
-
-        for (let j = 0; j < vertices.length; j++) {
-
-            if (false === exclusionSet.has(j)) {
-
-                const distance = vertices[ i ].distanceTo(vertices[ j ]);
-
-                const { colorRampInterpolantWindow: colorRampInterpolantWindow_j } = traceValues[ j ];
-                const j_segmentIndex = colorRampInterpolantWindow_j.segmentIndex;
-
-                const ij =  i_segmentIndex * mapSize + j_segmentIndex;
-                const ji =  j_segmentIndex * mapSize + i_segmentIndex;
-
-                ensembleManager.sharedMapArray[ ij ] = ensembleManager.sharedMapArray[ ji ] = distance;
-
-                maxDistance = Math.max(maxDistance, distance);
-            }
-
-        } // for (j)
-
-    }
-
-    // console.timeEnd(str);
-
-    return maxDistance;
-
-};
-
-const paintDistanceCanvas = (distances, maximumDistance) => {
-
-    const str = `Distance Map - Paint Canvas. Uint8ClampedArray.`;
-    console.time(str);
-
-    let i;
-
-    i = 0;
+    let i = 0;
     const { r, g, b } = appleCrayonColorRGB255('magnesium');
     for (let x = 0; x < distances.length; x++) {
-        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = r;
-        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = g;
-        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = b;
-        ensembleManager.sharedDistanceMapUint8ClampedArray[i++] = 255;
+        canvasArray[i++] = r;
+        canvasArray[i++] = g;
+        canvasArray[i++] = b;
+        canvasArray[i++] = 255;
     }
 
-    const colorMap = colorMapManager.dictionary['juicebox_default'];
+
     const scale = colorMap.length - 1;
 
     i = 0;
-    for (let d of distances) {
+    for (let distance of distances) {
 
-        if (kDistanceUndefined !== d) {
+        if (kDistanceUndefined !== distance) {
 
-            const interpolant = 1.0 - d/maximumDistance;
-            const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolant * scale) ][ 'threejs' ]);
+            const interpolant = distance/maximumDistance
+            if (interpolant < 0 || 1 < interpolant) {
+                console.log(`${ Date.now() } populateDistanceCanvasArray - interpolant out of range ${ interpolant }`)
+            }
 
-            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 0] = r;
-            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 1] = g;
-            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 2] = b;
-            ensembleManager.sharedDistanceMapUint8ClampedArray[i + 3] = 255;
+            const interpolantFlipped = 1.0 - clamp(interpolant, 0, 1)
+            const interpolantScaled = scale * interpolantFlipped
+
+            const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolantScaled) ][ 'threejs' ]);
+
+            canvasArray[i + 0] = r;
+            canvasArray[i + 1] = g;
+            canvasArray[i + 2] = b;
+            canvasArray[i + 3] = 255;
         }
 
         i += 4;
     }
 
-    console.timeEnd(str);
+}
 
-};
+function initializeSharedBuffers(maximumSegmentID) {
+    canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
+}
 
-export let distanceMapPanelConfigurator = ({ container, isHidden }) => {
+export function distanceMapPanelConfigurator({ container, isHidden }) {
 
     return {
         container,
-        panel: $('#spacewalk_distance_map_panel').get(0),
+        panel: document.querySelector('#spacewalk_distance_map_panel'),
         isHidden
     };
 
-};
+}
 
 export default DistanceMapPanel;

@@ -1,9 +1,11 @@
-import hic from '../node_modules/juicebox.js/dist/juicebox.esm.js';
-import { makeDraggable } from "./draggable.js";
-import { eventBus } from "./app.js";
-import { setPanelVisibility } from "./guiManager.js";
+import { DOMUtils } from 'igv-utils'
+import SpacewalkEventBus from './spacewalkEventBus.js'
+import { makeDraggable } from "./draggable.js"
 
-let panelList = undefined;
+const zIndexPanelSelected = 1124;
+const zIndexPanelUnselected = 1024;
+
+const panelDictionary = {}
 
 class Panel {
 
@@ -19,36 +21,57 @@ class Panel {
         this.xFunction = xFunction;
         this.yFunction = yFunction;
 
-        this.namespace = `panel.${ hic.igv.guid() }`;
+        this.namespace = `panel.${ DOMUtils.guid() }`;
 
         const $drag_handle = this.$panel.find('.spacewalk_card_drag_container');
         makeDraggable(panel, $drag_handle.get(0));
 
         $drag_handle.on(`mousedown.${ this.namespace }`, event => {
-            eventBus.post({ type: "DidSelectPanel", data: this.$panel });
+            event.stopPropagation();
+            event.preventDefault();
+            SpacewalkEventBus.globalBus.post({ type: "DidSelectPanel", data: this.getClassName() })
         });
 
         const $closer = this.$panel.find('i.fa-times-circle');
-        $closer.on(`click.${ hic.igv.guid() }`, event => {
+        $closer.on(`click.${ DOMUtils.guid() }`, event => {
             event.stopPropagation();
+            event.preventDefault();
             this.dismiss();
         });
 
-        this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
+        this.$panel.on(`mouseenter.${ this.namespace }`, event => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidEnterGUI', data: this });
+            event.preventDefault();
+            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
         });
 
-        this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
+        this.$panel.on(`mouseleave.${ this.namespace }`, event => {
             event.stopPropagation();
-            eventBus.post({ type: 'DidLeaveGUI', data: this });
+            event.preventDefault();
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
         });
 
-        eventBus.subscribe("ToggleUIControl", this);
-        eventBus.subscribe("AppWindowDidResize", this);
-        eventBus.subscribe("DidDragEnd", this);
+        SpacewalkEventBus.globalBus.subscribe("DidSelectPanel", this);
+        SpacewalkEventBus.globalBus.subscribe("ToggleUIControl", this);
+        SpacewalkEventBus.globalBus.subscribe("AppWindowDidResize", this);
+        SpacewalkEventBus.globalBus.subscribe("DidEndDrag", this);
 
     }
+
+    receiveEvent({ type, data }) {
+
+        if ('DidSelectPanel' === type) {
+            this.$panel.css('zIndex', this.getClassName() === data ? zIndexPanelSelected : zIndexPanelUnselected)
+        } else if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
+            true === this.isHidden ? this.present() : this.dismiss()
+        } else if ('AppWindowDidResize' === type && false === this.isHidden) {
+            this.$panel.offset(this.getOffset())
+        } else if ('DidEndDrag' === type && data && data === this.$panel.attr('id')) {
+            this.setTopLeftPercentages(true);
+        }
+    }
+
+    getClassName(){ return 'Panel' }
 
     setTopLeftPercentages(isInitialized) {
 
@@ -77,10 +100,15 @@ class Panel {
     }
 
     dismiss() {
+
         this.isHidden = true;
         this.$panel.offset( { left: -1000, top: -1000 } );
-        setPanelVisibility(this.$panel.attr('id'), false);
-    };
+
+        const id = this.$panel.attr('id')
+        const $selection = $(`input[data-target='${ id }']`)
+        $selection.prop('checked', false)
+
+    }
 
     present() {
 
@@ -89,51 +117,41 @@ class Panel {
             this.isHidden = false;
         }
 
-        setPanelVisibility(this.$panel.attr('id'), true);
+        const id = this.$panel.attr('id')
+        const $selection = $(`input[data-target='${ id }']`)
+        $selection.prop('checked', true)
 
     };
 
-    receiveEvent({ type, data }) {
+    static setAllPanelVisibility(panelVisibility) {
 
-        if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
+        for (let [key, value] of Object.entries( Panel.getPanelDictionary() )) {
 
-            if (true === this.isHidden) {
-                this.present();
+            if ('visible' === panelVisibility[ key ]) {
+                value.present();
             } else {
-                this.dismiss();
+                value.dismiss();
             }
 
-        } else if ('AppWindowDidResize' === type) {
+        }
 
-            if (false === this.isHidden) {
-                this.$panel.offset(this.getOffset());
-            }
+    }
 
-        } else if ('DidDragEnd' === type && data && data === this.$panel.attr('id')) {
-            this.setTopLeftPercentages(true);
+    static getPanelDictionary() {
+        return panelDictionary
+    }
+
+    static setPanelDictionary(panels) {
+        for (let panel of panels) {
+            panelDictionary[ panel.getClassName() ] = panel
         }
     }
 
-    static setPanelList(panels) {
-        panelList = panels;
-    }
+}
 
-    static setAllPanelVisibility(panelVisibility) {
-
-        Panel.getPanelList().forEach( panel => {
-            if ('visible' === panelVisibility[ panel.constructor.name ]) {
-                panel.present();
-            } else {
-                panel.dismiss();
-            }
-        });
-
-    }
-
-    static getPanelList() {
-        return panelList;
-    }
-
+export function doInspectPanelVisibilityCheckbox(panelID) {
+    const $selection = $(`input[data-target='${ panelID }']`)
+    return !($selection.prop('checked'))
 }
 
 export default Panel;

@@ -1,61 +1,61 @@
-import { StringUtils } from '../node_modules/igv-utils/src/index.js'
-import Noodle from "./noodle.js";
+import Picker from 'vanilla-picker'
+import SpacewalkEventBus from './spacewalkEventBus.js'
+import { StringUtils } from 'igv-utils'
+import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
-import { rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor } from "./color.js";
-import { eventBus, noodle, ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
-
-const zIndexPanelSelected = 1124;
-const zIndexPanelUnselected = 1024;
+import {rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor, rgba255String} from "./color.js"
+import { ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
 
 class GUIManager {
 
-    constructor ({ $button, $panel }) {
+    constructor ({ settingsButton, $panel }) {
 
-        $button.on('click.gui_manager', (e) => {
+        settingsButton.addEventListener('click', e => {
             e.preventDefault();
-            $panel.toggle();
-        });
+            e.stopPropagation()
+            $panel.toggle()
+        })
 
-        let $widgetPanels = undefined;
-        $panel.find('input[data-target]').each(function(){
-            const selectionString = `#${ $(this).attr('data-target') }`;
-            $widgetPanels = undefined === $widgetPanels ? $(selectionString) : $widgetPanels.add($(selectionString));
-        });
+        document.querySelector(`#spacewalk_ui_manager_groundplane`).addEventListener('change', e => {
+            e.preventDefault()
+            e.stopPropagation()
+            sceneManager.groundPlane.toggle()
+        })
 
-        // Add scene container
-        // $widgetPanels = $widgetPanels.add( $(sceneManager.container) );
+        document.querySelector(`#spacewalk_ui_manager_gnomon`).addEventListener('change', e => {
+            e.preventDefault()
+            e.stopPropagation()
+            sceneManager.gnomon.toggle()
+        })
 
-        this.$widgetPanels = $widgetPanels;
+        const checkboxDropdown = document.querySelector('#spacewalk-viewers-dropdown-menu')
+        const inputIDList = checkboxDropdown.querySelectorAll('input')
 
-        const input_id_list =
-            [
-                'spacewalk_ui_manager_groundplane',
-                'spacewalk_ui_manager_gnomon',
+        for (let i = 0; i < inputIDList.length; i++) {
 
-                'spacewalk_ui_manager_ui_controls_color_ramp',
-                'spacewalk_ui_manager_ui_controls_trace_select',
-                'spacewalk_ui_manager_ui_controls_juicebox',
-                'spacewalk_ui_manager_ui_controls_igv',
-                'spacewalk_ui_manager_ui_controls_distance_map',
-                'spacewalk_ui_manager_ui_controls_contact_frequency_map'
-            ];
+            const input = inputIDList[ i ]
+            input.addEventListener('change', event => {
 
-        configureVisibilityControl(input_id_list, $panel);
+                event.preventDefault()
+                event.stopPropagation()
 
-        configureRenderStyleControl($panel.find('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
+                $(input).parents('.dropdown').find('.dropdown-toggle').dropdown('toggle')
 
-        configureRenderStyleControl($panel.find('#spacewalk-render-style-noodle'), Noodle.getRenderStyle());
+                const payload = inputIDList[ i ].dataset.target
+                SpacewalkEventBus.globalBus.post({ type: 'ToggleUIControl', data: { payload } })
+            })
+
+        }
+
+        configureRenderStyleControl($('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
+
+        configureRenderStyleControl($('#spacewalk-render-style-ribbon'), Ribbon.getRenderStyle());
 
         // ball radius
         const $ball_radius_control = $('#spacewalk-ball-radius-control');
 
-        $ball_radius_control.find('i.fa-minus-circle').on('click.spacewalk-ball-radius-minus', () => {
-            ballAndStick.updateBallRadius(-1);
-        });
-
-        $ball_radius_control.find('i.fa-plus-circle').on('click.spacewalk-ball-radius-plus', () => {
-            ballAndStick.updateBallRadius(1);
-        });
+        $ball_radius_control.find('i.fa-minus-circle').on('click.spacewalk-ball-radius-minus', () => ballAndStick.updateBallRadius(-1))
+        $ball_radius_control.find('i.fa-plus-circle').on('click.spacewalk-ball-radius-plus',   () => ballAndStick.updateBallRadius(1))
 
         // stick radius
         const $stick_radius_control = $('#spacewalk-stick-radius-control');
@@ -68,32 +68,13 @@ class GUIManager {
             ballAndStick.updateStickRadius(1);
         });
 
-        // noodle radius
-        const $noodle_radius_control = $('#spacewalk-noodle-radius-control');
-
-        $noodle_radius_control.find('i.fa-minus-circle').on('click.spacewalk-noodle-radius-minus', () => {
-            noodle.updateRadius(-1);
-        });
-
-        $noodle_radius_control.find('i.fa-plus-circle').on('click.spacewalk-noodle-radius-plus', () => {
-            noodle.updateRadius(1);
-        });
-
-        eventBus.subscribe("DidSelectPanel", this);
-        eventBus.subscribe('DidLoadEnsembleFile', this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 
     receiveEvent({ type, data }) {
 
-        if ('DidSelectPanel' === type) {
-
-            const $selected = data;
-            const $unselected = this.$widgetPanels.not($selected);
-            $selected.css('zIndex', zIndexPanelSelected);
-            $unselected.css('zIndex', zIndexPanelUnselected);
-
-        } else if ('DidLoadEnsembleFile' === type) {
+        if ('DidLoadEnsembleFile' === type) {
 
             let str;
 
@@ -123,107 +104,94 @@ class GUIManager {
 
 }
 
-const configureVisibilityControl = (input_id_list, $panel) => {
+// Render Style - Ball & Stick | Ribbon
+export function getGUIRenderStyle() {
+    const id = $('#spacewalk_ui_manager_panel').find("input:radio[name='spacewalk-render-style']:checked").attr('id');
+    return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Ribbon.getRenderStyle();
+}
 
-    for (let input_id of input_id_list) {
+export function setGUIRenderStyle(renderStyle) {
 
-        const selector = '#' + input_id;
-        const $input = $panel.find(selector);
-        const change = 'change.' + input_id;
+    const $ui_manager_panel = $('#spacewalk_ui_manager_panel');
 
-        $input.on(change, (e) => {
-
-            e.preventDefault();
-
-            if ('spacewalk_ui_manager_groundplane' === input_id) {
-                sceneManager.groundPlane.toggle();
-            } else if ('spacewalk_ui_manager_gnomon' === input_id) {
-                sceneManager.gnomon.toggle();
-            } else {
-                const payload = $input.data('target');
-                eventBus .post({ type: 'ToggleUIControl', data: { payload } });
-            }
-        });
-
+    if (renderStyle === Ribbon.getRenderStyle()) {
+        $ui_manager_panel.find('#spacewalk-render-style-ribbon').prop('checked', true);
+        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
+    } else if (renderStyle === BallAndStick.getRenderStyle()) {
+        $ui_manager_panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
+        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
     }
 
-};
+}
 
-const configureRenderStyleControl = ($input, renderStyle) => {
+function configureRenderStyleControl($input, renderStyle) {
 
     $input.val( renderStyle );
 
     $input.on('change.gui_manager.render_style_ball_stick', (e) => {
         e.preventDefault();
-        eventBus .post({ type: "RenderStyleDidChange", data: $(e.target).val() });
+        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: $(e.target).val() });
     });
 
-};
+}
 
-export const configureColorPicker = ($element, initialColor, callback) => {
+// Ground Plane
+export function doConfigureGroundplaneHidden() {
+    const $input = $('#spacewalk_ui_manager_groundplane')
+    return !($input.prop('checked'))
+}
+
+export function setGroundplaneVisibilityCheckboxStatus(status) {
+    const $input = $('#spacewalk_ui_manager_groundplane')
+    $input.prop('checked', status)
+}
+
+// Gnomon
+export function doConfigureGnomonHidden() {
+    const $input = $('#spacewalk_ui_manager_gnomon')
+    return !($input.prop('checked'))
+}
+
+export function setGnomonVisibilityCheckboxStatus(status) {
+    const $input = $('#spacewalk_ui_manager_gnomon')
+    $input.prop('checked', status)
+}
+
+// Colorpicker
+export function configureColorPicker(element, initialColor, callback) {
 
     const config =
         {
+            parent: element,
+            popup: 'right',
+            editor: false,
+            editorFormat: 'rgb',
+            alpha: false,
             color: rgb255String(threeJSColorToRGB255(initialColor)),
-            type: 'color',
-            showAlpha: false,
-            showButtons: false,
-            allowEmpty: false,
-            move: color => {
-                const { r, g, b } = color.toRgb();
-                callback(rgb255ToThreeJSColor(r, g, b))
+            onChange: ({rgbString}) => {
+
+                element.style.backgroundColor = rgbString
+
+                const [ head, g, tail ] = rgbString.split(',')
+                const [ unused, r ] = head.split('(')
+                const [ b, dev_null ] = tail.split(')')
+
+                callback(rgb255ToThreeJSColor(parseInt(r), parseInt(g), parseInt(b)))
             }
-        };
+        }
 
-    $element.spectrum(config);
+        return new Picker(config)
 
-};
+}
 
-export const getGUIRenderStyle = () => {
-    const id = $('#spacewalk_ui_manager_panel').find("input:radio[name='spacewalk-render-style']:checked").attr('id');
-    return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Noodle.getRenderStyle();
-};
+export function updateColorPicker(picker, element, rgb) {
+    const rgb255 = threeJSColorToRGB255(rgb)
 
-export const setGUIRenderStyle = renderStyle => {
+    element.style.backgroundColor = rgb255String(rgb255)
 
-    const $ui_manager_panel = $('#spacewalk_ui_manager_panel');
+    const { r, g, b } = rgb255
+    picker.setColor([ r, g, b, 1 ], true)
 
-    if (renderStyle === Noodle.getRenderStyle()) {
-        $ui_manager_panel.find('#spacewalk-render-style-noodle').prop('checked', true);
-        eventBus .post({ type: "RenderStyleDidChange", data: renderStyle });
-    } else if (renderStyle === BallAndStick.getRenderStyle()) {
-        $ui_manager_panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
-        eventBus .post({ type: "RenderStyleDidChange", data: renderStyle });
-    }
-
-};
-
-export const doConfigureGroundplaneHidden = () => {
-    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_groundplane');
-    return !($input.prop('checked'));
-};
-
-export const setGUIGroundplaneVisibility = status => {
-    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_groundplane');
-    $input.prop('checked', status);
-};
-
-export const doConfigureGnomonHidden = () => {
-    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_gnomon');
-    return !($input.prop('checked'));
-};
-
-export const setGUIGnomonVisibility = status => {
-    const $input = $('#spacewalk_ui_manager_panel').find('#spacewalk_ui_manager_gnomon');
-    $input.prop('checked', status);
-};
-
-export const doConfigurePanelHidden = panelID => {
-    return !($('#spacewalk_ui_manager_panel').find(`[data-target='${ panelID }']`).prop('checked'));
-};
-
-export const setPanelVisibility = (panelID, status) => {
-    $('#spacewalk_ui_manager_panel').find(`[data-target='${ panelID }']`).prop('checked', status);
-};
+}
 
 export default GUIManager;

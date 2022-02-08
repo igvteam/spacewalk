@@ -1,6 +1,6 @@
-import { eventBus } from "./app.js";
+import SpacewalkEventBus from './spacewalkEventBus.js'
 
-const namespace = '.spacewalk_drag';
+const namespace = '.spacewalk-drag';
 let dragData;
 
 let makeDraggable = (targetElement, handleElement) => {
@@ -61,7 +61,7 @@ function dragEnd(event) {
     dragData = undefined;
 
     const id = $(this).attr('id');
-    eventBus.post({ type: "DidDragEnd", data: id });
+    SpacewalkEventBus.globalBus.post({ type: "DidEndDrag", data: id });
 
 }
 

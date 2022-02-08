@@ -1,9 +1,9 @@
-import * as THREE from "../node_modules/three/build/three.module.js";
+import * as THREE from "three";
 import { appleCrayonColorThreeJS } from "./color.js";
 
 class CubicMapManager {
 
-    constructor ({ textureRoot, suffix, vertexShaderName, fragmentShaderName, isSpecularMap }) {
+    constructor ({ textureRoot, suffix, vertexShader, fragmentShader, isSpecularMap }) {
 
         this.onLoad = async () => {
 
@@ -22,7 +22,7 @@ class CubicMapManager {
 
             this.cubicTexture = cubicTexture;
 
-            this.material = isSpecularMap ? specularMaterial(cubicTexture) : diffuseMaterial(cubicTexture, vertexShaderName, fragmentShaderName);
+            this.material = isSpecularMap ? specularMaterial(cubicTexture) : diffuseMaterial(cubicTexture, vertexShader, fragmentShader);
             this.material.side = THREE.DoubleSide;
 
         };
@@ -37,7 +37,7 @@ class CubicMapManager {
     }
 }
 
-function diffuseMaterial (cubicTexture, vertID, fragID) {
+function diffuseMaterial (cubicTexture, vertexShader, fragmentShader) {
 
     const config =
         {
@@ -49,8 +49,8 @@ function diffuseMaterial (cubicTexture, vertID, fragID) {
                         }
                 },
 
-            vertexShader: document.getElementById( vertID ).textContent,
-            fragmentShader: document.getElementById( fragID ).textContent
+            vertexShader,
+            fragmentShader
         };
 
     return new THREE.ShaderMaterial( config );

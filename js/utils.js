@@ -1,13 +1,66 @@
-import { ribbon, noodle, ballAndStick, ensembleManager } from "./app.js";
+import {ribbon, ballAndStick, ensembleManager, dataValueMaterialProvider, colorRampMaterialProvider} from "./app.js";
 import {lerp} from "./math.js";
+import {StringUtils} from 'igv-utils';
+import {appleCrayonColorRGB255} from "./color.js"
+
+function showGlobalSpinner() {
+    document.getElementById('spacewalk-spinner').style.display = 'block'
+}
+
+function hideGlobalSpinner() {
+    document.getElementById('spacewalk-spinner').style.display = 'none'
+}
+
+async function getMaterialProvider (track) {
+
+    // unselect other track's checkboxes
+    for (let trackView of track.browser.trackViews) {
+        if (trackView.track !== track && trackView.materialProviderInput) {
+            $(trackView.materialProviderInput).prop('checked', false)
+        }
+    }
+
+    if ($(track.trackView.materialProviderInput).is(':checked')) {
+
+        const { chr, start, end, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
+
+        // If "zoom in" notice is displayed do not paint features on trace
+        if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
+            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
+        } else {
+
+            const features = await track.getFeatures(chr, start, end, bpPerPixel);
+
+            if (track.trackView.dataRange()) {
+                const { min, max } = track.trackView.dataRange()
+                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+            } else {
+                dataValueMaterialProvider.configure({ startBP: start, endBP: end, features });
+            }
+
+            // if ('varying' === track.featureDescription) {
+            //     const { min, max } = track.dataRange;
+            //     console.log(`wig track features. ${ bpPerPixel } start ${ StringUtils.numberFormatter(start) } end ${ StringUtils.numberFormatter(end) } min ${ min } max ${ max }`);
+            //     dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
+            // } else {
+            //     dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
+            // }
+
+        }
+
+        return dataValueMaterialProvider
+    } else {
+        return colorRampMaterialProvider
+    }
+
+}
 
 const setMaterialProvider = materialProvider => {
     ribbon.updateMaterialProvider(materialProvider);
-    // noodle.updateMaterialProvider(materialProvider);
     ballAndStick.updateMaterialProvider(materialProvider);
 };
 
-let fitToContainer = (canvas, devicePixelRatio) => {
+const fitToContainer = (canvas, devicePixelRatio) => {
 
     canvas.style.width ='100%';
     canvas.style.height ='100%';
@@ -16,7 +69,7 @@ let fitToContainer = (canvas, devicePixelRatio) => {
     canvas.height = devicePixelRatio ? devicePixelRatio * canvas.offsetHeight : canvas.offsetHeight;
 };
 
-let getMouseXY = (domElement, { clientX, clientY }) => {
+const getMouseXY = (domElement, { clientX, clientY }) => {
 
     // a DOMRect object with eight properties: left, top, right, bottom, x, y, width, height
     const { left, top, width, height } = domElement.getBoundingClientRect();
@@ -63,6 +116,20 @@ const readFileAsDataURL = async blob => {
     });
 };
 
+function clearCanvasArray(canvasArray, maximumSegmentID) {
+
+    const { r, g, b } = appleCrayonColorRGB255('magnesium')
+    const length = maximumSegmentID * maximumSegmentID
+    let i = 0
+    for (let x = 0; x < length; x++) {
+        canvasArray[i++] = r
+        canvasArray[i++] = g
+        canvasArray[i++] = b
+        canvasArray[i++] = 255
+    }
+
+}
+
 const createImage = imageSource => {
 
     return new Promise((resolve, reject) => {
@@ -74,7 +141,7 @@ const createImage = imageSource => {
 
 };
 
-const drawWithSharedUint8ClampedArray = async (ctx, size, array) => {
+const drawWithCanvasArray = async (ctx, size, array) => {
 
     const { width, height } = size;
 
@@ -107,9 +174,13 @@ const generateRadiusTable = defaultRadius => {
 };
 
 export {
+    showGlobalSpinner,
+    hideGlobalSpinner,
+    getMaterialProvider,
     setMaterialProvider,
+    clearCanvasArray,
     createImage,
-    drawWithSharedUint8ClampedArray,
+    drawWithCanvasArray,
     readFileAsDataURL,
     fitToContainer,
     getMouseXY,

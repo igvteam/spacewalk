@@ -1,7 +1,7 @@
-import * as THREE from "../node_modules/three/build/three.module.js";
-import { StringUtils } from '../node_modules/igv-utils/src/index.js'
-import { appleCrayonColorThreeJS, appleCrayonColorRGB255, rgb255String, threeJSColorToRGB255 } from "./color.js";
-import { doConfigureGnomonHidden, setGUIGnomonVisibility } from "./guiManager.js";
+import * as THREE from "three";
+import { StringUtils } from 'igv-utils'
+import { appleCrayonColorThreeJS, rgb255String, threeJSColorToRGB255, rgba255String } from "./color.js"
+import {configureColorPicker, updateColorPicker, doConfigureGnomonHidden, setGnomonVisibilityCheckboxStatus} from "./guiManager.js"
 
 class Gnomon extends THREE.AxesHelper {
 
@@ -37,6 +37,8 @@ class Gnomon extends THREE.AxesHelper {
 
         this.group.visible = !(isHidden);
 
+        this.colorPicker = configureColorPicker(document.querySelector(`div[data-colorpicker='gnomon']`), this.color, color => this.setColor(color));
+
     }
 
     getColorState() {
@@ -46,7 +48,8 @@ class Gnomon extends THREE.AxesHelper {
 
     setColorState(json) {
         const { r, g, b } = json;
-        this.setColor(new THREE.Color(r, g, b));
+        this.setColor(new THREE.Color(r, g, b))
+        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='gnomon']`), json)
     }
 
     setColor(color){
@@ -92,17 +95,17 @@ class Gnomon extends THREE.AxesHelper {
 
     toggle() {
         this.group.visible = !this.group.visible;
-        setGUIGnomonVisibility(this.group.visible);
+        setGnomonVisibilityCheckboxStatus(this.group.visible);
     }
 
     present() {
         this.group.visible = true;
-        setGUIGnomonVisibility(this.group.visible);
+        setGnomonVisibilityCheckboxStatus(this.group.visible);
     }
 
     dismiss() {
         this.group.visible = false;
-        setGUIGnomonVisibility(this.group.visible);
+        setGnomonVisibilityCheckboxStatus(this.group.visible);
     }
 
     setVisibility(status) {

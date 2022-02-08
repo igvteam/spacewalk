@@ -1,0 +1,81 @@
+
+// igv panel
+$spacewalk_igv_panel_width: 600px;
+$spacewalk_igv_panel_heigth: 256px;
+
+.igv-left-hand-gutter {
+
+  > div {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    background-color: $spacewalk_snow;
+
+    > input {
+      display: block;
+    }
+
+  }
+
+  >div:hover {
+    background-color: $spacewalk_mercury;
+  }
+
+};
+
+.spacewalk-igv-app-dropdown-item-cloud-storage {
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+
+  height: 18px;
+
+  margin-top: 4px;
+  margin-bottom: 4px;
+
+  div:first-child {
+    margin-right: 4px;
+  }
+
+  div:last-child {
+    margin-left: 4px;
+  }
+
+}
+
+#spacewalk_igv_panel.card {
+
+  width: $spacewalk_igv_panel_width;
+  height: unset;
+
+  align-items: center;
+  justify-content: flex-start;
+
+  #spacewalk_igv_container.card-body {
+
+    height: unset;
+
+    #spacewalk_igv_root_container {
+
+      overflow: scroll;
+
+      width: 100%;
+      height: 100%;
+
+      border-style: solid;
+      border-width: thin;
+      border-color: $spacewalk_aluminum;
+
+      background-color: $spacewalk_snow;
+
+    }
+  }
+
+}

@@ -1,31 +1,23 @@
-import * as THREE from "../node_modules/three/build/three.module.js";
-import { EffectComposer } from "../node_modules/three/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "../node_modules/three/examples/jsm/postprocessing/RenderPass.js";
-import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
-import { FXAAShader } from '../node_modules/three/examples/jsm/shaders/FXAAShader.js';
-
 import EnsembleManager from "./ensembleManager.js";
+import SpacewalkEventBus from './spacewalkEventBus.js'
+import * as THREE from "three";
 import CameraLightingRig from './cameraLightingRig.js';
 import Picker from "./picker.js";
-import PickHighlighter from "./pickHighlighter.js";
 import BallAndStick from "./ballAndStick.js";
-import Noodle from "./noodle.js";
 import PointCloud from "./pointCloud.js";
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import { pointCloud, ribbon, noodle, ballAndStick, ensembleManager, eventBus, contactFrequencyMapPanel, distanceMapPanel } from "./app.js";
-import { getGUIRenderStyle, configureColorPicker } from "./guiManager.js";
-import { specularCubicTexture, sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
+import { pointCloud, ribbon, ballAndStick, ensembleManager } from "./app.js";
+import { getGUIRenderStyle } from "./guiManager.js";
+import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
+import Ribbon from './ribbon.js'
 
-const disposableSet = new Set([ 'gnomon', 'groundplane', 'point_cloud_convex_hull', 'point_cloud' , 'ribbon', 'noodle', 'ball' , 'stick' ]);
+const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
-const AAScaleFactor = 1;
-
-const doMultipassRendering = false;
-
-const instanceColorString = 'instanceColor';
+let mouseX = undefined
+let mouseY = undefined
 
 class SceneManager {
 
@@ -53,49 +45,30 @@ class SceneManager {
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
 
-        if (doMultipassRendering) {
-            this.setupMultipassRendering(this.scene, this.renderer, this.cameraLightingRig);
-        }
+        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+        SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', this);
 
-        eventBus.subscribe('DidSelectTrace', this);
-        eventBus.subscribe('DidLoadEnsembleFile', this);
-        eventBus.subscribe('RenderStyleDidChange', this);
 
     }
 
     getRenderContainerSize() {
         const { width, height } = this.container.getBoundingClientRect();
         return { width, height };
-    };
-
-    setupMultipassRendering(scene, renderer, cameraLightingRig) {
-
-        this.effectComposer = new EffectComposer( renderer);
-
-        this.renderPass = new RenderPass(scene, cameraLightingRig.object);
-        this.effectComposer.addPass(this.renderPass);
-
-        this.fxAA = new ShaderPass( FXAAShader );
-        setAA(this.fxAA, AAScaleFactor, window.innerWidth, window.innerHeight);
-        this.effectComposer.addPass( this.fxAA );
-        this.fxAA.enabled = false;
-
     }
 
     receiveEvent({ type, data }) {
 
         if ('RenderStyleDidChange' === type) {
 
-            if (data === Noodle.getRenderStyle()) {
-                this.renderStyle = Noodle.getRenderStyle();
-                ballAndStick.hide();
-                // noodle.show();
-                ribbon.show();
-            } else {
-                this.renderStyle = BallAndStick.getRenderStyle();
-                // noodle.hide();
-                ribbon.hide();
-                ballAndStick.show();
+            if (data === Ribbon.getRenderStyle()) {
+                this.renderStyle = Ribbon.getRenderStyle()
+                ballAndStick.hide()
+                ribbon.show()
+            } else if (data === BallAndStick.getRenderStyle()) {
+                this.renderStyle = BallAndStick.getRenderStyle()
+                ribbon.hide()
+                ballAndStick.show()
             }
 
         }  else if ('DidLoadEnsembleFile' === type) {
@@ -128,18 +101,10 @@ class SceneManager {
             pointCloud.addToScene(scene);
 
         } else {
-
             ribbon.configure(trace);
             ribbon.addToScene(scene);
-
-            // noodle.configure(trace);
-            // noodle.addToScene(scene);
-
             ballAndStick.configure(trace);
             ballAndStick.addToScene(scene);
-
-            contactFrequencyMapPanel.updateTraceContactFrequencyCanvas(trace);
-            distanceMapPanel.updateTraceDistanceCanvas(trace);
         }
 
         const {min, max, center, radius} = EnsembleManager.getBoundsWithTrace(trace);
@@ -154,10 +119,6 @@ class SceneManager {
         this.scene = scene;
         this.scene.background = this.background;
 
-        if (doMultipassRendering) {
-            this.renderPass.scene = scene;
-        }
-
         const { width, height } = this.getRenderContainerSize();
         this.cameraLightingRig.configure({fov, aspect: width/height, position: cameraPosition, centroid, boundingDiameter});
 
@@ -171,8 +132,6 @@ class SceneManager {
         this.groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(centroid.x, min.y, centroid.z), boundingDiameter));
         this.scene.add( this.groundPlane );
 
-        configureColorPicker($(`input[data-colorpicker='groundplane']`), this.groundPlane.color, color => this.groundPlane.setColor(color));
-
         // Gnomon
         if (this.gnomon) {
             this.gnomon.dispose();
@@ -181,61 +140,72 @@ class SceneManager {
         this.gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter));
         this.gnomon.addToScene(this.scene);
 
-        configureColorPicker($(`input[data-colorpicker='gnomon']`), this.gnomon.color, color => this.gnomon.setColor(color));
-
         $(this.container).on('mousemove.spacewalk.picker', (event) => {
 
-            if (true === this.picker.isEnabled) {
+            const { x, y } = getMouseXY(this.renderer.domElement, event);
+            mouseX =  ( x / this.renderer.domElement.clientWidth  ) * 2 - 1;
+            mouseY = -( y / this.renderer.domElement.clientHeight ) * 2 + 1;
 
-                const xy = getMouseXY(this.renderer.domElement, event);
-
-                const x =  ( xy.x / this.renderer.domElement.clientWidth  ) * 2 - 1;
-                const y = -( xy.y / this.renderer.domElement.clientHeight ) * 2 + 1;
-
-                this.picker.intersect({ x, y, scene: this.scene, camera: this.cameraLightingRig.object });
-
-            }
         });
 
     }
 
     resizeContainer() {
+        const { width, height } =  this.container.getBoundingClientRect()
+        this.renderer.setSize(width, height)
+
+        this.cameraLightingRig.object.aspect = width / height
+        this.cameraLightingRig.object.updateProjectionMatrix()
+
+    }
+
+    _resizeContainer(threejsContainer) {
 
         if (this.renderer && this.cameraLightingRig) {
 
-            const { width, height } = this.getRenderContainerSize();
-            this.renderer.setSize(width, height);
+            const { width:threejsContainerWidth, height:threejsContainerHeight } = threejsContainer.getBoundingClientRect()
 
-            if (doMultipassRendering) {
-                this.effectComposer.setSize(width, height);
-                setAA(this.fxAA, AAScaleFactor, width, height);
-            }
+            const { height:draggerHeight } = threejsContainer.querySelector('#spacewalk-threejs-drag-container').getBoundingClientRect()
 
-            this.cameraLightingRig.object.aspect = width/height;
-            this.cameraLightingRig.object.updateProjectionMatrix();
+            // const draggerHeight = 32
+            // threejsContainer.querySelector('#spacewalk-threejs-drag-container').style.height = `${ draggerHeight }px`
+
+            const { width:traceNavigatorWidth } = threejsContainer.querySelector('#spacewalk-trace-navigator-container').getBoundingClientRect()
+
+            const h = threejsContainerHeight - draggerHeight
+            const w = threejsContainerWidth - traceNavigatorWidth
+
+            this.container.style.width = `${ w }px`
+            this.container.style.height = `${ h }px`
+
+            this.renderer.setSize(w, h)
+
+            this.cameraLightingRig.object.aspect = w/h
+            this.cameraLightingRig.object.updateProjectionMatrix()
         }
 
-    };
+    }
 
     dispose() {
 
-        $(this.container).off('mousemove.spacewalk.picker');
+        $(this.container).off('mousemove.spacewalk.picker')
+        mouseX = mouseY = undefined
 
         if (this.scene) {
 
-            let disposable = this.scene.children.filter(child => {
-                return disposableSet.has(child.name);
-            });
+            let disposable = this.scene.children.filter(child => disposableSet.has(child.name))
 
-            disposable.forEach(d => this.scene.remove(d));
+            for (let d of disposable) {
+                this.scene.remove(d)
+            }
 
-            this.scene.dispose();
-            delete this.scene;
+            delete this.scene
         }
+
     }
 
     isGoodToGo() {
-        return (this.scene && this.cameraLightingRig);
+        return this.scene && this.cameraLightingRig
     }
 
     renderLoopHelper() {
@@ -245,16 +215,14 @@ class SceneManager {
         if (this.groundPlane) {
             this.groundPlane.renderLoopHelper();
         }
+
         if (this.gnomon) {
             this.gnomon.renderLoopHelper();
         }
 
-        if (doMultipassRendering) {
-            this.effectComposer.render();
-        } else {
-            this.renderer.render(this.scene, this.cameraLightingRig.object);
-        }
+        this.picker.intersect({ x:mouseX, y:mouseY, scene:this.scene, camera:this.cameraLightingRig.object });
 
+        this.renderer.render(this.scene, this.cameraLightingRig.object)
 
     }
 
@@ -295,11 +263,7 @@ class SceneManager {
 
 }
 
-const setAA = (fxAA, scaleFactor, width, height) => {
-    fxAA.uniforms[ 'resolution' ].value.set( scaleFactor/width, scaleFactor/height );
-};
-
-export const sceneManagerConfigurator = ({ container, highlightColor }) => {
+const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     const str = `Scene Manager Configuration Builder Complete`;
     console.time(str);
@@ -327,19 +291,18 @@ export const sceneManagerConfigurator = ({ container, highlightColor }) => {
 
     // const background = appleCrayonColorThreeJS('nickel');
     const background = sceneBackgroundTexture;
-    // const background = specularCubicTexture;
 
     const scene = new THREE.Scene();
     scene.background = background;
 
-    const picker = new Picker( { raycaster: new THREE.Raycaster(), pickHighlighter: new PickHighlighter(highlightColor) } );
+    const picker = new Picker( new THREE.Raycaster() );
 
     console.timeEnd(str);
 
     return { container, scene, stickMaterial, background, renderer, cameraLightingRig, picker };
 
-};
+}
 
-export { instanceColorString }
+export { sceneManagerConfigurator }
 
 export default SceneManager;

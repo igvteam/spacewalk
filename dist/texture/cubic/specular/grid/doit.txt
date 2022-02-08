@@ -1,6 +1,0 @@
-cp grid.png grid+X.png
-cp grid.png grid+Y.png
-cp grid.png grid+Z.png
-cp grid.png grid-X.png
-cp grid.png grid-Y.png
-cp grid.png grid-Z.png
