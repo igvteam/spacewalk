@@ -1,4 +1,4 @@
-import {igvxhr, StringUtils} from 'igv-utils'
+import {igvxhr, StringUtils} from '../node_modules/igv-utils/src/index.js'
 import {Track2DDisplaceModes} from './globals.js';
 
 class Track2D {

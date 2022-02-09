@@ -21,18 +21,13 @@
  *
  */
 
-const Globals =
-    {
-        allBrowsers: [],
-        currentBrowser: undefined
+const Globals = {};
 
-    }
+const Track2DDisplaceModes = {
+    displayAllMatrix: 'displayAllMatrix',
+    displayLowerMatrix: 'displayLowerMatrix',
+    displayUpperMatrix: 'displayUpperMatrix'
+};
 
-const Track2DDisplaceModes =
-    {
-        displayAllMatrix: 'displayAllMatrix',
-        displayLowerMatrix: 'displayLowerMatrix',
-        displayUpperMatrix: 'displayUpperMatrix'
-    }
 
-export { Track2DDisplaceModes, Globals }
+export {Track2DDisplaceModes, Globals}

@@ -24,7 +24,6 @@
 /**
  * Created by dat on 3/3/17.
  */
-
 import {IGVColor, DOMUtils, StringUtils} from 'igv-utils'
 import { ColorPicker, createColorSwatchSelector, GenericContainer} from 'igv-ui'
 import RatioColorScale, {defaultRatioColorScaleConfig} from './ratioColorScale.js'

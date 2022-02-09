@@ -26,8 +26,8 @@
  * @author Jim Robinson
  */
 
-import {GoogleUtils} from 'igv-utils'
 import Straw from '../hicStraw/straw.js'
+import {GoogleUtils} from 'igv-utils'
 import IGVRemoteFile from "./igvRemoteFile.js"
 
 const knownGenomes = {

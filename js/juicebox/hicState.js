@@ -26,7 +26,7 @@
  * @author Jim Robinson
  */
 
-import { defaultSize } from "./defaults.js";
+import { defaultSize } from './defaults.js'
 
 class State {
 

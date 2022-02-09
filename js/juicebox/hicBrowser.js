@@ -25,13 +25,13 @@
  * @author Jim Robinson
  */
 
-import {Alert, InputDialog} from 'igv-ui'
+import {Alert} from 'igv-ui'
 import {DOMUtils, FileUtils} from 'igv-utils'
+import {InputDialog} from 'igv-ui'
 import * as hicUtils from './hicUtils.js'
 import {Globals} from "./globals.js";
 import EventBus from "./eventBus.js";
-import { getAllBrowsers, syncBrowsers } from "./hicMisc.js";
-import LayoutController, { getNavbarContainer, getNavbarHeight } from './layoutController.js'
+import LayoutController, {getNavbarContainer, getNavbarHeight, trackHeight} from './layoutController.js'
 import HICEvent from './hicEvent.js'
 import Dataset from './hicDataset.js'
 import Genome from './genome.js'
@@ -43,12 +43,12 @@ import ColorScaleWidget from "./hicColorScaleWidget.js";
 import ControlMapWidget from "./controlMapWidget.js";
 import NormalizationWidget from "./normalizationWidget.js";
 import ChromosomeSelectorWidget from "./chromosomeSelectorWidget.js";
-import AnnotationWidget from "./annotationWidget.js";
 import SweepZoom from "./sweepZoom.js";
 import ScrollbarWidget from "./scrollbarWidget.js";
 import ContactMatrixView from "./contactMatrixView.js";
 import ColorScale, {defaultColorScaleConfig} from "./colorScale.js";
 import RatioColorScale, {defaultRatioColorScaleConfig} from "./ratioColorScale.js";
+import { getAllBrowsers, syncBrowsers } from "./hicMisc.js"
 
 const DEFAULT_PIXEL_SIZE = 1
 const MAX_PIXEL_SIZE = 12;
@@ -120,8 +120,6 @@ class HICBrowser {
                 alertMessage: 'No 2D annotations currently loaded for this map'
             };
 
-        this.annotation2DWidget = new AnnotationWidget(this, this.$menu.find(".hic-annotation-presentation-button-container"), annotation2DWidgetConfig, () => this.tracks2D);
-
         // prevent user interaction during lengthy data loads
         this.$user_interaction_shield = $('<div>', {class: 'hic-root-prevent-interaction'});
         this.$root.append(this.$user_interaction_shield);
@@ -172,6 +170,9 @@ class HICBrowser {
                 // This must be done after dataset load
                 this.contactMatrixView.setColorScale(config.colorScale);
                 this.eventBus.post({type: "ColorScale", data: this.contactMatrixView.getColorScale()});
+            }
+            if(config.locus) {
+                await this.parseGotoInput(config.locus)
             }
 
             var promises = [];
@@ -411,7 +412,6 @@ class HICBrowser {
         }
         return gs;
     }
-
     async loadNormalizationFile(url) {
 
         if (!this.dataset) return;
@@ -447,7 +447,6 @@ class HICBrowser {
     }
 
     reset() {
-        this.layoutController.removeAllTrackXYPairs();
         this.contactMatrixView.clearImageCaches();
         this.tracks2D = [];
         this.tracks = [];
@@ -472,8 +471,8 @@ class HICBrowser {
      * Remove reference to self from all synchedBrowsers lists.
      */
     unsyncSelf() {
-        const browsers = getAllBrowsers();
-        for (let b of browsers) {
+        const allBrowsers = getAllBrowsers();
+        for (let b of allBrowsers) {
             b.unsync(this);
         }
     }
@@ -483,7 +482,7 @@ class HICBrowser {
      * @param browser
      */
     unsync(browser) {
-        this.synchedBrowsers = this.synchedBrowsers.filter(b => b !== browser);
+        this.synchedBrowsers = this.synchedBrowsers.filter(b => b != browser);
     }
 
     /**
@@ -522,6 +521,9 @@ class HICBrowser {
 
             const previousGenomeId = this.genome ? this.genome.id : undefined;
             this.genome = new Genome(this.dataset.genomeId, this.dataset.chromosomes);
+
+            // TODO -- this is not going to work with browsers on different assemblies on the same page.
+            //igv.browser.genome = this.genome;
 
             if (this.genome.id !== previousGenomeId) {
                 EventBus.globalBus.post(HICEvent("GenomeChange", this.genome.id));
@@ -1285,6 +1287,7 @@ class HICBrowser {
         return this.dataset.bpResolutions[this.state.zoom];
     };
 
+
     toJSON() {
 
         if (!(this.dataset && this.dataset.url)) return "{}";   // URL is required
@@ -1367,6 +1370,7 @@ class HICBrowser {
         return jsonOBJ;
     }
 
+
     async minZoom(chr1, chr2) {
 
         const viewDimensions = this.contactMatrixView.getViewDimensions();
@@ -1398,6 +1402,7 @@ class HICBrowser {
 
     }
 }
+
 
 function extractName(config) {
     if (config.name === undefined) {

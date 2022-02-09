@@ -24,7 +24,6 @@
 /**
  * Created by dat on 3/4/17.
  */
-
 import {StringUtils} from 'igv-utils'
 
 class ResolutionSelector {

@@ -35,12 +35,13 @@ function deleteBrowser(browser) {
 
 function deleteAllBrowsers() {
 
-    if (Globals.allBrowsers.length > 0) {
+    if (Globals.allBrowsers && Globals.allBrowsers.length > 0) {
 
-        for (let b of Globals.allBrowsers) {
-            b.$root.remove();
+        for (let browser of Globals.allBrowsers) {
+            browser.$root.remove();
         }
-        Globals.allBrowsers = [];
+
+        Globals.allBrowsers = []
 
     }
 }

@@ -3,8 +3,7 @@
  */
 
 import Ruler from './ruler.js'
-import {TrackPair} from './trackPair.js'
-import {deleteBrowser, setCurrentBrowser} from "./hicMisc.js";
+import {deleteBrowser, setCurrentBrowser} from './hicMisc.js'
 
 // Keep in sync with juicebox.scss variables
 
@@ -18,7 +17,9 @@ const nav_bar_widget_container_height = 36;
 const nav_bar_widget_container_margin = 4;
 
 // $hic-scrollbar-height: 20px;
-const scrollbar_height = 20;
+// const scrollbar_height = 20;
+// $hic-scrollbar-height: 0px;
+const scrollbar_height = 0;
 
 // $hic-axis-height: 40px;
 const axis_height = 40;
@@ -38,7 +39,6 @@ class LayoutController {
 
         this.createAllContainers(browser, $root);
     }
-
 
     createAllContainers(browser, $root) {
 
@@ -146,82 +146,6 @@ class LayoutController {
         return this.$content_container.find("div[id$='-x-axis-scrollbar-container']");
     }
 
-    tracksLoaded(tracks) {
-
-        this.doLayoutTrackXYPairCount(tracks.length + this.browser.trackPairs.length);
-
-        tracks.forEach((track, index) => {
-            const trackPair = new TrackPair(
-                this.browser,
-                trackHeight,
-                this.$x_tracks,
-                this.$y_tracks,
-                track,
-                index
-            )
-            this.browser.trackPairs.push(trackPair);
-        });
-    }
-
-    removeAllTrackXYPairs() {
-
-        if (this.browser.trackPairs.length === 0 ) {
-            return;
-        }
-
-        for(let trackPair of this.browser.trackPairs) {
-            // discard DOM element's
-            trackPair.dispose();
-        }
-        this.browser.trackPairs = []
-        this.browser.updateLayout();
-        this.doLayoutTrackXYPairCount(0)
-
-        // What ???
-        // [...Array(this.browser.trackPairs.length).keys()].forEach(() => {
-        //
-        //     // select last track to discard
-        //     let discard = this.browser.trackPairs[this.browser.trackPairs.length - 1];
-        //
-        //     // discard DOM element's
-        //     discard['x'].$viewport.remove();
-        //     discard['y'].$viewport.remove();
-        //
-        //     // remove discard from list
-        //     const index = this.browser.trackPairs.indexOf(discard);
-        //     this.browser.trackPairs.splice(index, 1);
-        //
-        //     discard = undefined;
-        //     this.doLayoutTrackXYPairCount(this.browser.trackPairs.length);
-        //
-        // });
-    };
-
-    removeLastTrackXYPair() {
-
-        if (this.browser.trackPairs.length > 0) {
-
-            // select last track to dicard
-            let discard = this.browser.trackPairs[this.browser.trackPairs.length - 1];
-
-            // discard DOM element's
-            discard['x'].$viewport.remove();
-            discard['y'].$viewport.remove();
-
-            // remove discard from list
-            const index = this.browser.trackPairs.indexOf(discard);
-            this.browser.trackPairs.splice(index, 1);
-
-            discard = undefined;
-            this.doLayoutTrackXYPairCount(this.browser.trackPairs.length);
-
-            this.browser.updateLayout();
-
-        } else {
-            //console.log('No more tracks.');
-        }
-    }
-
     removeTrackXYPair(trackXYPair) {
 
         if (this.browser.trackPairs.length > 0) {
@@ -255,7 +179,7 @@ class LayoutController {
         let tokens = [getNavbarHeight(), track_aggregate_height].map(number => `${number}px`);
         const height_calc = 'calc(100% - (' + tokens.join(' + ') + '))';
 
-        tokens = [track_aggregate_height, axis_height, scrollbar_height].map(number => `${number}px`);
+        tokens = [track_aggregate_height, axis_height, scrollbar_height].map(number => `${number}px`)
         const width_calc = 'calc(100% - (' + tokens.join(' + ') + '))';
 
         // x-track container
@@ -300,11 +224,15 @@ class LayoutController {
     }
 }
 
-const getNavbarHeight = () => 2 * (nav_bar_label_height + nav_bar_widget_container_height + (2 * nav_bar_widget_container_margin));
+// const getNavbarHeight = () => 2 * (nav_bar_label_height + nav_bar_widget_container_height + (2 * nav_bar_widget_container_margin));
+// const getNavbarHeight = () => nav_bar_widget_container_height + (2 * nav_bar_widget_container_margin)
+const getNavbarHeight = () => 0
 
 const getNavbarContainer = browser => browser.$root.find('.hic-navbar-container');
 
 function createNavBar(browser, $root) {
+
+    let $el
 
     const $hic_navbar_container = $('<div>', {class: 'hic-navbar-container'});
     $root.append($hic_navbar_container);
@@ -325,7 +253,10 @@ function createNavBar(browser, $root) {
              </div>
         </div>`;
 
-    $hic_navbar_container.append($(html_contact_map_hic_nav_bar_map_container));
+
+    $el = $(html_contact_map_hic_nav_bar_map_container)
+    $hic_navbar_container.append($el)
+    $el.hide()
 
     browser.$contactMaplabel = $hic_navbar_container.find("div[id$='contact-map-hic-nav-bar-map-label']");
 
@@ -343,15 +274,23 @@ function createNavBar(browser, $root) {
             <div id="${browser.id}-control-map-hic-nav-bar-map-label"></div>
         </div>`;
 
-    $hic_navbar_container.append($(html_control_map_hic_nav_bar_map_container));
+    $el = $(html_control_map_hic_nav_bar_map_container)
+    $hic_navbar_container.append($el)
+    $el.hide()
 
     browser.$controlMaplabel = $hic_navbar_container.find("div[id$='control-map-hic-nav-bar-map-label']");
 
-    const html_upper_hic_nav_bar_widget_container = `<div id="${browser.id}-upper-hic-nav-bar-widget-container"></div>`;
-    $hic_navbar_container.append($(html_upper_hic_nav_bar_widget_container));
+    const html_upper_hic_nav_bar_widget_container = `<div id="${browser.id}-upper-hic-nav-bar-widget-container"></div>`
 
-    const html_lower_hic_nav_bar_widget_container = `<div id="${browser.id}-lower-hic-nav-bar-widget-container"></div>`;
-    $hic_navbar_container.append($(html_lower_hic_nav_bar_widget_container));
+    $el = $(html_upper_hic_nav_bar_widget_container)
+    $hic_navbar_container.append($el)
+    $el.hide()
+
+    const html_lower_hic_nav_bar_widget_container = `<div id="${browser.id}-lower-hic-nav-bar-widget-container"></div>`
+
+    $el = $(html_lower_hic_nav_bar_widget_container)
+    $hic_navbar_container.append($el)
+    $el.hide()
 
 }
 

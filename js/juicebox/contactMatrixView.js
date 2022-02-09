@@ -762,22 +762,22 @@ class ContactMatrixView {
 
                 if (isMouseDown) { // Possibly dragging
 
-                    // if (isSweepZooming) {
-                    //     this.sweepZoom.update({x: eFixed.pageX, y: eFixed.pageY});
-                    //
-                    // } else if (mouseDown.x && Math.abs(coords.x - mouseDown.x) > DRAG_THRESHOLD) {
-                    //
-                    //     this.isDragging = true;
-                    //     const dx = mouseLast.x - coords.x;
-                    //     const dy = mouseLast.y - coords.y;
-                    //
-                    //     // If matrix data is updating shift current map image while we wait
-                    //     //if (this.updating) {
-                    //     //    shiftCurrentImage(this, -dx, -dy);
-                    //     //}
-                    //
-                    //     this.browser.shiftPixels(dx, dy);
-                    // }
+                    if (isSweepZooming) {
+                        this.sweepZoom.update({x: eFixed.pageX, y: eFixed.pageY});
+
+                    } else if (mouseDown.x && Math.abs(coords.x - mouseDown.x) > DRAG_THRESHOLD) {
+
+                        this.isDragging = true;
+                        const dx = mouseLast.x - coords.x;
+                        const dy = mouseLast.y - coords.y;
+
+                        // If matrix data is updating shift current map image while we wait
+                        //if (this.updating) {
+                        //    shiftCurrentImage(this, -dx, -dy);
+                        //}
+
+                        this.browser.shiftPixels(dx, dy);
+                    }
 
                     mouseLast = coords;
                 }

@@ -2,6 +2,11 @@
  * @author Jim Robinson Dec-2020
  */
 
+/**
+ * Implementatino of "RemoteFile" for hic-straw that uses the igv.xhr object.  This object is google aware, and handle
+ * oAuth and apiKey automatically.
+ */
+
 import {igvxhr} from 'igv-utils'
 
 class IGVRemoteFile {

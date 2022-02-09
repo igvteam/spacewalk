@@ -21,10 +21,6 @@
  *
  */
 
-/**
- * Created by dat on 3/21/17.
- */
-
 var labels =
     {
         NONE: 'None',
