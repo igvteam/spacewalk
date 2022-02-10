@@ -137,6 +137,20 @@ class JuiceboxPanel extends Panel {
             AlertSingleton.present(`Error loading ${ url }: ${ e }`)
         }
 
+        // const { chr, genomicStart:start, genomicEnd:end } = ensembleManager.locus
+
+        const xLocus = Globals.currentBrowser.parseLocusString(this.locus)
+        const yLocus = { ...xLocus }
+
+        if (xLocus.wholeChr && yLocus.wholeChr) {
+            await Globals.currentBrowser.setChromosomes(xLocus.chr, yLocus.chr)
+        } else {
+            Globals.currentBrowser.goto(xLocus.chr, xLocus.start, xLocus.end, yLocus.chr, yLocus.start, yLocus.end);
+        }
+
+        return
+
+
         try {
             await Globals.currentBrowser.parseGotoInput(this.locus)
         } catch (e) {
