@@ -30,6 +30,7 @@ import { getCurrentBrowser, setCurrentBrowser } from "./hicMisc.js";
 import EventBus from "./eventBus.js"
 import ColorScale, { defaultColorScaleConfig } from "./colorScale.js";
 import { Globals } from "./globals.js";
+import '../../styles/juicebox/juicebox.scss'
 
 export default {
     igvxhr,

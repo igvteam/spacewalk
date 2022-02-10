@@ -1,5 +1,3 @@
-// Defines the top-level API for the igv module
-
 import MenuUtils from "./ui/menuUtils.js";
 import DataRangeDialog from "./ui/dataRangeDialog.js";
 import IGVGraphics from "./igv-canvas.js";
@@ -22,6 +20,7 @@ import {
     randomRGB,
     randomRGBConstantAlpha
 } from './util/colorPalletes.js'
+import '../../styles/igv/dom.scss'
 
 const setApiKey = igvxhr.setApiKey;
 
