@@ -1,4 +1,4 @@
-import Zlib from "../vendor/zlib_and_gzip.js"
+import Zlib from "../../vendor/zlib_and_gzip.js"
 import BrowserLocalFile from './io/browserLocalFile.js';
 import RemoteFile from './io/remoteFile.js';
 import ThrottledFile from './io/throttledFile.js';
