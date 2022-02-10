@@ -516,7 +516,14 @@ class HICBrowser {
             this.$contactMaplabel.attr('title', name);
             config.name = name;
 
+
+            const str = `Juicebox.loadHicFile - await Dataset.loadDataset(config)`
+            console.time(str)
+
             this.dataset = await Dataset.loadDataset(config)
+
+            console.timeEnd(str)
+
             this.dataset.name = name
 
             const previousGenomeId = this.genome ? this.genome.id : undefined;
@@ -1402,7 +1409,6 @@ class HICBrowser {
 
     }
 }
-
 
 function extractName(config) {
     if (config.name === undefined) {
