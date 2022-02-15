@@ -6,8 +6,8 @@ self.addEventListener('message', ({ data }) => {
     console.time(str)
 
     const values = new Float32Array(data.maximumSegmentID * data.maximumSegmentID)
-    const essentials = 'trace' === data.traceOrEnsemble ? [ JSON.parse(data.itemsString) ] : JSON.parse(data.essentialsString)
-    calculateContactFrequencies(values, data.maximumSegmentID, essentials, data.distanceThreshold)
+    const locationListOfListsString = 'trace' === data.traceOrEnsemble ? [ JSON.parse(data.itemsString) ] : JSON.parse(data.locationListOfListsString)
+    calculateContactFrequencies(values, data.maximumSegmentID, locationListOfListsString, data.distanceThreshold)
 
     console.timeEnd(str)
 
@@ -21,34 +21,34 @@ self.addEventListener('message', ({ data }) => {
 
 }, false)
 
-function calculateContactFrequencies(values, maximumSegmentID, essentials, distanceThreshold) {
+function calculateContactFrequencies(values, maximumSegmentID, locationListOfListsString, distanceThreshold) {
     values.fill(0)
-    for (let items of essentials) {
-        accumulateContactFrequencies(values, maximumSegmentID, items, distanceThreshold)
+    for (let locationList of locationListOfListsString) {
+        accumulateContactFrequencies(values, maximumSegmentID, locationList, distanceThreshold)
     }
 }
 
-function accumulateContactFrequencies(values, maximumSegmentID, items, distanceThreshold) {
+function accumulateContactFrequencies(values, maximumSegmentID, locationList, distanceThreshold) {
 
     const exclusionSet = new Set();
 
-    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(items))
+    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(locationList))
 
-    for (let i = 0; i < items.length; i++) {
+    for (let i = 0; i < locationList.length; i++) {
 
         exclusionSet.add(i)
 
-        const xy_diagonal = items[ i ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
+        const xy_diagonal = locationList[ i ].segmentIndex * maximumSegmentID + locationList[ i ].segmentIndex
 
         values[ xy_diagonal ]++
 
-        const contact_indices = spatialIndex.within(items[ i ].x, items[ i ].y, items[ i ].z, distanceThreshold).filter(index => !exclusionSet.has(index))
+        const contact_indices = spatialIndex.within(locationList[ i ].x, locationList[ i ].y, locationList[ i ].z, distanceThreshold).filter(index => !exclusionSet.has(index))
 
         if (contact_indices.length > 0) {
             for (let j of contact_indices) {
 
-                const xy = items[ i ].segmentIndex * maximumSegmentID + items[ j ].segmentIndex
-                const yx = items[ j ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
+                const xy = locationList[ i ].segmentIndex * maximumSegmentID + locationList[ j ].segmentIndex
+                const yx = locationList[ j ].segmentIndex * maximumSegmentID + locationList[ i ].segmentIndex
 
                 if (xy > values.length) {
                     console.log('xy is bogus index ' + xy)

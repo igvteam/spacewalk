@@ -13,8 +13,7 @@ $nav-bar-widget-container-height: 36px;
 $nav-bar-widget-container-margin: 4px;
 
 // scrollbar_height
-//$hic-scrollbar-height: 20px;
-$hic-scrollbar-height: 0px;
+$hic-scrollbar-height: 20px;
 
 // axis_height
 $hic-axis-height: 40px;
@@ -29,9 +28,7 @@ $igv-trackgear-default-font-face: 'Open Sans', sans-serif;
 @import "igv-menu-popup";
 
 
-//$nav-bar-height: 2 * ($nav-bar-label-height + $nav-bar-widget-container-height + (2 * $nav-bar-widget-container-margin));
-//$nav-bar-height: $nav-bar-widget-container-height + (2 * $nav-bar-widget-container-margin);
-$nav-bar-height: 0px;
+$nav-bar-height: 2 * ($nav-bar-label-height + $nav-bar-widget-container-height + (2 * $nav-bar-widget-container-margin));
 
 $nav-bar-widget-height: 24px;
 
@@ -101,8 +98,7 @@ $default-font-family: 'Open Sans', sans-serif;
     text-align: center;
     line-height: $hic-scrollbar-height;
 
-    //color: #373737;
-    color: transparent;
+    color: #373737;
 
     font-family: $default-font-family;
     font-size: medium;
@@ -129,8 +125,7 @@ $default-font-family: 'Open Sans', sans-serif;
     text-align: center;
     line-height: $hic-scrollbar-height;
 
-    //color: #373737;
-    color: transparent;
+    color: #373737;
 
     font-family: $default-font-family;
     font-size: medium;
@@ -520,10 +515,10 @@ $default-font-family: 'Open Sans', sans-serif;
   align-items: center;
 
   width: 100%;
-  height: calc($hic-menu-item-height / 2);
+  height: $hic-menu-item-height / 2;
 
-  margin-top: calc($hic-menu-margin / 2);
-  margin-bottom: calc($hic-menu-margin / 2);
+  margin-top: $hic-menu-margin / 2;
+  margin-bottom: $hic-menu-margin / 2;
 
   padding-right: $hic-menu-margin;
 
@@ -1157,7 +1152,7 @@ div[id$="x-track-container"] {
         width: $track-height;
         height: $track-height;
 
-        margin-left: calc(-1 * $track-height / 2);
+        margin-left: -($track-height/2);
 
         background-color: rgba(255, 255, 255, 0);
       }
@@ -1318,7 +1313,9 @@ div[id$="content-container"] {
           width: $track-height;
           height: $track-height;
 
-          margin-top: calc(-1 * $track-height / 2);
+          margin-top: -($track-height/2);
+
+          //z-index: 512;
 
           background-color: rgba(255, 255, 255, 0);
         }
