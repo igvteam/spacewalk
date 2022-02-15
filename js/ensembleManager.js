@@ -82,15 +82,7 @@ class EnsembleManager {
                     this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
 
                 }
-
-                for ( let trace of this.ensemble[ ensembleKey ]) {
-                    const index = this.ensemble[ ensembleKey].indexOf(trace)
-                    const { segmentIndex } = trace.colorRampInterpolantWindow
-                    if (index !== segmentIndex) {
-                        console.log(`ensemble ${ ensembleKey } has mismatch. index ${ index} segmentIndex ${ segmentIndex }`)
-                    }
-                }
-
+                
             }
 
         }
