@@ -181,7 +181,7 @@ class Parser {
 
     }
 
-    static genomicRangeFromHashKey(key) {
+    static getGenomicRange(key) {
         const [ startBP, endBP ] = key.split('%').map(k => parseInt(k));
         const centroidBP = Math.round((startBP + endBP) / 2.0);
         const sizeBP = endBP - startBP;

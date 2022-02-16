@@ -1,13 +1,12 @@
-import SpacewalkEventBus from './spacewalkEventBus.js'
-import * as THREE from "three";
-import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import * as THREE from 'three'
 import { StringUtils } from 'igv-utils'
-import { clamp } from './math.js';
-import EnsembleManager, { getSingleCentroidVerticesWithTrace } from "./ensembleManager.js";
-import { generateRadiusTable } from "./utils.js";
-import { ensembleManager, sceneManager, igvPanel } from './app.js'
-import { appleCrayonColorThreeJS } from "./color.js";
-import ColorRampMaterialProvider from "./colorRampMaterialProvider";
+import SpacewalkEventBus from './spacewalkEventBus.js'
+import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { clamp } from './math.js'
+import EnsembleManager, { getSingleCentroidVertices } from "./ensembleManager.js"
+import { generateRadiusTable } from "./utils.js"
+import { ensembleManager, sceneManager } from './app.js'
+import { appleCrayonColorThreeJS } from "./color.js"
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
@@ -53,7 +52,7 @@ class BallAndStick {
 
         this.trace = trace;
 
-        const stickCurves = createStickCurves(getSingleCentroidVerticesWithTrace(trace))
+        const stickCurves = createStickCurves(getSingleCentroidVertices(trace))
         const averageCurveDistance  = computeAverageCurveDistance(stickCurves)
         console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`)
 
@@ -83,7 +82,7 @@ class BallAndStick {
         console.log(`Ball&Stick. Create ${ StringUtils.numberFormatter(trace.length) } balls. Tesselation width ${ widthSegments } height ${ heightSegments }`)
 
         // material stuff
-        this.rgb = trace.map(({ colorRampInterpolantWindow }) => igvPanel.materialProvider.colorForInterpolant(colorRampInterpolantWindow.interpolant))
+        this.rgb = trace.map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow.color)
 
         const color = new THREE.Color()
         const list = new Array(trace.length).fill().flatMap((_, i) => color.set(this.rgb[ i ]).toArray())
@@ -104,7 +103,7 @@ class BallAndStick {
         const quaternion = new THREE.Quaternion()
         const scale = new THREE.Vector3()
 
-        getSingleCentroidVerticesWithTrace(trace).forEach(({ x, y, z }, i) => {
+        trace.map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow.xyz).forEach(([ x, y, z ], i) => {
 
             xyz.x = x
             xyz.y = y
@@ -128,7 +127,7 @@ class BallAndStick {
     createSticks(trace, stickRadius) {
 
         const geometries = []
-        const vertices = getSingleCentroidVerticesWithTrace(trace)
+        const vertices = getSingleCentroidVertices(trace)
 
         const endPoints = []
         for (let i = 0; i < vertices.length - 1; i++) {

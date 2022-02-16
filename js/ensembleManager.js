@@ -11,8 +11,11 @@ class EnsembleManager {
 
     ingest({ sample, genomeAssembly, genomic }, traceKey) {
 
-        const str = 'EnsembleManager ingestSW';
-        console.time(str);
+        const str = 'EnsembleManager ingestSW'
+        console.time(str)
+
+        this.locus = genomic.getLocus()
+        let { chr, genomicStart, genomicEnd } = this.locus
 
         // maximumSegmentID is used to size the distance and contact maps which
         // are N by N where N = maximumSegmentID.
@@ -20,69 +23,73 @@ class EnsembleManager {
         // segments cannot be assumed to be the same for each trace in the ensemble.
         // We use  maximumSegmentID to ensure all traces will map to the contact
         // and distance maps.
-        this.maximumSegmentID = undefined;
+        this.maximumSegmentID = genomic.maximumSegmentID
 
-        this.isPointCloud = undefined;
-
-        this.ensemble = {};
-
-        let { traces } = genomic;
-
-        this.genomeAssembly = genomeAssembly;
-
-        this.locus = genomic.getLocus();
-        let { chr, genomicStart, genomicEnd } = this.locus;
-
-        this.maximumSegmentID = genomic.maximumSegmentID;
         this.isPointCloud = genomic.isPointCloud;
 
-        for (let [k, trace] of Object.entries(traces)) {
+        this.ensemble = {}
+        for (let [ tracesKey, trace ] of Object.entries(genomic.traces)) {
 
-            const parts = k.split('%');
-            const ensembleKey = parts.pop();
-            this.ensemble[ensembleKey] = [];
+            const [ discard, ensembleKey ] = tracesKey.split('%')
+            this.ensemble[ ensembleKey ] = []
 
-            const keyValuePairs = Object.entries(trace);
-            for (let keyValuePair of keyValuePairs) {
+            const traceKeyValues = Object.entries(trace)
+            for (let traceKeyValue of traceKeyValues) {
 
-                let [ key, value ] = keyValuePair;
+                let [ genomicRangeKey, pointCloudOrXYZ ] = traceKeyValue
 
-                let { startBP, centroidBP, endBP, sizeBP } = Parser.genomicRangeFromHashKey(key);
+                let { startBP, centroidBP, endBP, sizeBP } = Parser.getGenomicRange(genomicRangeKey)
 
-                const xyzList = this.isPointCloud ? value : [ { x: value.x, y: value.y, z: value.z } ];
+                const xyzList = this.isPointCloud ? pointCloudOrXYZ : [ pointCloudOrXYZ ];
 
                 const positions = xyzList.filter(({ x, y, z }) => ![ x, y, z ].some(isNaN));
 
                 if (positions.length > 0) {
 
-                    const geometry = new THREE.BufferGeometry();
 
                     const xyz = positions.flatMap(({ x, y, z }) => [ parseFloat(x), parseFloat(y), parseFloat(z)])
-                    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
 
-                    const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart);
-
-                    geometry.userData.color = colorRampMaterialProvider.colorForInterpolant(interpolant);
-
-                    const rgb = positions.flatMap(ignore => [ geometry.userData.color.r, geometry.userData.color.g, geometry.userData.color.b ])
-                    const attribute = new THREE.Float32BufferAttribute(rgb, 3);
-                    attribute.setUsage( true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage );
-                    geometry.setAttribute('color', attribute );
+                    const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart)
+                    const color = colorRampMaterialProvider.colorForInterpolant(interpolant)
 
                     let colorRampInterpolantWindow =
                         {
+                            // genomic data
+                            genomicLocation: centroidBP,
                             start: (startBP - genomicStart) / (genomicEnd - genomicStart),
                             end: (endBP - genomicStart) / (genomicEnd - genomicStart),
-                            interpolant,
                             sizeBP,
-                            genomicLocation: centroidBP,
-                            segmentIndex: keyValuePairs.indexOf(keyValuePair)
-                        };
+
+                            // interpolant along the genomic range
+                            interpolant,
+
+                            // an array of length one (1) if this is a single xyz per genomic range trace
+                            // of array greater then one for a pointcloud with multiple xyz per genomic rangwe
+                            xyz,
+
+                            // color ramp interpoted color for this genomic range
+                            color,
+
+                            segmentIndex: traceKeyValues.indexOf(traceKeyValue),
+                        }
+
+                    const geometry = new THREE.BufferGeometry();
+                    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
+
+                    geometry.userData.color = colorRampMaterialProvider.colorForInterpolant(interpolant);
+
+                    const rgb = positions.flatMap(ignore => [ color.r, color.g, color.b ])
+
+                    const attribute = new THREE.Float32BufferAttribute(rgb, 3)
+                    attribute.setUsage( true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage )
+
+                    geometry.setAttribute('color', attribute );
+
 
                     this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
 
                 }
-                
+
             }
 
         }
@@ -201,15 +208,14 @@ class EnsembleManager {
 
 }
 
-function getSingleCentroidVerticesWithTrace(trace) {
+function getSingleCentroidVertices(trace) {
 
-    return Object.values(trace)
-        .map(({ geometry }) => {
-            const [ x, y, z ] = geometry.getAttribute('position').array;
-            return new THREE.Vector3(x, y, z);
-        });
+    return trace.map(({ colorRampInterpolantWindow }) => {
+        const [ x, y, z ] = colorRampInterpolantWindow.xyz
+        return new THREE.Vector3(x, y, z)
+    })
 
 }
 
-export { getSingleCentroidVerticesWithTrace }
+export { getSingleCentroidVertices }
 export default EnsembleManager;
