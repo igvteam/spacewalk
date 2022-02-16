@@ -42,7 +42,7 @@ class GenomicDataset extends Dataset {
             this.genomicEnd   = Math.max(this.genomicEnd,     endBP);
 
             if (false === [ x, y, z ].some(isNaN)) {
-                trace[ traceKey ].push ({ x, y, z });
+                trace[ traceKey ].push ({ x:parseFloat(x), y:parseFloat(y), z:parseFloat(z) });
             } else {
                 trace[ traceKey ].push ({ x:'nan', y:'nan', z:'nan' });
             }

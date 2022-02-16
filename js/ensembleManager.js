@@ -45,9 +45,8 @@ class EnsembleManager {
                 const positions = xyzList.filter(({ x, y, z }) => ![ x, y, z ].some(isNaN));
 
                 if (positions.length > 0) {
-
-
-                    const xyz = positions.flatMap(({ x, y, z }) => [ parseFloat(x), parseFloat(y), parseFloat(z)])
+                    
+                    const xyz = positions.flatMap(({ x, y, z }) => [ x, y, z ])
 
                     const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart)
 
