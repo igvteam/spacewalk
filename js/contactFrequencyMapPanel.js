@@ -137,8 +137,8 @@ class ContactFrequencyMapPanel extends Panel {
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
         const items = Object.values(trace)
-            .map(({ colorRampInterpolantWindow, geometry }) => {
-                const [ x, y, z ] = geometry.attributes.position.array
+            .map(({ colorRampInterpolantWindow }) => {
+                const [ x, y, z ] = colorRampInterpolantWindow.xyz
                 return { x, y, z, segmentIndex: colorRampInterpolantWindow.segmentIndex }
             })
 
@@ -164,8 +164,8 @@ class ContactFrequencyMapPanel extends Panel {
         const traces = Object.values(ensemble)
         const locationListOfLists = traces.map(trace => {
             return Object.values(trace)
-                .map(({ colorRampInterpolantWindow, geometry }) => {
-                    const [ x, y, z ] = geometry.attributes.position.array
+                .map(({ colorRampInterpolantWindow }) => {
+                    const [ x, y, z ] = colorRampInterpolantWindow.xyz
                     const { segmentIndex } = colorRampInterpolantWindow
                     return { x, y, z, segmentIndex }
                 })

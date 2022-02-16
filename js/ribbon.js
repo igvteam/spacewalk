@@ -1,5 +1,5 @@
-import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three"
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import { Line2 } from "three/examples/jsm/lines/Line2.js"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
@@ -77,7 +77,7 @@ class Ribbon {
 
         scene.add( this.spline.mesh )
 
-        const { center, radius } = EnsembleManager.getBoundsWithTrace(this.trace)
+        const { center, radius } = EnsembleManager.getTraceBounds(this.trace)
 
         this.highlightBeads = []
 

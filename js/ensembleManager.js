@@ -50,9 +50,11 @@ class EnsembleManager {
                     const xyz = positions.flatMap(({ x, y, z }) => [ parseFloat(x), parseFloat(y), parseFloat(z)])
 
                     const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart)
-                    const color = colorRampMaterialProvider.colorForInterpolant(interpolant)
 
-                    let colorRampInterpolantWindow =
+                    const color = colorRampMaterialProvider.colorForInterpolant(interpolant)
+                    const rgb = positions.flatMap(ignore => [ color.r, color.g, color.b ])
+
+                    const colorRampInterpolantWindow =
                         {
                             // genomic data
                             genomicLocation: centroidBP,
@@ -69,24 +71,14 @@ class EnsembleManager {
 
                             // color ramp interpoted color for this genomic range
                             color,
+                            rgb,
+
+                            drawUsage: true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage,
 
                             segmentIndex: traceKeyValues.indexOf(traceKeyValue),
                         }
 
-                    const geometry = new THREE.BufferGeometry();
-                    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
-
-                    geometry.userData.color = colorRampMaterialProvider.colorForInterpolant(interpolant);
-
-                    const rgb = positions.flatMap(ignore => [ color.r, color.g, color.b ])
-
-                    const attribute = new THREE.Float32BufferAttribute(rgb, 3)
-                    attribute.setUsage( true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage )
-
-                    geometry.setAttribute('color', attribute );
-
-
-                    this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
+                    this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow } )
 
                 }
 
@@ -141,22 +133,15 @@ class EnsembleManager {
         return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;
     }
 
-    static getBoundsWithTrace(trace){
+    static getTraceBounds(trace){
 
-        const boundingBox = new THREE.Box3();
+        const boundingBox = new THREE.Box3()
 
-        let probe = new THREE.Vector3();
-        for (let { geometry } of Object.values(trace)) {
-
-            let xyz = geometry.getAttribute('position');
-            for (let a = 0; a < xyz.count; a++) {
-
-                const [ x, y, z ] = [ xyz.getX(a), xyz.getY(a), xyz.getZ(a) ];
-                probe.set(x, y, z);
-
-                boundingBox.expandByPoint(probe);
-            }
-
+        const probe = new THREE.Vector3()
+        for (let { colorRampInterpolantWindow } of trace) {
+            const [ x, y, z ] = colorRampInterpolantWindow.xyz
+            probe.set(x, y, z)
+            boundingBox.expandByPoint(probe)
         }
 
         const { min, max } = boundingBox;
@@ -166,7 +151,7 @@ class EnsembleManager {
         const { center, radius } = boundingSphere;
 
         return { min, max, center, radius }
-    };
+    }
 
     static getCameraPoseAlongAxis ({ center, radius, axis, scaleFactor }) {
 

@@ -71,18 +71,26 @@ class PointCloud {
         this.trace = trace
 
         this.meshList = trace
-            .map(({ geometry }) => {
-                const mesh = new THREE.Points( geometry, this.material );
-                mesh.name = 'point_cloud';
-                return mesh;
-            });
+            .map(({ colorRampInterpolantWindow }) => {
 
+                const geometry = new THREE.BufferGeometry()
 
-        if (sceneManager.renderStyle === PointCloud.getRenderStyle()) {
-            this.show();
-        } else {
-            this.hide();
-        }
+                const positionAttribute = new THREE.Float32BufferAttribute( colorRampInterpolantWindow.xyz, 3 )
+
+                const colorAttribute = new THREE.Float32BufferAttribute(colorRampInterpolantWindow.rgb, 3)
+                colorAttribute.setUsage(colorRampInterpolantWindow.drawUsage)
+
+                geometry.setAttribute('position', positionAttribute)
+                geometry.setAttribute('color', colorAttribute )
+
+                geometry.userData.color = colorRampInterpolantWindow.color
+
+                const mesh = new THREE.Points( geometry, this.material )
+                mesh.name = 'point_cloud'
+                return mesh
+            })
+
+        sceneManager.renderStyle === PointCloud.getRenderStyle() ? this.show() : this.hide()
 
     }
 
