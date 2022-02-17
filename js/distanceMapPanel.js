@@ -129,9 +129,9 @@ class DistanceMapPanel extends Panel {
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
         const items = Object.values(trace)
-            .map(({ colorRampInterpolantWindow }) => {
-                const [ x, y, z ] = colorRampInterpolantWindow.xyz
-                return { x, y, z, segmentIndex: colorRampInterpolantWindow.segmentIndex }
+            .map(({ xyz, segmentIndex }) => {
+                const [ x, y, z ] = xyz
+                return { x, y, z, segmentIndex }
             })
 
         const data =
@@ -155,9 +155,9 @@ class DistanceMapPanel extends Panel {
         const traces = Object.values(ensemble)
         const essentials = traces.map(trace => {
             return Object.values(trace)
-                .map(({ colorRampInterpolantWindow }) => {
-                    const [ x, y, z ] = colorRampInterpolantWindow.xyz
-                    return { x, y, z, segmentIndex: colorRampInterpolantWindow.segmentIndex }
+                .map(({ xyz, segmentIndex }) => {
+                    const [ x, y, z ] = xyz
+                    return { x, y, z, segmentIndex }
                 })
         })
 

@@ -19,8 +19,6 @@ class PointCloudHighlighter {
 
         }
 
-        console.log(`${ Date.now() } PointCloudHighlighter - configureObjectList(objectList)`)
-
         this.unhighlight()
         this.objects = []
         for (let o of objectList) {

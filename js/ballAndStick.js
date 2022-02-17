@@ -31,9 +31,9 @@ class BallAndStick {
 
             if ("DidUpdateGenomicInterpolant" === type) {
 
-                const { interpolantList } = data;
+                const { interpolantList } = data
 
-                const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+                const interpolantWindowList = ensembleManager.getInterpolantWindowList(interpolantList)
 
                 if (interpolantWindowList) {
                     const instanceIdList = interpolantWindowList.map(({ index }) => index)
@@ -82,7 +82,7 @@ class BallAndStick {
         console.log(`Ball&Stick. Create ${ StringUtils.numberFormatter(trace.length) } balls. Tesselation width ${ widthSegments } height ${ heightSegments }`)
 
         // material stuff
-        this.rgb = trace.map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow.color)
+        this.rgb = trace.map(({ color }) => color)
 
         const color = new THREE.Color()
         const list = new Array(trace.length).fill().flatMap((_, i) => color.set(this.rgb[ i ]).toArray())
@@ -103,7 +103,7 @@ class BallAndStick {
         const quaternion = new THREE.Quaternion()
         const scale = new THREE.Vector3()
 
-        trace.map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow.xyz).forEach(([ x, y, z ], i) => {
+        trace.map(({ xyz }) => xyz).forEach(([ x, y, z ], i) => {
 
             xyz.x = x
             xyz.y = y
@@ -210,8 +210,8 @@ class BallAndStick {
 
         this.rgb = []
         for (let i = 0; i < ensembleManager.currentTrace.length; i++) {
-            const { colorRampInterpolantWindow } = ensembleManager.currentTrace[ i ]
-            const interpolatedColor = materialProvider.colorForInterpolant(colorRampInterpolantWindow.interpolant)
+            const { interpolant } = ensembleManager.currentTrace[ i ]
+            const interpolatedColor = materialProvider.colorForInterpolant(interpolant)
             this.rgb.push( interpolatedColor );
             color.set(interpolatedColor).toArray(this.rgbFloat32Array, i * 3)
         }

@@ -45,9 +45,8 @@ class BallHighlighter {
                 rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, instanceId * 3)
             }
 
-            ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true;
-
-            const interpolantWindowList = Array.from(this.instanceIdList).map(instanceId => ensembleManager.currentTrace[ instanceId ].colorRampInterpolantWindow)
+            ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true
+            const interpolantWindowList = Array.from(this.instanceIdList).map(instanceId => ensembleManager.genomicExtentList[ instanceId ])
             colorRampMaterialProvider.highlightWithInterpolantWindowList(interpolantWindowList)
 
         }

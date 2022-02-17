@@ -28,58 +28,39 @@ class EnsembleManager {
         this.isPointCloud = genomic.isPointCloud;
 
         this.ensemble = {}
-        for (let [ tracesKey, trace ] of Object.entries(genomic.traces)) {
+        this.genomicExtentList = genomic.genomicExtentList
 
-            const [ discard, ensembleKey ] = tracesKey.split('%')
+        for (let [ key, trace ] of Object.entries(genomic.traces)) {
+
+            const [ ignore, ensembleKey ] = key.split('%')
             this.ensemble[ ensembleKey ] = []
 
-            const traceKeyValues = Object.entries(trace)
-            for (let traceKeyValue of traceKeyValues) {
+            const traceValues = Object.values(trace)
+            for (let i = 0; i < traceValues.length; i++) {
 
-                let [ genomicRangeKey, pointCloudOrXYZ ] = traceKeyValue
+                const xyzList = this.isPointCloud ? traceValues[ i ] : [ traceValues[ i ] ]
 
-                let { startBP, centroidBP, endBP, sizeBP } = Parser.getGenomicRange(genomicRangeKey)
+                const xyz = xyzList.flatMap(({ x, y, z }) => [ x, y, z ])
 
-                const xyzList = this.isPointCloud ? pointCloudOrXYZ : [ pointCloudOrXYZ ];
+                const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[ i ].interpolant)
 
-                const positions = xyzList.filter(({ x, y, z }) => ![ x, y, z ].some(isNaN));
+                const rgb = xyzList.flatMap(ignore => [ color.r, color.g, color.b ])
 
-                if (positions.length > 0) {
-                    
-                    const xyz = positions.flatMap(({ x, y, z }) => [ x, y, z ])
+                const trace =
+                    {
+                        // for a ball & stick trace - single xyz per genomic range - these are arrays of length one (1)
+                        // for a pointcloud tracd - multiple xyz per genomic range - these are arrays of length N > 1
+                        xyz,
 
-                    const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart)
+                        // interpolated color ramp color for this genomic range
+                        color,
 
-                    const color = colorRampMaterialProvider.colorForInterpolant(interpolant)
-                    const rgb = positions.flatMap(ignore => [ color.r, color.g, color.b ])
+                        rgb,
 
-                    const colorRampInterpolantWindow =
-                        {
-                            // genomic data
-                            genomicLocation: centroidBP,
-                            start: (startBP - genomicStart) / (genomicEnd - genomicStart),
-                            end: (endBP - genomicStart) / (genomicEnd - genomicStart),
-                            sizeBP,
+                        drawUsage: true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage,
+                    }
 
-                            // interpolant along the genomic range
-                            interpolant,
-
-                            // an array of length one (1) if this is a single xyz per genomic range trace
-                            // of array greater then one for a pointcloud with multiple xyz per genomic rangwe
-                            xyz,
-
-                            // color ramp interpoted color for this genomic range
-                            color,
-                            rgb,
-
-                            drawUsage: true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage,
-
-                            segmentIndex: traceKeyValues.indexOf(traceKeyValue),
-                        }
-
-                    this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow } )
-
-                }
+                this.ensemble[ ensembleKey ].push(trace)
 
             }
 
@@ -108,21 +89,18 @@ class EnsembleManager {
         return this.ensemble[ name ] || undefined;
     }
 
-    static getInterpolantWindowList({ trace, interpolantList }) {
+    getInterpolantWindowList(interpolantList) {
 
-        let interpolantWindowList = [];
+        const interpolantWindowList = [];
 
+        for (let genomicExtent of this.genomicExtentList) {
 
-        const colorRampInterpolantWindows = Object.values(trace).map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow);
-
-        for (let colorRampInterpolantWindow of colorRampInterpolantWindows) {
-
-            let { start: a, end: b, sizeBP } = colorRampInterpolantWindow;
+            let { start:a, end:b } = genomicExtent
 
             for (let interpolant of interpolantList) {
 
                 if ( includes({ a, b, value: interpolant }) ) {
-                    interpolantWindowList.push({ colorRampInterpolantWindow, index: colorRampInterpolantWindows.indexOf(colorRampInterpolantWindow) });
+                    interpolantWindowList.push({ genomicExtent, index: this.genomicExtentList.indexOf(genomicExtent) })
                 }
 
             }
@@ -137,8 +115,8 @@ class EnsembleManager {
         const boundingBox = new THREE.Box3()
 
         const probe = new THREE.Vector3()
-        for (let { colorRampInterpolantWindow } of trace) {
-            const [ x, y, z ] = colorRampInterpolantWindow.xyz
+        for (let { xyz } of trace) {
+            const [ x, y, z ] = xyz
             probe.set(x, y, z)
             boundingBox.expandByPoint(probe)
         }
@@ -194,8 +172,8 @@ class EnsembleManager {
 
 function getSingleCentroidVertices(trace) {
 
-    return trace.map(({ colorRampInterpolantWindow }) => {
-        const [ x, y, z ] = colorRampInterpolantWindow.xyz
+    return trace.map(({ xyz }) => {
+        const [ x, y, z ] = xyz
         return new THREE.Vector3(x, y, z)
     })
 

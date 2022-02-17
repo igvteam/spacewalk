@@ -50,7 +50,7 @@ class PointCloud {
 
             const { interpolantList } = data;
 
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+            const interpolantWindowList = ensembleManager.getInterpolantWindowList(interpolantList)
 
             if (interpolantWindowList) {
                 const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ]);
@@ -71,19 +71,19 @@ class PointCloud {
         this.trace = trace
 
         this.meshList = trace
-            .map(({ colorRampInterpolantWindow }) => {
+            .map(({ xyz, rgb, color, drawUsage }) => {
 
                 const geometry = new THREE.BufferGeometry()
 
-                const positionAttribute = new THREE.Float32BufferAttribute( colorRampInterpolantWindow.xyz, 3 )
+                const positionAttribute = new THREE.Float32BufferAttribute(xyz, 3 )
 
-                const colorAttribute = new THREE.Float32BufferAttribute(colorRampInterpolantWindow.rgb, 3)
-                colorAttribute.setUsage(colorRampInterpolantWindow.drawUsage)
+                const colorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
+                colorAttribute.setUsage(drawUsage)
 
                 geometry.setAttribute('position', positionAttribute)
                 geometry.setAttribute('color', colorAttribute )
 
-                geometry.userData.color = colorRampInterpolantWindow.color
+                geometry.userData.color = color
 
                 const mesh = new THREE.Points( geometry, this.material )
                 mesh.name = 'point_cloud'
