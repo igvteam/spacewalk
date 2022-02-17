@@ -38,29 +38,30 @@ class EnsembleManager {
             const traceValues = Object.values(trace)
             for (let i = 0; i < traceValues.length; i++) {
 
-                const xyzList = this.isPointCloud ? traceValues[ i ] : [ traceValues[ i ] ]
-
-                const xyz = xyzList.flatMap(({ x, y, z }) => [ x, y, z ])
+                const traceValue = traceValues[ i ]
 
                 const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[ i ].interpolant)
 
-                const rgb = xyzList.flatMap(ignore => [ color.r, color.g, color.b ])
+                let xyz
+                let rgb
 
-                const trace =
+                if (true === this.isPointCloud) {
+                    xyz = traceValue.flatMap(({ x, y, z }) => [ x, y, z ])
+                    rgb = traceValue.flatMap(ignore => [ color.r, color.g, color.b ])
+                } else {
+                    xyz = traceValue
+                    rgb = color
+                }
+
+                const item =
                     {
-                        // for a ball & stick trace - single xyz per genomic range - these are arrays of length one (1)
-                        // for a pointcloud tracd - multiple xyz per genomic range - these are arrays of length N > 1
                         xyz,
-
-                        // interpolated color ramp color for this genomic range
-                        color,
-
                         rgb,
-
-                        drawUsage: true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage,
+                        color,
+                        drawUsage: true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
                     }
 
-                this.ensemble[ ensembleKey ].push(trace)
+                this.ensemble[ ensembleKey ].push(item)
 
             }
 
@@ -116,8 +117,7 @@ class EnsembleManager {
 
         const probe = new THREE.Vector3()
         for (let { xyz } of trace) {
-            const [ x, y, z ] = xyz
-            probe.set(x, y, z)
+            probe.set(xyz.x, xyz.y, xyz.z)
             boundingBox.expandByPoint(probe)
         }
 
@@ -170,12 +170,16 @@ class EnsembleManager {
 
 }
 
-function getSingleCentroidVertices(trace) {
+function getSingleCentroidVertices(trace, doFilterMissingData) {
 
-    return trace.map(({ xyz }) => {
-        const [ x, y, z ] = xyz
-        return new THREE.Vector3(x, y, z)
-    })
+    let list
+    if (true === doFilterMissingData) {
+        list = trace.filter(({ xyz }) => undefined === xyz.isMissingData)
+    } else {
+        list = trace
+    }
+
+    return list.map(({ xyz }) => new THREE.Vector3(xyz.x, xyz.y, xyz.z))
 
 }
 

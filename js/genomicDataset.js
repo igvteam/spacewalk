@@ -51,7 +51,7 @@ class GenomicDataset extends Dataset {
             if (false === [ x, y, z ].some(isNaN)) {
                 trace[ traceKey ].push ({ x:parseFloat(x), y:parseFloat(y), z:parseFloat(z) });
             } else {
-                trace[ traceKey ].push ({ x:'nan', y:'nan', z:'nan' });
+                trace[ traceKey ].push ({ x:'nan', y:'nan', z:'nan', isMissingData:true });
             }
 
 
@@ -63,11 +63,18 @@ class GenomicDataset extends Dataset {
 
         let trace = Object.values(this.traces)[ 0 ];
         let list = Object.values(trace)[ 0 ];
+        this.isPointCloud = (list.length > 1)
 
-        // consolidate non-pointcloud data.
-        this.isPointCloud = (list.length > 1);
-        if (false === this.isPointCloud) {
+        if (true === this.isPointCloud) {
+            for (let trace of Object.values(this.traces)) {
+                for (let vertices of Object.values(trace)) {
+                    const filtered = vertices.filter(({ isMissingData }) => undefined === isMissingData)
+                    vertices = [...filtered]
+                }
+            }
+        } else {
 
+            // consolidate non-pointcloud data.
             for (let trace of Object.values(this.traces)) {
 
                 if (undefined === this.maximumSegmentID) {
@@ -75,8 +82,8 @@ class GenomicDataset extends Dataset {
                 }
 
                 for (let key of Object.keys(trace)) {
-                    const [ { x, y, z } ] = trace[ key ];
-                    trace[ key ] = { x, y, z }
+                    const [ item ] = trace[ key ]
+                    trace[ key ] = { x:item.x, y:item.y, z:item.z, isMissingData: item.isMissingData }
                 }
 
             } // for (Object.values(this.traces))
@@ -109,7 +116,7 @@ class GenomicDataset extends Dataset {
                 bbox.centroid[ 2 ] = (bbox.min[ 2 ] + bbox.max[ 2 ]) / 2.0
 
                 for (let value of Object.values(trace)) {
-                    if ([ value.x, value.y, value.z ].some(isNaN)) {
+                    if (true === value.isMissingData) {
                         value.x = bbox.centroid[ 0 ]
                         value.y = bbox.centroid[ 1 ]
                         value.z = bbox.centroid[ 2 ]
@@ -133,7 +140,6 @@ class GenomicDataset extends Dataset {
         const { chr, genomicStart, genomicEnd } = this
         return { chr, genomicStart, genomicEnd }
     }
-
 }
 
-export default GenomicDataset;
+export default GenomicDataset

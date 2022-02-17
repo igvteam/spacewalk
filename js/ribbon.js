@@ -50,11 +50,11 @@ class Ribbon {
         const str = 'Ribbon.configure()';
         console.time(str);
 
-        const vertices = getSingleCentroidVertices(trace);
-        this.curve = new THREE.CatmullRomCurve3( vertices );
+        const vertices = getSingleCentroidVertices(trace, true)
+        this.curve = new THREE.CatmullRomCurve3( vertices )
         this.curve.arcLengthDivisions = 1e3;
 
-        this.spline = createFatSpline(this.curve, igvPanel.materialProvider);
+        this.spline = createFatSpline(this.curve, igvPanel.materialProvider)
 
         console.timeEnd(str);
 

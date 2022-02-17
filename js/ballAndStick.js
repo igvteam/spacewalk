@@ -3,7 +3,7 @@ import { StringUtils } from 'igv-utils'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { clamp } from './math.js'
-import EnsembleManager, { getSingleCentroidVertices } from "./ensembleManager.js"
+import { getSingleCentroidVertices } from "./ensembleManager.js"
 import { generateRadiusTable } from "./utils.js"
 import { ensembleManager, sceneManager } from './app.js'
 import { appleCrayonColorThreeJS } from "./color.js"
@@ -52,7 +52,7 @@ class BallAndStick {
 
         this.trace = trace;
 
-        const stickCurves = createStickCurves(getSingleCentroidVertices(trace))
+        const stickCurves = createStickCurves(getSingleCentroidVertices(trace, true))
         const averageCurveDistance  = computeAverageCurveDistance(stickCurves)
         console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`)
 
@@ -84,8 +84,8 @@ class BallAndStick {
         // material stuff
         this.rgb = trace.map(({ color }) => color)
 
-        const color = new THREE.Color()
-        const list = new Array(trace.length).fill().flatMap((_, i) => color.set(this.rgb[ i ]).toArray())
+        const threeJSColor = new THREE.Color()
+        const list = new Array(trace.length).fill().flatMap((_, i) => threeJSColor.set(this.rgb[ i ]).toArray())
         this.rgbFloat32Array = Float32Array.from(list)
 
         // assign instance color list to canonical geometry
@@ -98,25 +98,25 @@ class BallAndStick {
 
         const matrix = new THREE.Matrix4()
 
-        const xyz = new THREE.Vector3()
+        const point = new THREE.Vector3()
         const rotation = new THREE.Euler()
         const quaternion = new THREE.Quaternion()
         const scale = new THREE.Vector3()
 
-        trace.map(({ xyz }) => xyz).forEach(([ x, y, z ], i) => {
+        trace.map(({ xyz }) => xyz).forEach((xyz, i) => {
 
-            xyz.x = x
-            xyz.y = y
-            xyz.z = z
+            point.x = xyz.x
+            point.y = xyz.y
+            point.z = xyz.z
 
             rotation.x = 0
             rotation.y = 0
             rotation.z = 0
             quaternion.setFromEuler( rotation )
 
-            scale.setScalar(ballRadius)
+            scale.setScalar(true === xyz.isMissingData ? 1 : ballRadius)
 
-            matrix.compose(xyz, quaternion, scale)
+            matrix.compose(point, quaternion, scale)
 
             mesh.setMatrixAt(i++, matrix)
         })
@@ -127,7 +127,8 @@ class BallAndStick {
     createSticks(trace, stickRadius) {
 
         const geometries = []
-        const vertices = getSingleCentroidVertices(trace)
+
+        const vertices = getSingleCentroidVertices(trace, true)
 
         const endPoints = []
         for (let i = 0; i < vertices.length - 1; i++) {
