@@ -136,10 +136,10 @@ class ContactFrequencyMapPanel extends Panel {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const items = Object.values(trace)
-            .map(({ xyz, segmentIndex }) => {
-                const [ x, y, z ] = xyz
-                return { x, y, z, segmentIndex }
+        const items = trace
+            .map(({ xyz }) => {
+                const { x, y, z } = xyz
+                return true === xyz.isMissingData ? { x:-1, y:-1, z:-1 } : { x, y, z }
             })
 
         const data =
@@ -161,14 +161,13 @@ class ContactFrequencyMapPanel extends Panel {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const traces = Object.values(ensemble)
-        const locationListOfLists = traces.map(trace => {
-            return Object.values(trace)
-                .map(({ xyz, segmentIndex }) => {
-                    const [ x, y, z ] = xyz
-                    return { x, y, z, segmentIndex }
+        const locationListOfLists = Object.values(ensemble)
+            .map(trace => trace
+                .map(({ xyz }) => {
+                    const { x, y, z } = xyz
+                    return true === xyz.isMissingData ? { x:-1, y:-1, z:-1 } : { x, y, z }
                 })
-        })
+            )
 
         const data =
             {

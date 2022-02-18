@@ -128,10 +128,10 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const items = Object.values(trace)
-            .map(({ xyz, segmentIndex }) => {
-                const [ x, y, z ] = xyz
-                return { x, y, z, segmentIndex }
+        const items = trace
+            .map(({ xyz }) => {
+                const { x, y, z } = xyz
+                return true === xyz.isMissingData ? { x:-1, y:-1, z:-1 } : { x, y, z }
             })
 
         const data =
@@ -152,14 +152,13 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const traces = Object.values(ensemble)
-        const essentials = traces.map(trace => {
-            return Object.values(trace)
-                .map(({ xyz, segmentIndex }) => {
-                    const [ x, y, z ] = xyz
-                    return { x, y, z, segmentIndex }
-                })
-        })
+        const essentials = Object.values(ensemble)
+            .map(trace => trace
+            .map(({ xyz }) => {
+                const { x, y, z } = xyz
+                return true === xyz.isMissingData ? { x:-1, y:-1, z:-1 } : { x, y, z }
+            })
+        )
 
         const data =
             {
