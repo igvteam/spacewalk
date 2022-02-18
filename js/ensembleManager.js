@@ -1,6 +1,5 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
-import Parser from "./parser.js";
 import { colorRampMaterialProvider } from "./app.js";
 import { includes, degrees } from "./math.js";
 
@@ -117,8 +116,18 @@ class EnsembleManager {
 
         const probe = new THREE.Vector3()
         for (let { xyz } of trace) {
-            probe.set(xyz.x, xyz.y, xyz.z)
-            boundingBox.expandByPoint(probe)
+
+            if (Array.isArray(xyz)) {
+
+                for (let i = 0; i < xyz.length; i += 3) {
+                    probe.set(xyz[ i ], xyz[ i + 1 ], xyz[ i + 2])
+                    boundingBox.expandByPoint(probe)
+                }
+            } else {
+                probe.set(xyz.x, xyz.y, xyz.z)
+                boundingBox.expandByPoint(probe)
+            }
+
         }
 
         const { min, max } = boundingBox;
