@@ -68,7 +68,14 @@ class GenomicDataset extends Dataset {
         if (true === this.isPointCloud) {
             for (let trace of Object.values(this.traces)) {
                 for (let vertices of Object.values(trace)) {
-                    const filtered = vertices.filter(({ isMissingData }) => undefined === isMissingData)
+                    const filtered = vertices.filter(({ isMissingData }) => {
+                        if (true === isMissingData) {
+                            console.log('is missing data')
+                            return false
+                        } else {
+                            return true
+                        }
+                    })
                     vertices = [...filtered]
                 }
             }

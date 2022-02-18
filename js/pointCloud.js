@@ -76,11 +76,10 @@ class PointCloud {
                 const geometry = new THREE.BufferGeometry()
 
                 const positionAttribute = new THREE.Float32BufferAttribute(xyz, 3 )
+                geometry.setAttribute('position', positionAttribute)
 
                 const colorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
                 colorAttribute.setUsage(drawUsage)
-
-                geometry.setAttribute('position', positionAttribute)
                 geometry.setAttribute('color', colorAttribute )
 
                 geometry.userData.color = color
