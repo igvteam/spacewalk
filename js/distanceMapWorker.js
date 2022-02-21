@@ -51,25 +51,46 @@ function updateTraceDistanceArray(maximumSegmentID, items) {
     const distances = new Float32Array(maximumSegmentID * maximumSegmentID)
     distances.fill(kDistanceUndefined)
 
+    const validData = []
+    const validIndices = []
+
+    for (let i = 0; i < items.length; i++) {
+        if (true === items[ i ].isMissingData) {
+            // ignore
+        } else {
+            validIndices.push(i)
+            validData.push(items[ i ])
+        }
+    }
+
     let maxDistance = Number.NEGATIVE_INFINITY;
 
     let exclusionSet = new Set();
 
-    for (let i = 0; i < items.length; i++) {
+    for (let v = 0; v < validData.length; v++) {
 
-        exclusionSet.add(i)
+        const i = validIndices[ v ]
 
-        const xy_diagonal = items[ i ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
+        const xy_diagonal = i * maximumSegmentID + i
+
         distances[ xy_diagonal ] = 0
 
-        for (let j = 0; j < items.length; j++) {
+        exclusionSet.add(v)
+        for (let w = 0; w < validData.length; w++) {
 
-            if (false === exclusionSet.has(j)) {
-                const ij =  items[ i ].segmentIndex * maximumSegmentID + items[ j ].segmentIndex
-                const ji =  items[ j ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
-                const distance = distanceTo(items[ i ], items[ j ])
-                distances[ ij ] = distances[ ji ] = distance;
-                maxDistance = Math.max(maxDistance, distance);
+
+            if (false === exclusionSet.has(w)) {
+
+                const distance = distanceTo(validData[ v ], validData[ w ])
+
+                const j = validIndices[ w ]
+
+                const ij =  i * maximumSegmentID + j
+                const ji =  j * maximumSegmentID + i
+
+                distances[ ij ] = distances[ ji ] = distance
+
+                maxDistance = Math.max(maxDistance, distance)
             }
 
         }

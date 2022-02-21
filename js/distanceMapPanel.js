@@ -150,7 +150,7 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const essentials = Object.values(ensemble).map(trace => EnsembleManager.getSingleCentroidVertices(trace))
+        const essentials = Object.values(ensemble).map(trace => EnsembleManager.getLiveMapVertices(trace))
 
         const data =
             {

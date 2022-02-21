@@ -32,20 +32,34 @@ function accumulateContactFrequencies(values, maximumSegmentID, locationList, di
 
     const exclusionSet = new Set();
 
-    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(locationList.filter(xyz => !(true === xyz.isMissingData))))
+    const validData = []
+    const validIndices = []
 
     for (let i = 0; i < locationList.length; i++) {
+        if (true === locationList[ i ].isMissingData) {
+            // ignore
+        } else {
+            validIndices.push(i)
+            validData.push(locationList[ i ])
+        }
+    }
 
-        exclusionSet.add(i)
+    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(validData))
 
+    for (let v = 0; v < validData.length; v++) {
+
+        const i = validIndices[ v ]
         const xy_diagonal = i * maximumSegmentID + i
-
         values[ xy_diagonal ]++
 
-        const contact_indices = spatialIndex.within(locationList[ i ].x, locationList[ i ].y, locationList[ i ].z, distanceThreshold).filter(index => !exclusionSet.has(index))
+        exclusionSet.add(v)
+        const contactIndices = spatialIndex.within(validData[ v ].x, validData[ v ].y, validData[ v ].z, distanceThreshold).filter(index => !exclusionSet.has(index))
 
-        if (contact_indices.length > 0) {
-            for (let j of contact_indices) {
+        if (contactIndices.length > 0) {
+
+            for (let contactIndex of contactIndices) {
+
+                const j = validIndices[ contactIndex ]
 
                 const xy = i * maximumSegmentID + j
                 const yx = j * maximumSegmentID + i
@@ -59,13 +73,13 @@ function accumulateContactFrequencies(values, maximumSegmentID, locationList, di
                 }
 
                 values[ xy ] += 1
+                values[ yx ] += 1
 
-                values[ yx ] = values[ xy ]
+            } // for (contactIndices)
 
-            }
-        }
+        } // if (contactIndices.length > 0)
 
-    }
+    } // for (v)
 
 }
 
