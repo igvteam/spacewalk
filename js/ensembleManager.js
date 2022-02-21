@@ -176,21 +176,29 @@ class EnsembleManager {
         return { target:center, position, fov }
     }
 
+    static getSingleCentroidVertices(trace, doFilterMissingData) {
 
-}
+        let list
+        if (true === doFilterMissingData) {
+            list = trace.filter(({ xyz }) => undefined === xyz.isMissingData)
+        } else {
+            list = trace
+        }
 
-function getSingleCentroidVertices(trace, doFilterMissingData) {
+        return list.map(({ xyz }) => new THREE.Vector3(xyz.x, xyz.y, xyz.z))
 
-    let list
-    if (true === doFilterMissingData) {
-        list = trace.filter(({ xyz }) => undefined === xyz.isMissingData)
-    } else {
-        list = trace
     }
 
-    return list.map(({ xyz }) => new THREE.Vector3(xyz.x, xyz.y, xyz.z))
+    static getLiveMapVertices(trace) {
+
+        return trace
+            .map(({ xyz }) => {
+                const { x, y, z, isMissingData } = xyz
+                return true === isMissingData ? { isMissingData } : { x, y, z }
+            })
+
+    }
 
 }
 
-export { getSingleCentroidVertices }
-export default EnsembleManager;
+export default EnsembleManager

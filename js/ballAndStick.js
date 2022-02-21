@@ -3,10 +3,10 @@ import { StringUtils } from 'igv-utils'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { clamp } from './math.js'
-import { getSingleCentroidVertices } from "./ensembleManager.js"
 import { generateRadiusTable } from "./utils.js"
 import { ensembleManager, sceneManager } from './app.js'
 import { appleCrayonColorThreeJS } from "./color.js"
+import EnsembleManager from './ensembleManager.js'
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
@@ -52,7 +52,7 @@ class BallAndStick {
 
         this.trace = trace;
 
-        const stickCurves = createStickCurves(getSingleCentroidVertices(trace, true))
+        const stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVertices(trace, true))
         const averageCurveDistance  = computeAverageCurveDistance(stickCurves)
         console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`)
 
@@ -128,7 +128,7 @@ class BallAndStick {
 
         const geometries = []
 
-        const vertices = getSingleCentroidVertices(trace, true)
+        const vertices = EnsembleManager.getSingleCentroidVertices(trace, true)
 
         const endPoints = []
         for (let i = 0; i < vertices.length - 1; i++) {

@@ -1,9 +1,11 @@
+import EnsembleManager from './ensembleManager.js'
+import { colorMapManager, ensembleManager } from "./app.js";
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
-import { colorMapManager, ensembleManager } from "./app.js";
-import {threeJSColorToRGB255} from "./color.js";
+import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import {clearCanvasArray, drawWithCanvasArray} from "./utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
+
 import ContactFrequencyMapWorker from './contactFrequencyMapWorker?worker'
 
 let canvasArray = undefined
@@ -136,11 +138,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const items = trace
-            .map(({ xyz }) => {
-                const { x, y, z } = xyz
-                return true === xyz.isMissingData ? { x:-1, y:-1, z:-1 } : { x, y, z }
-            })
+        const items = EnsembleManager.getLiveMapVertices(trace)
 
         const data =
             {
@@ -161,13 +159,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const locationListOfLists = Object.values(ensemble)
-            .map(trace => trace
-                .map(({ xyz }) => {
-                    const { x, y, z } = xyz
-                    return true === xyz.isMissingData ? { x:-1, y:-1, z:-1 } : { x, y, z }
-                })
-            )
+        const locationListOfLists = Object.values(ensemble).map(trace => EnsembleManager.getLiveMapVertices(trace))
 
         const data =
             {
