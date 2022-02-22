@@ -138,13 +138,13 @@ class ContactFrequencyMapPanel extends Panel {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const items = EnsembleManager.getLiveMapVertices(trace)
+        const vertices = EnsembleManager.getLiveMapVertices(trace)
 
         const data =
             {
                 traceOrEnsemble: 'trace',
                 maximumSegmentID,
-                itemsString: JSON.stringify(items),
+                verticesString: JSON.stringify(vertices),
                 distanceThreshold: this.distanceThreshold
             }
 
@@ -159,13 +159,13 @@ class ContactFrequencyMapPanel extends Panel {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const locationListOfLists = Object.values(ensemble).map(trace => EnsembleManager.getLiveMapVertices(trace))
+        const vertexLists = Object.values(ensemble).map(trace => EnsembleManager.getLiveMapVertices(trace))
 
         const data =
             {
                 traceOrEnsemble: 'ensemble',
                 maximumSegmentID,
-                locationListOfListsString: JSON.stringify(locationListOfLists),
+                vertexListsString: JSON.stringify(vertexLists),
                 distanceThreshold: this.distanceThreshold
             }
 

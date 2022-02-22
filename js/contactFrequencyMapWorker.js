@@ -6,8 +6,8 @@ self.addEventListener('message', ({ data }) => {
     console.time(str)
 
     const values = new Float32Array(data.maximumSegmentID * data.maximumSegmentID)
-    const locationListOfListsString = 'trace' === data.traceOrEnsemble ? [ JSON.parse(data.itemsString) ] : JSON.parse(data.locationListOfListsString)
-    calculateContactFrequencies(values, data.maximumSegmentID, locationListOfListsString, data.distanceThreshold)
+    const vertexLists = 'trace' === data.traceOrEnsemble ? [ JSON.parse(data.verticesString) ] : JSON.parse(data.vertexListsString)
+    calculateContactFrequencies(values, data.maximumSegmentID, vertexLists, data.distanceThreshold)
 
     console.timeEnd(str)
 
@@ -21,55 +21,55 @@ self.addEventListener('message', ({ data }) => {
 
 }, false)
 
-function calculateContactFrequencies(values, maximumSegmentID, locationListOfListsString, distanceThreshold) {
+function calculateContactFrequencies(values, maximumSegmentID, vertexLists, distanceThreshold) {
     values.fill(0)
-    for (let locationList of locationListOfListsString) {
-        accumulateContactFrequencies(values, maximumSegmentID, locationList, distanceThreshold)
+    for (let vertices of vertexLists) {
+        accumulateContactFrequencies(values, maximumSegmentID, vertices, distanceThreshold)
     }
 }
 
-function accumulateContactFrequencies(values, maximumSegmentID, locationList, distanceThreshold) {
+function accumulateContactFrequencies(values, maximumSegmentID, vertices, distanceThreshold) {
 
     const exclusionSet = new Set();
 
-    const validData = []
+    const validVeretices = []
     const validIndices = []
 
-    for (let i = 0; i < locationList.length; i++) {
-        if (true === locationList[ i ].isMissingData) {
+    for (let i = 0; i < vertices.length; i++) {
+        if (true === vertices[ i ].isMissingData) {
             // ignore
         } else {
             validIndices.push(i)
-            validData.push(locationList[ i ])
+            validVeretices.push(vertices[ i ])
         }
     }
 
-    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(validData))
+    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(validVeretices))
 
-    for (let v = 0; v < validData.length; v++) {
+    for (let v = 0; v < validVeretices.length; v++) {
 
-        const i = validIndices[ v ]
-        const xy_diagonal = i * maximumSegmentID + i
+        const x = validIndices[ v ]
+        const xy_diagonal = x * maximumSegmentID + x
         values[ xy_diagonal ]++
 
         exclusionSet.add(v)
-        const contactIndices = spatialIndex.within(validData[ v ].x, validData[ v ].y, validData[ v ].z, distanceThreshold).filter(index => !exclusionSet.has(index))
+        const contactIndices = spatialIndex.within(validVeretices[ v ].x, validVeretices[ v ].y, validVeretices[ v ].z, distanceThreshold).filter(index => !exclusionSet.has(index))
 
         if (contactIndices.length > 0) {
 
             for (let contactIndex of contactIndices) {
 
-                const j = validIndices[ contactIndex ]
+                const y = validIndices[ contactIndex ]
 
-                const xy = i * maximumSegmentID + j
-                const yx = j * maximumSegmentID + i
+                const xy = x * maximumSegmentID + y
+                const yx = y * maximumSegmentID + x
 
                 if (xy > values.length) {
-                    console.log('xy is bogus index ' + xy)
+                    console.error(`xy ${xy} is an invalid index for array of length ${ values.length }`)
                 }
 
                 if (yx > values.length) {
-                    console.log('yx is bogus index ' + yx)
+                    console.error(`yx ${yx} is an invalid index for array of length ${ values.length }`)
                 }
 
                 values[ xy ] += 1

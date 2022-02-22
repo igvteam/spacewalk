@@ -130,13 +130,13 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const items = EnsembleManager.getLiveMapVertices(trace)
+        const vertices = EnsembleManager.getLiveMapVertices(trace)
 
         const data =
             {
                 traceOrEnsemble: 'trace',
                 maximumSegmentID,
-                itemsString: JSON.stringify(items),
+                verticesString: JSON.stringify(vertices),
             }
 
         this.worker.postMessage(data)
@@ -150,13 +150,13 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const essentials = Object.values(ensemble).map(trace => EnsembleManager.getLiveMapVertices(trace))
+        const vertexLists = Object.values(ensemble).map(trace => EnsembleManager.getLiveMapVertices(trace))
 
         const data =
             {
                 traceOrEnsemble: 'ensemble',
                 maximumSegmentID,
-                essentialsString: JSON.stringify(essentials)
+                vertexListsString: JSON.stringify(vertexLists)
             }
 
         this.worker.postMessage(data)
