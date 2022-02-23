@@ -6,8 +6,6 @@ import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} f
 import {clearCanvasArray, drawWithCanvasArray} from "./utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 
-import ContactFrequencyMapWorker from './contactFrequencyMapWorker?worker'
-
 let canvasArray = undefined
 
 const maxDistanceThreshold = 4096;
@@ -66,9 +64,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
-        // this.worker = new Worker('./js/contactFrequencyMapWorker.js', { type: 'module' })
-        // NOTE: This syntax is specific to ViteJS
-        this.worker = new ContactFrequencyMapWorker()
+        this.worker = new Worker(new URL('./contactFrequencyMapWorker.js', import.meta.url), { type: 'module' })
 
         this.worker.addEventListener('message', ({ data }) => {
 

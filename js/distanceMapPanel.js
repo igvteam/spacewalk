@@ -6,9 +6,6 @@ import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import {clearCanvasArray, drawWithCanvasArray} from "./utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 
-import DistanceMapWorker from './distanceMapWorker?worker'
-
-
 const kDistanceUndefined = -1
 
 let canvasArray = undefined
@@ -49,9 +46,7 @@ class DistanceMapPanel extends Panel {
 
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
-        // this.worker = new Worker('./js/distanceMapWorker.js', { type: 'module' })
-        // NOTE: This syntax is specific to ViteJS
-        this.worker = new DistanceMapWorker()
+        this.worker = new Worker(new URL('./distanceMapWorker.js', import.meta.url), { type: 'module' })
 
         this.worker.addEventListener('message', ({ data }) => {
 
