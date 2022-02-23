@@ -2,7 +2,7 @@ import EnsembleManager from './ensembleManager.js'
 import { colorMapManager, ensembleManager } from "./app.js";
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
-import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
+import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
 import {clearCanvasArray, drawWithCanvasArray} from "./utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 
@@ -12,6 +12,8 @@ let canvasArray = undefined
 
 const maxDistanceThreshold = 4096;
 const defaultDistanceThreshold = 256;
+
+const kContactFrequencyUndefined = -1
 
 class ContactFrequencyMapPanel extends Panel {
 
@@ -74,6 +76,11 @@ class ContactFrequencyMapPanel extends Panel {
 
             populateContactFrequencyCanvasArray(ensembleManager.maximumSegmentID, data.workerValuesBuffer)
             const context = 'trace' === data.traceOrEnsemble ? this.ctx_trace : this.ctx_ensemble
+
+            // if ('ensemble' === data.traceOrEnsemble) {
+            //     ContactFrequencyMapPanel.echoContactMatrixUpperTriangle(data.workerValuesBuffer, ensembleManager.maximumSegmentID)
+            // }
+
             drawWithCanvasArray(context, this.size, canvasArray)
         }, false)
 
@@ -175,28 +182,53 @@ class ContactFrequencyMapPanel extends Panel {
         drawWithCanvasArray(this.ctx_ensemble, this.size, canvasArray)
 
     }
+
+    static echoContactMatrixUpperTriangle(frequencies, size) {
+
+        for (let y = 0; y < size; y++) {
+            const list = []
+            for (let x = y; x < size; x++) {
+
+                const xy = x * size + y
+                const frequency = frequencies[ xy ]
+
+                // omit main diagonal
+                // if (x !== y) list.push(`freq(${ frequency })`)
+
+                list.push(`freq(${ frequency })`)
+            }
+            const str = list.join(' ')
+            console.log(`${str}`)
+        }
+
+    }
 }
 
 function populateContactFrequencyCanvasArray(maximumSegmentID, frequencies) {
 
-    let maxFrequency = Number.NEGATIVE_INFINITY;
+    let maxFrequency = Number.NEGATIVE_INFINITY
     for (let frequency of frequencies) {
-        maxFrequency = Math.max(maxFrequency, frequency);
+        maxFrequency = Math.max(maxFrequency, frequency)
     }
 
-    const colorMap = colorMapManager.dictionary['juicebox_default'];
+    const colorMap = colorMapManager.dictionary['juicebox_default']
     const scale = (colorMap.length - 1) / maxFrequency;
 
-    let i = 0;
+    let i = 0
     for (let frequency of frequencies) {
 
-        const interpolant = Math.floor(frequency * scale);
-        const { r, g, b } = threeJSColorToRGB255(colorMap[ interpolant ][ 'threejs' ]);
+        let rgb
+        if (frequency > kContactFrequencyUndefined) {
+            const interpolant = Math.floor(frequency * scale)
+            rgb = threeJSColorToRGB255(colorMap[ interpolant ][ 'threejs' ])
+        } else {
+            rgb = threeJSColorToRGB255(appleCrayonColorThreeJS('honeydew'))
+        }
 
-        canvasArray[i++] = r;
-        canvasArray[i++] = g;
-        canvasArray[i++] = b;
-        canvasArray[i++] = 255;
+        canvasArray[i++] = rgb.r
+        canvasArray[i++] = rgb.g
+        canvasArray[i++] = rgb.b
+        canvasArray[i++] = 255
     }
 
 }
@@ -205,7 +237,7 @@ function initializeSharedBuffers(maximumSegmentID) {
     canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
 }
 
-export let contactFrequencyMapPanelConfigurator = ({ container, isHidden }) => {
+function contactFrequencyMapPanelConfigurator({ container, isHidden }) {
 
     return {
         container,
@@ -215,5 +247,7 @@ export let contactFrequencyMapPanelConfigurator = ({ container, isHidden }) => {
     };
 
 }
+
+export { contactFrequencyMapPanelConfigurator }
 
 export default ContactFrequencyMapPanel
