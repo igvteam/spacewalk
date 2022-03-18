@@ -246,7 +246,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
             $googleDriveButtons: $dropdowns.find('div[id$="-map-dropdown-google-drive-button"]'),
             googleEnabled,
             mapMenu: spacewalkConfig.juiceboxConfig.contactMapMenu,
-            loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path, name, mapType)
+            loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path)
         }
 
     configureContactMapLoaders(contactMapLoadConfig)

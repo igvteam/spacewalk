@@ -23,7 +23,6 @@ function syncBrowsers(browsers) {
 }
 
 function deleteBrowser(browser) {
-    browser.unsyncSelf();
     browser.$root.remove();
     Globals.allBrowsers = Globals.allBrowsers.filter(b => b !== browser);
     if (Globals.allBrowsers.length <= 1) {

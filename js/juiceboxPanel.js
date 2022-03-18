@@ -5,6 +5,8 @@ import Panel from './panel.js'
 import { ensembleManager } from './app.js'
 import {Globals} from './juicebox/globals.js';
 import { hideGlobalSpinner, showGlobalSpinner } from './utils.js'
+import HICEvent from "./juicebox/hicEvent.js"
+import {createBrowser} from "./juicebox/hicBrowserLifecycle"
 
 class JuiceboxPanel extends Panel {
 
@@ -68,7 +70,22 @@ class JuiceboxPanel extends Panel {
 
             const { locus, width, height } = config
             this.locus = locus
-            await hic.init(container, { width, height, queryParametersSupported: false })
+
+            const session =
+                {
+                    browsers:
+                        [
+                            {
+                                width,
+                                height,
+                                queryParametersSupported: false
+                            }
+                        ]
+                };
+
+            await createBrowser(container, session)
+
+            // await hic.init(container, { width, height, queryParametersSupported: false })
 
         } catch (error) {
             console.warn(error.message)
@@ -107,7 +124,7 @@ class JuiceboxPanel extends Panel {
 
         if (this.isContactMapLoaded()) {
             try {
-                await Globals.currentBrowser.parseGotoInput(this.locus);
+                await Globals.currentBrowser.parseGotoInput(this.locus)
             } catch (error) {
                 console.warn(error.message);
             }
@@ -127,7 +144,19 @@ class JuiceboxPanel extends Panel {
             } else {
                 this.present()
                 Globals.currentBrowser.reset()
+
+                if (ensembleManager.locus) {
+                    const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                    config.locus = `${chr}:${genomicStart}-${genomicEnd}`
+                } else {
+                    config.locus = 'all'
+                }
+
+                this.locus = config.locus
+
                 await Globals.currentBrowser.loadHicFile(config)
+
+                await Globals.currentBrowser.parseGotoInput(config.locus)
             }
 
             $('#spacewalk_info_panel_juicebox').text( this.blurb() )
@@ -135,22 +164,6 @@ class JuiceboxPanel extends Panel {
         } catch (e) {
             console.error(e.message)
             AlertSingleton.present(`Error loading ${ url }: ${ e }`)
-        }
-
-        // const xLocus = Globals.currentBrowser.parseLocusString(this.locus)
-        // const yLocus = { ...xLocus }
-        //
-        // if (xLocus.wholeChr && yLocus.wholeChr) {
-        //     await Globals.currentBrowser.setChromosomes(xLocus.chr, yLocus.chr)
-        // } else {
-        //     Globals.currentBrowser.goto(xLocus.chr, xLocus.start, xLocus.end, yLocus.chr, yLocus.start, yLocus.end);
-        // }
-        
-        try {
-            await Globals.currentBrowser.parseGotoInput(this.locus)
-        } catch (e) {
-            console.error(e.message)
-            AlertSingleton.present(`Error navigating to locus ${ e.message }`)
         }
 
     }

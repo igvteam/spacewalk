@@ -28,7 +28,6 @@ function HICEvent (type, data, propogate) {
         data: data || {},
         propogate: propogate !== undefined ? propogate : true     // Default to true
     }
-};
-
+}
 
 export default HICEvent
