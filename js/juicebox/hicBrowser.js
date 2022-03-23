@@ -21,10 +21,6 @@
  *
  */
 
-/**
- * @author Jim Robinson
- */
-
 import {Alert} from 'igv-ui'
 import {DOMUtils, FileUtils} from 'igv-utils'
 import {InputDialog} from 'igv-ui'
@@ -48,9 +44,12 @@ import ScrollbarWidget from "./scrollbarWidget.js";
 import ContactMatrixView from "./contactMatrixView.js";
 import ColorScale, {defaultColorScaleConfig} from "./colorScale.js";
 import RatioColorScale, {defaultRatioColorScaleConfig} from "./ratioColorScale.js";
+import AnnotationWidget from './annotationWidget.js';
+import Track2D from './track2D.js'
 
 const DEFAULT_PIXEL_SIZE = 1
 const MAX_PIXEL_SIZE = 12;
+const DEFAULT_ANNOTATION_COLOR = "rgb(22, 129, 198)";
 
 class HICBrowser {
 
@@ -117,6 +116,8 @@ class HICBrowser {
                 alertMessage: 'No 2D annotations currently loaded for this map'
             };
 
+        this.annotation2DWidget = new AnnotationWidget(this, this.$menu.find(".hic-annotation-presentation-button-container"), annotation2DWidgetConfig, () => this.tracks2D);
+
         // prevent user interaction during lengthy data loads
         this.$user_interaction_shield = $('<div>', {class: 'hic-root-prevent-interaction'});
         this.$root.append(this.$user_interaction_shield);
@@ -138,6 +139,11 @@ class HICBrowser {
 
             await this.loadHicFile(config);
 
+            const promises = []
+            if (config.tracks) {
+                promises.push(this.loadTracks(config.tracks))
+            }
+
             if (config.controlUrl) {
                 const { controlUrl:url, controlName:name, controlNvi:nvi } = config
                 await this.loadHicControlFile({ url, name, nvi, isControl: true })
@@ -156,12 +162,15 @@ class HICBrowser {
             }
 
             if (config.normVectorFiles) {
-                const promises = []
-                for (let nv of config.normVectorFiles) {
-                    promises.push(this.loadNormalizationFile(nv))
+                for (let normVectorFile of config.normVectorFiles) {
+                    promises.push(this.loadNormalizationFile(normVectorFile))
                 }
+            }
+
+            if (promises.length > 0) {
                 await Promise.all(promises)
             }
+
 
         } catch(e) {
             console.error(e)
@@ -707,6 +716,82 @@ class HICBrowser {
         this.contactMatrixView.update();
     }
 
+    /**
+     * Render the XY pair of tracks.
+     *
+     * @param xy
+     */
+    async renderTrackXY(xy) {
+
+        try {
+            this.startSpinner()
+            await xy.updateViews();
+        } finally {
+            this.stopSpinner()
+        }
+    }
+
+    /**
+     * Load a list of 1D genome tracks (wig, etc).
+     *
+     * NOTE: public API function
+     *
+     * @param configs
+     */
+    async loadTracks(configs) {
+
+        // If loading a single track remember its name, for error message
+        const errorPrefix = 1 === configs.length ? ("Error loading track " + configs[0].name) : "Error loading tracks";
+
+        try {
+            this.contactMatrixView.startSpinner()
+
+            const promises = [];
+
+            for (let config of configs) {
+
+                // const fileName = await FileUtils.getFilename(config.url);
+
+                // if(!config.format) {
+                //     config.format = TrackUtils.inferFileFormat(fileName)
+                // }
+
+                if ("annotation" === config.type && config.color === DEFAULT_ANNOTATION_COLOR) {
+                    delete config.color;
+                }
+
+                if (config.max === undefined) {
+                    config.autoscale = true;
+                }
+
+                config.height = trackHeight;
+
+                if (undefined === config.format || "bedpe" === config.format || "interact" === config.format) {
+                    // Assume this is a 2D track
+                    promises.push(Track2D.loadTrack2D(config, this.genome));
+                }
+            }
+
+            if (promises.length > 0) {
+
+                const tracks2D = await Promise.all(promises)
+
+                if (tracks2D && tracks2D.length > 0) {
+                    this.tracks2D = this.tracks2D.concat(tracks2D);
+                }
+
+            }
+
+        } catch (error) {
+            this.contactMatrixView.stopSpinner()
+            presentError(errorPrefix, error)
+            console.error(error)
+
+        } finally {
+            this.contactMatrixView.stopSpinner()
+        }
+    }
+
     createMenu($root) {
 
         const html =
@@ -930,7 +1015,6 @@ class HICBrowser {
         this.$controlMaplabel.attr('title', "")
 
         this.tracks2D = []
-        this.tracks = []
 
         if (this.contactMatrixView) this.contactMatrixView.clearImageCaches()
 
@@ -1015,6 +1099,27 @@ class HICBrowser {
             }
             if (this.controlMapWidget.getDisplayModeCycle() !== undefined) {
                 jsonOBJ.cycle = true;
+            }
+        }
+
+        if (this.tracks2D.length > 0) {
+
+            const tracks = [];
+            jsonOBJ.tracks = tracks;
+            for (let track of this.tracks2D) {
+                var config = track.config;
+                if (typeof config.url === "string") {
+                    const t = {
+                        url: config.url
+                    }
+                    if (track.name) {
+                        t.name = track.name;
+                    }
+                    if (track.color) {
+                        t.color = track.color;
+                    }
+                    tracks.push(t);
+                }
             }
         }
 

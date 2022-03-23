@@ -31,8 +31,6 @@ import HICEvent from './hicEvent.js'
 import * as hicUtils from './hicUtils.js'
 
 const DRAG_THRESHOLD = 2;
-const DOUBLE_TAP_DIST_THRESHOLD = 20;
-const DOUBLE_TAP_TIME_THRESHOLD = 300;
 
 const imageTileDimension = 685;
 
@@ -73,7 +71,6 @@ class ContactMatrixView {
 
 
         this.browser.eventBus.subscribe("NormalizationChange", this);
-        this.browser.eventBus.subscribe("TrackLoad2D", this);
         this.browser.eventBus.subscribe("TrackState2D", this);
         this.browser.eventBus.subscribe("MapLoad", this)
         this.browser.eventBus.subscribe("ControlMapLoad", this);
@@ -470,7 +467,7 @@ class ContactMatrixView {
                 //  ctx.strokeRect(0, 0, image.width - 1, image.height - 1)
 
 
-                var imageTile = {row: row, column: column, blockBinCount: imageTileDimension, image: image}
+                const imageTile = { row, column, blockBinCount: imageTileDimension, image: image}
 
 
                 if (this.imageTileCacheLimit > 0) {
@@ -485,7 +482,6 @@ class ContactMatrixView {
                 return imageTile;
 
             } finally {
-                //console.log("Finish load for " + key)
                 this.drawsInProgress.delete(key)
                 this.stopSpinner()
             }
@@ -661,33 +657,6 @@ class ContactMatrixView {
             isMouseDown = false;
             mouseDown = mouseLast = undefined;
         }
-
-        // function shiftCurrentImage(self, dx, dy) {
-        //     var canvasWidth = self.$canvas.width(),
-        //         canvasHeight = self.$canvas.height(),
-        //         imageData;
-        //
-        //     imageData = self.ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-        //     self.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        //     self.ctx.putImageData(imageData, dx, dy);
-        // }
-        //
-        // function mouseWheelHandler(e) {
-        //     e.preventDefault();
-        //     e.stopPropagation();
-        //
-        //     const t = Date.now();
-        //     if (lastWheelTime === undefined || (t - lastWheelTime > 1000)) {
-        //         // cross-browser wheel delta  -- Firefox returns a "detail" object that is opposite in sign to wheelDelta
-        //         var direction = e.deltaY < 0 ? 1 : -1,
-        //             coords = DOMUtils.translateMouseCoordinates(e, $viewport[0]),
-        //             x = coords.x,
-        //             y = coords.y;
-        //         self.browser.wheelClickZoom(direction, x, y);
-        //         lastWheelTime = t;
-        //     }
-        // }
-
 
         this.isDragging = false;
 
