@@ -156,7 +156,6 @@ class ContactMatrixView {
 
             // Don't enable mouse actions until we have a dataset.
             if (!this.mouseHandlersEnabled) {
-                this.addTouchHandlers(this.$viewport);
                 this.addMouseHandlers(this.$viewport);
                 this.mouseHandlersEnabled = true;
             }
@@ -646,7 +645,6 @@ class ContactMatrixView {
         this.spinnerCount = Math.max(0, this.spinnerCount)   // This should not be neccessary
     }
 
-
     addMouseHandlers($viewport) {
 
         let isMouseDown = false;
@@ -696,11 +694,15 @@ class ContactMatrixView {
         if (!this.browser.isMobile) {
 
             $viewport.dblclick((e) => {
+
                 e.preventDefault();
                 e.stopPropagation();
-                const mouseX = e.offsetX || e.layerX
-                const mouseY = e.offsetY || e.layerX;
-                this.browser.zoomAndCenter(1, mouseX, mouseY);
+
+                if (this.browser.dataset) {
+                    const mouseX = e.offsetX || e.layerX
+                    const mouseY = e.offsetY || e.layerX;
+                    this.browser.zoomAndCenter(1, mouseX, mouseY);
+                }
             });
 
             $viewport.on('mouseover', (e) => mouseOver = true)
@@ -771,11 +773,6 @@ class ContactMatrixView {
                         const dx = mouseLast.x - coords.x;
                         const dy = mouseLast.y - coords.y;
 
-                        // If matrix data is updating shift current map image while we wait
-                        //if (this.updating) {
-                        //    shiftCurrentImage(this, -dx, -dy);
-                        //}
-
                         this.browser.shiftPixels(dx, dy);
                     }
 
@@ -822,173 +819,6 @@ class ContactMatrixView {
                 }
             })
         }
-    }
-
-
-    /**
-     * Add touch handlers.  Touches are mapped to one of the following application level events
-     *  - double tap, equivalent to double click
-     *  - move
-     *  - pinch
-     *
-     * @param $viewport
-     */
-
-    addTouchHandlers($viewport) {
-
-        let lastTouch, pinch;
-        const viewport = $viewport[0];
-
-        /**
-         * Touch start -- 3 possibilities
-         *   (1) beginning of a drag (pan)
-         *   (2) first tap of a double tap
-         *   (3) beginning of a pinch
-         */
-        viewport.ontouchstart = (ev) => {
-
-            ev.preventDefault();
-            ev.stopPropagation();
-
-            var touchCoords = translateTouchCoordinates(ev.targetTouches[0], viewport),
-                offsetX = touchCoords.x,
-                offsetY = touchCoords.y,
-                count = ev.targetTouches.length,
-                timeStamp = ev.timeStamp || Date.now(),
-                resolved = false,
-                dx, dy, dist, direction;
-
-            if (count === 2) {
-                touchCoords = translateTouchCoordinates(ev.targetTouches[0], viewport);
-                offsetX = (offsetX + touchCoords.x) / 2;
-                offsetY = (offsetY + touchCoords.y) / 2;
-            }
-
-            // NOTE: If the user makes simultaneous touches, the browser may fire a
-            // separate touchstart event for each touch point. Thus if there are
-            // two simultaneous touches, the first touchstart event will have
-            // targetTouches length of one and the second event will have a length
-            // of two.  In this case replace previous touch with this one and return
-            if (lastTouch && (timeStamp - lastTouch.timeStamp < DOUBLE_TAP_TIME_THRESHOLD) && ev.targetTouches.length > 1 && lastTouch.count === 1) {
-                lastTouch = {x: offsetX, y: offsetY, timeStamp: timeStamp, count: ev.targetTouches.length};
-                return;
-            }
-
-
-            if (lastTouch && (timeStamp - lastTouch.timeStamp < DOUBLE_TAP_TIME_THRESHOLD)) {
-
-                direction = (lastTouch.count === 2 || count === 2) ? -1 : 1;
-                dx = lastTouch.x - offsetX;
-                dy = lastTouch.y - offsetY;
-                dist = Math.sqrt(dx * dx + dy * dy);
-
-                if (dist < DOUBLE_TAP_DIST_THRESHOLD) {
-                    this.browser.zoomAndCenter(direction, offsetX, offsetY);
-                    lastTouch = undefined;
-                    resolved = true;
-                }
-            }
-
-            if (!resolved) {
-                lastTouch = {x: offsetX, y: offsetY, timeStamp: timeStamp, count: ev.targetTouches.length};
-            }
-        }
-
-        viewport.ontouchmove = hicUtils.throttle((ev) => {
-
-            var touchCoords1, touchCoords2, t;
-
-            ev.preventDefault();
-            ev.stopPropagation();
-
-            if (ev.targetTouches.length === 2) {
-
-                // Update pinch  (assuming 2 finger movement is a pinch)
-                touchCoords1 = translateTouchCoordinates(ev.targetTouches[0], viewport);
-                touchCoords2 = translateTouchCoordinates(ev.targetTouches[1], viewport);
-
-                t = {
-                    x1: touchCoords1.x,
-                    y1: touchCoords1.y,
-                    x2: touchCoords2.x,
-                    y2: touchCoords2.y
-                };
-
-                if (pinch) {
-                    pinch.end = t;
-                } else {
-                    pinch = {start: t};
-                }
-            } else {
-                // Assuming 1 finger movement is a drag
-
-                var touchCoords = translateTouchCoordinates(ev.targetTouches[0], viewport),
-                    offsetX = touchCoords.x,
-                    offsetY = touchCoords.y;
-                if (lastTouch) {
-                    var dx = lastTouch.x - offsetX,
-                        dy = lastTouch.y - offsetY;
-                    if (!isNaN(dx) && !isNaN(dy)) {
-                        this.isDragging = true
-                        this.browser.shiftPixels(lastTouch.x - offsetX, lastTouch.y - offsetY);
-                    }
-                }
-
-                lastTouch = {
-                    x: offsetX,
-                    y: offsetY,
-                    timeStamp: ev.timeStamp || Date.now(),
-                    count: ev.targetTouches.length
-                };
-            }
-
-        }, 50);
-
-        viewport.ontouchend = (ev) => {
-
-            ev.preventDefault();
-            ev.stopPropagation();
-
-            if (pinch && pinch.end !== undefined) {
-
-                var startT = pinch.start,
-                    endT = pinch.end,
-                    dxStart = startT.x2 - startT.x1,
-                    dyStart = startT.y2 - startT.y1,
-                    dxEnd = endT.x2 - endT.x1,
-                    dyEnd = endT.y2 - endT.y1,
-                    distStart = Math.sqrt(dxStart * dxStart + dyStart * dyStart),
-                    distEnd = Math.sqrt(dxEnd * dxEnd + dyEnd * dyEnd),
-                    scale = distEnd / distStart,
-                    deltaX = (endT.x1 + endT.x2) / 2 - (startT.x1 + startT.x2) / 2,
-                    deltaY = (endT.y1 + endT.y2) / 2 - (startT.y1 + startT.y2) / 2,
-                    anchorPx = (startT.x1 + startT.x2) / 2,
-                    anchorPy = (startT.y1 + startT.y2) / 2;
-
-                if (scale < 0.8 || scale > 1.2) {
-                    lastTouch = undefined;
-                    this.browser.pinchZoom(anchorPx, anchorPy, scale);
-                }
-            } else if (this.isDragging) {
-                this.isDragging = false;
-                this.browser.eventBus.post(HICEvent("DragStopped"));
-            }
-
-            // a touch end always ends a pinch
-            pinch = undefined;
-
-        }
-
-        function translateTouchCoordinates(e, target) {
-
-            var $target = $(target),
-                posx,
-                posy;
-            posx = e.pageX - $target.offset().left;
-            posy = e.pageY - $target.offset().top;
-            return {x: posx, y: posy}
-        }
-
     }
 
 }
@@ -1046,7 +876,6 @@ function getMatrices(chr1, chr2) {
     }
     return Promise.all(promises);
 }
-
 
 function computePercentile(records, p) {
     const counts = records.map(r => r.counts)

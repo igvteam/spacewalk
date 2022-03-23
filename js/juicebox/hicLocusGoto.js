@@ -41,8 +41,8 @@ class LocusGoto {
         this.$container.append(this.$resolution_selector);
 
         this.$resolution_selector.on('change', function (e) {
-            browser.parseGotoInput($(this).val());
-            $(this).blur();
+            browser.parseLocusString($(this).val(), true)
+            $(this).blur()
         });
 
         this.browser.eventBus.subscribe("LocusChange", this);

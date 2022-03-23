@@ -25,7 +25,6 @@ import {igvxhr} from 'igv-utils'
 import {version} from "./version.js";
 import {compressedSession, restoreSession, toJSON} from "./session.js"
 import {init} from "./init.js"
-import { getCurrentBrowser, setCurrentBrowser } from "./hicMisc.js"
 import EventBus from "./eventBus.js"
 import ColorScale, { defaultColorScaleConfig } from "./colorScale.js"
 import { Globals } from './globals.js'

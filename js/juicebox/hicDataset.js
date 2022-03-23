@@ -54,15 +54,19 @@ class Dataset {
 
         this.genomeId = this.hicFile.genomeId
         this.chromosomes = this.hicFile.chromosomes
+
         this.bpResolutions = this.hicFile.bpResolutions
+
+        // 6 25000
+        // 7 10000
+        // 8  5000
+        // this.bpResolutions = this.hicFile.bpResolutions.slice(6,9)
+
         this.wholeGenomeChromosome = this.hicFile.wholeGenomeChromosome
         this.wholeGenomeResolution = this.hicFile.wholeGenomeResolution
 
-        // Attempt to determine genomeId if not recognized
-        // if (!Object.keys(knownGenomes).includes(this.genomeId)) {
         const tmp = matchGenome(this.chromosomes);
         if (tmp) this.genomeId = tmp;
-        //  }
     }
 
     async getContactRecords(normalization, region1, region2, units, binsize) {
@@ -190,8 +194,11 @@ class Dataset {
         }
 
         const dataset = new Dataset(config)
-        await dataset.init();
+        dataset.name = config.name
+
+        await dataset.init()
         dataset.url = config.url
+
         return dataset
     }
 }

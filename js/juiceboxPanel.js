@@ -85,8 +85,6 @@ class JuiceboxPanel extends Panel {
 
             await createBrowser(container, session)
 
-            // await hic.init(container, { width, height, queryParametersSupported: false })
-
         } catch (error) {
             console.warn(error.message)
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
@@ -124,7 +122,7 @@ class JuiceboxPanel extends Panel {
 
         if (this.isContactMapLoaded()) {
             try {
-                await Globals.currentBrowser.parseGotoInput(this.locus)
+                await Globals.currentBrowser.parseLocusString(this.locus, true)
             } catch (error) {
                 console.warn(error.message);
             }
@@ -143,7 +141,6 @@ class JuiceboxPanel extends Panel {
                 // do nothing
             } else {
                 this.present()
-                Globals.currentBrowser.reset()
 
                 if (ensembleManager.locus) {
                     const { chr, genomicStart, genomicEnd } = ensembleManager.locus
@@ -156,7 +153,7 @@ class JuiceboxPanel extends Panel {
 
                 await Globals.currentBrowser.loadHicFile(config)
 
-                await Globals.currentBrowser.parseGotoInput(config.locus)
+                await Globals.currentBrowser.parseLocusString(config.locus, true)
             }
 
             $('#spacewalk_info_panel_juicebox').text( this.blurb() )

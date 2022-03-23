@@ -27,19 +27,7 @@
  */
 
 import {IGVColor, IGVMath} from 'igv-utils'
-import IGVGraphics from "./igv-canvas.js"
-
-function randomRGB(min, max) {
-
-    min = IGVMath.clamp(min, 0, 255)
-    max = IGVMath.clamp(max, 0, 255)
-
-    const r = Math.round(Math.random() * (max - min) + min).toString(10)
-    const g = Math.round(Math.random() * (max - min) + min).toString(10)
-    const b = Math.round(Math.random() * (max - min) + min).toString(10)
-    return `rgb(${r},${g},${b})`
-
-}
+import IGVGraphics from './igv-canvas.js'
 
 class Ruler {
 
@@ -112,9 +100,6 @@ class Ruler {
                 $wholeGenomeContainer.append($div);
                 $div.data('label', chr.name);
 
-                // debug
-                // $div.get(0).style.backgroundColor = randomRGB(150, 250);
-
                 if (!$firstDiv) {
                     $firstDiv = $div;
                 }
@@ -154,11 +139,6 @@ class Ruler {
 
             $div.width(scraps);
 
-            // className = self.axis + '-axis-whole-genome-chromosome';
-            // $e = $("<div>", {class: className});
-            // $div.append($e);
-            // $e.text($div.data('label'));
-
             decorate.call(self, $div);
         }
 
@@ -176,7 +156,7 @@ class Ruler {
             $d.on('click', function (e) {
                 var $o;
                 $o = $(this).first();
-                self.browser.parseGotoInput($o.text());
+                self.browser.parseLocusString($o.text(), true)
 
                 self.unhighlightWholeChromosome();
                 self.otherRuler.unhighlightWholeChromosome();
@@ -539,7 +519,6 @@ function hitTest(bboxes, value) {
 
     return $result;
 }
-
 
 function TickSpacing(majorTick, majorUnit, unitMultiplier) {
     this.majorTick = majorTick;
