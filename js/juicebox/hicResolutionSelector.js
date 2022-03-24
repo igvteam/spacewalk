@@ -112,7 +112,7 @@ class ResolutionSelector {
 
             const resolutions = browser.isWholeGenome() ?
                 [{index: 0, binSize: browser.dataset.wholeGenomeResolution}] :
-                browser.getResolutionObjectList();
+                browser.getBinSizeList();
             let htmlString = '';
             for (let resolution of resolutions) {
                 const binSize = resolution.binSize;

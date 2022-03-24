@@ -26,6 +26,7 @@
  * @author Jim Robinson
  */
 
+import {StringUtils} from 'igv-utils'
 import { defaultSize } from './defaults.js'
 
 class State {
@@ -80,6 +81,53 @@ class State {
         var s1 = JSON.stringify(this);
         var s2 = JSON.stringify(state);
         return s1 === s2;
+    }
+
+    description(browser) {
+
+        // bp per bin
+        const binSize = browser.dataset.bpResolutions[ this.zoom ]
+
+        const { chr1, x, pixelSize } = this
+
+        // bp = bin * bp-per-bin
+        const xBP = x * binSize
+
+        const {width} = browser.contactMatrixView.getViewDimensions()
+
+        // bin = pixel / pixel-per-bin
+        const widthBin = width / pixelSize
+
+        // bp = bin * bp-per-bin
+        const widthBP = widthBin * binSize
+
+        const xEnd = x + widthBin
+
+        const xEndBP = xBP + widthBP
+
+
+        // chromosome length - bp
+        const {size:lengthBP} = browser.dataset.chromosomes[ chr1 ]
+
+        // chromosome length - bin
+        const lengthBin = lengthBP / binSize
+
+
+        const f = StringUtils.numberFormatter(width)
+        console.log(`screen-width pixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)}) `)
+
+        const d = StringUtils.numberFormatter(x)
+        const g = StringUtils.numberFormatter(xBP)
+        console.log(`start bin(${d}) bp(${g}). end bin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`)
+
+        // const a = StringUtils.numberFormatter(lengthBP)
+        // const b = StringUtils.numberFormatter(lengthBin)
+        // console.log(`chromosome-length bin(${b}) bp(${a})`)
+
+        const c = StringUtils.numberFormatter(binSize)
+        const e = StringUtils.numberFormatter(pixelSize)
+        console.log(`bin-size bp(${c}) pixel(${e})`)
+
     }
 
     static parse(string) {

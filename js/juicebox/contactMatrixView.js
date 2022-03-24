@@ -259,6 +259,8 @@ class ContactMatrixView {
             }
         }
 
+        state.description(browser)
+
         // Record genomic extent of current canvas
         this.genomicExtent = {
             chr1: state.chr1,

@@ -267,7 +267,7 @@ class HICBrowser {
             } else {
                 await this.dataset.getNormVectorIndex(config)
                 if (!config.isControl) {
-                    this.eventBus.post(HICEvent("NormVectorIndexLoad", his.dataset));
+                    this.eventBus.post(HICEvent("NormVectorIndexLoad", this.dataset));
                 }
             }
 
@@ -344,18 +344,30 @@ class HICBrowser {
                 Globals.selectedGene = gene
             }
 
-            const { binSize:bpPerPixel } = this.getResolutionObjectList()[ this.state.zoom ]
+            // bp
+            const { binSize } = this.getBinSizeList()[ this.state.zoom ]
 
-            const { width:widthPixel, height:heightPixel } = this.contactMatrixView.getViewDimensions()
+            // pixel
+            const { width, height } = this.contactMatrixView.getViewDimensions()
 
+            // treat start as centroid
             if (undefined === xLocus.end) {
-                xLocus.start = Math.max(0, xLocus.start - Math.floor(widthPixel * bpPerPixel / 2));
-                xLocus.end = xLocus.start + widthPixel * bpPerPixel;
+
+                // bp = bp - (pixel * bp-per-pixel)/2
+                xLocus.start = Math.max(0, xLocus.start - Math.floor(width * binSize / 2))
+
+                // bp = bp + (pixel * bp-per-pixel)
+                xLocus.end = xLocus.start + width * binSize;
             }
 
+            // treat start as centroid
             if (undefined === yLocus.end) {
-                yLocus.start = Math.max(0, yLocus.start - Math.floor(heightPixel * bpPerPixel / 2));
-                yLocus.end = yLocus.start + heightPixel * bpPerPixel;
+
+                // bp = bp - (pixel * bp-per-pixel)/2
+                yLocus.start = Math.max(0, yLocus.start - Math.floor(height * binSize / 2));
+
+                // bp = bp + (pixel * bp-per-pixel)
+                yLocus.end = yLocus.start + height * binSize;
             }
 
             await this.setStateWithLoci(this.state, xLocus, yLocus)
@@ -418,7 +430,7 @@ class HICBrowser {
 
     }
 
-    getLocusPairHelper(locusString) {
+        getLocusPairHelper(locusString) {
 
         const locusObject = {};
         const parts = locusString.trim().split(':');
@@ -433,7 +445,8 @@ class HICBrowser {
         if (parts.length === 1) {
             // Chromosome name only
             locusObject.start = 0;
-            locusObject.end = this.dataset.chromosomes[locusObject.chr].size;
+            locusObject.end = chromosome.size;
+
             locusObject.wholeChr = true;
         } else {
             const extent = parts[1].split("-");
@@ -444,6 +457,7 @@ class HICBrowser {
                 locusObject.end = isNaN(numeric) ? undefined : parseInt(numeric, 10);
             }
         }
+
         return locusObject;
     }
 
@@ -459,35 +473,43 @@ class HICBrowser {
             state.x = 0
             state.y = 0
 
-            const pixelSizeMinimum = await this.minPixelSize(state.chr1, state.chr2, state.zoom)
-            state.pixelSize = Math.min(100, Math.max(DEFAULT_PIXEL_SIZE, pixelSizeMinimum))
+            const minimumPixelSize = await this.getMinimumPixelSize(state.chr1, state.chr2, state.zoom)
+            state.pixelSize = Math.min(100, Math.max(DEFAULT_PIXEL_SIZE, minimumPixelSize))
 
         } else {
 
-            const { width:widthPixel, height:heightPixel } = this.contactMatrixView.getViewDimensions()
-            const targetBPPerPixel = Math.max((xLocus.end - xLocus.start) / widthPixel, (yLocus.end - yLocus.start) / heightPixel)
+            // pixel
+            const { width, height } = this.contactMatrixView.getViewDimensions()
 
-            const resolutionObjectList = this.getResolutionObjectList()
+            // bp
+            const targetBinSize = Math.max((xLocus.end - xLocus.start) / width, (yLocus.end - yLocus.start) / height)
+
+            // bp
+            const binSizeList = this.getBinSizeList()
 
             state.chr1 = xLocus.chr
             state.chr2 = yLocus.chr
 
-            const newZoom = this.findNearestZoomIndexForTargetResolution(targetBPPerPixel, resolutionObjectList)
-            state.zoom = newZoom
+            const newZoomIndex = this.findNearestZoomIndexForTargetBinSize(targetBinSize, binSizeList)
+            state.zoom = newZoomIndex
 
-            state.x = xLocus.start / resolutionObjectList[newZoom].binSize
-            state.y = yLocus.start / resolutionObjectList[newZoom].binSize
+            // bp-per-bin
+            const { binSize } = binSizeList[newZoomIndex]
 
-            const ratio = resolutionObjectList[newZoom].binSize / targetBPPerPixel
-            state.pixelSize = Math.min(MAX_PIXEL_SIZE, Math.max(1, resolutionObjectList[newZoom].binSize / targetBPPerPixel))
+            // bin = bp / bp-per-bin
+            state.x = xLocus.start / binSize
+            state.y = yLocus.start / binSize
+
+            // bp-per-bin
+            state.pixelSize = Math.min(MAX_PIXEL_SIZE, Math.max(1, binSize / targetBinSize))
 
         }
 
     }
 
-    async goto(chr1, startXBP, endXBP, chr2, startYBP, endYBP, minResolution) {
+    async goto(chr1, startXBP, endXBP, chr2, startYBP, endYBP) {
 
-        await this.setStateWithLoci(this.state, { chr1, start:startXBP, end: endXBP }, { chr2, start:startYBP, end: endYBP }, minResolution)
+        await this.setStateWithLoci(this.state, { chr1, start:startXBP, end: endXBP }, { chr2, start:startYBP, end: endYBP })
 
         const eventConfig =
             {
@@ -511,29 +533,39 @@ class HICBrowser {
 
         if (this.dataset.isWholeGenome(this.state.chr1) && direction > 0) {
 
-            // jump from whole genome to chromosome
-            const genomeCoordX = centerPX * this.dataset.wholeGenomeResolution / this.state.pixelSize;
-            const genomeCoordY = centerPY * this.dataset.wholeGenomeResolution / this.state.pixelSize;
-            const chrX = this.genome.getChromsosomeForCoordinate(genomeCoordX);
-            const chrY = this.genome.getChromsosomeForCoordinate(genomeCoordY);
+            //              bp = pixel * bp-per-bin / pixels-per-bin
+            //              bp = pixel * bp/bin * bin/pixel
+            //              bp = bp
+            const xBP = centerPX * this.dataset.wholeGenomeResolution / this.state.pixelSize;
+            const yBP = centerPY * this.dataset.wholeGenomeResolution / this.state.pixelSize;
 
+            const chrX = this.genome.getChromsosomeForCoordinate(xBP);
+            const chrY = this.genome.getChromsosomeForCoordinate(yBP);
 
             await this.parseLocusString(`${chrX.name} ${chrY.name}`, true)
 
         } else {
-            const resolutionObjectList = this.getResolutionObjectList();
-            const viewDimensions = this.contactMatrixView.getViewDimensions()
-            const dx = centerPX === undefined ? 0 : centerPX - viewDimensions.width / 2
-            const dy = centerPY === undefined ? 0 : centerPY - viewDimensions.height / 2
 
-            this.state.x += (dx / this.state.pixelSize);
-            this.state.y += (dy / this.state.pixelSize);
+            // bp list
+            const binSizeList = this.getBinSizeList()
+
+            // pixel
+            const { width, height } = this.contactMatrixView.getViewDimensions()
+
+            // pixel
+            const dx = centerPX === undefined ? 0 : centerPX - width / 2
+            const dy = centerPY === undefined ? 0 : centerPY - height / 2
+
+            // bin += pixel / pixel-per-bin
+            // bin += bin
+            this.state.x += (dx / this.state.pixelSize)
+            this.state.y += (dy / this.state.pixelSize)
 
             if (this.resolutionLocked ||
-                (direction > 0 && this.state.zoom === resolutionObjectList[resolutionObjectList.length - 1].index) ||
-                (direction < 0 && this.state.zoom === resolutionObjectList[0].index)) {
+                (direction > 0 && this.state.zoom === binSizeList[binSizeList.length - 1].index) ||
+                (direction < 0 && this.state.zoom === binSizeList[0].index)) {
 
-                const minPS = await this.minPixelSize(this.state.chr1, this.state.chr2, this.state.zoom)
+                const minPS = await this.getMinimumPixelSize(this.state.chr1, this.state.chr2, this.state.zoom)
                 const state = this.state;
                 const newPixelSize = Math.max(Math.min(MAX_PIXEL_SIZE, state.pixelSize * (direction > 0 ? 2 : 0.5)), minPS);
 
@@ -554,12 +586,12 @@ class HICBrowser {
 
             } else {
                 let i;
-                for (i = 0; i < resolutionObjectList.length; i++) {
-                    if (this.state.zoom === resolutionObjectList[i].index) break;
+                for (i = 0; i < binSizeList.length; i++) {
+                    if (this.state.zoom === binSizeList[i].index) break;
                 }
 
                 if (i) {
-                    const newZoom = resolutionObjectList[i + direction].index;
+                    const newZoom = binSizeList[i + direction].index;
                     this.setZoom(newZoom);
                 }
             }
@@ -569,31 +601,56 @@ class HICBrowser {
 
     /**
      * Set the current zoom state and optionally center over supplied coordinates.
-     * @param zoom - index to the dataset resolution array (dataset.bpResolutions)
+     * @param zoomIndex - index to the dataset resolution array (dataset.bpResolutions)
      * @returns {Promise<void>}
      */
-    async setZoom(zoom) {
+    async setZoom(zoomIndex) {
 
         // Shift x,y to maintain center, if possible
-        const bpResolutions = this.dataset.bpResolutions;
-        const currentResolution = bpResolutions[this.state.zoom];
-        const viewDimensions = this.contactMatrixView.getViewDimensions();
-        const xCenter = this.state.x + viewDimensions.width / (2 * this.state.pixelSize);    // center in bins
-        const yCenter = this.state.y + viewDimensions.height / (2 * this.state.pixelSize);    // center in bins
 
-        const newResolution = bpResolutions[zoom];
-        const newXCenter = xCenter * (currentResolution / newResolution);
-        const newYCenter = yCenter * (currentResolution / newResolution);
-        const minPS = await this.minPixelSize(this.state.chr1, this.state.chr2, zoom)
-        const state = this.state;
-        const newPixelSize = Math.max(DEFAULT_PIXEL_SIZE, minPS);
-        const zoomChanged = (state.zoom !== zoom);
+        // bp list
+        const bpResolutions = this.dataset.bpResolutions
 
-        state.zoom = zoom;
-        state.x = Math.max(0, newXCenter - viewDimensions.width / (2 * newPixelSize));
-        state.y = Math.max(0, newYCenter - viewDimensions.height / (2 * newPixelSize));
-        state.pixelSize = newPixelSize;
-        this.clamp();
+        // bp
+        const currentResolution = bpResolutions[this.state.zoom]
+
+        // pixel
+        const { width, height } = this.contactMatrixView.getViewDimensions()
+
+        // bp-per-bin
+        const { chr1, chr2, x, y, pixelSize } = this.state
+
+        //           bin = bin + pixel / pixel-per-bin
+        //           bin = bin
+        const centerBinX = x +  width / (2 * pixelSize)
+        const centerBinY = y + height / (2 * pixelSize)
+
+        // bp
+        const newResolution = bpResolutions[ zoomIndex ]
+
+        //              bin = bin * scalefactor
+        const centerBinXNew = centerBinX * (currentResolution / newResolution)
+        const centerBinYNew = centerBinY * (currentResolution / newResolution)
+
+        // pixel-per-bin
+        const minimumPixelSize = await this.getMinimumPixelSize(chr1, chr2, zoomIndex)
+        const newPixelSize = Math.max(DEFAULT_PIXEL_SIZE, minimumPixelSize)
+
+        const zoomChanged = (this.state.zoom !== zoomIndex)
+
+        const state = Object.assign({}, this.state)
+
+        state.zoom = zoomIndex
+
+        //  bin =                             bin - (pixel / pixel-per-bin)
+        //  bin =                             bin
+        state.x = Math.max(0, centerBinXNew -  width / (2 * newPixelSize))
+        state.y = Math.max(0, centerBinYNew - height / (2 * newPixelSize))
+
+        // pixel-per-bin
+        state.pixelSize = newPixelSize
+
+        this.clamp()
 
         await this.contactMatrixView.zoomIn()
 
@@ -610,24 +667,24 @@ class HICBrowser {
     /**
      * Find the closest matching zoom index (index into the dataset resolutions array) for the target resolution.
      *
-     * resolutionArray can be either
-     *   (1) an array of bin sizes
-     *   (2) an array of objects with index and bin size
-     * @param targetResolution
-     * @param resolutions
+     * binSizes can be either
+     *   (1) an array of binSizes
+     *   (2) an array of objects with index and binSize
+     * @param targetBinSize
+     * @param binSizes
      * @returns {number}
      */
-    findNearestZoomIndexForTargetResolution(targetResolution, resolutions) {
+    findNearestZoomIndexForTargetBinSize(targetBinSize, binSizes) {
 
-        const isObject = resolutions.length > 0 && resolutions[0].index !== undefined;
+        const isObject = binSizes.length > 0 && binSizes[0].index !== undefined;
 
-        for (let i = resolutions.length - 1; i > 0; i--) {
+        for (let i = binSizes.length - 1; i > 0; i--) {
 
-            const BPPerPixel = isObject ? resolutions[i].binSize : resolutions[i];
+            const binSize = isObject ? binSizes[i].binSize : binSizes[i];
 
-            const zoomIndex = isObject ? resolutions[ i ].index : i;
+            const zoomIndex = isObject ? binSizes[ i ].index : i;
 
-            if (BPPerPixel >= targetResolution) {
+            if (binSize >= targetBinSize) {
                 return zoomIndex;
             }
 
@@ -638,33 +695,41 @@ class HICBrowser {
 
     async minZoom(chr1, chr2) {
 
-        const viewDimensions = this.contactMatrixView.getViewDimensions();
-        const chromosome1 = this.dataset.chromosomes[chr1]
-        const chromosome2 = this.dataset.chromosomes[chr2];
-        const chr1Length = chromosome1.size;
-        const chr2Length = chromosome2.size;
-        const binSize = Math.max(chr1Length / viewDimensions.width, chr2Length / viewDimensions.height);
+        // bp
+        const { name:name1, size:chr1Length } = this.dataset.chromosomes[ chr1 ]
+        const { name:name2, size:chr2Length } = this.dataset.chromosomes[ chr2 ]
+
+        // pixel
+        const { width, height } = this.contactMatrixView.getViewDimensions()
+
+        //         bp =                        bp / pixel
+        const binSize = Math.max(chr1Length / width, chr2Length / height)
 
         const matrix = await this.dataset.getMatrix(chr1, chr2)
         if (!matrix) {
-            throw new Error(`Data not avaiable for chromosomes ${chromosome1.name} - ${chromosome2.name}`);
+            throw new Error(`Data not avaiable for chromosomes ${ name1} - ${name2}`);
         }
-        return matrix.findZoomForResolution(binSize);
+        return matrix.findZoomForResolution(binSize, undefined);
     }
 
-    async minPixelSize(chr1, chr2, z) {
+    async getMinimumPixelSize(chr1, chr2, zoomIndex) {
 
+        // bp
         const { size:chr1Length } = this.dataset.chromosomes[ chr1 ]
         const { size:chr2Length } = this.dataset.chromosomes[ chr2 ]
 
         const matrix = await this.dataset.getMatrix(chr1, chr2)
-        const { zoom } = matrix.getZoomDataByIndex(z, "BP")
+        const { zoom } = matrix.getZoomDataByIndex(zoomIndex, "BP")
 
-        const nBins1 = chr1Length / zoom.binSize
-        const nBins2 = chr2Length / zoom.binSize
+        //    unit-less = bp / bp
+        const binCount1 = chr1Length / zoom.binSize
+        const binCount2 = chr2Length / zoom.binSize
 
+        // pixel
         const { width, height } = this.contactMatrixView.getViewDimensions()
-        return Math.min(width / nBins1, height / nBins2)
+
+        // pixel-per-bin = pixel / bin-count
+        return Math.min(width / binCount1, height / binCount2)
 
     }
 
@@ -864,7 +929,7 @@ class HICBrowser {
      * Return usable resolutions, that is the union of resolutions between dataset and controlDataset.
      * @returns {{index: *, binSize: *}[]|Array}
      */
-    getResolutionObjectList() {
+    getBinSizeList() {
 
         if (!this.dataset) return []
 
