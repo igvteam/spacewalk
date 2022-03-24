@@ -139,11 +139,6 @@ class HICBrowser {
 
             await this.loadHicFile(config);
 
-            const promises = []
-            if (config.tracks) {
-                promises.push(this.loadTracks(config.tracks))
-            }
-
             if (config.controlUrl) {
                 const { controlUrl:url, controlName:name, controlNvi:nvi } = config
                 await this.loadHicControlFile({ url, name, nvi, isControl: true })
@@ -161,6 +156,11 @@ class HICBrowser {
                 await this.parseLocusString(config.locus, false)
             }
 
+            const promises = []
+            if (config.tracks) {
+                promises.push(this.loadTracks(config.tracks))
+            }
+
             if (config.normVectorFiles) {
                 for (let normVectorFile of config.normVectorFiles) {
                     promises.push(this.loadNormalizationFile(normVectorFile))
@@ -170,7 +170,6 @@ class HICBrowser {
             if (promises.length > 0) {
                 await Promise.all(promises)
             }
-
 
         } catch(e) {
             console.error(e)
@@ -473,7 +472,7 @@ class HICBrowser {
             state.chr1 = xLocus.chr
             state.chr2 = yLocus.chr
 
-            const newZoom = this.findMatchingZoomIndex(targetBPPerPixel, resolutionObjectList)
+            const newZoom = this.findNearestZoomIndexForTargetResolution(targetBPPerPixel, resolutionObjectList)
             state.zoom = newZoom
 
             state.x = xLocus.start / resolutionObjectList[newZoom].binSize
@@ -552,7 +551,6 @@ class HICBrowser {
                 })
 
                 this.update(event);
-                //this.eventBus.post(event);
 
             } else {
                 let i;
@@ -612,22 +610,29 @@ class HICBrowser {
     /**
      * Find the closest matching zoom index (index into the dataset resolutions array) for the target resolution.
      *
-     * resolutionAraay can be either
+     * resolutionArray can be either
      *   (1) an array of bin sizes
      *   (2) an array of objects with index and bin size
      * @param targetResolution
-     * @param resolutionArray
+     * @param resolutions
      * @returns {number}
      */
-    findMatchingZoomIndex(targetResolution, resolutionArray) {
-        const isObject = resolutionArray.length > 0 && resolutionArray[0].index !== undefined;
-        for (let z = resolutionArray.length - 1; z > 0; z--) {
-            const binSize = isObject ? resolutionArray[z].binSize : resolutionArray[z];
-            const index = isObject ? resolutionArray[z].index : z;
-            if (binSize >= targetResolution) {
-                return index;
+    findNearestZoomIndexForTargetResolution(targetResolution, resolutions) {
+
+        const isObject = resolutions.length > 0 && resolutions[0].index !== undefined;
+
+        for (let i = resolutions.length - 1; i > 0; i--) {
+
+            const BPPerPixel = isObject ? resolutions[i].binSize : resolutions[i];
+
+            const zoomIndex = isObject ? resolutions[ i ].index : i;
+
+            if (BPPerPixel >= targetResolution) {
+                return zoomIndex;
             }
+
         }
+
         return 0;
     }
 
@@ -750,12 +755,6 @@ class HICBrowser {
 
             for (let config of configs) {
 
-                // const fileName = await FileUtils.getFilename(config.url);
-
-                // if(!config.format) {
-                //     config.format = TrackUtils.inferFileFormat(fileName)
-                // }
-
                 if ("annotation" === config.type && config.color === DEFAULT_ANNOTATION_COLOR) {
                     delete config.color;
                 }
@@ -768,14 +767,13 @@ class HICBrowser {
 
                 if (undefined === config.format || "bedpe" === config.format || "interact" === config.format) {
                     // Assume this is a 2D track
-                    promises.push(Track2D.loadTrack2D(config, this.genome));
+                    promises.push(Track2D.loadTrack2D(config, this.genome))
                 }
             }
 
             if (promises.length > 0) {
 
                 const tracks2D = await Promise.all(promises)
-
                 if (tracks2D && tracks2D.length > 0) {
                     this.tracks2D = this.tracks2D.concat(tracks2D);
                 }
@@ -837,7 +835,7 @@ class HICBrowser {
 
     hideMenu() {
         this.$menu.hide();
-    };
+    }
 
     async setDisplayMode(mode) {
         await this.contactMatrixView.setDisplayMode(mode);
