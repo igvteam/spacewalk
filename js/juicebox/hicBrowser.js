@@ -430,7 +430,7 @@ class HICBrowser {
 
     }
 
-        getLocusPairHelper(locusString) {
+    getLocusPairHelper(locusString) {
 
         const locusObject = {};
         const parts = locusString.trim().split(':');
@@ -600,57 +600,31 @@ class HICBrowser {
     }
 
     /**
-     * Set the current zoom state and optionally center over supplied coordinates.
-     * @param zoomIndex - index to the dataset resolution array (dataset.bpResolutions)
+     * Set the current zoom state and opctionally center over supplied coordinates.
+     * @param zoom - index to the datasets resolution array (dataset.bpResolutions)
      * @returns {Promise<void>}
      */
-    async setZoom(zoomIndex) {
+    async setZoom(zoom) {
 
-        // Shift x,y to maintain center, if possible
+        const bpResolutions = this.dataset.bpResolutions;
+        const currentResolution = bpResolutions[this.state.zoom];
+        const viewDimensions = this.contactMatrixView.getViewDimensions();
+        const xCenter = this.state.x + viewDimensions.width / (2 * this.state.pixelSize);    // center in bins
+        const yCenter = this.state.y + viewDimensions.height / (2 * this.state.pixelSize);    // center in bins
 
-        // bp list
-        const bpResolutions = this.dataset.bpResolutions
+        const newResolution = bpResolutions[zoom];
+        const newXCenter = xCenter * (currentResolution / newResolution);
+        const newYCenter = yCenter * (currentResolution / newResolution);
+        const minPS = await this.getMinimumPixelSize(this.state.chr1, this.state.chr2, zoom)
+        const state = this.state;
+        const newPixelSize = Math.max(DEFAULT_PIXEL_SIZE, minPS);
+        const zoomChanged = (state.zoom !== zoom);
 
-        // bp
-        const currentResolution = bpResolutions[this.state.zoom]
-
-        // pixel
-        const { width, height } = this.contactMatrixView.getViewDimensions()
-
-        // bp-per-bin
-        const { chr1, chr2, x, y, pixelSize } = this.state
-
-        //           bin = bin + pixel / pixel-per-bin
-        //           bin = bin
-        const centerBinX = x +  width / (2 * pixelSize)
-        const centerBinY = y + height / (2 * pixelSize)
-
-        // bp
-        const newResolution = bpResolutions[ zoomIndex ]
-
-        //              bin = bin * scalefactor
-        const centerBinXNew = centerBinX * (currentResolution / newResolution)
-        const centerBinYNew = centerBinY * (currentResolution / newResolution)
-
-        // pixel-per-bin
-        const minimumPixelSize = await this.getMinimumPixelSize(chr1, chr2, zoomIndex)
-        const newPixelSize = Math.max(DEFAULT_PIXEL_SIZE, minimumPixelSize)
-
-        const zoomChanged = (this.state.zoom !== zoomIndex)
-
-        const state = Object.assign({}, this.state)
-
-        state.zoom = zoomIndex
-
-        //  bin =                             bin - (pixel / pixel-per-bin)
-        //  bin =                             bin
-        state.x = Math.max(0, centerBinXNew -  width / (2 * newPixelSize))
-        state.y = Math.max(0, centerBinYNew - height / (2 * newPixelSize))
-
-        // pixel-per-bin
-        state.pixelSize = newPixelSize
-
-        this.clamp()
+        state.zoom = zoom;
+        state.x = Math.max(0, newXCenter - viewDimensions.width / (2 * newPixelSize));
+        state.y = Math.max(0, newYCenter - viewDimensions.height / (2 * newPixelSize));
+        state.pixelSize = newPixelSize;
+        this.clamp();
 
         await this.contactMatrixView.zoomIn()
 
@@ -747,7 +721,7 @@ class HICBrowser {
             const type = event ? event.type : "NONE";
             this.pending.set(type, event);
         } else {
-            this.updating = true
+            this.updating = true;
             try {
 
                 this.contactMatrixView.startSpinner()
@@ -760,21 +734,19 @@ class HICBrowser {
                 await this.contactMatrixView.update(event)
 
             } finally {
-                this.updating = false;
+
+                this.updating = false
+
                 if (this.pending.size > 0) {
-                    const events = []
-                    for (let [k, v] of this.pending) {
-                        events.push(v);
-                    }
-                    this.pending.clear();
-                    for (let e of events) {
-                        this.update(e)
-                    }
+                    this.pending.clear()
+                    const promises = this.pending.map(([ ignore, event ]) => this.update(event))
+                    await Promise.all(promises)
                 }
+
                 if (event) {
-                    // possibly, unless update was called from an event post (infinite loop)
                     this.eventBus.post(event)
                 }
+
                 this.contactMatrixView.stopSpinner()
             }
         }
@@ -794,10 +766,10 @@ class HICBrowser {
     async renderTrackXY(xy) {
 
         try {
-            this.startSpinner()
+            this.contactMatrixView.startSpinner()
             await xy.updateViews();
         } finally {
-            this.stopSpinner()
+            this.contactMatrixView.stopSpinner()
         }
     }
 

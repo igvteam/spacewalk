@@ -106,27 +106,33 @@ class State {
         const xEndBP = xBP + widthBP
 
 
-        // chromosome length - bp
+        // chromosome length - bp & bin
         const {size:lengthBP} = browser.dataset.chromosomes[ chr1 ]
-
-        // chromosome length - bin
         const lengthBin = lengthBP / binSize
 
-
         const f = StringUtils.numberFormatter(width)
-        console.log(`screen-width pixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)}) `)
-
         const d = StringUtils.numberFormatter(x)
         const g = StringUtils.numberFormatter(xBP)
-        console.log(`start bin(${d}) bp(${g}). end bin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`)
-
-        // const a = StringUtils.numberFormatter(lengthBP)
-        // const b = StringUtils.numberFormatter(lengthBin)
-        // console.log(`chromosome-length bin(${b}) bp(${a})`)
-
+        const a = StringUtils.numberFormatter(lengthBP)
+        const b = StringUtils.numberFormatter(lengthBin)
         const c = StringUtils.numberFormatter(binSize)
         const e = StringUtils.numberFormatter(pixelSize)
-        console.log(`bin-size bp(${c}) pixel(${e})`)
+
+        // console.log(`screen-width pixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`)
+        // console.log(`start bin(${d}) bp(${g}). end bin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`)
+        // console.log(`chromosome-length bin(${b}) bp(${a})`)
+        // console.log(`bin-size bp(${c}) pixel(${e})`)
+
+        const strings =
+            [
+                `screen-width pixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
+                `start bin(${d}) bp(${g}). end bin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`,
+                `bin-size bp(${c}) pixel(${e})`,
+                // `chromosome-length bin(${b}) bp(${a})`,
+            ]
+
+        return strings.join('\n')
+
 
     }
 
