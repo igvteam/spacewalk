@@ -26,10 +26,10 @@
  */
 
 import {IGVColor, DOMUtils, StringUtils} from 'igv-utils'
-import { ColorPicker, createColorSwatchSelector, GenericContainer} from 'igv-ui'
+import { ColorPicker } from 'igv-ui'
 import RatioColorScale, {defaultRatioColorScaleConfig} from './ratioColorScale.js'
-import ContactMatrixView from "./contactMatrixView.js";
-import ColorScale from "./colorScale.js";
+import ContactMatrixView from './contactMatrixView.js'
+import ColorScale from './colorScale.js'
 
 class ColorScaleWidget {
 
