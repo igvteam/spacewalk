@@ -38,11 +38,9 @@ class ContactMatrixView {
 
     constructor(browser, $viewport, sweepZoom, scrollbarWidget, colorScale, ratioColorScale, backgroundColor) {
 
-
         this.browser = browser;
         this.$viewport = $viewport;
         this.sweepZoom = sweepZoom;
-        this.scrollbarWidget = scrollbarWidget;
 
         // Set initial color scales.  These might be overriden / adjusted via parameters
         this.colorScale = colorScale;
@@ -78,72 +76,6 @@ class ContactMatrixView {
         this.drawsInProgress = new Set()
     }
 
-    setBackgroundColor(rgb) {
-        this.backgroundColor = rgb
-        this.backgroundRGBString = IGVColor.rgbColor(rgb.r, rgb.g, rgb.b)
-        this.repaint()
-    }
-
-    stringifyBackgroundColor() {
-        return `${this.backgroundColor.r},${this.backgroundColor.g},${this.backgroundColor.b}`;
-    }
-
-    static parseBackgroundColor(rgbString) {
-        const [r, g, b] = rgbString.split(",").map(str => parseInt(str))
-        return {r, g, b}
-    }
-
-    setColorScale(colorScale) {
-
-        switch (this.displayMode) {
-            case 'AOB':
-            case 'BOA':
-                this.ratioColorScale = colorScale;
-                break;
-            case 'AMB':
-                this.diffColorScale = colorScale;
-                break;
-            default:
-                this.colorScale = colorScale;
-        }
-        this.colorScaleThresholdCache[colorScaleKey(this.browser.state, this.displayMode)] = colorScale.threshold;
-    }
-
-    async setColorScaleThreshold(threshold) {
-        this.getColorScale().setThreshold(threshold);
-        this.colorScaleThresholdCache[colorScaleKey(this.browser.state, this.displayMode)] = threshold;
-        this.imageTileCache = {};
-        await this.update()
-    }
-
-    getColorScale() {
-        switch (this.displayMode) {
-            case 'AOB':
-            case 'BOA':
-                return this.ratioColorScale;
-            case 'AMB':
-                return this.diffColorScale;
-            default:
-                return this.colorScale;
-        }
-    }
-
-    async setDisplayMode(mode) {
-        this.displayMode = mode;
-        this.clearImageCaches();
-        await this.update();
-    }
-
-    clearImageCaches() {
-        this.imageTileCache = {};
-        this.imageTileCacheKeys = [];
-    }
-
-    getViewDimensions() {
-        const { width, height } = this.$viewport.get(0).getBoundingClientRect()
-        return { width, height }
-    }
-
     async receiveEvent(event) {
 
         if ("MapLoad" === event.type || "ControlMapLoad" === event.type) {
@@ -159,7 +91,7 @@ class ContactMatrixView {
             if (!("LocusChange" === event.type)) {
                 this.clearImageCaches();
             }
-            this.update();
+            await this.update();
         }
     }
 
@@ -185,9 +117,9 @@ class ContactMatrixView {
         this.$canvas.height(height);
         this.$canvas.attr('height', height)
 
-        const { dataset, datasetControl } = datasetPairWithDisplayMode(this.browser, this.displayMode)
+        const { dataset, datasetControl } = getDatasetPairWithDisplayMode(this.browser, this.displayMode)
 
-        const { x, y, chr1, chr2, pixelSize } = this.browser.state
+        const { x:xBin, y:yBin, chr1, chr2, pixelSize } = this.browser.state
 
         const matrix = await dataset.getMatrix(chr1, chr2)
 
@@ -213,14 +145,14 @@ class ContactMatrixView {
             }
         }
 
-        const columnStart = Math.floor(x / imageTileDimension)
-        const    rowStart = Math.floor(y / imageTileDimension)
+        const columnStart = Math.floor(xBin / imageTileDimension)
+        const    rowStart = Math.floor(yBin / imageTileDimension)
 
         const  widthBin =  width / Math.max(1, Math.floor(pixelSize))
         const heightBin = height / Math.max(1, Math.floor(pixelSize))
 
-        const columnEnd = Math.floor((x +  widthBin) / imageTileDimension)
-        const    rowEnd = Math.floor((y + heightBin) / imageTileDimension)
+        const columnEnd = Math.floor((xBin +  widthBin) / imageTileDimension)
+        const    rowEnd = Math.floor((yBin + heightBin) / imageTileDimension)
 
         await this.checkColorScale(dataset, zoomData, rowStart, rowEnd, columnStart, columnEnd, this.browser.state.normalization)
 
@@ -231,10 +163,10 @@ class ContactMatrixView {
 
             for (let c = columnStart; c <= columnEnd; c++) {
 
-                const { image, row, column, blockBinCount } = await this.getImageTile(dataset, datasetControl, zoomData, zoomDataControl, r, c, this.browser.state)
+                const { image, row, column, blockBinCount } = await this.getImageTile(dataset, datasetControl, zoomData, zoomDataControl, r, c, this.browser.state.normalization)
 
                 if (image) {
-                    this.paintTile(image, row, column, blockBinCount, width, height, x, y, pixelSize)
+                    paintTile(this.ctx, this.backgroundRGBString, image, row, column, blockBinCount, width, height, xBin, yBin, pixelSize)
                 }
             }
 
@@ -245,271 +177,210 @@ class ContactMatrixView {
         this.genomicExtent = ContactMatrixView.getGenomicExtent(this.browser.state, matrix, this.browser.dataset, this.browser.controlDataset, this.displayMode, this.getViewDimensions())
     }
 
-    static getGenomicExtent(state, matrix, dataset, controlDataset, displayMode, viewDimensions) {
-
-        let { zoomIndexA, zoomIndexB } = ContactMatrixView.getZoomIndex(state.zoom, displayMode, dataset, controlDataset)
-
-        const { x, y, chr1, chr2, pixelSize } = state
-
-        const zoomData = matrix.getZoomDataByIndex(zoomIndexA, 'BP');
-
-        return {
-            chr1,
-            chr2,
-            x: x * zoomData.zoom.binSize,
-            y: y * zoomData.zoom.binSize,
-            w:   viewDimensions.width * zoomData.zoom.binSize / pixelSize,
-            h:  viewDimensions.height * zoomData.zoom.binSize / pixelSize
-        }
-
-    }
-
-    static getZoomIndex(zoomIndex, displayMode, dataset, controlDataset) {
-
-        const getBZoomIndex = (zoom, dataset, controlDataset) => {
-
-            const binSize = dataset.getBinSizeForZoomIndex(zoom)
-
-            if (!binSize) {
-                console.error(`getZoomIndex: Invalid zoom index ${ zoom }`)
-            }
-
-            const bZoom = controlDataset.getZoomIndexForBinSize(binSize)
-
-            if (bZoom < 0) {
-                console.error(`getZoomIndex: Invalid binSize for "B" map: ${ binSize }`)
-            }
-
-            return bZoom
-        }
-
-        switch (displayMode) {
-            case 'A':
-                return { zoomIndexA: zoomIndex }
-            case 'B':
-                return { zoomIndexA: getBZoomIndex(zoomIndex, dataset, controlDataset) }
-            case 'AOB':
-            case 'AMB':
-                return { zoomIndexA: zoomIndex, zoomIndexB: getBZoomIndex(zoomIndex, dataset, controlDataset) }
-            case 'BOA':
-                return { zoomIndexA: getBZoomIndex(zoomIndex, dataset, controlDataset), zoomIndexB: zoomIndex }
-        }
-
-    }
-
     /**
      * This is where the image tile is actually drawn, if not in the cache
      *
-     * @param ds
-     * @param dsControl
-     * @param zd
-     * @param zdControl
+     * @param dataset
+     * @param datasetControl
+     * @param zoomData
+     * @param zoomDataControl
      * @param row
      * @param column
-     * @param state
+     * @param normalization
      * @returns {Promise<{image: HTMLCanvasElement, column: *, row: *, blockBinCount}|{image, inProgress: boolean, column: *, row: *, blockBinCount}|*>}
      */
-    async getImageTile(ds, dsControl, zd, zdControl, row, column, state) {
+    async getImageTile(dataset, datasetControl, zoomData, zoomDataControl, row, column, normalization) {
 
-        const key = `${zd.chr1.name}_${zd.chr2.name}_${zd.zoom.binSize}_${zd.zoom.unit}_${row}_${column}_${state.normalization}_${this.displayMode}`
+        const key = `${zoomData.chr1.name}_${zoomData.chr2.name}_${zoomData.zoom.binSize}_${zoomData.zoom.unit}_${row}_${column}_${normalization}_${this.displayMode}`
 
         if (this.imageTileCache.hasOwnProperty(key)) {
             return this.imageTileCache[key]
+        }
 
-        } else {
-            if (this.drawsInProgress.has(key)) {
+        if (this.drawsInProgress.has(key)) {
+            const image = inProgressTile(imageTileDimension)
+            return { row, column, blockBinCount: imageTileDimension, image, inProgress: true }
+        }
 
-                const image = inProgressTile(imageTileDimension)
-                return {
-                    row,
-                    column,
-                    blockBinCount: imageTileDimension,
-                    image: image,
-                    inProgress: true
-                }  // TODO return an image at a coarser resolution if avaliable
+        this.drawsInProgress.add(key)
 
-            }
-            this.drawsInProgress.add(key)
+        try {
+            this.startSpinner()
 
-            try {
-                this.startSpinner()
-                const sameChr = zd.chr1.index === zd.chr2.index
-                const transpose = sameChr && row < column
-                const averageCount = zd.averageCount
-                const ctrlAverageCount = zdControl ? zdControl.averageCount : 1
-                const averageAcrossMapAndControl = (averageCount + ctrlAverageCount) / 2
+            const sizeBP = imageTileDimension * zoomData.zoom.binSize
 
-                const imageSize = imageTileDimension
-                const image = document.createElement('canvas');
-                image.width = imageSize;
-                image.height = imageSize;
-                const ctx = image.getContext('2d');
-                //ctx.clearRect(0, 0, image.width, image.height);
+            const xStartBP = column * sizeBP
+            const yStartBP =    row * sizeBP
 
-                // Get blocks
-                const widthInBP = imageTileDimension * zd.zoom.binSize;
-                const x0bp = column * widthInBP;
-                const region1 = {chr: zd.chr1.name, start: x0bp, end: x0bp + widthInBP};
-                const y0bp = row * widthInBP;
-                const region2 = {chr: zd.chr2.name, start: y0bp, end: y0bp + widthInBP};
-                const records = await ds.getContactRecords(state.normalization, region1, region2, zd.zoom.unit, zd.zoom.binSize);
-                let cRecords;
-                if (zdControl) {
-                    cRecords = await dsControl.getContactRecords(state.normalization, region1, region2, zdControl.zoom.unit, zdControl.zoom.binSize);
+            const { contactRecords, contactRecordsControl } = await getContactRecords(dataset, datasetControl, normalization, xStartBP, yStartBP, sizeBP, zoomData, zoomDataControl)
+
+            const sameChr = zoomData.chr1.index === zoomData.chr2.index
+            const transpose = sameChr && row < column
+
+            const image = document.createElement('canvas');
+            image.width = imageTileDimension;
+            image.height = imageTileDimension;
+            const ctx = image.getContext('2d');
+
+            if (contactRecords.length > 0) {
+
+                const averageCount = zoomData.averageCount
+                const averageCountControl = zoomDataControl ? zoomDataControl.averageCount : 1
+                const averageCountAcrossMapAndControl = (averageCount + averageCountControl) / 2
+
+                const imageData = ctx.getImageData(0, 0, image.width, image.height);
+
+                let controlRecords = {}
+                if ('AOB' === this.displayMode || 'BOA' === this.displayMode || 'AMB' === this.displayMode) {
+                    for (let contactRecordControl of contactRecordsControl) {
+                        controlRecords[ contactRecordControl.getKey() ] = contactRecordControl
+                    }
                 }
 
-                if (records.length > 0) {
+                const xBin = transpose ? row * imageTileDimension : column * imageTileDimension
+                const yBin = transpose ? column * imageTileDimension : row * imageTileDimension
 
-                    const controlRecords = {};
-                    if ('AOB' === this.displayMode || 'BOA' === this.displayMode || 'AMB' === this.displayMode) {
-                        for (let record of cRecords) {
-                            controlRecords[record.getKey()] = record
-                        }
+                for (let contactRecord of contactRecords) {
+
+                    let x = Math.floor((contactRecord.bin1 - xBin))
+                    let y = Math.floor((contactRecord.bin2 - yBin))
+
+                    if (transpose) {
+                        const t = y;
+                        y = x;
+                        x = t;
                     }
 
-                    let id = ctx.getImageData(0, 0, image.width, image.height);
+                    const rgba = this.getRGBAWithDisplayMode(this.displayMode, contactRecord, controlRecords, averageCount, averageCountControl, averageCountAcrossMapAndControl)
 
-
-                    const x0 = transpose ? row * imageTileDimension : column * imageTileDimension;
-                    const y0 = transpose ? column * imageTileDimension : row * imageTileDimension;
-                    for (let i = 0; i < records.length; i++) {
-
-                        const rec = records[i];
-                        let x = Math.floor((rec.bin1 - x0));
-                        let y = Math.floor((rec.bin2 - y0));
-
-                        if (transpose) {
-                            const t = y;
-                            y = x;
-                            x = t;
-                        }
-
-                        let rgba
-                        switch (this.displayMode) {
-
-                            case 'AOB':
-                            case 'BOA':
-                                let key = rec.getKey();
-                                let controlRec = controlRecords[key];
-                                if (!controlRec) {
-                                    continue;    // Skip
-                                }
-                                let score = (rec.counts / averageCount) / (controlRec.counts / ctrlAverageCount);
-
-                                rgba = this.ratioColorScale.getColor(score);
-
-                                break;
-
-                            case 'AMB':
-                                key = rec.getKey();
-                                controlRec = controlRecords[key];
-                                if (!controlRec) {
-                                    continue;    // Skip
-                                }
-                                score = averageAcrossMapAndControl * ((rec.counts / averageCount) - (controlRec.counts / ctrlAverageCount));
-
-                                rgba = this.diffColorScale.getColor(score);
-
-                                break;
-
-                            default:    // Either 'A' or 'B'
-                                rgba = this.colorScale.getColor(rec.counts);
-                        }
-
-                        // TODO -- verify that this bitbliting is faster than fillRect
-                        setPixel(id, x, y, rgba.red, rgba.green, rgba.blue, rgba.alpha);
+                    if (rgba) {
+                        setPixel(imageData, x, y, rgba.red, rgba.green, rgba.blue, rgba.alpha)
                         if (sameChr && row === column) {
-                            setPixel(id, y, x, rgba.red, rgba.green, rgba.blue, rgba.alpha);
+                            setPixel(imageData, y, x, rgba.red, rgba.green, rgba.blue, rgba.alpha)
                         }
-
                     }
+                }
 
-                    ctx.putImageData(id, 0, 0);
+                ctx.putImageData(imageData, 0, 0)
+            }
+
+            renderTracks2D(ctx, row, column, xStartBP, yStartBP, zoomData, this.browser.tracks2D, image.width, image.height, sameChr, transpose)
+
+            const imageTile = { row, column, blockBinCount: imageTileDimension, image }
+
+            if (this.imageTileCacheLimit > 0) {
+                if (this.imageTileCacheKeys.length > this.imageTileCacheLimit) {
+                    delete this.imageTileCache[this.imageTileCacheKeys[0]]
+                    this.imageTileCacheKeys.shift()
+                }
+                this.imageTileCache[key] = imageTile
+
+            }
+
+            return imageTile;
+
+        } finally {
+            this.drawsInProgress.delete(key)
+            this.stopSpinner()
+        }
+
+    }
+
+    getRGBAWithDisplayMode(displayMode, contactRecord, controlRecords, averageCount, averageCountControl, averageCountAcrossMapAndControl) {
+
+        let controlRecord
+        let key
+        let score
+        switch (displayMode) {
+
+            case 'AOB':
+            case 'BOA':
+
+                key = contactRecord.getKey();
+                controlRecord = controlRecords[key];
+
+                if (controlRecord) {
+                    score = (contactRecord.counts / averageCount) / (controlRecord.counts / averageCountControl)
+                    return this.ratioColorScale.getColor(score)
                 } else {
-                    //console.log("No block for " + blockNumber);
+                    return undefined
                 }
 
-                //Draw 2D tracks
-                ctx.save();
-                ctx.lineWidth = 2;
-                for (let track2D of this.browser.tracks2D) {
+            case 'AMB':
 
-                    if (track2D.isVisible) {
+                key = contactRecord.getKey();
+                controlRecord = controlRecords[key];
 
-                        const chr1Name = zd.chr1.name;
-                        const chr2Name = zd.chr2.name;
-                        const features = track2D.getFeatures(chr1Name, chr2Name);
-
-                        if (features) {
-
-                            for (let {chr1, x1, x2, y1, y2, color} of features) {
-
-                                // Chr name order
-                                const flip = chr1Name !== chr1;
-
-                                const fx1 = transpose || flip ? y1 : x1;
-                                const fx2 = transpose || flip ? y2 : x2;
-                                const fy1 = transpose || flip ? x1 : y1;
-                                const fy2 = transpose || flip ? x2 : y2;
-
-                                let px1 = (fx1 - x0bp) / zd.zoom.binSize;
-                                let px2 = (fx2 - x0bp) / zd.zoom.binSize;
-                                let py1 = (fy1 - y0bp) / zd.zoom.binSize;
-                                let py2 = (fy2 - y0bp) / zd.zoom.binSize;
-                                let w = px2 - px1;
-                                let h = py2 - py1;
-
-                                const dim = Math.max(image.width, image.height);
-                                if (px2 > 0 && px1 < dim && py2 > 0 && py1 < dim) {
-                                    //console.log(`${row} ${column}    ${x1} ${x2}`)
-                                    ctx.strokeStyle = track2D.color ? track2D.color : color;
-                                    ctx.strokeRect(px1, py1, w, h);
-                                    if (sameChr && row === column) {
-                                        ctx.strokeRect(py1, px1, h, w);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                if (controlRecord) {
+                    score = averageCountAcrossMapAndControl * ((contactRecord.counts / averageCount) - (controlRecord.counts / averageCountControl))
+                    return this.diffColorScale.getColor(score)
+                } else {
+                    return undefined
                 }
 
+            default:
+                // displayMode is either 'A' or 'B'
+                return this.colorScale.getColor(contactRecord.counts)
+        }
+    }
 
-                ctx.restore();
+    async zoomIn() {
 
-                // Uncomment to reveal tile boundaries for debugging.
-                //  ctx.fillStyle = "rgb(255,255,255)";
-                //  ctx.strokeRect(0, 0, image.width - 1, image.height - 1)
+        const { chr1, chr2 } = this.browser.state
 
-
-                const imageTile = { row, column, blockBinCount: imageTileDimension, image: image}
-
-
-                if (this.imageTileCacheLimit > 0) {
-                    if (this.imageTileCacheKeys.length > this.imageTileCacheLimit) {
-                        delete this.imageTileCache[this.imageTileCacheKeys[0]]
-                        this.imageTileCacheKeys.shift()
-                    }
-                    this.imageTileCache[key] = imageTile
-
-                }
-
-                return imageTile;
-
-            } finally {
-                this.drawsInProgress.delete(key)
-                this.stopSpinner()
+        const promises = []
+        if ('B' === this.displayMode && this.browser.controlDataset) {
+            promises.push(this.browser.controlDataset.getMatrix(chr1, chr2));
+        } else {
+            promises.push(this.browser.dataset.getMatrix(chr1, chr2));
+            if (this.displayMode && 'A' !== this.displayMode && this.browser.controlDataset) {
+                promises.push(this.browser.controlDataset.getMatrix(chr1, chr2));
             }
         }
 
+        const matrices = await Promise.all(promises)
 
-        function setPixel(imageData, x, y, r, g, b, a) {
-            const index = (x + y * imageData.width) * 4;
-            imageData.data[index + 0] = r;
-            imageData.data[index + 1] = g;
-            imageData.data[index + 2] = b;
-            imageData.data[index + 3] = a;
+        const matrix = matrices[0]
+
+        if (matrix) {
+
+            const zoomedGenomicExtent = ContactMatrixView.getGenomicExtent(this.browser.state, matrix, this.browser.dataset, this.browser.controlDataset, this.displayMode, this.$viewport.get(0).getBoundingClientRect())
+
+            const { width, height } = this.$viewport.get(0).getBoundingClientRect()
+
+            // const zoomData = await matrix.getZoomDataByIndex(zoom, 'BP');
+            // const __newGenomicExtent =
+            //     {
+            //         x: x * zoomData.zoom.binSize,
+            //         y: y * zoomData.zoom.binSize,
+            //         w:  width * zoomData.zoom.binSize / pixelSize,
+            //         h: height * zoomData.zoom.binSize / pixelSize
+            //     }
+
+            // Zoom out not supported
+            if (zoomedGenomicExtent.w > this.genomicExtent.w) {
+                return
+            }
+
+            const sx = ((zoomedGenomicExtent.x - this.genomicExtent.x) / this.genomicExtent.w) * width
+            const sy = ((zoomedGenomicExtent.y - this.genomicExtent.y) / this.genomicExtent.w) * height
+
+            const sWidth = (zoomedGenomicExtent.w / this.genomicExtent.w) * width
+            const sHeight = (zoomedGenomicExtent.h / this.genomicExtent.h) * height
+
+            const img = this.$canvas.get(0)
+
+            const backCanvas = document.createElement('canvas')
+            backCanvas.width = img.width;
+            backCanvas.height = img.height;
+
+            const backCtx = backCanvas.getContext('2d')
+
+            backCtx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, width, height)
+
+            this.ctx.clearRect(0, 0, width, height)
+            this.ctx.drawImage(backCanvas, 0, 0)
         }
-
     }
 
     /**
@@ -570,89 +441,6 @@ class ContactMatrixView {
 
     }
 
-    async zoomIn() {
-
-        const { chr1, chr2, x, y, zoom, pixelSize } = this.browser.state
-
-        const promises = []
-        if ('B' === this.displayMode && this.browser.controlDataset) {
-            promises.push(this.browser.controlDataset.getMatrix(chr1, chr2));
-        } else {
-            promises.push(this.browser.dataset.getMatrix(chr1, chr2));
-            if (this.displayMode && 'A' !== this.displayMode && this.browser.controlDataset) {
-                promises.push(this.browser.controlDataset.getMatrix(chr1, chr2));
-            }
-        }
-
-        const matrices = Promise.all(promises)
-
-        const matrix = matrices[0]
-
-        if (matrix) {
-
-            const zoomedGenomicExtent = ContactMatrixView.getGenomicExtent(this.browser.state, matrix, this.browser.dataset, this.browser.controlDataset, this.displayMode, this.$viewport.get(0).getBoundingClientRect())
-
-            const { width, height } = this.$viewport.get(0).getBoundingClientRect()
-
-            // const zoomData = await matrix.getZoomDataByIndex(zoom, 'BP');
-            // const __newGenomicExtent =
-            //     {
-            //         x: x * zoomData.zoom.binSize,
-            //         y: y * zoomData.zoom.binSize,
-            //         w:  width * zoomData.zoom.binSize / pixelSize,
-            //         h: height * zoomData.zoom.binSize / pixelSize
-            //     }
-
-            // Zoom out not supported
-            if (zoomedGenomicExtent.w > this.genomicExtent.w) {
-                return
-            }
-
-            const sx = ((zoomedGenomicExtent.x - this.genomicExtent.x) / this.genomicExtent.w) * width
-            const sy = ((zoomedGenomicExtent.y - this.genomicExtent.y) / this.genomicExtent.w) * height
-
-            const sWidth = (zoomedGenomicExtent.w / this.genomicExtent.w) * width
-            const sHeight = (zoomedGenomicExtent.h / this.genomicExtent.h) * height
-
-            const img = this.$canvas.get(0)
-
-            const backCanvas = document.createElement('canvas')
-            backCanvas.width = img.width;
-            backCanvas.height = img.height;
-
-            const backCtx = backCanvas.getContext('2d')
-
-            backCtx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, width, height)
-
-            this.ctx.clearRect(0, 0, width, height)
-            this.ctx.drawImage(backCanvas, 0, 0)
-        }
-    }
-
-    paintTile(image, row, column, blockBinCount, viewportWidth, viewportHeight, x, y, pixelSize) {
-
-        const x0 = blockBinCount * column
-        const y0 = blockBinCount * row
-
-        const offsetX = (x0 - x) * pixelSize
-        const offsetY = (y0 - y) * pixelSize
-
-        const  scaledWidth = image.width  * pixelSize
-        const scaledHeight = image.height * pixelSize
-
-        if (offsetX <= viewportWidth && offsetX + scaledWidth >= 0 && offsetY <= viewportHeight && offsetY + scaledHeight >= 0) {
-
-            this.ctx.fillStyle = this.backgroundRGBString
-            this.ctx.fillRect(offsetX, offsetY, scaledWidth, scaledHeight)
-
-            if (pixelSize === 1) {
-                this.ctx.drawImage(image, offsetX, offsetY)
-            } else {
-                this.ctx.drawImage(image, offsetX, offsetY, scaledWidth, scaledHeight)
-            }
-        }
-    }
-
     startSpinner() {
 
         if (true === this.browser.isLoadingHICFile && this.browser.$user_interaction_shield) {
@@ -663,11 +451,78 @@ class ContactMatrixView {
     }
 
     stopSpinner() {
+
         this.spinnerCount--
         if (0 === this.spinnerCount) {
             this.$fa_spinner.css("display", "none")
         }
-        this.spinnerCount = Math.max(0, this.spinnerCount)   // This should not be neccessary
+        this.spinnerCount = Math.max(0, this.spinnerCount)
+    }
+
+    setBackgroundColor(rgb) {
+        this.backgroundColor = rgb
+        this.backgroundRGBString = IGVColor.rgbColor(rgb.r, rgb.g, rgb.b)
+        this.repaint()
+    }
+
+    stringifyBackgroundColor() {
+        return `${this.backgroundColor.r},${this.backgroundColor.g},${this.backgroundColor.b}`;
+    }
+
+    setColorScale(colorScale) {
+
+        switch (this.displayMode) {
+            case 'AOB':
+            case 'BOA':
+                this.ratioColorScale = colorScale;
+                break;
+            case 'AMB':
+                this.diffColorScale = colorScale;
+                break;
+            default:
+                this.colorScale = colorScale;
+        }
+        this.colorScaleThresholdCache[colorScaleKey(this.browser.state, this.displayMode)] = colorScale.threshold;
+    }
+
+    async setColorScaleThreshold(threshold) {
+        this.getColorScale().setThreshold(threshold);
+        this.colorScaleThresholdCache[colorScaleKey(this.browser.state, this.displayMode)] = threshold;
+        this.imageTileCache = {};
+        await this.update()
+    }
+
+    getColorScale() {
+        switch (this.displayMode) {
+            case 'AOB':
+            case 'BOA':
+                return this.ratioColorScale;
+            case 'AMB':
+                return this.diffColorScale;
+            default:
+                return this.colorScale;
+        }
+    }
+
+    async setDisplayMode(mode) {
+        this.displayMode = mode;
+        this.clearImageCaches();
+        await this.update();
+        this.browser.eventBus.post(HICEvent("DisplayMode", mode))
+    }
+
+    getDisplayMode() {
+        return this.displayMode
+    }
+
+    clearImageCaches() {
+        this.imageTileCache = {};
+        this.imageTileCacheKeys = [];
+    }
+
+    getViewDimensions() {
+        const { width, height } = this.$viewport.get(0).getBoundingClientRect()
+        return { width, height }
     }
 
     addMouseHandlers($viewport) {
@@ -819,11 +674,173 @@ class ContactMatrixView {
         }
     }
 
+    static parseBackgroundColor(rgbString) {
+        const [r, g, b] = rgbString.split(",").map(str => parseInt(str))
+        return {r, g, b}
+    }
+
+    static getGenomicExtent(state, matrix, dataset, controlDataset, displayMode, viewDimensions) {
+
+        let { zoomIndexA, zoomIndexB } = ContactMatrixView.getZoomIndex(state.zoom, displayMode, dataset, controlDataset)
+
+        const { x, y, chr1, chr2, pixelSize } = state
+
+        const zoomData = matrix.getZoomDataByIndex(zoomIndexA, 'BP');
+
+        return {
+            chr1,
+            chr2,
+            x: x * zoomData.zoom.binSize,
+            y: y * zoomData.zoom.binSize,
+            w:   viewDimensions.width * zoomData.zoom.binSize / pixelSize,
+            h:  viewDimensions.height * zoomData.zoom.binSize / pixelSize
+        }
+
+    }
+
+    static getZoomIndex(zoomIndex, displayMode, dataset, controlDataset) {
+
+        const getBZoomIndex = (zoom, dataset, controlDataset) => {
+
+            const binSize = dataset.getBinSizeForZoomIndex(zoom)
+
+            if (!binSize) {
+                console.error(`getZoomIndex: Invalid zoom index ${ zoom }`)
+            }
+
+            const bZoom = controlDataset.getZoomIndexForBinSize(binSize)
+
+            if (bZoom < 0) {
+                console.error(`getZoomIndex: Invalid binSize for "B" map: ${ binSize }`)
+            }
+
+            return bZoom
+        }
+
+        switch (displayMode) {
+            case 'A':
+                return { zoomIndexA: zoomIndex }
+            case 'B':
+                return { zoomIndexA: getBZoomIndex(zoomIndex, dataset, controlDataset) }
+            case 'AOB':
+            case 'AMB':
+                return { zoomIndexA: zoomIndex, zoomIndexB: getBZoomIndex(zoomIndex, dataset, controlDataset) }
+            case 'BOA':
+                return { zoomIndexA: getBZoomIndex(zoomIndex, dataset, controlDataset), zoomIndexB: zoomIndex }
+        }
+
+    }
+
 }
 
 ContactMatrixView.defaultBackgroundColor = {r: 255, g: 255, b: 255}
 
-function datasetPairWithDisplayMode(browser, displayMode) {
+async function getContactRecords(dataset, datasetControl, normalization, xStartBP, yStartBP, sizeBP, zoomData, zoomDataControl) {
+
+    const geometricRegionX = { chr: zoomData.chr1.name, start: xStartBP, end: xStartBP + sizeBP }
+
+    const geometricRegionY = { chr: zoomData.chr2.name, start: yStartBP, end: yStartBP + sizeBP }
+
+    const contactRecords = await dataset.getContactRecords(normalization, geometricRegionX, geometricRegionY, zoomData.zoom.unit, zoomData.zoom.binSize);
+
+    if (zoomDataControl) {
+        const contactRecordsControl = await datasetControl.getContactRecords(normalization, geometricRegionX, geometricRegionY, zoomDataControl.zoom.unit, zoomDataControl.zoom.binSize)
+        return { contactRecords, contactRecordsControl }
+    } else {
+        return { contactRecords }
+    }
+
+}
+
+function paintTile(ctx, backgroundRGBString, image, row, column, blockBinCount, viewportWidth, viewportHeight, xBin, yBin, pixelSize) {
+
+    const x0 = blockBinCount * column
+    const y0 = blockBinCount * row
+
+    const offsetX = (x0 - xBin) * pixelSize
+    const offsetY = (y0 - yBin) * pixelSize
+
+    const  scaledWidth = image.width  * pixelSize
+    const scaledHeight = image.height * pixelSize
+
+    if (offsetX <= viewportWidth && offsetX + scaledWidth >= 0 && offsetY <= viewportHeight && offsetY + scaledHeight >= 0) {
+
+        ctx.fillStyle = backgroundRGBString
+        ctx.fillRect(offsetX, offsetY, scaledWidth, scaledHeight)
+
+        if (pixelSize === 1) {
+            ctx.drawImage(image, offsetX, offsetY)
+        } else {
+            ctx.drawImage(image, offsetX, offsetY, scaledWidth, scaledHeight)
+        }
+    }
+}
+
+function renderTracks2D(ctx, row, column, xStartBP, yStartBP, zoomData, tracks2D, imageWidth, imageHeight, sameChr, transpose) {
+
+    ctx.save()
+
+    ctx.lineWidth = 2
+
+    const chr1Name = zoomData.chr1.name
+    const chr2Name = zoomData.chr2.name
+
+    const size = Math.max(imageWidth, imageHeight)
+
+    for (let track2D of tracks2D) {
+
+        if (track2D.isVisible) {
+
+            const features = track2D.getFeatures(chr1Name, chr2Name)
+
+            if (features) {
+
+                for (let { chr1, x1, x2, y1, y2, color } of features) {
+
+                    // Chr name order
+                    const flip = chr1Name !== chr1;
+
+                    const fx1 = transpose || flip ? y1 : x1;
+                    const fx2 = transpose || flip ? y2 : x2;
+                    const fy1 = transpose || flip ? x1 : y1;
+                    const fy2 = transpose || flip ? x2 : y2;
+
+                    let px1 = (fx1 - xStartBP) / zoomData.zoom.binSize;
+                    let px2 = (fx2 - xStartBP) / zoomData.zoom.binSize;
+
+                    let py1 = (fy1 - yStartBP) / zoomData.zoom.binSize;
+                    let py2 = (fy2 - yStartBP) / zoomData.zoom.binSize;
+
+                    let w = px2 - px1;
+                    let h = py2 - py1;
+
+                    if (px2 > 0 && px1 < size && py2 > 0 && py1 < size) {
+
+                        ctx.strokeStyle = track2D.color ? track2D.color : color
+                        ctx.strokeRect(px1, py1, w, h)
+
+                        if (sameChr && row === column) {
+                            ctx.strokeRect(py1, px1, h, w);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    ctx.restore()
+
+}
+
+function setPixel(imageData, x, y, r, g, b, a) {
+    const index = (x + y * imageData.width) * 4;
+    imageData.data[index + 0] = r;
+    imageData.data[index + 1] = g;
+    imageData.data[index + 2] = b;
+    imageData.data[index + 3] = a;
+}
+
+function getDatasetPairWithDisplayMode(browser, displayMode) {
 
     switch (displayMode) {
         case 'A':
@@ -842,16 +859,6 @@ function datasetPairWithDisplayMode(browser, displayMode) {
 function colorScaleKey(state, displayMode) {
     return "" + state.chr1 + "_" + state.chr2 + "_" + state.zoom + "_" + state.normalization + "_" + displayMode;
 }
-
-/**
- * Returns a promise for an image tile
- *
- * @param zd
- * @param row
- * @param column
- * @param state
- * @returns {*}
- */
 
 const inProgressCache = {}
 
@@ -875,20 +882,6 @@ function inProgressTile(imageSize) {
         inProgressCache[imageSize] = image
     }
     return image;
-}
-
-function getMatrices(chr1, chr2) {
-
-    var promises = [];
-    if ('B' === this.displayMode && this.browser.controlDataset) {
-        promises.push(this.browser.controlDataset.getMatrix(chr1, chr2));
-    } else {
-        promises.push(this.browser.dataset.getMatrix(chr1, chr2));
-        if (this.displayMode && 'A' !== this.displayMode && this.browser.controlDataset) {
-            promises.push(this.browser.controlDataset.getMatrix(chr1, chr2));
-        }
-    }
-    return Promise.all(promises);
 }
 
 function computePercentile(records, p) {
