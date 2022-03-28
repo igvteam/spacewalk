@@ -24,6 +24,7 @@
 /**
  * Created by dat on 3/3/17.
  */
+
 import {IGVColor, DOMUtils, StringUtils} from 'igv-utils'
 import { ColorPicker, createColorSwatchSelector, GenericContainer} from 'igv-ui'
 import RatioColorScale, {defaultRatioColorScaleConfig} from './ratioColorScale.js'
@@ -67,24 +68,34 @@ class ColorScaleWidget {
         // threshold
         this.$high_colorscale_input = $('<input>', {'type': 'text', 'placeholder': '', 'title': 'color scale input'});
         this.$container.append(this.$high_colorscale_input);
-        this.$high_colorscale_input.on('change', function (e) {
-            var numeric;
-            numeric = StringUtils.numberUnFormatter($(this).val());
+        this.$high_colorscale_input.on('change', function () {
+
+            const numeric = StringUtils.numberUnFormatter($(this).val());
+
             if (isNaN(numeric)) {
                 // do nothing
             } else {
-                browser.setColorScaleThreshold(numeric);
+                browser.contactMatrixView.setColorScaleThreshold(numeric)
             }
+
         });
 
+        let $fa
+
         // threshold -
-        let $fa = $("<i>", {class: 'fa fa-minus', 'aria-hidden': 'true', 'title': 'negative threshold'});
-        $fa.on('click', () => this.$high_colorscale_input.val(updateThreshold(browser, 0.5)));
+        $fa = $("<i>", {class: 'fa fa-minus', 'aria-hidden': 'true', 'title': 'negative threshold'});
+        $fa.on('click', async () => {
+            const value = await updateThreshold(browser, 0.5)
+            this.$high_colorscale_input.val(value)
+        });
         this.$container.append($fa);
 
         // threshold +
         $fa = $("<i>", {class: 'fa fa-plus', 'aria-hidden': 'true', 'title': 'positive threshold'});
-        $fa.on('click', () => this.$high_colorscale_input.val(updateThreshold(browser, 2.0)));
+        $fa.on('click', async () => {
+            const value = await updateThreshold(browser, 2.0)
+            this.$high_colorscale_input.val(value)
+        });
         this.$container.append($fa);
 
         const handleColorScaleEvent = event => {
@@ -139,10 +150,14 @@ function paintSwatch($swatch, {r, g, b}) {
     $swatch.get(0).style.backgroundColor = IGVColor.rgbToHex(IGVColor.rgbColor(r, g, b))
 }
 
-const updateThreshold = (browser, scaleFactor) => {
-    const colorScale = browser.getColorScale();
-    browser.setColorScaleThreshold(colorScale.getThreshold() * scaleFactor);
-    return StringUtils.numberFormatter(colorScale.getThreshold());
+async function updateThreshold(browser, scaleFactor) {
+
+    const colorScale = browser.contactMatrixView.getColorScale()
+
+    const threshold = colorScale.getThreshold() * scaleFactor
+    const number = await browser.contactMatrixView.setColorScaleThreshold(threshold)
+
+    return StringUtils.numberFormatter(number)
 }
 
 function createColorPicker(browser, $parent, type) {
@@ -168,7 +183,7 @@ function createColorPicker(browser, $parent, type) {
         colorHandler = hexString => {
             $parent.get(0).style.backgroundColor = hexString
             const [r, g, b] = IGVColor.hexToRgb(hexString).split('(').pop().split(')').shift().split(',').map(str => parseInt(str, 10))
-            browser.getColorScale().setColorComponents({r, g, b}, type)
+            browser.contactMatrixView.getColorScale().setColorComponents({r, g, b}, type)
             browser.repaintMatrix()
         }
 

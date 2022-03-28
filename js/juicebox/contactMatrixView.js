@@ -172,8 +172,6 @@ class ContactMatrixView {
 
         }
 
-        // console.log(`${ this.browser.state.description(this.browser) }`)
-
         this.genomicExtent = ContactMatrixView.getGenomicExtent(this.browser.state, matrix, this.browser.dataset, this.browser.controlDataset, this.displayMode, this.getViewDimensions())
     }
 
@@ -490,6 +488,8 @@ class ContactMatrixView {
         this.colorScaleThresholdCache[colorScaleKey(this.browser.state, this.displayMode)] = threshold;
         this.imageTileCache = {};
         await this.update()
+
+        return threshold
     }
 
     getColorScale() {

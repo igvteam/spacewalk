@@ -919,25 +919,6 @@ class HICBrowser {
         return this.dataset && this.state && this.dataset.isWholeGenome(this.state.chr1)
     }
 
-    getColorScale() {
-
-        if (!this.contactMatrixView) return undefined;
-
-        switch (this.getDisplayMode()) {
-            case 'AOB':
-            case 'BOA':
-                return this.contactMatrixView.ratioColorScale;
-            case 'AMB':
-                return this.contactMatrixView.diffColorScale;
-            default:
-                return this.contactMatrixView.colorScale;
-        }
-    }
-
-    setColorScaleThreshold(threshold) {
-        this.contactMatrixView.setColorScaleThreshold(threshold);
-    }
-
     updateCrosshairs({x, y, xNormalized, yNormalized}) {
 
         const xGuide = y < 0 ? {left: 0} : {top: y, left: 0};
