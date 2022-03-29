@@ -221,21 +221,18 @@ class Ruler {
         this.$wholeGenomeContainer.children().removeClass('hic-whole-genome-chromosome-highlight');
     };
 
-    receiveEvent(event) {
-        var offset,
-            $e;
+    receiveEvent({ type, data }) {
 
-        if ('MapLoad' === event.type) {
-            this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis, event.data);
+        if ('MapLoad' === type) {
+            this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis, data);
             this.update();
-        } else if ('UpdateContactMapMousePosition' === event.type) {
+        } else if ('UpdateContactMapMousePosition' === type) {
 
             if (this.bboxes) {
                 this.unhighlightWholeChromosome();
-                offset = 'x' === this.axis ? event.data.x : event.data.y;
-                $e = hitTest(this.bboxes, offset);
+                const offset = 'x' === this.axis ? data.x : data.y;
+                const $e = hitTest(this.bboxes, offset);
                 if ($e) {
-                    // console.log(this.axis + ' highlight chr ' + $e.text());
                     $e.addClass('hic-whole-genome-chromosome-highlight');
                 }
             }

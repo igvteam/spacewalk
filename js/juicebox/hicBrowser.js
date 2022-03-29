@@ -398,14 +398,14 @@ class HICBrowser {
 
         if (1 === loci.length) {
             xLocus = this.getLocusPairHelper(loci[0])
-            yLocus = xLocus
+            yLocus = Object.assign({}, xLocus)
         } else {
 
             xLocus = this.getLocusPairHelper(loci[0])
             yLocus = this.getLocusPairHelper(loci[1])
 
             if (undefined === yLocus) {
-                yLocus = xLocus
+                yLocus = Object.assign({}, xLocus)
             }
         }
 
@@ -416,7 +416,7 @@ class HICBrowser {
 
             if (result) {
                 xLocus = this.getLocusPairHelper(result)
-                yLocus = xLocus
+                yLocus = Object.assign({}, xLocus)
 
                 return { xLocus, yLocus, gene }
             } else {
@@ -509,7 +509,7 @@ class HICBrowser {
 
     async goto(chr1, startXBP, endXBP, chr2, startYBP, endYBP) {
 
-        await this.setStateWithLoci(this.state, { chr1, start:startXBP, end: endXBP }, { chr2, start:startYBP, end: endYBP })
+        await this.setStateWithLoci(this.state, { chr:chr1, start:startXBP, end: endXBP }, { chr:chr2, start:startYBP, end: endYBP })
 
         const eventConfig =
             {
@@ -738,12 +738,21 @@ class HICBrowser {
                 this.updating = false
 
                 if (this.pending.size > 0) {
-                    this.pending.clear()
-                    const promises = this.pending.map(([ ignore, event ]) => this.update(event))
-                    await Promise.all(promises)
+
+                    const events = []
+                    for (let [k, v] of this.pending) {
+                        events.push(v);
+                    }
+
+                    this.pending.clear();
+
+                    for (let e of events) {
+                        this.update(e)
+                    }
                 }
 
                 if (event) {
+                    // possibly, unless update was called from an event post (infinite loop)
                     this.eventBus.post(event)
                 }
 
@@ -756,21 +765,6 @@ class HICBrowser {
         this.contactMatrixView.imageTileCache = {};
         this.contactMatrixView.initialImage = undefined;
         this.contactMatrixView.update();
-    }
-
-    /**
-     * Render the XY pair of tracks.
-     *
-     * @param xy
-     */
-    async renderTrackXY(xy) {
-
-        try {
-            this.contactMatrixView.startSpinner()
-            await xy.updateViews();
-        } finally {
-            this.contactMatrixView.stopSpinner()
-        }
     }
 
     /**
