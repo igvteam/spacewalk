@@ -54,6 +54,7 @@ class EnsembleManager {
 
                 const item =
                     {
+                        interpolant: this.genomicExtentList[ i ].interpolant,
                         xyz,
                         rgb,
                         color,

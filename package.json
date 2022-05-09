@@ -15,9 +15,9 @@
     "igv-utils": "github:igvteam/igv-utils#v1.3.4",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
     "sass": "^1.51.0",
-    "three": "^0.137.5",
     "vanilla-picker": "^2.12.1",
     "vite": "^2.9.8",
-    "vite-plugin-glsl": "^0.1.2"
+    "vite-plugin-glsl": "^0.1.2",
+    "three": "^0.137.5"
   }
 }
