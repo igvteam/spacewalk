@@ -218,7 +218,8 @@ function populateContactFrequencyCanvasArray(maximumSegmentID, frequencies) {
             const interpolant = Math.floor(frequency * scale)
             rgb = threeJSColorToRGB255(colorMap[ interpolant ][ 'threejs' ])
         } else {
-            rgb = threeJSColorToRGB255(appleCrayonColorThreeJS('honeydew'))
+            // rgb = threeJSColorToRGB255(appleCrayonColorThreeJS('honeydew'))
+            rgb = threeJSColorToRGB255(appleCrayonColorThreeJS('silver'))
         }
 
         canvasArray[i++] = rgb.r
