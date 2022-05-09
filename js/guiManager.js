@@ -11,19 +11,24 @@ class GUIManager {
     constructor ({ settingsButton, $panel }) {
 
         settingsButton.addEventListener('click', e => {
-            e.preventDefault();
             e.stopPropagation()
             $panel.toggle()
         })
 
+        document.querySelector('#spacewalk-threejs-container').addEventListener('click', e => {
+            e.stopPropagation()
+            $panel.hide()
+        })
+
+        $panel.get(0).addEventListener(    'click', e => e.stopPropagation())
+        $panel.get(0).addEventListener('mousemove', e => e.stopPropagation())
+
         document.querySelector(`#spacewalk_ui_manager_groundplane`).addEventListener('change', e => {
-            e.preventDefault()
             e.stopPropagation()
             sceneManager.groundPlane.toggle()
         })
 
         document.querySelector(`#spacewalk_ui_manager_gnomon`).addEventListener('change', e => {
-            e.preventDefault()
             e.stopPropagation()
             sceneManager.gnomon.toggle()
         })
