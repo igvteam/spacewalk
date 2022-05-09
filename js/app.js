@@ -7,8 +7,7 @@ import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
-import DataValueMaterialProvider from './dataValueMaterialProvider.js';
-import DeprecatedDataValueMaterialProvider from "./deprecatedDataValueMaterialProvider.js";
+import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import Panel, { doInspectPanelVisibilityCheckbox }  from "./panel.js";
 import PointCloud from "./pointCloud.js";
@@ -110,8 +109,8 @@ const initializationHelper = async container => {
     colorMapManager = new ColorMapManager();
     await colorMapManager.configure();
 
-    // dataValueMaterialProvider = new DataValueMaterialProvider({ width:8192, height:16, colorMinimum:appleCrayonColorRGB255('silver'), colorMaximum:appleCrayonColorRGB255('blueberry') })
-    dataValueMaterialProvider = new DeprecatedDataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
+    // dataValueMaterialProvider = new UnusedDataValueMaterialProvider({ width:8192, height:16, colorMinimum:appleCrayonColorRGB255('silver'), colorMaximum:appleCrayonColorRGB255('blueberry') })
+    dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
 
     colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
