@@ -141,9 +141,9 @@ const createImage = imageSource => {
 
 };
 
-const drawWithCanvasArray = async (ctx, size, array) => {
+const drawWithCanvasArray = async (ctx, array) => {
 
-    const { width, height } = size;
+    const { width, height } = ctx.canvas;
 
     const imageData = new ImageData(array, ensembleManager.maximumSegmentID, ensembleManager.maximumSegmentID);
 

@@ -40,8 +40,6 @@ class DistanceMapPanel extends Panel {
         canvas.width = $canvas_container.width();
         canvas.height = $canvas_container.height();
 
-        this.size = { width: canvas.width, height: canvas.height };
-
         this.ctx_ensemble = canvas.getContext('bitmaprenderer');
 
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
@@ -54,10 +52,10 @@ class DistanceMapPanel extends Panel {
 
             if ('trace' === data.traceOrEnsemble) {
                 populateDistanceCanvasArray(data.workerDistanceBuffer, ensembleManager.maximumSegmentID, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-                drawWithCanvasArray(this.ctx_trace, this.size, canvasArray)
+                drawWithCanvasArray(this.ctx_trace, canvasArray)
             } else {
                 populateDistanceCanvasArray(data.workerDistanceBuffer, ensembleManager.maximumSegmentID, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-                drawWithCanvasArray(this.ctx_ensemble, this.size, canvasArray)
+                drawWithCanvasArray(this.ctx_ensemble, canvasArray)
             }
 
 
@@ -137,7 +135,7 @@ class DistanceMapPanel extends Panel {
         this.worker.postMessage(data)
 
         clearCanvasArray(canvasArray, ensembleManager.maximumSegmentID)
-        drawWithCanvasArray(this.ctx_trace, this.size, canvasArray)
+        drawWithCanvasArray(this.ctx_trace, canvasArray)
 
     }
 
@@ -157,7 +155,7 @@ class DistanceMapPanel extends Panel {
         this.worker.postMessage(data)
 
         clearCanvasArray(ensembleManager.maximumSegmentID)
-        drawWithCanvasArray(this.ctx_ensemble, this.size, canvasArray)
+        drawWithCanvasArray(this.ctx_ensemble, canvasArray)
 
     }
 }

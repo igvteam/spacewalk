@@ -43,8 +43,6 @@ class ContactFrequencyMapPanel extends Panel {
         canvas.height = $canvas_container.height();
         this.ctx_trace = canvas.getContext('bitmaprenderer');
 
-        this.size = { width: canvas.width, height: canvas.height };
-
         this.distanceThreshold = distanceThreshold;
 
         const input = panel.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
@@ -70,14 +68,15 @@ class ContactFrequencyMapPanel extends Panel {
 
             document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
 
-            populateContactFrequencyCanvasArray(ensembleManager.maximumSegmentID, data.workerValuesBuffer)
+            if ('ensemble' === data.traceOrEnsemble) {
+                ContactFrequencyMapPanel.echoContactMatrixUpperTriangle(data.workerValuesBuffer, ensembleManager.maximumSegmentID)
+            }
+
+            populateContactFrequencyCanvasArray(data.workerValuesBuffer)
+
             const context = 'trace' === data.traceOrEnsemble ? this.ctx_trace : this.ctx_ensemble
+            drawWithCanvasArray(context, canvasArray)
 
-            // if ('ensemble' === data.traceOrEnsemble) {
-            //     ContactFrequencyMapPanel.echoContactMatrixUpperTriangle(data.workerValuesBuffer, ensembleManager.maximumSegmentID)
-            // }
-
-            drawWithCanvasArray(context, this.size, canvasArray)
         }, false)
 
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
@@ -154,7 +153,7 @@ class ContactFrequencyMapPanel extends Panel {
         this.worker.postMessage(data)
 
         clearCanvasArray(canvasArray, ensembleManager.maximumSegmentID)
-        drawWithCanvasArray(this.ctx_trace, this.size, canvasArray)
+        drawWithCanvasArray(this.ctx_trace, canvasArray)
 
     }
 
@@ -175,17 +174,18 @@ class ContactFrequencyMapPanel extends Panel {
         this.worker.postMessage(data)
 
         clearCanvasArray(canvasArray, ensembleManager.maximumSegmentID)
-        drawWithCanvasArray(this.ctx_ensemble, this.size, canvasArray)
+        drawWithCanvasArray(this.ctx_ensemble, canvasArray)
 
     }
 
-    static echoContactMatrixUpperTriangle(frequencies, size) {
+    // Contact Matrix is m by m where m = matrixSize
+    static echoContactMatrixUpperTriangle(frequencies, matrixSize) {
 
-        for (let y = 0; y < size; y++) {
+        for (let y = 0; y < matrixSize; y++) {
             const list = []
-            for (let x = y; x < size; x++) {
+            for (let x = y; x < matrixSize; x++) {
 
-                const xy = x * size + y
+                const xy = x * matrixSize + y
                 const frequency = frequencies[ xy ]
 
                 // omit main diagonal
@@ -200,25 +200,23 @@ class ContactFrequencyMapPanel extends Panel {
     }
 }
 
-function populateContactFrequencyCanvasArray(maximumSegmentID, frequencies) {
+function populateContactFrequencyCanvasArray(frequencies) {
 
-    let maxFrequency = Number.NEGATIVE_INFINITY
-    for (let frequency of frequencies) {
-        maxFrequency = Math.max(maxFrequency, frequency)
-    }
+    const maxFrequency = Math.max(Number.NEGATIVE_INFINITY, ...frequencies)
 
     const colorMap = colorMapManager.dictionary['juicebox_default']
-    const scale = (colorMap.length - 1) / maxFrequency;
 
     let i = 0
     for (let frequency of frequencies) {
 
         let rgb
         if (frequency > kContactFrequencyUndefined) {
-            const interpolant = Math.floor(frequency * scale)
+
+            let interpolant = frequency / maxFrequency
+            interpolant = Math.floor(interpolant * (colorMap.length - 1))
+
             rgb = threeJSColorToRGB255(colorMap[ interpolant ][ 'threejs' ])
         } else {
-            // rgb = threeJSColorToRGB255(appleCrayonColorThreeJS('honeydew'))
             rgb = threeJSColorToRGB255(appleCrayonColorThreeJS('silver'))
         }
 
