@@ -33,7 +33,7 @@ class BallAndStick {
 
                 const { interpolantList } = data
 
-                const interpolantWindowList = EnsembleManager.getInterpolantWindowList(interpolantList, ensembleManager.genomic.genomicExtentList)
+                const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
                 if (interpolantWindowList) {
                     const instanceIdList = interpolantWindowList.map(({ index }) => index)

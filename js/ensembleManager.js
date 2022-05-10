@@ -83,18 +83,18 @@ class EnsembleManager {
         return this.ensemble[ name ] || undefined;
     }
 
-    static getInterpolantWindowList(interpolantList, genomicExtentList) {
+    getGenomicInterpolantWindowList(interpolantList) {
 
         const interpolantWindowList = [];
 
-        for (let genomicExtent of genomicExtentList) {
+        for (let genomicExtent of this.genomic.genomicExtentList) {
 
             let { start:a, end:b } = genomicExtent
 
             for (let interpolant of interpolantList) {
 
                 if ( includes({ a, b, value: interpolant }) ) {
-                    interpolantWindowList.push({ genomicExtent, index: genomicExtentList.indexOf(genomicExtent) })
+                    interpolantWindowList.push({ genomicExtent, index: this.genomic.genomicExtentList.indexOf(genomicExtent) })
                 }
 
             }

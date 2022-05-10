@@ -50,7 +50,7 @@ class PointCloud {
 
             const { interpolantList } = data;
 
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList(interpolantList, ensembleManager.genomic.genomicExtentList)
+            const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
             if (interpolantWindowList) {
                 const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ]);

@@ -59,7 +59,7 @@ class ColorRampMaterialProvider {
 
             if (this !== poster || sceneManager.renderStyle === Ribbon.getRenderStyle()) {
 
-                const interpolantWindowList = EnsembleManager.getInterpolantWindowList(interpolantList, ensembleManager.genomic.genomicExtentList)
+                const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
                 if (interpolantWindowList) {
                     this.highlightWithInterpolantWindowList(interpolantWindowList.map(({genomicExtent}) => genomicExtent));
@@ -79,7 +79,7 @@ class ColorRampMaterialProvider {
             let { yNormalized } = getMouseXY(canvas, event);
             const interpolantList = [ 1.0 - yNormalized ];
 
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList(interpolantList, ensembleManager.genomic.genomicExtentList)
+            const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
             if (interpolantWindowList) {
 

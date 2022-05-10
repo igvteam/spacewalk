@@ -100,7 +100,7 @@ class GenomicDataset extends Dataset {
                     trace[ key ] = { x:item.x, y:item.y, z:item.z, isMissingData: item.isMissingData }
                 }
             }
-            
+
             for (let trace of Object.values(this.traces)) {
 
                 const bbox =
