@@ -18,14 +18,6 @@ class EnsembleManager {
         this.locus = genomic.getLocus()
         let { chr, genomicStart, genomicEnd } = this.locus
 
-        // maximumSegmentID is used to size the distance and contact maps which
-        // are N by N where N = maximumSegmentID.
-        // Because trace data often has missing xyz values the total number of
-        // segments cannot be assumed to be the same for each trace in the ensemble.
-        // We use  maximumSegmentID to ensure all traces will map to the contact
-        // and distance maps.
-        this.maximumSegmentID = genomic.maximumSegmentID
-
         this.isPointCloud = genomic.isPointCloud;
 
         this.ensemble = {}

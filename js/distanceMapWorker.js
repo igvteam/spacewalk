@@ -8,7 +8,7 @@ self.addEventListener('message', ({ data }) => {
         console.time(str)
 
         const vertices = JSON.parse(data.verticesString)
-        const { maxDistance, distances } = updateTraceDistanceArray(data.maximumSegmentID, vertices)
+        const { maxDistance, distances } = updateTraceDistanceArray(data.traceLength, vertices)
 
         console.timeEnd(str)
 
@@ -27,7 +27,7 @@ self.addEventListener('message', ({ data }) => {
         console.time(str);
 
         const vertexLists = JSON.parse(data.vertexListsString)
-        const { maxAverageDistance, averages } = updateEnsembleDistanceArray(data.maximumSegmentID, vertexLists)
+        const { maxAverageDistance, averages } = updateEnsembleDistanceArray(data.traceLength, vertexLists)
 
         console.timeEnd(str)
 
@@ -46,9 +46,9 @@ self.addEventListener('message', ({ data }) => {
 
 const kDistanceUndefined = -1;
 
-function updateTraceDistanceArray(maximumSegmentID, vertices) {
+function updateTraceDistanceArray(traceLength, vertices) {
 
-    const distances = new Float32Array(maximumSegmentID * maximumSegmentID)
+    const distances = new Float32Array(traceLength * traceLength)
     distances.fill(kDistanceUndefined)
 
     const validVertices = []
@@ -71,7 +71,7 @@ function updateTraceDistanceArray(maximumSegmentID, vertices) {
 
         const x = validIndices[ v ]
 
-        const xy_diagonal = x * maximumSegmentID + x
+        const xy_diagonal = x * traceLength + x
 
         distances[ xy_diagonal ] = 0
 
@@ -85,8 +85,8 @@ function updateTraceDistanceArray(maximumSegmentID, vertices) {
 
                 const y = validIndices[ w ]
 
-                const ij =  x * maximumSegmentID + y
-                const ji =  y * maximumSegmentID + x
+                const ij =  x * traceLength + y
+                const ji =  y * traceLength + x
 
                 distances[ ij ] = distances[ ji ] = distance
 
@@ -101,17 +101,17 @@ function updateTraceDistanceArray(maximumSegmentID, vertices) {
 
 }
 
-function updateEnsembleDistanceArray(maximumSegmentID, vertexLists) {
+function updateEnsembleDistanceArray(traceLength, vertexLists) {
 
-    const averages  = new Float32Array(maximumSegmentID * maximumSegmentID)
+    const averages  = new Float32Array(traceLength * traceLength)
     averages.fill(kDistanceUndefined)
 
-    const counters = new Int32Array(maximumSegmentID * maximumSegmentID)
+    const counters = new Int32Array(traceLength * traceLength)
     counters.fill(0)
 
     for (let vertices of vertexLists) {
 
-        const { maxDistance, distances } = updateTraceDistanceArray(maximumSegmentID, vertices)
+        const { maxDistance, distances } = updateTraceDistanceArray(traceLength, vertices)
 
         // We need to calculate an array of averages where the input data
         // can have missing - kDistanceUndefined - values

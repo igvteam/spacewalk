@@ -5,9 +5,9 @@ self.addEventListener('message', ({ data }) => {
     const str = `Contact Frequency Map Worker - Calculate Frequency Values`
     console.time(str)
 
-    const contactFrequency = new Float32Array(data.maximumSegmentID * data.maximumSegmentID)
+    const contactFrequency = new Float32Array(data.traceLength * data.traceLength)
     const vertexLists = 'trace' === data.traceOrEnsemble ? [ JSON.parse(data.verticesString) ] : JSON.parse(data.vertexListsString)
-    calculateContactFrequencies(contactFrequency, data.maximumSegmentID, vertexLists, data.distanceThreshold)
+    calculateContactFrequencies(contactFrequency, data.traceLength, vertexLists, data.distanceThreshold)
 
     console.timeEnd(str)
 
@@ -24,14 +24,14 @@ self.addEventListener('message', ({ data }) => {
 
 const kContactFrequencyUndefined = -1
 
-function calculateContactFrequencies(contactFrequency, maximumSegmentID, vertexLists, distanceThreshold) {
+function calculateContactFrequencies(contactFrequency, traceLength, vertexLists, distanceThreshold) {
     contactFrequency.fill(kContactFrequencyUndefined)
     for (let vertices of vertexLists) {
-        accumulateContactFrequencies(contactFrequency, maximumSegmentID, vertices, distanceThreshold)
+        accumulateContactFrequencies(contactFrequency, traceLength, vertices, distanceThreshold)
     }
 }
 
-function accumulateContactFrequencies(contactFrequency, maximumSegmentID, vertices, distanceThreshold) {
+function accumulateContactFrequencies(contactFrequency, traceLength, vertices, distanceThreshold) {
 
     const exclusionSet = new Set();
 
@@ -52,7 +52,7 @@ function accumulateContactFrequencies(contactFrequency, maximumSegmentID, vertic
     for (let v = 0; v < validVertices.length; v++) {
 
         const x = validIndices[ v ]
-        const xy_diagonal = x * maximumSegmentID + x
+        const xy_diagonal = x * traceLength + x
         contactFrequency[ xy_diagonal ] = 1
 
         exclusionSet.add(v)
@@ -64,8 +64,8 @@ function accumulateContactFrequencies(contactFrequency, maximumSegmentID, vertic
 
                 const y = validIndices[ contactIndex ]
 
-                const xy = x * maximumSegmentID + y
-                const yx = y * maximumSegmentID + x
+                const xy = x * traceLength + y
+                const yx = y * traceLength + x
 
                 if (xy > contactFrequency.length) {
                     console.error(`xy ${xy} is an invalid index for array of length ${ contactFrequency.length }`)

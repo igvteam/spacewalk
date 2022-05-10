@@ -116,10 +116,10 @@ const readFileAsDataURL = async blob => {
     });
 };
 
-function clearCanvasArray(canvasArray, maximumSegmentID) {
+function clearCanvasArray(canvasArray, traceLength) {
 
     const { r, g, b } = appleCrayonColorRGB255('magnesium')
-    const length = maximumSegmentID * maximumSegmentID
+    const length = traceLength * traceLength
     let i = 0
     for (let x = 0; x < length; x++) {
         canvasArray[i++] = r
@@ -145,7 +145,7 @@ const drawWithCanvasArray = async (ctx, array) => {
 
     const { width, height } = ctx.canvas;
 
-    const imageData = new ImageData(array, ensembleManager.maximumSegmentID, ensembleManager.maximumSegmentID);
+    const imageData = new ImageData(array, ensembleManager.genomic.traceLength, ensembleManager.genomic.traceLength);
 
     const config =
         {

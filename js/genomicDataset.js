@@ -2,14 +2,20 @@ import Dataset from "./dataset.js";
 
 
 class GenomicDataset extends Dataset {
+
     constructor() {
         super();
-        this.traces = {};
+
+        this.traces = {}
+
         this.genomicStart = Number.POSITIVE_INFINITY;
         this.genomicEnd = Number.NEGATIVE_INFINITY;
+
         this.isPointCloud = undefined;
+
         this.chr = undefined;
-        this.maximumSegmentID = undefined;
+
+        this.traceLength = undefined
         this.genomicExtentList = undefined
     }
 
@@ -61,9 +67,10 @@ class GenomicDataset extends Dataset {
 
     postprocess() {
 
-        let trace = Object.values(this.traces)[ 0 ];
-        let list = Object.values(trace)[ 0 ];
-        this.isPointCloud = (list.length > 1)
+        let [ anyTrace ] = Object.values(this.traces)
+        let [ vertices ] = Object.values(anyTrace)
+
+        this.isPointCloud = (vertices.length > 1)
 
         if (true === this.isPointCloud) {
             for (let trace of Object.values(this.traces)) {
@@ -84,17 +91,16 @@ class GenomicDataset extends Dataset {
             // consolidate non-pointcloud data.
             for (let trace of Object.values(this.traces)) {
 
-                if (undefined === this.maximumSegmentID) {
-                    this.maximumSegmentID = Object.keys(trace).length;
+                if (undefined === this.traceLength) {
+                    this.traceLength = Object.keys(trace).length;
                 }
 
                 for (let key of Object.keys(trace)) {
                     const [ item ] = trace[ key ]
                     trace[ key ] = { x:item.x, y:item.y, z:item.z, isMissingData: item.isMissingData }
                 }
-
-            } // for (Object.values(this.traces))
-
+            }
+            
             for (let trace of Object.values(this.traces)) {
 
                 const bbox =
@@ -132,7 +138,7 @@ class GenomicDataset extends Dataset {
 
             }
 
-        } // if (false === this.isPointCloud)
+        }
 
         for (let i = 0; i < this.genomicExtentList.length; i++) {
             const item = this.genomicExtentList[ i ]
