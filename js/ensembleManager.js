@@ -1,5 +1,5 @@
-import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import { colorRampMaterialProvider } from "./app.js";
 import { includes, degrees } from "./math.js";
 
@@ -12,6 +12,8 @@ class EnsembleManager {
 
         const str = 'EnsembleManager ingestSW'
         console.time(str)
+
+        this.genomic = genomic
 
         this.locus = genomic.getLocus()
         let { chr, genomicStart, genomicEnd } = this.locus
@@ -27,7 +29,6 @@ class EnsembleManager {
         this.isPointCloud = genomic.isPointCloud;
 
         this.ensemble = {}
-        this.genomicExtentList = genomic.genomicExtentList
 
         for (let [ key, trace ] of Object.entries(genomic.traces)) {
 
@@ -39,7 +40,7 @@ class EnsembleManager {
 
                 const traceValue = traceValues[ i ]
 
-                const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[ i ].interpolant)
+                const color = colorRampMaterialProvider.colorForInterpolant(genomic.genomicExtentList[ i ].interpolant)
 
                 let xyz
                 let rgb
@@ -54,7 +55,7 @@ class EnsembleManager {
 
                 const item =
                     {
-                        interpolant: this.genomicExtentList[ i ].interpolant,
+                        interpolant: genomic.genomicExtentList[ i ].interpolant,
                         xyz,
                         rgb,
                         color,
@@ -90,18 +91,18 @@ class EnsembleManager {
         return this.ensemble[ name ] || undefined;
     }
 
-    getInterpolantWindowList(interpolantList) {
+    static getInterpolantWindowList(interpolantList, genomicExtentList) {
 
         const interpolantWindowList = [];
 
-        for (let genomicExtent of this.genomicExtentList) {
+        for (let genomicExtent of genomicExtentList) {
 
             let { start:a, end:b } = genomicExtent
 
             for (let interpolant of interpolantList) {
 
                 if ( includes({ a, b, value: interpolant }) ) {
-                    interpolantWindowList.push({ genomicExtent, index: this.genomicExtentList.indexOf(genomicExtent) })
+                    interpolantWindowList.push({ genomicExtent, index: genomicExtentList.indexOf(genomicExtent) })
                 }
 
             }

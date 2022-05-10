@@ -1,6 +1,7 @@
-import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import { ensembleManager, sceneManager } from "./app.js";
+import EnsembleManager from './ensembleManager.js'
 
 const pointSize = 128;
 
@@ -49,7 +50,7 @@ class PointCloud {
 
             const { interpolantList } = data;
 
-            const interpolantWindowList = ensembleManager.getInterpolantWindowList(interpolantList)
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList(interpolantList, ensembleManager.genomic.genomicExtentList)
 
             if (interpolantWindowList) {
                 const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ]);

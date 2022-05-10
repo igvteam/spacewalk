@@ -4,6 +4,7 @@ import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import {colorMapManager, ensembleManager, sceneManager} from "./app.js";
 import Ribbon from './ribbon.js';
+import EnsembleManager from './ensembleManager.js'
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
@@ -58,7 +59,7 @@ class ColorRampMaterialProvider {
 
             if (this !== poster || sceneManager.renderStyle === Ribbon.getRenderStyle()) {
 
-                const interpolantWindowList = ensembleManager.getInterpolantWindowList(interpolantList);
+                const interpolantWindowList = EnsembleManager.getInterpolantWindowList(interpolantList, ensembleManager.genomic.genomicExtentList)
 
                 if (interpolantWindowList) {
                     this.highlightWithInterpolantWindowList(interpolantWindowList.map(({genomicExtent}) => genomicExtent));
@@ -78,7 +79,7 @@ class ColorRampMaterialProvider {
             let { yNormalized } = getMouseXY(canvas, event);
             const interpolantList = [ 1.0 - yNormalized ];
 
-            const interpolantWindowList = ensembleManager.getInterpolantWindowList(interpolantList)
+            const interpolantWindowList = EnsembleManager.getInterpolantWindowList(interpolantList, ensembleManager.genomic.genomicExtentList)
 
             if (interpolantWindowList) {
 
@@ -103,7 +104,7 @@ class ColorRampMaterialProvider {
         this.highlight_ctx.clearRect(0, 0, this.highlight_ctx.canvas.width, this.highlight_ctx.canvas.height);
 
         if (interpolantWindowList) {
-            
+
             this.highlight_ctx.fillStyle = this.highlightColor;
 
             for (let { start, end } of interpolantWindowList) {
@@ -138,7 +139,7 @@ class ColorRampMaterialProvider {
         this.rgb_ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
         this.rgb_ctx.fillRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
 
-        for (let { interpolant, start, end } of ensembleManager.genomicExtentList) {
+        for (let { interpolant, start, end } of ensembleManager.genomic.genomicExtentList) {
 
             this.rgb_ctx.fillStyle = colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
 
