@@ -344,29 +344,32 @@ class HICBrowser {
                 Globals.selectedGene = gene
             }
 
-            // bp
+            // bp-per-bin
             const { binSize } = this.getBinSizeList()[ this.state.zoom ]
 
             // pixel
             const { width, height } = this.contactMatrixView.getViewDimensions()
 
+
+            // NOTE: We assume pixelSize === 1
+
             // treat start as centroid
             if (undefined === xLocus.end) {
 
-                // bp = bp - (pixel * bp-per-pixel)/2
+                // bp = bp - (pixel * bp-per-bin)/2
                 xLocus.start = Math.max(0, xLocus.start - Math.floor(width * binSize / 2))
 
-                // bp = bp + (pixel * bp-per-pixel)
+                // bp = bp + (pixel * bp-per-bin)
                 xLocus.end = xLocus.start + width * binSize;
             }
 
             // treat start as centroid
             if (undefined === yLocus.end) {
 
-                // bp = bp - (pixel * bp-per-pixel)/2
+                // bp = bp - (pixel * bp-per-bin)/2
                 yLocus.start = Math.max(0, yLocus.start - Math.floor(height * binSize / 2));
 
-                // bp = bp + (pixel * bp-per-pixel)
+                // bp = bp + (pixel * bp-per-bin)
                 yLocus.end = yLocus.start + height * binSize;
             }
 
@@ -481,10 +484,10 @@ class HICBrowser {
             // pixel
             const { width, height } = this.contactMatrixView.getViewDimensions()
 
-            // bp
+            // bp-per-bin
             const targetBinSize = Math.max((xLocus.end - xLocus.start) / width, (yLocus.end - yLocus.start) / height)
 
-            // bp
+            // bp-per-bin list
             const binSizeList = this.getBinSizeList()
 
             state.chr1 = xLocus.chr
@@ -533,7 +536,6 @@ class HICBrowser {
 
         if (this.dataset.isWholeGenome(this.state.chr1) && direction > 0) {
 
-            //              bp = pixel * bp-per-bin / pixels-per-bin
             //              bp = pixel * bp/bin * bin/pixel
             //              bp = bp
             const xBP = centerPX * this.dataset.wholeGenomeResolution / this.state.pixelSize;
@@ -546,7 +548,7 @@ class HICBrowser {
 
         } else {
 
-            // bp list
+            // bp-per-bin list
             const binSizeList = this.getBinSizeList()
 
             // pixel

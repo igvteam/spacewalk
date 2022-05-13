@@ -69,7 +69,8 @@ class ContactFrequencyMapPanel extends Panel {
             document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
 
             if ('ensemble' === data.traceOrEnsemble) {
-                ContactFrequencyMapPanel.echoContactMatrixUpperTriangle(data.workerValuesBuffer, ensembleManager.genomic.traceLength)
+                const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
+                ContactFrequencyMapPanel.contactMatrixPayloadStub(data.workerValuesBuffer, traceLength, chr, genomicStart, genomicEnd)
             }
 
             populateContactFrequencyCanvasArray(data.workerValuesBuffer)
@@ -179,22 +180,22 @@ class ContactFrequencyMapPanel extends Panel {
     }
 
     // Contact Matrix is m by m where m = matrixSize
-    static echoContactMatrixUpperTriangle(frequencies, matrixSize) {
+    static contactMatrixPayloadStub(frequencies, traceLength, chr, genomicStart, genomicEnd) {
 
-        for (let y = 0; y < matrixSize; y++) {
+        for (let wye = 0; wye < traceLength; wye++) {
             const list = []
-            for (let x = y; x < matrixSize; x++) {
+            for (let exe = wye; exe < traceLength; exe++) {
 
-                const xy = x * matrixSize + y
+                const xy = exe * traceLength + wye
                 const frequency = frequencies[ xy ]
 
                 // omit main diagonal
-                // if (x !== y) list.push(`freq(${ frequency })`)
+                // if (exe !== wye) list.push(`freq(${ frequency })`)
 
                 list.push(`freq(${ frequency })`)
             }
             const str = list.join(' ')
-            console.log(`${str}`)
+            // console.log(`${str}`)
         }
 
     }
