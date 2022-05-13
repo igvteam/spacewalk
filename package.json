@@ -14,10 +14,10 @@
     "igv-ui": "github:igvteam/igv-ui#v1.2.1",
     "igv-utils": "github:igvteam/igv-utils#v1.3.4",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
-    "sass": "^1.49.0",
-    "three": "^0.137.4",
+    "sass": "^1.51.0",
+    "three": "^0.140.1",
     "vanilla-picker": "^2.12.1",
-    "vite": "^2.7.13",
-    "vite-plugin-glsl": "^0.0.8"
+    "vite": "^2.9.8",
+    "vite-plugin-glsl": "^0.1.2"
   }
 }

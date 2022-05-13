@@ -1,10 +1,10 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import EnsembleManager from "./ensembleManager.js";
 import { fitToContainer, getMouseXY } from "./utils.js";
 import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import {colorMapManager, ensembleManager, sceneManager} from "./app.js";
 import Ribbon from './ribbon.js';
+import EnsembleManager from './ensembleManager.js'
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
@@ -59,10 +59,10 @@ class ColorRampMaterialProvider {
 
             if (this !== poster || sceneManager.renderStyle === Ribbon.getRenderStyle()) {
 
-                const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+                const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
                 if (interpolantWindowList) {
-                    this.highlightWithInterpolantWindowList(interpolantWindowList.map(({ colorRampInterpolantWindow }) => { return colorRampInterpolantWindow }));
+                    this.highlightWithInterpolantWindowList(interpolantWindowList.map(({genomicExtent}) => genomicExtent));
                 }
 
             }
@@ -79,7 +79,7 @@ class ColorRampMaterialProvider {
             let { yNormalized } = getMouseXY(canvas, event);
             const interpolantList = [ 1.0 - yNormalized ];
 
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+            const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
             if (interpolantWindowList) {
 
@@ -101,21 +101,14 @@ class ColorRampMaterialProvider {
 
     paintWithInterpolantWindowList(interpolantWindowList) {
 
-        if (undefined === ensembleManager.currentTrace) {
-            return;
-        }
-
-        // clear highlight canvas
         this.highlight_ctx.clearRect(0, 0, this.highlight_ctx.canvas.width, this.highlight_ctx.canvas.height);
 
         if (interpolantWindowList) {
 
-            // set highlight color
             this.highlight_ctx.fillStyle = this.highlightColor;
 
-            for (let interpolantWindow of interpolantWindowList) {
+            for (let { start, end } of interpolantWindowList) {
 
-                const { start, end } = interpolantWindow;
                 const h = Math.round((end - start) * this.highlight_ctx.canvas.height);
                 const y = Math.round(start * this.highlight_ctx.canvas.height);
 
@@ -146,9 +139,7 @@ class ColorRampMaterialProvider {
         this.rgb_ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
         this.rgb_ctx.fillRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
 
-        const colorRampInterpolantWindows = Object.values(ensembleManager.currentTrace).map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow);
-
-        for (let { interpolant, start, end } of colorRampInterpolantWindows) {
+        for (let { interpolant, start, end } of ensembleManager.genomic.genomicExtentList) {
 
             this.rgb_ctx.fillStyle = colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
 

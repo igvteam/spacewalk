@@ -24,6 +24,7 @@
 /**
  * Created by dat on 3/3/17.
  */
+
 import {StringUtils} from 'igv-utils'
 
 class LocusGoto {
@@ -40,9 +41,9 @@ class LocusGoto {
         this.$resolution_selector = $('<input type="text" placeholder="chr-x-axis chr-y-axis">');
         this.$container.append(this.$resolution_selector);
 
-        this.$resolution_selector.on('change', function (e) {
-            browser.parseGotoInput($(this).val());
-            $(this).blur();
+        this.$resolution_selector.on('change', async function (e) {
+            await browser.parseLocusString($(this).val(), true)
+            $(this).blur()
         });
 
         this.browser.eventBus.subscribe("LocusChange", this);

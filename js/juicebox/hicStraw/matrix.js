@@ -24,14 +24,15 @@ class Matrix {
      * @returns {number}
      */
     findZoomForResolution(binSize, unit) {
-        const zdArray = "FRAG" === unit ? this.fragZoomData : this.bpZoomData
-        for (let i = 1; i < zdArray.length; i++) {
-            var zd = zdArray[i]
-            if (zd.zoom.binSize < binSize) {
+        const zoomDataList = "FRAG" === unit ? this.fragZoomData : this.bpZoomData
+
+        for (let i = 1; i < zoomDataList.length; i++) {
+            const { zoom } = zoomDataList[i]
+            if (zoom.binSize < binSize) {
                 return i - 1
             }
         }
-        return zdArray.length - 1
+        return zoomDataList.length - 1
     }
 
     /**

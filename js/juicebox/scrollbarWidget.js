@@ -46,38 +46,11 @@ class ScrollbarWidget {
 
     }
 
-    css2Bin(chromosome, $element, attribute) {
-        var numer,
-            denom,
-            percentage;
+    receiveEvent({ type, data }) {
 
-        numer = $element.css(attribute).slice(0, -2);
-        denom = $element.parent().css('left' === attribute ? 'width' : 'height').slice(0, -2);
-        percentage = parseInt(numer, 10) / parseInt(denom, 10);
+        if (!this.isDragging && type === "LocusChange") {
 
-        return percentage * chromosome.size / this.browser.dataset.bpResolutions[this.browser.state.zoom];
-    }
-
-    receiveEvent(event) {
-        var self = this,
-            chromosomeLengthsBin,
-            chromosomeLengthsPixel,
-            width,
-            height,
-            pixels,
-            widthBin,
-            heightBin,
-            bins,
-            percentage,
-            percentages,
-            str;
-
-        if (!this.isDragging && event.type === "LocusChange") {
-
-            var state = event.data.state,
-                dataset = self.browser.dataset;
-
-            if (0 === state.chr1) {
+            if (0 === data.state.chr1) {
                 this.$x_axis_scrollbar.hide();
                 this.$y_axis_scrollbar.hide();
             } else {
@@ -88,37 +61,36 @@ class ScrollbarWidget {
                 this.$x_axis_scrollbar_container.show();
                 this.$y_axis_scrollbar_container.show();
 
-                const {chr1, chr2, zoom, pixelSize, x, y} = state;
+                const {chr1, chr2, zoom, pixelSize, x, y} = data.state;
 
-                // bp / bp-per-bin -> bin
-                chromosomeLengthsBin = [chr1, chr2].map(chr => {
-                    return dataset.chromosomes[chr].size / dataset.bpResolutions[zoom]
-                });
+                const dataset = this.browser.dataset
 
-                chromosomeLengthsPixel = chromosomeLengthsBin.map(bin => bin * pixelSize);
+                // bin = bp / bp-per-bin
+                // bin = bin
+                const chromosomeLengthsBin = [chr1, chr2].map(chr => dataset.chromosomes[chr].size / dataset.bpResolutions[zoom])
 
-                pixels = [this.browser.contactMatrixView.getViewDimensions().width, this.browser.contactMatrixView.getViewDimensions().height];
+                // pixel = bin * pixel-per-bin
+                const chromosomeLengthsPixel = chromosomeLengthsBin.map(bin => bin * pixelSize);
+
+                //
+                const { width, height } = this.browser.contactMatrixView.getViewDimensions()
 
                 // pixel / pixel-per-bin -> bin
-                bins = [pixels[0] / pixelSize, pixels[pixels.length - 1] / pixelSize];
+                const bins = [ width/pixelSize, height/pixelSize]
 
-                // bin / bin -> percentage
-                percentages = bins.map((bin, i) => {
+                const pixels = [ width, height ]
+
+                const [ xPercentage, yPercentage ] = bins.map((bin, i) => {
                     const binPercentage = Math.min(bin, chromosomeLengthsBin[i]) / chromosomeLengthsBin[i];
                     const pixelPercentage = Math.min(chromosomeLengthsPixel[i], pixels[i]) / pixels[i];
                     return Math.max(1, Math.round(100 * binPercentage * pixelPercentage));
                 });
 
-                this.$x_axis_scrollbar.css('width', `${percentages[0]}%`);
-                this.$y_axis_scrollbar.css('height', `${percentages[percentages.length - 1]}%`);
+                this.$x_axis_scrollbar.css('width', `${ xPercentage }%`);
+                this.$y_axis_scrollbar.css('height', `${ yPercentage }%`);
 
-                // bin / bin -> percentage
-                percentage = Math.round(100 * x / chromosomeLengthsBin[0]);
-                this.$x_axis_scrollbar.css('left', `${percentage}%`);
-
-                // bin / bin -> percentage
-                percentage = Math.round(100 * y / chromosomeLengthsBin[chromosomeLengthsBin.length - 1]);
-                this.$y_axis_scrollbar.css('top', `${percentage}%`);
+                this.$x_axis_scrollbar.css('left', `${ Math.round(100 * x / chromosomeLengthsBin[0]) }%`);
+                this.$y_axis_scrollbar.css('top', `${ Math.round(100 * y / chromosomeLengthsBin[1]) }%`);
 
                 this.$x_label.text(dataset.chromosomes[chr1].name);
                 this.$y_label.text(dataset.chromosomes[chr2].name);

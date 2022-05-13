@@ -107,7 +107,7 @@ class SceneManager {
             ballAndStick.addToScene(scene);
         }
 
-        const {min, max, center, radius} = EnsembleManager.getBoundsWithTrace(trace);
+        const {min, max, center, radius} = EnsembleManager.getTraceBounds(trace);
         const {position, fov} = EnsembleManager.getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
         this.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
 

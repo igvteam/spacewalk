@@ -1,9 +1,9 @@
-import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three"
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import { Line2 } from "three/examples/jsm/lines/Line2.js"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
-import EnsembleManager, { getSingleCentroidVerticesWithTrace } from "./ensembleManager.js"
+import EnsembleManager from './ensembleManager.js'
 import {igvPanel, sceneManager} from "./app.js"
 import {appleCrayonColorThreeJS} from "./color.js";
 
@@ -50,11 +50,11 @@ class Ribbon {
         const str = 'Ribbon.configure()';
         console.time(str);
 
-        const vertices = getSingleCentroidVerticesWithTrace(trace);
-        this.curve = new THREE.CatmullRomCurve3( vertices );
+        const vertices = EnsembleManager.getSingleCentroidVertices(trace, true)
+        this.curve = new THREE.CatmullRomCurve3( vertices )
         this.curve.arcLengthDivisions = 1e3;
 
-        this.spline = createFatSpline(this.curve, igvPanel.materialProvider);
+        this.spline = createFatSpline(this.curve, igvPanel.materialProvider)
 
         console.timeEnd(str);
 
@@ -77,7 +77,7 @@ class Ribbon {
 
         scene.add( this.spline.mesh )
 
-        const { center, radius } = EnsembleManager.getBoundsWithTrace(this.trace)
+        const { center, radius } = EnsembleManager.getTraceBounds(this.trace)
 
         this.highlightBeads = []
 

@@ -21,10 +21,6 @@
  *
  */
 
-/**
- * Created by dat on 3/21/17.
- */
-
 class ControlMapWidget {
 
     constructor(browser, $hic_navbar_container) {
@@ -55,7 +51,7 @@ class ControlMapWidget {
         const self = this;
 
         browser.eventBus.subscribe("ControlMapLoad", function (event) {
-            self.controlMapHash.updateOptions(browser.getDisplayMode());
+            self.controlMapHash.updateOptions(browser.contactMatrixView.getDisplayMode());
             self.$container.show();
         });
 
@@ -117,18 +113,15 @@ class ControlMapHash {
                 'BOA': BOA
             };
 
-        this.$select.on('change', function (e) {
-            let value;
-
-            self.disableDisplayModeCycle();
-
-            value = $(this).val();
-            self.setDisplayMode(value);
+        this.$select.on('change', async () => {
+            self.disableDisplayModeCycle()
+            const value = this.$select.val()
+            await self.setDisplayMode(value)
         });
 
-        this.$toggle.on('click', function (e) {
-            self.disableDisplayModeCycle();
-            self.toggleDisplayMode();
+        this.$toggle.on('click', () => {
+            this.disableDisplayModeCycle()
+            this.toggleDisplayMode()
         });
 
         // cycle outline
@@ -152,20 +145,20 @@ class ControlMapHash {
 
         if (this.cycleID) {
 
-            clearTimeout(this.cycleID);
+            clearTimeout(this.cycleID)
             this.cycleID = undefined;
 
-            this.$cycle_solid.hide();
-            this.$cycle_outline.show();
+            this.$cycle_solid.hide()
+            this.$cycle_outline.show()
         }
 
     }
 
     toggleDisplayModeCycle  () {
-        let self = this;
+
+        const self = this;
 
         if (this.cycleID) {
-
             this.disableDisplayModeCycle();
         } else {
 
@@ -176,7 +169,7 @@ class ControlMapHash {
         }
 
         function doToggle() {
-            self.cycleID = setTimeout(async function () {
+            self.cycleID = setTimeout(async () => {
                 await self.toggleDisplayMode()
                 doToggle()
             }, 2500)
@@ -186,32 +179,20 @@ class ControlMapHash {
 
     async toggleDisplayMode  () {
 
-        let displayModeOld,
-            displayModeNew,
-            str;
-
-        displayModeOld = this.browser.getDisplayMode();
-
         // render new display mode
-        displayModeNew = this.hash[displayModeOld].other;
-        await this.browser.setDisplayMode(displayModeNew);
+        const displayModeNew = this.hash[ this.browser.contactMatrixView.displayMode ].other
+        await this.browser.contactMatrixView.setDisplayMode(displayModeNew)
 
-        // update exchange icon
         this.hash[displayModeNew].$hidden.hide();
         this.hash[displayModeNew].$shown.show();
 
-        // update select element
-        str = 'option[value=' + displayModeNew + ']';
-
-        this.$select.find(str).prop('selected', true);
+        this.$select.find(`option[value=${ displayModeNew }]`).prop('selected', true);
 
     }
 
-    setDisplayMode (displayMode) {
-
+    async setDisplayMode (displayMode) {
         setDisplayModeHelper.call(this, displayMode);
-
-        this.browser.setDisplayMode(displayMode);
+        await this.browser.contactMatrixView.setDisplayMode(displayMode);
     }
 
     updateOptions  (displayMode) {

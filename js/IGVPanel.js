@@ -177,8 +177,10 @@ class IGVPanel extends Panel {
 
         let tracks = [];
         try {
+            this.present()
             tracks = await this.browser.loadTrackList( configurations );
         } catch (e) {
+            console.error(e.message)
             AlertSingleton.present(e.message);
         }
 
@@ -186,11 +188,10 @@ class IGVPanel extends Panel {
             trackView.setTrackLabelName(trackView, config.name);
         }
 
-        this.present()
     }
 
     loadTrack(trackConfiguration) {
-        this.loadTrackList([trackConfiguration]);
+        this.loadTrackList([trackConfiguration])
     }
 
     toJSON() {

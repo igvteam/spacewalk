@@ -7,8 +7,8 @@ self.addEventListener('message', ({ data }) => {
         const str = `Distance Map Worker - Update Trace Distance Array`
         console.time(str)
 
-        const items = JSON.parse(data.itemsString)
-        const { maxDistance, distances } = updateTraceDistanceArray(data.maximumSegmentID, items)
+        const vertices = JSON.parse(data.verticesString)
+        const { maxDistance, distances } = updateTraceDistanceArray(data.traceLength, vertices)
 
         console.timeEnd(str)
 
@@ -26,8 +26,8 @@ self.addEventListener('message', ({ data }) => {
         const str = `Distance Map Worker - Update Ensemble Distance Array`
         console.time(str);
 
-        const essentials = JSON.parse(data.essentialsString)
-        const { maxAverageDistance, averages } = updateEnsembleDistanceArray(data.maximumSegmentID, essentials)
+        const vertexLists = JSON.parse(data.vertexListsString)
+        const { maxAverageDistance, averages } = updateEnsembleDistanceArray(data.traceLength, vertexLists)
 
         console.timeEnd(str)
 
@@ -46,30 +46,51 @@ self.addEventListener('message', ({ data }) => {
 
 const kDistanceUndefined = -1;
 
-function updateTraceDistanceArray(maximumSegmentID, items) {
+function updateTraceDistanceArray(traceLength, vertices) {
 
-    const distances = new Float32Array(maximumSegmentID * maximumSegmentID)
+    const distances = new Float32Array(traceLength * traceLength)
     distances.fill(kDistanceUndefined)
+
+    const validVertices = []
+    const validIndices = []
+
+    for (let i = 0; i < vertices.length; i++) {
+        if (true === vertices[ i ].isMissingData) {
+            // ignore
+        } else {
+            validIndices.push(i)
+            validVertices.push(vertices[ i ])
+        }
+    }
 
     let maxDistance = Number.NEGATIVE_INFINITY;
 
     let exclusionSet = new Set();
 
-    for (let i = 0; i < items.length; i++) {
+    for (let v = 0; v < validVertices.length; v++) {
 
-        exclusionSet.add(i)
+        const x = validIndices[ v ]
 
-        const xy_diagonal = items[ i ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
+        const xy_diagonal = x * traceLength + x
+
         distances[ xy_diagonal ] = 0
 
-        for (let j = 0; j < items.length; j++) {
+        exclusionSet.add(v)
+        for (let w = 0; w < validVertices.length; w++) {
 
-            if (false === exclusionSet.has(j)) {
-                const ij =  items[ i ].segmentIndex * maximumSegmentID + items[ j ].segmentIndex
-                const ji =  items[ j ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
-                const distance = distanceTo(items[ i ], items[ j ])
-                distances[ ij ] = distances[ ji ] = distance;
-                maxDistance = Math.max(maxDistance, distance);
+
+            if (false === exclusionSet.has(w)) {
+
+                const distance = distanceTo(validVertices[ v ], validVertices[ w ])
+
+                const y = validIndices[ w ]
+
+                const ij =  x * traceLength + y
+                const ji =  y * traceLength + x
+
+                distances[ ij ] = distances[ ji ] = distance
+
+                maxDistance = Math.max(maxDistance, distance)
             }
 
         }
@@ -80,17 +101,17 @@ function updateTraceDistanceArray(maximumSegmentID, items) {
 
 }
 
-function updateEnsembleDistanceArray(maximumSegmentID, essentials) {
+function updateEnsembleDistanceArray(traceLength, vertexLists) {
 
-    const averages  = new Float32Array(maximumSegmentID * maximumSegmentID)
+    const averages  = new Float32Array(traceLength * traceLength)
     averages.fill(kDistanceUndefined)
 
-    const counters = new Int32Array(maximumSegmentID * maximumSegmentID)
+    const counters = new Int32Array(traceLength * traceLength)
     counters.fill(0)
 
-    for (let items of essentials) {
+    for (let vertices of vertexLists) {
 
-        const { maxDistance, distances } = updateTraceDistanceArray(maximumSegmentID, items)
+        const { maxDistance, distances } = updateTraceDistanceArray(traceLength, vertices)
 
         // We need to calculate an array of averages where the input data
         // can have missing - kDistanceUndefined - values

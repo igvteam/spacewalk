@@ -61,8 +61,9 @@ class ChromosomeSelectorWidget {
         this.$y_axis_selector.next('div').on('click', async () => {
             const chr1Index = parseInt(this.$x_axis_selector.find('option:selected').val(), 10);
             const chr2Index = parseInt(this.$y_axis_selector.find('option:selected').val(), 10);
-            await browser.setChromosomes(chr1Index, chr2Index);
-        });
+
+            await browser.parseLocusString(`${chr1Index} ${chr2Index}`, true)
+         })
 
         this.dataLoadConfig =
             {

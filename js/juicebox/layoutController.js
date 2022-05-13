@@ -3,8 +3,7 @@
  */
 
 import Ruler from './ruler.js'
-import {TrackPair} from './trackPair.js'
-import {deleteBrowser, setCurrentBrowser} from "./hicMisc.js";
+import {deleteBrowser, setCurrentBrowser} from './hicMisc.js'
 
 // Keep in sync with juicebox.scss variables
 
@@ -38,7 +37,6 @@ class LayoutController {
 
         this.createAllContainers(browser, $root);
     }
-
 
     createAllContainers(browser, $root) {
 
@@ -144,159 +142,6 @@ class LayoutController {
 
     getXAxisScrollbarContainer() {
         return this.$content_container.find("div[id$='-x-axis-scrollbar-container']");
-    }
-
-    tracksLoaded(tracks) {
-
-        this.doLayoutTrackXYPairCount(tracks.length + this.browser.trackPairs.length);
-
-        tracks.forEach((track, index) => {
-            const trackPair = new TrackPair(
-                this.browser,
-                trackHeight,
-                this.$x_tracks,
-                this.$y_tracks,
-                track,
-                index
-            )
-            this.browser.trackPairs.push(trackPair);
-        });
-    }
-
-    removeAllTrackXYPairs() {
-
-        if (this.browser.trackPairs.length === 0 ) {
-            return;
-        }
-
-        for(let trackPair of this.browser.trackPairs) {
-            // discard DOM element's
-            trackPair.dispose();
-        }
-        this.browser.trackPairs = []
-        this.browser.updateLayout();
-        this.doLayoutTrackXYPairCount(0)
-
-        // What ???
-        // [...Array(this.browser.trackPairs.length).keys()].forEach(() => {
-        //
-        //     // select last track to discard
-        //     let discard = this.browser.trackPairs[this.browser.trackPairs.length - 1];
-        //
-        //     // discard DOM element's
-        //     discard['x'].$viewport.remove();
-        //     discard['y'].$viewport.remove();
-        //
-        //     // remove discard from list
-        //     const index = this.browser.trackPairs.indexOf(discard);
-        //     this.browser.trackPairs.splice(index, 1);
-        //
-        //     discard = undefined;
-        //     this.doLayoutTrackXYPairCount(this.browser.trackPairs.length);
-        //
-        // });
-    };
-
-    removeLastTrackXYPair() {
-
-        if (this.browser.trackPairs.length > 0) {
-
-            // select last track to dicard
-            let discard = this.browser.trackPairs[this.browser.trackPairs.length - 1];
-
-            // discard DOM element's
-            discard['x'].$viewport.remove();
-            discard['y'].$viewport.remove();
-
-            // remove discard from list
-            const index = this.browser.trackPairs.indexOf(discard);
-            this.browser.trackPairs.splice(index, 1);
-
-            discard = undefined;
-            this.doLayoutTrackXYPairCount(this.browser.trackPairs.length);
-
-            this.browser.updateLayout();
-
-        } else {
-            //console.log('No more tracks.');
-        }
-    }
-
-    removeTrackXYPair(trackXYPair) {
-
-        if (this.browser.trackPairs.length > 0) {
-
-            const discard = trackXYPair;
-
-            // discard DOM element's
-            discard['x'].$viewport.remove();
-            discard['y'].$viewport.remove();
-
-            // remove discard from list
-            const index = this.browser.trackPairs.indexOf(discard);
-            this.browser.trackPairs.splice(index, 1);
-
-            this.doLayoutTrackXYPairCount(this.browser.trackPairs.length);
-
-            this.browser.updateLayout();
-
-
-        } else {
-            //console.log('No more tracks.');
-        }
-
-    };
-
-    doLayoutTrackXYPairCount(trackXYPairCount) {
-
-
-        const track_aggregate_height = (0 === trackXYPairCount) ? 0 : trackXYPairCount * (trackHeight + track_margin);
-
-        let tokens = [getNavbarHeight(), track_aggregate_height].map(number => `${number}px`);
-        const height_calc = 'calc(100% - (' + tokens.join(' + ') + '))';
-
-        tokens = [track_aggregate_height, axis_height, scrollbar_height].map(number => `${number}px`);
-        const width_calc = 'calc(100% - (' + tokens.join(' + ') + '))';
-
-        // x-track container
-        this.$x_track_container.height(track_aggregate_height);
-
-        // track labels
-        this.$track_shim.width(track_aggregate_height);
-
-        // x-tracks
-        this.$x_tracks.css('width', width_calc);
-
-
-        // content container
-        this.$content_container.css('height', height_calc);
-
-        // x-axis - repaint canvas
-        this.xAxisRuler.updateWidthWithCalculation(width_calc);
-
-        // y-tracks
-        this.$y_tracks.width(track_aggregate_height);
-
-        // y-axis - repaint canvas
-        this.yAxisRuler.updateHeight(this.yAxisRuler.$axis.height());
-
-        // viewport
-        this.browser.contactMatrixView.$viewport.css('width', width_calc);
-
-        // x-scrollbar
-        this.browser.contactMatrixView.scrollbarWidget.$x_axis_scrollbar_container.css('width', width_calc);
-
-    }
-
-    doLayoutWithRootContainerSize(size) {
-
-        this.browser.$root.width(size.width);
-        this.browser.$root.height(size.height + getNavbarHeight());
-
-        const count = this.browser.trackPairs.length > 0 ? this.browser.trackPairs.length : 0;
-        this.doLayoutTrackXYPairCount(count);
-
-        this.browser.updateLayout();
     }
 }
 

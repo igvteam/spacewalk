@@ -1,7 +1,7 @@
-import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import { ensembleManager, sceneManager } from "./app.js";
-import EnsembleManager from "./ensembleManager.js";
+import EnsembleManager from './ensembleManager.js'
 
 const pointSize = 128;
 
@@ -50,7 +50,7 @@ class PointCloud {
 
             const { interpolantList } = data;
 
-            const interpolantWindowList = EnsembleManager.getInterpolantWindowList({ trace: ensembleManager.currentTrace, interpolantList });
+            const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
             if (interpolantWindowList) {
                 const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ]);
@@ -71,18 +71,25 @@ class PointCloud {
         this.trace = trace
 
         this.meshList = trace
-            .map(({ geometry }) => {
-                const mesh = new THREE.Points( geometry, this.material );
-                mesh.name = 'point_cloud';
-                return mesh;
-            });
+            .map(({ xyz, rgb, color, drawUsage }) => {
 
+                const geometry = new THREE.BufferGeometry()
 
-        if (sceneManager.renderStyle === PointCloud.getRenderStyle()) {
-            this.show();
-        } else {
-            this.hide();
-        }
+                const positionAttribute = new THREE.Float32BufferAttribute(xyz, 3 )
+                geometry.setAttribute('position', positionAttribute)
+
+                const colorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
+                colorAttribute.setUsage(drawUsage)
+                geometry.setAttribute('color', colorAttribute )
+
+                geometry.userData.color = color
+
+                const mesh = new THREE.Points( geometry, this.material )
+                mesh.name = 'point_cloud'
+                return mesh
+            })
+
+        sceneManager.renderStyle === PointCloud.getRenderStyle() ? this.show() : this.hide()
 
     }
 

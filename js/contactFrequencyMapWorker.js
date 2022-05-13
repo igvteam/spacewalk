@@ -5,67 +5,84 @@ self.addEventListener('message', ({ data }) => {
     const str = `Contact Frequency Map Worker - Calculate Frequency Values`
     console.time(str)
 
-    const values = new Float32Array(data.maximumSegmentID * data.maximumSegmentID)
-    const essentials = 'trace' === data.traceOrEnsemble ? [ JSON.parse(data.itemsString) ] : JSON.parse(data.essentialsString)
-    calculateContactFrequencies(values, data.maximumSegmentID, essentials, data.distanceThreshold)
+    const contactFrequency = new Float32Array(data.traceLength * data.traceLength)
+    const vertexLists = 'trace' === data.traceOrEnsemble ? [ JSON.parse(data.verticesString) ] : JSON.parse(data.vertexListsString)
+    calculateContactFrequencies(contactFrequency, data.traceLength, vertexLists, data.distanceThreshold)
 
     console.timeEnd(str)
 
     const payload =
         {
             traceOrEnsemble: data.traceOrEnsemble,
-            workerValuesBuffer: values
+            workerValuesBuffer: contactFrequency
         }
 
-    self.postMessage(payload, [ values.buffer ])
+    self.postMessage(payload, [ contactFrequency.buffer ])
 
 }, false)
 
-function calculateContactFrequencies(values, maximumSegmentID, essentials, distanceThreshold) {
-    values.fill(0)
-    for (let items of essentials) {
-        accumulateContactFrequencies(values, maximumSegmentID, items, distanceThreshold)
+
+const kContactFrequencyUndefined = -1
+
+function calculateContactFrequencies(contactFrequency, traceLength, vertexLists, distanceThreshold) {
+    contactFrequency.fill(kContactFrequencyUndefined)
+    for (let vertices of vertexLists) {
+        accumulateContactFrequencies(contactFrequency, traceLength, vertices, distanceThreshold)
     }
 }
 
-function accumulateContactFrequencies(values, maximumSegmentID, items, distanceThreshold) {
+function accumulateContactFrequencies(contactFrequency, traceLength, vertices, distanceThreshold) {
 
     const exclusionSet = new Set();
 
-    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(items))
+    const validVertices = []
+    const validIndices = []
 
-    for (let i = 0; i < items.length; i++) {
-
-        exclusionSet.add(i)
-
-        const xy_diagonal = items[ i ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
-
-        values[ xy_diagonal ]++
-
-        const contact_indices = spatialIndex.within(items[ i ].x, items[ i ].y, items[ i ].z, distanceThreshold).filter(index => !exclusionSet.has(index))
-
-        if (contact_indices.length > 0) {
-            for (let j of contact_indices) {
-
-                const xy = items[ i ].segmentIndex * maximumSegmentID + items[ j ].segmentIndex
-                const yx = items[ j ].segmentIndex * maximumSegmentID + items[ i ].segmentIndex
-
-                if (xy > values.length) {
-                    console.log('xy is bogus index ' + xy)
-                }
-
-                if (yx > values.length) {
-                    console.log('yx is bogus index ' + yx)
-                }
-
-                values[ xy ] += 1
-
-                values[ yx ] = values[ xy ]
-
-            }
+    for (let i = 0; i < vertices.length; i++) {
+        if (true === vertices[ i ].isMissingData) {
+            // ignore
+        } else {
+            validIndices.push(i)
+            validVertices.push(vertices[ i ])
         }
-
     }
+
+    const spatialIndex = new KDBush(kdBushConfiguratorWithTrace(validVertices))
+
+    for (let v = 0; v < validVertices.length; v++) {
+
+        const x = validIndices[ v ]
+        const xy_diagonal = x * traceLength + x
+        contactFrequency[ xy_diagonal ] = 1
+
+        exclusionSet.add(v)
+        const contactIndices = spatialIndex.within(validVertices[ v ].x, validVertices[ v ].y, validVertices[ v ].z, distanceThreshold).filter(index => !exclusionSet.has(index))
+
+        if (contactIndices.length > 0) {
+
+            for (let contactIndex of contactIndices) {
+
+                const y = validIndices[ contactIndex ]
+
+                const xy = x * traceLength + y
+                const yx = y * traceLength + x
+
+                if (xy > contactFrequency.length) {
+                    console.error(`xy ${xy} is an invalid index for array of length ${ contactFrequency.length }`)
+                }
+
+                if (yx > contactFrequency.length) {
+                    console.error(`yx ${yx} is an invalid index for array of length ${ contactFrequency.length }`)
+                }
+
+                contactFrequency[ xy ] = kContactFrequencyUndefined === contactFrequency[ xy ] ? 1 : 1 + contactFrequency[ xy ]
+                contactFrequency[ yx ] = contactFrequency[ xy ]
+
+            } // for (contactIndices)
+
+        } // if (contactIndices.length > 0)
+
+    } // for (v)
 
 }
 

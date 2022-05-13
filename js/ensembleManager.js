@@ -1,6 +1,5 @@
-import SpacewalkEventBus from './spacewalkEventBus.js'
 import * as THREE from "three";
-import Parser from "./parser.js";
+import SpacewalkEventBus from './spacewalkEventBus.js'
 import { colorRampMaterialProvider } from "./app.js";
 import { includes, degrees } from "./math.js";
 
@@ -11,77 +10,51 @@ class EnsembleManager {
 
     ingest({ sample, genomeAssembly, genomic }, traceKey) {
 
-        const str = 'EnsembleManager ingestSW';
-        console.time(str);
+        const str = 'EnsembleManager ingestSW'
+        console.time(str)
 
-        // maximumSegmentID is used to size the distance and contact maps which
-        // are N by N where N = maximumSegmentID.
-        // Because trace data often has missing xyz values the total number of
-        // segments cannot be assumed to be the same for each trace in the ensemble.
-        // We use  maximumSegmentID to ensure all traces will map to the contact
-        // and distance maps.
-        this.maximumSegmentID = undefined;
+        this.genomic = genomic
 
-        this.isPointCloud = undefined;
+        this.locus = genomic.getLocus()
+        let { chr, genomicStart, genomicEnd } = this.locus
 
-        this.ensemble = {};
-
-        let { traces } = genomic;
-
-        this.genomeAssembly = genomeAssembly;
-
-        this.locus = genomic.getLocus();
-        let { chr, genomicStart, genomicEnd } = this.locus;
-
-        this.maximumSegmentID = genomic.maximumSegmentID;
         this.isPointCloud = genomic.isPointCloud;
 
-        for (let [k, trace] of Object.entries(traces)) {
+        this.ensemble = {}
 
-            const parts = k.split('%');
-            const ensembleKey = parts.pop();
-            this.ensemble[ensembleKey] = [];
+        for (let [ key, trace ] of Object.entries(genomic.traces)) {
 
-            const keyValuePairs = Object.entries(trace);
-            for (let keyValuePair of keyValuePairs) {
+            const [ ignore, ensembleKey ] = key.split('%')
+            this.ensemble[ ensembleKey ] = []
 
-                let [ key, value ] = keyValuePair;
+            const traceValues = Object.values(trace)
+            for (let i = 0; i < traceValues.length; i++) {
 
-                let { startBP, centroidBP, endBP, sizeBP } = Parser.genomicRangeFromHashKey(key);
+                const traceValue = traceValues[ i ]
 
-                const xyzList = this.isPointCloud ? value : [ { x: value.x, y: value.y, z: value.z } ];
+                const color = colorRampMaterialProvider.colorForInterpolant(genomic.genomicExtentList[ i ].interpolant)
 
-                const positions = xyzList.filter(({ x, y, z }) => ![ x, y, z ].some(isNaN));
+                let xyz
+                let rgb
 
-                if (positions.length > 0) {
-
-                    const geometry = new THREE.BufferGeometry();
-
-                    const xyz = positions.flatMap(({ x, y, z }) => [ parseFloat(x), parseFloat(y), parseFloat(z)])
-                    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( xyz, 3 ) );
-
-                    const interpolant = (centroidBP - genomicStart) / (genomicEnd - genomicStart);
-
-                    geometry.userData.color = colorRampMaterialProvider.colorForInterpolant(interpolant);
-
-                    const rgb = positions.flatMap(ignore => [ geometry.userData.color.r, geometry.userData.color.g, geometry.userData.color.b ])
-                    const attribute = new THREE.Float32BufferAttribute(rgb, 3);
-                    attribute.setUsage( true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage );
-                    geometry.setAttribute('color', attribute );
-
-                    let colorRampInterpolantWindow =
-                        {
-                            start: (startBP - genomicStart) / (genomicEnd - genomicStart),
-                            end: (endBP - genomicStart) / (genomicEnd - genomicStart),
-                            interpolant,
-                            sizeBP,
-                            genomicLocation: centroidBP,
-                            segmentIndex: keyValuePairs.indexOf(keyValuePair)
-                        };
-
-                    this.ensemble[ ensembleKey ].push( { colorRampInterpolantWindow, geometry } );
-
+                if (true === this.isPointCloud) {
+                    xyz = traceValue.flatMap(({ x, y, z }) => [ x, y, z ])
+                    rgb = traceValue.flatMap(ignore => [ color.r, color.g, color.b ])
+                } else {
+                    xyz = traceValue
+                    rgb = color
                 }
+
+                const item =
+                    {
+                        interpolant: genomic.genomicExtentList[ i ].interpolant,
+                        xyz,
+                        rgb,
+                        color,
+                        drawUsage: true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
+                    }
+
+                this.ensemble[ ensembleKey ].push(item)
 
             }
 
@@ -110,21 +83,18 @@ class EnsembleManager {
         return this.ensemble[ name ] || undefined;
     }
 
-    static getInterpolantWindowList({ trace, interpolantList }) {
+    getGenomicInterpolantWindowList(interpolantList) {
 
-        let interpolantWindowList = [];
+        const interpolantWindowList = [];
 
+        for (let genomicExtent of this.genomic.genomicExtentList) {
 
-        const colorRampInterpolantWindows = Object.values(trace).map(({ colorRampInterpolantWindow }) => colorRampInterpolantWindow);
-
-        for (let colorRampInterpolantWindow of colorRampInterpolantWindows) {
-
-            let { start: a, end: b, sizeBP } = colorRampInterpolantWindow;
+            let { start:a, end:b } = genomicExtent
 
             for (let interpolant of interpolantList) {
 
                 if ( includes({ a, b, value: interpolant }) ) {
-                    interpolantWindowList.push({ colorRampInterpolantWindow, index: colorRampInterpolantWindows.indexOf(colorRampInterpolantWindow) });
+                    interpolantWindowList.push({ genomicExtent, index: this.genomic.genomicExtentList.indexOf(genomicExtent) })
                 }
 
             }
@@ -134,20 +104,22 @@ class EnsembleManager {
         return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;
     }
 
-    static getBoundsWithTrace(trace){
+    static getTraceBounds(trace){
 
-        const boundingBox = new THREE.Box3();
+        const boundingBox = new THREE.Box3()
 
-        let probe = new THREE.Vector3();
-        for (let { geometry } of Object.values(trace)) {
+        const probe = new THREE.Vector3()
+        for (let { xyz } of trace) {
 
-            let xyz = geometry.getAttribute('position');
-            for (let a = 0; a < xyz.count; a++) {
+            if (Array.isArray(xyz)) {
 
-                const [ x, y, z ] = [ xyz.getX(a), xyz.getY(a), xyz.getZ(a) ];
-                probe.set(x, y, z);
-
-                boundingBox.expandByPoint(probe);
+                for (let i = 0; i < xyz.length; i += 3) {
+                    probe.set(xyz[ i ], xyz[ i + 1 ], xyz[ i + 2])
+                    boundingBox.expandByPoint(probe)
+                }
+            } else {
+                probe.set(xyz.x, xyz.y, xyz.z)
+                boundingBox.expandByPoint(probe)
             }
 
         }
@@ -159,7 +131,7 @@ class EnsembleManager {
         const { center, radius } = boundingSphere;
 
         return { min, max, center, radius }
-    };
+    }
 
     static getCameraPoseAlongAxis ({ center, radius, axis, scaleFactor }) {
 
@@ -198,18 +170,29 @@ class EnsembleManager {
         return { target:center, position, fov }
     }
 
+    static getSingleCentroidVertices(trace, doFilterMissingData) {
+
+        let list
+        if (true === doFilterMissingData) {
+            list = trace.filter(({ xyz }) => undefined === xyz.isMissingData)
+        } else {
+            list = trace
+        }
+
+        return list.map(({ xyz }) => new THREE.Vector3(xyz.x, xyz.y, xyz.z))
+
+    }
+
+    static getLiveMapVertices(trace) {
+
+        return trace
+            .map(({ xyz }) => {
+                const { x, y, z, isMissingData } = xyz
+                return true === isMissingData ? { isMissingData } : { x, y, z }
+            })
+
+    }
 
 }
 
-function getSingleCentroidVerticesWithTrace(trace) {
-
-    return Object.values(trace)
-        .map(({ geometry }) => {
-            const [ x, y, z ] = geometry.getAttribute('position').array;
-            return new THREE.Vector3(x, y, z);
-        });
-
-}
-
-export { getSingleCentroidVerticesWithTrace }
-export default EnsembleManager;
+export default EnsembleManager

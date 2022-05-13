@@ -1,15 +1,17 @@
+import EnsembleManager from './ensembleManager.js'
+import { colorMapManager, ensembleManager } from "./app.js";
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
-import { colorMapManager, ensembleManager } from "./app.js";
-import {threeJSColorToRGB255} from "./color.js";
+import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
 import {clearCanvasArray, drawWithCanvasArray} from "./utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
-import ContactFrequencyMapWorker from './contactFrequencyMapWorker?worker'
 
 let canvasArray = undefined
 
 const maxDistanceThreshold = 4096;
 const defaultDistanceThreshold = 256;
+
+const kContactFrequencyUndefined = -1
 
 class ContactFrequencyMapPanel extends Panel {
 
@@ -41,8 +43,6 @@ class ContactFrequencyMapPanel extends Panel {
         canvas.height = $canvas_container.height();
         this.ctx_trace = canvas.getContext('bitmaprenderer');
 
-        this.size = { width: canvas.width, height: canvas.height };
-
         this.distanceThreshold = distanceThreshold;
 
         const input = panel.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
@@ -54,25 +54,30 @@ class ContactFrequencyMapPanel extends Panel {
             this.distanceThreshold = clamp(parseInt(value, 10), 0, maxDistanceThreshold);
 
             window.setTimeout(() => {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.maximumSegmentID, this.ensemble)
-                this.updateTraceContactFrequencyCanvas(ensembleManager.maximumSegmentID, this.trace)
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.ensemble)
+                this.updateTraceContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }, 0)
         })
 
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
-        // this.worker = new Worker('./js/contactFrequencyMapWorker.js', { type: 'module' })
-        // NOTE: This syntax is specific to ViteJS
-        this.worker = new ContactFrequencyMapWorker()
+        this.worker = new Worker(new URL('./contactFrequencyMapWorker.js', import.meta.url), { type: 'module' })
 
         this.worker.addEventListener('message', ({ data }) => {
 
             document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
 
-            populateContactFrequencyCanvasArray(ensembleManager.maximumSegmentID, data.workerValuesBuffer)
+            if ('ensemble' === data.traceOrEnsemble) {
+                const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
+                ContactFrequencyMapPanel.contactMatrixPayloadStub(data.workerValuesBuffer, traceLength, chr, genomicStart, genomicEnd)
+            }
+
+            populateContactFrequencyCanvasArray(data.workerValuesBuffer)
+
             const context = 'trace' === data.traceOrEnsemble ? this.ctx_trace : this.ctx_ensemble
-            drawWithCanvasArray(context, this.size, canvasArray)
+            drawWithCanvasArray(context, canvasArray)
+
         }, false)
 
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
@@ -89,7 +94,7 @@ class ContactFrequencyMapPanel extends Panel {
             this.doUpdateTrace = true
 
             if (false === this.isHidden) {
-                this.updateTraceContactFrequencyCanvas(ensembleManager.maximumSegmentID, this.trace)
+                this.updateTraceContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.trace)
                 this.doUpdateTrace = undefined
             }
 
@@ -100,11 +105,11 @@ class ContactFrequencyMapPanel extends Panel {
             this.trace = trace
             this.doUpdateTrace = this.doUpdateEnsemble = true
 
-            initializeSharedBuffers(ensembleManager.maximumSegmentID)
+            initializeSharedBuffers(ensembleManager.genomic.traceLength)
 
             if (false === this.isHidden) {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.maximumSegmentID, this.ensemble)
-                this.updateTraceContactFrequencyCanvas(ensembleManager.maximumSegmentID, this.trace)
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.ensemble)
+                this.updateTraceContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }
 
@@ -117,12 +122,12 @@ class ContactFrequencyMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleContactFrequencyCanvas(ensembleManager.maximumSegmentID, this.ensemble)
+            this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.ensemble)
             this.doUpdateEnsemble = undefined
         }
 
         if (true === this.doUpdateTrace) {
-            this.updateTraceContactFrequencyCanvas(ensembleManager.maximumSegmentID, this.trace)
+            this.updateTraceContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.trace)
             this.doUpdateTrace = undefined
         }
 
@@ -132,89 +137,103 @@ class ContactFrequencyMapPanel extends Panel {
 
     getClassName(){ return 'ContactFrequencyMapPanel' }
 
-    updateTraceContactFrequencyCanvas(maximumSegmentID, trace) {
+    updateTraceContactFrequencyCanvas(traceLength, trace) {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const items = Object.values(trace)
-            .map(({ colorRampInterpolantWindow, geometry }) => {
-                const [ x, y, z ] = geometry.attributes.position.array
-                return { x, y, z, segmentIndex: colorRampInterpolantWindow.segmentIndex }
-            })
+        const vertices = EnsembleManager.getLiveMapVertices(trace)
 
         const data =
             {
                 traceOrEnsemble: 'trace',
-                maximumSegmentID,
-                itemsString: JSON.stringify(items),
+                traceLength,
+                verticesString: JSON.stringify(vertices),
                 distanceThreshold: this.distanceThreshold
             }
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(canvasArray, ensembleManager.maximumSegmentID)
-        drawWithCanvasArray(this.ctx_trace, this.size, canvasArray)
+        clearCanvasArray(canvasArray, ensembleManager.genomic.traceLength)
+        drawWithCanvasArray(this.ctx_trace, canvasArray)
 
     }
 
-    updateEnsembleContactFrequencyCanvas(maximumSegmentID, ensemble) {
+    updateEnsembleContactFrequencyCanvas(traceLength, ensemble) {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const traces = Object.values(ensemble)
-        const essentials = traces.map(trace => {
-            return Object.values(trace)
-                .map(({ colorRampInterpolantWindow, geometry }) => {
-                    const [ x, y, z ] = geometry.attributes.position.array
-                    return { x, y, z, segmentIndex: colorRampInterpolantWindow.segmentIndex }
-                })
-        })
+        const vertexLists = Object.values(ensemble).map(trace => EnsembleManager.getLiveMapVertices(trace))
 
         const data =
             {
                 traceOrEnsemble: 'ensemble',
-                maximumSegmentID,
-                essentialsString: JSON.stringify(essentials),
+                traceLength,
+                vertexListsString: JSON.stringify(vertexLists),
                 distanceThreshold: this.distanceThreshold
             }
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(canvasArray, ensembleManager.maximumSegmentID)
-        drawWithCanvasArray(this.ctx_ensemble, this.size, canvasArray)
+        clearCanvasArray(canvasArray, ensembleManager.genomic.traceLength)
+        drawWithCanvasArray(this.ctx_ensemble, canvasArray)
+
+    }
+
+    // Contact Matrix is m by m where m = matrixSize
+    static contactMatrixPayloadStub(frequencies, traceLength, chr, genomicStart, genomicEnd) {
+
+        for (let wye = 0; wye < traceLength; wye++) {
+            const list = []
+            for (let exe = wye; exe < traceLength; exe++) {
+
+                const xy = exe * traceLength + wye
+                const frequency = frequencies[ xy ]
+
+                // omit main diagonal
+                // if (exe !== wye) list.push(`freq(${ frequency })`)
+
+                list.push(`freq(${ frequency })`)
+            }
+            const str = list.join(' ')
+            // console.log(`${str}`)
+        }
 
     }
 }
 
-function populateContactFrequencyCanvasArray(maximumSegmentID, frequencies) {
+function populateContactFrequencyCanvasArray(frequencies) {
 
-    let maxFrequency = Number.NEGATIVE_INFINITY;
+    const maxFrequency = Math.max(Number.NEGATIVE_INFINITY, ...frequencies)
+
+    const colorMap = colorMapManager.dictionary['juicebox_default']
+
+    let i = 0
     for (let frequency of frequencies) {
-        maxFrequency = Math.max(maxFrequency, frequency);
-    }
 
-    const colorMap = colorMapManager.dictionary['juicebox_default'];
-    const scale = (colorMap.length - 1) / maxFrequency;
+        let rgb
+        if (frequency > kContactFrequencyUndefined) {
 
-    let i = 0;
-    for (let frequency of frequencies) {
+            let interpolant = frequency / maxFrequency
+            interpolant = Math.floor(interpolant * (colorMap.length - 1))
 
-        const interpolant = Math.floor(frequency * scale);
-        const { r, g, b } = threeJSColorToRGB255(colorMap[ interpolant ][ 'threejs' ]);
+            rgb = threeJSColorToRGB255(colorMap[ interpolant ][ 'threejs' ])
+        } else {
+            rgb = threeJSColorToRGB255(appleCrayonColorThreeJS('silver'))
+        }
 
-        canvasArray[i++] = r;
-        canvasArray[i++] = g;
-        canvasArray[i++] = b;
-        canvasArray[i++] = 255;
+        canvasArray[i++] = rgb.r
+        canvasArray[i++] = rgb.g
+        canvasArray[i++] = rgb.b
+        canvasArray[i++] = 255
     }
 
 }
 
-function initializeSharedBuffers(maximumSegmentID) {
-    canvasArray = new Uint8ClampedArray(maximumSegmentID * maximumSegmentID * 4)
+function initializeSharedBuffers(traceLength) {
+    canvasArray = new Uint8ClampedArray(traceLength * traceLength * 4)
 }
 
-export let contactFrequencyMapPanelConfigurator = ({ container, isHidden }) => {
+function contactFrequencyMapPanelConfigurator({ container, isHidden }) {
 
     return {
         container,
@@ -224,5 +243,7 @@ export let contactFrequencyMapPanelConfigurator = ({ container, isHidden }) => {
     };
 
 }
+
+export { contactFrequencyMapPanelConfigurator }
 
 export default ContactFrequencyMapPanel

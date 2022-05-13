@@ -1,7 +1,7 @@
 import {StringUtils} from "igv-utils"
 import {Globals} from "./globals.js"
 import { deleteAllBrowsers, syncBrowsers, getAllBrowsers } from './hicMisc.js'
-import { createBrowserList } from "./hicBrowserLifecycle.js"
+import { createBrowser } from "./hicBrowserLifecycle.js"
 
 
 function toJSON() {
@@ -58,11 +58,7 @@ async function restoreSession(container, session) {
         }
     }
 
-    await createBrowserList(container, session);
-
-    // if (false !== session.syncDatasets) {
-    //     syncBrowsers();
-    // }
+    await createBrowser(container, session);
 
 }
 

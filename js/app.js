@@ -7,8 +7,7 @@ import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
-import DataValueMaterialProvider from './dataValueMaterialProvider.js';
-import DeprecatedDataValueMaterialProvider from "./deprecatedDataValueMaterialProvider.js";
+import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import Panel, { doInspectPanelVisibilityCheckbox }  from "./panel.js";
 import PointCloud from "./pointCloud.js";
@@ -30,8 +29,6 @@ import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
 import { spacewalkConfig } from "../spacewalk-config.js";
-import '../styles/igv/dom.scss'
-import '../styles/juicebox/juicebox.scss'
 import '../styles/app.scss'
 
 let stats
@@ -112,8 +109,8 @@ const initializationHelper = async container => {
     colorMapManager = new ColorMapManager();
     await colorMapManager.configure();
 
-    // dataValueMaterialProvider = new DataValueMaterialProvider({ width:8192, height:16, colorMinimum:appleCrayonColorRGB255('silver'), colorMaximum:appleCrayonColorRGB255('blueberry') })
-    dataValueMaterialProvider = new DeprecatedDataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
+    // dataValueMaterialProvider = new UnusedDataValueMaterialProvider({ width:8192, height:16, colorMinimum:appleCrayonColorRGB255('silver'), colorMaximum:appleCrayonColorRGB255('blueberry') })
+    dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
 
     colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
@@ -248,7 +245,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
             $googleDriveButtons: $dropdowns.find('div[id$="-map-dropdown-google-drive-button"]'),
             googleEnabled,
             mapMenu: spacewalkConfig.juiceboxConfig.contactMapMenu,
-            loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path, name, mapType)
+            loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path)
         }
 
     configureContactMapLoaders(contactMapLoadConfig)

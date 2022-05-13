@@ -1,3 +1,4 @@
+import $ from "../vendor/jquery-3.3.1.slim.js";
 import {createCheckbox} from "./igv-icons.js"
 
 /**

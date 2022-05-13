@@ -37,15 +37,10 @@ async function init(container, config) {
         }
     }
 
-    await restoreSession(container, config);
+    await restoreSession(container, config)
 
-    // Return the currently selected browser for backward compatibility with "createBrowser"
-    return getCurrentBrowser();
+    return getCurrentBrowser()
 }
 
 
 export { init }
-
-
-
-

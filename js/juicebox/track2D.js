@@ -33,17 +33,6 @@ class Track2D {
 
     static async loadTrack2D(config, genome) {
 
-        // if (isString(config.url) && config.url.startsWith("https://drive.google.com")) {
-        //     const json = await google.getDriveFileInfo(config.url)
-        //     config.url = "https://www.googleapis.com/drive/v3/files/" + json.id + "?alt=media";
-        //     if (!config.filename) {
-        //         config.filename = json.originalFileName || json.name;
-        //     }
-        //     if (!config.name) {
-        //         config.name = json.name || json.originalFileName;
-        //     }
-        // }
-
         const data = await igvxhr.loadString(config.url, buildOptions(config));
         const features = parseData(data, isBedPE(config), genome);
         return new Track2D(config, features);
@@ -59,7 +48,6 @@ class Track2D {
     }
 
 }
-
 
 function isBedPE(config) {
 
