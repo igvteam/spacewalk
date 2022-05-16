@@ -44,23 +44,23 @@ class CameraLightingRig extends MapControls {
             currentCentroid = centroid.clone();
         };
 
-        if (true === this.doUpdateCameraPose) {
+        // if (true === this.doUpdateCameraPose) {
 
             this.setPose(position, centroid);
 
             this.doUpdateCameraPose = false;
 
-        } else {
-
-            // maintain the pre-existing delta between camera target and object centroid
-            const delta = this.target.clone().sub(currentCentroid);
-            const target = centroid.clone().add(delta);
-
-            const toCamera = this.object.position.clone().sub(this.target);
-            const position = target.clone().add(toCamera);
-
-            this.setPose(position, target);
-        }
+        // } else {
+        //
+        //     // maintain the pre-existing delta between camera target and object centroid
+        //     const delta = this.target.clone().sub(currentCentroid);
+        //     const target = centroid.clone().add(delta);
+        //
+        //     const toCamera = this.object.position.clone().sub(this.target);
+        //     const position = target.clone().add(toCamera);
+        //
+        //     this.setPose(position, target);
+        // }
 
         this.setProjection({ fov, near, far, aspect });
 
