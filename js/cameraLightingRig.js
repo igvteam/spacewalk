@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { MapControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import {sceneManager} from "./app.js";
 
@@ -8,7 +8,7 @@ let crossed = new THREE.Vector3();
 
 let currentCentroid = undefined;
 
-class CameraLightingRig extends OrbitControls {
+class CameraLightingRig extends MapControls {
 
     constructor ({ fov, near, far, domElement, aspect, hemisphereLight }) {
 
@@ -21,13 +21,15 @@ class CameraLightingRig extends OrbitControls {
 
         this.doUpdateCameraPose = true;
 
-        this.enableKeys = false;
-
-        this.enablePan = false;
-
         this.enableDamping = true;
-
         this.dampingFactor = 0.05;
+
+        // pan orthogonal to world-space direction camera.up
+        this.screenSpacePanning = true;
+
+        // These were used with OrbitControl
+        // this.enableKeys = false;
+        // this.enablePan = false;
 
     }
 
