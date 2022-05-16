@@ -1,12 +1,9 @@
-import * as THREE from 'three';
-import { MapControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import * as THREE from 'three'
+import { MapControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import {sceneManager} from "./app.js"
 
-import {sceneManager} from "./app.js";
-
-let cameraWorldDirection = new THREE.Vector3();
-let crossed = new THREE.Vector3();
-
-let currentCentroid = undefined;
+let cameraWorldDirection = new THREE.Vector3()
+let crossed = new THREE.Vector3()
 
 class CameraLightingRig extends MapControls {
 
@@ -19,13 +16,13 @@ class CameraLightingRig extends MapControls {
 
         this.hemisphereLight = hemisphereLight;
 
-        this.doUpdateCameraPose = true;
-
         this.enableDamping = true;
         this.dampingFactor = 0.05;
 
         // pan orthogonal to world-space direction camera.up
         this.screenSpacePanning = true;
+
+        this.resetCamera = undefined
 
         // These were used with OrbitControl
         // this.enableKeys = false;
@@ -35,36 +32,17 @@ class CameraLightingRig extends MapControls {
 
     configure ({ fov, aspect, position, centroid, boundingDiameter }) {
 
+        this.setPose(position, centroid)
+
         const [ near, far ] = [ 1e-2 * boundingDiameter, 1e2 * boundingDiameter ];
 
-        // to set the camera in a sane pose after it has gotten mangled
+        this.setProjection({ fov, near, far, aspect })
+
+        // update the reset camera function
         this.resetCamera = () => {
-            this.setPose(position, centroid);
+            this.setPose(position, centroid)
             this.setProjection({ fov, near, far, aspect });
-            currentCentroid = centroid.clone();
-        };
-
-        // if (true === this.doUpdateCameraPose) {
-
-            this.setPose(position, centroid);
-
-            this.doUpdateCameraPose = false;
-
-        // } else {
-        //
-        //     // maintain the pre-existing delta between camera target and object centroid
-        //     const delta = this.target.clone().sub(currentCentroid);
-        //     const target = centroid.clone().add(delta);
-        //
-        //     const toCamera = this.object.position.clone().sub(this.target);
-        //     const position = target.clone().add(toCamera);
-        //
-        //     this.setPose(position, target);
-        // }
-
-        this.setProjection({ fov, near, far, aspect });
-
-        currentCentroid = centroid.clone();
+        }
 
     }
 
@@ -123,7 +101,7 @@ class CameraLightingRig extends MapControls {
         this.target.copy(target);
         this.update();
 
-    };
+    }
 
     setProjection({ fov, near, far, aspect }) {
 
@@ -144,7 +122,7 @@ class CameraLightingRig extends MapControls {
     addToScene (scene) {
         scene.add( this.object );
         scene.add( this.hemisphereLight );
-    };
+    }
 
     renderLoopHelper() {
 
@@ -171,6 +149,6 @@ const createLightSource = ({ x, y, z, color, intensity }) => {
     lightSource.position.set(x, y, z);
 
     return lightSource;
-};
+}
 
 export default CameraLightingRig
