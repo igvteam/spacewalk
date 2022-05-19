@@ -1,11 +1,11 @@
-import {StringUtils} from "igv-utils"
 import EnsembleManager from './ensembleManager.js'
 import { colorMapManager, ensembleManager } from "./app.js";
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
 import {clearCanvasArray, drawWithCanvasArray} from "./utils.js"
-import SpacewalkEventBus from "./spacewalkEventBus.js"
+import SpacewalkEventBus from './spacewalkEventBus.js'
+import ContactRecord from './juicebox/hicStraw/contactRecord.js'
 
 let canvasArray = undefined
 
@@ -180,10 +180,13 @@ class ContactFrequencyMapPanel extends Panel {
 
     }
 
-    // Contact Matrix is m by m where m = matrixSize
+    // Contact Matrix is m by m where m = traceLength
     static contactMatrixPayloadStub(frequencies, traceLength, chr, genomicStart, genomicEnd) {
 
-        console.log(`Contact Matrix Payload Stub trace-length ${ traceLength } ${ chr } start ${ StringUtils.numberFormatter(genomicStart)} end ${ StringUtils.numberFormatter(genomicEnd)}`)
+        const binCount = traceLength * traceLength
+        const binSize = (genomicEnd - genomicStart) / traceLength
+
+        const cr = new ContactRecord(0,0,0)
 
         for (let wye = 0; wye < traceLength; wye++) {
             const list = []
