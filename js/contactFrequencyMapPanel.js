@@ -1,3 +1,4 @@
+import {StringUtils} from "igv-utils"
 import EnsembleManager from './ensembleManager.js'
 import { colorMapManager, ensembleManager } from "./app.js";
 import { clamp } from "./math.js";
@@ -181,6 +182,8 @@ class ContactFrequencyMapPanel extends Panel {
 
     // Contact Matrix is m by m where m = matrixSize
     static contactMatrixPayloadStub(frequencies, traceLength, chr, genomicStart, genomicEnd) {
+
+        console.log(`Contact Matrix Payload Stub trace-length ${ traceLength } ${ chr } start ${ StringUtils.numberFormatter(genomicStart)} end ${ StringUtils.numberFormatter(genomicEnd)}`)
 
         for (let wye = 0; wye < traceLength; wye++) {
             const list = []

@@ -73,8 +73,6 @@ class SceneManager {
 
         }  else if ('DidLoadEnsembleFile' === type) {
 
-            this.cameraLightingRig.doUpdateCameraPose = true;
-
             this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : getGUIRenderStyle();
 
             const { trace } = data;
@@ -159,33 +157,6 @@ class SceneManager {
 
     }
 
-    _resizeContainer(threejsContainer) {
-
-        if (this.renderer && this.cameraLightingRig) {
-
-            const { width:threejsContainerWidth, height:threejsContainerHeight } = threejsContainer.getBoundingClientRect()
-
-            const { height:draggerHeight } = threejsContainer.querySelector('#spacewalk-threejs-drag-container').getBoundingClientRect()
-
-            // const draggerHeight = 32
-            // threejsContainer.querySelector('#spacewalk-threejs-drag-container').style.height = `${ draggerHeight }px`
-
-            const { width:traceNavigatorWidth } = threejsContainer.querySelector('#spacewalk-trace-navigator-container').getBoundingClientRect()
-
-            const h = threejsContainerHeight - draggerHeight
-            const w = threejsContainerWidth - traceNavigatorWidth
-
-            this.container.style.width = `${ w }px`
-            this.container.style.height = `${ h }px`
-
-            this.renderer.setSize(w, h)
-
-            this.cameraLightingRig.object.aspect = w/h
-            this.cameraLightingRig.object.updateProjectionMatrix()
-        }
-
-    }
-
     dispose() {
 
         $(this.container).off('mousemove.spacewalk.picker')
@@ -258,7 +229,11 @@ class SceneManager {
     }
 
     resetCamera() {
-        this.cameraLightingRig.resetCamera();
+
+        if (this.cameraLightingRig.resetCamera) {
+            this.cameraLightingRig.resetCamera()
+        }
+
     }
 
 }
