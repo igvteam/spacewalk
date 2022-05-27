@@ -26,9 +26,10 @@
  */
 
 import {Alert} from "igv-ui"
-import {IGVColor} from 'igv-utils'
+import {IGVColor, StringUtils} from 'igv-utils'
 import ColorScale from './colorScale.js'
 import HICEvent from './hicEvent.js'
+import {contactFrequencyMapPanel} from '../app.js'
 
 const DRAG_THRESHOLD = 2;
 
@@ -153,6 +154,19 @@ class ContactMatrixView {
 
         const columnEnd = Math.floor((xBin +  widthBin) / imageTileDimension)
         const    rowEnd = Math.floor((yBin + heightBin) / imageTileDimension)
+
+        // DUGLA HACK
+        if (contactFrequencyMapPanel.contactRecordPayload && contactFrequencyMapPanel.contactRecordPayload) {
+            for (let contactRecord of contactFrequencyMapPanel.contactRecordPayload.contactRecordList) {
+                const [ ss, cr, ee ] =
+                    [
+                        StringUtils.numberFormatter(columnStart),
+                        StringUtils.numberFormatter(contactRecord.bin1),
+                        StringUtils.numberFormatter(columnEnd)
+                    ]
+                console.log(`x start ${ ss } contact-record ${ cr } end ${ ee }`)
+            }
+        }
 
         await this.checkColorScale(dataset, zoomData, rowStart, rowEnd, columnStart, columnEnd, this.browser.state.normalization)
 
