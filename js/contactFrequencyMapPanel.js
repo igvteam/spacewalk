@@ -6,6 +6,8 @@ import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} f
 import {clearCanvasArray, drawWithCanvasArray} from "./utils.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import ContactRecord from './juicebox/hicStraw/contactRecord.js'
+import {Globals} from './juicebox/globals.js'
+import State from './juicebox/hicState.js'
 
 let canvasArray = undefined
 
@@ -71,7 +73,7 @@ class ContactFrequencyMapPanel extends Panel {
 
             if ('ensemble' === data.traceOrEnsemble) {
                 const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
-                ContactFrequencyMapPanel.contactMatrixPayloadStub(data.workerValuesBuffer, traceLength, chr, genomicStart, genomicEnd)
+                this.contactRecordPayload = ContactFrequencyMapPanel.getContactRecordPayload(data.workerValuesBuffer, traceLength, chr, genomicStart, genomicEnd)
             }
 
             populateContactFrequencyCanvasArray(data.workerValuesBuffer)
@@ -181,13 +183,14 @@ class ContactFrequencyMapPanel extends Panel {
     }
 
     // Contact Matrix is m by m where m = traceLength
-    static contactMatrixPayloadStub(frequencies, traceLength, chr, genomicStart, genomicEnd) {
+    static getContactRecordPayload(frequencies, traceLength, chr, genomicStart, genomicEnd) {
 
-        const binCount = traceLength * traceLength
-        const binSize = (genomicEnd - genomicStart) / traceLength
+        const hicState = createHICState(traceLength, chr, genomicStart, genomicEnd)
 
-        const cr = new ContactRecord(0,0,0)
+        // create and return upper triangle of contact frequency matrix
+        const contactRecordList = []
 
+        // traverse the upper-triangle of a contact matrix. Each step is one "bin" unit
         for (let wye = 0; wye < traceLength; wye++) {
             const list = []
             for (let exe = wye; exe < traceLength; exe++) {
@@ -195,16 +198,33 @@ class ContactFrequencyMapPanel extends Panel {
                 const xy = exe * traceLength + wye
                 const frequency = frequencies[ xy ]
 
-                // omit main diagonal
-                // if (exe !== wye) list.push(`freq(${ frequency })`)
-
-                list.push(`freq(${ frequency })`)
+                contactRecordList.push(new ContactRecord(hicState.x + exe, hicState.y + wye, frequency))
+                // list.push(`freq(${ frequency })`)
             }
-            const str = list.join(' ')
+            // const str = list.join(' ')
             // console.log(`${str}`)
         }
 
+        return { contactRecordList, state: hicState }
     }
+}
+
+function createHICState(traceLength, chr, genomicStart, genomicEnd) {
+
+    const { size } = Globals.currentBrowser.dataset.chromosomes[ chr ]
+
+    const binSize = (genomicEnd - genomicStart) / traceLength
+
+    const binCount = size/binSize
+
+    const { width, height } = Globals.currentBrowser.contactMatrixView.getViewDimensions()
+
+    const pixelSize = width/binCount
+
+    const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
+
+    return new State(chr, chr, 0, xBin, yBin, width, height, pixelSize, undefined)
+
 }
 
 function populateContactFrequencyCanvasArray(frequencies) {

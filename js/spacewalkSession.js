@@ -21,7 +21,7 @@ async function loadSession(json) {
     await loadSpacewalkSession(json.spacewalk)
 
     if (json.juicebox) {
-        await loadJuiceboxSession(json.spacewalk.locus, json.juicebox)
+        await loadJuiceboxSession(json.juicebox)
     } else {
         const { chr, genomicStart, genomicEnd } = json.spacewalk.locus
         juiceboxPanel.locus = `${chr}:${genomicStart}-${genomicEnd}`
@@ -41,10 +41,8 @@ async function loadIGVSession(spacewalk, igv) {
 
 }
 
-async function loadJuiceboxSession(locus, session) {
+async function loadJuiceboxSession(session) {
     await hic.restoreSession($('#spacewalk_juicebox_root_container').get(0), session)
-    const { chr, genomicStart:start, genomicEnd:end } = locus
-    await juiceboxPanel.goto({chr, start, end})
     juiceboxPanel.configureMouseHandlers()
 }
 
