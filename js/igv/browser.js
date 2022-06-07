@@ -452,7 +452,8 @@ class Browser {
         // Track gear column
         createColumn(this.columnContainer, 'igv-gear-menu-column')
 
-        await this.loadReference(Globals.GenomeLibrary[ session.genome ], session.locus)
+        const genomeID = session.genome || session.reference.id
+        await this.loadReference(Globals.GenomeLibrary[ genomeID ], session.locus)
 
         this.centerLineList = this.createCenterLineList(this.columnContainer)
 
