@@ -452,8 +452,7 @@ class Browser {
         // Track gear column
         createColumn(this.columnContainer, 'igv-gear-menu-column')
 
-        const genomeConfig = await GenomeUtils.expandReference(session.reference || session.genome);
-        await this.loadReference(genomeConfig, session.locus);
+        await this.loadReference(Globals.GenomeLibrary[ session.genome ], session.locus)
 
         this.centerLineList = this.createCenterLineList(this.columnContainer)
 
@@ -486,7 +485,7 @@ class Browser {
         }
 
         // Tracks.  Start with genome tracks, if any, then append session tracks
-        const genomeTracks = genomeConfig.tracks || [];
+        const genomeTracks = this.genome.config.tracks || [];
         const trackConfigurations = session.tracks ? genomeTracks.concat(session.tracks) : genomeTracks;
 
         // Insure that we always have a sequence track
@@ -525,16 +524,7 @@ class Browser {
         return centerLineList
     }
 
-    /**
-     * Load a reference genome object.  This includes the fasta, and optional cytoband, but no tracks.  This method
-     * is used by loadGenome and loadSession.
-     *
-     * @param genomeConfig
-     * @param initialLocus
-     */
-    async loadReference(genomeConfig, initialLocus) {
-
-        const genome = await GenomeUtils.loadGenome(genomeConfig)
+    async loadReference(genome, initialLocus) {
 
         const genomeChange = undefined === this.genome || (this.genome.id !== genome.id)
 
@@ -576,19 +566,11 @@ class Browser {
         this.chromosomeSelectWidget.update(genome);
     }
 
-    /**
-     * Load a genome, defined by a string ID or a json-like configuration object. This includes a fasta reference
-     * as well as optional cytoband and annotation tracks.
-     *
-     * @param idOrConfig
-     * @returns genome
-     */
-    async loadGenome(idOrConfig) {
+    async loadGenome(genome) {
 
-        const genomeConfig = await GenomeUtils.expandReference(idOrConfig);
-        await this.loadReference(genomeConfig, undefined);
+        await this.loadReference(genome, undefined)
 
-        const tracks = genomeConfig.tracks || [];
+        const tracks = genome.config.tracks || []
 
         // Insure that we always have a sequence track
         const pushSequenceTrack = tracks.filter(track => track.type === 'sequence').length === 0;
@@ -606,7 +588,6 @@ class Browser {
     /**
      * Called after a session load, search, pan (horizontal drag), or resize
      *
-     * @param referenceFrameList
      */
     updateUIWithReferenceFrameList() {
 

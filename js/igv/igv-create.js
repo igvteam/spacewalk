@@ -40,11 +40,6 @@ async function createBrowser(parentDiv, config) {
 
     if (undefined === config) config = {};
 
-    // Initialize pre-defined genomes.  The genome list is shared among all browser instances
-    if (!GenomeUtils.KNOWN_GENOMES) {
-        await GenomeUtils.initializeGenomes(config);
-    }
-
     setDefaults(config);
 
     if (config.queryParametersSupported !== false) {

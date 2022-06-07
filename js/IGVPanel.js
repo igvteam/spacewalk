@@ -5,7 +5,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import { setMaterialProvider } from './utils.js';
 import Panel from "./panel.js";
 import {colorRampMaterialProvider, ensembleManager, igvPanel} from "./app.js"
-import { spacewalkConfig } from "../spacewalk-config.js";
+import {Globals} from "./juicebox/globals.js"
 
 class IGVPanel extends Panel {
 
@@ -60,10 +60,8 @@ class IGVPanel extends Panel {
 
                 const { genomeAssembly, chr, genomicStart: start, genomicEnd: end } = data;
 
-                console.log(`IGVPanel - DidLoadEnsembleFile - genome id ${ genomeAssembly }`)
-
                 try {
-                    await loadGenomeWithID(this.browser, spacewalkConfig.genomes, genomeAssembly);
+                    await this.browser.loadGenome(Globals.GenomeLibrary[ genomeAssembly ])
                 } catch (e) {
                     AlertSingleton.present(e.message);
                 }
@@ -94,7 +92,7 @@ class IGVPanel extends Panel {
         try {
             if (session) {
                 const { showTrackLabels, showRuler, showControls,showCursorTrackingGuide } = igvConfig
-                const mergedConfig = { ...session, ...({ showTrackLabels, showRuler, showControls,showCursorTrackingGuide }) }
+                const mergedConfig = { ...session, ...({ showTrackLabels, showRuler, showControls, showCursorTrackingGuide }) }
                 this.browser = await igv.createBrowser( root, mergedConfig )
             } else {
                 this.browser = await igv.createBrowser( root, igvConfig )
@@ -217,36 +215,6 @@ class IGVPanel extends Panel {
 
         $(track.trackView.materialProviderInput).trigger('click.igv-panel-material-provider')
     }
-}
-
-let genomeDictionary = undefined
-
-async function loadGenomeWithID(browser, genomeList, genomeID) {
-
-    if (undefined === genomeDictionary) {
-
-        genomeDictionary = {}
-        for (let genome of genomeList) {
-            genomeDictionary[ genome.id ] = genome;
-        }
-
-    }
-
-    // if (genomeID !== browser.genome.id) {
-
-        browser.removeAllTracks()
-
-        const json = genomeDictionary[ genomeID ];
-
-        let g = undefined;
-        try {
-            g = await browser.loadGenome(json);
-        } catch (e) {
-            AlertSingleton.present(e.message);
-        }
-
-    // }
-
 }
 
 export default IGVPanel
