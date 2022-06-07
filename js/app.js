@@ -28,10 +28,7 @@ import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
-
-import {Globals} from './juicebox/globals.js'
 import GenomeUtils from './igv/genome/genome.js'
-
 import { spacewalkConfig } from "../spacewalk-config.js";
 
 import '../styles/app.scss'
@@ -160,10 +157,6 @@ async function initializeGenomes({ genomes }) {
     // igv.js uses it's own Genome infrastructure
     await GenomeUtils.initializeGenomes({ genomes })
 
-    Globals.GenomeLibrary = {}
-    for (let [ genomeId, genome_configuration ] of Object.entries(GenomeUtils.KNOWN_GENOMES)) {
-        Globals.GenomeLibrary[ genomeId ] = await GenomeUtils.loadGenome(genome_configuration)
-    }
 
 }
 

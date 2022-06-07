@@ -92,6 +92,11 @@ const GenomeUtils = {
 
             GenomeUtils.KNOWN_GENOMES = table
 
+            GenomeUtils.GenomeLibrary = {}
+            for (let [ genomeId, genome_configuration ] of Object.entries(GenomeUtils.KNOWN_GENOMES)) {
+                GenomeUtils.GenomeLibrary[ genomeId ] = await GenomeUtils.loadGenome(genome_configuration)
+            }
+
             function processJson(jsonArray) {
                 jsonArray.forEach(function (json) {
                     table[json.id] = json

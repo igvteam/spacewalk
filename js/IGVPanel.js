@@ -4,8 +4,8 @@ import igv from './igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { setMaterialProvider } from './utils.js';
 import Panel from "./panel.js";
-import {colorRampMaterialProvider, ensembleManager, igvPanel} from "./app.js"
-import {Globals} from "./juicebox/globals.js"
+import {colorRampMaterialProvider, ensembleManager} from "./app.js"
+import GenomeUtils from "./igv/genome/genome.js"
 
 class IGVPanel extends Panel {
 
@@ -61,7 +61,7 @@ class IGVPanel extends Panel {
                 const { genomeAssembly, chr, genomicStart: start, genomicEnd: end } = data;
 
                 try {
-                    await this.browser.loadGenome(Globals.GenomeLibrary[ genomeAssembly ])
+                    await this.browser.loadGenome(GenomeUtils.GenomeLibrary[ genomeAssembly ])
                 } catch (e) {
                     AlertSingleton.present(e.message);
                 }

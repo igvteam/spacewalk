@@ -8,7 +8,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import ContactRecord from './juicebox/hicStraw/contactRecord.js'
 import {Globals} from './juicebox/globals.js'
 import State from './juicebox/hicState.js'
-import GenomeUtils from "./igv/genome/genome"
+import GenomeUtils from "./igv/genome/genome.js"
 
 let canvasArray = undefined
 
@@ -212,7 +212,7 @@ class ContactFrequencyMapPanel extends Panel {
 
 function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
-    const chromosome = Globals.GenomeLibrary[ genomeAssembly ].getChromosome(chr.toLowerCase())
+    const chromosome = GenomeUtils.GenomeLibrary[ genomeAssembly ].getChromosome(chr.toLowerCase())
 
     // chromosome length and index into chromosome array
     const { bpLength, order } = chromosome
