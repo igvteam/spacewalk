@@ -17,7 +17,6 @@ const spacewalkConfig =
             },
         juiceboxConfig:
             {
-                locus: 'all',
                 width: 480,
                 height: 480,
                 contactMapMenu:

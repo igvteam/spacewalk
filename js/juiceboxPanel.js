@@ -68,8 +68,7 @@ class JuiceboxPanel extends Panel {
 
         try {
 
-            const { locus, width, height } = config
-            this.locus = locus
+            const { width, height } = config
 
             const session =
                 {
@@ -118,11 +117,9 @@ class JuiceboxPanel extends Panel {
 
     async goto({ chr, start, end }) {
 
-        this.locus = chr + ':' + start + '-' + end;
-
         if (this.isContactMapLoaded()) {
             try {
-                await Globals.currentBrowser.parseLocusString(this.locus, true)
+                await Globals.currentBrowser.parseLocusString(`${chr}:${start}-${end}`, true)
             } catch (error) {
                 console.warn(error.message);
             }
@@ -142,18 +139,26 @@ class JuiceboxPanel extends Panel {
             } else {
                 this.present()
 
-                if (ensembleManager.locus) {
-                    const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-                    config.locus = `${chr}:${genomicStart}-${genomicEnd}`
-                } else {
-                    config.locus = 'all'
-                }
-
-                this.locus = config.locus
-
                 await Globals.currentBrowser.loadHicFile(config)
 
-                await Globals.currentBrowser.parseLocusString(config.locus, true)
+                if (ensembleManager.locus) {
+
+                    const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                    await Globals.currentBrowser.parseLocusString(`${chr}:${genomicStart}-${genomicEnd}`, true)
+
+                } else {
+
+                    const eventConfig =
+                        {
+                            state: Globals.currentBrowser.state,
+                            resolutionChanged: true,
+                            chrChanged: true
+                        }
+
+                    await Globals.currentBrowser.update(HICEvent('LocusChange', eventConfig))
+                }
+
+
             }
 
             $('#spacewalk_info_panel_juicebox').text( this.blurb() )
