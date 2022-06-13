@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     await initializationHelper(container)
 
-});
+})
 
 const initializationHelper = async container => {
 
