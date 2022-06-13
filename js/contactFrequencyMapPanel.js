@@ -186,7 +186,7 @@ class ContactFrequencyMapPanel extends Panel {
     // Contact Matrix is m by m where m = traceLength
     static getContactRecordPayload(frequencies, traceLength, chr, genomicStart, genomicEnd) {
 
-        const hicState = createHICState(traceLength, chr, genomicStart, genomicEnd)
+        const state = createHICState(traceLength, chr, genomicStart, genomicEnd)
 
         // create and return upper triangle of contact frequency matrix
         const contactRecordList = []
@@ -199,14 +199,14 @@ class ContactFrequencyMapPanel extends Panel {
                 const xy = exe * traceLength + wye
                 const frequency = frequencies[ xy ]
 
-                contactRecordList.push(new ContactRecord(hicState.x + exe, hicState.y + wye, frequency))
+                contactRecordList.push(new ContactRecord(state.x + exe, state.y + wye, frequency))
                 // list.push(`freq(${ frequency })`)
             }
             // const str = list.join(' ')
             // console.log(`${str}`)
         }
 
-        return { contactRecordList, state: hicState }
+        return { contactRecordList, state }
     }
 }
 
