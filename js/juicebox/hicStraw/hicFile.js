@@ -1,4 +1,4 @@
-import Zlib from "../../vendor/zlib_and_gzip.js"
+import Zlib from "./vendor/zlib_and_gzip.js"
 import BrowserLocalFile from './io/browserLocalFile.js';
 import RemoteFile from './io/remoteFile.js';
 import ThrottledFile from './io/throttledFile.js';
@@ -383,6 +383,8 @@ class HicFile {
 
     async getBlocks(region1, region2, unit, binSize) {
 
+        const blockKey = (blockNumber, zd) => `${zd.getKey()}_${blockNumber}`
+
         await this.init()
         const chr1 = this.getFileChrName(region1.chr)
         const chr2 = this.getFileChrName(region2.chr)
@@ -415,8 +417,9 @@ class HicFile {
         const blocks = [];
         const blockNumbersToQuery = [];
         for (let num of blockNumbers) {
-            if (this.blockCache.has(binSize, num)) {
-                blocks.push(this.blockCache.get(binSize, num));
+            const key = blockKey(num, zd)
+            if (this.blockCache.has(binSize, key)) {
+                blocks.push(this.blockCache.get(binSize, key));
             } else {
                 blockNumbersToQuery.push(num);
             }
@@ -426,7 +429,7 @@ class HicFile {
         const newBlocks = await Promise.all(promises);
         for (let block of newBlocks) {
             if (block) {
-                this.blockCache.set(binSize, block.blockNumber, block);
+                this.blockCache.set(binSize, blockKey(block.blockNumber, zd), block);
             }
         }
         return blocks.concat(newBlocks);

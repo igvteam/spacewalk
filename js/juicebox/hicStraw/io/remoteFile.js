@@ -31,13 +31,7 @@ class RemoteFile {
             url = addParameter(url, "key", this.config.apiKey)
         }
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: headers,
-            redirect: 'follow',
-            mode: 'cors',
-
-        })
+        const response = await fetch(url, { method: 'GET', headers, redirect: 'follow', mode: 'cors' })
 
         const status = response.status;
 
