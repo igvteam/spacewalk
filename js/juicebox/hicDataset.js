@@ -27,7 +27,8 @@
  */
 
 import Straw from './hicStraw/straw.js'
-import {GoogleUtils} from 'igv-utils'
+import {GoogleUtils,StringUtils} from 'igv-utils'
+import {isFile} from "./fileUtils.js"
 import IGVRemoteFile from "./igvRemoteFile.js"
 
 const knownGenomes = {
@@ -53,16 +54,16 @@ class Dataset {
         this.normalizationTypes = ['NONE'];
 
         this.genomeId = this.hicFile.genomeId
-
-        this.chromosomes = this.hicFile.chromosomes.map(chromosome => Object.assign({ bpLength: chromosome.size }, chromosome))
-
+        this.chromosomes = this.hicFile.chromosomes
         this.bpResolutions = this.hicFile.bpResolutions
-
         this.wholeGenomeChromosome = this.hicFile.wholeGenomeChromosome
         this.wholeGenomeResolution = this.hicFile.wholeGenomeResolution
 
+        // Attempt to determine genomeId if not recognized
+        // if (!Object.keys(knownGenomes).includes(this.genomeId)) {
         const tmp = matchGenome(this.chromosomes);
         if (tmp) this.genomeId = tmp;
+        //  }
     }
 
     async getContactRecords(normalization, region1, region2, units, binsize) {
@@ -71,6 +72,11 @@ class Dataset {
 
     async hasNormalizationVector(type, chr, unit, binSize) {
         return this.straw.hicFile.hasNormalizationVector(type, chr, unit, binSize);
+    }
+
+    async getZoomDataByIndex(chr1, chr2, zoomIndex) {
+        const matrix = await this.getMatrix(chr1, chr2)
+        return matrix.getZoomDataByIndex(zoomIndex, "BP")
     }
 
     clearCaches() {
@@ -175,7 +181,7 @@ class Dataset {
     static async loadDataset(config) {
 
         // If this is a local file, use the "blob" field for straw
-        if (config.url instanceof File) {
+        if (isFile(config.url)) {
             config.blob = config.url
             delete config.url
         } else {
@@ -190,11 +196,8 @@ class Dataset {
         }
 
         const dataset = new Dataset(config)
-        dataset.name = config.name
-
-        await dataset.init()
+        await dataset.init();
         dataset.url = config.url
-
         return dataset
     }
 }
