@@ -25,7 +25,6 @@ import {Alert} from "igv-ui"
 import {IGVColor, StringUtils} from 'igv-utils'
 import ColorScale from './colorScale.js'
 import HICEvent from './hicEvent.js'
-import {contactFrequencyMapPanel} from '../app.js'
 
 const DRAG_THRESHOLD = 2;
 

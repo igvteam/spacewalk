@@ -1,5 +1,5 @@
 import EnsembleManager from './ensembleManager.js'
-import { colorMapManager, ensembleManager } from "./app.js";
+import { colorMapManager, ensembleManager } from "./app.js"
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
@@ -9,6 +9,7 @@ import ContactRecord from './juicebox/hicStraw/contactRecord.js'
 import {Globals} from './juicebox/globals.js'
 import State from './juicebox/hicState.js'
 import GenomeUtils from "./igv/genome/genome.js"
+import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 
 let canvasArray = undefined
 
@@ -74,7 +75,7 @@ class ContactFrequencyMapPanel extends Panel {
 
             if ('ensemble' === data.traceOrEnsemble) {
                 const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
-                this.contactRecordPayload = ContactFrequencyMapPanel.getContactRecordPayload(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
+                Globals.liveContactMapDataSet = ContactFrequencyMapPanel.createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
             }
 
             populateContactFrequencyCanvasArray(data.workerValuesBuffer)
@@ -184,29 +185,40 @@ class ContactFrequencyMapPanel extends Panel {
     }
 
     // Contact Matrix is m by m where m = traceLength
-    static getContactRecordPayload(frequencies, traceLength, chr, genomicStart, genomicEnd) {
+    static createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
-        const state = createHICState(traceLength, chr, genomicStart, genomicEnd)
+        const state = createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
+
+        let n = 1
+        let averageCount = 0
 
         // create and return upper triangle of contact frequency matrix
         const contactRecordList = []
 
         // traverse the upper-triangle of a contact matrix. Each step is one "bin" unit
         for (let wye = 0; wye < traceLength; wye++) {
-            const list = []
+
             for (let exe = wye; exe < traceLength; exe++) {
 
                 const xy = exe * traceLength + wye
-                const frequency = frequencies[ xy ]
+                const count = contacts[ xy ]
 
-                contactRecordList.push(new ContactRecord(state.x + exe, state.y + wye, frequency))
-                // list.push(`freq(${ frequency })`)
+                contactRecordList.push(new ContactRecord(state.x + exe, state.y + wye, count))
+
+                // Incremental averaging: avg_k = avg_k-1 + (distance_k - avg_k-1) / k
+                // https://math.stackexchange.com/questions/106700/incremental-averageing
+                averageCount = averageCount + (count - averageCount) / n
+                ++n
+
             }
-            // const str = list.join(' ')
-            // console.log(`${str}`)
+
         }
 
-        return { contactRecordList, state }
+        const binSize = (genomicEnd - genomicStart) / traceLength
+        const chromosomes = GenomeUtils.GenomeLibrary[ ensembleManager.genomeAssembly ].getChromosome(chr.toLowerCase())
+        const liveContactMapDataset = new LiveContactMapDataSet(binSize, chromosomes, contactRecordList, averageCount)
+
+        return { liveContactMapDataset, state }
     }
 }
 
