@@ -99,6 +99,11 @@ class ContactMatrixView {
 
     }
 
+    async repaintWithLiveContactMap(hicState, liveContactMapDataSet) {
+
+        console.log(`liveContactMapDataSet average count ${ liveContactMapDataSet.averageCount }`)
+    }
+
     async repaint() {
 
         if (!this.browser.dataset) {
@@ -494,11 +499,11 @@ class ContactMatrixView {
         }
     }
 
-    async setDisplayMode(mode) {
-        this.displayMode = mode;
+    async setDisplayMode(displayMode) {
+        this.displayMode = displayMode;
         this.clearImageCaches();
         await this.update();
-        this.browser.eventBus.post(HICEvent("DisplayMode", mode))
+        this.browser.eventBus.post(HICEvent("DisplayMode", displayMode))
     }
 
     getDisplayMode() {

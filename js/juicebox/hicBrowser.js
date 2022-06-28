@@ -201,7 +201,7 @@ class HICBrowser {
                 await this.update(HICEvent('LocusChange', eventConfig))
 
             }
-            
+
         }
 
     }
@@ -226,7 +226,7 @@ class HICBrowser {
         this.dataset = undefined
         this.controlDataset = undefined
 
-        await this.setDisplayMode('A')
+        await this.contactMatrixView.setDisplayMode('A')
 
         try {
 
@@ -578,13 +578,7 @@ class HICBrowser {
 
                 this.clamp();
 
-                let event = HICEvent("LocusChange", {
-                    state: state,
-                    resolutionChanged: false,
-                    chrChanged: false
-                })
-
-                this.update(event);
+                this.update( HICEvent("LocusChange", { state, resolutionChanged: false, chrChanged: false }) );
 
             } else {
                 let i;
@@ -630,13 +624,7 @@ class HICBrowser {
 
         await this.contactMatrixView.zoomIn()
 
-        let event = HICEvent("LocusChange", {
-            state: state,
-            resolutionChanged: zoomChanged,
-            chrChanged: false
-        })
-
-        await this.update(event);
+        await this.update( HICEvent("LocusChange", { state, resolutionChanged: zoomChanged, chrChanged: false }) )
 
     }
 
@@ -870,15 +858,6 @@ class HICBrowser {
         this.$menu.hide();
     }
 
-    async setDisplayMode(mode) {
-        await this.contactMatrixView.setDisplayMode(mode);
-        this.eventBus.post(HICEvent("DisplayMode", mode));
-    }
-
-    getDisplayMode() {
-        return this.contactMatrixView ? this.contactMatrixView.displayMode : undefined;
-    }
-
     async getNormalizationOptions() {
 
         if (!this.dataset) return [];
@@ -1101,10 +1080,13 @@ class HICBrowser {
             if (this.controlDataset.name) {
                 jsonOBJ.controlName = this.controlDataset.name;
             }
-            const displayMode = this.getDisplayMode();
+
+            const displayMode = this.contactMatrixView ? this.contactMatrixView.displayMode : undefined
+
             if (displayMode) {
-                jsonOBJ.displayMode = this.getDisplayMode();
+                jsonOBJ.displayMode = this.contactMatrixView.displayMode
             }
+
             nviString = getNviString(this.controlDataset);
             if (nviString) {
                 jsonOBJ.controlNvi = nviString;
