@@ -66,6 +66,33 @@ class Dataset {
         //  }
     }
 
+    async getContactRecordsWithRegions(normalization, zoomData, imageTileDimension, col1, col2, row1, row2) {
+
+        const widthInBP = imageTileDimension * zoomData.zoom.binSize
+
+        const x0bp = col1 * widthInBP;
+        const xWidthInBP = (col2 - col1 + 1) * widthInBP;
+
+        const y0bp = row1 * widthInBP;
+        const yWidthInBp = (row2 - row1 + 1) * widthInBP;
+
+        const region1 =
+            {
+                chr: zoomData.chr1.name,
+                start: x0bp,
+                end: x0bp + xWidthInBP
+            }
+
+        const region2 =
+            {
+                chr: zoomData.chr2.name,
+                start: y0bp,
+                end: y0bp + yWidthInBp
+            }
+
+        return this.getContactRecords(normalization, region1, region2, zoomData.zoom.unit, zoomData.zoom.binSize)
+    }
+
     async getContactRecords(normalization, region1, region2, units, binsize) {
         return this.straw.getContactRecords(normalization, region1, region2, units, binsize)
     }

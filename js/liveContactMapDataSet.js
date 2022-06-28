@@ -3,6 +3,9 @@ class LiveContactMapDataSet {
     constructor(binSize, chromosomes, contactRecordList, averageCount) {
 
         this.binSize = binSize
+
+        this.bpResolutions = [ binSize ]
+
         this.chromosomes = chromosomes
 
         this.averageCount = averageCount
@@ -26,6 +29,10 @@ class LiveContactMapDataSet {
 
         return zoomData
 
+    }
+
+    isWholeGenome(ignore) {
+        return false
     }
 }
 

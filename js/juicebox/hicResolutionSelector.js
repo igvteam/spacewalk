@@ -76,18 +76,18 @@ class ResolutionSelector {
         this.$resolution_lock.addClass((true === resolutionLocked) ? 'fa-lock' : 'fa-unlock');
     }
 
-    receiveEvent(event) {
+    receiveEvent({ type, data }) {
 
         const browser = this.browser;
 
-        if (event.type === "LocusChange") {
-            if (true === event.data.resolutionChanged) {
+        if (type === "LocusChange") {
+            if (true === data.resolutionChanged) {
                 browser.resolutionLocked = false;
                 this.setResolutionLock(browser.resolutionLocked);
             }
 
-            if (event.data.chrChanged !== false) {  // Default true
-                const isWholeGenome = browser.dataset.isWholeGenome(event.data.state.chr1);
+            if (data.chrChanged !== false) {  // Default true
+                const isWholeGenome = browser.dataset.isWholeGenome(data.state.chr1);
                 this.$label.text(isWholeGenome ? 'Resolution (mb)' : 'Resolution (kb)');
                 updateResolutions.call(this, browser.state.zoom);
             } else {
@@ -100,11 +100,11 @@ class ResolutionSelector {
                     .prop('selected', true);
             }
 
-        } else if (event.type === "MapLoad") {
+        } else if (type === "MapLoad") {
             browser.resolutionLocked = false;
             this.setResolutionLock(false);
             updateResolutions.call(this, browser.state.zoom);
-        } else if (event.type === "ControlMapLoad") {
+        } else if (type === "ControlMapLoad") {
             updateResolutions.call(this, browser.state.zoom)
         }
 
