@@ -29,6 +29,7 @@ import {loadFasta} from "./fasta.js"
 import Cytoband from "./cytoband.js"
 import {buildOptions, isDataURL} from "../util/igvUtils.js"
 import version from "../version.js"
+import Chromosome from "./chromosome"
 
 const DEFAULT_GENOMES_URL = "https://igv.org/genomes/genomes.json"
 const BACKUP_GENOMES_URL = "https://s3.amazonaws.com/igv.org.genomes/genomes.json"
@@ -207,6 +208,14 @@ class Genome {
                 }
 
             })
+        }
+
+        const allObject = this.chromosomes[ 'all' ]
+
+        if (allObject) {
+            const { name, bpLength } = allObject
+            const allChromosome = new Chromosome(name, -1, 0, bpLength)
+            this.chromosomes[ 'all' ] = allChromosome
         }
 
         this.chrAliasTable = chrAliasTable

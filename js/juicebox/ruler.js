@@ -71,9 +71,7 @@ class Ruler {
         // discard current tiles
         $wholeGenomeContainer.empty();
 
-        list = dataset.chromosomes.filter(function (chromosome) {
-            return 'all' !== chromosome.name.toLowerCase();
-        });
+        list = dataset.chromosomes.filter(({ name }) => 'all' !== name.toLowerCase())
 
         extent = 0;    // could use reduce for this
         list.forEach(function (chromosome) {
@@ -86,11 +84,9 @@ class Ruler {
         this.bboxes = [];
         $firstDiv = undefined;
 
-        list.forEach(function (chr) {
-            var size,
-                percentage;
+        list.forEach(({ name, size }) => {
 
-            percentage = (chr.bpLength) / extent;
+            const percentage = size / extent
 
             if (percentage * dimen < 1.0) {
                 scraps += percentage;
@@ -98,19 +94,13 @@ class Ruler {
 
                 $div = $("<div>", { class: `${ self.axis }-axis-whole-genome-chromosome-container` });
                 $wholeGenomeContainer.append($div);
-                $div.data('label', chr.name);
+                $div.data('label', name);
 
                 if (!$firstDiv) {
                     $firstDiv = $div;
                 }
 
-                if ('x' === axisName) {
-                    size = Math.round(percentage * dimen);
-                    $div.width(size);
-                } else {
-                    size = Math.round(percentage * dimen);
-                    $div.height(size);
-                }
+                'x' === axisName ? $div.width( Math.round(percentage * dimen) ) : $div.height( Math.round(percentage * dimen) )
 
                 // border
                 const $border = $('<div>');
