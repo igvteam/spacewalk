@@ -1,8 +1,9 @@
 const Chromosome = function (name, order, bpStart, bpLength, rangeLocus) {
+
     this.name = name
 
     // for juiceboxjs dataset compatibility
-    this.order = order ? 1 + order : 0
+    this.order = 1 + order
     this.index = this.order
 
     this.bpStart = bpStart
