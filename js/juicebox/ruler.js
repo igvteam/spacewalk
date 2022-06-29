@@ -28,6 +28,7 @@
 
 import {IGVColor, IGVMath} from 'igv-utils'
 import IGVGraphics from './igv-canvas.js'
+import {Globals} from "./globals.js"
 
 class Ruler {
 
@@ -58,35 +59,27 @@ class Ruler {
 
     }
 
-    wholeGenomeLayout($axis, $wholeGenomeContainer, axisName, dataset) {
-
-        var self = this,
-            list,
-            dimen,
-            extent,
-            scraps,
-            $div,
-            $firstDiv;
+    wholeGenomeLayout($axis, $wholeGenomeContainer, axisName) {
 
         // discard current tiles
         $wholeGenomeContainer.empty();
 
-        list = dataset.chromosomes.filter(({ name }) => 'all' !== name.toLowerCase())
+        const keyValueList = Object.entries(Globals.currentBrowser.genome.chromosomes).filter(([ key, value ]) => 'all' !== key.toLowerCase())
 
-        extent = 0;    // could use reduce for this
-        list.forEach(function (chromosome) {
-            extent += chromosome.size;
-        });
+        let extent = 0;    // could use reduce for this
+        keyValueList.forEach(([key, value]) => extent += value.size)
 
-        dimen = 'x' === axisName ? $axis.width() : $axis.height();
+        const dimen = 'x' === axisName ? $axis.width() : $axis.height();
 
-        scraps = 0;
+        let self = this, $div, $firstDiv
+
+        let scraps = 0;
         this.bboxes = [];
         $firstDiv = undefined;
 
-        list.forEach(({ name, size }) => {
+        keyValueList.forEach(([ key, value ]) => {
 
-            const percentage = size / extent
+            const percentage = value.size / extent
 
             if (percentage * dimen < 1.0) {
                 scraps += percentage;
@@ -94,7 +87,7 @@ class Ruler {
 
                 $div = $("<div>", { class: `${ self.axis }-axis-whole-genome-chromosome-container` });
                 $wholeGenomeContainer.append($div);
-                $div.data('label', name);
+                $div.data('label', value.name);
 
                 if (!$firstDiv) {
                     $firstDiv = $div;
@@ -214,7 +207,7 @@ class Ruler {
     receiveEvent({ type, data }) {
 
         if ('MapLoad' === type) {
-            this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis, data);
+            this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis);
             this.update();
         } else if ('UpdateContactMapMousePosition' === type) {
 
@@ -243,7 +236,7 @@ class Ruler {
         this.$canvas.width(this.$axis.width());
         this.$canvas.attr('width', this.$axis.width());
 
-        this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis, this.browser.dataset);
+        this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis);
 
         this.update();
     };
@@ -253,7 +246,7 @@ class Ruler {
         this.$canvas.height(height);
         this.$canvas.attr('height', height);
 
-        this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis, this.browser.dataset);
+        this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis);
 
         this.update();
     };
