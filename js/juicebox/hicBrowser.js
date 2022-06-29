@@ -241,9 +241,9 @@ class HICBrowser {
 
             this.dataset = await Dataset.loadDataset(config)
 
-            this.eventBus.post(HICEvent("MapLoad", this.dataset))
-
             this.genome = GenomeUtils.GenomeLibrary[ this.dataset.genomeId ]
+
+            this.eventBus.post(HICEvent("MapLoad", this.dataset))
 
             if (!config.nvi && typeof config.url === "string") {
 
