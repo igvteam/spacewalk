@@ -29,6 +29,66 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" type="text/css" href="/styles/fontawesome/all.css">
 
+    <script type="x-shader/x-vertex" id="diffuse_cube_vert">
+
+      vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
+        return normalize( ( vec4( dir, 0.0 ) * matrix ).xyz );
+      }
+
+      // vNormalWorldSpace - world space
+      varying vec3 vNormalWorldSpace;
+
+      // vNormalEyeSpace - the eye space normal
+      varying vec3 vNormalEyeSpace;
+      void main() {
+
+        // Use the normalMatrix to convert the world space normal eye space
+        // normalMatrix = transpose( inverse( modelViewMatrix ) )
+        vNormalEyeSpace = normalMatrix * vec4(normal, 1.0).xyz;
+
+        vNormalWorldSpace = inverseTransformDirection(vNormalEyeSpace, viewMatrix);
+
+        gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+      }
+    </script>
+
+    <script type="x-shader/x-fragment" id="diffuse_cube_frag">
+      uniform samplerCube cubicMap;
+      varying vec3 vNormalWorldSpace;
+      varying vec3 vNormalEyeSpace;
+      void main() {
+        vec3 index = vec3(-vNormalWorldSpace.x, vNormalWorldSpace.y, vNormalWorldSpace.z);
+        vec3 rgb = textureCube(cubicMap, index).rgb;
+        gl_FragColor = vec4(rgb, 1.0);
+      }
+    </script>
+
+    <script type="x-shader/x-vertex" id="show_st_vert">
+      varying vec2 vST;
+      void main() {
+        vST = uv;
+        gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+      }
+    </script>
+
+    <script type="x-shader/x-fragment" id="show_st_frag">
+      uniform int showS;
+      uniform int showT;
+      varying vec2 vST;
+      void main() {
+
+        if (showS == 1 && showT == 1) {
+          gl_FragColor = vec4(vST.s, vST.t, 0.0, 1.0);
+        } else if (showS == 1 && showT == 0) {
+          gl_FragColor = vec4(vST.s, 0.0, 0.0, 1.0);
+        } else if (showS == 0 && showT == 1){
+          gl_FragColor = vec4(0.0, vST.t, 0.0, 1.0);
+        } else {
+          gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        }
+      }
+    </script>
+
     <!-- jQuery JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 
