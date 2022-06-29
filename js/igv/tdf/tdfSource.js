@@ -25,7 +25,7 @@
  */
 
 import TDFReader from "./tdfReader.js";
-import GenomicInterval from "../genome/genomicInterval.js";
+import GenomicInterval from "../../genome/genomicInterval.js";
 
 class TDFSource {
 

@@ -45,7 +45,7 @@ import ColorScale, {defaultColorScaleConfig} from "./colorScale.js";
 import RatioColorScale, {defaultRatioColorScaleConfig} from "./ratioColorScale.js";
 import AnnotationWidget from './annotationWidget.js';
 import Track2D from './track2D.js'
-import GenomeUtils from "../igv/genome/genome.js"
+import GenomeUtils from "../genome/genome.js"
 
 const DEFAULT_PIXEL_SIZE = 1
 const MAX_PIXEL_SIZE = 12;

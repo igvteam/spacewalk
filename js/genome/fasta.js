@@ -1,6 +1,6 @@
 import NonIndexedFasta from "./nonIndexedFasta.js"
 import FastaSequence from "./indexedFasta.js"
-import {isDataURL} from "../util/igvUtils.js"
+import {isDataURL} from "../igv/util/igvUtils.js"
 import ChromSizes from "./chromSizes.js"
 
 async function loadFasta(reference) {

@@ -26,7 +26,7 @@
 // Indexed fasta files
 import {BGZip, igvxhr, StringUtils} from "igv-utils"
 import Chromosome from "./chromosome.js"
-import {isDataURL} from "../util/igvUtils.js"
+import {isDataURL} from "../igv/util/igvUtils.js"
 
 const splitLines = StringUtils.splitLines
 

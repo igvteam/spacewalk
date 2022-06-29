@@ -8,7 +8,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import ContactRecord from './juicebox/hicStraw/contactRecord.js'
 import {Globals} from './juicebox/globals.js'
 import State from './juicebox/hicState.js'
-import GenomeUtils from "./igv/genome/genome.js"
+import GenomeUtils from "./genome/genome.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 
 let canvasArray = undefined

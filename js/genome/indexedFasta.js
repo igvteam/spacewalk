@@ -27,7 +27,7 @@
 import {BGZip, igvxhr, StringUtils} from "igv-utils"
 import GenomicInterval from "./genomicInterval.js"
 import Chromosome from "./chromosome.js"
-import {buildOptions} from "../util/igvUtils.js"
+import {buildOptions} from "../igv/util/igvUtils.js"
 
 const splitLines = StringUtils.splitLines
 
