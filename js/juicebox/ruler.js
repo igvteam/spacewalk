@@ -293,26 +293,9 @@ class Ruler {
 
     draw(options) {
 
-        var self = this,
-            fontStyle,
-            tickSpec,
-            majorTickSpacing,
-            nTick,
-            pixelLast,
-            pixel,
-            tickSpacingPixels,
-            labelWidthPixels,
-            modulo,
-            l,
-            yShim,
-            tickHeight,
-            rulerLabel,
-            chrSize,
-            chrName,
-            chromosomes = this.browser.dataset.chromosomes;
+        const chromosomes = Object.values(Globals.currentBrowser.genome.chromosomes)
 
-        chrName = ('x' === this.axis) ? chromosomes[this.browser.state.chr1].name : chromosomes[this.browser.state.chr2].name;
-        chrSize = ('x' === this.axis) ? chromosomes[this.browser.state.chr1].size : chromosomes[this.browser.state.chr2].size;
+        const chrSize = ('x' === this.axis) ? chromosomes[this.browser.state.chr1].size : chromosomes[this.browser.state.chr2].size;
 
         if (options.chrName === "all") {
 
@@ -320,36 +303,39 @@ class Ruler {
 
             IGVGraphics.fillRect(this.ctx, 0, 0, options.rulerLengthPixels, options.rulerHeightPixels, {fillStyle: IGVColor.rgbColor(255, 255, 255)});
 
-            fontStyle = {
+            const fontStyle =
+                {
                 textAlign: 'center',
                 font: '9px PT Sans',
                 fillStyle: "rgba(64, 64, 64, 1)",
                 strokeStyle: "rgba(64, 64, 64, 1)"
             };
 
-            tickSpec = findSpacing(Math.floor(options.rulerTickMarkReferencePixels * options.bpPerPixel));
-            majorTickSpacing = tickSpec.majorTick;
+            const tickSpec = findSpacing(Math.floor(options.rulerTickMarkReferencePixels * options.bpPerPixel));
+            const majorTickSpacing = tickSpec.majorTick;
 
             // Find starting point closest to the current origin
-            nTick = Math.floor(options.bpStart / majorTickSpacing) - 1;
+            let nTick = Math.floor(options.bpStart / majorTickSpacing) - 1;
 
-            pixel = pixelLast = 0;
+            let pixel = 0;
+            let pixelLast = 0;
 
             IGVGraphics.setProperties(this.ctx, fontStyle);
             this.ctx.lineWidth = 1.0;
 
-            yShim = 1;
-            tickHeight = 8;
+            const yShim = 1;
+            const tickHeight = 8;
+            let modulo
             while (pixel < options.rulerLengthPixels) {
 
-                l = Math.floor(nTick * majorTickSpacing);
+                const l = Math.floor(nTick * majorTickSpacing);
 
                 pixel = Math.round(((l - 1) - options.bpStart + 0.5) / options.bpPerPixel);
 
-                rulerLabel = formatNumber(l / tickSpec.unitMultiplier, 0) + " " + tickSpec.majorUnit;
+                const rulerLabel = formatNumber(l / tickSpec.unitMultiplier, 0) + " " + tickSpec.majorUnit;
 
-                tickSpacingPixels = Math.abs(pixel - pixelLast);
-                labelWidthPixels = this.ctx.measureText(rulerLabel).width;
+                const tickSpacingPixels = Math.abs(pixel - pixelLast);
+                const labelWidthPixels = this.ctx.measureText(rulerLabel).width;
 
                 if (labelWidthPixels > tickSpacingPixels) {
 
