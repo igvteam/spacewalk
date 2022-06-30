@@ -62,6 +62,7 @@ class State {
 
             this.normalization = normalization;
         }
+
     }
 
     stringify() {
@@ -107,7 +108,7 @@ class State {
 
 
         // chromosome length - bp & bin
-        const {size:lengthBP} = browser.dataset.chromosomes[ chr1 ]
+        const {size:lengthBP} = Object.values(browser.genome.chromosomes)[ chr1 ]
         const lengthBin = lengthBP / binSize
 
         const f = StringUtils.numberFormatter(width)
