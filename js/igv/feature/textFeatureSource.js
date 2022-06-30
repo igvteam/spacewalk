@@ -246,12 +246,12 @@ class TextFeatureSource {
     getWGFeatures(allFeatures) {
 
         const genome = this.genome;
-        const wgChromosomeNames = new Set(genome.wgChromosomeNames);
+        const wgChromosomeNames = new Set(genome.wgChromosomeNames.map(({ name }) => name));
         const wgFeatures = [];
 
-        for (let c of genome.wgChromosomeNames) {
+        for (let { name } of genome.wgChromosomeNames) {
 
-            const features = allFeatures[c];
+            const features = allFeatures[name];
 
             if (features) {
                 for (let f of features) {

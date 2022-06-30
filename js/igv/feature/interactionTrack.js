@@ -587,8 +587,8 @@ function getWGFeatures(allFeatures) {
 
     const genome = this.genome;
     const wgFeatures = [];
-    for (let c of genome.wgChromosomeNames) {
-        const chrFeatures = allFeatures[c];
+    for (let { name } of genome.wgChromosomeNames) {
+        const chrFeatures = allFeatures[name];
         if (chrFeatures) {
             for (let f of chrFeatures) {
                 if (!f.dup) {

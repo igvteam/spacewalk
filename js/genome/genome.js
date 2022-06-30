@@ -26,6 +26,8 @@
 import {StringUtils} from "igv-utils"
 import Chromosome from "./chromosome.js"
 
+const isDigit = val => /^\d+$/.test(val)
+
 class Genome {
 
     constructor(config, sequence, ideograms, aliases) {
@@ -89,55 +91,52 @@ class Genome {
 
     constructWholeGenomeNames(config, sequence) {
 
-        let things
+        // Trim small chromosomes.
+        const lengths = Object.keys(sequence.chromosomes).map(key => sequence.chromosomes[key].bpLength)
 
-        if (config.chromosomeOrder) {
+        const median = lengths.reduce((a, b) => Math.max(a, b))
+        const threshold = median / 50
 
-            if (Array.isArray(config.chromosomeOrder)) {
-                this.wgChromosomeNames = config.chromosomeOrder
-            } else {
-                this.wgChromosomeNames = config.chromosomeOrder.split(',').map(nm => nm.trim())
-            }
+        const things = Object.values(sequence.chromosomes).filter(chr => chr.bpLength > threshold)
 
-            things = this.wgChromosomeNames.map(nm => sequence.chromosomes[nm]).filter(chr => chr !== undefined)
+        // Sort chromosomes.  First segregate numeric and alpha names, sort numeric, leave alpha as is
 
-        } else {
 
-            // Trim small chromosomes.
-            const lengths = Object.keys(sequence.chromosomes).map(key => sequence.chromosomes[key].bpLength)
+        const cookedNames = things.map(({ name }) => {
+            return { name: name.replace('chr', ''), fullName: name }
+        })
 
-            const median = lengths.reduce((a, b) => Math.max(a, b))
-            const threshold = median / 50
+        const numerics = cookedNames
+            .filter(({ name }) =>  isDigit(name))
+            .sort((a, b) => Number.parseInt(a.name) - Number.parseInt(b.name))
 
-            things = Object.values(sequence.chromosomes).filter(chr => chr.bpLength > threshold)
+        const   alphas = cookedNames
+            .filter(({ name }) => !isDigit(name))
 
-            // Sort chromosomes.  First segregate numeric and alpha names, sort numeric, leave alpha as is
+        this.wgChromosomeNames = numerics.slice()
 
-            const isDigit = val => /^\d+$/.test(val)
-
-            const numericChromosomes = things.filter(chr => isDigit(chr.name.replace('chr', '')))
-            const alphaChromosomes = things.filter(chr => !isDigit(chr.name.replace('chr', '')))
-            numericChromosomes.sort((a, b) => Number.parseInt(a.name.replace('chr', '')) - Number.parseInt(b.name.replace('chr', '')))
-
-            const wgChromosomeNames = numericChromosomes.map(chr => chr.name)
-            for (let chr of alphaChromosomes) {
-                wgChromosomeNames.push(chr.name)
-            }
-            this.wgChromosomeNames = wgChromosomeNames
-        }
+        this.wgChromosomeNames.push(...alphas)
 
         this.chromosomes = {}
 
         const bpLength = things.reduce((accumulator, currentValue) => accumulator += currentValue.bpLength, 0)
-
         this.chromosomes[ 'all' ] = new Chromosome('all', -1, 0, bpLength)
-        for (let name of this.wgChromosomeNames) {
-            this.chromosomes[ name ] = sequence.chromosomes[ name ]
+
+        for (let { name, fullName } of this.wgChromosomeNames) {
+            this.chromosomes[ name ] = sequence.chromosomes[ fullName ]
         }
 
-        this.chromosomeNames = this.wgChromosomeNames.slice()
+        this.chromosomeNames = this.wgChromosomeNames.map(({ name }) => name)
         this.chromosomeNames.unshift('all')
 
+    }
+
+    getChromosomeAtIndex(i) {
+        for (let chromosome of Object.values(this.chromosomes)) {
+            if (i === chromosome.index) {
+                return chromosome
+            }
+        }
     }
 
     showWholeGenomeView() {
@@ -175,25 +174,6 @@ class Genome {
         return this.ideograms ? this.ideograms[chr] : null
     }
 
-    getLongestChromosome() {
-
-        var longestChr,
-            chromosomes = this.chromosomes
-        for (let key in chromosomes) {
-            if (chromosomes.hasOwnProperty(key)) {
-                var chr = chromosomes[key]
-                if (longestChr === undefined || chr.bpLength > longestChr.bpLength) {
-                    longestChr = chr
-                }
-            }
-            return longestChr
-        }
-    }
-
-    getChromosomes() {
-        return this.chromosomes
-    }
-
     /**
      * Return the genome coordinate in kb for the give chromosome and position.
      * NOTE: This might return undefined if the chr is filtered from whole genome view.
@@ -217,9 +197,10 @@ class Genome {
 
         let lastChr = undefined
         let lastCoord = 0
-        for (let name of this.wgChromosomeNames) {
+        for (let { name } of this.wgChromosomeNames) {
 
             const cumulativeOffset = this.cumulativeOffsets[name]
+
             if (cumulativeOffset > genomeCoordinate) {
                 const position = genomeCoordinate - lastCoord
                 return {chr: lastChr, position: position}
@@ -229,10 +210,9 @@ class Genome {
         }
 
         // If we get here off the end
-        return {chr: this.wgChromosomeNames[this.wgChromosomeNames.length - 1], position: 0}
+        return { chr: this.wgChromosomeNames[ this.wgChromosomeNames.length - 1 ].name, position: 0 }
 
-    };
-
+    }
 
     /**
      * Return the offset in genome coordinates (kb) of the start of the given chromosome
@@ -240,29 +220,31 @@ class Genome {
      */
     getCumulativeOffset(chr) {
 
-        if (this.cumulativeOffsets === undefined) {
-            this.cumulativeOffsets = computeCumulativeOffsets.call(this)
-        }
+        const computeCumulativeOffsets = () => {
 
-        const queryChr = this.getChromosomeName(chr)
-        return this.cumulativeOffsets[queryChr]
+            const acc = {}
 
-        function computeCumulativeOffsets() {
-
-            let self = this
-            let acc = {}
             let offset = 0
-            for (let name of self.wgChromosomeNames) {
+            for (let { name } of this.wgChromosomeNames) {
 
                 acc[name] = Math.floor(offset)
 
-                const chromosome = self.getChromosome(name)
+                const chromosome = this.getChromosome(name)
 
                 offset += chromosome.bpLength
             }
 
             return acc
         }
+
+
+        if (this.cumulativeOffsets === undefined) {
+            this.cumulativeOffsets = computeCumulativeOffsets()
+        }
+
+        const queryChr = this.getChromosomeName(chr)
+        return this.cumulativeOffsets[queryChr]
+
     }
 
     /**
@@ -270,16 +252,16 @@ class Genome {
      */
     getGenomeLength() {
 
-        let self = this
+        if (undefined === this.bpLength) {
 
-        if (!this.bpLength) {
-            let bpLength = 0
-            self.wgChromosomeNames.forEach(function (cname) {
-                let c = self.chromosomes[cname]
-                bpLength += c.bpLength
-            })
-            this.bpLength = bpLength
+            let acc = 0
+            for (let { name } of this.wgChromosomeNames) {
+                acc += this.chromosomes[ name ].bpLength
+            }
+
+            this.bpLength = acc
         }
+
         return this.bpLength
     }
 

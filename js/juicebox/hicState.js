@@ -108,7 +108,7 @@ class State {
 
 
         // chromosome length - bp & bin
-        const {size:lengthBP} = Object.values(browser.genome.chromosomes)[ chr1 ]
+        const {size:lengthBP} = browser.genome.getChromosomeAtIndex(chr1)
         const lengthBin = lengthBP / binSize
 
         const f = StringUtils.numberFormatter(width)
