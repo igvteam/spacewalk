@@ -27,7 +27,7 @@ const GenomeUtils = {
             aliases = await loadAliases(aliasURL, sequence.config)
         }
 
-        return new Genome(options, sequence, cytobands, aliases)
+        return options.chromosomeOrder ? undefined : new Genome(options, sequence, cytobands, aliases)
     },
 
     initializeGenomes: async function (config) {
@@ -68,8 +68,11 @@ const GenomeUtils = {
 
             GenomeUtils.GenomeLibrary = {}
             for (let [ genomeId, genome_configuration ] of Object.entries(GenomeUtils.KNOWN_GENOMES)) {
-                GenomeUtils.GenomeLibrary[ genomeId ] = await GenomeUtils.loadGenome(genome_configuration)
-            }
+
+                if (undefined === genome_configuration.chromosomeOrder) {
+                    GenomeUtils.GenomeLibrary[ genomeId ] = await GenomeUtils.loadGenome(genome_configuration)
+                }
+             }
 
             function processJson(jsonArray) {
                 jsonArray.forEach(function (json) {

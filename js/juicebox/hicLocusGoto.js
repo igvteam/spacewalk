@@ -59,9 +59,12 @@ class LocusGoto {
             if (isWholeGenome) {
                 xy = 'All';
             } else {
-                const chr1 = this.browser.dataset.chromosomes[state.chr1];
-                const chr2 = this.browser.dataset.chromosomes[state.chr2];
-                const bpPerBin = this.browser.dataset.bpResolutions[state.zoom];
+
+                const chr1 = this.browser.genome.getChromosomeAtIndex(state.chr1)
+                const chr2 = this.browser.genome.getChromosomeAtIndex(state.chr2)
+
+                const bpPerBin = this.browser.dataset.bpResolutions[state.zoom]
+
                 const dimensionsPixels = this.browser.contactMatrixView.getViewDimensions();
                 const pixelsPerBin = state.pixelSize;
                 const startBP1 = 1 + Math.round(state.x * bpPerBin);
