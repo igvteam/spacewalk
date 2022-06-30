@@ -40,7 +40,7 @@ import C2S from "./canvas2svg.js";
 import TrackFactory from "./trackFactory.js";
 import ROI from "./roi.js";
 import XMLSession from "./session/igvXmlSession.js";
-import GenomeUtils from "../genome/genome.js";
+import {GenomeUtils} from '../genome/genomeUtils.js'
 import loadPlinkFile from "./sampleInformation.js";
 import {adjustReferenceFrame, createReferenceFrameList, createReferenceFrameWithAlignment} from "./referenceFrame.js";
 import {buildOptions, createColumn, doAutoscale, getFilename, createViewport} from "./util/igvUtils.js";

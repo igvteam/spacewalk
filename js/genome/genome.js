@@ -23,128 +23,8 @@
  * THE SOFTWARE.
  */
 
-import {BGZip, igvxhr, StringUtils} from "igv-utils"
-import {Alert} from 'igv-ui'
-import {loadFasta} from "./fasta.js"
-import Cytoband from "./cytoband.js"
-import {buildOptions, isDataURL} from "../igv/util/igvUtils.js"
-import version from "../igv/version.js"
-import Chromosome from "./chromosome"
-
-const DEFAULT_GENOMES_URL = "https://igv.org/genomes/genomes.json"
-const BACKUP_GENOMES_URL = "https://s3.amazonaws.com/igv.org.genomes/genomes.json"
-
-const splitLines = StringUtils.splitLines
-
-const GenomeUtils = {
-
-    loadGenome: async function (options) {
-
-        const cytobandUrl = options.cytobandURL
-        const aliasURL = options.aliasURL
-        const sequence = await loadFasta(options)
-
-        let cytobands
-        if (cytobandUrl) {
-            cytobands = await loadCytobands(cytobandUrl, sequence.config)
-        }
-
-        let aliases
-        if (aliasURL) {
-            aliases = await loadAliases(aliasURL, sequence.config)
-        }
-
-        return new Genome(options, sequence, cytobands, aliases)
-    },
-
-    initializeGenomes: async function (config) {
-
-        if (!GenomeUtils.KNOWN_GENOMES) {
-
-            const table = {}
-
-            // Default genomes
-            try {
-                const url = DEFAULT_GENOMES_URL + `?randomSeed=${Math.random().toString(36)}&version=${version()}`  // prevent caching
-                const jsonArray = await igvxhr.loadJson(url, {timeout: 5000})
-                processJson(jsonArray)
-            } catch (e) {
-                console.error(e)
-                try {
-                    const url = BACKUP_GENOMES_URL + `?randomSeed=${Math.random().toString(36)}&version=${version()}`  // prevent caching
-                    const jsonArray = await igvxhr.loadJson(url, {})
-                    processJson(jsonArray)
-                } catch (e) {
-                    console.error(e)
-                    console.warn("Errors loading default genome definitions.")
-                }
-            }
-
-            // User-defined genomes
-            const genomeList = config.genomeList || config.genomes
-            if (genomeList) {
-                if (typeof genomeList === 'string') {
-                    const jsonArray = await igvxhr.loadJson(genomeList, {})
-                    processJson(jsonArray)
-                } else {
-                    processJson(genomeList)
-                }
-            }
-
-            GenomeUtils.KNOWN_GENOMES = table
-
-            GenomeUtils.GenomeLibrary = {}
-            for (let [ genomeId, genome_configuration ] of Object.entries(GenomeUtils.KNOWN_GENOMES)) {
-                GenomeUtils.GenomeLibrary[ genomeId ] = await GenomeUtils.loadGenome(genome_configuration)
-            }
-
-            function processJson(jsonArray) {
-                jsonArray.forEach(function (json) {
-                    table[json.id] = json
-                })
-                return table
-            }
-        }
-    },
-
-    isWholeGenomeView: function (chr) {
-        return 'all' === chr.toLowerCase()
-    },
-
-    // Expand a genome id to a reference object, if needed
-    expandReference: function (idOrConfig) {
-
-        // idOrConfig might be json
-        if (StringUtils.isString(idOrConfig) && idOrConfig.startsWith("{")) {
-            try {
-                idOrConfig = JSON.parse(idOrConfig)
-            } catch (e) {
-                // Apparently its not json,  could be an ID starting with "{".  Unusual but legal.
-            }
-        }
-
-        let genomeID
-        if (StringUtils.isString(idOrConfig)) {
-            genomeID = idOrConfig
-        } else if (idOrConfig.genome) {
-            genomeID = idOrConfig.genome
-        } else if (idOrConfig.id !== undefined && idOrConfig.fastaURL === undefined) {
-            // Backward compatibility
-            genomeID = idOrConfig.id
-        }
-
-        if (genomeID) {
-            const knownGenomes = GenomeUtils.KNOWN_GENOMES
-            const reference = knownGenomes[genomeID]
-            if (!reference) {
-                Alert.presentAlert(new Error(`Unknown genome id: ${genomeID}`), undefined)
-            }
-            return reference
-        } else {
-            return idOrConfig
-        }
-    }
-}
+import {StringUtils} from "igv-utils"
+import Chromosome from "./chromosome.js"
 
 class Genome {
 
@@ -160,50 +40,50 @@ class Genome {
 
         this.featureDB = {}
 
+        // NOTE: In this Genome version chromosomeNames === wgChromosomeNames
         this.constructWholeGenomeNames(config, sequence)
 
-        const chrAliasTable = {}
+        this.chrAliasTable = {}
+        this.chrAliasTable['all'] = 'all'
 
-        chrAliasTable['all'] = 'all'
-         this.chromosomeNames.forEach(function (name) {
+        for (let name of this.chromosomeNames) {
 
             const alias = name.startsWith("chr") ? name.substring(3) : "chr" + name
 
-            chrAliasTable[alias.toLowerCase()] = name
+            this.chrAliasTable[alias.toLowerCase()] = name
 
-            if (name === "chrM") chrAliasTable["mt"] = "chrM"
-            if (name === "MT") chrAliasTable["chrm"] = "MT"
+            if (name === "chrM") this.chrAliasTable["mt"] = "chrM"
+            if (name === "MT") this.chrAliasTable["chrm"] = "MT"
 
-            chrAliasTable[name.toLowerCase()] = name
-        })
+            this.chrAliasTable[name.toLowerCase()] = name
+
+        }
 
         // Custom mappings
-        const self = this
         if (aliases) {
-            aliases.forEach(function (array) {
-                // Find the official chr name
-                var defName, i
 
-                for (i = 0; i < array.length; i++) {
-                    if (self.chromosomes[array[i]]) {
-                        defName = array[i]
+            for (let array of aliases) {
+
+                let defName
+
+                for (let item of array) {
+                    if (this.chromosomes[item]) {
+                        defName = item
                         break
                     }
                 }
 
                 if (defName) {
-                    array.forEach(function (alias) {
+                    array.forEach(alias => {
                         if (alias !== defName) {
-                            chrAliasTable[alias.toLowerCase()] = defName
-                            chrAliasTable[alias] = defName      // Should not be needed
+                            this.chrAliasTable[ alias.toLowerCase() ] = this.chrAliasTable[ alias ] = defName
                         }
                     })
                 }
 
-            })
-        }
+            }
 
-        this.chrAliasTable = chrAliasTable
+        }
 
     }
 
@@ -409,72 +289,6 @@ class Genome {
     }
 }
 
-async function loadCytobands(cytobandUrl, config) {
-
-    let data
-    if (isDataURL(cytobandUrl)) {
-        const plain = BGZip.decodeDataURI(cytobandUrl)
-        data = ""
-        const len = plain.length
-        for (let i = 0; i < len; i++) {
-            data += String.fromCharCode(plain[i])
-        }
-    } else {
-        data = await igvxhr.loadString(cytobandUrl, buildOptions(config))
-    }
-
-    // var bands = [],
-    //     lastChr,
-    //     n = 0,
-    //     c = 1,
-    //
-    //     len = lines.length,
-    const cytobands = {}
-    let lastChr
-    let bands = []
-    const lines = splitLines(data)
-    for (let line of lines) {
-        var tokens = line.split("\t")
-        var chr = tokens[0]
-        if (!lastChr) lastChr = chr
-
-        if (chr !== lastChr) {
-            cytobands[lastChr] = bands
-            bands = []
-            lastChr = chr
-        }
-
-        if (tokens.length === 5) {
-            //10	0	3000000	p15.3	gneg
-            var start = parseInt(tokens[1])
-            var end = parseInt(tokens[2])
-            var name = tokens[3]
-            var stain = tokens[4]
-            bands.push(new Cytoband(start, end, name, stain))
-        }
-    }
-
-    return cytobands
-}
-
-function loadAliases(aliasURL, config) {
-
-    return igvxhr.loadString(aliasURL, buildOptions(config))
-
-        .then(function (data) {
-
-            var lines = splitLines(data),
-                aliases = []
-
-            lines.forEach(function (line) {
-                if (!line.startsWith("#") && line.length > 0) aliases.push(line.split("\t"))
-            })
-
-            return aliases
-        })
-
-}
-
 function generateGenomeID(config) {
     if (config.id !== undefined) {
         return config.id
@@ -487,6 +301,5 @@ function generateGenomeID(config) {
     }
 }
 
-export { DEFAULT_GENOMES_URL, BACKUP_GENOMES_URL }
+export default Genome
 
-export default GenomeUtils

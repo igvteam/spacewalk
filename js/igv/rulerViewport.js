@@ -1,7 +1,7 @@
 import {Icon, DOMUtils, IGVMath, StringUtils} from "igv-utils";
 import TrackViewport from "./trackViewport.js";
 import RulerSweeper from "./rulerSweeper.js";
-import GenomeUtils from "../genome/genome.js";
+import {GenomeUtils} from '../genome/genomeUtils.js'
 
 let timer
 let currentViewport = undefined
