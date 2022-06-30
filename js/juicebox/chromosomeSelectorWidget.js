@@ -65,31 +65,13 @@ class ChromosomeSelectorWidget {
             await browser.parseLocusString(`${chr1Index} ${chr2Index}`, true)
          })
 
-        this.dataLoadConfig =
-            {
-                receiveEvent: event => {
-                    if (event.type === "MapLoad") {
-                        this.respondToDataLoadWithDataset(event.data);
-                    }
-                }
-            };
+        browser.eventBus.subscribe("MapLoad", () => this.respondToMapLoad(browser.genome.chromosomes))
 
-        browser.eventBus.subscribe("MapLoad", this.dataLoadConfig);
-
-        this.locusChangeConfig =
-            {
-                receiveEvent: event => {
-                    if (event.type === "LocusChange") {
-                        this.respondToLocusChangeWithState(event.data.state);
-                    }
-                }
-            };
-
-        browser.eventBus.subscribe("LocusChange", this.locusChangeConfig);
+        browser.eventBus.subscribe("LocusChange", event => this.respondToLocusChange(event.data.state))
 
     }
 
-    respondToDataLoadWithDataset(dataset) {
+    respondToMapLoad(chromosomes) {
 
         var elements,
             str,
@@ -99,7 +81,7 @@ class ChromosomeSelectorWidget {
         this.$x_axis_selector.empty();
         this.$y_axis_selector.empty();
 
-        elements = dataset.chromosomes.map(({name}, index) => `<option value=${index.toString()}>${name}</option>`);
+        elements = Object.values(chromosomes).map(({ name, index }) => `<option value=${ index.toString() }>${ name }</option>`);
 
         this.$x_axis_selector.append(elements.join(''));
         this.$y_axis_selector.append(elements.join(''));
@@ -113,7 +95,7 @@ class ChromosomeSelectorWidget {
         $yFound.prop('selected', true);
     }
 
-    respondToLocusChangeWithState(state) {
+    respondToLocusChange(state) {
         var self = this,
             ssx,
             ssy,
