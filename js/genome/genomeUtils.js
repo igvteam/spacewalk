@@ -13,21 +13,28 @@ const GenomeUtils = {
 
     loadGenome: async function (options) {
 
-        const cytobandUrl = options.cytobandURL
-        const aliasURL = options.aliasURL
-        const sequence = await loadFasta(options)
+        if (options.chromosomeOrder) {
+            return undefined
+        } else {
 
-        let cytobands
-        if (cytobandUrl) {
-            cytobands = await loadCytobands(cytobandUrl, sequence.config)
+            const sequence = await loadFasta(options)
+
+            let cytobands
+            if (options.cytobandURL) {
+                cytobands = await loadCytobands(options.cytobandURL, sequence.config)
+            } else {
+                return undefined
+            }
+
+            let aliases
+            if (options.aliasURL) {
+                aliases = await loadAliases(options.aliasURL, sequence.config)
+            }
+
+            return new Genome(options, sequence, cytobands, aliases)
+
         }
 
-        let aliases
-        if (aliasURL) {
-            aliases = await loadAliases(aliasURL, sequence.config)
-        }
-
-        return options.chromosomeOrder ? undefined : new Genome(options, sequence, cytobands, aliases)
     },
 
     initializeGenomes: async function (config) {
@@ -68,9 +75,9 @@ const GenomeUtils = {
 
             GenomeUtils.GenomeLibrary = {}
             for (let [ genomeId, genome_configuration ] of Object.entries(GenomeUtils.KNOWN_GENOMES)) {
-
-                if (undefined === genome_configuration.chromosomeOrder) {
-                    GenomeUtils.GenomeLibrary[ genomeId ] = await GenomeUtils.loadGenome(genome_configuration)
+                const genome = await GenomeUtils.loadGenome(genome_configuration)
+                if (genome) {
+                    GenomeUtils.GenomeLibrary[ genomeId ] = genome
                 }
              }
 

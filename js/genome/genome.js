@@ -38,12 +38,10 @@ class Genome {
 
         this.id = config.id || generateGenomeID(config)
 
-        this.ideograms = ideograms
-
         this.featureDB = {}
 
         // NOTE: In this Genome version chromosomeNames === wgChromosomeNames
-        this.constructWholeGenomeNames(config, sequence)
+        this.constructWholeGenomeNames(config, sequence, ideograms)
 
         this.chrAliasTable = {}
         this.chrAliasTable['all'] = 'all'
@@ -89,7 +87,7 @@ class Genome {
 
     }
 
-    constructWholeGenomeNames(config, sequence) {
+    constructWholeGenomeNames(config, sequence, ideograms) {
 
         // Trim small chromosomes.
         const lengths = Object.keys(sequence.chromosomes).map(key => sequence.chromosomes[key].bpLength)
@@ -118,12 +116,14 @@ class Genome {
         this.wgChromosomeNames.push(...alphas)
 
         this.chromosomes = {}
+        this.ideograms = {}
 
         const bpLength = things.reduce((accumulator, currentValue) => accumulator += currentValue.bpLength, 0)
         this.chromosomes[ 'all' ] = new Chromosome('all', -1, 0, bpLength)
 
         for (let { name, fullName } of this.wgChromosomeNames) {
             this.chromosomes[ name ] = sequence.chromosomes[ fullName ]
+            this.ideograms[ name ] = ideograms[ fullName ]
         }
 
         this.chromosomeNames = this.wgChromosomeNames.map(({ name }) => name)
