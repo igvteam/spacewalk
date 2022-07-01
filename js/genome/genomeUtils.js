@@ -11,6 +11,8 @@ const BACKUP_GENOMES_URL = "https://s3.amazonaws.com/igv.org.genomes/genomes.jso
 
 const GenomeUtils = {
 
+    currentGenome: undefined,
+
     loadGenome: async function (options) {
 
         if (options.chromosomeOrder) {
