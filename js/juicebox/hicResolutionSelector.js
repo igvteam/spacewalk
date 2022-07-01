@@ -87,7 +87,7 @@ class ResolutionSelector {
             }
 
             if (data.chrChanged !== false) {  // Default true
-                const isWholeGenome = browser.dataset.isWholeGenome(data.state.chr1);
+                const isWholeGenome = browser.genome.isWholeGenome(data.state.chr1);
                 this.$label.text(isWholeGenome ? 'Resolution (mb)' : 'Resolution (kb)');
                 updateResolutions.call(this, browser.state.zoom);
             } else {

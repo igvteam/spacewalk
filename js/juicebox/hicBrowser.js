@@ -534,15 +534,15 @@ class HICBrowser {
      */
     async zoomAndCenter(direction, centerPX, centerPY) {
 
-        if (this.dataset.isWholeGenome(this.state.chr1) && direction > 0) {
+        if (this.genome.isWholeGenome(this.state.chr1) && direction > 0) {
 
             //              bp = pixel * bp/bin * bin/pixel
             //              bp = bp
             const xBP = centerPX * this.dataset.wholeGenomeResolution / this.state.pixelSize;
             const yBP = centerPY * this.dataset.wholeGenomeResolution / this.state.pixelSize;
 
-            const chrX = this.genome.getChromsosomeForCoordinate(xBP);
-            const chrY = this.genome.getChromsosomeForCoordinate(yBP);
+            const chrX = this.genome.getChromosomeForCoordinate(xBP);
+            const chrY = this.genome.getChromosomeForCoordinate(yBP);
 
             await this.parseLocusString(`${chrX.name} ${chrY.name}`, true)
 
@@ -660,8 +660,8 @@ class HICBrowser {
     async minZoom(chr1, chr2) {
 
         // bp
-        const { name:name1, size:chr1Length } = this.dataset.chromosomes[ chr1 ]
-        const { name:name2, size:chr2Length } = this.dataset.chromosomes[ chr2 ]
+        const { name:name1, size:chr1Length } = this.genome.getChromosomeAtIndex(chr1)
+        const { name:name2, size:chr2Length } = this.genome.getChromosomeAtIndex(chr2)
 
         // pixel
         const { width, height } = this.contactMatrixView.getViewDimensions()
@@ -679,8 +679,8 @@ class HICBrowser {
     async getMinimumPixelSize(chr1, chr2, zoomIndex) {
 
         // bp
-        const { size:chr1Length } = this.dataset.chromosomes[ chr1 ]
-        const { size:chr2Length } = this.dataset.chromosomes[ chr2 ]
+        const { size:chr1Length } = this.genome.getChromosomeAtIndex(chr1)
+        const { size:chr2Length } = this.genome.getChromosomeAtIndex(chr2)
 
         const matrix = await this.dataset.getMatrix(chr1, chr2)
         const { zoom } = matrix.getZoomDataByIndex(zoomIndex, "BP")
@@ -891,7 +891,7 @@ class HICBrowser {
     }
 
     isWholeGenome() {
-        return this.dataset && this.state && this.dataset.isWholeGenome(this.state.chr1)
+        return this.state && this.genome && this.genome.isWholeGenome(this.state.chr1)
     }
 
     updateCrosshairs({x, y, xNormalized, yNormalized}) {
@@ -957,7 +957,7 @@ class HICBrowser {
         let width = this.contactMatrixView.getViewDimensions().width
         let resolution = this.dataset.bpResolutions[this.state.zoom];
         const bpp =
-            (this.dataset.chromosomes[this.state.chr1].name.toLowerCase() === "all") ?
+            (this.genome.getChromosomeAtIndex(this.state.chr1).name.toLowerCase() === "all") ?
                 this.genome.getGenomeLength() / width :
                 resolution / this.state.pixelSize
 
@@ -967,11 +967,11 @@ class HICBrowser {
             };
 
         if (axis === "x") {
-            genomicState.chromosome = this.dataset.chromosomes[this.state.chr1];
+            genomicState.chromosome = this.genome.getChromosomeAtIndex(this.state.chr1)
             genomicState.startBP = this.state.x * resolution;
             genomicState.endBP = genomicState.startBP + bpp * width;
         } else {
-            genomicState.chromosome = this.dataset.chromosomes[this.state.chr2];
+            genomicState.chromosome = this.genome.getChromosomeAtIndex(this.state.chr2)
             genomicState.startBP = this.state.y * resolution;
             genomicState.endBP = genomicState.startBP + bpp * this.contactMatrixView.getViewDimensions().height;
         }
@@ -1040,8 +1040,8 @@ class HICBrowser {
 
     clamp() {
         var viewDimensions = this.contactMatrixView.getViewDimensions(),
-            chr1Length = this.dataset.chromosomes[this.state.chr1].size,
-            chr2Length = this.dataset.chromosomes[this.state.chr2].size,
+            chr1Length = this.genome.getChromosomeAtIndex(this.state.chr1).size,
+            chr2Length = this.genome.getChromosomeAtIndex(this.state.chr2).size,
             binSize = this.dataset.bpResolutions[this.state.zoom],
             maxX = (chr1Length / binSize) - (viewDimensions.width / this.state.pixelSize),
             maxY = (chr2Length / binSize) - (viewDimensions.height / this.state.pixelSize);

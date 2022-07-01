@@ -224,9 +224,10 @@ class ContactFrequencyMapPanel extends Panel {
         } // for (wye)
 
         const binSize = (genomicEnd - genomicStart) / traceLength
-        const chromosomes = GenomeUtils.GenomeLibrary[ ensembleManager.genomeAssembly ].getChromosome(chr.toLowerCase())
+        const genome = GenomeUtils.GenomeLibrary[ ensembleManager.genomeAssembly ]
+        const chromosomes = genome.getChromosome(chr.toLowerCase())
 
-        const liveContactMapDataSet = new LiveContactMapDataSet(binSize, chromosomes, contactRecordList, averageCount)
+        const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
 
         return { hicState, liveContactMapDataSet }
 
