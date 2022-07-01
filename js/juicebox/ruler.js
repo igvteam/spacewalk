@@ -26,7 +26,7 @@
  * @author Jim Robinson
  */
 
-import {IGVColor, IGVMath} from 'igv-utils'
+import {IGVColor} from 'igv-utils'
 import IGVGraphics from './igv-canvas.js'
 import {Globals} from "./globals.js"
 
@@ -259,7 +259,7 @@ class Ruler {
             config = {},
             browser = this.browser;
 
-        if (browser.dataset.isWholeGenome(browser.state.chr1)) {
+        if (true === browser.genome.isWholeGenome(browser.state.chr1)) {
             this.showWholeGenome();
             return;
         }

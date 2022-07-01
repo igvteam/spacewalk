@@ -76,7 +76,7 @@ class ContactMatrixView {
 
         if ("MapLoad" === event.type || "ControlMapLoad" === event.type) {
 
-            // Don't enable mouse actions until we have a dataset.
+            // Don't enable mouse actions until we have a dataset
             if (!this.mouseHandlersEnabled) {
                 this.addMouseHandlers(this.$viewport);
                 this.mouseHandlersEnabled = true;

@@ -131,6 +131,11 @@ class Genome {
 
     }
 
+    isWholeGenome(i) {
+        const { name } = this.getChromosomeAtIndex(i)
+        return 'all' === name.toLowerCase()
+    }
+
     getChromosomeAtIndex(i) {
         for (let chromosome of Object.values(this.chromosomes)) {
             if (i === chromosome.index) {
@@ -145,10 +150,6 @@ class Genome {
 
     toJSON() {
         return Object.assign({}, this.config, {tracks: undefined})
-    }
-
-    getInitialLocus() {
-
     }
 
     getHomeChromosomeName() {
@@ -263,6 +264,20 @@ class Genome {
         }
 
         return this.bpLength
+    }
+
+    getChromosomeForCoordinate(bp) {
+
+        let offset = 0
+        for (let chromosome of Object.values(this.chromosomes)) {
+            const { size } = chromosome
+            if (size + offset > bp) {
+                return chromosome
+            }
+            offset += size;
+        }
+
+        return this.chromosomes[this.chromosomes.length - 1];
     }
 
     async getSequence(chr, start, end) {

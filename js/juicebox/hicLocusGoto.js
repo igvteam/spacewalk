@@ -55,7 +55,7 @@ class LocusGoto {
 
             let xy;
             const state = event.data.state || this.browser.state;
-            const isWholeGenome = this.browser.dataset.isWholeGenome(state.chr1);
+            const isWholeGenome = this.browser.genome.isWholeGenome(state.chr1);
             if (isWholeGenome) {
                 xy = 'All';
             } else {

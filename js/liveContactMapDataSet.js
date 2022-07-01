@@ -1,16 +1,18 @@
 class LiveContactMapDataSet {
 
-    constructor(binSize, chromosomes, contactRecordList, averageCount) {
+    constructor(binSize, genome, contactRecordList, averageCount) {
 
         this.binSize = binSize
 
         this.bpResolutions = [ binSize ]
 
-        this.chromosomes = chromosomes
+        this.genome = genome
 
         this.averageCount = averageCount
 
         this.contactRecordList = contactRecordList
+
+        this.wholeGenomeChromosome = genome.getChromosomeAtIndex(0)
     }
 
     initializeContactRecords(contacts) {
@@ -22,8 +24,8 @@ class LiveContactMapDataSet {
         const zoomData =
             {
                 averageCount: this.averageCount,
-                chr1: this.chromosomes[ chr1 ],
-                chr2: this.chromosomes[ chr2 ],
+                chr1: this.genome.getChromosomeAtIndex(chr1),
+                chr2: this.genome.getChromosomeAtIndex(chr2),
                 zoom: { index: 0, unit: 'BP', binSize: this.binSize }
             }
 
