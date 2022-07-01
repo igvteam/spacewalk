@@ -103,8 +103,8 @@ class ContactMatrixView {
 
         console.log(`liveContactMapDataSet average count ${ dataSet.averageCount }`)
 
-        const event = HICEvent('LocusChange', { state, resolutionChanged: true, chrChanged: true })
-        await this.browser.update(event)
+        // const event = HICEvent('LocusChange', { state, resolutionChanged: true, chrChanged: true })
+        // await this.browser.update(event)
 
     }
 
@@ -149,7 +149,10 @@ class ContactMatrixView {
         this.$canvas.attr('height', height)
 
         // bin
-        const { x:xBin, y:yBin, pixelSize } = this.browser.state
+        const { x:xBin, y:yBin, pixelSize, zoom } = this.browser.state
+
+        const binSize = this.browser.dataset.bpResolutions[ zoom ]
+        console.warn(`state ${ this.browser.state.description(this.browser.genome, binSize, width) }`)
 
         // bin-per-tile
         const columnStart = Math.floor(xBin / imageTileDimension)

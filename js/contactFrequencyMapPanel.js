@@ -241,13 +241,13 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
     // chromosome length and index into chromosome array
     const { bpLength, order } = chromosome
 
-    // bp-per-bin
-    const binSize = (genomicEnd - genomicStart) / traceLength
-
     // bin count
-    const binCount = bpLength/binSize
+    const binCount = traceLength
 
-    // diplay - pixel x pixel
+    // bp-per-bin
+    const binSize = (genomicEnd - genomicStart) / binCount
+
+    // canvas - pixel x pixel
     const { width, height } = Globals.currentBrowser.contactMatrixView.getViewDimensions()
 
     // pixels-per-bin
@@ -256,7 +256,12 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
     // x, y in Bin units
     const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
 
-    return new State(order, order, 0, xBin, yBin, width, height, pixelSize, undefined)
+    const state = new State(order, order, 0, xBin, yBin, width, height, pixelSize, undefined)
+
+    // const genome = GenomeUtils.GenomeLibrary[ genomeAssembly ]
+    // console.warn(`hic state ${ state.description(genome, binSize, width) }`)
+
+    return state
 
 }
 
