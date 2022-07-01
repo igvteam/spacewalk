@@ -99,9 +99,13 @@ class ContactMatrixView {
 
     }
 
-    async repaintWithLiveContactMap(hicState, liveContactMapDataSet) {
+    async repaintWithLiveContactMap(state, dataSet) {
 
-        console.log(`liveContactMapDataSet average count ${ liveContactMapDataSet.averageCount }`)
+        console.log(`liveContactMapDataSet average count ${ dataSet.averageCount }`)
+
+        const event = HICEvent('LocusChange', { state, resolutionChanged: true, chrChanged: true })
+        await this.browser.update(event)
+
     }
 
     async repaint() {

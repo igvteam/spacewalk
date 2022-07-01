@@ -289,11 +289,15 @@ async function createJuiceboxPanel(container, juiceboxConfig) {
 
 }
 
-async function initializeGenomes({ genomes }) {
+async function initializeGenomes(spacewalkConfig) {
 
-    // igv.js uses it's own Genome infrastructure
+    const { genomeID, genomes } = spacewalkConfig
+
     await GenomeUtils.initializeGenomes({ genomes })
 
+    GenomeUtils.currentGenome = GenomeUtils.GenomeLibrary[ genomeID ]
+
+    spacewalkConfig.igvConfig.genome = genomeID
 
 }
 

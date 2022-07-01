@@ -129,6 +129,11 @@ class HICBrowser {
 
     async init(config) {
 
+        if (undefined === config.url) {
+            this.genome = GenomeUtils.currentGenome
+            return
+        }
+
         this.state = config.state ? config.state : State.default(config)
         this.pending = new Map();
         this.contactMatrixView.disableUpdates = true;
@@ -218,7 +223,7 @@ class HICBrowser {
 
         if (!config.url) {
             console.log("No .hic url specified");
-            return undefined;
+            return
         }
 
         this.reset()
