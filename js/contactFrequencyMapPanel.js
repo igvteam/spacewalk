@@ -268,7 +268,6 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
 function populateContactFrequencyCanvasArray(frequencies) {
 
     const maxFrequency = frequencies.reduce((max, current) => Math.max(max, current), Number.NEGATIVE_INFINITY )
-    // const maxFrequency = Math.max(Number.NEGATIVE_INFINITY, ...frequencies)
 
     const colorMap = colorMapManager.dictionary['juicebox_default']
 

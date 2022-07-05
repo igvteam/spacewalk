@@ -129,18 +129,11 @@ class HICBrowser {
 
     async init(config) {
 
-        if (undefined === config.url) {
-            this.genome = GenomeUtils.currentGenome
-            return
-        }
-
         this.state = config.state ? config.state : State.default(config)
         this.pending = new Map();
         this.contactMatrixView.disableUpdates = true;
 
         try {
-            this.contactMatrixView.startSpinner();
-            this.$user_interaction_shield.show();
 
             await this.loadHicFile(config);
 
@@ -221,10 +214,14 @@ class HICBrowser {
      */
     async loadHicFile(config) {
 
-        if (!config.url) {
-            console.log("No .hic url specified");
+        if (undefined === config.url) {
+            this.genome = GenomeUtils.currentGenome
+            console.warn(`No .hic url specified. Genome set to ${ this.genome.id }`);
             return
         }
+
+        this.contactMatrixView.startSpinner();
+        this.$user_interaction_shield.show();
 
         this.reset()
 
