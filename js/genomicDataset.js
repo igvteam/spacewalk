@@ -77,13 +77,13 @@ class GenomicDataset extends Dataset {
                 for (let vertices of Object.values(trace)) {
                     const filtered = vertices.filter(({ isMissingData }) => {
                         if (true === isMissingData) {
-                            console.log('is missing data')
+                            console.warn('is missing data')
                             return false
                         } else {
                             return true
                         }
                     })
-                    vertices = [...filtered]
+                    vertices = filtered.slice()
                 }
             }
         } else {
