@@ -258,8 +258,8 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
 
     const state = new State(order, order, 0, xBin, yBin, width, height, pixelSize, undefined)
 
-    // const genome = GenomeUtils.GenomeLibrary[ genomeAssembly ]
-    // console.warn(`hic state ${ state.description(genome, binSize, width) }`)
+    const genome = GenomeUtils.GenomeLibrary[ genomeAssembly ]
+    console.warn(`createHICState ${ state.description(genome, binSize, width) }`)
 
     return state
 
@@ -267,7 +267,8 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
 
 function populateContactFrequencyCanvasArray(frequencies) {
 
-    const maxFrequency = Math.max(Number.NEGATIVE_INFINITY, ...frequencies)
+    const maxFrequency = frequencies.reduce((max, current) => Math.max(max, current), Number.NEGATIVE_INFINITY )
+    // const maxFrequency = Math.max(Number.NEGATIVE_INFINITY, ...frequencies)
 
     const colorMap = colorMapManager.dictionary['juicebox_default']
 

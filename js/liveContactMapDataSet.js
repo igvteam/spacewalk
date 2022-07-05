@@ -13,6 +13,8 @@ class LiveContactMapDataSet {
         this.contactRecordList = contactRecordList
 
         this.wholeGenomeChromosome = genome.getChromosomeAtIndex(0)
+
+        this.normalizationTypes = ['NONE']
     }
 
     initializeContactRecords(contacts) {
@@ -31,6 +33,14 @@ class LiveContactMapDataSet {
 
         return zoomData
 
+    }
+
+    async getContactRecordsWithRegions() {
+        return Promise.resolve(this.contactRecordList)
+    }
+
+    async getContactRecords() {
+        return Promise.resolve(this.contactRecordList)
     }
 
     isWholeGenome(ignore) {
