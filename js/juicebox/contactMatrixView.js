@@ -99,12 +99,53 @@ class ContactMatrixView {
 
     }
 
-    async repaintWithLiveContactMap(state, dataSet) {
+    async repaintWithLiveContactMap(state, dataset) {
 
-        console.log(`liveContactMapDataSet average count ${ dataSet.averageCount }`)
+        const zoomIndexA = state.zoom
 
-        // const event = HICEvent('LocusChange', { state, resolutionChanged: true, chrChanged: true })
-        // await this.browser.update(event)
+        const { chr1, chr2 } = state
+
+        const zoomData = dataset.getZoomDataByIndex(chr1, chr2, zoomIndexA)
+
+        // pixel
+        const { width, height } = this.$viewport.get(0).getBoundingClientRect()
+
+        this.$canvas.width(width)
+        this.$canvas.attr('width', width)
+
+        this.$canvas.height(height);
+        this.$canvas.attr('height', height)
+
+        // bin
+        const { x:xBin, y:yBin, pixelSize, zoom } = state
+
+        // bin-per-tile
+        const columnStart = Math.floor(xBin / imageTileDimension)
+        const widthBin = width / Math.max(1, Math.floor(pixelSize))
+        const columnEnd = Math.floor((xBin +  widthBin) / imageTileDimension)
+
+        // bin-per-tile
+        const rowStart = Math.floor(yBin / imageTileDimension)
+        const heightBin = height / Math.max(1, Math.floor(pixelSize))
+        const rowEnd = Math.floor((yBin + heightBin) / imageTileDimension)
+
+        await this.checkColorScale(state, 'LIVE', dataset, zoomData, rowStart, rowEnd, columnStart, columnEnd, state.normalization)
+
+        this.ctx.clearRect(0, 0, width, height)
+        this.ctx.fillStyle = this.backgroundRGBString
+
+        for (let row = rowStart; row <= rowEnd; row++) {
+
+            for (let column = columnStart; column <= columnEnd; column++) {
+
+                const imageTileCanvas = await this.getImageTile(dataset, undefined, zoomData, undefined, row, column, state.normalization, 'LIVE')
+
+                if (imageTileCanvas) {
+                    paintImageTile(this.ctx, this.backgroundRGBString, imageTileCanvas, row, column, width, height, xBin, yBin, pixelSize)
+                }
+            }
+
+        }
 
     }
 
@@ -151,9 +192,6 @@ class ContactMatrixView {
         // bin
         const { x:xBin, y:yBin, pixelSize, zoom } = this.browser.state
 
-        const binSize = this.browser.dataset.bpResolutions[ zoom ]
-        console.warn(`state ${ this.browser.state.description(this.browser.genome, binSize, width) }`)
-
         // bin-per-tile
         const columnStart = Math.floor(xBin / imageTileDimension)
         const widthBin = width / Math.max(1, Math.floor(pixelSize))
@@ -164,7 +202,7 @@ class ContactMatrixView {
         const heightBin = height / Math.max(1, Math.floor(pixelSize))
         const rowEnd = Math.floor((yBin + heightBin) / imageTileDimension)
 
-        await this.checkColorScale(dataset, zoomData, rowStart, rowEnd, columnStart, columnEnd, this.browser.state.normalization)
+        await this.checkColorScale(this.browser.state, this.displayMode, dataset, zoomData, rowStart, rowEnd, columnStart, columnEnd, this.browser.state.normalization)
 
         this.ctx.clearRect(0, 0, width, height)
         this.ctx.fillStyle = this.backgroundRGBString
@@ -173,7 +211,7 @@ class ContactMatrixView {
 
             for (let column = columnStart; column <= columnEnd; column++) {
 
-                const imageTileCanvas = await this.getImageTile(dataset, datasetControl, zoomData, zoomDataControl, row, column, this.browser.state.normalization)
+                const imageTileCanvas = await this.getImageTile(dataset, datasetControl, zoomData, zoomDataControl, row, column, this.browser.state.normalization, this.displayMode)
 
                 if (imageTileCanvas) {
                     paintImageTile(this.ctx, this.backgroundRGBString, imageTileCanvas, row, column, width, height, xBin, yBin, pixelSize)
@@ -196,11 +234,12 @@ class ContactMatrixView {
      * @param row
      * @param column
      * @param normalization
+     * @param displayMode
      * @returns {Promise<{image: HTMLCanvasElement, column: *, row: *}>}
      */
-    async getImageTile(dataset, datasetControl, zoomData, zoomDataControl, row, column, normalization) {
+    async getImageTile(dataset, datasetControl, zoomData, zoomDataControl, row, column, normalization, displayMode) {
 
-        const key = `${zoomData.chr1.name}_${zoomData.chr2.name}_${zoomData.zoom.binSize}_${zoomData.zoom.unit}_${row}_${column}_${normalization}_${this.displayMode}`
+        const key = `${zoomData.chr1.name}_${zoomData.chr2.name}_${zoomData.zoom.binSize}_${zoomData.zoom.unit}_${row}_${column}_${normalization}_${displayMode}`
 
         if (this.imageTileCache.hasOwnProperty(key)) {
             return this.imageTileCache[key]
@@ -243,7 +282,7 @@ class ContactMatrixView {
                 const imageTileData = imageTileContext.getImageData(0, 0, imageTileDimension, imageTileDimension);
 
                 let controlRecords = {}
-                if ('AOB' === this.displayMode || 'BOA' === this.displayMode || 'AMB' === this.displayMode) {
+                if ('AOB' === displayMode || 'BOA' === displayMode || 'AMB' === displayMode) {
                     for (let contactRecordControl of contactRecordsControl) {
                         controlRecords[ contactRecordControl.getKey() ] = contactRecordControl
                     }
@@ -265,7 +304,7 @@ class ContactMatrixView {
                         xOffsetBin = t;
                     }
 
-                    const rgba = this.getRGBAWithDisplayMode(this.displayMode, contactRecord, controlRecords, averageCount, averageCountControl, averageCountAcrossMapAndControl)
+                    const rgba = this.getRGBAWithDisplayMode(displayMode, contactRecord, controlRecords, averageCount, averageCountControl, averageCountAcrossMapAndControl)
 
                     if (rgba) {
                         setImageTilePixel(imageTileData, xOffsetBin, yOffsetBin, rgba.red, rgba.green, rgba.blue, rgba.alpha)
@@ -390,6 +429,8 @@ class ContactMatrixView {
      * Return a promise to adjust the color scale, if needed.  This function might need to load the contact
      * data to computer scale.
      *
+     * @param state
+     * @param displayMode
      * @param dataset
      * @param zoomData
      * @param row1
@@ -399,11 +440,12 @@ class ContactMatrixView {
      * @param normalization
      * @returns {*}
      */
-    async checkColorScale(dataset, zoomData, row1, row2, col1, col2, normalization) {
+    async checkColorScale(state, displayMode, dataset, zoomData, row1, row2, col1, col2, normalization) {
 
-        const colorKey = colorScaleKey(this.browser.state, this.displayMode)
+        // const colorKey = colorScaleKey(state, displayMode)
+        const colorKey = undefined
 
-        if ('AOB' === this.displayMode || 'BOA' === this.displayMode) {
+        if ('AOB' === displayMode || 'BOA' === displayMode) {
             return this.ratioColorScale
         }
 
@@ -419,7 +461,7 @@ class ContactMatrixView {
 
                 const records = await dataset.getContactRecordsWithRegions(normalization, zoomData, imageTileDimension, col1, col2, row1, row2)
 
-                let percentile = computePercentile(records, 95);
+                let percentile = computeContactRecordsPercentile(records, 95);
                 if (!isNaN(percentile)) {  // Can return NaN if all blocks are empty
                     if (0 === zoomData.chr1.index) percentile *= 4;   // Heuristic for whole genome view
                     this.colorScale = new ColorScale(this.colorScale);
@@ -905,15 +947,15 @@ function inProgressImageTileCanvas(imageSize) {
     return imageTileCanvas
 }
 
-function computePercentile(records, p) {
-    const counts = records.map(r => r.counts)
-    counts.sort(function (a, b) {
-        return a - b;
-    })
-    const idx = Math.floor((p / 100) * records.length);
-    return counts[idx];
+function computeContactRecordsPercentile(contactRecords, p) {
 
-    // return HICMath.percentile(array, p);
+    const counts = contactRecords.map(({ counts }) => counts)
+
+    counts.sort((a, b) => a - b)
+
+    const index = Math.floor((p / 100) * contactRecords.length);
+    return counts[index];
+
 }
 
 export { imageTileDimension }
