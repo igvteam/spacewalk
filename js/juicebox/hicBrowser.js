@@ -347,7 +347,7 @@ class HICBrowser {
             }
 
             // bp-per-bin
-            const { binSize } = this.getBinSizeList()[ this.state.zoom ]
+            const { binSize } = this.getBinSizeList(this.dataset)[ this.state.zoom ]
 
             // pixel
             const { width, height } = this.contactMatrixView.getViewDimensions()
@@ -490,7 +490,7 @@ class HICBrowser {
             const targetBinSize = Math.max((xLocus.end - xLocus.start) / width, (yLocus.end - yLocus.start) / height)
 
             // bp-per-bin list
-            const binSizeList = this.getBinSizeList()
+            const binSizeList = this.getBinSizeList(this.dataset)
 
             state.chr1 = xLocus.chr
             state.chr2 = yLocus.chr
@@ -551,7 +551,7 @@ class HICBrowser {
         } else {
 
             // bp-per-bin list
-            const binSizeList = this.getBinSizeList()
+            const binSizeList = this.getBinSizeList(this.dataset)
 
             // pixel
             const { width, height } = this.contactMatrixView.getViewDimensions()
@@ -878,11 +878,13 @@ class HICBrowser {
      * Return usable resolutions, that is the union of resolutions between dataset and controlDataset.
      * @returns {{index: *, binSize: *}[]|Array}
      */
-    getBinSizeList() {
+    getBinSizeList(dataset) {
 
-        if (!this.dataset) return []
+        if (undefined === dataset) {
+            return []
+        }
 
-        const baseResolutions = this.dataset.bpResolutions.map((resolution, index) => { return { index, binSize: resolution } })
+        const baseResolutions = dataset.bpResolutions.map((resolution, index) => { return { index, binSize: resolution } })
 
         if (this.controlDataset) {
             const controlResolutions = new Set(this.controlDataset.bpResolutions)
