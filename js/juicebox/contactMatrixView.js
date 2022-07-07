@@ -442,8 +442,8 @@ class ContactMatrixView {
      */
     async checkColorScale(state, displayMode, dataset, zoomData, row1, row2, col1, col2, normalization) {
 
-        const colorKey = 'LIVE' === displayMode ? undefined : colorScaleKey(state, displayMode)
-        // const colorKey = undefined
+        // const colorKey = 'LIVE' === displayMode ? undefined : colorScaleKey(state, displayMode)
+        const colorKey = colorScaleKey(state, displayMode)
 
         if ('AOB' === displayMode || 'BOA' === displayMode) {
             return this.ratioColorScale
@@ -461,13 +461,26 @@ class ContactMatrixView {
 
                 const contactRecords = await dataset.getContactRecordsWithRegions(normalization, zoomData, imageTileDimension, col1, col2, row1, row2)
 
-                let percentile = computeContactRecordsPercentile(contactRecords, 95);
-                if (!isNaN(percentile)) {  // Can return NaN if all blocks are empty
-                    if (0 === zoomData.chr1.index) percentile *= 4;   // Heuristic for whole genome view
-                    this.colorScale = new ColorScale(this.colorScale);
-                    this.colorScale.setThreshold(percentile);
-                    this.browser.eventBus.post(HICEvent("ColorScale", this.colorScale));
-                    this.colorScaleThresholdCache[colorKey] = percentile;
+                let percentile = computeContactRecordsPercentile(contactRecords, 95)
+
+                if (!isNaN(percentile)) {
+
+                    if (0 === zoomData.chr1.index) {
+
+                        // Heuristic for whole genome view
+                        percentile *= 4
+                    }
+
+                    this.colorScale = new ColorScale(this.colorScale)
+
+                    this.colorScale.setThreshold(percentile)
+
+                    this.browser.eventBus.post(HICEvent("ColorScale", this.colorScale))
+
+                    this.colorScaleThresholdCache[colorKey] = percentile
+
+                } else {
+                    // All blocks are empty
                 }
 
                 return this.colorScale;
