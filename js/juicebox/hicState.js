@@ -123,67 +123,13 @@ class State {
 
         const strings =
             [
-                `screen-width pixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
-                `start bin(${d}) bp(${g}). end bin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`,
-                `bin-size bp(${c}) pixel(${e})`,
-                // `chromosome-length bin(${b}) bp(${a})`,
+                `\nScreen Width\npixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
+                `Start\nbin(${d}) bp(${g})\nEnd\nbin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`,
+                `Bin Size\nbp(${c}) pixel(${e})`
             ]
 
         return strings.join('\n')
 
-
-
-    }
-
-    _description(browser) {
-
-        // bp per bin
-        const binSize = browser.dataset.bpResolutions[ this.zoom ]
-
-        const { chr1, x, pixelSize } = this
-
-        // bp = bin * bp-per-bin
-        const xBP = x * binSize
-
-        const {width} = browser.contactMatrixView.getViewDimensions()
-
-        // bin = pixel / pixel-per-bin
-        const widthBin = width / pixelSize
-
-        // bp = bin * bp-per-bin
-        const widthBP = widthBin * binSize
-
-        const xEnd = x + widthBin
-
-        const xEndBP = xBP + widthBP
-
-
-        // chromosome length - bp & bin
-        const {size:lengthBP} = browser.genome.getChromosomeAtIndex(chr1)
-        const lengthBin = lengthBP / binSize
-
-        const f = StringUtils.numberFormatter(width)
-        const d = StringUtils.numberFormatter(x)
-        const g = StringUtils.numberFormatter(xBP)
-        const a = StringUtils.numberFormatter(lengthBP)
-        const b = StringUtils.numberFormatter(lengthBin)
-        const c = StringUtils.numberFormatter(binSize)
-        const e = StringUtils.numberFormatter(pixelSize)
-
-        // console.log(`screen-width pixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`)
-        // console.log(`start bin(${d}) bp(${g}). end bin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`)
-        // console.log(`chromosome-length bin(${b}) bp(${a})`)
-        // console.log(`bin-size bp(${c}) pixel(${e})`)
-
-        const strings =
-            [
-                `screen-width pixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
-                `start bin(${d}) bp(${g}). end bin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`,
-                `bin-size bp(${c}) pixel(${e})`,
-                // `chromosome-length bin(${b}) bp(${a})`,
-            ]
-
-        return strings.join('\n')
 
 
     }
