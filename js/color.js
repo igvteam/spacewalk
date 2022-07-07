@@ -94,8 +94,8 @@ export let rgbaRandomConstantAlpha255 = (min, max, alpha) => {
     const b = Math.round(random(min, max));
 
     return { r, g, b, a:alpha };
-    // return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
-};
+
+}
 
 let rgb2hex = (r255, g255, b255) => {
     return ((r255&0x0ff)<<16)|((g255&0x0ff)<<8)|(b255&0x0ff);

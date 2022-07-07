@@ -13,8 +13,8 @@ import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 
 let canvasArray = undefined
 
-const maxDistanceThreshold = 4096;
-const defaultDistanceThreshold = 256;
+const maxDistanceThreshold = 4096
+const defaultDistanceThreshold = 256
 
 const kContactFrequencyUndefined = -1
 
@@ -251,7 +251,12 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
     const { width, height } = Globals.currentBrowser.contactMatrixView.getViewDimensions()
 
     // pixels-per-bin
-    const pixelSize = width/binCount
+    let pixelSize = width/binCount
+    if (pixelSize < 1) {
+        pixelSize = Math.max(1, pixelSize)
+        console.warn(`Clamping pixelSize to no less then 1`)
+    }
+
 
     // x, y in Bin units
     const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]

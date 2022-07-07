@@ -25,6 +25,7 @@ import {Alert} from "igv-ui"
 import {IGVColor, StringUtils} from 'igv-utils'
 import ColorScale from './colorScale.js'
 import HICEvent from './hicEvent.js'
+import {rgba255String, rgbaRandomConstantAlpha255} from '../color.js'
 
 const DRAG_THRESHOLD = 2;
 
@@ -129,6 +130,10 @@ class ContactMatrixView {
         const heightBin = height / Math.max(1, Math.floor(pixelSize))
         const rowEnd = Math.floor((yBin + heightBin) / imageTileDimension)
 
+        // Clear all caches
+        this.colorScaleThresholdCache = {}
+        this.imageTileCache = {}
+        this.imageTileCacheKeys = []
         await this.checkColorScale(state, 'LIVE', dataset, zoomData, rowStart, rowEnd, columnStart, columnEnd, state.normalization)
 
         this.ctx.clearRect(0, 0, width, height)
@@ -339,6 +344,14 @@ class ContactMatrixView {
 
     getRGBAWithDisplayMode(displayMode, contactRecord, controlRecords, averageCount, averageCountControl, averageCountAcrossMapAndControl) {
 
+
+        // DUGLA TEST
+        // const { r, g, b, a } = rgbaRandomConstantAlpha255(32, 245, 0.75)
+        // const alpha = Math.floor(a * 255)
+        // return { red:r, green:g, blue:b, alpha, rgbaString: `rgba(${r},${g},${b},${alpha})` }
+        // DUGLA TEST
+
+
         let controlRecord
         let key
         let score
@@ -442,7 +455,6 @@ class ContactMatrixView {
      */
     async checkColorScale(state, displayMode, dataset, zoomData, row1, row2, col1, col2, normalization) {
 
-        // const colorKey = 'LIVE' === displayMode ? undefined : colorScaleKey(state, displayMode)
         const colorKey = colorScaleKey(state, displayMode)
 
         if ('AOB' === displayMode || 'BOA' === displayMode) {
