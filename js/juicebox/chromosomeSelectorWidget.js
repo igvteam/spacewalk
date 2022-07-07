@@ -67,45 +67,34 @@ class ChromosomeSelectorWidget {
 
         browser.eventBus.subscribe("MapLoad", () => this.respondToMapLoad(browser.genome.chromosomes))
 
-        browser.eventBus.subscribe("LocusChange", event => this.respondToLocusChange(event.data.state))
+        browser.eventBus.subscribe("LocusChange", ({ data }) => this.respondToLocusChange(data.state))
 
     }
 
     respondToMapLoad(chromosomes) {
 
-        var elements,
-            str,
-            $xFound,
-            $yFound;
-
         this.$x_axis_selector.empty();
         this.$y_axis_selector.empty();
 
-        elements = Object.values(chromosomes).map(({ name, index }) => `<option value=${ index.toString() }>${ name }</option>`);
+        const elements = Object.values(chromosomes).map(({ name, index }) => `<option value=${ index.toString() }>${ name }</option>`);
 
         this.$x_axis_selector.append(elements.join(''));
         this.$y_axis_selector.append(elements.join(''));
 
+        let str
         str = 'option[value=' + this.browser.state.chr1.toString() + ']';
-        $xFound = this.$x_axis_selector.find(str);
+        const $xFound = this.$x_axis_selector.find(str);
         $xFound.prop('selected', true);
 
         str = 'option[value=' + this.browser.state.chr2.toString() + ']';
-        $yFound = this.$y_axis_selector.find(str);
+        const $yFound = this.$y_axis_selector.find(str);
         $yFound.prop('selected', true);
     }
 
-    respondToLocusChange(state) {
-        var self = this,
-            ssx,
-            ssy,
-            $xFound,
-            $yFound,
-            chr1,
-            chr2;
+    respondToLocusChange({ chr1, chr2 }) {
 
-        $xFound = this.$x_axis_selector.find('option');
-        $yFound = this.$y_axis_selector.find('option');
+        let $xFound = this.$x_axis_selector.find('option');
+        let $yFound = this.$y_axis_selector.find('option');
 
         // this happens when the first dataset is loaded.
         if (0 === $xFound.length || 0 === $yFound.length) {
@@ -118,19 +107,8 @@ class ChromosomeSelectorWidget {
         $xFound.prop('selected', false);
         $yFound.prop('selected', false);
 
-        // chr1 = parseInt($xFound.val(), 10);
-        // chr2 = parseInt($yFound.val(), 10);
-        // // It is the pair of chromosomes that is important,  1-2 == 2-1,  so update only if the pair does not match
-        // if (false === ((chr1 === state.chr1 && chr2 === state.chr2) || (chr1 === state.chr2 && chr2 === state.chr1))) {
-        //     ssx = 'option[value=' + state.chr1.toString() + ']';
-        //     this.$x_axis_selector.find(ssx).attr('selected', 'selected');
-        //
-        //     ssx = 'option[value=' + state.chr2.toString() + ']';
-        //     this.$y_axis_selector.find(ssx).attr('selected', 'selected');
-        // }
-
-        ssx = 'option[value=' + state.chr1.toString() + ']';
-        ssy = 'option[value=' + state.chr2.toString() + ']';
+        const ssx = 'option[value=' + chr1.toString() + ']';
+        const ssy = 'option[value=' + chr2.toString() + ']';
 
         this.$x_axis_selector.find(ssx).prop('selected', true);
         this.$y_axis_selector.find(ssy).prop('selected', true);

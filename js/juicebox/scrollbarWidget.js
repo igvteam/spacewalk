@@ -50,6 +50,7 @@ class ScrollbarWidget {
 
         if (!this.isDragging && type === "LocusChange") {
 
+
             if (0 === data.state.chr1) {
                 this.$x_axis_scrollbar.hide();
                 this.$y_axis_scrollbar.hide();
@@ -61,9 +62,8 @@ class ScrollbarWidget {
                 this.$x_axis_scrollbar_container.show();
                 this.$y_axis_scrollbar_container.show();
 
-                const {chr1, chr2, zoom, pixelSize, x, y} = data.state;
-
-                const dataset = this.browser.dataset
+                const {chr1, chr2, zoom, pixelSize, x, y} = data.state
+                const dataset = data.dataset || this.browser.dataset
 
                 // bin = bp / bp-per-bin
                 // bin = bin

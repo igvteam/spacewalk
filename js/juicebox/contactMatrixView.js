@@ -73,9 +73,9 @@ class ContactMatrixView {
         this.drawsInProgress = new Set()
     }
 
-    async receiveEvent(event) {
+    async receiveEvent({ type, data }) {
 
-        if ("MapLoad" === event.type || "ControlMapLoad" === event.type) {
+        if ("MapLoad" === type || "ControlMapLoad" === type) {
 
             // Don't enable mouse actions until we have a dataset
             if (!this.mouseHandlersEnabled) {
@@ -85,9 +85,15 @@ class ContactMatrixView {
             this.clearImageCaches();
             this.colorScaleThresholdCache = {};
         } else {
-            if (!("LocusChange" === event.type)) {
+
+            if (!("LocusChange" === type)) {
                 this.clearImageCaches();
             }
+
+            if ('LocusChange' === type && 'LIVE' === data.displayMode) {
+                return
+            }
+
             await this.update();
         }
     }
@@ -151,6 +157,17 @@ class ContactMatrixView {
             }
 
         }
+
+        const eventConfig =
+            {
+                state,
+                resolutionChanged: true,
+                chrChanged: true,
+                displayMode: 'LIVE',
+                dataset
+            }
+
+        this.browser.eventBus.post(HICEvent('LocusChange', eventConfig))
 
     }
 
