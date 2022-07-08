@@ -28,14 +28,11 @@
 
 import {StringUtils} from 'igv-utils'
 import { defaultSize } from './defaults.js'
+import {DEFAULT_PIXEL_SIZE} from './hicBrowser.js'
 
 class State {
 
     constructor(chr1, chr2, zoom, x, y, width, height, pixelSize, normalization) {
-
-        if (Number.isNaN(pixelSize)) {
-            pixelSize = 1
-        }
 
         if (chr1 !== undefined) {
             if (chr1 <= chr2) {
@@ -50,10 +47,20 @@ class State {
                 this.x = y;
                 this.y = x;
             }
+
             this.zoom = zoom;
-            this.pixelSize = pixelSize;
+
             this.width = width
             this.height = height
+
+            if (Number.isNaN(pixelSize)) {
+                console.warn(`pixelSize is not a number`)
+                pixelSize = DEFAULT_PIXEL_SIZE
+            }
+
+            this.pixelSize = pixelSize
+
+            this.displayPixelSize = Math.max(1, this.pixelSize)
 
             if ("undefined" === normalization) {
                 console.log("No normalization defined !!!");
@@ -105,7 +112,7 @@ class State {
 
 
         // chromosome length - bp & bin
-        const {size:lengthBP} = genome.getChromosomeAtIndex(chr1)
+        const { name, size:lengthBP } = genome.getChromosomeAtIndex(chr1)
         const lengthBin = lengthBP / binSize
 
         const f = StringUtils.numberFormatter(width)
@@ -116,19 +123,15 @@ class State {
         const c = StringUtils.numberFormatter(binSize)
         const e = StringUtils.numberFormatter(pixelSize)
 
-        // console.log(`screen-width pixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`)
-        // console.log(`start bin(${d}) bp(${g}). end bin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`)
-        // console.log(`chromosome-length bin(${b}) bp(${a})`)
-        // console.log(`bin-size bp(${c}) pixel(${e})`)
-
         const strings =
             [
-                `\nScreen Width\npixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
+                `${ name }`,
+                `Screen Width\npixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
                 `Start\nbin(${d}) bp(${g})\nEnd\nbin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`,
                 `Bin Size\nbp(${c}) pixel(${e})`
             ]
 
-        return strings.join('\n')
+        return `\n${ strings.join('\n') }`
 
 
 

@@ -251,12 +251,7 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
     const { width, height } = Globals.currentBrowser.contactMatrixView.getViewDimensions()
 
     // pixels-per-bin
-    let pixelSize = width/binCount
-    if (pixelSize < 1) {
-        pixelSize = Math.max(1, pixelSize)
-        console.warn(`Clamping pixelSize to no less then 1`)
-    }
-
+    const pixelSize = width/binCount
 
     // x, y in Bin units
     const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
