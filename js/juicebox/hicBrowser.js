@@ -481,6 +481,7 @@ class HICBrowser {
             const minimumPixelSize = await this.getMinimumPixelSize(state.chr1, state.chr2, state.zoom)
             state.pixelSize = Math.min(100, Math.max(DEFAULT_PIXEL_SIZE, minimumPixelSize))
 
+
         } else {
 
             // pixel
@@ -681,15 +682,15 @@ class HICBrowser {
     async getMinimumPixelSize(chr1, chr2, zoomIndex) {
 
         // bp
-        const { size:chr1Length } = this.genome.getChromosomeAtIndex(chr1)
-        const { size:chr2Length } = this.genome.getChromosomeAtIndex(chr2)
+        const { size:chr1LengthBP } = this.genome.getChromosomeAtIndex(chr1)
+        const { size:chr2LengthBP } = this.genome.getChromosomeAtIndex(chr2)
 
         const matrix = await this.dataset.getMatrix(chr1, chr2)
         const { zoom } = matrix.getZoomDataByIndex(zoomIndex, "BP")
 
-        //    unit-less = bp / bp
-        const binCount1 = chr1Length / zoom.binSize
-        const binCount2 = chr2Length / zoom.binSize
+        //    bin = bp / bp-per-bin
+        const binCount1 = chr1LengthBP / zoom.binSize
+        const binCount2 = chr2LengthBP / zoom.binSize
 
         // pixel
         const { width, height } = this.contactMatrixView.getViewDimensions()
@@ -1044,11 +1045,11 @@ class HICBrowser {
 
     clamp() {
         var viewDimensions = this.contactMatrixView.getViewDimensions(),
-            chr1Length = this.genome.getChromosomeAtIndex(this.state.chr1).size,
-            chr2Length = this.genome.getChromosomeAtIndex(this.state.chr2).size,
+            chr1LengthBP = this.genome.getChromosomeAtIndex(this.state.chr1).size,
+            chr2LengthBP = this.genome.getChromosomeAtIndex(this.state.chr2).size,
             binSize = this.dataset.bpResolutions[this.state.zoom],
-            maxX = (chr1Length / binSize) - (viewDimensions.width / this.state.pixelSize),
-            maxY = (chr2Length / binSize) - (viewDimensions.height / this.state.pixelSize);
+            maxX = (chr1LengthBP / binSize) - (viewDimensions.width / this.state.pixelSize),
+            maxY = (chr2LengthBP / binSize) - (viewDimensions.height / this.state.pixelSize);
 
         // Negative maxX, maxY indicates pixelSize is not enough to fill view.  In this case we clamp x, y to 0,0
         maxX = Math.max(0, maxX);
@@ -1204,5 +1205,6 @@ function presentError(prefix, error) {
 
 }
 
+export { DEFAULT_PIXEL_SIZE }
 export default HICBrowser
 

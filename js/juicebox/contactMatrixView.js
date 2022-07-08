@@ -25,7 +25,6 @@ import {Alert} from "igv-ui"
 import {IGVColor, StringUtils} from 'igv-utils'
 import ColorScale from './colorScale.js'
 import HICEvent from './hicEvent.js'
-import {rgba255String, rgbaRandomConstantAlpha255} from '../color.js'
 
 const DRAG_THRESHOLD = 2;
 
@@ -124,16 +123,16 @@ class ContactMatrixView {
         this.$canvas.attr('height', height)
 
         // bin
-        const { x:xBin, y:yBin, pixelSize, zoom } = state
+        const { x:xBin, y:yBin, displayPixelSize, zoom } = state
 
         // bin-per-tile
         const columnStart = Math.floor(xBin / imageTileDimension)
-        const widthBin = width / Math.max(1, Math.floor(pixelSize))
+        const widthBin = width / Math.max(1, Math.floor(displayPixelSize))
         const columnEnd = Math.floor((xBin +  widthBin) / imageTileDimension)
 
         // bin-per-tile
         const rowStart = Math.floor(yBin / imageTileDimension)
-        const heightBin = height / Math.max(1, Math.floor(pixelSize))
+        const heightBin = height / Math.max(1, Math.floor(displayPixelSize))
         const rowEnd = Math.floor((yBin + heightBin) / imageTileDimension)
 
         // Clear all caches
@@ -152,11 +151,16 @@ class ContactMatrixView {
                 const imageTileCanvas = await this.getImageTile(dataset, undefined, zoomData, undefined, row, column, state.normalization, 'LIVE')
 
                 if (imageTileCanvas) {
-                    paintImageTile(this.ctx, this.backgroundRGBString, imageTileCanvas, row, column, width, height, xBin, yBin, pixelSize)
+                    paintImageTile(this.ctx, this.backgroundRGBString, imageTileCanvas, row, column, width, height, xBin, yBin, displayPixelSize)
                 }
             }
 
         }
+
+        this.browser.state = state
+        this.browser.dataset = dataset
+
+        this.browser.eventBus.post(HICEvent('MapLoad', dataset))
 
         const eventConfig =
             {
@@ -294,6 +298,7 @@ class ContactMatrixView {
             imageTileCanvas.height = imageTileDimension
 
             const imageTileContext = imageTileCanvas.getContext('2d')
+            imageTileContext.clearRect(0,0, imageTileDimension, imageTileDimension)
 
             if (contactRecords.length > 0) {
 
@@ -315,6 +320,7 @@ class ContactMatrixView {
                 const xBin = transpose ? row * imageTileDimension : column * imageTileDimension
                 const yBin = transpose ? column * imageTileDimension : row * imageTileDimension
 
+                const hash = {}
                 for (let contactRecord of contactRecords) {
 
                     let xOffsetBin = Math.floor((contactRecord.bin1 - xBin))
@@ -329,10 +335,26 @@ class ContactMatrixView {
                     const rgba = this.getRGBAWithDisplayMode(displayMode, contactRecord, controlRecords, averageCount, averageCountControl, averageCountAcrossMapAndControl)
 
                     if (rgba) {
-                        setImageTilePixel(imageTileData, xOffsetBin, yOffsetBin, rgba.red, rgba.green, rgba.blue, rgba.alpha)
+
+                        // let index = (xOffsetBin + yOffsetBin * imageTileDimension) * 4
+                        //
+                        // if (xOffsetBin !== yOffsetBin) {
+                        //     const key = `${index}`
+                        //     if (hash[ key ]) {
+                        //         const { x, y } = hash[ key ]
+                        //         console.log(`duplicate for index(${ StringUtils.numberFormatter(index) }) xOffsetBin(${ xOffsetBin }) yOffsetBin(${ yOffsetBin }). hash = x(${x}) y(${y})`)
+                        //     } else {
+                        //         hash[ key ] = { x: xOffsetBin, y: yOffsetBin }
+                        //     }
+                        // }
+
+                        setImageTilePixel(imageTileData, index, rgba.red, rgba.green, rgba.blue, rgba.alpha)
+
                         if (sameChr && row === column) {
-                            setImageTilePixel(imageTileData, yOffsetBin, xOffsetBin, rgba.red, rgba.green, rgba.blue, rgba.alpha)
+                            // index = (yOffsetBin + xOffsetBin * imageTileDimension) * 4
+                            setImageTilePixel(imageTileData, index, rgba.red, rgba.green, rgba.blue, rgba.alpha)
                         }
+
                     }
                 }
 
@@ -921,8 +943,7 @@ function renderTracks2D(ctx, row, column, xStartBP, yStartBP, zoomData, tracks2D
 
 }
 
-function setImageTilePixel(imageTileData, xBin, yBin, r, g, b, a) {
-    const index = (xBin + yBin * imageTileDimension) * 4;
+function setImageTilePixel(imageTileData, index, r, g, b, a) {
     imageTileData.data[index    ] = r;
     imageTileData.data[index + 1] = g;
     imageTileData.data[index + 2] = b;
