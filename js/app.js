@@ -14,7 +14,7 @@ import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import GUIManager from "./guiManager.js";
-import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
+import ContactFrequencyMapPanel, {defaultDistanceThreshold} from "./contactFrequencyMapPanel.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
 import TraceSelect from './traceSelect.js'
 import TraceNavigator from './traceNavigator.js'
@@ -207,7 +207,16 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_distance_map_panel')}));
 
-    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel')}));
+    const contactFrequencyMapPanelConfiguration =
+        {
+            container,
+            panel: document.querySelector('#spacewalk_contact_frequency_map_panel'),
+            isHidden:doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel'),
+            distanceThreshold : defaultDistanceThreshold
+        }
+    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfiguration)
+
+    contactFrequencyMapPanel.initialize(contactFrequencyMapPanelConfiguration.panel)
 
     EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
