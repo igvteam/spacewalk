@@ -63,7 +63,7 @@ class State {
             this.displayPixelSize = Math.max(1, this.pixelSize)
 
             if ("undefined" === normalization) {
-                console.log("No normalization defined !!!");
+                console.warn("normalization is NOT defined!")
                 normalization = undefined;
             }
 

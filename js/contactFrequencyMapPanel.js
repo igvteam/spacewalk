@@ -10,6 +10,7 @@ import {Globals} from './juicebox/globals.js'
 import State from './juicebox/hicState.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
+import {FileUtils, StringUtils} from 'igv-utils'
 
 let canvasArray = undefined
 
@@ -53,6 +54,15 @@ class ContactFrequencyMapPanel extends Panel {
         const input = panel.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
         input.value = distanceThreshold.toString()
 
+        this.doUpdateTrace = this.doUpdateEnsemble = undefined
+
+        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+
+    }
+
+    initialize(panel) {
+
         panel.querySelector('#spacewalk_contact_frequency_map__button').addEventListener('click', () => {
 
             const value = input.value
@@ -64,8 +74,6 @@ class ContactFrequencyMapPanel extends Panel {
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }, 0)
         })
-
-        this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
         this.worker = new Worker(new URL('./contactFrequencyMapWorker.js', import.meta.url), { type: 'module' })
 
@@ -93,8 +101,6 @@ class ContactFrequencyMapPanel extends Panel {
 
         }, false)
 
-        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
-        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 
@@ -195,15 +201,28 @@ class ContactFrequencyMapPanel extends Panel {
     // Contact Matrix is m by m where m = traceLength
     static createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
+        console.log(`trace length ${ StringUtils.numberFormatter(traceLength) }`)
+
         const hicState = createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
 
-        // create and return upper triangle of contact frequency matrix
         const contactRecordList = []
 
-        let n = 1
-        let averageCount = 0
+        // for (let wye = 0; wye < traceLength; wye++) {
+        //
+        //     for (let exe = 0; exe < traceLength; exe++) {
+        //
+        //         const xy = exe * traceLength + wye
+        //         const count = contacts[ xy ]
+        //
+        //         contactRecordList.push(new ContactRecord(hicState.x + exe, hicState.y + wye, count))
+        //
+        //     }
+        // }
+        // const averageCount = computeAverageCount(contacts, traceLength)
 
         // traverse the upper-triangle of a contact matrix. Each step is one "bin" unit
+        let n = 1
+        let averageCount = 0
         for (let wye = 0; wye < traceLength; wye++) {
 
             for (let exe = wye; exe < traceLength; exe++) {
@@ -229,9 +248,52 @@ class ContactFrequencyMapPanel extends Panel {
 
         const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
 
+        // saveStateAndContactRecords(hicState, contactRecordList)
+
         return { hicState, liveContactMapDataSet }
 
     }
+}
+
+function computeAverageCount(contacts, traceLength) {
+
+    let n = 1
+    let averageCount = 0
+
+    for (let wye = 0; wye < traceLength; wye++) {
+
+        for (let exe = wye; exe < traceLength; exe++) {
+
+            const xy = exe * traceLength + wye
+            const count = contacts[ xy ]
+
+            // Incremental averaging: avg_k = avg_k-1 + (value_k - avg_k-1) / k
+            // see: https://math.stackexchange.com/questions/106700/incremental-averageing
+            averageCount = averageCount + (count - averageCount)/n
+            ++n
+
+        } // for (exe)
+
+    } // for (wye)
+
+    return averageCount
+}
+
+function saveStateAndContactRecordsToDisk(hicState, contactRecordList) {
+
+    const a = document.createElement('a')
+
+    const json = { state:hicState.stringify(), contactRecords: contactRecordList }
+
+    a.href = URL.createObjectURL(new Blob([ JSON.stringify(json, null, 2) ], { type: 'text/plain' }))
+
+    const filename = `live-contact-records.json`
+    a.setAttribute("download", filename)
+
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+
 }
 
 function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
@@ -256,7 +318,7 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
     // x, y in Bin units
     const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
 
-    const state = new State(order, order, 0, xBin, yBin, width, height, pixelSize, undefined)
+    const state = new State(order, order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
 
     const genome = GenomeUtils.GenomeLibrary[ genomeAssembly ]
     console.warn(`createHICState ${ state.description(genome, binSize, width) }`)
@@ -297,17 +359,6 @@ function initializeSharedBuffers(traceLength) {
     canvasArray = new Uint8ClampedArray(traceLength * traceLength * 4)
 }
 
-function contactFrequencyMapPanelConfigurator({ container, isHidden }) {
-
-    return {
-        container,
-        panel: $('#spacewalk_contact_frequency_map_panel').get(0),
-        isHidden,
-        distanceThreshold: defaultDistanceThreshold
-    };
-
-}
-
-export { contactFrequencyMapPanelConfigurator }
+export { defaultDistanceThreshold }
 
 export default ContactFrequencyMapPanel

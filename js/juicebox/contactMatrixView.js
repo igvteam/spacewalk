@@ -28,7 +28,9 @@ import HICEvent from './hicEvent.js'
 
 const DRAG_THRESHOLD = 2;
 
-const imageTileDimension = 685;
+// const imageTileDimension = 685;
+const imageTileDimension = 1024
+// const imageTileDimension = 4096
 
 class ContactMatrixView {
 
@@ -263,6 +265,7 @@ class ContactMatrixView {
      * @param displayMode
      * @returns {Promise<{image: HTMLCanvasElement, column: *, row: *}>}
      */
+
     async getImageTile(dataset, datasetControl, zoomData, zoomDataControl, row, column, normalization, displayMode) {
 
         const key = `${zoomData.chr1.name}_${zoomData.chr2.name}_${zoomData.zoom.binSize}_${zoomData.zoom.unit}_${row}_${column}_${normalization}_${displayMode}`
@@ -336,22 +339,18 @@ class ContactMatrixView {
 
                     if (rgba) {
 
-                        // let index = (xOffsetBin + yOffsetBin * imageTileDimension) * 4
-                        //
-                        // if (xOffsetBin !== yOffsetBin) {
-                        //     const key = `${index}`
-                        //     if (hash[ key ]) {
-                        //         const { x, y } = hash[ key ]
-                        //         console.log(`duplicate for index(${ StringUtils.numberFormatter(index) }) xOffsetBin(${ xOffsetBin }) yOffsetBin(${ yOffsetBin }). hash = x(${x}) y(${y})`)
-                        //     } else {
-                        //         hash[ key ] = { x: xOffsetBin, y: yOffsetBin }
-                        //     }
-                        // }
+                        if (xOffsetBin >= imageTileDimension) {
+                            console.log(`Should not happen: xOffsetBin(${xOffsetBin}) >= imageTileDimension(${imageTileDimension}))`)
+                        } else if (yOffsetBin >= imageTileDimension) {
+                            console.log(`Should not happen: yOffsetBin(${xOffsetBin}) >= imageTileDimension(${imageTileDimension}))`)
+                        }
+
+                        let index = (xOffsetBin + yOffsetBin * imageTileDimension) * 4
 
                         setImageTilePixel(imageTileData, index, rgba.red, rgba.green, rgba.blue, rgba.alpha)
 
                         if (sameChr && row === column) {
-                            // index = (yOffsetBin + xOffsetBin * imageTileDimension) * 4
+                            index = (yOffsetBin + xOffsetBin * imageTileDimension) * 4
                             setImageTilePixel(imageTileData, index, rgba.red, rgba.green, rgba.blue, rgba.alpha)
                         }
 
@@ -494,7 +493,7 @@ class ContactMatrixView {
      */
     async checkColorScale(state, displayMode, dataset, zoomData, row1, row2, col1, col2, normalization) {
 
-        const colorKey = colorScaleKey(state, displayMode)
+        const colorKey = createColorScaleKey(state, displayMode)
 
         if ('AOB' === displayMode || 'BOA' === displayMode) {
             return this.ratioColorScale
@@ -587,12 +586,12 @@ class ContactMatrixView {
             default:
                 this.colorScale = colorScale;
         }
-        this.colorScaleThresholdCache[colorScaleKey(this.browser.state, this.displayMode)] = colorScale.threshold;
+        this.colorScaleThresholdCache[createColorScaleKey(this.browser.state, this.displayMode)] = colorScale.threshold;
     }
 
     async setColorScaleThreshold(threshold) {
         this.getColorScale().setThreshold(threshold);
-        this.colorScaleThresholdCache[colorScaleKey(this.browser.state, this.displayMode)] = threshold;
+        this.colorScaleThresholdCache[createColorScaleKey(this.browser.state, this.displayMode)] = threshold;
         this.imageTileCache = {};
         await this.update()
     }
@@ -967,7 +966,7 @@ function getDatasetPairWithDisplayMode(browser, displayMode) {
 
 }
 
-function colorScaleKey(state, displayMode) {
+function createColorScaleKey(state, displayMode) {
     return "" + state.chr1 + "_" + state.chr2 + "_" + state.zoom + "_" + state.normalization + "_" + displayMode;
 }
 

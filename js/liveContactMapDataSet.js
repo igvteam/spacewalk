@@ -15,10 +15,8 @@ class LiveContactMapDataSet {
         this.wholeGenomeChromosome = genome.getChromosomeAtIndex(0)
 
         this.normalizationTypes = ['NONE']
-    }
 
-    initializeContactRecords(contacts) {
-
+        this.isLiveContactMapDataSet = true
     }
 
     getZoomDataByIndex(chr1, chr2, zoomIndex) {
