@@ -23,36 +23,31 @@ class ContactFrequencyMapPanel extends Panel {
 
     constructor ({ container, panel, isHidden, distanceThreshold }) {
 
-        const xFunction = (cw, w) => {
-            return w * 0.1;
-        };
+        const xFunction = (cw, w) => w * 0.1
+        const yFunction = (ch, h) => ch - (h * 1.1)
+        super({ container, panel, isHidden, xFunction, yFunction })
 
-        const yFunction = (ch, h) => {
-            return ch - (h * 1.1);
-        };
+        const canvasContainer = panel.querySelector('#spacewalk_contact_frequency_map_panel_container')
+        const { width, height } = canvasContainer.getBoundingClientRect()
 
-        super({ container, panel, isHidden, xFunction, yFunction });
-
-        const $canvas_container = this.$panel.find('#spacewalk_contact_frequency_map_panel_container');
-
-        let canvas;
+        let canvas
 
         // ensemble canvas and context
-        canvas = $canvas_container.find('#spacewalk_contact_frequency_map_canvas_ensemble').get(0);
-        canvas.width = $canvas_container.width();
-        canvas.height = $canvas_container.height();
-        this.ctx_ensemble = canvas.getContext('bitmaprenderer');
+        canvas = canvasContainer.querySelector('#spacewalk_contact_frequency_map_canvas_ensemble')
+        canvas.width = width
+        canvas.height = height
+        this.ctx_ensemble = canvas.getContext('bitmaprenderer')
 
         // trace canvas and context
-        canvas = $canvas_container.find('#spacewalk_contact_frequency_map_canvas_trace').get(0);
-        canvas.width = $canvas_container.width();
-        canvas.height = $canvas_container.height();
-        this.ctx_trace = canvas.getContext('bitmaprenderer');
+        canvas = canvasContainer.querySelector('#spacewalk_contact_frequency_map_canvas_trace')
+        canvas.width = width
+        canvas.height = height
+        this.ctx_trace = canvas.getContext('bitmaprenderer')
 
         this.distanceThreshold = distanceThreshold;
 
-        const input = panel.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
-        input.value = distanceThreshold.toString()
+        this.input = panel.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
+        this.input.value = distanceThreshold.toString()
 
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
@@ -65,8 +60,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         panel.querySelector('#spacewalk_contact_frequency_map__button').addEventListener('click', () => {
 
-            const value = input.value
-            this.distanceThreshold = clamp(parseInt(value, 10), 0, maxDistanceThreshold);
+            this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
             window.setTimeout(() => {
                 this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.ensemble)
