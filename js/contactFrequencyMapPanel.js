@@ -77,10 +77,10 @@ class ContactFrequencyMapPanel extends Panel {
 
             document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
 
-            if ('ensemble' === data.traceOrEnsemble) {
-                const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
-                result = ContactFrequencyMapPanel.createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
-            }
+            // if ('ensemble' === data.traceOrEnsemble) {
+            //     const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
+            //     result = ContactFrequencyMapPanel.createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
+            // }
 
             populateContactFrequencyCanvasArray(data.workerValuesBuffer)
 
@@ -88,8 +88,10 @@ class ContactFrequencyMapPanel extends Panel {
 
             await drawWithCanvasArray(context, canvasArray)
 
+            // Only ensemble data is used to create the live contact map in Juicebox
             if ('ensemble' === data.traceOrEnsemble) {
-                const { hicState, liveContactMapDataSet } = result
+                const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
+                const { hicState, liveContactMapDataSet } = ContactFrequencyMapPanel.createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
                 await Globals.currentBrowser.contactMatrixView.repaintWithLiveContactMap(hicState, liveContactMapDataSet)
             }
 
