@@ -29,8 +29,8 @@ import HICEvent from './hicEvent.js'
 const DRAG_THRESHOLD = 2;
 
 // const imageTileDimension = 685;
-const imageTileDimension = 1024
-// const imageTileDimension = 4096
+// const imageTileDimension = 1024
+const imageTileDimension = 4096
 
 class ContactMatrixView {
 
@@ -339,11 +339,11 @@ class ContactMatrixView {
 
                     if (rgba) {
 
-                        if (xOffsetBin >= imageTileDimension) {
-                            console.log(`Should not happen: xOffsetBin(${xOffsetBin}) >= imageTileDimension(${imageTileDimension}))`)
-                        } else if (yOffsetBin >= imageTileDimension) {
-                            console.log(`Should not happen: yOffsetBin(${xOffsetBin}) >= imageTileDimension(${imageTileDimension}))`)
-                        }
+                        // if (xOffsetBin >= imageTileDimension) {
+                        //     console.log(`Should not happen: xOffsetBin(${xOffsetBin}) >= imageTileDimension(${imageTileDimension}))`)
+                        // } else if (yOffsetBin >= imageTileDimension) {
+                        //     console.log(`Should not happen: yOffsetBin(${xOffsetBin}) >= imageTileDimension(${imageTileDimension}))`)
+                        // }
 
                         let index = (xOffsetBin + yOffsetBin * imageTileDimension) * 4
 

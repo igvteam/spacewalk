@@ -128,7 +128,7 @@ class State {
                 `${ name }`,
                 `Screen Width\npixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
                 `Start\nbin(${d}) bp(${g})\nEnd\nbin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`,
-                `Bin Size\nbp(${c}) pixel(${e})`
+                `Bin Size\nbp-per-bin(${c})\nPixel Size\npixel-per-bin(${e})`
             ]
 
         return `\n${ strings.join('\n') }`

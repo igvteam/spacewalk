@@ -57,7 +57,10 @@ class JuiceboxPanel extends Panel {
                 console.warn(`Juicebox assemply ${ Globals.currentBrowser.genome.id } differs from Ensemble assembly ${ genomeAssembly }`)
             }
 
-            this.goto({ chr, start: genomicStart, end: genomicEnd })
+            if (this.isContactMapLoaded() && Globals.currentBrowser.dataset.isLiveContactMapDataSet !== true) {
+                this.goto({ chr, start: genomicStart, end: genomicEnd })
+            }
+
 
         } else if ('DidHideCrosshairs' === type) {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
@@ -175,7 +178,7 @@ class JuiceboxPanel extends Panel {
     }
 
     isContactMapLoaded() {
-        return (Globals.currentBrowser && Globals.currentBrowser.dataset);
+        return (Globals.currentBrowser && Globals.currentBrowser.dataset)
     }
 
     toJSON() {

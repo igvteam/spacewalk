@@ -1,3 +1,4 @@
+import {FileUtils, StringUtils} from 'igv-utils'
 import EnsembleManager from './ensembleManager.js'
 import { colorMapManager, ensembleManager } from "./app.js"
 import { clamp } from "./math.js";
@@ -10,7 +11,8 @@ import {Globals} from './juicebox/globals.js'
 import State from './juicebox/hicState.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
-import {FileUtils, StringUtils} from 'igv-utils'
+import {imageTileDimension} from './juicebox/contactMatrixView.js'
+import {STRING} from "three/examples/jsm/loaders/ifc/web-ifc-api"
 
 let canvasArray = undefined
 
@@ -92,6 +94,8 @@ class ContactFrequencyMapPanel extends Panel {
             if ('ensemble' === data.traceOrEnsemble) {
                 const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
                 const { hicState, liveContactMapDataSet } = ContactFrequencyMapPanel.createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
+
+                console.log(`Trace Length ${ StringUtils.numberFormatter(traceLength) }. Image Tile Dimension ${ StringUtils.numberFormatter(imageTileDimension) }`)
                 await Globals.currentBrowser.contactMatrixView.repaintWithLiveContactMap(hicState, liveContactMapDataSet)
             }
 
