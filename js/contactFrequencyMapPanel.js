@@ -89,7 +89,7 @@ class ContactFrequencyMapPanel extends Panel {
                 const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
 
-                await Globals.currentBrowser.contactMatrixView.renderWithCanvasArray(hicState, liveContactMapDataSet, data, contactFrequencyArray)
+                await Globals.currentBrowser.contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, contactFrequencyArray)
 
             }
 

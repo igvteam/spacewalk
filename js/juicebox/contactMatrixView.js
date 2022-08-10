@@ -30,10 +30,7 @@ import {paintContactFrequencyArrayWithColorScale} from '../contactFrequencyMapPa
 
 const DRAG_THRESHOLD = 2;
 
-// const imageTileDimension = 685
-// const imageTileDimension = 800
-const imageTileDimension = 1024
-// const imageTileDimension = 4096
+const imageTileDimension = 685
 
 class ContactMatrixView {
 
@@ -111,26 +108,26 @@ class ContactMatrixView {
 
     }
 
-    async renderWithCanvasArray(state, dataset, data, contactFrequencyArray) {
+    async renderWithLiveContactFrequencyData(state, dataset, data, contactFrequencyArray) {
 
         const zoomIndexA = state.zoom
         const { chr1, chr2 } = state
         const zoomData = dataset.getZoomDataByIndex(chr1, chr2, zoomIndexA)
 
-        // Clear all caches
+        // Clear caches
         this.colorScaleThresholdCache = {}
         this.imageTileCache = {}
         this.imageTileCacheKeys = []
+
         await this.checkColorScale(state, 'LIVE', dataset, zoomData, undefined, undefined, undefined, undefined, state.normalization)
 
         paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer)
 
-        // set up bitmap render context and canvas
+        // Render by copying image data to display canvas bitmap render context
         const { width, height } = this.$viewport.get(0).getBoundingClientRect()
         const canvas = this.bitmap_context_ctx.canvas
         canvas.width = width
         canvas.height = height
-
         await transferContactFrequencyArrayToCanvas(this.bitmap_context_ctx, contactFrequencyArray)
 
         // Update UI
