@@ -25,7 +25,8 @@ import {Alert} from "igv-ui"
 import {IGVColor, StringUtils} from 'igv-utils'
 import ColorScale from './colorScale.js'
 import HICEvent from './hicEvent.js'
-import {renderCanvasArrayToCanvas} from '../utils.js'
+import {transferContactFrequencyArrayToCanvas} from '../utils.js'
+import {paintContactFrequencyArrayWithColorScale} from '../contactFrequencyMapPanel.js'
 
 const DRAG_THRESHOLD = 2;
 
@@ -110,7 +111,7 @@ class ContactMatrixView {
 
     }
 
-    async renderWithCanvasArray(state, dataset, canvasArray) {
+    async renderWithCanvasArray(state, dataset, data, contactFrequencyArray) {
 
         const zoomIndexA = state.zoom
         const { chr1, chr2 } = state
@@ -122,6 +123,7 @@ class ContactMatrixView {
         this.imageTileCacheKeys = []
         await this.checkColorScale(state, 'LIVE', dataset, zoomData, undefined, undefined, undefined, undefined, state.normalization)
 
+        paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer)
 
         // set up bitmap render context and canvas
         const { width, height } = this.$viewport.get(0).getBoundingClientRect()
@@ -129,79 +131,9 @@ class ContactMatrixView {
         canvas.width = width
         canvas.height = height
 
-        await renderCanvasArrayToCanvas(this.bitmap_context_ctx, canvasArray)
+        await transferContactFrequencyArrayToCanvas(this.bitmap_context_ctx, contactFrequencyArray)
 
         // Update UI
-        this.browser.state = state
-        this.browser.dataset = dataset
-
-        this.browser.eventBus.post(HICEvent('MapLoad', dataset))
-
-        const eventConfig =
-            {
-                state,
-                resolutionChanged: true,
-                chrChanged: true,
-                displayMode: 'LIVE',
-                dataset
-            }
-
-        this.browser.eventBus.post(HICEvent('LocusChange', eventConfig))
-
-    }
-
-    async repaintWithLiveContactMap(state, dataset) {
-
-        const zoomIndexA = state.zoom
-
-        const { chr1, chr2 } = state
-
-        const zoomData = dataset.getZoomDataByIndex(chr1, chr2, zoomIndexA)
-
-        // pixel
-        const { width, height } = this.$viewport.get(0).getBoundingClientRect()
-
-        this.$canvas.width(width)
-        this.$canvas.attr('width', width)
-
-        this.$canvas.height(height);
-        this.$canvas.attr('height', height)
-
-        // bin
-        const { x:xBin, y:yBin, pixelSize, displayPixelSize, zoom } = state
-
-        // bin-per-tile
-        const columnStart = Math.floor(xBin / imageTileDimension)
-        const widthBin = width / Math.max(1, Math.floor(displayPixelSize))
-        const columnEnd = Math.floor((xBin +  widthBin) / imageTileDimension)
-
-        // bin-per-tile
-        const rowStart = Math.floor(yBin / imageTileDimension)
-        const heightBin = height / Math.max(1, Math.floor(displayPixelSize))
-        const rowEnd = Math.floor((yBin + heightBin) / imageTileDimension)
-
-        // Clear all caches
-        this.colorScaleThresholdCache = {}
-        this.imageTileCache = {}
-        this.imageTileCacheKeys = []
-        await this.checkColorScale(state, 'LIVE', dataset, zoomData, rowStart, rowEnd, columnStart, columnEnd, state.normalization)
-
-        this.ctx.clearRect(0, 0, width, height)
-        this.ctx.fillStyle = this.backgroundRGBString
-
-        for (let row = rowStart; row <= rowEnd; row++) {
-
-            for (let column = columnStart; column <= columnEnd; column++) {
-
-                const imageTileCanvas = await this.getImageTile(dataset, undefined, zoomData, undefined, row, column, state.normalization, 'LIVE')
-
-                if (imageTileCanvas) {
-                    paintImageTile(this.ctx, this.backgroundRGBString, imageTileCanvas, row, column, width, height, xBin, yBin, displayPixelSize)
-                }
-            }
-
-        }
-
         this.browser.state = state
         this.browser.dataset = dataset
 
