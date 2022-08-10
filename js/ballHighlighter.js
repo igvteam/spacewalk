@@ -58,7 +58,11 @@ class BallHighlighter {
         if (ballAndStick.balls && this.instanceIdList) {
 
             for (let instanceId of this.instanceIdList) {
-                ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3);
+
+                if (ballAndStick.rgb && ballAndStick.rgbFloat32Array && instanceId >= 0 && instanceId < ballAndStick.rgb.length) {
+                    ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3)
+                }
+
             }
 
             this.instanceIdList = undefined

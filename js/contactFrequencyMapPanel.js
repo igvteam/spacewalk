@@ -1,20 +1,17 @@
-import {FileUtils, StringUtils} from 'igv-utils'
 import EnsembleManager from './ensembleManager.js'
 import { colorMapManager, ensembleManager } from "./app.js"
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
-import {clearCanvasArray, renderCanvasArrayToCanvas} from "./utils.js"
+import {clearCanvasArray, transferContactFrequencyArrayToCanvas} from "./utils.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import ContactRecord from './juicebox/hicStraw/contactRecord.js'
 import {Globals} from './juicebox/globals.js'
 import State from './juicebox/hicState.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
-import {imageTileDimension} from './juicebox/contactMatrixView.js'
-import {STRING} from "three/examples/jsm/loaders/ifc/web-ifc-api"
 
-let canvasArray = undefined
+let contactFrequencyArray = undefined
 
 const maxDistanceThreshold = 4096
 const defaultDistanceThreshold = 256
@@ -77,11 +74,9 @@ class ContactFrequencyMapPanel extends Panel {
 
             document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
 
-            paintCanvasArray(data.workerValuesBuffer)
-
+            paintContactFrequencyArray(data.workerValuesBuffer)
             const context = 'trace' === data.traceOrEnsemble ? this.ctx_trace : this.ctx_ensemble
-
-            await renderCanvasArrayToCanvas(context, canvasArray)
+            await transferContactFrequencyArrayToCanvas(context, contactFrequencyArray)
 
             // Only ensemble data is used to create the live contact map in Juicebox
             if ('ensemble' === data.traceOrEnsemble) {
@@ -94,8 +89,7 @@ class ContactFrequencyMapPanel extends Panel {
                 const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
 
-                // await renderCanvasArrayToCanvas(Globals.currentBrowser.contactMatrixView.bitmap_context_ctx, canvasArray)
-                await Globals.currentBrowser.contactMatrixView.renderWithCanvasArray(hicState, liveContactMapDataSet, canvasArray)
+                await Globals.currentBrowser.contactMatrixView.renderWithCanvasArray(hicState, liveContactMapDataSet, data, contactFrequencyArray)
 
             }
 
@@ -172,8 +166,8 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(canvasArray, ensembleManager.genomic.traceLength)
-        renderCanvasArrayToCanvas(this.ctx_trace, canvasArray)
+        clearCanvasArray(contactFrequencyArray, ensembleManager.genomic.traceLength)
+        transferContactFrequencyArrayToCanvas(this.ctx_trace, contactFrequencyArray)
 
     }
 
@@ -193,8 +187,8 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(canvasArray, ensembleManager.genomic.traceLength)
-        renderCanvasArrayToCanvas(this.ctx_ensemble, canvasArray)
+        clearCanvasArray(contactFrequencyArray, ensembleManager.genomic.traceLength)
+        transferContactFrequencyArrayToCanvas(this.ctx_ensemble, contactFrequencyArray)
 
     }
 }
@@ -202,24 +196,9 @@ class ContactFrequencyMapPanel extends Panel {
 // Contact Matrix is m by m where m = traceLength
 function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
-    console.log(`trace length ${ StringUtils.numberFormatter(traceLength) }`)
-
     const hicState = createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
 
     const contactRecordList = []
-
-    // for (let wye = 0; wye < traceLength; wye++) {
-    //
-    //     for (let exe = 0; exe < traceLength; exe++) {
-    //
-    //         const xy = exe * traceLength + wye
-    //         const count = contacts[ xy ]
-    //
-    //         contactRecordList.push(new ContactRecord(hicState.x + exe, hicState.y + wye, count))
-    //
-    //     }
-    // }
-    // const averageCount = computeAverageCount(contacts, traceLength)
 
     // traverse the upper-triangle of a contact matrix. Each step is one "bin" unit
     let n = 1
@@ -249,50 +228,7 @@ function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr,
 
     const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
 
-    // saveStateAndContactRecords(hicState, contactRecordList)
-
     return { hicState, liveContactMapDataSet }
-
-}
-
-function computeAverageCount(contacts, traceLength) {
-
-    let n = 1
-    let averageCount = 0
-
-    for (let wye = 0; wye < traceLength; wye++) {
-
-        for (let exe = wye; exe < traceLength; exe++) {
-
-            const xy = exe * traceLength + wye
-            const count = contacts[ xy ]
-
-            // Incremental averaging: avg_k = avg_k-1 + (value_k - avg_k-1) / k
-            // see: https://math.stackexchange.com/questions/106700/incremental-averageing
-            averageCount = averageCount + (count - averageCount)/n
-            ++n
-
-        } // for (exe)
-
-    } // for (wye)
-
-    return averageCount
-}
-
-function saveStateAndContactRecordsToDisk(hicState, contactRecordList) {
-
-    const a = document.createElement('a')
-
-    const json = { state:hicState.stringify(), contactRecords: contactRecordList }
-
-    a.href = URL.createObjectURL(new Blob([ JSON.stringify(json, null, 2) ], { type: 'text/plain' }))
-
-    const filename = `live-contact-records.json`
-    a.setAttribute("download", filename)
-
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
 
 }
 
@@ -327,7 +263,21 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
 
 }
 
-function paintCanvasArray(frequencies) {
+function paintContactFrequencyArrayWithColorScale(colorScale, frequencies) {
+
+    let i = 0
+    for (let frequency of frequencies) {
+
+        const { red, green, blue, alpha } = colorScale.getColor(frequency)
+
+        contactFrequencyArray[i++] = red
+        contactFrequencyArray[i++] = green
+        contactFrequencyArray[i++] = blue
+        contactFrequencyArray[i++] = alpha
+    }
+}
+
+function paintContactFrequencyArray(frequencies) {
 
     const maxFrequency = frequencies.reduce((max, current) => Math.max(max, current), Number.NEGATIVE_INFINITY )
 
@@ -347,18 +297,18 @@ function paintCanvasArray(frequencies) {
             rgb = threeJSColorToRGB255(appleCrayonColorThreeJS('silver'))
         }
 
-        canvasArray[i++] = rgb.r
-        canvasArray[i++] = rgb.g
-        canvasArray[i++] = rgb.b
-        canvasArray[i++] = 255
+        contactFrequencyArray[i++] = rgb.r
+        contactFrequencyArray[i++] = rgb.g
+        contactFrequencyArray[i++] = rgb.b
+        contactFrequencyArray[i++] = 255
     }
 
 }
 
 function initializeSharedBuffers(traceLength) {
-    canvasArray = new Uint8ClampedArray(traceLength * traceLength * 4)
+    contactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
 }
 
-export { defaultDistanceThreshold }
+export { defaultDistanceThreshold, paintContactFrequencyArrayWithColorScale }
 
 export default ContactFrequencyMapPanel
