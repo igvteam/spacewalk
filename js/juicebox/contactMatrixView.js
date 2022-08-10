@@ -112,6 +112,18 @@ class ContactMatrixView {
 
     async renderWithCanvasArray(state, dataset, canvasArray) {
 
+        const zoomIndexA = state.zoom
+        const { chr1, chr2 } = state
+        const zoomData = dataset.getZoomDataByIndex(chr1, chr2, zoomIndexA)
+
+        // Clear all caches
+        this.colorScaleThresholdCache = {}
+        this.imageTileCache = {}
+        this.imageTileCacheKeys = []
+        await this.checkColorScale(state, 'LIVE', dataset, zoomData, undefined, undefined, undefined, undefined, state.normalization)
+
+
+        // set up bitmap render context and canvas
         const { width, height } = this.$viewport.get(0).getBoundingClientRect()
         const canvas = this.bitmap_context_ctx.canvas
         canvas.width = width
@@ -119,6 +131,7 @@ class ContactMatrixView {
 
         await renderCanvasArrayToCanvas(this.bitmap_context_ctx, canvasArray)
 
+        // Update UI
         this.browser.state = state
         this.browser.dataset = dataset
 
@@ -137,7 +150,7 @@ class ContactMatrixView {
 
     }
 
-    async __repaintWithLiveContactMap(state, dataset) {
+    async repaintWithLiveContactMap(state, dataset) {
 
         const zoomIndexA = state.zoom
 
