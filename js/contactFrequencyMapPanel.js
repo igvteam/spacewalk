@@ -4,7 +4,7 @@ import { colorMapManager, ensembleManager } from "./app.js"
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
-import {clearCanvasArray, drawWithCanvasArray} from "./utils.js"
+import {clearCanvasArray, renderCanvasArrayToCanvas} from "./utils.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import ContactRecord from './juicebox/hicStraw/contactRecord.js'
 import {Globals} from './juicebox/globals.js'
@@ -75,28 +75,28 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.worker.addEventListener('message', async ({ data }) => {
 
-            let result
-
             document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
 
-            // if ('ensemble' === data.traceOrEnsemble) {
-            //     const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
-            //     result = ContactFrequencyMapPanel.createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
-            // }
-
-            populateContactFrequencyCanvasArray(data.workerValuesBuffer)
+            paintCanvasArray(data.workerValuesBuffer)
 
             const context = 'trace' === data.traceOrEnsemble ? this.ctx_trace : this.ctx_ensemble
 
-            await drawWithCanvasArray(context, canvasArray)
+            await renderCanvasArrayToCanvas(context, canvasArray)
 
             // Only ensemble data is used to create the live contact map in Juicebox
             if ('ensemble' === data.traceOrEnsemble) {
-                const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
-                const { hicState, liveContactMapDataSet } = ContactFrequencyMapPanel.createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
 
-                console.log(`Trace Length ${ StringUtils.numberFormatter(traceLength) }. Image Tile Dimension ${ StringUtils.numberFormatter(imageTileDimension) }`)
-                await Globals.currentBrowser.contactMatrixView.repaintWithLiveContactMap(hicState, liveContactMapDataSet)
+                const canvas = Globals.currentBrowser.contactMatrixView.bitmap_context_ctx.canvas
+                const { width, height } = Globals.currentBrowser.contactMatrixView.$viewport.get(0).getBoundingClientRect()
+                canvas.width = width
+                canvas.height = height
+
+                const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
+                const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
+
+                // await renderCanvasArrayToCanvas(Globals.currentBrowser.contactMatrixView.bitmap_context_ctx, canvasArray)
+                await Globals.currentBrowser.contactMatrixView.renderWithCanvasArray(hicState, liveContactMapDataSet, canvasArray)
+
             }
 
         }, false)
@@ -173,7 +173,7 @@ class ContactFrequencyMapPanel extends Panel {
         this.worker.postMessage(data)
 
         clearCanvasArray(canvasArray, ensembleManager.genomic.traceLength)
-        drawWithCanvasArray(this.ctx_trace, canvasArray)
+        renderCanvasArrayToCanvas(this.ctx_trace, canvasArray)
 
     }
 
@@ -194,65 +194,65 @@ class ContactFrequencyMapPanel extends Panel {
         this.worker.postMessage(data)
 
         clearCanvasArray(canvasArray, ensembleManager.genomic.traceLength)
-        drawWithCanvasArray(this.ctx_ensemble, canvasArray)
+        renderCanvasArrayToCanvas(this.ctx_ensemble, canvasArray)
 
     }
+}
 
-    // Contact Matrix is m by m where m = traceLength
-    static createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
+// Contact Matrix is m by m where m = traceLength
+function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
-        console.log(`trace length ${ StringUtils.numberFormatter(traceLength) }`)
+    console.log(`trace length ${ StringUtils.numberFormatter(traceLength) }`)
 
-        const hicState = createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
+    const hicState = createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
 
-        const contactRecordList = []
+    const contactRecordList = []
 
-        // for (let wye = 0; wye < traceLength; wye++) {
-        //
-        //     for (let exe = 0; exe < traceLength; exe++) {
-        //
-        //         const xy = exe * traceLength + wye
-        //         const count = contacts[ xy ]
-        //
-        //         contactRecordList.push(new ContactRecord(hicState.x + exe, hicState.y + wye, count))
-        //
-        //     }
-        // }
-        // const averageCount = computeAverageCount(contacts, traceLength)
+    // for (let wye = 0; wye < traceLength; wye++) {
+    //
+    //     for (let exe = 0; exe < traceLength; exe++) {
+    //
+    //         const xy = exe * traceLength + wye
+    //         const count = contacts[ xy ]
+    //
+    //         contactRecordList.push(new ContactRecord(hicState.x + exe, hicState.y + wye, count))
+    //
+    //     }
+    // }
+    // const averageCount = computeAverageCount(contacts, traceLength)
 
-        // traverse the upper-triangle of a contact matrix. Each step is one "bin" unit
-        let n = 1
-        let averageCount = 0
-        for (let wye = 0; wye < traceLength; wye++) {
+    // traverse the upper-triangle of a contact matrix. Each step is one "bin" unit
+    let n = 1
+    let averageCount = 0
+    for (let wye = 0; wye < traceLength; wye++) {
 
-            for (let exe = wye; exe < traceLength; exe++) {
+        for (let exe = wye; exe < traceLength; exe++) {
 
-                const xy = exe * traceLength + wye
-                const count = contacts[ xy ]
+            const xy = exe * traceLength + wye
+            const count = contacts[ xy ]
 
-                contactRecordList.push(new ContactRecord(hicState.x + exe, hicState.y + wye, count))
+            contactRecordList.push(new ContactRecord(hicState.x + exe, hicState.y + wye, count))
 
-                // Incremental averaging: avg_k = avg_k-1 + (value_k - avg_k-1) / k
-                // see: https://math.stackexchange.com/questions/106700/incremental-averageing
-                averageCount = averageCount + (count - averageCount)/n
+            // Incremental averaging: avg_k = avg_k-1 + (value_k - avg_k-1) / k
+            // see: https://math.stackexchange.com/questions/106700/incremental-averageing
+            averageCount = averageCount + (count - averageCount)/n
 
-                ++n
+            ++n
 
-            } // for (exe)
+        } // for (exe)
 
-        } // for (wye)
+    } // for (wye)
 
-        const binSize = (genomicEnd - genomicStart) / traceLength
-        const genome = GenomeUtils.GenomeLibrary[ ensembleManager.genomeAssembly ]
-        const chromosomes = genome.getChromosome(chr.toLowerCase())
+    const binSize = (genomicEnd - genomicStart) / traceLength
+    const genome = GenomeUtils.GenomeLibrary[ ensembleManager.genomeAssembly ]
+    const chromosomes = genome.getChromosome(chr.toLowerCase())
 
-        const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
+    const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
 
-        // saveStateAndContactRecords(hicState, contactRecordList)
+    // saveStateAndContactRecords(hicState, contactRecordList)
 
-        return { hicState, liveContactMapDataSet }
+    return { hicState, liveContactMapDataSet }
 
-    }
 }
 
 function computeAverageCount(contacts, traceLength) {
@@ -306,7 +306,7 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
     // bin count
     const binCount = traceLength
 
-    // bp-per-bin
+    // bp-per-bin. Bin Size is synonymous with resolution
     const binSize = (genomicEnd - genomicStart) / binCount
 
     // canvas - pixel x pixel
@@ -327,7 +327,7 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
 
 }
 
-function populateContactFrequencyCanvasArray(frequencies) {
+function paintCanvasArray(frequencies) {
 
     const maxFrequency = frequencies.reduce((max, current) => Math.max(max, current), Number.NEGATIVE_INFINITY )
 
