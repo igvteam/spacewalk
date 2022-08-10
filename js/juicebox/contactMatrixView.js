@@ -25,12 +25,14 @@ import {Alert} from "igv-ui"
 import {IGVColor, StringUtils} from 'igv-utils'
 import ColorScale from './colorScale.js'
 import HICEvent from './hicEvent.js'
+import {renderCanvasArrayToCanvas} from '../utils.js'
 
 const DRAG_THRESHOLD = 2;
 
-// const imageTileDimension = 685;
-// const imageTileDimension = 1024
-const imageTileDimension = 4096
+// const imageTileDimension = 685
+// const imageTileDimension = 800
+const imageTileDimension = 1024
+// const imageTileDimension = 4096
 
 class ContactMatrixView {
 
@@ -50,7 +52,8 @@ class ContactMatrixView {
         this.backgroundRGBString = IGVColor.rgbColor(backgroundColor.r, backgroundColor.g, backgroundColor.b)
 
         this.$canvas = $viewport.find('canvas');
-        this.ctx = this.$canvas.get(0).getContext('2d');
+        // this.ctx = this.$canvas.get(0).getContext('2d');
+        this.bitmap_context_ctx = this.$canvas.get(0).getContext('bitmaprenderer')
 
         this.$fa_spinner = $viewport.find('.fa-spinner');
         this.spinnerCount = 0;
@@ -107,7 +110,34 @@ class ContactMatrixView {
 
     }
 
-    async repaintWithLiveContactMap(state, dataset) {
+    async renderWithCanvasArray(state, dataset, canvasArray) {
+
+        const { width, height } = this.$viewport.get(0).getBoundingClientRect()
+        const canvas = this.bitmap_context_ctx.canvas
+        canvas.width = width
+        canvas.height = height
+
+        await renderCanvasArrayToCanvas(this.bitmap_context_ctx, canvasArray)
+
+        this.browser.state = state
+        this.browser.dataset = dataset
+
+        this.browser.eventBus.post(HICEvent('MapLoad', dataset))
+
+        const eventConfig =
+            {
+                state,
+                resolutionChanged: true,
+                chrChanged: true,
+                displayMode: 'LIVE',
+                dataset
+            }
+
+        this.browser.eventBus.post(HICEvent('LocusChange', eventConfig))
+
+    }
+
+    async __repaintWithLiveContactMap(state, dataset) {
 
         const zoomIndexA = state.zoom
 
@@ -125,7 +155,7 @@ class ContactMatrixView {
         this.$canvas.attr('height', height)
 
         // bin
-        const { x:xBin, y:yBin, displayPixelSize, zoom } = state
+        const { x:xBin, y:yBin, pixelSize, displayPixelSize, zoom } = state
 
         // bin-per-tile
         const columnStart = Math.floor(xBin / imageTileDimension)
