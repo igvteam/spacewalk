@@ -49,9 +49,28 @@ class ContactMatrixView {
         this.backgroundColor = backgroundColor;
         this.backgroundRGBString = IGVColor.rgbColor(backgroundColor.r, backgroundColor.g, backgroundColor.b)
 
-        this.$canvas = $viewport.find('canvas');
-        // this.ctx = this.$canvas.get(0).getContext('2d');
-        this.bitmap_context_ctx = this.$canvas.get(0).getContext('bitmaprenderer')
+        this.viewport = $viewport.get(0)
+        const { width, height } = this.viewport.getBoundingClientRect()
+
+        let canvas
+
+        // contact map canvas
+        canvas = this.viewport.querySelector(`#${browser.id}-contact-map-canvas`)
+        this.ctx = canvas.getContext('2d')
+        this.ctx.canvas.width = width
+        this.ctx.canvas.height = height
+
+        // live contact map canvas
+        canvas = this.viewport.querySelector(`#${browser.id}-live-contact-map-canvas`)
+        this.ctx_live = canvas.getContext('bitmaprenderer')
+        this.ctx_live.canvas.width = width
+        this.ctx_live.canvas.height = height
+
+
+
+
+
+
 
         this.$fa_spinner = $viewport.find('.fa-spinner');
         this.spinnerCount = 0;
@@ -110,6 +129,9 @@ class ContactMatrixView {
 
     async renderWithLiveContactFrequencyData(state, dataset, data, contactFrequencyArray) {
 
+        this.ctx.canvas.style.display = 'none'
+        this.ctx_live.canvas.style.display = 'block'
+
         const zoomIndexA = state.zoom
         const { chr1, chr2 } = state
         const zoomData = dataset.getZoomDataByIndex(chr1, chr2, zoomIndexA)
@@ -124,11 +146,7 @@ class ContactMatrixView {
         paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer)
 
         // Render by copying image data to display canvas bitmap render context
-        const { width, height } = this.$viewport.get(0).getBoundingClientRect()
-        const canvas = this.bitmap_context_ctx.canvas
-        canvas.width = width
-        canvas.height = height
-        await transferContactFrequencyArrayToCanvas(this.bitmap_context_ctx, contactFrequencyArray)
+        await transferContactFrequencyArrayToCanvas(this.ctx_live, contactFrequencyArray)
 
         // Update UI
         this.browser.state = state
@@ -154,6 +172,9 @@ class ContactMatrixView {
         if (!this.browser.dataset) {
             return;
         }
+
+        this.ctx.canvas.style.display = 'block'
+        this.ctx_live.canvas.style.display = 'none'
 
         const { dataset, datasetControl } = getDatasetPairWithDisplayMode(this.browser, this.displayMode)
 
@@ -181,13 +202,9 @@ class ContactMatrixView {
         }
 
         // pixel
-        const { width, height } = this.$viewport.get(0).getBoundingClientRect()
-
-        this.$canvas.width(width)
-        this.$canvas.attr('width', width)
-
-        this.$canvas.height(height);
-        this.$canvas.attr('height', height)
+        const { width, height } = this.viewport.getBoundingClientRect()
+        this.ctx.canvas.width = width
+        this.ctx.canvas.height = height
 
         // bin
         const { x:xBin, y:yBin, pixelSize, zoom } = this.browser.state
@@ -433,15 +450,13 @@ class ContactMatrixView {
             const sWidth = (zoomedGenomicExtent.w / this.genomicExtent.w) * width
             const sHeight = (zoomedGenomicExtent.h / this.genomicExtent.h) * height
 
-            const img = this.$canvas.get(0)
-
             const backCanvas = document.createElement('canvas')
-            backCanvas.width = img.width;
-            backCanvas.height = img.height;
+            backCanvas.width  = this.ctx.canvas.width;
+            backCanvas.height = this.ctx.canvas.height;
 
             const backCtx = backCanvas.getContext('2d')
 
-            backCtx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, width, height)
+            backCtx.drawImage(this.ctx.canvas, sx, sy, sWidth, sHeight, 0, 0, width, height)
 
             this.ctx.clearRect(0, 0, width, height)
             this.ctx.drawImage(backCanvas, 0, 0)
