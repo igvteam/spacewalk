@@ -36,9 +36,12 @@ class ContactMatrixView {
 
     constructor(browser, $viewport, sweepZoom, scrollbarWidget, colorScale, ratioColorScale, backgroundColor) {
 
-        this.browser = browser;
-        this.$viewport = $viewport;
-        this.sweepZoom = sweepZoom;
+        this.browser = browser
+
+        this.$viewport = $viewport
+        this.viewport = $viewport.get(0)
+
+        this.sweepZoom = sweepZoom
 
         // Set initial color scales.  These might be overriden / adjusted via parameters
         this.colorScale = colorScale;
@@ -49,10 +52,9 @@ class ContactMatrixView {
         this.backgroundColor = backgroundColor;
         this.backgroundRGBString = IGVColor.rgbColor(backgroundColor.r, backgroundColor.g, backgroundColor.b)
 
-        this.viewport = $viewport.get(0)
-        const { width, height } = this.viewport.getBoundingClientRect()
 
         let canvas
+        const { width, height } = this.viewport.getBoundingClientRect()
 
         // contact map canvas
         canvas = this.viewport.querySelector(`#${browser.id}-contact-map-canvas`)
@@ -65,12 +67,6 @@ class ContactMatrixView {
         this.ctx_live = canvas.getContext('bitmaprenderer')
         this.ctx_live.canvas.width = width
         this.ctx_live.canvas.height = height
-
-
-
-
-
-
 
         this.$fa_spinner = $viewport.find('.fa-spinner');
         this.spinnerCount = 0;

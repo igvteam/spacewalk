@@ -13,7 +13,7 @@ import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 
 let contactFrequencyArray = undefined
 
-const maxDistanceThreshold = 4096
+const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
 
 const kContactFrequencyUndefined = -1
