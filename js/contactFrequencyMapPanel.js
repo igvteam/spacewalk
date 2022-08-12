@@ -80,17 +80,9 @@ class ContactFrequencyMapPanel extends Panel {
 
             // Only ensemble data is used to create the live contact map in Juicebox
             if ('ensemble' === data.traceOrEnsemble) {
-
-                const canvas = Globals.currentBrowser.contactMatrixView.bitmap_context_ctx.canvas
-                const { width, height } = Globals.currentBrowser.contactMatrixView.$viewport.get(0).getBoundingClientRect()
-                canvas.width = width
-                canvas.height = height
-
                 const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
-
                 await Globals.currentBrowser.contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, contactFrequencyArray)
-
             }
 
         }, false)
