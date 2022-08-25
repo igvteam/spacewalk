@@ -1,107 +1,80 @@
 import * as THREE from "three";
 import { lerp, clamp, random } from './math.js';
 
-export let threeJSColorToRGB255 = (color) => {
-
+export const threeJSColorToRGB255 = (color) => {
     const { r, g, b } = color;
-
     return { r: Math.floor(r*255), g: Math.floor(g*255), b: Math.floor(b*255) };
-};
+}
 
-export let rgb255ToThreeJSColor = (r, g, b) => {
-
+export const rgb255ToThreeJSColor = (r, g, b) => {
     return new THREE.Color(r/255, g/255, b/255);
-};
+}
 
-export let rgb255String = ({r, g, b}) => {
+export const rgb255String = ({r, g, b}) => {
     return `rgb(${r},${g},${b})`;
-};
+}
 
-export let rgba255String = ({r, g, b, a}) => {
+export const rgba255String = ({r, g, b, a}) => {
     return `rgba(${r},${g},${b},${a})`;
-};
+}
 
-export let rgba255 = (r, g, b, a) => {
-
+export const rgba255 = (r, g, b, a) => {
     r = clamp(r, 0, 255);
     g = clamp(g, 0, 255);
     b = clamp(b, 0, 255);
     a = clamp(a, 0.0, 1.0);
-
     return { r, g, b, a }
-    // return "rgba(" + r + "," + g + "," + b + "," + a + ")";
-};
+}
 
-export let rgb255 = (r, g, b) => {
-
+export const rgb255 = (r, g, b) => {
     r = clamp(r, 0, 255);
     g = clamp(g, 0, 255);
     b = clamp(b, 0, 255);
-
     return { r, g, b }
-    // return "rgb(" + r + "," + g + "," + b + ")";
-};
+}
 
-export let greyScale255 = (value) => {
-
+export const greyScale255 = (value) => {
     const grey = clamp(value, 0, 255);
-
     return { r:grey, g:grey, b: grey }
-    // return "rgb(" + grey + "," + grey + "," + grey + ")";
-};
+}
 
-export let rgb255Lerp = (colorA, colorB, x) => {
-
+export const rgb255Lerp = (colorA, colorB, x) => {
     const  red = lerp(colorA.r, colorB.r, x);
     const  green = lerp(colorA.g, colorB.g, x);
     const  blue = lerp(colorA.b, colorB.b, x);
-
     return { r: Math.round(red), g: Math.round(green), b: Math.round(blue) }
-
-};
-
-export let greyScaleRandom255 = (min, max) => {
-
-    min = clamp(min, 0, 255);
-    max = clamp(max, 0, 255);
-
-    const grey = Math.round(random(min, max));
-
-    return { r:grey, g:grey, b: grey }
-    // return "rgb(" + grey + "," + grey + "," + grey + ")";
-};
-
-export let rgbRandom255 = (min, max) => {
-
-    min = clamp(min, 0, 255);
-    max = clamp(max, 0, 255);
-
-    const r = Math.round(random(min, max));
-    const g = Math.round(random(min, max));
-    const b = Math.round(random(min, max));
-
-    return { r, g, b }
-    // return "rgb(" + r + "," + g + "," + b + ")";
-};
-
-export let rgbaRandomConstantAlpha255 = (min, max, alpha) => {
-
-    min = clamp(min, 0, 255);
-    max = clamp(max, 0, 255);
-
-    const r = Math.round(random(min, max));
-    const g = Math.round(random(min, max));
-    const b = Math.round(random(min, max));
-
-    return { r, g, b, a:alpha };
-
 }
 
-let rgb2hex = (r255, g255, b255) => {
+export const greyScaleRandom255 = (min, max) => {
+    min = clamp(min, 0, 255);
+    max = clamp(max, 0, 255);
+    const grey = Math.round(random(min, max));
+    return { r:grey, g:grey, b: grey }
+}
+
+export const rgbRandom255 = (min, max) => {
+    min = clamp(min, 0, 255);
+    max = clamp(max, 0, 255);
+    const r = Math.round(random(min, max));
+    const g = Math.round(random(min, max));
+    const b = Math.round(random(min, max));
+    return { r, g, b }
+}
+
+export const rgbaRandomConstantAlpha255 = (min, max, alpha) => {
+    min = clamp(min, 0, 255);
+    max = clamp(max, 0, 255);
+    const r = Math.round(random(min, max));
+    const g = Math.round(random(min, max));
+    const b = Math.round(random(min, max));
+    return { r, g, b, a:alpha };
+}
+
+const rgb2hex = (r255, g255, b255) => {
     return ((r255&0x0ff)<<16)|((g255&0x0ff)<<8)|(b255&0x0ff);
 };
 
-let hex2RGB255 = (hex) => {
+const hex2RGB255 = (hex) => {
 
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
     const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -112,7 +85,7 @@ let hex2RGB255 = (hex) => {
     return result ? {  r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : undefined;
 };
 
-let appleCrayonPaletteDictionary =
+const appleCrayonPaletteDictionary =
     {
         licorice: "#000000",
         lead: "#1e1e1e",
@@ -167,9 +140,9 @@ let appleCrayonPaletteDictionary =
         carnation: "#ff7fd3"
     };
 
-let appleCrayonNames = Object.keys(appleCrayonPaletteDictionary);
+const appleCrayonNames = Object.keys(appleCrayonPaletteDictionary);
 
-let appleCrayonPaletteNoGreyDictionary =
+const appleCrayonPaletteNoGreyDictionary =
     {
         //
         cayenne: "#891100",
@@ -212,9 +185,9 @@ let appleCrayonPaletteNoGreyDictionary =
         carnation: "#ff7fd3"
     };
 
-let appleCrayonNamesNoGrey = Object.keys(appleCrayonPaletteNoGreyDictionary);
+const appleCrayonNamesNoGrey = Object.keys(appleCrayonPaletteNoGreyDictionary);
 
-let appleCrayonPaletteBrightDictionary =
+const appleCrayonPaletteBrightDictionary =
     {
         maraschino: "#ff2101",
         tangerine: "#ff8802",
@@ -243,43 +216,41 @@ let appleCrayonPaletteBrightDictionary =
         carnation: "#ff7fd3"
     };
 
-let appleCrayonNamesBright = Object.keys(appleCrayonPaletteBrightDictionary);
+const appleCrayonNamesBright = Object.keys(appleCrayonPaletteBrightDictionary)
 
-let appleCrayonColorHexValue = name => {
-    let string = appleCrayonPaletteDictionary[ name ];
-    let tokens = string.split('');
+const appleCrayonColorHexValue = name => {
+    const string = appleCrayonPaletteDictionary[ name ];
+    const tokens = string.split('');
     tokens.shift();
-    let hexString = tokens.join('');
+    const hexString = tokens.join('');
     return parseInt(hexString, 16);
-};
+}
 
-let appleCrayonRandomBrightColorThreeJS = () => {
+const appleCrayonRandomBrightColorThreeJS = () => {
     const index = Math.floor(Math.random() * Math.floor(appleCrayonNamesBright.length));
     const name = appleCrayonNamesBright[ index ];
     return appleCrayonColorThreeJS(name);
-};
+}
 
-let appleCrayonRandomColorHexValue = () => {
-    let index = Math.floor(Math.random() * Math.floor(appleCrayonNamesNoGrey.length));
-    let string = appleCrayonPaletteNoGreyDictionary[ appleCrayonNamesNoGrey[ index ] ];
-    let tokens = string.split('');
+const appleCrayonRandomColorHexValue = () => {
+    const index = Math.floor(Math.random() * Math.floor(appleCrayonNamesNoGrey.length));
+    const string = appleCrayonPaletteNoGreyDictionary[ appleCrayonNamesNoGrey[ index ] ];
+    const tokens = string.split('');
     tokens.shift();
-    let hexString = tokens.join('');
+    const hexString = tokens.join('');
     return parseInt(hexString, 16);
-};
+}
 
-let appleCrayonColorThreeJS = name => {
+const appleCrayonColorThreeJS = name => {
     return new THREE.Color(appleCrayonColorHexValue(name));
-};
+}
 
-let appleCrayonColorRGB255 = name => {
-
+const appleCrayonColorRGB255 = name => {
     const hex = appleCrayonPaletteDictionary[ name ];
-    const rgb255 = hex2RGB255(hex);
-    return rgb255;
-};
+    return hex2RGB255(hex)
+}
 
-const highlightColor = appleCrayonColorThreeJS('honeydew');
+const highlightColor = appleCrayonColorThreeJS('honeydew')
 
 export { highlightColor, appleCrayonNames, appleCrayonRandomBrightColorThreeJS, appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomColorHexValue, appleCrayonColorRGB255 };
 
