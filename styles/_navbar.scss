@@ -41,21 +41,6 @@
 
 }
 
-ul.navbar-nav {
-  >li {
-    >div {
-      >a {
-        color: white;
-        text-decoration: none;
-        outline: 0;
-      }
-      >a:hover {
-        color: #dfdfdf;
-      }
-    }
-  }
-}
-
 div.navbar-brand {
   color: $spacewalk_snow;
   background-color: #4A90E2;
