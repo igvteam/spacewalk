@@ -1,7 +1,7 @@
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js'
 import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from 'igv-widgets'
-import {GoogleAuth, igvxhr, StringUtils} from 'igv-utils'
+import {BGZip, GoogleAuth, igvxhr, StringUtils} from 'igv-utils'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
@@ -21,13 +21,14 @@ import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import { getUrlParams, getShareURL, loadSessionURL, toJSON, loadSession } from "./spacewalkSession.js";
+import {getUrlParams, getShareURL, loadSessionURL, toJSON, loadSession, uncompressSession} from "./spacewalkSession.js"
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
+import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
 
@@ -120,7 +121,13 @@ const initializationHelper = async container => {
 
     const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = getUrlParams(window.location.href);
 
-    await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL);
+    let locusString
+    if (spacewalkSessionURL) {
+        const { locus } = JSON.parse( uncompressSession(spacewalkSessionURL) )
+        locusString = `${ locus.chr }:${ locus.genomicStart }-${ locus.genomicEnd }`
+    }
+
+    await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, locusString);
 
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
     guiManager = new GUIManager({ settingsButton, $panel: $('#spacewalk_ui_manager_panel') });
@@ -170,7 +177,7 @@ function render () {
 
 }
 
-const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL) => {
+const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL, locusString) => {
 
     // $('.checkbox-menu').on("change", "input[type='checkbox']", () => $(this).closest("li").toggleClass("active", this.checked))
 
@@ -199,9 +206,10 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     igvPanel.materialProvider = colorRampMaterialProvider;
 
     // TODO: Resuscitate Shareable URL
-    // if (igvSessionURL) {
-    //     spacewalkConfig.session = JSON.parse(StringUtils.uncompressString(igvSessionURL.substr(5)))
-    // }
+    if (igvSessionURL) {
+        const str = BGZip.uncompressString(igvSessionURL.substr(5))
+        spacewalkConfig.igvConfig = JSON.parse(str)
+    }
 
     await igvPanel.initialize(spacewalkConfig)
 
@@ -222,11 +230,12 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
 
     // TODO: Resuscitate Shareable URL
-    // if (juiceboxSessionURL) {
-    //     juiceboxInitializationConfig.session = JSON.parse(StringUtils.uncompressString(juiceboxSessionURL.substr(5)))
-    // }
-
-    // await juiceboxPanel.initialize(juiceboxInitializationConfig)
+    if (juiceboxSessionURL) {
+        const str = BGZip.uncompressString(juiceboxSessionURL.substr(5))
+        const json = JSON.parse(str)
+        json.locus = locusString
+        spacewalkConfig.juiceboxConfig = Object.assign(spacewalkConfig.juiceboxConfig, json)
+    }
 
     await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
 
@@ -271,8 +280,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
         async json => await loadSession(json),
         () => toJSON());
 
-    // TODO: Resuscitate Shareable URL
-    // createShareWidgets($main, $('#spacewalk-share-button'), 'spacewalk-share-modal')
+    createShareWidgets(shareWidgetConfigurator({ provider: 'tinyURL' }))
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_distance_map_panel')}));
 
@@ -292,79 +300,6 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
             SpacewalkEventBus.globalBus.post({ type: 'AppWindowDidResize', data: { width, height } });
         }
     });
-
-};
-
-const createShareWidgets = ($container, $share_button, share_modal_id) => {
-
-    const modal =
-        `<div id="${ share_modal_id }" class="modal fade">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <div class="modal-title">Share</div>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-9">
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <button type="button" class="btn btn-default">COPY</button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>`
-
-    $container.append($(modal))
-    const $share_modal = $(`#${ share_modal_id }`)
-
-    const $share_input = $share_modal.find('input')
-
-    $share_button.on('click.spacewalk-share-button', async e => {
-
-        let url = undefined
-        try {
-            url = await getShareURL()
-        } catch (e) {
-            AlertSingleton.present(e.message)
-            return
-        }
-
-        if (url) {
-            $share_input.val( url )
-            $share_input.get(0).select()
-            $share_modal.modal('show')
-        }
-
-    })
-
-    const $copy_button = $share_modal.find('button')
-
-    $copy_button.on('click.spacewalk-copy', e => {
-
-        $share_input.get(0).select()
-
-        const success = document.execCommand('copy')
-        if (success) {
-            $share_modal.modal('hide')
-        } else {
-            alert("Copy not successful")
-        }
-    })
 
 }
 

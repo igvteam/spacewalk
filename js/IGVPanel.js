@@ -4,7 +4,7 @@ import igv from './igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { setMaterialProvider } from './utils.js';
 import Panel from "./panel.js";
-import {colorRampMaterialProvider, ensembleManager, igvPanel} from "./app.js"
+import {colorRampMaterialProvider, ensembleManager} from "./app.js"
 import { spacewalkConfig } from "../spacewalk-config.js";
 
 class IGVPanel extends Panel {

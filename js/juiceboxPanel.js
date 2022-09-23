@@ -66,12 +66,14 @@ class JuiceboxPanel extends Panel {
 
     async initialize(container, config) {
 
-        try {
 
+        let session
+
+        if (config.browsers) {
+            session = Object.assign({ queryParametersSupported: false }, config)
+        } else {
             const { locus, width, height } = config
-            this.locus = locus
-
-            const session =
+            session =
                 {
                     browsers:
                         [
@@ -81,7 +83,12 @@ class JuiceboxPanel extends Panel {
                                 queryParametersSupported: false
                             }
                         ]
-                };
+                }
+        }
+
+        this.locus = config.locus
+
+        try {
 
             await createBrowser(container, session)
 
@@ -93,6 +100,8 @@ class JuiceboxPanel extends Panel {
         if (Globals.currentBrowser) {
             this.configureMouseHandlers()
         }
+
+        Globals.currentBrowser.update()
 
     }
 
