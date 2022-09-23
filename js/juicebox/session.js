@@ -1,4 +1,4 @@
-import {StringUtils} from "igv-utils"
+import {BGZip} from "igv-utils"
 import {Globals} from "./globals.js"
 import { deleteAllBrowsers, syncBrowsers, getAllBrowsers } from './hicMisc.js'
 import { createBrowser } from "./hicBrowserLifecycle.js"
@@ -39,7 +39,7 @@ function toJSON() {
 
 function compressedSession() {
     const jsonString = JSON.stringify(toJSON());
-    return `session=blob:${StringUtils.compressString(jsonString)}`
+    return `session=blob:${BGZip.compressString(jsonString)}`
 }
 
 

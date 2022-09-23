@@ -1,4 +1,4 @@
-import { URIUtils, StringUtils, URLShortener } from 'igv-utils'
+import { URIUtils, BGZip, URLShortener } from 'igv-utils'
 import Zlib from './vendor/zlib_and_gzip.js'
 import hic from './juicebox/index.js'
 import Panel from './panel.js'
@@ -100,7 +100,7 @@ async function getShareURL() {
     const spacewalkCompressedSession = getCompressedSession()
     const igvCompressedSession = igvPanel.browser.compressedSession()
 
-    // Note format is: session=blob:${StringUtils.compressString(jsonString)}
+    // Note format is: session=blob:${BGZip.compressString(jsonString)}
     const juiceboxCompressedSession = hic.compressedSession()
 
     const path = window.location.href.slice()
@@ -114,29 +114,11 @@ async function getShareURL() {
 }
 
 function getCompressedSession() {
-
-    const json = parser.toJSON()
-    json.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace)
-    json.igvPanelState = igvPanel.getSessionState()
-    json.renderStyle = getGUIRenderStyle()
-    json.panelVisibility = {}
-
-    for (let [key, value] of Object.entries( Panel.getPanelDictionary() )) {
-        json.panelVisibility[ key ] = true === value.isHidden ? 'hidden' : 'visible'
-    }
-
-    json.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden'
-    json.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden'
-    json.cameraLightingRig = sceneManager.cameraLightingRig.getState()
-    json.gnomonColor = sceneManager.gnomon.getColorState()
-    json.groundplaneColor = sceneManager.groundPlane.getColorState()
-
-    // json.sceneBackground = sceneManager.getBackgroundState();
-
-    return StringUtils.compressString( JSON.stringify( json ) )
+    const json = spacewalkToJSON()
+    return BGZip.compressString( JSON.stringify( json ) )
 }
 
-function toJSON () {
+function spacewalkToJSON () {
 
     const spacewalk = parser.toJSON()
     spacewalk.locus = ensembleManager.locus
@@ -155,20 +137,19 @@ function toJSON () {
     spacewalk.gnomonColor = sceneManager.gnomon.getColorState()
     spacewalk.groundplaneColor = sceneManager.groundPlane.getColorState()
 
-    // spacewalk.sceneBackground = sceneManager.getBackgroundState()
+    return spacewalk
+
+}
+
+function toJSON () {
+
+    const spacewalk = spacewalkToJSON()
 
     const igv = igvPanel.browser.toJSON()
 
     const juicebox = hic.toJSON()
 
     return { spacewalk, igv, juicebox }
-
-    // if (hic.Globals.currentBrowser && hic.Globals.currentBrowser.dataset ) {
-    //     const juicebox = hic.toJSON()
-    //     return { spacewalk, igv, juicebox }
-    // } else {
-    //     return { spacewalk, igv }
-    // }
 
 }
 
@@ -185,8 +166,8 @@ function uncompressSession(url) {
     } else {
 
         let enc = url.substring(5);
-        return StringUtils.uncompressString(enc, Zlib);
+        return BGZip.uncompressString(enc, Zlib);
     }
 }
 
-export { getShareURL, getUrlParams, loadSessionURL, toJSON, loadSession };
+export { getShareURL, getUrlParams, loadSessionURL, toJSON, loadSession, uncompressSession };
