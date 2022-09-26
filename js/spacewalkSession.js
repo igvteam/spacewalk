@@ -5,6 +5,7 @@ import Panel from './panel.js'
 import {parser, igvPanel, juiceboxPanel, ensembleManager, sceneManager} from './app.js'
 import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
+import {Globals} from "./juicebox/globals"
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
@@ -100,14 +101,22 @@ async function getShareURL() {
     const spacewalkCompressedSession = getCompressedSession()
     const igvCompressedSession = igvPanel.browser.compressedSession()
 
-    // Note format is: session=blob:${BGZip.compressString(jsonString)}
-    const juiceboxCompressedSession = hic.compressedSession()
+    let juiceboxCompressedSession
+    if (Globals.currentBrowser.dataset) {
+        // Note format is: session=blob:${BGZip.compressString(jsonString)}
+        juiceboxCompressedSession = hic.compressedSession()
+    }
 
     const path = window.location.href.slice()
     const index = path.indexOf("?")
     const prefix = index > 0 ? path.substring(0, index) : path
 
-    const url = `${ prefix }?spacewalkSessionURL=blob:${ spacewalkCompressedSession }&sessionURL=blob:${ igvCompressedSession }&${ juiceboxCompressedSession }`
+    let url
+    if (juiceboxCompressedSession) {
+        url = `${ prefix }?spacewalkSessionURL=blob:${ spacewalkCompressedSession }&sessionURL=blob:${ igvCompressedSession }&${ juiceboxCompressedSession }`
+    } else {
+        url = `${ prefix }?spacewalkSessionURL=blob:${ spacewalkCompressedSession }&sessionURL=blob:${ igvCompressedSession }`
+    }
 
     return urlShortener.shortenURL(url)
 
