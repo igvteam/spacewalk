@@ -53,6 +53,7 @@ async function loadSpacewalkSession (session) {
 
     SpacewalkEventBus.globalBus.unsubscribe('DidLoadEnsembleFile', igvPanel)
     SpacewalkEventBus.globalBus.unsubscribe('DidLoadEnsembleFile', juiceboxPanel)
+    SpacewalkEventBus.globalBus.unsubscribe('RenderStyleDidChange', sceneManager)
 
     const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, sceneBackground } = session
 
@@ -78,6 +79,7 @@ async function loadSpacewalkSession (session) {
 
     SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', igvPanel)
     SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', juiceboxPanel)
+    SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', sceneManager)
 
 }
 
