@@ -306,7 +306,6 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel')}));
 
-    // TODO: Clean up genome management. Rely only on Globals.GenomeLibrary
     EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
     Panel.setPanelDictionary([ igvPanel, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel ]);

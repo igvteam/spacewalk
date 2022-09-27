@@ -1,7 +1,7 @@
 const Chromosome = function (name, order, bpStart, bpLength, rangeLocus) {
     this.name = name
 
-    // for dataset compatibility
+    // for juiceboxjs dataset compatibility
     this.order = order ? 1 + order : 0
     this.index = this.order
 
@@ -9,7 +9,7 @@ const Chromosome = function (name, order, bpStart, bpLength, rangeLocus) {
 
     this.bpLength = bpLength
 
-    // for dataset compatibility
+    // for juiceboxjs dataset compatibility
     this.size = this.bpLength
 
     this.rangeLocus = rangeLocus
