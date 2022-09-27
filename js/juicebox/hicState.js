@@ -171,13 +171,19 @@ class State {
 
     }
 
-    static default(configOrUndefined) {
+    static default(config) {
 
-        if (configOrUndefined) {
-            return new State(0, 0, 0, 0, 0, configOrUndefined.width, configOrUndefined.height, 1, "NONE")
+        let w
+        let h
+        if (config) {
+            w = config.width || defaultSize.width
+            h = config.height || defaultSize.height
         } else {
-            return new State(0, 0, 0, 0, 0, defaultSize.width, defaultSize.height, 1, "NONE")
+            w = defaultSize.width
+            h = defaultSize.height
         }
+
+        return new State(0, 0, 0, 0, 0, w, h, 1, "NONE")
 
     }
 

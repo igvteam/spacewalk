@@ -163,37 +163,7 @@ const initializationHelper = async container => {
 
 }
 
-async function initializeGenomes({ genomes }) {
-
-    // igv.js uses it's own Genome infrastructure
-    await GenomeUtils.initializeGenomes({ genomes })
-
-
-}
-
-function renderLoop() {
-
-    requestAnimationFrame( renderLoop )
-
-    render()
-
-}
-
-function render () {
-
-    pointCloud.renderLoopHelper()
-
-    ribbon.renderLoopHelper()
-
-    colorRampMaterialProvider.renderLoopHelper()
-
-    sceneManager.renderLoopHelper()
-
-    // stats.update()
-
-}
-
-const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL, locusString) => {
+async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, locusString) {
 
     // $('.checkbox-menu').on("change", "input[type='checkbox']", () => $(this).closest("li").toggleClass("active", this.checked))
 
@@ -218,8 +188,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     createSpacewalkFileLoaders(spacewalkFileLoadConfig)
 
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
-    igvPanel.materialProvider = colorRampMaterialProvider;
+    await createIGVPanel(container)
 
     // TODO: Resuscitate Shareable URL
     if (igvSessionURL) {
@@ -317,6 +286,173 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
         }
     });
 
+
+}
+
+async function createIGVPanel(container) {
+
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
+    igvPanel.materialProvider = colorRampMaterialProvider;
+
+    // TODO: Resuscitate Shareable URL
+    // if (igvSessionURL) {
+    //     spacewalkConfig.session = JSON.parse(StringUtils.uncompressString(igvSessionURL.substr(5)))
+    // }
+
+    await igvPanel.initialize(spacewalkConfig)
+
+    createTrackWidgetsWithTrackRegistry(
+        $(igvPanel.container),
+        $('#spacewalk-track-dropdown-menu'),
+        $('#hic-local-track-file-input'),
+        $('#spacewalk-track-dropbox-button'),
+        googleEnabled,
+        $('#spacewalk-track-dropdown-google-drive-button'),
+        ['hic-encode-signal-modal', 'hic-encode-other-modal'],
+        'hic-app-track-load-url-modal',
+        'hic-app-track-select-modal',
+        undefined,
+        spacewalkConfig.trackRegistry,
+        (configurations) => igvPanel.loadTrackList(configurations))
+
+}
+
+async function createJuiceboxPanel(container, juiceboxConfig) {
+
+    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
+
+    // TODO: Resuscitate Shareable URL
+    // if (juiceboxSessionURL) {
+    //     juiceboxInitializationConfig.session = JSON.parse(StringUtils.uncompressString(juiceboxSessionURL.substr(5)))
+    // }
+
+    // await juiceboxPanel.initialize(juiceboxInitializationConfig)
+
+    await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), juiceboxConfig)
+
+    const $dropdownButton = $('#spacewalk-contact-map-dropdown')
+    const $dropdowns = $dropdownButton.parent()
+
+    const contactMapLoadConfig =
+        {
+            rootContainer: document.querySelector('#spacewalk-main'),
+            $dropdowns,
+            $localFileInputs: $dropdowns.find('input'),
+            urlLoadModalId: 'hic-load-url-modal',
+            dataModalId: 'hic-contact-map-modal',
+            encodeHostedModalId: 'hic-encode-hosted-contact-map-modal',
+            $dropboxButtons: $dropdowns.find('div[id$="-map-dropdown-dropbox-button"]'),
+            $googleDriveButtons: $dropdowns.find('div[id$="-map-dropdown-google-drive-button"]'),
+            googleEnabled,
+            mapMenu: juiceboxConfig.contactMapMenu,
+            loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path)
+        }
+
+    configureContactMapLoaders(contactMapLoadConfig)
+
+}
+
+async function initializeGenomes({ genomes }) {
+
+    // igv.js uses it's own Genome infrastructure
+    await GenomeUtils.initializeGenomes({ genomes })
+
+
+}
+
+function renderLoop() {
+
+    requestAnimationFrame( renderLoop )
+
+    render()
+
+}
+
+function render () {
+
+    pointCloud.renderLoopHelper()
+
+    ribbon.renderLoopHelper()
+
+    colorRampMaterialProvider.renderLoopHelper()
+
+    sceneManager.renderLoopHelper()
+
+    // stats.update()
+
+}
+
+const createShareWidgets = ($container, $share_button, share_modal_id) => {
+
+    const modal =
+        `<div id="${ share_modal_id }" class="modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <div class="modal-title">Share</div>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-default">COPY</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>`
+
+    $container.append($(modal))
+    const $share_modal = $(`#${ share_modal_id }`)
+
+    const $share_input = $share_modal.find('input')
+
+    $share_button.on('click.spacewalk-share-button', async e => {
+
+        let url = undefined
+        try {
+            url = await getShareURL()
+        } catch (e) {
+            AlertSingleton.present(e.message)
+            return
+        }
+
+        if (url) {
+            $share_input.val( url )
+            $share_input.get(0).select()
+            $share_modal.modal('show')
+        }
+
+    })
+
+    const $copy_button = $share_modal.find('button')
+
+    $copy_button.on('click.spacewalk-copy', e => {
+
+        $share_input.get(0).select()
+
+        const success = document.execCommand('copy')
+        if (success) {
+            $share_modal.modal('hide')
+        } else {
+            alert("Copy not successful")
+        }
+    })
+
 }
 
 const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
@@ -365,4 +501,21 @@ const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
     return html;
 }
 
-export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceNavigator, appendAndConfigureLoadURLModal };
+export {
+    googleEnabled,
+    pointCloud,
+    ribbon,
+    ballAndStick,
+    parser,
+    ensembleManager,
+    colorMapManager,
+    sceneManager,
+    colorRampMaterialProvider,
+    dataValueMaterialProvider,
+    guiManager,
+    juiceboxPanel,
+    distanceMapPanel,
+    contactFrequencyMapPanel,
+    igvPanel,
+    traceNavigator,
+    appendAndConfigureLoadURLModal }
