@@ -27,8 +27,8 @@ import {BGZip, igvxhr, StringUtils} from "igv-utils"
 import {Alert} from 'igv-ui'
 import {loadFasta} from "./fasta.js"
 import Cytoband from "./cytoband.js"
-import {buildOptions, isDataURL} from "../util/igvUtils.js"
-import version from "../version.js"
+import {buildOptions, isDataURL} from "../igv/util/igvUtils.js"
+import version from "../igv/version.js"
 import Chromosome from "./chromosome"
 
 const DEFAULT_GENOMES_URL = "https://igv.org/genomes/genomes.json"

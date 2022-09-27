@@ -6,7 +6,7 @@ import {Popover, Alert} from 'igv-ui'
 import Viewport from "./viewport.js";
 import {DOMUtils, FileUtils} from "igv-utils";
 import C2S from "./canvas2svg.js"
-import GenomeUtils from "./genome/genome.js";
+import GenomeUtils from "../genome/genome.js";
 
 const NOT_LOADED_MESSAGE = 'Error loading track data';
 

@@ -6,11 +6,12 @@ import { setMaterialProvider } from './utils.js';
 import Panel from "./panel.js";
 
 import {colorRampMaterialProvider, ensembleManager} from "./app.js"
+
 import { spacewalkConfig } from "../spacewalk-config.js";
 
 import {Globals} from "./juicebox/globals.js"
 
-import GenomeUtils from "./igv/genome/genome.js"
+import GenomeUtils from "./genome/genome.js"
 
 class IGVPanel extends Panel {
 
