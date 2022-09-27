@@ -8,6 +8,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import ContactRecord from './juicebox/hicStraw/contactRecord.js'
 import {Globals} from './juicebox/globals.js'
 import State from './juicebox/hicState.js'
+import GenomeUtils from "./igv/genome/genome"
 
 let canvasArray = undefined
 
@@ -73,7 +74,7 @@ class ContactFrequencyMapPanel extends Panel {
 
             if ('ensemble' === data.traceOrEnsemble) {
                 const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
-                this.contactRecordPayload = ContactFrequencyMapPanel.getContactRecordPayload(data.workerValuesBuffer, traceLength, chr, genomicStart, genomicEnd)
+                this.contactRecordPayload = ContactFrequencyMapPanel.getContactRecordPayload(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
             }
 
             populateContactFrequencyCanvasArray(data.workerValuesBuffer)
@@ -209,21 +210,29 @@ class ContactFrequencyMapPanel extends Panel {
     }
 }
 
-function createHICState(traceLength, chr, genomicStart, genomicEnd) {
+function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
-    const { size } = Globals.currentBrowser.dataset.chromosomes[ chr ]
+    const chromosome = Globals.GenomeLibrary[ genomeAssembly ].getChromosome(chr.toLowerCase())
 
+    // chromosome length and index into chromosome array
+    const { bpLength, order } = chromosome
+
+    // bp-per-bin
     const binSize = (genomicEnd - genomicStart) / traceLength
 
-    const binCount = size/binSize
+    // bin count
+    const binCount = bpLength/binSize
 
+    // diplay - pixel x pixel
     const { width, height } = Globals.currentBrowser.contactMatrixView.getViewDimensions()
 
+    // pixels-per-bin
     const pixelSize = width/binCount
 
+    // x, y in Bin units
     const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
 
-    return new State(chr, chr, 0, xBin, yBin, width, height, pixelSize, undefined)
+    return new State(order, order, 0, xBin, yBin, width, height, pixelSize, undefined)
 
 }
 

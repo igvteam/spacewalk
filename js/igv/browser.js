@@ -69,6 +69,7 @@ import ViewportCenterLine from './ui/viewportCenterLine.js';
 import IdeogramTrack from "./ideogramTrack.js";
 import RulerTrack from "./rulerTrack.js";
 import GtexSelection from "./gtex/gtexSelection.js";
+import {Globals} from "../juicebox/globals.js"
 
 // css - $igv-scrollbar-outer-width: 14px;
 const igv_scrollbar_outer_width = 14
@@ -404,7 +405,7 @@ class Browser {
 
                 if (filename.endsWith(".xml")) {
 
-                    const knownGenomes = GenomeUtils.KNOWN_GENOMES;
+                    const knownGenomes = Globals.KNOWN_GENOMES;
                     const string = await igvxhr.loadString(urlOrFile)
                     return new XMLSession(string, knownGenomes);
 

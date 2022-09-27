@@ -13,6 +13,8 @@ class EnsembleManager {
         const str = 'EnsembleManager ingestSW'
         console.time(str)
 
+        this.genomeAssembly = genomeAssembly
+
         this.genomic = genomic
 
         this.locus = genomic.getLocus()

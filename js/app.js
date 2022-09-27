@@ -28,8 +28,14 @@ import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
+
 import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
+
+import {Globals} from './juicebox/globals.js'
+import GenomeUtils from './igv/genome/genome.js'
+
 import { spacewalkConfig } from "../spacewalk-config.js";
+
 import '../styles/app.scss'
 
 let stats
@@ -95,6 +101,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
 const initializationHelper = async container => {
 
+    await initializeGenomes(spacewalkConfig)
+
     await initializeMaterialLibrary();
 
     parser = new Parser();
@@ -152,6 +160,18 @@ const initializationHelper = async container => {
     await loadSessionURL(spacewalkSessionURL)
 
     renderLoop()
+
+}
+
+async function initializeGenomes({ genomes }) {
+
+    // igv.js uses it's own Genome infrastructure
+    await GenomeUtils.initializeGenomes({ genomes })
+
+    Globals.GenomeLibrary = {}
+    for (let [ genomeId, genome_configuration ] of Object.entries(GenomeUtils.KNOWN_GENOMES)) {
+        Globals.GenomeLibrary[ genomeId ] = await GenomeUtils.loadGenome(genome_configuration)
+    }
 
 }
 
@@ -286,6 +306,7 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel')}));
 
+    // TODO: Clean up genome management. Rely only on Globals.GenomeLibrary
     EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
     Panel.setPanelDictionary([ igvPanel, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel ]);

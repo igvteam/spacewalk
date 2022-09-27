@@ -30,7 +30,6 @@ import EventBus from "./eventBus.js";
 import LayoutController, {getNavbarContainer, getNavbarHeight, trackHeight} from './layoutController.js'
 import HICEvent from './hicEvent.js'
 import Dataset from './hicDataset.js'
-import Genome from './genome.js'
 import State from './hicState.js'
 import geneSearch from './geneSearch.js'
 import LocusGoto from "./hicLocusGoto.js";
@@ -46,6 +45,7 @@ import ColorScale, {defaultColorScaleConfig} from "./colorScale.js";
 import RatioColorScale, {defaultRatioColorScaleConfig} from "./ratioColorScale.js";
 import AnnotationWidget from './annotationWidget.js';
 import Track2D from './track2D.js'
+import Genome from "./genome.js"
 
 const DEFAULT_PIXEL_SIZE = 1
 const MAX_PIXEL_SIZE = 12;
@@ -243,7 +243,8 @@ class HICBrowser {
 
             this.eventBus.post(HICEvent("MapLoad", this.dataset))
 
-            this.genome = new Genome(this.dataset.genomeId, this.dataset.chromosomes)
+            // this.genome = new Genome(this.dataset.genomeId, this.dataset.chromosomes)
+            this.genome = Globals.GenomeLibrary[ this.dataset.genomeId ]
 
             if (!config.nvi && typeof config.url === "string") {
 
