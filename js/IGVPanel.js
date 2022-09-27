@@ -10,6 +10,8 @@ import { spacewalkConfig } from "../spacewalk-config.js";
 
 import {Globals} from "./juicebox/globals.js"
 
+import GenomeUtils from "./igv/genome/genome.js"
+
 class IGVPanel extends Panel {
 
     constructor ({ container, panel, isHidden }) {
@@ -64,7 +66,7 @@ class IGVPanel extends Panel {
                 const { genomeAssembly, chr, genomicStart: start, genomicEnd: end } = data;
 
                 try {
-                    await this.browser.loadGenome(Globals.GenomeLibrary[ genomeAssembly ])
+                    await this.browser.loadGenome(GenomeUtils.GenomeLibrary[ genomeAssembly ])
                 } catch (e) {
                     AlertSingleton.present(e.message);
                 }

@@ -45,6 +45,7 @@ import ColorScale, {defaultColorScaleConfig} from "./colorScale.js";
 import RatioColorScale, {defaultRatioColorScaleConfig} from "./ratioColorScale.js";
 import AnnotationWidget from './annotationWidget.js';
 import Track2D from './track2D.js'
+import GenomeUtils from "../igv/genome/genome.js"
 
 const DEFAULT_PIXEL_SIZE = 1
 const MAX_PIXEL_SIZE = 12;
@@ -128,7 +129,7 @@ class HICBrowser {
 
     async init(config) {
 
-        this.state = config.state ? config.state : State.default()
+        this.state = config.state ? config.state : State.default(config)
         this.pending = new Map();
         this.contactMatrixView.disableUpdates = true;
 
@@ -183,6 +184,10 @@ class HICBrowser {
                 this.eventBus.post({type: "ColorScale", data: this.contactMatrixView.getColorScale()})
             }
 
+            this.contactMatrixView.stopSpinner();
+            this.$user_interaction_shield.hide();
+            this.contactMatrixView.disableUpdates = false
+
             // If a file was actually loaded, update
             if (this.dataset) {
 
@@ -196,11 +201,7 @@ class HICBrowser {
                 await this.update(HICEvent('LocusChange', eventConfig))
 
             }
-
-            this.contactMatrixView.stopSpinner();
-            this.$user_interaction_shield.hide();
-            this.contactMatrixView.disableUpdates = false
-
+            
         }
 
     }
@@ -242,7 +243,7 @@ class HICBrowser {
 
             this.eventBus.post(HICEvent("MapLoad", this.dataset))
 
-            this.genome = Globals.GenomeLibrary[ this.dataset.genomeId ]
+            this.genome = GenomeUtils.GenomeLibrary[ this.dataset.genomeId ]
 
             if (!config.nvi && typeof config.url === "string") {
 
@@ -711,7 +712,7 @@ class HICBrowser {
     /**
      * Update the maps and tracks.  This method can be called from the browser event thread repeatedly, for example
      * while mouse dragging.  If called while an update is in progress queue the event for processing later.  It
-     * is only neccessary to queue the most recent recently received event, so a simple instance variable will suffice
+     * is only necessary to queue the most recent recently received event, so a simple instance variable will suffice
      * for the queue.
      *
      * @param event
@@ -727,7 +728,7 @@ class HICBrowser {
 
                 this.contactMatrixView.startSpinner()
 
-                if (event !== undefined && "LocusChange" === event.type) {
+                if (event && "LocusChange" === event.type) {
                     this.layoutController.xAxisRuler.locusChange(event);
                     this.layoutController.yAxisRuler.locusChange(event);
                 }
