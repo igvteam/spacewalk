@@ -53,14 +53,10 @@ class Dataset {
         this.normalizationTypes = ['NONE'];
 
         this.genomeId = this.hicFile.genomeId
-        this.chromosomes = this.hicFile.chromosomes
+
+        this.chromosomes = this.hicFile.chromosomes.map(chromosome => Object.assign({ bpLength: chromosome.size }, chromosome))
 
         this.bpResolutions = this.hicFile.bpResolutions
-
-        // 6 25000
-        // 7 10000
-        // 8  5000
-        // this.bpResolutions = this.hicFile.bpResolutions.slice(6,9)
 
         this.wholeGenomeChromosome = this.hicFile.wholeGenomeChromosome
         this.wholeGenomeResolution = this.hicFile.wholeGenomeResolution
