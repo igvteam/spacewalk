@@ -11,7 +11,7 @@ import { spacewalkConfig } from "../spacewalk-config.js";
 
 import {Globals} from "./juicebox/globals.js"
 
-import GenomeUtils from "./genome/genome.js"
+import {GenomeUtils} from "./genome/genomeUtils.js"
 
 class IGVPanel extends Panel {
 
