@@ -1,10 +1,8 @@
 import { AlertSingleton } from 'igv-widgets'
-import hic from './juicebox/index.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import { ensembleManager } from './app.js'
 import {Globals} from './juicebox/globals.js';
-import { hideGlobalSpinner, showGlobalSpinner } from './utils.js'
 import HICEvent from "./juicebox/hicEvent.js"
 import {createBrowser} from "./juicebox/hicBrowserLifecycle"
 
