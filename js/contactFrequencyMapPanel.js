@@ -124,6 +124,11 @@ class ContactFrequencyMapPanel extends Panel {
 
     }
 
+    setState(distanceThreshold) {
+        this.distanceThreshold = distanceThreshold
+        this.input.value = distanceThreshold.toString()
+    }
+
     present() {
 
         if (true === this.doUpdateEnsemble) {

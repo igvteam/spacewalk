@@ -125,12 +125,14 @@ const initializationHelper = async container => {
     const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = getUrlParams(window.location.href);
 
     let locusString
+    let distanceThreshold = defaultDistanceThreshold
     if (spacewalkSessionURL) {
-        const { locus } = JSON.parse( uncompressSession(spacewalkSessionURL) )
+        const { locus, contactFrequencyMapDistanceThreshold } = JSON.parse( uncompressSession(spacewalkSessionURL) )
         locusString = `${ locus.chr }:${ locus.genomicStart }-${ locus.genomicEnd }`
+        distanceThreshold = contactFrequencyMapDistanceThreshold
     }
 
-    await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, locusString);
+    await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, distanceThreshold, locusString);
 
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
     guiManager = new GUIManager({ settingsButton, $panel: $('#spacewalk_ui_manager_panel') });
@@ -158,7 +160,7 @@ const initializationHelper = async container => {
 
 }
 
-async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, locusString) {
+async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, distanceThreshold, locusString) {
 
     // $('.checkbox-menu').on("change", "input[type='checkbox']", () => $(this).closest("li").toggleClass("active", this.checked))
 
@@ -270,7 +272,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
             container,
             panel: document.querySelector('#spacewalk_contact_frequency_map_panel'),
             isHidden:doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel'),
-            distanceThreshold : defaultDistanceThreshold
+            distanceThreshold
         }
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfiguration)
 

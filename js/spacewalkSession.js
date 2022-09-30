@@ -2,7 +2,7 @@ import { URIUtils, BGZip, URLShortener } from 'igv-utils'
 import Zlib from './vendor/zlib_and_gzip.js'
 import hic from './juicebox/index.js'
 import Panel from './panel.js'
-import {parser, igvPanel, juiceboxPanel, ensembleManager, sceneManager} from './app.js'
+import {parser, igvPanel, juiceboxPanel, ensembleManager, sceneManager, contactFrequencyMapPanel} from './app.js'
 import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {Globals} from "./juicebox/globals"
@@ -53,7 +53,22 @@ async function loadSpacewalkSession (session) {
     SpacewalkEventBus.globalBus.unsubscribe('DidLoadEnsembleFile', juiceboxPanel)
     SpacewalkEventBus.globalBus.unsubscribe('RenderStyleDidChange', sceneManager)
 
-    const { url, traceKey, igvPanelState, renderStyle, panelVisibility, gnomonVisibility, groundPlaneVisibility, cameraLightingRig, gnomonColor, groundplaneColor, sceneBackground } = session
+    const {
+        url,
+        traceKey,
+        igvPanelState,
+        renderStyle,
+        panelVisibility,
+        gnomonVisibility,
+        groundPlaneVisibility,
+        cameraLightingRig,
+        gnomonColor,
+        groundplaneColor,
+        sceneBackground,
+        contactFrequencyMapDistanceThreshold
+    } = session
+
+    contactFrequencyMapPanel.setState(contactFrequencyMapDistanceThreshold)
 
     await parser.loadSessionTrace({ url, traceKey });
 
@@ -102,7 +117,7 @@ async function getShareURL() {
     const igvCompressedSession = igvPanel.browser.compressedSession()
 
     let juiceboxCompressedSession
-    if (Globals.currentBrowser.dataset) {
+    if (Globals.currentBrowser.dataset && undefined === Globals.currentBrowser.dataset.isLiveContactMapDataSet) {
         // Note format is: session=blob:${BGZip.compressString(jsonString)}
         juiceboxCompressedSession = hic.compressedSession()
     }
@@ -146,6 +161,8 @@ function spacewalkToJSON () {
     spacewalk.gnomonColor = sceneManager.gnomon.getColorState()
     spacewalk.groundplaneColor = sceneManager.groundPlane.getColorState()
 
+    spacewalk.contactFrequencyMapDistanceThreshold = contactFrequencyMapPanel.distanceThreshold
+
     return spacewalk
 
 }
@@ -156,9 +173,13 @@ function toJSON () {
 
     const igv = igvPanel.browser.toJSON()
 
-    const juicebox = hic.toJSON()
+    const json = { spacewalk, igv }
 
-    return { spacewalk, igv, juicebox }
+    if (Globals.currentBrowser.dataset && undefined === Globals.currentBrowser.dataset.isLiveContactMapDataSet) {
+        json.juicebox = hic.toJSON()
+    }
+
+    return json
 
 }
 
