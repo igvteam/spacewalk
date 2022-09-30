@@ -102,7 +102,7 @@ async function getShareURL() {
     const igvCompressedSession = igvPanel.browser.compressedSession()
 
     let juiceboxCompressedSession
-    if (Globals.currentBrowser.dataset) {
+    if (Globals.currentBrowser.dataset && undefined === Globals.currentBrowser.dataset.isLiveContactMapDataSet) {
         // Note format is: session=blob:${BGZip.compressString(jsonString)}
         juiceboxCompressedSession = hic.compressedSession()
     }
@@ -156,9 +156,13 @@ function toJSON () {
 
     const igv = igvPanel.browser.toJSON()
 
-    const juicebox = hic.toJSON()
+    const json = { spacewalk, igv }
 
-    return { spacewalk, igv, juicebox }
+    if (Globals.currentBrowser.dataset && undefined === Globals.currentBrowser.dataset.isLiveContactMapDataSet) {
+        json.juicebox = hic.toJSON()
+    }
+
+    return json
 
 }
 
