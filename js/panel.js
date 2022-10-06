@@ -13,8 +13,8 @@ class Panel {
 
         this.container = container;
 
-        this.panel = panel;
-        this.$panel = $(panel);
+        this.panel = panel
+        this.$panel = $(panel)
 
         this.isHidden = isHidden;
 
@@ -23,29 +23,29 @@ class Panel {
 
         this.namespace = `panel.${ DOMUtils.guid() }`;
 
-        const $drag_handle = this.$panel.find('.spacewalk_card_drag_container');
-        makeDraggable(panel, $drag_handle.get(0));
+        const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
+        makeDraggable(panel, dragHandle)
 
-        $drag_handle.on(`mousedown.${ this.namespace }`, event => {
+        $(dragHandle).on(`mousedown.${ this.namespace }`, event => {
             event.stopPropagation();
             event.preventDefault();
             SpacewalkEventBus.globalBus.post({ type: "DidSelectPanel", data: this.getClassName() })
         });
 
-        const $closer = this.$panel.find('i.fa-times-circle');
-        $closer.on(`click.${ DOMUtils.guid() }`, event => {
+        const closer = panel.querySelector('i.fa-times-circle');
+        $(closer).on(`click.${ DOMUtils.guid() }`, event => {
             event.stopPropagation();
             event.preventDefault();
             this.dismiss();
         });
 
-        this.$panel.on(`mouseenter.${ this.namespace }`, event => {
+        $(panel).on(`mouseenter.${ this.namespace }`, event => {
             event.stopPropagation();
             event.preventDefault();
             SpacewalkEventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
         });
 
-        this.$panel.on(`mouseleave.${ this.namespace }`, event => {
+        $(panel).on(`mouseleave.${ this.namespace }`, event => {
             event.stopPropagation();
             event.preventDefault();
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });

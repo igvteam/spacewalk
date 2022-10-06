@@ -21,7 +21,7 @@
  *
  */
 
-const Globals = {};
+const Globals = {}
 
 const Track2DDisplaceModes = {
     displayAllMatrix: 'displayAllMatrix',

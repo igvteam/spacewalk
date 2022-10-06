@@ -21,26 +21,27 @@
  *
  */
 
-/**
- * @author Jim Robinson
- */
-
 import {Alert} from "igv-ui"
-import {IGVColor} from 'igv-utils'
+import {IGVColor, StringUtils} from 'igv-utils'
 import ColorScale from './colorScale.js'
 import HICEvent from './hicEvent.js'
+import {transferContactFrequencyArrayToCanvas} from '../utils.js'
+import {paintContactFrequencyArrayWithColorScale} from '../contactFrequencyMapPanel.js'
 
 const DRAG_THRESHOLD = 2;
 
-const imageTileDimension = 685;
+const imageTileDimension = 685
 
 class ContactMatrixView {
 
     constructor(browser, $viewport, sweepZoom, scrollbarWidget, colorScale, ratioColorScale, backgroundColor) {
 
-        this.browser = browser;
-        this.$viewport = $viewport;
-        this.sweepZoom = sweepZoom;
+        this.browser = browser
+
+        this.$viewport = $viewport
+        this.viewport = $viewport.get(0)
+
+        this.sweepZoom = sweepZoom
 
         // Set initial color scales.  These might be overriden / adjusted via parameters
         this.colorScale = colorScale;
@@ -51,8 +52,21 @@ class ContactMatrixView {
         this.backgroundColor = backgroundColor;
         this.backgroundRGBString = IGVColor.rgbColor(backgroundColor.r, backgroundColor.g, backgroundColor.b)
 
-        this.$canvas = $viewport.find('canvas');
-        this.ctx = this.$canvas.get(0).getContext('2d');
+
+        let canvas
+        const { width, height } = this.viewport.getBoundingClientRect()
+
+        // contact map canvas
+        canvas = this.viewport.querySelector(`#${browser.id}-contact-map-canvas`)
+        this.ctx = canvas.getContext('2d')
+        this.ctx.canvas.width = width
+        this.ctx.canvas.height = height
+
+        // live contact map canvas
+        canvas = this.viewport.querySelector(`#${browser.id}-live-contact-map-canvas`)
+        this.ctx_live = canvas.getContext('bitmaprenderer')
+        this.ctx_live.canvas.width = width
+        this.ctx_live.canvas.height = height
 
         this.$fa_spinner = $viewport.find('.fa-spinner');
         this.spinnerCount = 0;
@@ -76,11 +90,11 @@ class ContactMatrixView {
         this.drawsInProgress = new Set()
     }
 
-    async receiveEvent(event) {
+    async receiveEvent({ type, data }) {
 
-        if ("MapLoad" === event.type || "ControlMapLoad" === event.type) {
+        if ("MapLoad" === type || "ControlMapLoad" === type) {
 
-            // Don't enable mouse actions until we have a dataset.
+            // Don't enable mouse actions until we have a dataset
             if (!this.mouseHandlersEnabled) {
                 this.addMouseHandlers(this.$viewport);
                 this.mouseHandlersEnabled = true;
@@ -88,9 +102,15 @@ class ContactMatrixView {
             this.clearImageCaches();
             this.colorScaleThresholdCache = {};
         } else {
-            if (!("LocusChange" === event.type)) {
+
+            if (!("LocusChange" === type)) {
                 this.clearImageCaches();
             }
+
+            if ('LocusChange' === type && 'LIVE' === data.displayMode) {
+                return
+            }
+
             await this.update();
         }
     }
@@ -103,33 +123,65 @@ class ContactMatrixView {
 
     }
 
+    async renderWithLiveContactFrequencyData(state, dataset, data, contactFrequencyArray) {
+
+        this.ctx.canvas.style.display = 'none'
+        this.ctx_live.canvas.style.display = 'block'
+
+        const zoomIndexA = state.zoom
+        const { chr1, chr2 } = state
+        const zoomData = dataset.getZoomDataByIndex(chr1, chr2, zoomIndexA)
+
+        // Clear caches
+        this.colorScaleThresholdCache = {}
+        this.imageTileCache = {}
+        this.imageTileCacheKeys = []
+
+        await this.checkColorScale(state, 'LIVE', dataset, zoomData, undefined, undefined, undefined, undefined, state.normalization)
+
+        paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer)
+
+        // Render by copying image data to display canvas bitmap render context
+        await transferContactFrequencyArrayToCanvas(this.ctx_live, contactFrequencyArray)
+
+        // Update UI
+        this.browser.state = state
+        this.browser.dataset = dataset
+
+        this.browser.eventBus.post(HICEvent('MapLoad', dataset))
+
+        const eventConfig =
+            {
+                state,
+                resolutionChanged: true,
+                chrChanged: true,
+                displayMode: 'LIVE',
+                dataset
+            }
+
+        this.browser.eventBus.post(HICEvent('LocusChange', eventConfig))
+
+    }
+
     async repaint() {
 
         if (!this.browser.dataset) {
             return;
         }
 
-        const { width, height } = this.$viewport.get(0).getBoundingClientRect()
-
-        this.$canvas.width(width)
-        this.$canvas.attr('width', width)
-
-        this.$canvas.height(height);
-        this.$canvas.attr('height', height)
+        this.ctx.canvas.style.display = 'block'
+        this.ctx_live.canvas.style.display = 'none'
 
         const { dataset, datasetControl } = getDatasetPairWithDisplayMode(this.browser, this.displayMode)
 
-        const { x:xBin, y:yBin, chr1, chr2, pixelSize } = this.browser.state
+        const { zoomIndexA, zoomIndexB } = ContactMatrixView.getZoomIndex(this.browser.state.zoom, this.displayMode, this.browser.dataset, this.browser.controlDataset)
 
-        const matrix = await dataset.getMatrix(chr1, chr2)
-
-        const { zoomIndexA, zoomIndexB } = ContactMatrixView.getZoomIndex(this.browser.state.zoom, this.displayMode,this.browser.dataset, this.browser.controlDataset)
-        const zoomData = matrix.getZoomDataByIndex(zoomIndexA, 'BP')
+        const { chr1, chr2 } = this.browser.state
+        const zoomData = await dataset.getZoomDataByIndex(chr1, chr2, zoomIndexA)
 
         let zoomDataControl;
         if (datasetControl) {
-            const matrixControl = await datasetControl.getMatrix(chr1, chr2)
-            zoomDataControl = matrixControl.getZoomDataByIndex(zoomIndexB, 'BP')
+            zoomDataControl = await datasetControl.getZoomDataByIndex(chr1, chr2, zoomIndexB)
         }
 
         if ("NONE" !== this.browser.state.normalization) {
@@ -145,33 +197,43 @@ class ContactMatrixView {
             }
         }
 
+        // pixel
+        const { width, height } = this.viewport.getBoundingClientRect()
+        this.ctx.canvas.width = width
+        this.ctx.canvas.height = height
+
+        // bin
+        const { x:xBin, y:yBin, pixelSize, zoom } = this.browser.state
+
+        // bin-per-tile
         const columnStart = Math.floor(xBin / imageTileDimension)
-        const    rowStart = Math.floor(yBin / imageTileDimension)
-
-        const  widthBin =  width / Math.max(1, Math.floor(pixelSize))
-        const heightBin = height / Math.max(1, Math.floor(pixelSize))
-
+        const widthBin = width / Math.max(1, Math.floor(pixelSize))
         const columnEnd = Math.floor((xBin +  widthBin) / imageTileDimension)
-        const    rowEnd = Math.floor((yBin + heightBin) / imageTileDimension)
 
-        await this.checkColorScale(dataset, zoomData, rowStart, rowEnd, columnStart, columnEnd, this.browser.state.normalization)
+        // bin-per-tile
+        const rowStart = Math.floor(yBin / imageTileDimension)
+        const heightBin = height / Math.max(1, Math.floor(pixelSize))
+        const rowEnd = Math.floor((yBin + heightBin) / imageTileDimension)
+
+        await this.checkColorScale(this.browser.state, this.displayMode, dataset, zoomData, rowStart, rowEnd, columnStart, columnEnd, this.browser.state.normalization)
 
         this.ctx.clearRect(0, 0, width, height)
         this.ctx.fillStyle = this.backgroundRGBString
 
-        for (let r = rowStart; r <= rowEnd; r++) {
+        for (let row = rowStart; row <= rowEnd; row++) {
 
-            for (let c = columnStart; c <= columnEnd; c++) {
+            for (let column = columnStart; column <= columnEnd; column++) {
 
-                const { image, row, column, blockBinCount } = await this.getImageTile(dataset, datasetControl, zoomData, zoomDataControl, r, c, this.browser.state.normalization)
+                const imageTileCanvas = await this.getImageTile(dataset, datasetControl, zoomData, zoomDataControl, row, column, this.browser.state.normalization, this.displayMode)
 
-                if (image) {
-                    paintTile(this.ctx, this.backgroundRGBString, image, row, column, blockBinCount, width, height, xBin, yBin, pixelSize)
+                if (imageTileCanvas) {
+                    paintImageTile(this.ctx, this.backgroundRGBString, imageTileCanvas, row, column, width, height, xBin, yBin, pixelSize)
                 }
             }
 
         }
 
+        const matrix = await dataset.getMatrix(chr1, chr2)
         this.genomicExtent = ContactMatrixView.getGenomicExtent(this.browser.state, matrix, this.browser.dataset, this.browser.controlDataset, this.displayMode, this.getViewDimensions())
     }
 
@@ -185,19 +247,20 @@ class ContactMatrixView {
      * @param row
      * @param column
      * @param normalization
-     * @returns {Promise<{image: HTMLCanvasElement, column: *, row: *, blockBinCount}|{image, inProgress: boolean, column: *, row: *, blockBinCount}|*>}
+     * @param displayMode
+     * @returns {Promise<{image: HTMLCanvasElement, column: *, row: *}>}
      */
-    async getImageTile(dataset, datasetControl, zoomData, zoomDataControl, row, column, normalization) {
 
-        const key = `${zoomData.chr1.name}_${zoomData.chr2.name}_${zoomData.zoom.binSize}_${zoomData.zoom.unit}_${row}_${column}_${normalization}_${this.displayMode}`
+    async getImageTile(dataset, datasetControl, zoomData, zoomDataControl, row, column, normalization, displayMode) {
+
+        const key = `${zoomData.chr1.name}_${zoomData.chr2.name}_${zoomData.zoom.binSize}_${zoomData.zoom.unit}_${row}_${column}_${normalization}_${displayMode}`
 
         if (this.imageTileCache.hasOwnProperty(key)) {
             return this.imageTileCache[key]
         }
 
         if (this.drawsInProgress.has(key)) {
-            const image = inProgressTile(imageTileDimension)
-            return { row, column, blockBinCount: imageTileDimension, image, inProgress: true }
+            return inProgressImageTileCanvas(imageTileDimension)
         }
 
         this.drawsInProgress.add(key)
@@ -205,8 +268,11 @@ class ContactMatrixView {
         try {
             this.startSpinner()
 
+            // tile-bp-per-bin
             const sizeBP = imageTileDimension * zoomData.zoom.binSize
 
+            // bp          = bin-per-tile * tile-bp-per-bin
+            // bp          = bp
             const xStartBP = column * sizeBP
             const yStartBP =    row * sizeBP
 
@@ -215,10 +281,12 @@ class ContactMatrixView {
             const sameChr = zoomData.chr1.index === zoomData.chr2.index
             const transpose = sameChr && row < column
 
-            const image = document.createElement('canvas');
-            image.width = imageTileDimension;
-            image.height = imageTileDimension;
-            const ctx = image.getContext('2d');
+            const imageTileCanvas = document.createElement('canvas')
+            imageTileCanvas.width = imageTileDimension
+            imageTileCanvas.height = imageTileDimension
+
+            const imageTileContext = imageTileCanvas.getContext('2d')
+            imageTileContext.clearRect(0,0, imageTileDimension, imageTileDimension)
 
             if (contactRecords.length > 0) {
 
@@ -226,56 +294,69 @@ class ContactMatrixView {
                 const averageCountControl = zoomDataControl ? zoomDataControl.averageCount : 1
                 const averageCountAcrossMapAndControl = (averageCount + averageCountControl) / 2
 
-                const imageData = ctx.getImageData(0, 0, image.width, image.height);
+                const imageTileData = imageTileContext.getImageData(0, 0, imageTileDimension, imageTileDimension);
 
                 let controlRecords = {}
-                if ('AOB' === this.displayMode || 'BOA' === this.displayMode || 'AMB' === this.displayMode) {
+                if ('AOB' === displayMode || 'BOA' === displayMode || 'AMB' === displayMode) {
                     for (let contactRecordControl of contactRecordsControl) {
                         controlRecords[ contactRecordControl.getKey() ] = contactRecordControl
                     }
                 }
 
+                // bin = bin-per-tile * tile
+                // bin = bin
                 const xBin = transpose ? row * imageTileDimension : column * imageTileDimension
                 const yBin = transpose ? column * imageTileDimension : row * imageTileDimension
 
+                const hash = {}
                 for (let contactRecord of contactRecords) {
 
-                    let x = Math.floor((contactRecord.bin1 - xBin))
-                    let y = Math.floor((contactRecord.bin2 - yBin))
+                    let xOffsetBin = Math.floor((contactRecord.bin1 - xBin))
+                    let yOffsetBin = Math.floor((contactRecord.bin2 - yBin))
 
                     if (transpose) {
-                        const t = y;
-                        y = x;
-                        x = t;
+                        const t = yOffsetBin;
+                        yOffsetBin = xOffsetBin;
+                        xOffsetBin = t;
                     }
 
-                    const rgba = this.getRGBAWithDisplayMode(this.displayMode, contactRecord, controlRecords, averageCount, averageCountControl, averageCountAcrossMapAndControl)
+                    const rgba = this.getRGBAWithDisplayMode(displayMode, contactRecord, controlRecords, averageCount, averageCountControl, averageCountAcrossMapAndControl)
 
                     if (rgba) {
-                        setPixel(imageData, x, y, rgba.red, rgba.green, rgba.blue, rgba.alpha)
+
+                        // if (xOffsetBin >= imageTileDimension) {
+                        //     console.log(`Should not happen: xOffsetBin(${xOffsetBin}) >= imageTileDimension(${imageTileDimension}))`)
+                        // } else if (yOffsetBin >= imageTileDimension) {
+                        //     console.log(`Should not happen: yOffsetBin(${xOffsetBin}) >= imageTileDimension(${imageTileDimension}))`)
+                        // }
+
+                        let index = (xOffsetBin + yOffsetBin * imageTileDimension) * 4
+
+                        setImageTilePixel(imageTileData, index, rgba.red, rgba.green, rgba.blue, rgba.alpha)
+
                         if (sameChr && row === column) {
-                            setPixel(imageData, y, x, rgba.red, rgba.green, rgba.blue, rgba.alpha)
+                            index = (yOffsetBin + xOffsetBin * imageTileDimension) * 4
+                            setImageTilePixel(imageTileData, index, rgba.red, rgba.green, rgba.blue, rgba.alpha)
                         }
+
                     }
                 }
 
-                ctx.putImageData(imageData, 0, 0)
+                imageTileContext.putImageData(imageTileData, 0, 0)
             }
 
-            renderTracks2D(ctx, row, column, xStartBP, yStartBP, zoomData, this.browser.tracks2D, image.width, image.height, sameChr, transpose)
-
-            const imageTile = { row, column, blockBinCount: imageTileDimension, image }
+            renderTracks2D(imageTileContext, row, column, xStartBP, yStartBP, zoomData, this.browser.tracks2D, imageTileDimension, imageTileDimension, sameChr, transpose)
 
             if (this.imageTileCacheLimit > 0) {
                 if (this.imageTileCacheKeys.length > this.imageTileCacheLimit) {
                     delete this.imageTileCache[this.imageTileCacheKeys[0]]
                     this.imageTileCacheKeys.shift()
                 }
-                this.imageTileCache[key] = imageTile
+                this.imageTileCache[key] = imageTileCanvas
 
             }
 
-            return imageTile;
+            return Promise.resolve(imageTileCanvas)
 
         } finally {
             this.drawsInProgress.delete(key)
@@ -285,6 +366,14 @@ class ContactMatrixView {
     }
 
     getRGBAWithDisplayMode(displayMode, contactRecord, controlRecords, averageCount, averageCountControl, averageCountAcrossMapAndControl) {
+
+
+        // DUGLA TEST
+        // const { r, g, b, a } = rgbaRandomConstantAlpha255(32, 245, 0.75)
+        // const alpha = Math.floor(a * 255)
+        // return { red:r, green:g, blue:b, alpha, rgbaString: `rgba(${r},${g},${b},${alpha})` }
+        // DUGLA TEST
+
 
         let controlRecord
         let key
@@ -317,7 +406,7 @@ class ContactMatrixView {
                 }
 
             default:
-                // displayMode is either 'A' or 'B'
+                // displayMode is either 'A' or 'B' or 'LIVE'
                 return this.colorScale.getColor(contactRecord.counts)
         }
     }
@@ -346,15 +435,6 @@ class ContactMatrixView {
 
             const { width, height } = this.$viewport.get(0).getBoundingClientRect()
 
-            // const zoomData = await matrix.getZoomDataByIndex(zoom, 'BP');
-            // const __newGenomicExtent =
-            //     {
-            //         x: x * zoomData.zoom.binSize,
-            //         y: y * zoomData.zoom.binSize,
-            //         w:  width * zoomData.zoom.binSize / pixelSize,
-            //         h: height * zoomData.zoom.binSize / pixelSize
-            //     }
-
             // Zoom out not supported
             if (zoomedGenomicExtent.w > this.genomicExtent.w) {
                 return
@@ -366,15 +446,13 @@ class ContactMatrixView {
             const sWidth = (zoomedGenomicExtent.w / this.genomicExtent.w) * width
             const sHeight = (zoomedGenomicExtent.h / this.genomicExtent.h) * height
 
-            const img = this.$canvas.get(0)
-
             const backCanvas = document.createElement('canvas')
-            backCanvas.width = img.width;
-            backCanvas.height = img.height;
+            backCanvas.width  = this.ctx.canvas.width;
+            backCanvas.height = this.ctx.canvas.height;
 
             const backCtx = backCanvas.getContext('2d')
 
-            backCtx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, width, height)
+            backCtx.drawImage(this.ctx.canvas, sx, sy, sWidth, sHeight, 0, 0, width, height)
 
             this.ctx.clearRect(0, 0, width, height)
             this.ctx.drawImage(backCanvas, 0, 0)
@@ -385,8 +463,10 @@ class ContactMatrixView {
      * Return a promise to adjust the color scale, if needed.  This function might need to load the contact
      * data to computer scale.
      *
-     * @param ds
-     * @param zd
+     * @param state
+     * @param displayMode
+     * @param dataset
+     * @param zoomData
      * @param row1
      * @param row2
      * @param col1
@@ -394,11 +474,12 @@ class ContactMatrixView {
      * @param normalization
      * @returns {*}
      */
-    async checkColorScale(ds, zd, row1, row2, col1, col2, normalization) {
+    async checkColorScale(state, displayMode, dataset, zoomData, row1, row2, col1, col2, normalization) {
 
-        const colorKey = colorScaleKey(this.browser.state, this.displayMode);   // This doesn't feel right, state should be an argument
-        if ('AOB' === this.displayMode || 'BOA' === this.displayMode) {
-            return this.ratioColorScale;     // Don't adjust color scale for A/B.
+        const colorKey = createColorScaleKey(state, displayMode)
+
+        if ('AOB' === displayMode || 'BOA' === displayMode) {
+            return this.ratioColorScale
         }
 
         if (this.colorScaleThresholdCache[colorKey]) {
@@ -410,23 +491,29 @@ class ContactMatrixView {
             return this.colorScale;
         } else {
             try {
-                const widthInBP = imageTileDimension * zd.zoom.binSize;
-                const x0bp = col1 * widthInBP;
-                const xWidthInBP = (col2 - col1 + 1) * widthInBP;
-                const region1 = {chr: zd.chr1.name, start: x0bp, end: x0bp + xWidthInBP};
-                const y0bp = row1 * widthInBP;
-                const yWidthInBp = (row2 - row1 + 1) * widthInBP;
-                const region2 = {chr: zd.chr2.name, start: y0bp, end: y0bp + yWidthInBp};
-                const records = await ds.getContactRecords(normalization, region1, region2, zd.zoom.unit, zd.zoom.binSize, true);
 
-                let s = computePercentile(records, 95);
-                if (!isNaN(s)) {  // Can return NaN if all blocks are empty
-                    if (0 === zd.chr1.index) s *= 4;   // Heuristic for whole genome view
-                    this.colorScale = new ColorScale(this.colorScale);
-                    this.colorScale.setThreshold(s);
-                    this.computeColorScale = false;
-                    this.browser.eventBus.post(HICEvent("ColorScale", this.colorScale));
-                    this.colorScaleThresholdCache[colorKey] = s;
+                const contactRecords = await dataset.getContactRecordsWithRegions(normalization, zoomData, imageTileDimension, col1, col2, row1, row2)
+
+                let percentile = computeContactRecordsPercentile(contactRecords, 95)
+
+                if (!isNaN(percentile)) {
+
+                    if (0 === zoomData.chr1.index) {
+
+                        // Heuristic for whole genome view
+                        percentile *= 4
+                    }
+
+                    this.colorScale = new ColorScale(this.colorScale)
+
+                    this.colorScale.setThreshold(percentile)
+
+                    this.browser.eventBus.post(HICEvent("ColorScale", this.colorScale))
+
+                    this.colorScaleThresholdCache[colorKey] = percentile
+
+                } else {
+                    // All blocks are empty
                 }
 
                 return this.colorScale;
@@ -477,19 +564,19 @@ class ContactMatrixView {
             case 'AMB':
                 this.diffColorScale = colorScale;
                 break;
+
+            // displayMode is either 'A' or 'B' or 'LIVE'
             default:
                 this.colorScale = colorScale;
         }
-        this.colorScaleThresholdCache[colorScaleKey(this.browser.state, this.displayMode)] = colorScale.threshold;
+        this.colorScaleThresholdCache[createColorScaleKey(this.browser.state, this.displayMode)] = colorScale.threshold;
     }
 
     async setColorScaleThreshold(threshold) {
         this.getColorScale().setThreshold(threshold);
-        this.colorScaleThresholdCache[colorScaleKey(this.browser.state, this.displayMode)] = threshold;
+        this.colorScaleThresholdCache[createColorScaleKey(this.browser.state, this.displayMode)] = threshold;
         this.imageTileCache = {};
         await this.update()
-
-        return threshold
     }
 
     getColorScale() {
@@ -499,16 +586,18 @@ class ContactMatrixView {
                 return this.ratioColorScale;
             case 'AMB':
                 return this.diffColorScale;
+
+            // displayMode is either 'A' or 'B' or 'LIVE'
             default:
                 return this.colorScale;
         }
     }
 
-    async setDisplayMode(mode) {
-        this.displayMode = mode;
+    async setDisplayMode(displayMode) {
+        this.displayMode = displayMode;
         this.clearImageCaches();
         await this.update();
-        this.browser.eventBus.post(HICEvent("DisplayMode", mode))
+        this.browser.eventBus.post(HICEvent("DisplayMode", displayMode))
     }
 
     getDisplayMode() {
@@ -685,15 +774,15 @@ class ContactMatrixView {
 
         const { x, y, chr1, chr2, pixelSize } = state
 
-        const zoomData = matrix.getZoomDataByIndex(zoomIndexA, 'BP');
+        const { zoom } = matrix.getZoomDataByIndex(zoomIndexA, 'BP');
 
         return {
             chr1,
             chr2,
-            x: x * zoomData.zoom.binSize,
-            y: y * zoomData.zoom.binSize,
-            w:   viewDimensions.width * zoomData.zoom.binSize / pixelSize,
-            h:  viewDimensions.height * zoomData.zoom.binSize / pixelSize
+            x: x * zoom.binSize,
+            y: y * zoom.binSize,
+            w:  viewDimensions.width  * zoom.binSize / pixelSize,
+            h:  viewDimensions.height * zoom.binSize / pixelSize
         }
 
     }
@@ -719,6 +808,7 @@ class ContactMatrixView {
 
         switch (displayMode) {
             case 'A':
+            case 'LIVE':
                 return { zoomIndexA: zoomIndex }
             case 'B':
                 return { zoomIndexA: getBZoomIndex(zoomIndex, dataset, controlDataset) }
@@ -752,26 +842,29 @@ async function getContactRecords(dataset, datasetControl, normalization, xStartB
 
 }
 
-function paintTile(ctx, backgroundRGBString, image, row, column, blockBinCount, viewportWidth, viewportHeight, xBin, yBin, pixelSize) {
+function paintImageTile(ctx, rgbString, imageTileCanvas, row, column, width, height, xBin, yBin, pixelSize) {
 
-    const x0 = blockBinCount * column
-    const y0 = blockBinCount * row
+    // bin = tile * bin-per-tile
+    const columnBin = column * imageTileDimension
+    const rowBin = row * imageTileDimension
 
-    const offsetX = (x0 - xBin) * pixelSize
-    const offsetY = (y0 - yBin) * pixelSize
+    // pixel = bin * pixel-per-bin
+    const xPixel = (columnBin - xBin) * pixelSize
+    const yPixel = (rowBin - yBin) * pixelSize
 
-    const  scaledWidth = image.width  * pixelSize
-    const scaledHeight = image.height * pixelSize
+    // scale size based on ratio (pixelSize) of canvas size to imageTileCanvas size
+    const  widthScaled = imageTileDimension  * pixelSize
+    const heightScaled = imageTileDimension * pixelSize
 
-    if (offsetX <= viewportWidth && offsetX + scaledWidth >= 0 && offsetY <= viewportHeight && offsetY + scaledHeight >= 0) {
+    if (xPixel <= width && xPixel + widthScaled >= 0 && yPixel <= height && yPixel + heightScaled >= 0) {
 
-        ctx.fillStyle = backgroundRGBString
-        ctx.fillRect(offsetX, offsetY, scaledWidth, scaledHeight)
+        ctx.fillStyle = rgbString
+        ctx.fillRect(xPixel, yPixel, widthScaled, heightScaled)
 
         if (pixelSize === 1) {
-            ctx.drawImage(image, offsetX, offsetY)
+            ctx.drawImage(imageTileCanvas, xPixel, yPixel)
         } else {
-            ctx.drawImage(image, offsetX, offsetY, scaledWidth, scaledHeight)
+            ctx.drawImage(imageTileCanvas, xPixel, yPixel, widthScaled, heightScaled)
         }
     }
 }
@@ -832,18 +925,18 @@ function renderTracks2D(ctx, row, column, xStartBP, yStartBP, zoomData, tracks2D
 
 }
 
-function setPixel(imageData, x, y, r, g, b, a) {
-    const index = (x + y * imageData.width) * 4;
-    imageData.data[index + 0] = r;
-    imageData.data[index + 1] = g;
-    imageData.data[index + 2] = b;
-    imageData.data[index + 3] = a;
+function setImageTilePixel(imageTileData, index, r, g, b, a) {
+    imageTileData.data[index    ] = r;
+    imageTileData.data[index + 1] = g;
+    imageTileData.data[index + 2] = b;
+    imageTileData.data[index + 3] = a;
 }
 
 function getDatasetPairWithDisplayMode(browser, displayMode) {
 
     switch (displayMode) {
         case 'A':
+        case 'LIVE':
             return { dataset:browser.dataset }
         case 'B':
             return { dataset:browser.controlDataset }
@@ -856,43 +949,58 @@ function getDatasetPairWithDisplayMode(browser, displayMode) {
 
 }
 
-function colorScaleKey(state, displayMode) {
+function createColorScaleKey(state, displayMode) {
     return "" + state.chr1 + "_" + state.chr2 + "_" + state.zoom + "_" + state.normalization + "_" + displayMode;
 }
 
-const inProgressCache = {}
+/**
+ * Returns a promise for an image tile
+ *
+ * @param zd
+ * @param row
+ * @param column
+ * @param state
+ * @returns {*}
+ */
 
-function inProgressTile(imageSize) {
+const inProgressImageTileCache = {}
 
-    let image = inProgressCache[imageSize]
-    if (!image) {
-        image = document.createElement('canvas');
-        image.width = imageSize;
-        image.height = imageSize;
-        const ctx = image.getContext('2d');
-        ctx.font = '24px sans-serif';
+function inProgressImageTileCanvas(imageSize) {
+
+    let imageTileCanvas = inProgressImageTileCache[imageSize]
+    if (!imageTileCanvas) {
+
+        imageTileCanvas = document.createElement('canvas');
+        imageTileCanvas.width = imageTileDimension
+        imageTileCanvas.height = imageTileDimension
+
+        const ctx = imageTileCanvas.getContext('2d')
+
+        ctx.font = '24px sans-serif'
         ctx.fillStyle = 'rgb(230, 230, 230)'
-        ctx.fillRect(0, 0, image.width, image.height)
+        ctx.fillRect(0, 0, imageTileCanvas.width, imageTileCanvas.height)
+
         ctx.fillStyle = 'black'
-        for (let i = 100; i < imageSize; i += 300) {
-            for (let j = 100; j < imageSize; j += 300) {
+        for (let i = 100; i < imageTileDimension; i += 300) {
+            for (let j = 100; j < imageTileDimension; j += 300) {
                 ctx.fillText('Loading...', i, j);
             }
         }
-        inProgressCache[imageSize] = image
+        inProgressImageTileCache[imageSize] = imageTileCanvas
     }
-    return image;
+    return imageTileCanvas
 }
 
-function computePercentile(records, p) {
-    const counts = records.map(r => r.counts)
-    counts.sort(function (a, b) {
-        return a - b;
-    })
-    const idx = Math.floor((p / 100) * records.length);
-    return counts[idx];
+function computeContactRecordsPercentile(contactRecords, p) {
 
-    // return HICMath.percentile(array, p);
+    const counts = contactRecords.map(({ counts }) => counts)
+
+    counts.sort((a, b) => a - b)
+
+    const index = Math.floor((p / 100) * contactRecords.length);
+    return counts[index];
+
 }
 
+export { imageTileDimension }
 export default ContactMatrixView

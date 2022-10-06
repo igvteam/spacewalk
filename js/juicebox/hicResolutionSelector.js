@@ -76,69 +76,68 @@ class ResolutionSelector {
         this.$resolution_lock.addClass((true === resolutionLocked) ? 'fa-lock' : 'fa-unlock');
     }
 
-    receiveEvent(event) {
+    receiveEvent({ type, data }) {
 
-        const browser = this.browser;
+        const browser = this.browser
+        const dataset = data.dataset || this.browser.dataset
+        const state = data.state || this.browser.state
+        const isWholeGenome = browser.genome.isWholeGenome(state.chr1)
 
-        if (event.type === "LocusChange") {
-            if (true === event.data.resolutionChanged) {
-                browser.resolutionLocked = false;
-                this.setResolutionLock(browser.resolutionLocked);
+        if (type === "LocusChange") {
+            if (true === data.resolutionChanged) {
+                this.browser.resolutionLocked = false;
+                this.setResolutionLock(this.browser.resolutionLocked)
             }
 
-            if (event.data.chrChanged !== false) {  // Default true
-                const isWholeGenome = browser.dataset.isWholeGenome(event.data.state.chr1);
+            if (data.chrChanged !== false) {  // Default true
                 this.$label.text(isWholeGenome ? 'Resolution (mb)' : 'Resolution (kb)');
-                updateResolutions.call(this, browser.state.zoom);
+                this.updateResolutions(state.zoom, isWholeGenome, dataset)
             } else {
-                const selectedIndex = browser.state.zoom;
+                const selectedIndex = state.zoom;
                 this.$resolution_selector
                     .find('option')
-                    .filter(function (index) {
-                        return index === selectedIndex;
-                    })
-                    .prop('selected', true);
+                    .filter(index => index === selectedIndex)
+                    .prop('selected', true)
             }
 
-        } else if (event.type === "MapLoad") {
-            browser.resolutionLocked = false;
-            this.setResolutionLock(false);
-            updateResolutions.call(this, browser.state.zoom);
-        } else if (event.type === "ControlMapLoad") {
-            updateResolutions.call(this, browser.state.zoom)
-        }
-
-        async function updateResolutions(zoomIndex) {
-
-            const resolutions = browser.isWholeGenome() ?
-                [{index: 0, binSize: browser.dataset.wholeGenomeResolution}] :
-                browser.getBinSizeList();
-            let htmlString = '';
-            for (let resolution of resolutions) {
-                const binSize = resolution.binSize;
-                const index = resolution.index;
-                let divisor;
-                let unit;
-                if (binSize >= 1e6) {
-                    divisor = 1e6
-                    unit = 'mb'
-                } else if (binSize >= 1e3) {
-                    divisor = 1e3
-                    unit = 'kb'
-                } else {
-                    divisor = 1
-                    unit = 'bp'
-                }
-                const pretty = StringUtils.numberFormatter(Math.round(binSize / divisor)) + ' ' + unit;
-                const selected = zoomIndex === resolution.index;
-                htmlString += '<option' + ' data-resolution=' + binSize.toString() + ' value=' + index + (selected ? ' selected' : '') + '>' + pretty + '</option>';
-
-            }
-            this.$resolution_selector.empty();
-            this.$resolution_selector.append(htmlString);
+        } else if (type === "MapLoad") {
+            browser.resolutionLocked = false
+            this.setResolutionLock(browser.resolutionLocked)
+            this.updateResolutions(state.zoom, isWholeGenome, dataset)
+        } else if (type === "ControlMapLoad") {
+            this.updateResolutions(state.zoom, isWholeGenome, dataset)
         }
 
 
+
+    }
+
+    async updateResolutions(zoom, isWholeGenome, dataset) {
+
+        const resolutions = isWholeGenome ? [ {index: 0, binSize: dataset.wholeGenomeResolution} ] : this.browser.getBinSizeList(dataset)
+        let htmlString = '';
+        for (let resolution of resolutions) {
+            const binSize = resolution.binSize;
+            const index = resolution.index;
+            let divisor;
+            let unit;
+            if (binSize >= 1e6) {
+                divisor = 1e6
+                unit = 'mb'
+            } else if (binSize >= 1e3) {
+                divisor = 1e3
+                unit = 'kb'
+            } else {
+                divisor = 1
+                unit = 'bp'
+            }
+            const pretty = StringUtils.numberFormatter(Math.round(binSize / divisor)) + ' ' + unit;
+            const selected = zoom === resolution.index;
+            htmlString += '<option' + ' data-resolution=' + binSize.toString() + ' value=' + index + (selected ? ' selected' : '') + '>' + pretty + '</option>';
+
+        }
+        this.$resolution_selector.empty();
+        this.$resolution_selector.append(htmlString);
     }
 }
 

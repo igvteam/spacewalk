@@ -50,6 +50,7 @@ class ScrollbarWidget {
 
         if (!this.isDragging && type === "LocusChange") {
 
+
             if (0 === data.state.chr1) {
                 this.$x_axis_scrollbar.hide();
                 this.$y_axis_scrollbar.hide();
@@ -61,13 +62,12 @@ class ScrollbarWidget {
                 this.$x_axis_scrollbar_container.show();
                 this.$y_axis_scrollbar_container.show();
 
-                const {chr1, chr2, zoom, pixelSize, x, y} = data.state;
-
-                const dataset = this.browser.dataset
+                const {chr1, chr2, zoom, pixelSize, x, y} = data.state
+                const dataset = data.dataset || this.browser.dataset
 
                 // bin = bp / bp-per-bin
                 // bin = bin
-                const chromosomeLengthsBin = [chr1, chr2].map(chr => dataset.chromosomes[chr].size / dataset.bpResolutions[zoom])
+                const chromosomeLengthsBin = [chr1, chr2].map(i => this.browser.genome.getChromosomeAtIndex(i).size / dataset.bpResolutions[zoom])
 
                 // pixel = bin * pixel-per-bin
                 const chromosomeLengthsPixel = chromosomeLengthsBin.map(bin => bin * pixelSize);
@@ -92,8 +92,8 @@ class ScrollbarWidget {
                 this.$x_axis_scrollbar.css('left', `${ Math.round(100 * x / chromosomeLengthsBin[0]) }%`);
                 this.$y_axis_scrollbar.css('top', `${ Math.round(100 * y / chromosomeLengthsBin[1]) }%`);
 
-                this.$x_label.text(dataset.chromosomes[chr1].name);
-                this.$y_label.text(dataset.chromosomes[chr2].name);
+                this.$x_label.text(this.browser.genome.getChromosomeAtIndex(chr1).name);
+                this.$y_label.text(this.browser.genome.getChromosomeAtIndex(chr2).name);
 
             }
 

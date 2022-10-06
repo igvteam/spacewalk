@@ -40,7 +40,7 @@ import C2S from "./canvas2svg.js";
 import TrackFactory from "./trackFactory.js";
 import ROI from "./roi.js";
 import XMLSession from "./session/igvXmlSession.js";
-import GenomeUtils from "./genome/genome.js";
+import {GenomeUtils} from '../genome/genomeUtils.js'
 import loadPlinkFile from "./sampleInformation.js";
 import {adjustReferenceFrame, createReferenceFrameList, createReferenceFrameWithAlignment} from "./referenceFrame.js";
 import {buildOptions, createColumn, doAutoscale, getFilename, createViewport} from "./util/igvUtils.js";
@@ -69,6 +69,7 @@ import ViewportCenterLine from './ui/viewportCenterLine.js';
 import IdeogramTrack from "./ideogramTrack.js";
 import RulerTrack from "./rulerTrack.js";
 import GtexSelection from "./gtex/gtexSelection.js";
+import {Globals} from "../juicebox/globals.js"
 
 // css - $igv-scrollbar-outer-width: 14px;
 const igv_scrollbar_outer_width = 14
@@ -404,7 +405,7 @@ class Browser {
 
                 if (filename.endsWith(".xml")) {
 
-                    const knownGenomes = GenomeUtils.KNOWN_GENOMES;
+                    const knownGenomes = Globals.KNOWN_GENOMES;
                     const string = await igvxhr.loadString(urlOrFile)
                     return new XMLSession(string, knownGenomes);
 
@@ -451,8 +452,8 @@ class Browser {
         // Track gear column
         createColumn(this.columnContainer, 'igv-gear-menu-column')
 
-        const genomeConfig = await GenomeUtils.expandReference(session.reference || session.genome);
-        await this.loadReference(genomeConfig, session.locus);
+        const genomeID = session.genome || session.reference.id
+        await this.loadReference(GenomeUtils.GenomeLibrary[ genomeID ], session.locus)
 
         this.centerLineList = this.createCenterLineList(this.columnContainer)
 
@@ -485,7 +486,7 @@ class Browser {
         }
 
         // Tracks.  Start with genome tracks, if any, then append session tracks
-        const genomeTracks = genomeConfig.tracks || [];
+        const genomeTracks = this.genome.config.tracks || [];
         const trackConfigurations = session.tracks ? genomeTracks.concat(session.tracks) : genomeTracks;
 
         // Insure that we always have a sequence track
@@ -524,16 +525,7 @@ class Browser {
         return centerLineList
     }
 
-    /**
-     * Load a reference genome object.  This includes the fasta, and optional cytoband, but no tracks.  This method
-     * is used by loadGenome and loadSession.
-     *
-     * @param genomeConfig
-     * @param initialLocus
-     */
-    async loadReference(genomeConfig, initialLocus) {
-
-        const genome = await GenomeUtils.loadGenome(genomeConfig)
+    async loadReference(genome, initialLocus) {
 
         const genomeChange = undefined === this.genome || (this.genome.id !== genome.id)
 
@@ -575,19 +567,11 @@ class Browser {
         this.chromosomeSelectWidget.update(genome);
     }
 
-    /**
-     * Load a genome, defined by a string ID or a json-like configuration object. This includes a fasta reference
-     * as well as optional cytoband and annotation tracks.
-     *
-     * @param idOrConfig
-     * @returns genome
-     */
-    async loadGenome(idOrConfig) {
+    async loadGenome(genome) {
 
-        const genomeConfig = await GenomeUtils.expandReference(idOrConfig);
-        await this.loadReference(genomeConfig, undefined);
+        await this.loadReference(genome, undefined)
 
-        const tracks = genomeConfig.tracks || [];
+        const tracks = genome.config.tracks || []
 
         // Insure that we always have a sequence track
         const pushSequenceTrack = tracks.filter(track => track.type === 'sequence').length === 0;
@@ -605,7 +589,6 @@ class Browser {
     /**
      * Called after a session load, search, pan (horizontal drag), or resize
      *
-     * @param referenceFrameList
      */
     updateUIWithReferenceFrameList() {
 

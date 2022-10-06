@@ -30,7 +30,6 @@ import EventBus from "./eventBus.js";
 import LayoutController, {getNavbarContainer, getNavbarHeight, trackHeight} from './layoutController.js'
 import HICEvent from './hicEvent.js'
 import Dataset from './hicDataset.js'
-import Genome from './genome.js'
 import State from './hicState.js'
 import geneSearch from './geneSearch.js'
 import LocusGoto from "./hicLocusGoto.js";
@@ -46,6 +45,7 @@ import ColorScale, {defaultColorScaleConfig} from "./colorScale.js";
 import RatioColorScale, {defaultRatioColorScaleConfig} from "./ratioColorScale.js";
 import AnnotationWidget from './annotationWidget.js';
 import Track2D from './track2D.js'
+import {GenomeUtils} from '../genome/genomeUtils.js'
 
 const DEFAULT_PIXEL_SIZE = 1
 const MAX_PIXEL_SIZE = 12;
@@ -129,13 +129,11 @@ class HICBrowser {
 
     async init(config) {
 
-        this.state = config.state ? config.state : State.default()
+        this.state = config.state ? config.state : State.default(config)
         this.pending = new Map();
         this.contactMatrixView.disableUpdates = true;
 
         try {
-            this.contactMatrixView.startSpinner();
-            this.$user_interaction_shield.show();
 
             await this.loadHicFile(config);
 
@@ -184,6 +182,10 @@ class HICBrowser {
                 this.eventBus.post({type: "ColorScale", data: this.contactMatrixView.getColorScale()})
             }
 
+            this.contactMatrixView.stopSpinner();
+            this.$user_interaction_shield.hide();
+            this.contactMatrixView.disableUpdates = false
+
             // If a file was actually loaded, update
             if (this.dataset) {
 
@@ -197,10 +199,6 @@ class HICBrowser {
                 await this.update(HICEvent('LocusChange', eventConfig))
 
             }
-
-            this.contactMatrixView.stopSpinner();
-            this.$user_interaction_shield.hide();
-            this.contactMatrixView.disableUpdates = false
 
         }
 
@@ -216,17 +214,21 @@ class HICBrowser {
      */
     async loadHicFile(config) {
 
-        if (!config.url) {
-            console.log("No .hic url specified");
-            return undefined;
+        if (undefined === config.url) {
+            this.genome = GenomeUtils.currentGenome
+            console.warn(`No .hic url specified. Genome set to ${ this.genome.id }`);
+            return
         }
+
+        this.contactMatrixView.startSpinner();
+        this.$user_interaction_shield.show();
 
         this.reset()
 
         this.dataset = undefined
         this.controlDataset = undefined
 
-        await this.setDisplayMode('A')
+        await this.contactMatrixView.setDisplayMode('A')
 
         try {
 
@@ -241,9 +243,9 @@ class HICBrowser {
 
             this.dataset = await Dataset.loadDataset(config)
 
-            this.eventBus.post(HICEvent("MapLoad", this.dataset))
+            this.genome = GenomeUtils.GenomeLibrary[ this.dataset.genomeId ]
 
-            this.genome = new Genome(this.dataset.genomeId, this.dataset.chromosomes)
+            this.eventBus.post(HICEvent("MapLoad", this.dataset))
 
             if (!config.nvi && typeof config.url === "string") {
 
@@ -345,7 +347,7 @@ class HICBrowser {
             }
 
             // bp-per-bin
-            const { binSize } = this.getBinSizeList()[ this.state.zoom ]
+            const { binSize } = this.getBinSizeList(this.dataset)[ this.state.zoom ]
 
             // pixel
             const { width, height } = this.contactMatrixView.getViewDimensions()
@@ -479,6 +481,7 @@ class HICBrowser {
             const minimumPixelSize = await this.getMinimumPixelSize(state.chr1, state.chr2, state.zoom)
             state.pixelSize = Math.min(100, Math.max(DEFAULT_PIXEL_SIZE, minimumPixelSize))
 
+
         } else {
 
             // pixel
@@ -488,7 +491,7 @@ class HICBrowser {
             const targetBinSize = Math.max((xLocus.end - xLocus.start) / width, (yLocus.end - yLocus.start) / height)
 
             // bp-per-bin list
-            const binSizeList = this.getBinSizeList()
+            const binSizeList = this.getBinSizeList(this.dataset)
 
             state.chr1 = xLocus.chr
             state.chr2 = yLocus.chr
@@ -534,22 +537,22 @@ class HICBrowser {
      */
     async zoomAndCenter(direction, centerPX, centerPY) {
 
-        if (this.dataset.isWholeGenome(this.state.chr1) && direction > 0) {
+        if (this.genome.isWholeGenome(this.state.chr1) && direction > 0) {
 
             //              bp = pixel * bp/bin * bin/pixel
             //              bp = bp
             const xBP = centerPX * this.dataset.wholeGenomeResolution / this.state.pixelSize;
             const yBP = centerPY * this.dataset.wholeGenomeResolution / this.state.pixelSize;
 
-            const chrX = this.genome.getChromsosomeForCoordinate(xBP);
-            const chrY = this.genome.getChromsosomeForCoordinate(yBP);
+            const chrX = this.genome.getChromosomeForCoordinate(xBP);
+            const chrY = this.genome.getChromosomeForCoordinate(yBP);
 
             await this.parseLocusString(`${chrX.name} ${chrY.name}`, true)
 
         } else {
 
             // bp-per-bin list
-            const binSizeList = this.getBinSizeList()
+            const binSizeList = this.getBinSizeList(this.dataset)
 
             // pixel
             const { width, height } = this.contactMatrixView.getViewDimensions()
@@ -578,13 +581,7 @@ class HICBrowser {
 
                 this.clamp();
 
-                let event = HICEvent("LocusChange", {
-                    state: state,
-                    resolutionChanged: false,
-                    chrChanged: false
-                })
-
-                this.update(event);
+                this.update( HICEvent("LocusChange", { state, resolutionChanged: false, chrChanged: false }) );
 
             } else {
                 let i;
@@ -630,13 +627,7 @@ class HICBrowser {
 
         await this.contactMatrixView.zoomIn()
 
-        let event = HICEvent("LocusChange", {
-            state: state,
-            resolutionChanged: zoomChanged,
-            chrChanged: false
-        })
-
-        await this.update(event);
+        await this.update( HICEvent("LocusChange", { state, resolutionChanged: zoomChanged, chrChanged: false }) )
 
     }
 
@@ -672,8 +663,8 @@ class HICBrowser {
     async minZoom(chr1, chr2) {
 
         // bp
-        const { name:name1, size:chr1Length } = this.dataset.chromosomes[ chr1 ]
-        const { name:name2, size:chr2Length } = this.dataset.chromosomes[ chr2 ]
+        const { name:name1, size:chr1Length } = this.genome.getChromosomeAtIndex(chr1)
+        const { name:name2, size:chr2Length } = this.genome.getChromosomeAtIndex(chr2)
 
         // pixel
         const { width, height } = this.contactMatrixView.getViewDimensions()
@@ -691,15 +682,15 @@ class HICBrowser {
     async getMinimumPixelSize(chr1, chr2, zoomIndex) {
 
         // bp
-        const { size:chr1Length } = this.dataset.chromosomes[ chr1 ]
-        const { size:chr2Length } = this.dataset.chromosomes[ chr2 ]
+        const { size:chr1LengthBP } = this.genome.getChromosomeAtIndex(chr1)
+        const { size:chr2LengthBP } = this.genome.getChromosomeAtIndex(chr2)
 
         const matrix = await this.dataset.getMatrix(chr1, chr2)
         const { zoom } = matrix.getZoomDataByIndex(zoomIndex, "BP")
 
-        //    unit-less = bp / bp
-        const binCount1 = chr1Length / zoom.binSize
-        const binCount2 = chr2Length / zoom.binSize
+        //    bin = bp / bp-per-bin
+        const binCount1 = chr1LengthBP / zoom.binSize
+        const binCount2 = chr2LengthBP / zoom.binSize
 
         // pixel
         const { width, height } = this.contactMatrixView.getViewDimensions()
@@ -712,7 +703,7 @@ class HICBrowser {
     /**
      * Update the maps and tracks.  This method can be called from the browser event thread repeatedly, for example
      * while mouse dragging.  If called while an update is in progress queue the event for processing later.  It
-     * is only neccessary to queue the most recent recently received event, so a simple instance variable will suffice
+     * is only necessary to queue the most recent recently received event, so a simple instance variable will suffice
      * for the queue.
      *
      * @param event
@@ -728,7 +719,7 @@ class HICBrowser {
 
                 this.contactMatrixView.startSpinner()
 
-                if (event !== undefined && "LocusChange" === event.type) {
+                if (event && "LocusChange" === event.type) {
                     this.layoutController.xAxisRuler.locusChange(event);
                     this.layoutController.yAxisRuler.locusChange(event);
                 }
@@ -870,15 +861,6 @@ class HICBrowser {
         this.$menu.hide();
     }
 
-    async setDisplayMode(mode) {
-        await this.contactMatrixView.setDisplayMode(mode);
-        this.eventBus.post(HICEvent("DisplayMode", mode));
-    }
-
-    getDisplayMode() {
-        return this.contactMatrixView ? this.contactMatrixView.displayMode : undefined;
-    }
-
     async getNormalizationOptions() {
 
         if (!this.dataset) return [];
@@ -897,11 +879,13 @@ class HICBrowser {
      * Return usable resolutions, that is the union of resolutions between dataset and controlDataset.
      * @returns {{index: *, binSize: *}[]|Array}
      */
-    getBinSizeList() {
+    getBinSizeList(dataset) {
 
-        if (!this.dataset) return []
+        if (undefined === dataset) {
+            return []
+        }
 
-        const baseResolutions = this.dataset.bpResolutions.map((resolution, index) => { return { index, binSize: resolution } })
+        const baseResolutions = dataset.bpResolutions.map((resolution, index) => { return { index, binSize: resolution } })
 
         if (this.controlDataset) {
             const controlResolutions = new Set(this.controlDataset.bpResolutions)
@@ -912,7 +896,7 @@ class HICBrowser {
     }
 
     isWholeGenome() {
-        return this.dataset && this.state && this.dataset.isWholeGenome(this.state.chr1)
+        return this.state && this.genome && this.genome.isWholeGenome(this.state.chr1)
     }
 
     updateCrosshairs({x, y, xNormalized, yNormalized}) {
@@ -978,7 +962,7 @@ class HICBrowser {
         let width = this.contactMatrixView.getViewDimensions().width
         let resolution = this.dataset.bpResolutions[this.state.zoom];
         const bpp =
-            (this.dataset.chromosomes[this.state.chr1].name.toLowerCase() === "all") ?
+            (this.genome.getChromosomeAtIndex(this.state.chr1).name.toLowerCase() === "all") ?
                 this.genome.getGenomeLength() / width :
                 resolution / this.state.pixelSize
 
@@ -988,11 +972,11 @@ class HICBrowser {
             };
 
         if (axis === "x") {
-            genomicState.chromosome = this.dataset.chromosomes[this.state.chr1];
+            genomicState.chromosome = this.genome.getChromosomeAtIndex(this.state.chr1)
             genomicState.startBP = this.state.x * resolution;
             genomicState.endBP = genomicState.startBP + bpp * width;
         } else {
-            genomicState.chromosome = this.dataset.chromosomes[this.state.chr2];
+            genomicState.chromosome = this.genome.getChromosomeAtIndex(this.state.chr2)
             genomicState.startBP = this.state.y * resolution;
             genomicState.endBP = genomicState.startBP + bpp * this.contactMatrixView.getViewDimensions().height;
         }
@@ -1061,11 +1045,11 @@ class HICBrowser {
 
     clamp() {
         var viewDimensions = this.contactMatrixView.getViewDimensions(),
-            chr1Length = this.dataset.chromosomes[this.state.chr1].size,
-            chr2Length = this.dataset.chromosomes[this.state.chr2].size,
+            chr1LengthBP = this.genome.getChromosomeAtIndex(this.state.chr1).size,
+            chr2LengthBP = this.genome.getChromosomeAtIndex(this.state.chr2).size,
             binSize = this.dataset.bpResolutions[this.state.zoom],
-            maxX = (chr1Length / binSize) - (viewDimensions.width / this.state.pixelSize),
-            maxY = (chr2Length / binSize) - (viewDimensions.height / this.state.pixelSize);
+            maxX = (chr1LengthBP / binSize) - (viewDimensions.width / this.state.pixelSize),
+            maxY = (chr2LengthBP / binSize) - (viewDimensions.height / this.state.pixelSize);
 
         // Negative maxX, maxY indicates pixelSize is not enough to fill view.  In this case we clamp x, y to 0,0
         maxX = Math.max(0, maxX);
@@ -1101,10 +1085,13 @@ class HICBrowser {
             if (this.controlDataset.name) {
                 jsonOBJ.controlName = this.controlDataset.name;
             }
-            const displayMode = this.getDisplayMode();
+
+            const displayMode = this.contactMatrixView ? this.contactMatrixView.displayMode : undefined
+
             if (displayMode) {
-                jsonOBJ.displayMode = this.getDisplayMode();
+                jsonOBJ.displayMode = this.contactMatrixView.displayMode
             }
+
             nviString = getNviString(this.controlDataset);
             if (nviString) {
                 jsonOBJ.controlNvi = nviString;
@@ -1218,5 +1205,6 @@ function presentError(prefix, error) {
 
 }
 
+export { DEFAULT_PIXEL_SIZE }
 export default HICBrowser
 

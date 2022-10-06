@@ -32,7 +32,7 @@ import GtexReader from "../gtex/gtexReader.js";
 import ImmVarReader from "../gtex/immvarReader.js";
 import Ga4ghVariantReader from "../ga4gh/ga4ghVariantReader.js";
 import CivicReader from "../civic/civicReader.js";
-import GenomicInterval from "../genome/genomicInterval.js";
+import GenomicInterval from "../../genome/genomicInterval.js";
 import pack from "../feature/featurePacker.js";
 import HtsgetVariantReader from "../htsget/htsgetVariantReader.js";
 
@@ -246,12 +246,12 @@ class TextFeatureSource {
     getWGFeatures(allFeatures) {
 
         const genome = this.genome;
-        const wgChromosomeNames = new Set(genome.wgChromosomeNames);
+        const wgChromosomeNames = new Set(genome.wgChromosomeNames.map(({ name }) => name));
         const wgFeatures = [];
 
-        for (let c of genome.wgChromosomeNames) {
+        for (let { name } of genome.wgChromosomeNames) {
 
-            const features = allFeatures[c];
+            const features = allFeatures[name];
 
             if (features) {
                 for (let f of features) {

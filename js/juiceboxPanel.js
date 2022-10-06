@@ -1,10 +1,8 @@
 import { AlertSingleton } from 'igv-widgets'
-import hic from './juicebox/index.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import { ensembleManager } from './app.js'
 import {Globals} from './juicebox/globals.js';
-import { hideGlobalSpinner, showGlobalSpinner } from './utils.js'
 import HICEvent from "./juicebox/hicEvent.js"
 import {createBrowser} from "./juicebox/hicBrowserLifecycle"
 
@@ -54,10 +52,13 @@ class JuiceboxPanel extends Panel {
             // }
 
             if (Globals.currentBrowser.genome && genomeAssembly !== Globals.currentBrowser.genome.id) {
-                console.error(`Juicebox assemply ${ Globals.currentBrowser.genome.id } differs from Ensemble assembly ${ genomeAssembly }`)
+                console.warn(`Juicebox assemply ${ Globals.currentBrowser.genome.id } differs from Ensemble assembly ${ genomeAssembly }`)
             }
 
-            this.goto({ chr, start: genomicStart, end: genomicEnd })
+            if (this.isContactMapLoaded() && Globals.currentBrowser.dataset.isLiveContactMapDataSet !== true) {
+                this.goto({ chr, start: genomicStart, end: genomicEnd })
+            }
+
 
         } else if ('DidHideCrosshairs' === type) {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
@@ -127,11 +128,9 @@ class JuiceboxPanel extends Panel {
 
     async goto({ chr, start, end }) {
 
-        this.locus = chr + ':' + start + '-' + end;
-
         if (this.isContactMapLoaded()) {
             try {
-                await Globals.currentBrowser.parseLocusString(this.locus, true)
+                await Globals.currentBrowser.parseLocusString(`${chr}:${start}-${end}`, true)
             } catch (error) {
                 console.warn(error.message);
             }
@@ -151,18 +150,26 @@ class JuiceboxPanel extends Panel {
             } else {
                 this.present()
 
-                if (ensembleManager.locus) {
-                    const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-                    config.locus = `${chr}:${genomicStart}-${genomicEnd}`
-                } else {
-                    config.locus = 'all'
-                }
-
-                this.locus = config.locus
-
                 await Globals.currentBrowser.loadHicFile(config)
 
-                await Globals.currentBrowser.parseLocusString(config.locus, true)
+                if (ensembleManager.locus) {
+
+                    const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                    await Globals.currentBrowser.parseLocusString(`${chr}:${genomicStart}-${genomicEnd}`, true)
+
+                } else {
+
+                    const eventConfig =
+                        {
+                            state: Globals.currentBrowser.state,
+                            resolutionChanged: true,
+                            chrChanged: true
+                        }
+
+                    await Globals.currentBrowser.update(HICEvent('LocusChange', eventConfig))
+                }
+
+
             }
 
             $('#spacewalk_info_panel_juicebox').text( this.blurb() )
@@ -179,7 +186,7 @@ class JuiceboxPanel extends Panel {
     }
 
     isContactMapLoaded() {
-        return (Globals.currentBrowser && Globals.currentBrowser.dataset);
+        return (Globals.currentBrowser && Globals.currentBrowser.dataset)
     }
 
     toJSON() {

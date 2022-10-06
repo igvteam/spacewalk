@@ -15,7 +15,8 @@ class PointCloud {
         const materialConfig =
             {
                 size: pointSize,
-                vertexColors: THREE.VertexColors,
+                // vertexColors: THREE.VertexColors,
+                vertexColors: true,
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
                 alphaTest: 0.5,
@@ -29,7 +30,8 @@ class PointCloud {
         const deemphasizedConfig =
             {
                 size: pointSize,
-                vertexColors: THREE.VertexColors,
+                // vertexColors: THREE.VertexColors,
+                vertexColors: true,
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
                 alphaTest: 0.5,

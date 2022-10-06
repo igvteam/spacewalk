@@ -8,7 +8,11 @@ class ContactRecord {
     };
 
     getKey() {
-        return "" + this.bin1 + "_" + this.bin2;
+        return `${ this.bin1 }_${ this.bin2 }`
+    }
+
+    getReflectedKey() {
+        return `${ this.bin2 }_${ this.bin1 }`
     }
 }
 

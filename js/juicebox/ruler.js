@@ -26,8 +26,9 @@
  * @author Jim Robinson
  */
 
-import {IGVColor, IGVMath} from 'igv-utils'
+import {IGVColor} from 'igv-utils'
 import IGVGraphics from './igv-canvas.js'
+import {Globals} from "./globals.js"
 
 class Ruler {
 
@@ -58,39 +59,27 @@ class Ruler {
 
     }
 
-    wholeGenomeLayout($axis, $wholeGenomeContainer, axisName, dataset) {
-
-        var self = this,
-            list,
-            dimen,
-            extent,
-            scraps,
-            $div,
-            $firstDiv;
+    wholeGenomeLayout($axis, $wholeGenomeContainer, axisName) {
 
         // discard current tiles
         $wholeGenomeContainer.empty();
 
-        list = dataset.chromosomes.filter(function (chromosome) {
-            return 'all' !== chromosome.name.toLowerCase();
-        });
+        const keyValueList = Object.entries(Globals.currentBrowser.genome.chromosomes).filter(([ key, value ]) => 'all' !== key.toLowerCase())
 
-        extent = 0;    // could use reduce for this
-        list.forEach(function (chromosome) {
-            extent += chromosome.size;
-        });
+        let extent = 0;    // could use reduce for this
+        keyValueList.forEach(([key, value]) => extent += value.size)
 
-        dimen = 'x' === axisName ? $axis.width() : $axis.height();
+        const dimen = 'x' === axisName ? $axis.width() : $axis.height();
 
-        scraps = 0;
+        let self = this, $div, $firstDiv
+
+        let scraps = 0;
         this.bboxes = [];
         $firstDiv = undefined;
 
-        list.forEach(function (chr) {
-            var size,
-                percentage;
+        keyValueList.forEach(([ key, value ]) => {
 
-            percentage = (chr.bpLength) / extent;
+            const percentage = value.size / extent
 
             if (percentage * dimen < 1.0) {
                 scraps += percentage;
@@ -98,19 +87,13 @@ class Ruler {
 
                 $div = $("<div>", { class: `${ self.axis }-axis-whole-genome-chromosome-container` });
                 $wholeGenomeContainer.append($div);
-                $div.data('label', chr.name);
+                $div.data('label', value.name);
 
                 if (!$firstDiv) {
                     $firstDiv = $div;
                 }
 
-                if ('x' === axisName) {
-                    size = Math.round(percentage * dimen);
-                    $div.width(size);
-                } else {
-                    size = Math.round(percentage * dimen);
-                    $div.height(size);
-                }
+                'x' === axisName ? $div.width( Math.round(percentage * dimen) ) : $div.height( Math.round(percentage * dimen) )
 
                 // border
                 const $border = $('<div>');
@@ -224,7 +207,7 @@ class Ruler {
     receiveEvent({ type, data }) {
 
         if ('MapLoad' === type) {
-            this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis, data);
+            this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis);
             this.update();
         } else if ('UpdateContactMapMousePosition' === type) {
 
@@ -253,7 +236,7 @@ class Ruler {
         this.$canvas.width(this.$axis.width());
         this.$canvas.attr('width', this.$axis.width());
 
-        this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis, this.browser.dataset);
+        this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis);
 
         this.update();
     };
@@ -263,7 +246,7 @@ class Ruler {
         this.$canvas.height(height);
         this.$canvas.attr('height', height);
 
-        this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis, this.browser.dataset);
+        this.wholeGenomeLayout(this.$axis, this.$wholeGenomeContainer, this.axis);
 
         this.update();
     };
@@ -276,7 +259,7 @@ class Ruler {
             config = {},
             browser = this.browser;
 
-        if (browser.dataset.isWholeGenome(browser.state.chr1)) {
+        if (true === browser.genome.isWholeGenome(browser.state.chr1)) {
             this.showWholeGenome();
             return;
         }
@@ -310,26 +293,9 @@ class Ruler {
 
     draw(options) {
 
-        var self = this,
-            fontStyle,
-            tickSpec,
-            majorTickSpacing,
-            nTick,
-            pixelLast,
-            pixel,
-            tickSpacingPixels,
-            labelWidthPixels,
-            modulo,
-            l,
-            yShim,
-            tickHeight,
-            rulerLabel,
-            chrSize,
-            chrName,
-            chromosomes = this.browser.dataset.chromosomes;
+        const chromosomes = Object.values(Globals.currentBrowser.genome.chromosomes)
 
-        chrName = ('x' === this.axis) ? chromosomes[this.browser.state.chr1].name : chromosomes[this.browser.state.chr2].name;
-        chrSize = ('x' === this.axis) ? chromosomes[this.browser.state.chr1].size : chromosomes[this.browser.state.chr2].size;
+        const chrSize = ('x' === this.axis) ? chromosomes[this.browser.state.chr1].size : chromosomes[this.browser.state.chr2].size;
 
         if (options.chrName === "all") {
 
@@ -337,36 +303,39 @@ class Ruler {
 
             IGVGraphics.fillRect(this.ctx, 0, 0, options.rulerLengthPixels, options.rulerHeightPixels, {fillStyle: IGVColor.rgbColor(255, 255, 255)});
 
-            fontStyle = {
+            const fontStyle =
+                {
                 textAlign: 'center',
                 font: '9px PT Sans',
                 fillStyle: "rgba(64, 64, 64, 1)",
                 strokeStyle: "rgba(64, 64, 64, 1)"
             };
 
-            tickSpec = findSpacing(Math.floor(options.rulerTickMarkReferencePixels * options.bpPerPixel));
-            majorTickSpacing = tickSpec.majorTick;
+            const tickSpec = findSpacing(Math.floor(options.rulerTickMarkReferencePixels * options.bpPerPixel));
+            const majorTickSpacing = tickSpec.majorTick;
 
             // Find starting point closest to the current origin
-            nTick = Math.floor(options.bpStart / majorTickSpacing) - 1;
+            let nTick = Math.floor(options.bpStart / majorTickSpacing) - 1;
 
-            pixel = pixelLast = 0;
+            let pixel = 0;
+            let pixelLast = 0;
 
             IGVGraphics.setProperties(this.ctx, fontStyle);
             this.ctx.lineWidth = 1.0;
 
-            yShim = 1;
-            tickHeight = 8;
+            const yShim = 1;
+            const tickHeight = 8;
+            let modulo
             while (pixel < options.rulerLengthPixels) {
 
-                l = Math.floor(nTick * majorTickSpacing);
+                const l = Math.floor(nTick * majorTickSpacing);
 
                 pixel = Math.round(((l - 1) - options.bpStart + 0.5) / options.bpPerPixel);
 
-                rulerLabel = formatNumber(l / tickSpec.unitMultiplier, 0) + " " + tickSpec.majorUnit;
+                const rulerLabel = formatNumber(l / tickSpec.unitMultiplier, 0) + " " + tickSpec.majorUnit;
 
-                tickSpacingPixels = Math.abs(pixel - pixelLast);
-                labelWidthPixels = this.ctx.measureText(rulerLabel).width;
+                const tickSpacingPixels = Math.abs(pixel - pixelLast);
+                const labelWidthPixels = this.ctx.measureText(rulerLabel).width;
 
                 if (labelWidthPixels > tickSpacingPixels) {
 

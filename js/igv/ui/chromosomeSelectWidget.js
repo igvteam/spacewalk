@@ -58,19 +58,14 @@ ChromosomeSelectWidget.prototype.update = function (genome) {
 
     this.select.innerHeight = ''
 
-    const list = this.showAllChromosomes ? genome.chromosomeNames.slice() : genome.wgChromosomeNames.slice()
+    const list = this.showAllChromosomes ? genome.chromosomeNames.slice() : genome.wgChromosomeNames.map(({ name }) => name)
 
     if(genome.showWholeGenomeView()) {
         list.unshift('all');
         list.unshift('');
     }
+
     for (let name of list) {
-
-        // var $o;
-        // $o = $('<option>', {'value': name});
-        // this.$select.append($o);
-        // $o.text(name);
-
         const option = document.createElement('option')
         option.setAttribute('value', name)
         option.innerText = name

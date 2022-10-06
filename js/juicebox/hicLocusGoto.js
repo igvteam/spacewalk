@@ -49,25 +49,31 @@ class LocusGoto {
         this.browser.eventBus.subscribe("LocusChange", this);
     }
 
-    receiveEvent(event) {
+    receiveEvent({ type, data }) {
 
-        if (event.type === "LocusChange") {
+        if (type === "LocusChange") {
 
-            let xy;
-            const state = event.data.state || this.browser.state;
-            const isWholeGenome = this.browser.dataset.isWholeGenome(state.chr1);
-            if (isWholeGenome) {
-                xy = 'All';
+            let xy
+
+            let { chr1, chr2, x, y, pixelSize, zoom } = data.state || this.browser.state
+            const dataset = data.dataset || this.browser.dataset
+
+            if (this.browser.genome.isWholeGenome(chr1)) {
+                xy = 'All'
             } else {
-                const chr1 = this.browser.dataset.chromosomes[state.chr1];
-                const chr2 = this.browser.dataset.chromosomes[state.chr2];
-                const bpPerBin = this.browser.dataset.bpResolutions[state.zoom];
-                const dimensionsPixels = this.browser.contactMatrixView.getViewDimensions();
-                const pixelsPerBin = state.pixelSize;
-                const startBP1 = 1 + Math.round(state.x * bpPerBin);
-                const startBP2 = 1 + Math.round(state.y * bpPerBin);
-                const endBP1 = Math.min(chr1.size, Math.round(((dimensionsPixels.width / pixelsPerBin) * bpPerBin)) + startBP1 - 1);
-                const endBP2 = Math.min(chr2.size, Math.round(((dimensionsPixels.height / pixelsPerBin) * bpPerBin)) + startBP2 - 1);
+
+                chr1 = this.browser.genome.getChromosomeAtIndex(chr1)
+                chr2 = this.browser.genome.getChromosomeAtIndex(chr2)
+
+                const bpPerBin = dataset.bpResolutions[ zoom ]
+
+                const { width, height } = this.browser.contactMatrixView.getViewDimensions()
+
+                const startBP1 = 1 + Math.round(x * bpPerBin)
+                const startBP2 = 1 + Math.round(y * bpPerBin)
+
+                const endBP1 = Math.min(chr1.size, Math.round(((width / pixelSize) * bpPerBin)) + startBP1 - 1)
+                const endBP2 = Math.min(chr2.size, Math.round(((height / pixelSize) * bpPerBin)) + startBP2 - 1)
 
                 xy = chr1.name + ":" + StringUtils.numberFormatter(startBP1) + "-" + StringUtils.numberFormatter(endBP1) + " " +
                     chr2.name + ":" + StringUtils.numberFormatter(startBP2) + "-" + StringUtils.numberFormatter(endBP2);

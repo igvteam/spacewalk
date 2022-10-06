@@ -14,7 +14,7 @@ import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import GUIManager from "./guiManager.js";
-import ContactFrequencyMapPanel, {contactFrequencyMapPanelConfigurator} from "./contactFrequencyMapPanel.js";
+import ContactFrequencyMapPanel, {defaultDistanceThreshold} from "./contactFrequencyMapPanel.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
 import TraceSelect from './traceSelect.js'
 import TraceNavigator from './traceNavigator.js'
@@ -29,6 +29,7 @@ import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
 import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
+import {GenomeUtils} from './genome/genomeUtils.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
 
@@ -91,9 +92,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     await initializationHelper(container)
 
-});
+})
 
 const initializationHelper = async container => {
+
+    await initializeGenomes(spacewalkConfig)
 
     await initializeMaterialLibrary();
 
@@ -122,12 +125,14 @@ const initializationHelper = async container => {
     const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = getUrlParams(window.location.href);
 
     let locusString
+    let distanceThreshold = defaultDistanceThreshold
     if (spacewalkSessionURL) {
-        const { locus } = JSON.parse( uncompressSession(spacewalkSessionURL) )
+        const { locus, contactFrequencyMapDistanceThreshold } = JSON.parse( uncompressSession(spacewalkSessionURL) )
         locusString = `${ locus.chr }:${ locus.genomicStart }-${ locus.genomicEnd }`
+        distanceThreshold = contactFrequencyMapDistanceThreshold
     }
 
-    await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, locusString);
+    await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, distanceThreshold, locusString);
 
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
     guiManager = new GUIManager({ settingsButton, $panel: $('#spacewalk_ui_manager_panel') });
@@ -155,29 +160,7 @@ const initializationHelper = async container => {
 
 }
 
-function renderLoop() {
-
-    requestAnimationFrame( renderLoop )
-
-    render()
-
-}
-
-function render () {
-
-    pointCloud.renderLoopHelper()
-
-    ribbon.renderLoopHelper()
-
-    colorRampMaterialProvider.renderLoopHelper()
-
-    sceneManager.renderLoopHelper()
-
-    // stats.update()
-
-}
-
-const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessionURL, locusString) => {
+async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, distanceThreshold, locusString) {
 
     // $('.checkbox-menu').on("change", "input[type='checkbox']", () => $(this).closest("li").toggleClass("active", this.checked))
 
@@ -284,7 +267,16 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_distance_map_panel')}));
 
-    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel')}));
+    const contactFrequencyMapPanelConfiguration =
+        {
+            container,
+            panel: document.querySelector('#spacewalk_contact_frequency_map_panel'),
+            isHidden:doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel'),
+            distanceThreshold
+        }
+    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfiguration)
+
+    contactFrequencyMapPanel.initialize(contactFrequencyMapPanelConfiguration.panel)
 
     EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
@@ -300,6 +292,41 @@ const createButtonsPanelsModals = async (container, igvSessionURL, juiceboxSessi
             SpacewalkEventBus.globalBus.post({ type: 'AppWindowDidResize', data: { width, height } });
         }
     });
+
+
+}
+
+async function initializeGenomes(spacewalkConfig) {
+
+    const { genomeID, genomes } = spacewalkConfig
+
+    await GenomeUtils.initializeGenomes({ genomes })
+
+    GenomeUtils.currentGenome = GenomeUtils.GenomeLibrary[ genomeID ]
+
+    spacewalkConfig.igvConfig.genome = genomeID
+
+}
+
+function renderLoop() {
+
+    requestAnimationFrame( renderLoop )
+
+    render()
+
+}
+
+function render () {
+
+    pointCloud.renderLoopHelper()
+
+    ribbon.renderLoopHelper()
+
+    colorRampMaterialProvider.renderLoopHelper()
+
+    sceneManager.renderLoopHelper()
+
+    // stats.update()
 
 }
 
@@ -349,4 +376,21 @@ const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
     return html;
 }
 
-export { googleEnabled, pointCloud, ribbon, ballAndStick, parser, ensembleManager, colorMapManager, sceneManager, colorRampMaterialProvider, dataValueMaterialProvider, guiManager, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel, igvPanel, traceNavigator, appendAndConfigureLoadURLModal };
+export {
+    googleEnabled,
+    pointCloud,
+    ribbon,
+    ballAndStick,
+    parser,
+    ensembleManager,
+    colorMapManager,
+    sceneManager,
+    colorRampMaterialProvider,
+    dataValueMaterialProvider,
+    guiManager,
+    juiceboxPanel,
+    distanceMapPanel,
+    contactFrequencyMapPanel,
+    igvPanel,
+    traceNavigator,
+    appendAndConfigureLoadURLModal }

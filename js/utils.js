@@ -141,7 +141,7 @@ const createImage = imageSource => {
 
 };
 
-const drawWithCanvasArray = async (ctx, array) => {
+const transferContactFrequencyArrayToCanvas = async (ctx, array) => {
 
     const { width, height } = ctx.canvas;
 
@@ -180,7 +180,7 @@ export {
     setMaterialProvider,
     clearCanvasArray,
     createImage,
-    drawWithCanvasArray,
+    transferContactFrequencyArrayToCanvas,
     readFileAsDataURL,
     fitToContainer,
     getMouseXY,

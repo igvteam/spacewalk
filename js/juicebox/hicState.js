@@ -28,14 +28,11 @@
 
 import {StringUtils} from 'igv-utils'
 import { defaultSize } from './defaults.js'
+import {DEFAULT_PIXEL_SIZE} from './hicBrowser.js'
 
 class State {
 
     constructor(chr1, chr2, zoom, x, y, width, height, pixelSize, normalization) {
-
-        if (Number.isNaN(pixelSize)) {
-            pixelSize = 1
-        }
 
         if (chr1 !== undefined) {
             if (chr1 <= chr2) {
@@ -50,18 +47,29 @@ class State {
                 this.x = y;
                 this.y = x;
             }
+
             this.zoom = zoom;
-            this.pixelSize = pixelSize;
+
             this.width = width
             this.height = height
 
+            if (Number.isNaN(pixelSize)) {
+                console.warn(`pixelSize is not a number`)
+                pixelSize = DEFAULT_PIXEL_SIZE
+            }
+
+            this.pixelSize = pixelSize
+
+            this.displayPixelSize = Math.max(1, this.pixelSize)
+
             if ("undefined" === normalization) {
-                console.log("No normalization defined !!!");
+                console.warn("normalization is NOT defined!")
                 normalization = undefined;
             }
 
             this.normalization = normalization;
         }
+
     }
 
     stringify() {
@@ -83,17 +91,14 @@ class State {
         return s1 === s2;
     }
 
-    description(browser) {
-
-        // bp per bin
-        const binSize = browser.dataset.bpResolutions[ this.zoom ]
+    // binSize: bp-per-bin
+    // width: pixels
+    description(genome, binSize, width) {
 
         const { chr1, x, pixelSize } = this
 
         // bp = bin * bp-per-bin
         const xBP = x * binSize
-
-        const {width} = browser.contactMatrixView.getViewDimensions()
 
         // bin = pixel / pixel-per-bin
         const widthBin = width / pixelSize
@@ -107,7 +112,7 @@ class State {
 
 
         // chromosome length - bp & bin
-        const {size:lengthBP} = browser.dataset.chromosomes[ chr1 ]
+        const { name, size:lengthBP } = genome.getChromosomeAtIndex(chr1)
         const lengthBin = lengthBP / binSize
 
         const f = StringUtils.numberFormatter(width)
@@ -118,20 +123,16 @@ class State {
         const c = StringUtils.numberFormatter(binSize)
         const e = StringUtils.numberFormatter(pixelSize)
 
-        // console.log(`screen-width pixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`)
-        // console.log(`start bin(${d}) bp(${g}). end bin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`)
-        // console.log(`chromosome-length bin(${b}) bp(${a})`)
-        // console.log(`bin-size bp(${c}) pixel(${e})`)
-
         const strings =
             [
-                `screen-width pixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
-                `start bin(${d}) bp(${g}). end bin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`,
-                `bin-size bp(${c}) pixel(${e})`,
-                // `chromosome-length bin(${b}) bp(${a})`,
+                `${ name }`,
+                `Screen Width\npixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
+                `Start\nbin(${d}) bp(${g})\nEnd\nbin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`,
+                `Bin Size\nbp-per-bin(${c})\nPixel Size\npixel-per-bin(${e})`
             ]
 
-        return strings.join('\n')
+        return `\n${ strings.join('\n') }`
+
 
 
     }
@@ -171,13 +172,19 @@ class State {
 
     }
 
-    static default(configOrUndefined) {
+    static default(config) {
 
-        if (configOrUndefined) {
-            return new State(0, 0, 0, 0, 0, configOrUndefined.width, configOrUndefined.height, 1, "NONE")
+        let w
+        let h
+        if (config) {
+            w = config.width || defaultSize.width
+            h = config.height || defaultSize.height
         } else {
-            return new State(0, 0, 0, 0, 0, defaultSize.width, defaultSize.height, 1, "NONE")
+            w = defaultSize.width
+            h = defaultSize.height
         }
+
+        return new State(0, 0, 0, 0, 0, w, h, 1, "NONE")
 
     }
 

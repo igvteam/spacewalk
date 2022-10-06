@@ -25,7 +25,7 @@
 
 import {IGVColor, StringUtils} from "igv-utils"
 import IGVGraphics from "./igv-canvas.js";
-import GenomeUtils from "./genome/genome.js";
+import {GenomeUtils} from '../genome/genomeUtils.js'
 
 const numberFormatter = StringUtils.numberFormatter;
 
@@ -66,7 +66,7 @@ class RulerTrack {
 
         IGVGraphics.fillRect(context, 0, 0, pixelWidth, pixelHeight, {'fillStyle': 'white'});
 
-        for (let name of this.browser.genome.wgChromosomeNames) {
+        for (let { name } of this.browser.genome.wgChromosomeNames) {
 
             let xBP = this.browser.genome.getCumulativeOffset(name);
             let wBP = this.browser.genome.getChromosome(name).bpLength;
