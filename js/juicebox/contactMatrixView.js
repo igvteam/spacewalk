@@ -25,8 +25,7 @@ import {Alert} from "igv-ui"
 import {IGVColor, StringUtils} from 'igv-utils'
 import ColorScale from './colorScale.js'
 import HICEvent from './hicEvent.js'
-import {transferContactFrequencyArrayToCanvas} from '../utils.js'
-import {paintContactFrequencyArrayWithColorScale} from '../contactFrequencyMapPanel.js'
+import { paintContactFrequencyArrayWithColorScale, transferContactFrequencyArrayToCanvas } from '../utils.js'
 
 const DRAG_THRESHOLD = 2;
 

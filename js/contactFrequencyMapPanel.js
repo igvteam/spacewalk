@@ -74,7 +74,7 @@ class ContactFrequencyMapPanel extends Panel {
 
             document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
 
-            paintContactFrequencyArray(data.workerValuesBuffer)
+            paintContactFrequencyArrayWithFrequencies(data.workerValuesBuffer)
             const context = 'trace' === data.traceOrEnsemble ? this.ctx_trace : this.ctx_ensemble
             await transferContactFrequencyArrayToCanvas(context, contactFrequencyArray)
 
@@ -110,7 +110,7 @@ class ContactFrequencyMapPanel extends Panel {
             this.trace = trace
             this.doUpdateTrace = this.doUpdateEnsemble = true
 
-            initializeSharedBuffers(ensembleManager.genomic.traceLength)
+            allocateContactFrequencyArray(ensembleManager.genomic.traceLength)
 
             if (false === this.isHidden) {
                 this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.ensemble)
@@ -163,7 +163,8 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(contactFrequencyArray, ensembleManager.genomic.traceLength)
+        // clearCanvasArray(contactFrequencyArray, ensembleManager.genomic.traceLength)
+
         transferContactFrequencyArrayToCanvas(this.ctx_trace, contactFrequencyArray)
 
     }
@@ -184,7 +185,8 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(contactFrequencyArray, ensembleManager.genomic.traceLength)
+        // clearCanvasArray(contactFrequencyArray, ensembleManager.genomic.traceLength)
+
         transferContactFrequencyArrayToCanvas(this.ctx_ensemble, contactFrequencyArray)
 
     }
@@ -260,21 +262,11 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
 
 }
 
-function paintContactFrequencyArrayWithColorScale(colorScale, frequencies) {
-
-    let i = 0
-    for (let frequency of frequencies) {
-
-        const { red, green, blue, alpha } = colorScale.getColor(frequency)
-
-        contactFrequencyArray[i++] = red
-        contactFrequencyArray[i++] = green
-        contactFrequencyArray[i++] = blue
-        contactFrequencyArray[i++] = alpha
-    }
+function allocateContactFrequencyArray(traceLength) {
+    contactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
 }
 
-function paintContactFrequencyArray(frequencies) {
+function paintContactFrequencyArrayWithFrequencies(frequencies) {
 
     const maxFrequency = frequencies.reduce((max, current) => Math.max(max, current), Number.NEGATIVE_INFINITY )
 
@@ -302,10 +294,6 @@ function paintContactFrequencyArray(frequencies) {
 
 }
 
-function initializeSharedBuffers(traceLength) {
-    contactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
-}
-
-export { defaultDistanceThreshold, paintContactFrequencyArrayWithColorScale }
+export { defaultDistanceThreshold, contactFrequencyArray }
 
 export default ContactFrequencyMapPanel

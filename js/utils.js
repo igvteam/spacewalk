@@ -1,7 +1,7 @@
 import {ribbon, ballAndStick, ensembleManager, dataValueMaterialProvider, colorRampMaterialProvider} from "./app.js";
 import {lerp} from "./math.js";
-import {StringUtils} from 'igv-utils';
-import {appleCrayonColorRGB255} from "./color.js"
+import {appleCrayonColorRGB255} from './color.js'
+import {contactFrequencyArray} from './contactFrequencyMapPanel.js';
 
 function showGlobalSpinner() {
     document.getElementById('spacewalk-spinner').style.display = 'block'
@@ -116,6 +116,17 @@ const readFileAsDataURL = async blob => {
     });
 };
 
+const createImage = imageSource => {
+
+    return new Promise((resolve, reject) => {
+        let img = new Image();
+        img.addEventListener('load', e => resolve(img));
+        img.addEventListener('error', () => { reject(new Error(`Failed to load image's URL: ${imageSource}`)); });
+        img.src = imageSource;
+    });
+
+};
+
 function clearCanvasArray(canvasArray, traceLength) {
 
     const { r, g, b } = appleCrayonColorRGB255('magnesium')
@@ -130,22 +141,27 @@ function clearCanvasArray(canvasArray, traceLength) {
 
 }
 
-const createImage = imageSource => {
+function paintContactFrequencyArrayWithColorScale(colorScale, frequencies) {
 
-    return new Promise((resolve, reject) => {
-        let img = new Image();
-        img.addEventListener('load', e => resolve(img));
-        img.addEventListener('error', () => { reject(new Error(`Failed to load image's URL: ${imageSource}`)); });
-        img.src = imageSource;
-    });
+    let i = 0
+    for (let frequency of frequencies) {
 
-};
+        const { red, green, blue, alpha } = colorScale.getColor(frequency)
 
-const transferContactFrequencyArrayToCanvas = async (ctx, array) => {
+        contactFrequencyArray[i++] = red
+        contactFrequencyArray[i++] = green
+        contactFrequencyArray[i++] = blue
+        contactFrequencyArray[i++] = alpha
+    }
+}
+
+const transferContactFrequencyArrayToCanvas = async (ctx, contactFrequencyArray) => {
 
     const { width, height } = ctx.canvas;
 
-    const imageData = new ImageData(array, ensembleManager.genomic.traceLength, ensembleManager.genomic.traceLength);
+    const imageData = new ImageData(contactFrequencyArray, ensembleManager.genomic.traceLength, ensembleManager.genomic.traceLength);
+
+    /*
 
     const config =
         {
@@ -153,10 +169,13 @@ const transferContactFrequencyArrayToCanvas = async (ctx, array) => {
             resizeHeight: height
         };
 
-    // const imageBitmap = await createImageBitmap(imageData, config);
-    const imageBitmap = await createImageBitmap(imageData);
-    ctx.transferFromImageBitmap(imageBitmap);
+    const imageBitmap = await createImageBitmap(imageData, config);
+     */
 
+    // const imageBitmap = await createImageBitmap(imageData);
+    // ctx.transferFromImageBitmap(imageBitmap);
+
+    ctx.putImageData(imageData, 0, 0)
 };
 
 const generateRadiusTable = defaultRadius => {
@@ -180,6 +199,7 @@ export {
     setMaterialProvider,
     clearCanvasArray,
     createImage,
+    paintContactFrequencyArrayWithColorScale,
     transferContactFrequencyArrayToCanvas,
     readFileAsDataURL,
     fitToContainer,
