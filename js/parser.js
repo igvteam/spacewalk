@@ -118,5 +118,4 @@ const getSampleNameAndGenome = (lines, regex) => {
     return { sample, genomeAssembly }
 };
 
-
 export default Parser;

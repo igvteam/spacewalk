@@ -1,3 +1,5 @@
+import * as jsfive from "jsfive";
+import { ready, File as h5wasmFile } from "h5wasm";
 import { FileUtils, URIUtils, GooglePicker, GoogleUtils, GoogleDrive } from 'igv-utils'
 import {GenericDataSource, ModalTable} from 'data-modal'
 import { appendAndConfigureLoadURLModal } from './app.js'
@@ -7,11 +9,7 @@ let gsdbModal = undefined
 
 function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadModalId, gsdbModalId, dropboxButton, googleDriveButton, googleEnabled, fileLoader }) {
 
-    localFileInput.addEventListener('change', async () => {
-        const file = localFileInput.files[ 0 ];
-        localFileInput.value = '';
-        await fileLoader.load(file);
-    });
+    configureLocalFileLoader(localFileInput)
 
     appendAndConfigureLoadURLModal(rootContainer, urlLoadModalId, async path => {
 
@@ -92,6 +90,47 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
 
         });
     }
+
+}
+
+function configureLocalFileLoader(inputElement) {
+
+    // h5wasm
+    inputElement.addEventListener('change', async () => {
+
+        const [ file ] = inputElement.files
+
+        const ab = await file.arrayBuffer()
+
+        const { FS } = await ready
+
+        FS.writeFile(file.name, new Uint8Array(ab))
+
+        const cndb = new h5wasmFile(file.name, 'r')
+
+        console.log(`h5wasm - keys: ${ cndb.keys() }`)
+
+    })
+
+    // jsfive
+    // inputElement.addEventListener('change', async () => {
+    //
+    //     const [ file ] = inputElement.files
+    //
+    //     const ab = await file.arrayBuffer()
+    //
+    //     const cndb = new jsfive.File(ab)
+    //
+    //     console.log(`jsfive - keys: ${ cndb.keys }`)
+    //
+    // })
+
+    // localFileInput.addEventListener('change', async () => {
+    //     const file = localFileInput.files[ 0 ];
+    //     localFileInput.value = '';
+    //     await fileLoader.load(file);
+    // });
+
 
 }
 
