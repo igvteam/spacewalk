@@ -43,7 +43,12 @@ class HDF5Parser {
 
 
         const index = indices[ 0 ]
-        const trace = cndb.get(index.toString()).value
+        const raw = Array.from(cndb.get(index.toString()).value)
+
+        const trace = []
+        for (let i = 0; i < raw.length; i += 3) {
+            trace.push([ raw[ i ] * 165, raw[ 1 + i ] * 165, raw[ 2 + i ] * 165 ])
+        }
 
         console.log(`trace ${ trace }`)
 
