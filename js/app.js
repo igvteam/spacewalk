@@ -1,11 +1,12 @@
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js'
 import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from 'igv-widgets'
-import {BGZip, GoogleAuth, igvxhr, StringUtils} from 'igv-utils'
+import {BGZip, FileUtils, GoogleAuth, igvxhr} from 'igv-utils'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
+import HDF5Parser from "./hdf5Parser.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
@@ -40,7 +41,8 @@ let guiStatsEl
 let pointCloud;
 let ribbon;
 let ballAndStick;
-let parser;
+let parser
+let hdf5Parser
 let ensembleManager;
 let colorMapManager;
 let sceneManager;
@@ -100,7 +102,9 @@ const initializationHelper = async container => {
 
     await initializeMaterialLibrary();
 
-    parser = new Parser();
+    parser = new Parser()
+
+    hdf5Parser = new HDF5Parser()
 
     pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(highlightColor), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
@@ -171,6 +175,14 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     traceNavigator = new TraceNavigator(document.querySelector('#spacewalk-trace-navigator-container'))
 
+    const fileLoader =
+        {
+            load: async fileOrPath => {
+                const extension = FileUtils.getExtension(fileOrPath)
+                'cndb' === extension ? await hdf5Parser.load(fileOrPath) : await parser.load(fileOrPath)
+            }
+        }
+
     const spacewalkFileLoadConfig =
         {
             rootContainer: document.getElementById('spacewalk-main'),
@@ -180,7 +192,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
             dropboxButton: document.getElementById('spacewalk-sw-dropbox-button'),
             googleDriveButton: document.getElementById('spacewalk-sw-google-drive-button'),
             googleEnabled,
-            fileLoader: parser
+            fileLoader
         };
 
     createSpacewalkFileLoaders(spacewalkFileLoadConfig)
@@ -382,6 +394,7 @@ export {
     ribbon,
     ballAndStick,
     parser,
+    hdf5Parser,
     ensembleManager,
     colorMapManager,
     sceneManager,
