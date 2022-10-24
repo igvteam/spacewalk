@@ -6,7 +6,7 @@ import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
 import Parser from "./parser.js";
-import HDF5Parser from "./hdf5Parser.js";
+import HDF5EnsembleManager from "./hdf5EnsembleManager.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
@@ -42,7 +42,7 @@ let pointCloud;
 let ribbon;
 let ballAndStick;
 let parser
-let hdf5Parser
+let hdf5EnsembleManager
 let ensembleManager;
 let colorMapManager;
 let sceneManager;
@@ -104,7 +104,7 @@ const initializationHelper = async container => {
 
     parser = new Parser()
 
-    hdf5Parser = new HDF5Parser()
+    hdf5EnsembleManager = new HDF5EnsembleManager()
 
     pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(highlightColor), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
@@ -179,7 +179,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
         {
             load: async fileOrPath => {
                 const extension = FileUtils.getExtension(fileOrPath)
-                'cndb' === extension ? await hdf5Parser.load(fileOrPath) : await parser.load(fileOrPath)
+                'cndb' === extension ? await hdf5EnsembleManager.load(fileOrPath) : await parser.load(fileOrPath)
             }
         }
 
@@ -394,7 +394,7 @@ export {
     ribbon,
     ballAndStick,
     parser,
-    hdf5Parser,
+    hdf5EnsembleManager,
     ensembleManager,
     colorMapManager,
     sceneManager,

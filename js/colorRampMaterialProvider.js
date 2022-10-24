@@ -4,7 +4,6 @@ import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import {colorMapManager, ensembleManager, sceneManager} from "./app.js";
 import Ribbon from './ribbon.js';
-import EnsembleManager from './ensembleManager.js'
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 

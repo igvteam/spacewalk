@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { ensembleManager, sceneManager } from "./app.js";
-import EnsembleManager from './ensembleManager.js'
 
 const pointSize = 128;
 
