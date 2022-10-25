@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import { colorRampMaterialProvider } from "./app.js";
+import {colorRampMaterialProvider, ensembleManager} from "./app.js";
 import { includes, degrees } from "./math.js";
 
 class EnsembleManager {
@@ -81,6 +81,11 @@ class EnsembleManager {
 
     getTraceWithName(name) {
         return this.ensemble[ name ] || undefined;
+    }
+
+    getTraceCount() {
+        const list = Object.keys(this.ensemble)
+        return list.length
     }
 
     getGenomicInterpolantWindowList(interpolantList) {

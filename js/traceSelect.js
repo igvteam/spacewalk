@@ -8,23 +8,28 @@ class TraceSelect {
 
   constructor() {
 
-      this.howmany = undefined
-
       this.input = document.querySelector('#spacewalk_trace_select_input')
       this.input.addEventListener('keyup', (e) => {
 
           // enter (return) key pressed
           if (13 === e.keyCode) {
-              broadcastTraceSelection(this.input, clamp(parseInt(this.input.value, 10), 0, this.howmany - 1), this.howmany)
+              const howmany = ensembleManager.getTraceCount()
+              broadcastTraceSelection(this.input, clamp(parseInt(this.input.value, 10), 0, howmany - 1), howmany)
           }
 
       })
 
       const button_minus = document.querySelector('#spacewalk_trace_select_button_minus')
-      button_minus.addEventListener('click', (e) => broadcastTraceSelection(this.input, clamp(currentNumber - 1, 0, this.howmany - 1), this.howmany))
+      button_minus.addEventListener('click', (e) => {
+          const howmany = ensembleManager.getTraceCount()
+          broadcastTraceSelection(this.input, clamp(currentNumber - 1, 0, howmany - 1), howmany)
+      })
 
       const button_plus = document.querySelector('#spacewalk_trace_select_button_plus')
-      button_plus.addEventListener('click', (e)  => broadcastTraceSelection(this.input, clamp(currentNumber + 1, 0, this.howmany - 1), this.howmany));
+      button_plus.addEventListener('click', (e)  => {
+          const howmany = ensembleManager.getTraceCount()
+          broadcastTraceSelection(this.input, clamp(currentNumber + 1, 0, howmany - 1), howmany)
+      });
 
 
       SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
@@ -34,12 +39,10 @@ class TraceSelect {
     receiveEvent({ type, data }) {
         if ("DidLoadEnsembleFile" === type) {
 
-            this.howmany = Object.keys(ensembleManager.ensemble).length
-
             const { initialKey } = data
             currentNumber = parseInt(initialKey, 10)
 
-            this.input.value = `${ currentNumber } of ${ this.howmany }`
+            this.input.value = `${ currentNumber } of ${ ensembleManager.getTraceCount() }`
 
         }
     }
@@ -53,9 +56,9 @@ function broadcastTraceSelection(input, number, howmany) {
     const key = currentNumber.toString();
 
     window.setTimeout(() => {
-        const trace = ensembleManager.getTraceWithName(key);
-        ensembleManager.currentTrace = trace;
-        SpacewalkEventBus.globalBus.post({ type: "DidSelectTrace", data: { trace } });
+        const trace = ensembleManager.getTraceWithName(key)
+        ensembleManager.currentTrace = trace
+        SpacewalkEventBus.globalBus.post({ type: "DidSelectTrace", data: { trace } })
     }, 0);
 }
 
