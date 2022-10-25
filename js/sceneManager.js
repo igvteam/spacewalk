@@ -13,6 +13,7 @@ import { pointCloud, ribbon, ballAndStick, ensembleManager } from "./app.js";
 import { getGUIRenderStyle } from "./guiManager.js";
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 import Ribbon from './ribbon.js'
+import {degrees} from "./math";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -73,7 +74,7 @@ class SceneManager {
 
         }  else if ('DidLoadEnsembleFile' === type) {
 
-            this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : getGUIRenderStyle();
+            this.renderStyle = true === ensembleManager.genomic.isPointCloud ? PointCloud.getRenderStyle() : getGUIRenderStyle();
 
             const { trace } = data;
             this.setupWithTrace(trace);
@@ -93,7 +94,7 @@ class SceneManager {
 
         let scene = new THREE.Scene();
 
-        if (ensembleManager.isPointCloud) {
+        if (ensembleManager.genomic.isPointCloud) {
 
             pointCloud.configure(trace);
             pointCloud.addToScene(scene);
@@ -106,7 +107,7 @@ class SceneManager {
         }
 
         const {min, max, center, radius} = EnsembleManager.getTraceBounds(trace);
-        const {position, fov} = EnsembleManager.getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
+        const {position, fov} = getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
         this.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
 
     }
@@ -236,6 +237,43 @@ class SceneManager {
 
     }
 
+}
+
+function getCameraPoseAlongAxis ({ center, radius, axis, scaleFactor }) {
+
+    const dimen = scaleFactor * radius;
+
+    const theta = Math.atan(radius/dimen);
+    const fov = degrees( 2 * theta);
+
+    const axes =
+        {
+            '-x': () => {
+                return new THREE.Vector3(-dimen, 0, 0);
+            },
+            '+x': () => {
+                return new THREE.Vector3(dimen, 0, 0);
+            },
+            '-y': () => {
+                return new THREE.Vector3(0, -dimen, 0);
+            },
+            '+y': () => {
+                return new THREE.Vector3(0, dimen, 0);
+            },
+            '-z': () => {
+                return new THREE.Vector3(0, 0, -dimen);
+            },
+            '+z': () => {
+                return new THREE.Vector3(0, 0, dimen);
+            },
+        };
+
+    const vector = axes[ axis ]();
+    let position = new THREE.Vector3();
+
+    position.addVectors(center, vector);
+
+    return { target:center, position, fov }
 }
 
 const sceneManagerConfigurator = ({ container, highlightColor }) => {

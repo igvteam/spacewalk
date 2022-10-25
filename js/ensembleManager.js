@@ -8,7 +8,7 @@ class EnsembleManager {
     constructor () {
     }
 
-    ingest({ sample, genomeAssembly, genomic }, traceKey) {
+    ingest(sample, genomeAssembly, genomic, traceKey) {
 
         const str = 'EnsembleManager ingestSW'
         console.time(str)
@@ -16,8 +16,6 @@ class EnsembleManager {
         this.genomeAssembly = genomeAssembly
 
         this.genomic = genomic
-
-        this.isPointCloud = genomic.isPointCloud;
 
         this.ensemble = {}
 
@@ -36,7 +34,7 @@ class EnsembleManager {
                 let xyz
                 let rgb
 
-                if (true === this.isPointCloud) {
+                if (true === this.genomic.isPointCloud) {
                     xyz = traceValue.flatMap(({ x, y, z }) => [ x, y, z ])
                     rgb = traceValue.flatMap(ignore => [ color.r, color.g, color.b ])
                 } else {
@@ -50,7 +48,7 @@ class EnsembleManager {
                         xyz,
                         rgb,
                         color,
-                        drawUsage: true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
+                        drawUsage: true === this.genomic.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
                     }
 
                 this.ensemble[ ensembleKey ].push(item)
@@ -133,43 +131,6 @@ class EnsembleManager {
         const { center, radius } = boundingSphere;
 
         return { min, max, center, radius }
-    }
-
-    static getCameraPoseAlongAxis ({ center, radius, axis, scaleFactor }) {
-
-        const dimen = scaleFactor * radius;
-
-        const theta = Math.atan(radius/dimen);
-        const fov = degrees( 2 * theta);
-
-        const axes =
-            {
-                '-x': () => {
-                    return new THREE.Vector3(-dimen, 0, 0);
-                },
-                '+x': () => {
-                    return new THREE.Vector3(dimen, 0, 0);
-                },
-                '-y': () => {
-                    return new THREE.Vector3(0, -dimen, 0);
-                },
-                '+y': () => {
-                    return new THREE.Vector3(0, dimen, 0);
-                },
-                '-z': () => {
-                    return new THREE.Vector3(0, 0, -dimen);
-                },
-                '+z': () => {
-                    return new THREE.Vector3(0, 0, dimen);
-                },
-            };
-
-        const vector = axes[ axis ]();
-        let position = new THREE.Vector3();
-
-        position.addVectors(center, vector);
-
-        return { target:center, position, fov }
     }
 
     static getSingleCentroidVertices(trace, doFilterMissingData) {

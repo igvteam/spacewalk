@@ -29,29 +29,30 @@ class Parser {
         for (let line of lines) {
 
             if (line.startsWith('chromosome')) {
-                datasets[ 'genomic' ] = new GenomicDataset();
-                ds = datasets[ 'genomic' ];
+                datasets.genomic = new GenomicDataset()
+                ds = datasets.genomic
                 continue;
             } else if (line.startsWith('nongenomic')) {
-                datasets[ 'nongenomic' ] = new NonGenomicDataset();
-                ds = datasets[ 'nongenomic' ];
-                continue;
+                datasets.nongenomic = new NonGenomicDataset()
+                ds = datasets.nongenomic
+                continue
             }
 
             if (ds) {
-                ds.consume(line, regex);
+                ds.consume(line, regex)
             }
 
         }
 
-        datasets[ 'genomic' ].postprocess();
-        if (datasets[ 'nongenomic' ]) {
-            datasets[ 'nongenomic' ].postprocess();
+        datasets.genomic.postprocess()
+
+        if (datasets.nongenomic) {
+            datasets.nongenomic.postprocess()
         }
 
         console.timeEnd(str);
 
-        return datasets;
+        return datasets
 
     }
 
@@ -74,10 +75,11 @@ class Parser {
         }
 
         showGlobalSpinner();
-        const payload = this.parse(string);
+        const datasets = this.parse(string);
         hideGlobalSpinner();
 
-        ensembleManager.ingest(payload, traceKey);
+        const { sample, genomeAssembly, genomic } = datasets
+        ensembleManager.ingest(sample, genomeAssembly, genomic, traceKey)
 
     }
 
