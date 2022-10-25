@@ -113,8 +113,8 @@ class IGVPanel extends Panel {
 
                         let str = `all`
 
-                        if (ensembleManager.locus) {
-                            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                        if (ensembleManager.genome) {
+                            const { chr, genomicStart, genomicEnd } = ensembleManager.genome.locus
                             str = `${ chr }:${ genomicStart }-${ genomicEnd }`
                         }
 
@@ -153,11 +153,11 @@ class IGVPanel extends Panel {
 
         this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
 
-            if (undefined === ensembleManager || undefined === ensembleManager.locus) {
+            if (undefined === ensembleManager || undefined === ensembleManager.genome) {
                 return;
             }
 
-            const { genomicStart, genomicEnd } = ensembleManager.locus;
+            const { genomicStart, genomicEnd } = ensembleManager.genome.locus;
 
             const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
 

@@ -17,9 +17,6 @@ class EnsembleManager {
 
         this.genomic = genomic
 
-        this.locus = genomic.getLocus()
-        let { chr, genomicStart, genomicEnd } = this.locus
-
         this.isPointCloud = genomic.isPointCloud;
 
         this.ensemble = {}
@@ -64,8 +61,11 @@ class EnsembleManager {
 
         console.timeEnd(str);
 
-        const initialKey = traceKey || '0';
-        this.currentTrace = this.getTraceWithName(initialKey);
+        const initialKey = traceKey || '0'
+
+        this.currentTrace = this.getTraceWithName(initialKey)
+
+        const { chr, genomicStart, genomicEnd } = this.genomic.locus
         SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, ensemble: this.ensemble, trace: this.currentTrace } });
 
     }

@@ -152,9 +152,9 @@ class JuiceboxPanel extends Panel {
 
                 await Globals.currentBrowser.loadHicFile(config)
 
-                if (ensembleManager.locus) {
+                if (ensembleManager.genome) {
 
-                    const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                    const { chr, genomicStart, genomicEnd } = ensembleManager.genome.locus
                     await Globals.currentBrowser.parseLocusString(`${chr}:${genomicStart}-${genomicEnd}`, true)
 
                 } else {
@@ -197,11 +197,11 @@ class JuiceboxPanel extends Panel {
 
 function juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) {
 
-    if (undefined === ensembleManager || undefined === ensembleManager.locus) {
+    if (undefined === ensembleManager || undefined === ensembleManager.genome.locus) {
         return
     }
 
-    const { genomicStart, genomicEnd } = ensembleManager.locus
+    const { genomicStart, genomicEnd } = ensembleManager.genome.locus
 
     const trivialRejection = startXBP > genomicEnd || endXBP < genomicStart || startYBP > genomicEnd || endYBP < genomicStart
 

@@ -1,5 +1,4 @@
-import Dataset from "./dataset.js";
-
+import Dataset from './dataset.js';
 
 class GenomicDataset extends Dataset {
 
@@ -20,7 +19,6 @@ class GenomicDataset extends Dataset {
     }
 
     consume(line, regex) {
-
 
         if (line.startsWith('trace')) {
 
@@ -69,6 +67,8 @@ class GenomicDataset extends Dataset {
 
         let [ anyTrace ] = Object.values(this.traces)
         let [ vertices ] = Object.values(anyTrace)
+
+        this.locus = { chr: this.chr, genomicStart: this.genomicStart, genomicEnd: this.genomicEnd }
 
         this.isPointCloud = (vertices.length > 1)
 

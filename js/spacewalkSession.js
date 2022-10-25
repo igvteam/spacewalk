@@ -145,7 +145,7 @@ function getCompressedSession() {
 function spacewalkToJSON () {
 
     const spacewalk = parser.toJSON()
-    spacewalk.locus = ensembleManager.locus
+    spacewalk.locus = ensembleManager.genome.locus
     spacewalk.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace)
     spacewalk.igvPanelState = igvPanel.getSessionState()
     spacewalk.renderStyle = getGUIRenderStyle()
