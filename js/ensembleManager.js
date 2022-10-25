@@ -19,12 +19,12 @@ class EnsembleManager {
 
         this.ensemble = {}
 
-        for (let [ key, trace ] of Object.entries(genomic.traces)) {
+        for (let [ key, value ] of Object.entries(genomic.traces)) {
 
             const [ ignore, ensembleKey ] = key.split('%')
             this.ensemble[ ensembleKey ] = []
 
-            const traceValues = Object.values(trace)
+            const traceValues = Object.values(value)
             for (let i = 0; i < traceValues.length; i++) {
 
                 const traceValue = traceValues[ i ]
@@ -65,6 +65,37 @@ class EnsembleManager {
 
         const { chr, genomicStart, genomicEnd } = this.genomic.locus
         SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, ensemble: this.ensemble, trace: this.currentTrace } });
+
+    }
+
+    createTrace(genomic, index) {
+
+        const values = Object.values(dictionary)
+
+        const list = values.map((value, i) => {
+
+            const color = colorRampMaterialProvider.colorForInterpolant(genomic.genomicExtentList[ i ].interpolant)
+
+            let xyz
+            let rgb
+
+            if (true === this.genomic.isPointCloud) {
+                xyz = value.flatMap(({ x, y, z }) => [ x, y, z ])
+                rgb = value.flatMap(ignore => [ color.r, color.g, color.b ])
+            } else {
+                xyz = value
+                rgb = color
+            }
+
+            return {
+                    interpolant: genomic.genomicExtentList[ i ].interpolant,
+                    xyz,
+                    rgb,
+                    color,
+                    drawUsage: true === this.genomic.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
+                }
+
+        })
 
     }
 
