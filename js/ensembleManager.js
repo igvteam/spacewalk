@@ -84,7 +84,7 @@ class EnsembleManager {
     }
 
     getTraceCount() {
-        const list = Object.keys(this.ensemble)
+        const list = Object.keys(this.genomic.traces)
         return list.length
     }
 
