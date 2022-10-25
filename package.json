@@ -15,7 +15,6 @@
     "igv-ui": "github:igvteam/igv-ui#v1.2.1",
     "igv-utils": "github:igvteam/igv-utils#v1.3.4",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
-    "jsfive": "^0.3.13",
     "sass": "^1.54.4",
     "three": "^0.143.0",
     "vanilla-picker": "^2.12.1",

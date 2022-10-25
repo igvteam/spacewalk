@@ -149,6 +149,14 @@ class GenomicDataset extends Dataset {
 
     }
 
+    getTraceList() {
+        return Object.values(this.traces)
+    }
+
+    getTraceRowXYZList(trace) {
+        return Object.values(trace)
+    }
+
     getLocus() {
         const { chr, genomicStart, genomicEnd } = this
         return { chr, genomicStart, genomicEnd }

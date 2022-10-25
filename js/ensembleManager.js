@@ -19,42 +19,10 @@ class EnsembleManager {
 
         this.ensemble = {}
 
-        for (let [ key, value ] of Object.entries(genomic.traces)) {
-
-            const [ ignore, ensembleKey ] = key.split('%')
-            this.ensemble[ ensembleKey ] = []
-
-            const traceValues = Object.values(value)
-            for (let i = 0; i < traceValues.length; i++) {
-
-                const traceValue = traceValues[ i ]
-
-                const color = colorRampMaterialProvider.colorForInterpolant(genomic.genomicExtentList[ i ].interpolant)
-
-                let xyz
-                let rgb
-
-                if (true === this.genomic.isPointCloud) {
-                    xyz = traceValue.flatMap(({ x, y, z }) => [ x, y, z ])
-                    rgb = traceValue.flatMap(ignore => [ color.r, color.g, color.b ])
-                } else {
-                    xyz = traceValue
-                    rgb = color
-                }
-
-                const item =
-                    {
-                        interpolant: genomic.genomicExtentList[ i ].interpolant,
-                        xyz,
-                        rgb,
-                        color,
-                        drawUsage: true === this.genomic.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
-                    }
-
-                this.ensemble[ ensembleKey ].push(item)
-
-            }
-
+        const traceList = genomic.getTraceList()
+        for (const trace of traceList) {
+            const key = traceList.indexOf(trace).toString()
+            this.ensemble[ key ] = this.createTrace(genomic, trace)
         }
 
         console.timeEnd(str);
@@ -68,31 +36,22 @@ class EnsembleManager {
 
     }
 
-    createTrace(genomic, index) {
+    createTrace(genomic, trace) {
 
-        const values = Object.values(dictionary)
+        return genomic.getTraceRowXYZList(trace).map((traceRowXYZ, index) => {
 
-        const list = values.map((value, i) => {
+            const color = colorRampMaterialProvider.colorForInterpolant(genomic.genomicExtentList[index].interpolant)
 
-            const color = colorRampMaterialProvider.colorForInterpolant(genomic.genomicExtentList[ i ].interpolant)
-
-            let xyz
-            let rgb
-
-            if (true === this.genomic.isPointCloud) {
-                xyz = value.flatMap(({ x, y, z }) => [ x, y, z ])
-                rgb = value.flatMap(ignore => [ color.r, color.g, color.b ])
-            } else {
-                xyz = value
-                rgb = color
-            }
+            const xyz = true === this.genomic.isPointCloud ? traceRowXYZ.flatMap(({x, y, z}) => [x, y, z]) : traceRowXYZ
+            const rgb = true === this.genomic.isPointCloud ? traceRowXYZ.flatMap(ignore => [color.r, color.g, color.b]) : color
+            const drawUsage = true === this.genomic.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
 
             return {
-                    interpolant: genomic.genomicExtentList[ i ].interpolant,
+                    interpolant: genomic.genomicExtentList[index].interpolant,
                     xyz,
                     rgb,
                     color,
-                    drawUsage: true === this.genomic.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
+                    drawUsage
                 }
 
         })
