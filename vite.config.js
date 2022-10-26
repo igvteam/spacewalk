@@ -1,11 +1,13 @@
-export default {
-    esbuild: {
-        target: "es2020"
-    },
+import { defineConfig } from "vite"
 
+export default defineConfig({
+    build: {
+        target: 'es2020'
+    },
     optimizeDeps: {
         esbuildOptions : {
             target: "es2020"
         }
     }
-}
+
+})
