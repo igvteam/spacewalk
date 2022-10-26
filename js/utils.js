@@ -161,21 +161,18 @@ const transferContactFrequencyArrayToCanvas = async (ctx, contactFrequencyArray)
 
     const imageData = new ImageData(contactFrequencyArray, ensembleManager.genomic.traceLength, ensembleManager.genomic.traceLength);
 
-    /*
+    // const config =
+    //     {
+    //         resizeWidth: width,
+    //         resizeHeight: height
+    //     };
+    //
+    // const imageBitmap = await createImageBitmap(imageData, config);
 
-    const config =
-        {
-            resizeWidth: width,
-            resizeHeight: height
-        };
+    const imageBitmap = await createImageBitmap(imageData)
 
-    const imageBitmap = await createImageBitmap(imageData, config);
-     */
+    ctx.transferFromImageBitmap(imageBitmap);
 
-    // const imageBitmap = await createImageBitmap(imageData);
-    // ctx.transferFromImageBitmap(imageBitmap);
-
-    ctx.putImageData(imageData, 0, 0)
 };
 
 const generateRadiusTable = defaultRadius => {

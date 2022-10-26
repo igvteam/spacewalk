@@ -38,12 +38,8 @@ class TraceSelect {
 
     receiveEvent({ type, data }) {
         if ("DidLoadEnsembleFile" === type) {
-
-            const { initialKey } = data
-            currentNumber = parseInt(initialKey, 10)
-
+            currentNumber = data.initialIndex
             this.input.value = `${ currentNumber } of ${ ensembleManager.getTraceCount() }`
-
         }
     }
 }
@@ -53,10 +49,9 @@ function broadcastTraceSelection(input, number, howmany) {
     input.value = `${ number } of ${ howmany }`
 
     currentNumber = number;
-    const key = currentNumber.toString();
 
     window.setTimeout(() => {
-        const trace = ensembleManager.getTraceWithName(key)
+        const trace = ensembleManager.ensemble[ currentNumber ]
         ensembleManager.currentTrace = trace
         SpacewalkEventBus.globalBus.post({ type: "DidSelectTrace", data: { trace } })
     }, 0);

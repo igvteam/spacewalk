@@ -8,10 +8,7 @@ class EnsembleManager {
     constructor () {
     }
 
-    ingest(sample, genomeAssembly, genomic, traceKey) {
-
-        const str = 'EnsembleManager ingestSW'
-        console.time(str)
+    ingest(sample, genomeAssembly, genomic, index) {
 
         this.genomeAssembly = genomeAssembly
 
@@ -19,20 +16,20 @@ class EnsembleManager {
 
         this.ensemble = {}
 
+        const str = 'EnsembleManager ingestSW'
+        console.time(str)
+
         const traceList = genomic.getTraceList()
-        for (const trace of traceList) {
-            const key = traceList.indexOf(trace).toString()
-            this.ensemble[ key ] = this.createTrace(genomic, trace)
-        }
+        this.ensemble = traceList.map(( trace, index) => this.createTrace(genomic, traceList[ index ]))
 
         console.timeEnd(str);
 
-        const initialKey = traceKey || '0'
+        const initialIndex = index || 0
 
-        this.currentTrace = this.getTraceWithName(initialKey)
+        this.currentTrace = this.ensemble[ initialIndex ]
 
         const { chr, genomicStart, genomicEnd } = this.genomic.locus
-        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, ensemble: this.ensemble, trace: this.currentTrace } });
+        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialIndex, trace: this.currentTrace } });
 
     }
 
@@ -59,18 +56,8 @@ class EnsembleManager {
     }
 
     getTraceKey(trace) {
-
-        for (let [key, value] of Object.entries(this.ensemble)) {
-            if (trace === value) {
-                return key;
-            }
-        }
-
-        return undefined;
-    }
-
-    getTraceWithName(name) {
-        return this.ensemble[ name ] || undefined;
+        const index = this.ensemble.indexOf(trace)
+        return index.toString()
     }
 
     getTraceCount() {

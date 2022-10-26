@@ -62,7 +62,7 @@ class ContactFrequencyMapPanel extends Panel {
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
             window.setTimeout(() => {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.ensemble)
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, ensembleManager.ensemble)
                 this.updateTraceContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }, 0)
@@ -105,15 +105,14 @@ class ContactFrequencyMapPanel extends Panel {
 
         } else if ("DidLoadEnsembleFile" === type) {
 
-            const { ensemble, trace } = data
-            this.ensemble = ensemble
+            const { trace } = data
             this.trace = trace
             this.doUpdateTrace = this.doUpdateEnsemble = true
 
             allocateContactFrequencyArray(ensembleManager.genomic.traceLength)
 
             if (false === this.isHidden) {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.ensemble)
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, ensembleManager.ensemble)
                 this.updateTraceContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }
@@ -132,7 +131,7 @@ class ContactFrequencyMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.ensemble)
+            this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, ensembleManager.ensemble)
             this.doUpdateEnsemble = undefined
         }
 
@@ -173,7 +172,8 @@ class ContactFrequencyMapPanel extends Panel {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const vertexLists = Object.values(ensemble).map(trace => EnsembleManager.getLiveMapVertices(trace))
+        // const vertexLists = Object.values(ensemble).map(trace => EnsembleManager.getLiveMapVertices(trace))
+        const vertexLists = ensemble.map(trace => EnsembleManager.getLiveMapVertices(trace))
 
         const data =
             {

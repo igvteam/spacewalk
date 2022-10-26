@@ -57,10 +57,11 @@ class Parser {
     }
 
     async loadSessionTrace ({ url, traceKey }) {
-        await this.load(url, traceKey);
+        const index = parseInt(traceKey)
+        await this.load(url, index)
     }
 
-    async load (path, traceKey) {
+    async load(path, index) {
 
         this.url = false === FileUtils.isFilePath(path) ? path : undefined;
 
@@ -79,7 +80,7 @@ class Parser {
         hideGlobalSpinner();
 
         const { sample, genomeAssembly, genomic } = datasets
-        ensembleManager.ingest(sample, genomeAssembly, genomic, traceKey)
+        ensembleManager.ingest(sample, genomeAssembly, genomic, index)
 
     }
 
