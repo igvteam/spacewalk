@@ -1,6 +1,5 @@
 import { FileUtils, igvxhr } from 'igv-utils'
 import { hideGlobalSpinner, showGlobalSpinner } from "./utils.js";
-import {ensembleManager, parser} from "./app.js";
 import GenomicDataset from "./genomicDataset.js";
 
 class GenomicParser {
@@ -10,6 +9,8 @@ class GenomicParser {
     }
 
     async load(path) {
+
+        this.url = false === FileUtils.isFilePath(path) ? path : undefined;
 
         let string = undefined
         try {
@@ -47,6 +48,16 @@ class GenomicParser {
         console.timeEnd(str)
 
         return { sample, genomeAssembly, dataset }
+
+    }
+
+    toJSON() {
+
+        if (undefined === this.url) {
+            throw new Error(`Unable to save session. Local files not supported.`);
+        } else {
+            return { url: this.url };
+        }
 
     }
 

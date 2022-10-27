@@ -31,7 +31,6 @@ import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
 import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
-import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js";
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
 
@@ -184,19 +183,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
                 if ('cndb' === extension) {
                     await hdf5EnsembleManager.load(fileOrPath)
                 } else {
-
-                    const string = await parser.load(fileOrPath)
-
-                    showGlobalSpinner();
-                    const { sample, genomeAssembly, dataset } = parser.parse(string)
-                    hideGlobalSpinner();
-
-                    const { locus, traceLength, traces, genomicExtentList, isPointCloud } = dataset
-                    ensembleManager.ingest(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, 0)
-
-                    // discard unneeded dictionaries and arrays
-                    dataset.dispose()
-
+                    await ensembleManager.load(fileOrPath, parser, 0)
                 }
             }
         }
