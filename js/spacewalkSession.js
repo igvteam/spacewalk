@@ -152,7 +152,7 @@ function spacewalkToJSON () {
 
     const spacewalk = parser.toJSON()
     spacewalk.locus = { ...ensembleManager.locus }
-    spacewalk.traceKey = ensembleManager.getIndexWithTrace(ensembleManager.currentTrace).toString()
+    spacewalk.traceKey = ensembleManager.currentIndex.toString()
     spacewalk.igvPanelState = igvPanel.getSessionState()
     spacewalk.renderStyle = getGUIRenderStyle()
     spacewalk.panelVisibility = {}

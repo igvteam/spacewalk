@@ -51,9 +51,11 @@ function broadcastTraceSelection(input, number, howmany) {
     currentNumber = number;
 
     window.setTimeout(() => {
-        const trace = ensembleManager.getTraceWithIndex(currentNumber)
-        ensembleManager.currentTrace = trace
-        SpacewalkEventBus.globalBus.post({ type: "DidSelectTrace", data: { trace } })
+
+        ensembleManager.currentTrace = ensembleManager.createTrace(currentNumber)
+        ensembleManager.currentIndex = currentNumber
+
+        SpacewalkEventBus.globalBus.post({ type: "DidSelectTrace", data: { trace: ensembleManager.currentTrace } })
     }, 0);
 }
 

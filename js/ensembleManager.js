@@ -41,25 +41,27 @@ class EnsembleManager {
 
         this.isPointCloud = isPointCloud
 
-        this.createEnsemble(dataset)
+        // this.createEnsemble()
 
         const initialIndex = index || 0
-        this.currentTrace = this.ensemble[ initialIndex ]
+        // this.currentTrace = this.ensemble[ initialIndex ]
+        this.currentTrace = this.createTrace(initialIndex)
+        this.currentIndex = initialIndex
 
         const { chr, genomicStart, genomicEnd } = locus
         SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialIndex, trace: this.currentTrace } });
 
     }
 
-    createEnsemble(dataset) {
+    createEnsemble() {
 
         const str = 'EnsembleManager - createEnsemble'
         console.time(str)
 
         this.ensemble = []
-        const values = Object.values(dataset.traces)
+        const values = Object.values(this.dataset.traces)
         for (let i = 0; i < values.length; i++) {
-            const trace = this.createTrace(values, i)
+            const trace = this.createTrace(i)
             this.ensemble.push(trace)
         }
 
@@ -67,7 +69,9 @@ class EnsembleManager {
 
     }
 
-    createTrace(values, i) {
+    createTrace(i) {
+
+        const values = Object.values(this.dataset.traces)
 
         const rows = Object.values(values[ i ])
 
@@ -91,16 +95,8 @@ class EnsembleManager {
 
     }
 
-    getTraceWithIndex(index) {
-        return this.ensemble[ index ]
-    }
-
-    getIndexWithTrace(trace) {
-        return this.ensemble.indexOf(trace)
-    }
-
     getTraceCount() {
-        return this.ensemble.length
+        return Object.values(this.dataset.traces).length
     }
 
     getGenomicInterpolantWindowList(interpolantList) {
