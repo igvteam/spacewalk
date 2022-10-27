@@ -17,18 +17,17 @@ class EnsembleManager {
         const { sample, genomeAssembly, dataset } = parser.parse(string)
         hideGlobalSpinner();
 
-        const { locus, traceLength, traces, genomicExtentList, isPointCloud } = dataset
+        const { locus, traceLength, genomicExtentList, isPointCloud } = dataset
 
-        this.dataset = dataset
 
-        ensembleManager.initialize(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, initialIndex)
+        ensembleManager.initialize(sample, genomeAssembly, locus, traceLength, dataset, genomicExtentList, isPointCloud, initialIndex)
 
         // discard unneeded dictionaries and arrays
         // dataset.dispose()
 
     }
 
-    initialize(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, index) {
+    initialize(sample, genomeAssembly, locus, traceLength, dataset, genomicExtentList, isPointCloud, index) {
 
         this.genomeAssembly = genomeAssembly
 
@@ -36,11 +35,13 @@ class EnsembleManager {
 
         this.traceLength = traceLength
 
+        this.dataset = dataset
+
         this.genomicExtentList = genomicExtentList
 
         this.isPointCloud = isPointCloud
 
-        this.createEnsemble(traces)
+        this.createEnsemble(dataset)
 
         const initialIndex = index || 0
         this.currentTrace = this.ensemble[ initialIndex ]
@@ -50,26 +51,26 @@ class EnsembleManager {
 
     }
 
-    createEnsemble(traces) {
+    createEnsemble(dataset) {
 
         const str = 'EnsembleManager - createEnsemble'
         console.time(str)
 
-        const traceList = Object.values(traces)
-        this.ensemble = traceList.map(( trace, index) => this.createTrace(traceList[index]))
+        const values = Object.values(dataset)
+        this.ensemble = values.map(( trace, index) => this.createTrace(values[index]))
 
         console.timeEnd(str)
 
     }
 
-    createTrace(trace) {
+    createTrace(rows) {
 
-        return Object.values(trace).map((traceRowXYZ, index) => {
+        return Object.values(rows).map((row, index) => {
 
             const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[index].interpolant)
 
-            const xyz = true === this.isPointCloud ? traceRowXYZ.flatMap(({x, y, z}) => [x, y, z]) : traceRowXYZ
-            const rgb = true === this.isPointCloud ? traceRowXYZ.flatMap(ignore => [color.r, color.g, color.b]) : color
+            const xyz = true === this.isPointCloud ? row.flatMap(({x, y, z}) => [x, y, z]) : row
+            const rgb = true === this.isPointCloud ? row.flatMap(ignore => [color.r, color.g, color.b]) : color
             const drawUsage = true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
 
             return {
