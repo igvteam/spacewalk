@@ -97,7 +97,7 @@ class GUIManager {
 
             $('#spacewalk_info_panel').show();
 
-            if (true === ensembleManager.genomic.isPointCloud) {
+            if (true === ensembleManager.isPointCloud) {
                 $('#spacewalk_ui_manager_render_styles').hide();
             } else {
                 $('#spacewalk_ui_manager_render_styles').show();

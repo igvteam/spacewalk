@@ -74,7 +74,7 @@ class DistanceMapPanel extends Panel {
             this.trace = trace
 
             if (false === this.isHidden) {
-                this.updateTraceDistanceCanvas(ensembleManager.genomic.traceLength, this.trace)
+                this.updateTraceDistanceCanvas(ensembleManager.traceLength, this.trace)
                 this.doUpdateTrace = undefined
             } else {
                 this.doUpdateTrace = true
@@ -85,11 +85,11 @@ class DistanceMapPanel extends Panel {
             const { trace } = data
             this.trace = trace
 
-            initializeSharedBuffers(ensembleManager.genomic.traceLength)
+            initializeSharedBuffers(ensembleManager.traceLength)
 
             if (false === this.isHidden) {
-                this.updateEnsembleAverageDistanceCanvas(ensembleManager.genomic.traceLength, ensembleManager.ensemble)
-                this.updateTraceDistanceCanvas(ensembleManager.genomic.traceLength, this.trace)
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.traceLength, ensembleManager.ensemble)
+                this.updateTraceDistanceCanvas(ensembleManager.traceLength, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             } else {
                 this.doUpdateTrace = this.doUpdateEnsemble = true
@@ -103,12 +103,12 @@ class DistanceMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleAverageDistanceCanvas(ensembleManager.genomic.traceLength, ensembleManager.ensemble)
+            this.updateEnsembleAverageDistanceCanvas(ensembleManager.traceLength, ensembleManager.ensemble)
             this.doUpdateEnsemble = undefined
         }
 
         if (true === this.doUpdateTrace) {
-            this.updateTraceDistanceCanvas(ensembleManager.genomic.traceLength, this.trace)
+            this.updateTraceDistanceCanvas(ensembleManager.traceLength, this.trace)
             this.doUpdateTrace = undefined
         }
 
@@ -133,7 +133,7 @@ class DistanceMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(canvasArray, ensembleManager.genomic.traceLength)
+        clearCanvasArray(canvasArray, ensembleManager.traceLength)
         transferContactFrequencyArrayToCanvas(this.ctx_trace, canvasArray)
 
     }
@@ -153,7 +153,7 @@ class DistanceMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(ensembleManager.genomic.traceLength)
+        clearCanvasArray(ensembleManager.traceLength)
         transferContactFrequencyArrayToCanvas(this.ctx_ensemble, canvasArray)
 
     }

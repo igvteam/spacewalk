@@ -67,7 +67,6 @@ class GenomicDataset extends Dataset {
                 trace[ traceKey ].push ({ x:'nan', y:'nan', z:'nan', isMissingData:true });
             }
 
-
         }
 
     }
@@ -158,14 +157,10 @@ class GenomicDataset extends Dataset {
 
     }
 
-    getTraceList() {
-        return Object.values(this.traces)
+    dispose() {
+        this.traces = undefined
+        this.genomicExtentList = undefined
     }
-
-    getTraceRowXYZList(trace) {
-        return Object.values(trace)
-    }
-
 }
 
 export default GenomicDataset

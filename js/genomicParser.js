@@ -57,7 +57,11 @@ class GenomicParser {
         const { sample, genomeAssembly, dataset } = this.parse(string)
         hideGlobalSpinner();
 
-        ensembleManager.ingest(sample, genomeAssembly, dataset, index)
+        const { locus, traceLength, traces, genomicExtentList, isPointCloud } = dataset
+        ensembleManager.ingest(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, index)
+
+        // discard unneeded dictionaries and arrays
+        dataset.dispose()
 
     }
 

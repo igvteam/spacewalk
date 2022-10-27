@@ -62,8 +62,8 @@ class ContactFrequencyMapPanel extends Panel {
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
             window.setTimeout(() => {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, ensembleManager.ensemble)
-                this.updateTraceContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.trace)
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.ensemble)
+                this.updateTraceContactFrequencyCanvas(ensembleManager.traceLength, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }, 0)
         })
@@ -80,7 +80,8 @@ class ContactFrequencyMapPanel extends Panel {
 
             // Only ensemble data is used to create the live contact map in Juicebox
             if ('ensemble' === data.traceOrEnsemble) {
-                const { traceLength, chr, genomicStart, genomicEnd } = ensembleManager.genomic
+                const { traceLength, locus } = ensembleManager
+                const { chr, genomicStart, genomicEnd } = locus
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, traceLength, ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
                 await Globals.currentBrowser.contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, contactFrequencyArray)
             }
@@ -99,7 +100,7 @@ class ContactFrequencyMapPanel extends Panel {
             this.doUpdateTrace = true
 
             if (false === this.isHidden) {
-                this.updateTraceContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.trace)
+                this.updateTraceContactFrequencyCanvas(ensembleManager.traceLength, this.trace)
                 this.doUpdateTrace = undefined
             }
 
@@ -109,11 +110,11 @@ class ContactFrequencyMapPanel extends Panel {
             this.trace = trace
             this.doUpdateTrace = this.doUpdateEnsemble = true
 
-            allocateContactFrequencyArray(ensembleManager.genomic.traceLength)
+            allocateContactFrequencyArray(ensembleManager.traceLength)
 
             if (false === this.isHidden) {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, ensembleManager.ensemble)
-                this.updateTraceContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.trace)
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.ensemble)
+                this.updateTraceContactFrequencyCanvas(ensembleManager.traceLength, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }
 
@@ -131,12 +132,12 @@ class ContactFrequencyMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleContactFrequencyCanvas(ensembleManager.genomic.traceLength, ensembleManager.ensemble)
+            this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.ensemble)
             this.doUpdateEnsemble = undefined
         }
 
         if (true === this.doUpdateTrace) {
-            this.updateTraceContactFrequencyCanvas(ensembleManager.genomic.traceLength, this.trace)
+            this.updateTraceContactFrequencyCanvas(ensembleManager.traceLength, this.trace)
             this.doUpdateTrace = undefined
         }
 
@@ -162,7 +163,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        // clearCanvasArray(contactFrequencyArray, ensembleManager.genomic.traceLength)
+        // clearCanvasArray(contactFrequencyArray, ensembleManager.traceLength)
 
         transferContactFrequencyArrayToCanvas(this.ctx_trace, contactFrequencyArray)
 
@@ -185,7 +186,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        // clearCanvasArray(contactFrequencyArray, ensembleManager.genomic.traceLength)
+        // clearCanvasArray(contactFrequencyArray, ensembleManager.traceLength)
 
         transferContactFrequencyArrayToCanvas(this.ctx_ensemble, contactFrequencyArray)
 

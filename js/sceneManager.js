@@ -74,7 +74,7 @@ class SceneManager {
 
         }  else if ('DidLoadEnsembleFile' === type) {
 
-            this.renderStyle = true === ensembleManager.genomic.isPointCloud ? PointCloud.getRenderStyle() : getGUIRenderStyle();
+            this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : getGUIRenderStyle();
 
             const { trace } = data;
             this.setupWithTrace(trace);
@@ -94,7 +94,7 @@ class SceneManager {
 
         let scene = new THREE.Scene();
 
-        if (ensembleManager.genomic.isPointCloud) {
+        if (ensembleManager.isPointCloud) {
 
             pointCloud.configure(trace);
             pointCloud.addToScene(scene);

@@ -8,43 +8,49 @@ class EnsembleManager {
     constructor () {
     }
 
-    ingest(sample, genomeAssembly, dataset, index) {
+    ingest(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, index) {
 
         this.genomeAssembly = genomeAssembly
 
-        this.genomic = dataset
+        this.locus = locus
+
+        this.traceLength = traceLength
+
+        this.genomicExtentList = genomicExtentList
+
+        this.isPointCloud = isPointCloud
+
+        const initialIndex = index || 0
 
         this.ensemble = {}
 
         const str = 'EnsembleManager ingestSW'
         console.time(str)
 
-        const traceList = dataset.getTraceList()
-        this.ensemble = traceList.map(( trace, index) => this.createTrace(dataset, traceList[ index ]))
+        const traceList = Object.values(traces)
+        this.ensemble = traceList.map(( trace, index) => this.createTrace(traceList[index]))
 
         console.timeEnd(str);
 
-        const initialIndex = index || 0
-
         this.currentTrace = this.ensemble[ initialIndex ]
 
-        const { chr, genomicStart, genomicEnd } = dataset.locus
+        const { chr, genomicStart, genomicEnd } = locus
         SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialIndex, trace: this.currentTrace } });
 
     }
 
-    createTrace(genomic, trace) {
+    createTrace(trace) {
 
-        return genomic.getTraceRowXYZList(trace).map((traceRowXYZ, index) => {
+        return Object.values(trace).map((traceRowXYZ, index) => {
 
-            const color = colorRampMaterialProvider.colorForInterpolant(genomic.genomicExtentList[index].interpolant)
+            const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[index].interpolant)
 
-            const xyz = true === genomic.isPointCloud ? traceRowXYZ.flatMap(({x, y, z}) => [x, y, z]) : traceRowXYZ
-            const rgb = true === genomic.isPointCloud ? traceRowXYZ.flatMap(ignore => [color.r, color.g, color.b]) : color
-            const drawUsage = true === genomic.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
+            const xyz = true === this.isPointCloud ? traceRowXYZ.flatMap(({x, y, z}) => [x, y, z]) : traceRowXYZ
+            const rgb = true === this.isPointCloud ? traceRowXYZ.flatMap(ignore => [color.r, color.g, color.b]) : color
+            const drawUsage = true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
 
             return {
-                    interpolant: genomic.genomicExtentList[index].interpolant,
+                    interpolant: this.genomicExtentList[index].interpolant,
                     xyz,
                     rgb,
                     color,
@@ -68,14 +74,14 @@ class EnsembleManager {
 
         const interpolantWindowList = [];
 
-        for (let genomicExtent of this.genomic.genomicExtentList) {
+        for (let genomicExtent of this.genomicExtentList) {
 
             let { start:a, end:b } = genomicExtent
 
             for (let interpolant of interpolantList) {
 
                 if ( includes({ a, b, value: interpolant }) ) {
-                    interpolantWindowList.push({ genomicExtent, index: this.genomic.genomicExtentList.indexOf(genomicExtent) })
+                    interpolantWindowList.push({ genomicExtent, index: this.genomicExtentList.indexOf(genomicExtent) })
                 }
 
             }
