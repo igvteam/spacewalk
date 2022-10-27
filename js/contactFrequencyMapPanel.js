@@ -62,7 +62,7 @@ class ContactFrequencyMapPanel extends Panel {
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
             window.setTimeout(() => {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.ensemble)
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.getLiveContactFrequencyMapVertexLists())
                 this.updateTraceContactFrequencyCanvas(ensembleManager.traceLength, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }, 0)
@@ -113,7 +113,7 @@ class ContactFrequencyMapPanel extends Panel {
             allocateContactFrequencyArray(ensembleManager.traceLength)
 
             if (false === this.isHidden) {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.ensemble)
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.getLiveContactFrequencyMapVertexLists())
                 this.updateTraceContactFrequencyCanvas(ensembleManager.traceLength, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }
@@ -132,7 +132,7 @@ class ContactFrequencyMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.ensemble)
+            this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.getLiveContactFrequencyMapVertexLists())
             this.doUpdateEnsemble = undefined
         }
 
@@ -151,7 +151,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const vertices = EnsembleManager.getLiveMapVertices(trace)
+        const vertices = EnsembleManager.getLiveContactFrequencyMapTraceVertices(trace)
 
         const data =
             {
@@ -169,12 +169,9 @@ class ContactFrequencyMapPanel extends Panel {
 
     }
 
-    updateEnsembleContactFrequencyCanvas(traceLength, ensemble) {
+    updateEnsembleContactFrequencyCanvas(traceLength, vertexLists) {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
-
-        // const vertexLists = Object.values(ensemble).map(trace => EnsembleManager.getLiveMapVertices(trace))
-        const vertexLists = ensemble.map(trace => EnsembleManager.getLiveMapVertices(trace))
 
         const data =
             {

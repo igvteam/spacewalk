@@ -40,20 +40,25 @@ class EnsembleManager {
 
         this.isPointCloud = isPointCloud
 
-        const initialIndex = index || 0
+        this.createEnsemble(traces)
 
-        const str = 'EnsembleManager ingestSW'
+        const initialIndex = index || 0
+        this.currentTrace = this.ensemble[ initialIndex ]
+
+        const { chr, genomicStart, genomicEnd } = locus
+        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialIndex, trace: this.currentTrace } });
+
+    }
+
+    createEnsemble(traces) {
+
+        const str = 'EnsembleManager - createEnsemble'
         console.time(str)
 
         const traceList = Object.values(traces)
         this.ensemble = traceList.map(( trace, index) => this.createTrace(traceList[index]))
 
-        console.timeEnd(str);
-
-        this.currentTrace = this.ensemble[ initialIndex ]
-
-        const { chr, genomicStart, genomicEnd } = locus
-        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialIndex, trace: this.currentTrace } });
+        console.timeEnd(str)
 
     }
 
@@ -79,6 +84,14 @@ class EnsembleManager {
 
     }
 
+    getTraceWithIndex(index) {
+        return this.ensemble[ index ]
+    }
+
+    getIndexWithTrace(trace) {
+        return this.ensemble.indexOf(trace)
+    }
+
     getTraceCount() {
         return this.ensemble.length
     }
@@ -102,6 +115,20 @@ class EnsembleManager {
         }
 
         return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;
+    }
+
+    getLiveContactFrequencyMapVertexLists() {
+        return this.ensemble.map(trace => getLiveContactFrequencyMapTraceVertices(trace))
+    }
+
+    static getLiveContactFrequencyMapTraceVertices(trace) {
+
+        return trace
+            .map(({ xyz }) => {
+                const { x, y, z, isMissingData } = xyz
+                return true === isMissingData ? { isMissingData } : { x, y, z }
+            })
+
     }
 
     static getTraceBounds(trace){
@@ -143,16 +170,6 @@ class EnsembleManager {
         }
 
         return list.map(({ xyz }) => new THREE.Vector3(xyz.x, xyz.y, xyz.z))
-
-    }
-
-    static getLiveMapVertices(trace) {
-
-        return trace
-            .map(({ xyz }) => {
-                const { x, y, z, isMissingData } = xyz
-                return true === isMissingData ? { isMissingData } : { x, y, z }
-            })
 
     }
 

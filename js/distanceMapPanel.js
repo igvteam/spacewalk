@@ -88,7 +88,7 @@ class DistanceMapPanel extends Panel {
             initializeSharedBuffers(ensembleManager.traceLength)
 
             if (false === this.isHidden) {
-                this.updateEnsembleAverageDistanceCanvas(ensembleManager.traceLength, ensembleManager.ensemble)
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.traceLength, ensembleManager.getLiveContactFrequencyMapVertexLists())
                 this.updateTraceDistanceCanvas(ensembleManager.traceLength, this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             } else {
@@ -103,7 +103,7 @@ class DistanceMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleAverageDistanceCanvas(ensembleManager.traceLength, ensembleManager.ensemble)
+            this.updateEnsembleAverageDistanceCanvas(ensembleManager.traceLength, ensembleManager.getLiveContactFrequencyMapVertexLists())
             this.doUpdateEnsemble = undefined
         }
 
@@ -122,7 +122,7 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const vertices = EnsembleManager.getLiveMapVertices(trace)
+        const vertices = EnsembleManager.getLiveContactFrequencyMapTraceVertices(trace)
 
         const data =
             {
@@ -138,11 +138,9 @@ class DistanceMapPanel extends Panel {
 
     }
 
-    updateEnsembleAverageDistanceCanvas(traceLength, ensemble){
+    updateEnsembleAverageDistanceCanvas(traceLength, vertexLists){
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
-
-        const vertexLists = ensemble.map(trace => EnsembleManager.getLiveMapVertices(trace))
 
         const data =
             {
