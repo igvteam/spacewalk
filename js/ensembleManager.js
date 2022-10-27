@@ -21,14 +21,14 @@ class EnsembleManager {
 
         this.dataset = dataset
 
-        ensembleManager.ingest(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, initialIndex)
+        ensembleManager.initialize(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, initialIndex)
 
         // discard unneeded dictionaries and arrays
         // dataset.dispose()
 
     }
 
-    ingest(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, index) {
+    initialize(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, index) {
 
         this.genomeAssembly = genomeAssembly
 
@@ -41,8 +41,6 @@ class EnsembleManager {
         this.isPointCloud = isPointCloud
 
         const initialIndex = index || 0
-
-        this.ensemble = {}
 
         const str = 'EnsembleManager ingestSW'
         console.time(str)
@@ -79,11 +77,6 @@ class EnsembleManager {
 
         })
 
-    }
-
-    getTraceKey(trace) {
-        const index = this.ensemble.indexOf(trace)
-        return index.toString()
     }
 
     getTraceCount() {

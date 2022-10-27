@@ -4,7 +4,7 @@ import { ensembleManager } from "./app.js";
 import GenomicDataset from "./genomicDataset.js";
 import NonGenomicDataset from "./nonGenomicDataset.js";
 
-class Parser {
+class DepricatedParser {
 
     constructor () {
 
@@ -121,4 +121,4 @@ const getSampleNameAndGenome = (lines, regex) => {
     return { sample, genomeAssembly }
 };
 
-export default Parser;
+export default DepricatedParser;
