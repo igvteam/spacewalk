@@ -5,7 +5,6 @@ import {BGZip, FileUtils, GoogleAuth, igvxhr} from 'igv-utils'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
-import Parser from "./parser.js"
 import GenomicParser from "./genomicParser.js"
 import HDF5EnsembleManager from "./hdf5EnsembleManager.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
@@ -32,6 +31,7 @@ import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
 import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
+import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js";
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
 
@@ -180,7 +180,24 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
         {
             load: async fileOrPath => {
                 const extension = FileUtils.getExtension(fileOrPath)
-                'cndb' === extension ? await hdf5EnsembleManager.load(fileOrPath) : await parser.load(fileOrPath)
+
+                if ('cndb' === extension) {
+                    await hdf5EnsembleManager.load(fileOrPath)
+                } else {
+
+                    const string = await parser.load(fileOrPath)
+
+                    showGlobalSpinner();
+                    const { sample, genomeAssembly, dataset } = parser.parse(string)
+                    hideGlobalSpinner();
+
+                    const { locus, traceLength, traces, genomicExtentList, isPointCloud } = dataset
+                    ensembleManager.ingest(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, 0)
+
+                    // discard unneeded dictionaries and arrays
+                    dataset.dispose()
+
+                }
             }
         }
 

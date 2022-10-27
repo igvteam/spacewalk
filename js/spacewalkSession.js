@@ -6,6 +6,7 @@ import {parser, igvPanel, juiceboxPanel, ensembleManager, sceneManager, contactF
 import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {Globals} from "./juicebox/globals"
+import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
@@ -70,7 +71,7 @@ async function loadSpacewalkSession (session) {
 
     contactFrequencyMapPanel.setState(contactFrequencyMapDistanceThreshold)
 
-    await parser.loadSessionTrace({ url, traceKey });
+    await loadSessionTrace({ url, traceKey })
 
     setGUIRenderStyle(renderStyle);
 
@@ -96,7 +97,23 @@ async function loadSpacewalkSession (session) {
 
 }
 
-const getUrlParams = url => {
+async function loadSessionTrace ({ url, traceKey }) {
+
+    const string = await parser.load(url)
+
+    showGlobalSpinner()
+    const { sample, genomeAssembly, dataset } = parser.parse(string)
+    hideGlobalSpinner()
+
+    const { locus, traceLength, traces, genomicExtentList, isPointCloud } = dataset
+    ensembleManager.ingest(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, parseInt(traceKey))
+
+    // discard unneeded dictionaries and arrays
+    dataset.dispose()
+
+}
+
+function getUrlParams(url) {
 
     const search = decodeURIComponent( url.slice( url.indexOf( '?' ) + 1 ) );
 
@@ -109,7 +126,7 @@ const getUrlParams = url => {
             return acc;
         }, {});
 
-};
+}
 
 async function getShareURL() {
 

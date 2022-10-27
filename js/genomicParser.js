@@ -1,11 +1,27 @@
 import { FileUtils, igvxhr } from 'igv-utils'
 import { hideGlobalSpinner, showGlobalSpinner } from "./utils.js";
-import { ensembleManager } from "./app.js";
+import {ensembleManager, parser} from "./app.js";
 import GenomicDataset from "./genomicDataset.js";
 
 class GenomicParser {
 
     constructor () {
+
+    }
+
+    async load(path) {
+
+        let string = undefined
+        try {
+            showGlobalSpinner()
+            string = await igvxhr.loadString(path)
+            hideGlobalSpinner()
+        } catch (e) {
+            hideGlobalSpinner()
+            console.error(e.message)
+        }
+
+        return string
 
     }
 
@@ -34,57 +50,9 @@ class GenomicParser {
 
     }
 
-    async loadSessionTrace ({ url, traceKey }) {
-        const index = parseInt(traceKey)
-        await this.load(url, index)
-    }
-
-    async load(path, index) {
-
-        this.url = false === FileUtils.isFilePath(path) ? path : undefined;
-
-        let string = undefined;
-        try {
-            showGlobalSpinner();
-            string = await igvxhr.loadString(path);
-            hideGlobalSpinner();
-        } catch (e) {
-            hideGlobalSpinner();
-            console.error(e.message)
-        }
-
-        showGlobalSpinner();
-        const { sample, genomeAssembly, dataset } = this.parse(string)
-        hideGlobalSpinner();
-
-        const { locus, traceLength, traces, genomicExtentList, isPointCloud } = dataset
-        ensembleManager.ingest(sample, genomeAssembly, locus, traceLength, traces, genomicExtentList, isPointCloud, index)
-
-        // discard unneeded dictionaries and arrays
-        dataset.dispose()
-
-    }
-
-    toJSON() {
-
-        if (undefined === this.url) {
-            throw new Error(`Unable to save session. Local files not supported.`);
-        } else {
-            return { url: this.url };
-        }
-
-    }
-
-    static getTraceSegmentGenomicRange(key) {
-        const [ startBP, endBP ] = key.split('%').map(k => parseInt(k));
-        const centroidBP = Math.round((startBP + endBP) / 2.0);
-        const sizeBP = endBP - startBP;
-        return { startBP, centroidBP, endBP, sizeBP };
-    }
-
 }
 
-const getSampleNameAndGenome = (lines, regex) => {
+function getSampleNameAndGenome(lines, regex) {
 
     const line = lines.shift();
 
@@ -100,6 +68,6 @@ const getSampleNameAndGenome = (lines, regex) => {
     const genomeAssembly = parts.shift().split('=').pop();
 
     return { sample, genomeAssembly }
-};
+}
 
 export default GenomicParser
