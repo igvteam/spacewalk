@@ -18,6 +18,15 @@ class GenomicDataset extends Dataset {
         this.genomicExtentList = undefined
     }
 
+    consumeLines(lines, regex) {
+
+        for (const line of lines) {
+            this.consume(line, regex)
+        }
+
+        this.postprocess()
+    }
+
     consume(line, regex) {
 
         if (line.startsWith('trace')) {
@@ -157,10 +166,6 @@ class GenomicDataset extends Dataset {
         return Object.values(trace)
     }
 
-    getLocus() {
-        const { chr, genomicStart, genomicEnd } = this
-        return { chr, genomicStart, genomicEnd }
-    }
 }
 
 export default GenomicDataset

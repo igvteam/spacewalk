@@ -8,19 +8,19 @@ class EnsembleManager {
     constructor () {
     }
 
-    ingest(sample, genomeAssembly, genomic, index) {
+    ingest(sample, genomeAssembly, dataset, index) {
 
         this.genomeAssembly = genomeAssembly
 
-        this.genomic = genomic
+        this.genomic = dataset
 
         this.ensemble = {}
 
         const str = 'EnsembleManager ingestSW'
         console.time(str)
 
-        const traceList = genomic.getTraceList()
-        this.ensemble = traceList.map(( trace, index) => this.createTrace(genomic, traceList[ index ]))
+        const traceList = dataset.getTraceList()
+        this.ensemble = traceList.map(( trace, index) => this.createTrace(dataset, traceList[ index ]))
 
         console.timeEnd(str);
 
@@ -28,7 +28,7 @@ class EnsembleManager {
 
         this.currentTrace = this.ensemble[ initialIndex ]
 
-        const { chr, genomicStart, genomicEnd } = this.genomic.locus
+        const { chr, genomicStart, genomicEnd } = dataset.locus
         SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialIndex, trace: this.currentTrace } });
 
     }
@@ -39,9 +39,9 @@ class EnsembleManager {
 
             const color = colorRampMaterialProvider.colorForInterpolant(genomic.genomicExtentList[index].interpolant)
 
-            const xyz = true === this.genomic.isPointCloud ? traceRowXYZ.flatMap(({x, y, z}) => [x, y, z]) : traceRowXYZ
-            const rgb = true === this.genomic.isPointCloud ? traceRowXYZ.flatMap(ignore => [color.r, color.g, color.b]) : color
-            const drawUsage = true === this.genomic.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
+            const xyz = true === genomic.isPointCloud ? traceRowXYZ.flatMap(({x, y, z}) => [x, y, z]) : traceRowXYZ
+            const rgb = true === genomic.isPointCloud ? traceRowXYZ.flatMap(ignore => [color.r, color.g, color.b]) : color
+            const drawUsage = true === genomic.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
 
             return {
                     interpolant: genomic.genomicExtentList[index].interpolant,
@@ -61,8 +61,7 @@ class EnsembleManager {
     }
 
     getTraceCount() {
-        const list = Object.keys(this.genomic.traces)
-        return list.length
+        return this.ensemble.length
     }
 
     getGenomicInterpolantWindowList(interpolantList) {

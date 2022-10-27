@@ -5,7 +5,8 @@ import {BGZip, FileUtils, GoogleAuth, igvxhr} from 'igv-utils'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
-import Parser from "./parser.js";
+import Parser from "./parser.js"
+import GenomicParser from "./genomicParser.js"
 import HDF5EnsembleManager from "./hdf5EnsembleManager.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
@@ -102,7 +103,7 @@ const initializationHelper = async container => {
 
     await initializeMaterialLibrary();
 
-    parser = new Parser()
+    parser = new GenomicParser()
 
     hdf5EnsembleManager = new HDF5EnsembleManager()
 
