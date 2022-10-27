@@ -56,16 +56,22 @@ class EnsembleManager {
         const str = 'EnsembleManager - createEnsemble'
         console.time(str)
 
-        const values = Object.values(dataset)
-        this.ensemble = values.map(( trace, index) => this.createTrace(values[index]))
+        this.ensemble = []
+        const values = Object.values(dataset.traces)
+        for (let i = 0; i < values.length; i++) {
+            const trace = this.createTrace(values, i)
+            this.ensemble.push(trace)
+        }
 
         console.timeEnd(str)
 
     }
 
-    createTrace(rows) {
+    createTrace(values, i) {
 
-        return Object.values(rows).map((row, index) => {
+        const rows = Object.values(values[ i ])
+
+        return rows.map((row, index) => {
 
             const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[index].interpolant)
 
