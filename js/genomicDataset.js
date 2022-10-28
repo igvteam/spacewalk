@@ -21,13 +21,13 @@ class GenomicDataset extends Dataset {
     consumeLines(lines, regex) {
 
         for (const line of lines) {
-            this.consume(line, regex)
+            this.consumeLine(line, regex)
         }
 
         this.postprocess()
     }
 
-    consume(line, regex) {
+    consumeLine(line, regex) {
 
         if (line.startsWith('trace')) {
 
@@ -157,10 +157,6 @@ class GenomicDataset extends Dataset {
 
     }
 
-    dispose() {
-        this.traces = undefined
-        this.genomicExtentList = undefined
-    }
 }
 
 export default GenomicDataset

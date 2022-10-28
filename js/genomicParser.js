@@ -1,6 +1,5 @@
 import { FileUtils, igvxhr } from 'igv-utils'
 import { hideGlobalSpinner, showGlobalSpinner } from "./utils.js";
-import GenomicDataset from "./genomicDataset.js";
 import { SpacewalkGlobals } from "./app.js";
 
 class GenomicParser {

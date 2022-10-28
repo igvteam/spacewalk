@@ -2,7 +2,7 @@ class Dataset {
     constructor() {
     }
 
-    consume(line, regex) {
+    consumeLine(line, regex) {
 
     }
 

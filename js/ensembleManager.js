@@ -9,21 +9,21 @@ class EnsembleManager {
     constructor () {
     }
 
-    async load(fileOrPath, parser, dataset, initialIndex) {
+    async load(fileOrPath, parser, genomicDataset, initialIndex) {
 
         const string = await parser.load(fileOrPath)
 
         showGlobalSpinner();
-        const { sample, genomeAssembly } = parser.parse(string, dataset)
+        const { sample, genomeAssembly } = parser.parse(string, genomicDataset)
         hideGlobalSpinner();
 
-        const { locus, traceLength, genomicExtentList, isPointCloud } = dataset
+        const { locus, traceLength, genomicExtentList, isPointCloud } = genomicDataset
 
-        ensembleManager.initialize(sample, genomeAssembly, locus, traceLength, dataset, genomicExtentList, isPointCloud, initialIndex)
+        ensembleManager.initialize(sample, genomeAssembly, locus, traceLength, genomicDataset, genomicExtentList, isPointCloud, initialIndex)
 
     }
 
-    initialize(sample, genomeAssembly, locus, traceLength, dataset, genomicExtentList, isPointCloud, index) {
+    initialize(sample, genomeAssembly, locus, traceLength, genomicDataset, genomicExtentList, isPointCloud, index) {
 
         this.genomeAssembly = genomeAssembly
 
@@ -31,7 +31,7 @@ class EnsembleManager {
 
         this.traceLength = traceLength
 
-        this.dataset = dataset
+        this.genomicDataset = genomicDataset
 
         this.genomicExtentList = genomicExtentList
 
@@ -55,7 +55,7 @@ class EnsembleManager {
         console.time(str)
 
         this.ensemble = []
-        const values = Object.values(this.dataset.traces)
+        const values = Object.values(this.genomicDataset.traces)
         for (let i = 0; i < values.length; i++) {
             const trace = this.createTrace(i)
             this.ensemble.push(trace)
@@ -67,7 +67,7 @@ class EnsembleManager {
 
     createTrace(i) {
 
-        const values = Object.values(this.dataset.traces)
+        const values = Object.values(this.genomicDataset.traces)
 
         const rows = Object.values(values[ i ])
 
@@ -92,7 +92,7 @@ class EnsembleManager {
     }
 
     getTraceCount() {
-        return Object.values(this.dataset.traces).length
+        return Object.values(this.genomicDataset.traces).length
     }
 
     getGenomicInterpolantWindowList(interpolantList) {

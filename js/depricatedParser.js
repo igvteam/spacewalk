@@ -39,7 +39,7 @@ class DepricatedParser {
             }
 
             if (ds) {
-                ds.consume(line, regex)
+                ds.consumeLine(line, regex)
             }
 
         }
