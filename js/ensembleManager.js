@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {colorRampMaterialProvider, ensembleManager, parser} from "./app.js";
+import {colorRampMaterialProvider, ensembleManager} from "./app.js";
 import { includes, degrees } from "./math.js";
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js";
 
@@ -9,21 +9,17 @@ class EnsembleManager {
     constructor () {
     }
 
-    async load(fileOrPath, parser, initialIndex) {
+    async load(fileOrPath, parser, dataset, initialIndex) {
 
         const string = await parser.load(fileOrPath)
 
         showGlobalSpinner();
-        const { sample, genomeAssembly, dataset } = parser.parse(string)
+        const { sample, genomeAssembly } = parser.parse(string, dataset)
         hideGlobalSpinner();
 
         const { locus, traceLength, genomicExtentList, isPointCloud } = dataset
 
-
         ensembleManager.initialize(sample, genomeAssembly, locus, traceLength, dataset, genomicExtentList, isPointCloud, initialIndex)
-
-        // discard unneeded dictionaries and arrays
-        // dataset.dispose()
 
     }
 

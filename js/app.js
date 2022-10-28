@@ -33,6 +33,7 @@ import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
+import GenomicDataset from "./genomicDataset";
 
 let stats
 let gui
@@ -41,7 +42,6 @@ let guiStatsEl
 let pointCloud;
 let ribbon;
 let ballAndStick;
-let parser
 let hdf5EnsembleManager
 let ensembleManager;
 let colorMapManager;
@@ -57,6 +57,11 @@ let traceSelect
 let traceNavigator
 let renderContainerController
 let googleEnabled = false
+
+const SpacewalkGlobals =
+    {
+
+    }
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
@@ -100,9 +105,7 @@ const initializationHelper = async container => {
 
     await initializeGenomes(spacewalkConfig)
 
-    await initializeMaterialLibrary();
-
-    parser = new GenomicParser()
+    await initializeMaterialLibrary()
 
     hdf5EnsembleManager = new HDF5EnsembleManager()
 
@@ -183,7 +186,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
                 if ('cndb' === extension) {
                     await hdf5EnsembleManager.load(fileOrPath)
                 } else {
-                    await ensembleManager.load(fileOrPath, parser, 0)
+                    await ensembleManager.load(fileOrPath, new GenomicParser(), new GenomicDataset(), 0)
                 }
             }
         }
@@ -394,11 +397,11 @@ const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
 }
 
 export {
+    SpacewalkGlobals,
     googleEnabled,
     pointCloud,
     ribbon,
     ballAndStick,
-    parser,
     hdf5EnsembleManager,
     ensembleManager,
     colorMapManager,

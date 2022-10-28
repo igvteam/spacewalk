@@ -1,6 +1,7 @@
 import { FileUtils, igvxhr } from 'igv-utils'
 import { hideGlobalSpinner, showGlobalSpinner } from "./utils.js";
 import GenomicDataset from "./genomicDataset.js";
+import { SpacewalkGlobals } from "./app.js";
 
 class GenomicParser {
 
@@ -9,8 +10,6 @@ class GenomicParser {
     }
 
     async load(path) {
-
-        this.url = false === FileUtils.isFilePath(path) ? path : undefined;
 
         let string = undefined
         try {
@@ -22,11 +21,13 @@ class GenomicParser {
             console.error(e.message)
         }
 
+        SpacewalkGlobals.url = false === FileUtils.isFilePath(path) ? path : undefined
+
         return string
 
     }
 
-    parse (string) {
+    parse (string, dataset) {
 
         const str = 'Parse complete';
         console.time(str);
@@ -42,22 +43,11 @@ class GenomicParser {
         // discard line: chromosome	start	end	x	y	z
         lines.shift()
 
-        const dataset = new GenomicDataset()
         dataset.consumeLines(lines, regex)
 
         console.timeEnd(str)
 
-        return { sample, genomeAssembly, dataset }
-
-    }
-
-    toJSON() {
-
-        if (undefined === this.url) {
-            throw new Error(`Unable to save session. Local files not supported.`);
-        } else {
-            return { url: this.url };
-        }
+        return { sample, genomeAssembly }
 
     }
 

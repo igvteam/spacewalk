@@ -2,12 +2,20 @@ import { URIUtils, BGZip, URLShortener } from 'igv-utils'
 import Zlib from './vendor/zlib_and_gzip.js'
 import hic from './juicebox/index.js'
 import Panel from './panel.js'
-import {parser, igvPanel, juiceboxPanel, ensembleManager, sceneManager, contactFrequencyMapPanel} from './app.js'
+import {
+    igvPanel,
+    juiceboxPanel,
+    ensembleManager,
+    sceneManager,
+    contactFrequencyMapPanel,
+    SpacewalkGlobals
+} from './app.js'
 import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {Globals} from "./juicebox/globals"
 import GenomicParser from "./genomicParser.js";
 import {defaultDistanceThreshold} from "./contactFrequencyMapPanel";
+import GenomicDataset from "./genomicDataset";
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
@@ -99,7 +107,7 @@ async function loadSpacewalkSession (session) {
 }
 
 async function loadSessionTrace ({ url, traceKey }) {
-    await ensembleManager.load(url, parser, parseInt(traceKey))
+    await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
 }
 
 function getUrlParams(url) {
@@ -150,26 +158,33 @@ function getCompressedSession() {
 
 function spacewalkToJSON () {
 
-    const spacewalk = parser.toJSON()
-    spacewalk.locus = { ...ensembleManager.locus }
-    spacewalk.traceKey = ensembleManager.currentIndex.toString()
-    spacewalk.igvPanelState = igvPanel.getSessionState()
-    spacewalk.renderStyle = getGUIRenderStyle()
-    spacewalk.panelVisibility = {}
+    let spacewalk
+    if (SpacewalkGlobals.url) {
+        spacewalk = { url: SpacewalkGlobals.url }
 
-    for (let [key, value] of Object.entries( Panel.getPanelDictionary() )) {
-        spacewalk.panelVisibility[ key ] = true === value.isHidden ? 'hidden' : 'visible'
+        spacewalk.locus = { ...ensembleManager.locus }
+        spacewalk.traceKey = ensembleManager.currentIndex.toString()
+        spacewalk.igvPanelState = igvPanel.getSessionState()
+        spacewalk.renderStyle = getGUIRenderStyle()
+        spacewalk.panelVisibility = {}
+
+        for (let [key, value] of Object.entries( Panel.getPanelDictionary() )) {
+            spacewalk.panelVisibility[ key ] = true === value.isHidden ? 'hidden' : 'visible'
+        }
+
+        spacewalk.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden'
+        spacewalk.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden'
+        spacewalk.cameraLightingRig = sceneManager.cameraLightingRig.getState()
+        spacewalk.gnomonColor = sceneManager.gnomon.getColorState()
+        spacewalk.groundplaneColor = sceneManager.groundPlane.getColorState()
+
+        spacewalk.contactFrequencyMapDistanceThreshold = contactFrequencyMapPanel.distanceThreshold
+
+        return spacewalk
+    } else {
+        throw new Error(`Unable to save session. Local files not supported.`)
     }
 
-    spacewalk.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden'
-    spacewalk.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden'
-    spacewalk.cameraLightingRig = sceneManager.cameraLightingRig.getState()
-    spacewalk.gnomonColor = sceneManager.gnomon.getColorState()
-    spacewalk.groundplaneColor = sceneManager.groundPlane.getColorState()
-
-    spacewalk.contactFrequencyMapDistanceThreshold = contactFrequencyMapPanel.distanceThreshold
-
-    return spacewalk
 
 }
 
