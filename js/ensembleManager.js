@@ -14,6 +14,17 @@ class EnsembleManager {
         const { sample, genomeAssembly } = await parser.parse(fileOrPath, genomicDataset)
         hideGlobalSpinner()
 
+
+
+        console.warn('Under Construction: HDF5 file handling development')
+
+        return
+
+
+
+
+
+
         const { locus, traceLength, genomicExtentList, isPointCloud } = genomicDataset
 
         this.initialize(sample, genomeAssembly, locus, traceLength, genomicDataset, genomicExtentList, isPointCloud, initialIndex)

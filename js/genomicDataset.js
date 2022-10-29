@@ -5,7 +5,7 @@ import {colorRampMaterialProvider} from "./app.js"
 class GenomicDataset extends Dataset {
 
     constructor() {
-        super();
+        super()
 
         this.traces = {}
 

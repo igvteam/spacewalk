@@ -4,9 +4,11 @@ import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, go
 import {BGZip, FileUtils, GoogleAuth, igvxhr} from 'igv-utils'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
-import ColorMapManager from "./colorMapManager.js";
 import GenomicParser from "./genomicParser.js"
-import HDF5EnsembleManager from "./hdf5EnsembleManager.js";
+import HDF5Parser from "./hdf5Parser.js";
+import GenomicDataset from "./genomicDataset.js";
+import HDF5Dataset from "./hdf5Dataset.js";
+import ColorMapManager from "./colorMapManager.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
@@ -33,7 +35,6 @@ import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
-import GenomicDataset from "./genomicDataset";
 
 let stats
 let gui
@@ -42,7 +43,6 @@ let guiStatsEl
 let pointCloud;
 let ribbon;
 let ballAndStick;
-let hdf5EnsembleManager
 let ensembleManager;
 let colorMapManager;
 let sceneManager;
@@ -106,8 +106,6 @@ const initializationHelper = async container => {
     await initializeGenomes(spacewalkConfig)
 
     await initializeMaterialLibrary()
-
-    hdf5EnsembleManager = new HDF5EnsembleManager()
 
     pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(highlightColor), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
@@ -184,7 +182,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
                 const extension = FileUtils.getExtension(fileOrPath)
 
                 if ('cndb' === extension) {
-                    await hdf5EnsembleManager.load(fileOrPath)
+                    await ensembleManager.load(fileOrPath, new HDF5Parser(), new HDF5Dataset(), 0)
                 } else {
                     await ensembleManager.load(fileOrPath, new GenomicParser(), new GenomicDataset(), 0)
                 }
@@ -402,7 +400,6 @@ export {
     pointCloud,
     ribbon,
     ballAndStick,
-    hdf5EnsembleManager,
     ensembleManager,
     colorMapManager,
     sceneManager,
