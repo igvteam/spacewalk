@@ -62,8 +62,8 @@ class ContactFrequencyMapPanel extends Panel {
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
             window.setTimeout(() => {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.getLiveContactFrequencyMapVertexLists())
-                this.updateTraceContactFrequencyCanvas(ensembleManager.traceLength, this.trace)
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
+                this.updateTraceContactFrequencyCanvas(ensembleManager.getTraceLength(), this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }, 0)
         })
@@ -100,7 +100,7 @@ class ContactFrequencyMapPanel extends Panel {
             this.doUpdateTrace = true
 
             if (false === this.isHidden) {
-                this.updateTraceContactFrequencyCanvas(ensembleManager.traceLength, this.trace)
+                this.updateTraceContactFrequencyCanvas(ensembleManager.getTraceLength(), this.trace)
                 this.doUpdateTrace = undefined
             }
 
@@ -110,11 +110,11 @@ class ContactFrequencyMapPanel extends Panel {
             this.trace = trace
             this.doUpdateTrace = this.doUpdateEnsemble = true
 
-            allocateContactFrequencyArray(ensembleManager.traceLength)
+            allocateContactFrequencyArray(ensembleManager.getTraceLength())
 
             if (false === this.isHidden) {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.getLiveContactFrequencyMapVertexLists())
-                this.updateTraceContactFrequencyCanvas(ensembleManager.traceLength, this.trace)
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
+                this.updateTraceContactFrequencyCanvas(ensembleManager.getTraceLength(), this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }
 
@@ -132,12 +132,12 @@ class ContactFrequencyMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleContactFrequencyCanvas(ensembleManager.traceLength, ensembleManager.getLiveContactFrequencyMapVertexLists())
+            this.updateEnsembleContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
             this.doUpdateEnsemble = undefined
         }
 
         if (true === this.doUpdateTrace) {
-            this.updateTraceContactFrequencyCanvas(ensembleManager.traceLength, this.trace)
+            this.updateTraceContactFrequencyCanvas(ensembleManager.getTraceLength(), this.trace)
             this.doUpdateTrace = undefined
         }
 
@@ -163,7 +163,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        // clearCanvasArray(contactFrequencyArray, ensembleManager.traceLength)
+        // clearCanvasArray(contactFrequencyArray, ensembleManager.getTraceLength())
 
         transferContactFrequencyArrayToCanvas(this.ctx_trace, contactFrequencyArray)
 
@@ -183,7 +183,7 @@ class ContactFrequencyMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        // clearCanvasArray(contactFrequencyArray, ensembleManager.traceLength)
+        // clearCanvasArray(contactFrequencyArray, ensembleManager.getTraceLength())
 
         transferContactFrequencyArrayToCanvas(this.ctx_ensemble, contactFrequencyArray)
 

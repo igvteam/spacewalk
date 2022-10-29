@@ -6,18 +6,7 @@ class GenomicDataset extends Dataset {
 
     constructor() {
         super()
-
         this.traces = {}
-
-        this.genomicStart = Number.POSITIVE_INFINITY;
-        this.genomicEnd = Number.NEGATIVE_INFINITY;
-
-        this.isPointCloud = undefined;
-
-        this.chr = undefined;
-
-        this.traceLength = undefined
-        this.genomicExtentList = undefined
     }
 
     consumeLines(lines, regex) {

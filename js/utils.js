@@ -159,7 +159,7 @@ const transferContactFrequencyArrayToCanvas = async (ctx, contactFrequencyArray)
 
     const { width, height } = ctx.canvas;
 
-    const imageData = new ImageData(contactFrequencyArray, ensembleManager.traceLength, ensembleManager.traceLength);
+    const imageData = new ImageData(contactFrequencyArray, ensembleManager.getTraceLength(), ensembleManager.getTraceLength());
 
     // const config =
     //     {

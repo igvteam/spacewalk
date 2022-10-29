@@ -24,7 +24,7 @@ class HDF5Parser {
         const hdf5 = new h5wasmFile(name, 'r')
         hdf5Dataset.initialize(hdf5)
 
-        return {}
+        return { sample: 'Dugla Bogus Sample', genomeAssembly: 'hg19' }
 
     }
 

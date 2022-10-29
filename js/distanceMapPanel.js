@@ -74,7 +74,7 @@ class DistanceMapPanel extends Panel {
             this.trace = trace
 
             if (false === this.isHidden) {
-                this.updateTraceDistanceCanvas(ensembleManager.traceLength, this.trace)
+                this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), this.trace)
                 this.doUpdateTrace = undefined
             } else {
                 this.doUpdateTrace = true
@@ -85,11 +85,11 @@ class DistanceMapPanel extends Panel {
             const { trace } = data
             this.trace = trace
 
-            initializeSharedBuffers(ensembleManager.traceLength)
+            initializeSharedBuffers(ensembleManager.getTraceLength())
 
             if (false === this.isHidden) {
-                this.updateEnsembleAverageDistanceCanvas(ensembleManager.traceLength, ensembleManager.getLiveContactFrequencyMapVertexLists())
-                this.updateTraceDistanceCanvas(ensembleManager.traceLength, this.trace)
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
+                this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), this.trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             } else {
                 this.doUpdateTrace = this.doUpdateEnsemble = true
@@ -103,12 +103,12 @@ class DistanceMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleAverageDistanceCanvas(ensembleManager.traceLength, ensembleManager.getLiveContactFrequencyMapVertexLists())
+            this.updateEnsembleAverageDistanceCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
             this.doUpdateEnsemble = undefined
         }
 
         if (true === this.doUpdateTrace) {
-            this.updateTraceDistanceCanvas(ensembleManager.traceLength, this.trace)
+            this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), this.trace)
             this.doUpdateTrace = undefined
         }
 
@@ -133,7 +133,7 @@ class DistanceMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(canvasArray, ensembleManager.traceLength)
+        clearCanvasArray(canvasArray, ensembleManager.getTraceLength())
         transferContactFrequencyArrayToCanvas(this.ctx_trace, canvasArray)
 
     }
@@ -151,7 +151,7 @@ class DistanceMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(ensembleManager.traceLength)
+        clearCanvasArray(ensembleManager.getTraceLength())
         transferContactFrequencyArrayToCanvas(this.ctx_ensemble, canvasArray)
 
     }

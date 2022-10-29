@@ -1,5 +1,16 @@
 class Dataset {
-    constructor() {}
+    constructor() {
+
+        this.chr = undefined;
+        this.genomicStart = Number.POSITIVE_INFINITY;
+        this.genomicEnd = Number.NEGATIVE_INFINITY;
+
+        this.isPointCloud = undefined;
+
+        this.traceLength = undefined
+
+        this.genomicExtentList = undefined
+    }
 
     consumeLines(lines, regex) {
         console.warn('Warning: Dataset - base class method called consumeLines()')
@@ -17,8 +28,8 @@ class Dataset {
         console.warn('Warning: Dataset - base class method called createTrace()')
     }
 
-    getTraceCount(){
-        console.warn('Warning: Dataset - base class method called getTraceCount()')
+    getTraceLength(){
+        console.warn('Warning: Dataset - base class method called getTraceLength()')
     }
 
     getLiveContactFrequencyMapVertexLists(){

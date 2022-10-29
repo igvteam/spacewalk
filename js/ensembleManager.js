@@ -14,30 +14,17 @@ class EnsembleManager {
         const { sample, genomeAssembly } = await parser.parse(fileOrPath, genomicDataset)
         hideGlobalSpinner()
 
+        const { locus, genomicExtentList, isPointCloud } = genomicDataset
 
-
-        console.warn('Under Construction: HDF5 file handling development')
-
-        return
-
-
-
-
-
-
-        const { locus, traceLength, genomicExtentList, isPointCloud } = genomicDataset
-
-        this.initialize(sample, genomeAssembly, locus, traceLength, genomicDataset, genomicExtentList, isPointCloud, initialIndex)
+        this.initialize(sample, genomeAssembly, locus, genomicDataset, genomicExtentList, isPointCloud, initialIndex)
 
     }
 
-    initialize(sample, genomeAssembly, locus, traceLength, genomicDataset, genomicExtentList, isPointCloud, index) {
+    initialize(sample, genomeAssembly, locus, genomicDataset, genomicExtentList, isPointCloud, index) {
 
         this.genomeAssembly = genomeAssembly
 
         this.locus = locus
-
-        this.traceLength = traceLength
 
         this.genomicDataset = genomicDataset
 
@@ -72,6 +59,10 @@ class EnsembleManager {
 
     createTrace(i) {
         return this.genomicDataset.createTrace(i)
+    }
+
+    getTraceLength() {
+        return this.genomicDataset.traceLength
     }
 
     getTraceCount() {
