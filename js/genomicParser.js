@@ -26,10 +26,17 @@ class GenomicParser {
 
     }
 
-    parse (string, dataset) {
+    async parse (path, dataset) {
 
-        const str = 'Parse complete';
-        console.time(str);
+        let str
+
+        str = 'GenomicParset - load() complete'
+        console.time(str)
+        const string = await this.load(path)
+        console.timeEnd(str)
+
+        str = 'GenomicParser - parse() complete'
+        console.time(str)
 
         // split on newline. remove blank lines
         let lines = string.split('\n').filter(line => "" !== line)

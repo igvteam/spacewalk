@@ -1,8 +1,7 @@
-import * as THREE from "three";
+import * as THREE from "three"
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {colorRampMaterialProvider} from "./app.js";
-import { includes, degrees } from "./math.js";
-import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js";
+import { includes } from "./math.js"
+import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
 
 class EnsembleManager {
 
@@ -11,11 +10,9 @@ class EnsembleManager {
 
     async load(fileOrPath, parser, genomicDataset, initialIndex) {
 
-        const string = await parser.load(fileOrPath)
-
-        showGlobalSpinner();
-        const { sample, genomeAssembly } = parser.parse(string, genomicDataset)
-        hideGlobalSpinner();
+        showGlobalSpinner()
+        const { sample, genomeAssembly } = await parser.parse(fileOrPath, genomicDataset)
+        hideGlobalSpinner()
 
         const { locus, traceLength, genomicExtentList, isPointCloud } = genomicDataset
 
@@ -37,13 +34,8 @@ class EnsembleManager {
 
         this.isPointCloud = isPointCloud
 
-        // this.createEnsemble()
-
-        const thisIsATest = this.getLiveContactFrequencyMapVertexLists()
-
         const initialIndex = index || 0
-        // this.currentTrace = this.ensemble[ initialIndex ]
-        this.currentTrace = this.createTrace(initialIndex)
+        this.currentTrace = this.genomicDataset.createTrace(initialIndex)
         this.currentIndex = initialIndex
 
         const { chr, genomicStart, genomicEnd } = locus
@@ -51,7 +43,7 @@ class EnsembleManager {
 
     }
 
-    createEnsemble() {
+    DEPRICATED_createEnsemble() {
 
         const str = 'EnsembleManager - createEnsemble'
         console.time(str)
@@ -68,33 +60,11 @@ class EnsembleManager {
     }
 
     createTrace(i) {
-
-        const values = Object.values(this.genomicDataset.traces)
-
-        const rows = Object.values(values[ i ])
-
-        return rows.map((row, index) => {
-
-            const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[index].interpolant)
-
-            const xyz = true === this.isPointCloud ? row.flatMap(({x, y, z}) => [x, y, z]) : row
-            const rgb = true === this.isPointCloud ? row.flatMap(ignore => [color.r, color.g, color.b]) : color
-            const drawUsage = true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
-
-            return {
-                    interpolant: this.genomicExtentList[index].interpolant,
-                    xyz,
-                    rgb,
-                    color,
-                    drawUsage
-                }
-
-        })
-
+        return this.genomicDataset.createTrace(i)
     }
 
     getTraceCount() {
-        return Object.values(this.genomicDataset.traces).length
+        return this.genomicDataset.getTraceCount()
     }
 
     getGenomicInterpolantWindowList(interpolantList) {
@@ -119,18 +89,7 @@ class EnsembleManager {
     }
 
     getLiveContactFrequencyMapVertexLists() {
-        const traces = Object.values(this.genomicDataset.traces)
-        return traces.map(trace => EnsembleManager.getLiveContactFrequencyMapDatasetVertices(trace))
-    }
-
-    static getLiveContactFrequencyMapDatasetVertices(trace) {
-
-        return Object.values(trace)
-            .map(row => {
-                const { x, y, z, isMissingData } = row
-                return true === isMissingData ? { isMissingData } : { x, y, z }
-            })
-
+        return this.genomicDataset.getLiveContactFrequencyMapVertexLists()
     }
 
     static getLiveContactFrequencyMapTraceVertices(trace) {

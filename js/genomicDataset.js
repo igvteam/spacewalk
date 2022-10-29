@@ -1,4 +1,6 @@
-import Dataset from './dataset.js';
+import * as THREE from "three"
+import Dataset from './dataset.js'
+import {colorRampMaterialProvider} from "./app.js"
 
 class GenomicDataset extends Dataset {
 
@@ -154,6 +156,51 @@ class GenomicDataset extends Dataset {
             item.start  = (item.startBP - this.genomicStart) / (this.genomicEnd - this.genomicStart)
             item.end    = (item.endBP   - this.genomicStart) / (this.genomicEnd - this.genomicStart)
         }
+
+    }
+
+    createTrace(i) {
+
+        const values = Object.values(this.traces)
+
+        const rows = Object.values(values[ i ])
+
+        return rows.map((row, index) => {
+
+            const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[index].interpolant)
+
+            const xyz = true === this.isPointCloud ? row.flatMap(({x, y, z}) => [x, y, z]) : row
+            const rgb = true === this.isPointCloud ? row.flatMap(ignore => [color.r, color.g, color.b]) : color
+            const drawUsage = true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
+
+            return {
+                interpolant: this.genomicExtentList[index].interpolant,
+                xyz,
+                rgb,
+                color,
+                drawUsage
+            }
+
+        })
+
+    }
+
+    getTraceCount() {
+        return Object.values(this.traces).length
+    }
+
+    getLiveContactFrequencyMapVertexLists() {
+        const traces = Object.values(this.traces)
+        return traces.map(trace => GenomicDataset.getLiveContactFrequencyMapDatasetVertices(trace))
+    }
+
+    static getLiveContactFrequencyMapDatasetVertices(trace) {
+
+        return Object.values(trace)
+            .map(row => {
+                const { x, y, z, isMissingData } = row
+                return true === isMissingData ? { isMissingData } : { x, y, z }
+            })
 
     }
 
