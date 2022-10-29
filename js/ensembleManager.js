@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {colorRampMaterialProvider, ensembleManager} from "./app.js";
+import {colorRampMaterialProvider} from "./app.js";
 import { includes, degrees } from "./math.js";
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js";
 
@@ -19,7 +19,7 @@ class EnsembleManager {
 
         const { locus, traceLength, genomicExtentList, isPointCloud } = genomicDataset
 
-        ensembleManager.initialize(sample, genomeAssembly, locus, traceLength, genomicDataset, genomicExtentList, isPointCloud, initialIndex)
+        this.initialize(sample, genomeAssembly, locus, traceLength, genomicDataset, genomicExtentList, isPointCloud, initialIndex)
 
     }
 
@@ -38,6 +38,8 @@ class EnsembleManager {
         this.isPointCloud = isPointCloud
 
         // this.createEnsemble()
+
+        const thisIsATest = this.getLiveContactFrequencyMapVertexLists()
 
         const initialIndex = index || 0
         // this.currentTrace = this.ensemble[ initialIndex ]
@@ -117,7 +119,18 @@ class EnsembleManager {
     }
 
     getLiveContactFrequencyMapVertexLists() {
-        return this.ensemble.map(trace => getLiveContactFrequencyMapTraceVertices(trace))
+        const traces = Object.values(this.genomicDataset.traces)
+        return traces.map(trace => EnsembleManager.getLiveContactFrequencyMapDatasetVertices(trace))
+    }
+
+    static getLiveContactFrequencyMapDatasetVertices(trace) {
+
+        return Object.values(trace)
+            .map(row => {
+                const { x, y, z, isMissingData } = row
+                return true === isMissingData ? { isMissingData } : { x, y, z }
+            })
+
     }
 
     static getLiveContactFrequencyMapTraceVertices(trace) {
