@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import {StringUtils} from 'igv-utils'
 import Dataset from './dataset.js'
 import {colorRampMaterialProvider} from './app.js'
 
@@ -14,25 +15,22 @@ class HDF5Dataset extends Dataset {
 
         this.hdf5 = hdf5
 
-        this.indices = hdf5.keys()
-            .map(str => parseInt(str))
-            .sort((a, b) => a - b)
+        const keyList = hdf5.keys()
 
-        const index = this.indices[ 0 ]
+        // remove unused value
+        keyList.pop()
+
+        this.indices = keyList.map(str => parseInt(str)).sort((a, b) => a - b)
+
+        const index = this.indices[0]
         const vertices = hdf5.get(index.toString()).value
-
-        // this.xyzList = []
-        // for (let i = 0; i < vertices.length; i += 3) {
-        //     const xyz = Array.from(vertices.subarray(i, i + 3), x => scaleFactor * x)
-        //     this.xyzList.push(xyz)
-        // }
 
         this.traceLength = vertices.length / 3
 
         this.genomicStart = 18e6
-        this.genomicEnd   = 19.95e6
+        this.genomicEnd = 19.95e6
 
-        this.locus = { chr: 'chr21', genomicStart: this.genomicStart, genomicEnd: this.genomicEnd }
+        this.locus = {chr: 'chr21', genomicStart: this.genomicStart, genomicEnd: this.genomicEnd}
 
         this.genomicExtentList = createGenomicExtentList(this.genomicStart, this.genomicEnd, this.traceLength)
 
@@ -72,6 +70,25 @@ class HDF5Dataset extends Dataset {
         }
 
         return trace
+
+    }
+
+    getLiveContactFrequencyMapVertexLists() {
+
+        return this.indices.map(index => {
+
+            const key = index.toString()
+            const thang = this.hdf5.get(key)
+            const vertices = thang.value
+
+            const xyz = []
+            for (let v = 0; v < vertices.length; v += 3) {
+                const [ x, y, z ] = Array.from(vertices.subarray(v, v + 3), x => scaleFactor * x)
+                xyz.push({ x, y, z })
+            }
+
+            return xyz
+        })
 
     }
 

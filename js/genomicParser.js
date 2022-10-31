@@ -30,7 +30,7 @@ class GenomicParser {
 
         let str
 
-        str = 'GenomicParset - load() complete'
+        str = 'GenomicParser - load() complete'
         console.time(str)
         const string = await this.load(path)
         console.timeEnd(str)

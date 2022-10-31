@@ -26,14 +26,17 @@ class Dataset {
 
     createTrace(i){
         console.warn('Warning: Dataset - base class method called createTrace()')
+        return []
     }
 
     getTraceLength(){
         console.warn('Warning: Dataset - base class method called getTraceLength()')
+        return undefined
     }
 
     getLiveContactFrequencyMapVertexLists(){
         console.warn('Warning: Dataset - base class method called getLiveContactFrequencyMapVertexLists()')
+        return []
     }
 }
 
