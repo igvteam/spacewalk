@@ -1,4 +1,4 @@
-import { URIUtils, BGZip, URLShortener } from 'igv-utils'
+import {URIUtils, BGZip, URLShortener, FileUtils} from 'igv-utils'
 import Zlib from './vendor/zlib_and_gzip.js'
 import hic from './juicebox/index.js'
 import Panel from './panel.js'
@@ -13,9 +13,11 @@ import {
 import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {Globals} from "./juicebox/globals"
-import GenomicParser from "./genomicParser.js";
-import {defaultDistanceThreshold} from "./contactFrequencyMapPanel";
-import GenomicDataset from "./genomicDataset";
+import {defaultDistanceThreshold} from "./contactFrequencyMapPanel"
+import GenomicParser from "./genomicParser.js"
+import GenomicDataset from "./genomicDataset.js"
+import HDF5Parser from "./hdf5Parser.js"
+import HDF5Dataset from "./hdf5Dataset.js"
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
@@ -107,7 +109,16 @@ async function loadSpacewalkSession (session) {
 }
 
 async function loadSessionTrace ({ url, traceKey }) {
-    await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
+
+    const extension = FileUtils.getExtension(url)
+
+    if ('cndb' === extension) {
+        await ensembleManager.load(url, new HDF5Parser(), new HDF5Dataset(), parseInt(traceKey))
+    } else {
+        await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
+    }
+
+    // await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
 }
 
 function getUrlParams(url) {

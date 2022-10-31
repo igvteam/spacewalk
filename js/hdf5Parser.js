@@ -1,6 +1,7 @@
 import {File as h5wasmFile, ready} from 'h5wasm'
 import {FileUtils, igvxhr} from 'igv-utils'
 import {hideGlobalSpinner, showGlobalSpinner} from './utils.js'
+import {SpacewalkGlobals} from "./app";
 
 class HDF5Parser {
 
@@ -53,6 +54,8 @@ class HDF5Parser {
         }
 
         hideGlobalSpinner()
+
+        SpacewalkGlobals.url = false === FileUtils.isFilePath(path) ? path : undefined
 
         return arrayBuffer
 
