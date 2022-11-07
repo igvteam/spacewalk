@@ -17,7 +17,7 @@ import {defaultDistanceThreshold} from "./contactFrequencyMapPanel"
 import GenomicParser from "./genomicParser.js"
 import GenomicDataset from "./genomicDataset.js"
 import HDF5Parser from "./hdf5Parser.js"
-import HDF5Dataset from "./hdf5Dataset.js"
+import HDF5Version2Dataset from "./hdf5Version2Dataset.js";
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
@@ -113,7 +113,7 @@ async function loadSessionTrace ({ url, traceKey }) {
     const extension = FileUtils.getExtension(url)
 
     if ('cndb' === extension) {
-        await ensembleManager.load(url, new HDF5Parser(), new HDF5Dataset(), parseInt(traceKey))
+        await ensembleManager.load(url, new HDF5Parser(), new HDF5Version2Dataset(), parseInt(traceKey))
     } else {
         await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
     }

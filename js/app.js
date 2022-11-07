@@ -7,7 +7,7 @@ import EnsembleManager from "./ensembleManager.js";
 import GenomicParser from "./genomicParser.js"
 import HDF5Parser from "./hdf5Parser.js";
 import GenomicDataset from "./genomicDataset.js";
-import HDF5Dataset from "./hdf5Dataset.js";
+import HDF5Version2Dataset from "./hdf5Version2Dataset.js";
 import ColorMapManager from "./colorMapManager.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
@@ -182,7 +182,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
                 const extension = FileUtils.getExtension(fileOrPath)
 
                 if ('cndb' === extension) {
-                    await ensembleManager.load(fileOrPath, new HDF5Parser(), new HDF5Dataset(), 0)
+                    await ensembleManager.load(fileOrPath, new HDF5Parser(), new HDF5Version2Dataset(), 0)
                 } else {
                     await ensembleManager.load(fileOrPath, new GenomicParser(), new GenomicDataset(), 0)
                 }
