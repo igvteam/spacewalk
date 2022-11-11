@@ -82,9 +82,20 @@ async function loadSpacewalkSession (session) {
 
     contactFrequencyMapPanel.setState(contactFrequencyMapDistanceThreshold || defaultDistanceThreshold)
 
-    await loadSessionTrace({ url, traceKey })
+    // SpacewalkEventBus.globalBus.hold()
 
-    setGUIRenderStyle(renderStyle);
+    const extension = FileUtils.getExtension(url)
+    if ('cndb' === extension) {
+        await ensembleManager.load(url, new HDF5Parser(), new HDF5Version2Dataset(), parseInt(traceKey))
+    } else {
+        await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
+    }
+
+    const data = ensembleManager.createEventBusPayload()
+    SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
+
+    setGUIRenderStyle(renderStyle)
+    SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle })
 
     Panel.setAllPanelVisibility(panelVisibility);
 
@@ -106,19 +117,6 @@ async function loadSpacewalkSession (session) {
     SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', juiceboxPanel)
     SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', sceneManager)
 
-}
-
-async function loadSessionTrace ({ url, traceKey }) {
-
-    const extension = FileUtils.getExtension(url)
-
-    if ('cndb' === extension) {
-        await ensembleManager.load(url, new HDF5Parser(), new HDF5Version2Dataset(), parseInt(traceKey))
-    } else {
-        await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
-    }
-
-    // await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
 }
 
 function getUrlParams(url) {

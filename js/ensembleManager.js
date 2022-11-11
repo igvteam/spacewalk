@@ -8,25 +8,21 @@ class EnsembleManager {
     constructor () {
     }
 
-    async load(fileOrPath, parser, genomicDataset, initialIndex) {
+    async load(fileOrPath, parser, genomicDataset, index) {
 
         showGlobalSpinner()
         const { sample, genomeAssembly } = await parser.parse(fileOrPath, genomicDataset)
         hideGlobalSpinner()
 
-        const { locus, genomicExtentList, isPointCloud } = genomicDataset
-
-        this.initialize(sample, genomeAssembly, locus, genomicDataset, genomicExtentList, isPointCloud, initialIndex)
-
-    }
-
-    initialize(sample, genomeAssembly, locus, genomicDataset, genomicExtentList, isPointCloud, index) {
+        this.sample = sample
 
         this.genomeAssembly = genomeAssembly
 
-        this.locus = locus
-
         this.genomicDataset = genomicDataset
+
+        const { locus, genomicExtentList, isPointCloud } = this.genomicDataset
+
+        this.locus = locus
 
         this.genomicExtentList = genomicExtentList
 
@@ -36,25 +32,24 @@ class EnsembleManager {
         this.currentTrace = this.genomicDataset.createTrace(initialIndex)
         this.currentIndex = initialIndex
 
-        const { chr, genomicStart, genomicEnd } = locus
-        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialIndex, trace: this.currentTrace } });
-
     }
 
-    DEPRICATED_createEnsemble() {
+    createEventBusPayload() {
 
-        const str = 'EnsembleManager - createEnsemble'
-        console.time(str)
+        const { chr, genomicStart, genomicEnd } = this.locus
 
-        this.ensemble = []
-        const values = Object.values(this.genomicDataset.traces)
-        for (let i = 0; i < values.length; i++) {
-            const trace = this.createTrace(i)
-            this.ensemble.push(trace)
-        }
+        const payload =
+            {
+                sample: this.sample,
+                genomeAssembly: this.genomeAssembly,
+                chr,
+                genomicStart,
+                genomicEnd,
+                initialIndex: this.currentIndex,
+                trace: this.currentTrace
+            };
 
-        console.timeEnd(str)
-
+        return payload
     }
 
     createTrace(i) {

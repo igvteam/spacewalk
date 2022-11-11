@@ -186,6 +186,10 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
                 } else {
                     await ensembleManager.load(fileOrPath, new GenomicParser(), new GenomicDataset(), 0)
                 }
+
+                const data = ensembleManager.createEventBusPayload()
+                SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
+
             }
         }
 
@@ -331,6 +335,10 @@ function renderLoop() {
     requestAnimationFrame( renderLoop )
 
     render()
+
+    // if (SpacewalkEventBus.globalBus.isHeld()) {
+    //     SpacewalkEventBus.globalBus.release()
+    // }
 
 }
 

@@ -116,17 +116,12 @@ export function getGUIRenderStyle() {
 }
 
 export function setGUIRenderStyle(renderStyle) {
-
     const $ui_manager_panel = $('#spacewalk_ui_manager_panel');
-
     if (renderStyle === Ribbon.getRenderStyle()) {
         $ui_manager_panel.find('#spacewalk-render-style-ribbon').prop('checked', true);
-        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
     } else if (renderStyle === BallAndStick.getRenderStyle()) {
         $ui_manager_panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
-        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
     }
-
 }
 
 function configureRenderStyleControl($input, renderStyle) {
