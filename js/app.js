@@ -179,13 +179,8 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
     const fileLoader =
         {
             load: async fileOrPath => {
-                const extension = FileUtils.getExtension(fileOrPath)
 
-                if ('cndb' === extension) {
-                    await ensembleManager.load(fileOrPath, new HDF5Parser(), new HDF5Version2Dataset(), 0)
-                } else {
-                    await ensembleManager.load(fileOrPath, new GenomicParser(), new GenomicDataset(), 0)
-                }
+                await ensembleManager.loadURL(fileOrPath, '0')
 
                 const data = ensembleManager.createEventBusPayload()
                 SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })

@@ -1,11 +1,27 @@
 import * as THREE from "three"
-import SpacewalkEventBus from './spacewalkEventBus.js'
 import { includes } from "./math.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
+import {FileUtils} from "igv-utils";
+import {ensembleManager} from "./app";
+import HDF5Parser from "./hdf5Parser.js";
+import HDF5Version2Dataset from "./hdf5Version2Dataset.js";
+import GenomicParser from "./genomicParser.js";
+import GenomicDataset from "./genomicDataset.js";
 
 class EnsembleManager {
 
     constructor () {
+    }
+
+    async loadURL(url, traceKey) {
+
+        const extension = FileUtils.getExtension(url)
+        if ('cndb' === extension) {
+            await ensembleManager.load(url, new HDF5Parser(), new HDF5Version2Dataset(), parseInt(traceKey))
+        } else {
+            await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
+        }
+
     }
 
     async load(fileOrPath, parser, genomicDataset, index) {

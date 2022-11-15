@@ -82,14 +82,7 @@ async function loadSpacewalkSession (session) {
 
     contactFrequencyMapPanel.setState(contactFrequencyMapDistanceThreshold || defaultDistanceThreshold)
 
-    // SpacewalkEventBus.globalBus.hold()
-
-    const extension = FileUtils.getExtension(url)
-    if ('cndb' === extension) {
-        await ensembleManager.load(url, new HDF5Parser(), new HDF5Version2Dataset(), parseInt(traceKey))
-    } else {
-        await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
-    }
+    await ensembleManager.loadURL(url, traceKey)
 
     const data = ensembleManager.createEventBusPayload()
     SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
