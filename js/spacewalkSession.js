@@ -1,4 +1,4 @@
-import {URIUtils, BGZip, URLShortener, FileUtils} from 'igv-utils'
+import {URIUtils, BGZip, URLShortener} from 'igv-utils'
 import Zlib from './vendor/zlib_and_gzip.js'
 import hic from './juicebox/index.js'
 import Panel from './panel.js'
@@ -14,10 +14,6 @@ import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {Globals} from "./juicebox/globals"
 import {defaultDistanceThreshold} from "./contactFrequencyMapPanel"
-import GenomicParser from "./genomicParser.js"
-import GenomicDataset from "./genomicDataset.js"
-import HDF5Parser from "./hdf5Parser.js"
-import HDF5Version2Dataset from "./hdf5Version2Dataset.js";
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
@@ -92,16 +88,11 @@ async function loadSpacewalkSession (session) {
 
     Panel.setAllPanelVisibility(panelVisibility);
 
-    sceneManager.gnomon.setVisibility(gnomonVisibility);
-
-    sceneManager.groundPlane.setVisibility(groundPlaneVisibility);
+    sceneManager.gnomon.setState({ visibility: gnomonVisibility, ...gnomonColor })
+    sceneManager.groundPlane.setState({ visibility: groundPlaneVisibility, ...groundplaneColor })
 
     // TODO: Decide whether to restore camera state
     // sceneManager.cameraLightingRig.setState(cameraLightingRig);
-
-    sceneManager.gnomon.setColorState(gnomonColor);
-
-    sceneManager.groundPlane.setColorState(groundplaneColor);
 
     // TODO: Figure out how do deal with background shader
     // sceneManager.setBackgroundState(sceneBackground);
@@ -174,11 +165,16 @@ function spacewalkToJSON () {
             spacewalk.panelVisibility[ key ] = true === value.isHidden ? 'hidden' : 'visible'
         }
 
-        spacewalk.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden'
-        spacewalk.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden'
+        let json
+        json = sceneManager.gnomon.toJSON()
+        spacewalk.gnomonVisibility = json.visibility
+        spacewalk.gnomonColor = { r:json.r, g:json.g, b:json.b }
+
+        json = sceneManager.groundPlane.toJSON()
+        spacewalk.groundPlaneVisibility = json.visibility
+        spacewalk.groundplaneColor = { r:json.r, g:json.g, b:json.b }
+
         spacewalk.cameraLightingRig = sceneManager.cameraLightingRig.getState()
-        spacewalk.gnomonColor = sceneManager.gnomon.getColorState()
-        spacewalk.groundplaneColor = sceneManager.groundPlane.getColorState()
 
         spacewalk.contactFrequencyMapDistanceThreshold = contactFrequencyMapPanel.distanceThreshold
 

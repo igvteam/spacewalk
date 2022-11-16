@@ -41,17 +41,6 @@ class Gnomon extends THREE.AxesHelper {
 
     }
 
-    getColorState() {
-        const { r, g, b } = this.color;
-        return { r, g, b };
-    }
-
-    setColorState(json) {
-        const { r, g, b } = json;
-        this.setColor(new THREE.Color(r, g, b))
-        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='gnomon']`), json)
-    }
-
     setColor(color){
 
         const { r, g, b } = color;
@@ -61,7 +50,7 @@ class Gnomon extends THREE.AxesHelper {
         let rgb = this.geometry.attributes.color;
         let colors = rgb.array;
         for (let i = 0; i < (rgb.count * rgb.itemSize); i += rgb.itemSize) {
-            colors[ i + 0 ] = r;
+            colors[ i     ] = r;
             colors[ i + 1 ] = g;
             colors[ i + 2 ] = b;
         }
@@ -76,7 +65,27 @@ class Gnomon extends THREE.AxesHelper {
         this.zAxisSprite.material.dispose();
         this.zAxisSprite.material = getAxisSpriteMaterial( colorString, this.max.z - this.min.z);
 
-    };
+    }
+
+    setVisibility(status) {
+        if('visible' === status) {
+            this.present();
+        } else {
+            this.dismiss();
+        }
+
+    }
+
+    setState({ r, g, b, visibility}) {
+        this.setVisibility(visibility);
+        this.setColor(new THREE.Color(r, g, b))
+        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='gnomon']`), { r, g, b })
+    }
+
+    toJSON() {
+        const { r, g, b } = this.color
+        return { r, g, b, visibility: this.group.visible ? 'visible' : 'hidden' }
+    }
 
     renderLoopHelper () {
         this.geometry.attributes.color.needsUpdate = true;
@@ -106,15 +115,6 @@ class Gnomon extends THREE.AxesHelper {
     dismiss() {
         this.group.visible = false;
         setGnomonVisibilityCheckboxStatus(this.group.visible);
-    }
-
-    setVisibility(status) {
-        if('visible' === status) {
-            this.present();
-        } else {
-            this.dismiss();
-        }
-
     }
 }
 
