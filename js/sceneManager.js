@@ -9,11 +9,10 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
 import { getMouseXY } from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import { pointCloud, ribbon, ballAndStick, ensembleManager } from "./app.js";
-import { getGUIRenderStyle } from "./guiManager.js";
+import { pointCloud, ribbon, ballAndStick, ensembleManager, guiManager } from "./app.js";
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 import Ribbon from './ribbon.js'
-import {degrees} from "./math";
+import {degrees} from "./math.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -74,7 +73,7 @@ class SceneManager {
 
         }  else if ('DidLoadEnsembleFile' === type) {
 
-            this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : getGUIRenderStyle();
+            this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle()
 
             const { trace } = data;
             this.setupWithTrace(trace);

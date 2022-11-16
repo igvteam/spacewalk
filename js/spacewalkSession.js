@@ -8,12 +8,12 @@ import {
     ensembleManager,
     sceneManager,
     contactFrequencyMapPanel,
-    SpacewalkGlobals
+    SpacewalkGlobals,
+    guiManager
 } from './app.js'
-import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {Globals} from "./juicebox/globals"
-import {defaultDistanceThreshold} from "./contactFrequencyMapPanel"
+import {Globals} from "./juicebox/globals.js"
+import {defaultDistanceThreshold} from "./contactFrequencyMapPanel.js"
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
@@ -59,37 +59,33 @@ async function loadSpacewalkSession (session) {
 
     SpacewalkEventBus.globalBus.unsubscribe('DidLoadEnsembleFile', igvPanel)
     SpacewalkEventBus.globalBus.unsubscribe('DidLoadEnsembleFile', juiceboxPanel)
-    SpacewalkEventBus.globalBus.unsubscribe('RenderStyleDidChange', sceneManager)
 
     const {
         url,
         traceKey,
-        igvPanelState,
         renderStyle,
-        panelVisibility,
         gnomonVisibility,
         groundPlaneVisibility,
-        cameraLightingRig,
         gnomonColor,
         groundplaneColor,
-        sceneBackground,
-        contactFrequencyMapDistanceThreshold
+        contactFrequencyMapDistanceThreshold,
+        panelVisibility,
+        cameraLightingRig,
+        sceneBackground
     } = session
 
-    contactFrequencyMapPanel.setState(contactFrequencyMapDistanceThreshold || defaultDistanceThreshold)
-
     await ensembleManager.loadURL(url, traceKey)
-
     const data = ensembleManager.createEventBusPayload()
     SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
 
-    setGUIRenderStyle(renderStyle)
     SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle })
-
-    Panel.setState(panelVisibility)
+    guiManager.setRenderStyle(renderStyle)
 
     sceneManager.gnomon.setState({ visibility: gnomonVisibility, ...gnomonColor })
     sceneManager.groundPlane.setState({ visibility: groundPlaneVisibility, ...groundplaneColor })
+
+    contactFrequencyMapPanel.setState(contactFrequencyMapDistanceThreshold || defaultDistanceThreshold)
+    Panel.setState(panelVisibility)
 
     // TODO: Decide whether to restore camera state
     // sceneManager.cameraLightingRig.setState(cameraLightingRig);
@@ -97,10 +93,9 @@ async function loadSpacewalkSession (session) {
     // TODO: Figure out how do deal with background shader
     // sceneManager.setBackgroundState(sceneBackground);
 
+
     SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', igvPanel)
     SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', juiceboxPanel)
-    SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', sceneManager)
-
 }
 
 function getUrlParams(url) {
@@ -162,7 +157,7 @@ function spacewalkToJSON () {
 
         spacewalk.igvPanelState = igvPanel.getSessionState()
 
-        spacewalk.renderStyle = getGUIRenderStyle()
+        spacewalk.renderStyle = guiManager.getRenderStyle()
 
         spacewalk.panelVisibility = Panel.toJSON()
 
