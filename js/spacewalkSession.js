@@ -86,7 +86,7 @@ async function loadSpacewalkSession (session) {
     setGUIRenderStyle(renderStyle)
     SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle })
 
-    Panel.setAllPanelVisibility(panelVisibility);
+    Panel.setState(panelVisibility)
 
     sceneManager.gnomon.setState({ visibility: gnomonVisibility, ...gnomonColor })
     sceneManager.groundPlane.setState({ visibility: groundPlaneVisibility, ...groundplaneColor })
@@ -153,19 +153,21 @@ function spacewalkToJSON () {
 
     let spacewalk
     if (SpacewalkGlobals.url) {
+
         spacewalk = { url: SpacewalkGlobals.url }
 
         spacewalk.locus = { ...ensembleManager.locus }
-        spacewalk.traceKey = ensembleManager.currentIndex.toString()
-        spacewalk.igvPanelState = igvPanel.getSessionState()
-        spacewalk.renderStyle = getGUIRenderStyle()
-        spacewalk.panelVisibility = {}
 
-        for (let [key, value] of Object.entries( Panel.getPanelDictionary() )) {
-            spacewalk.panelVisibility[ key ] = true === value.isHidden ? 'hidden' : 'visible'
-        }
+        spacewalk.traceKey = ensembleManager.currentIndex.toString()
+
+        spacewalk.igvPanelState = igvPanel.getSessionState()
+
+        spacewalk.renderStyle = getGUIRenderStyle()
+
+        spacewalk.panelVisibility = Panel.toJSON()
 
         let json
+
         json = sceneManager.gnomon.toJSON()
         spacewalk.gnomonVisibility = json.visibility
         spacewalk.gnomonColor = { r:json.r, g:json.g, b:json.b }

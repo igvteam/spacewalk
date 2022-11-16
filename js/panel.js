@@ -121,11 +121,17 @@ class Panel {
         const $selection = $(`input[data-target='${ id }']`)
         $selection.prop('checked', true)
 
-    };
+    }
 
-    static setAllPanelVisibility(panelVisibility) {
+    static setPanelDictionary(panels) {
+        for (let panel of panels) {
+            panelDictionary[ panel.getClassName() ] = panel
+        }
+    }
 
-        for (let [key, value] of Object.entries( Panel.getPanelDictionary() )) {
+    static setState(panelVisibility) {
+
+        for (let [key, value] of Object.entries( panelDictionary )) {
 
             if ('visible' === panelVisibility[ key ]) {
                 value.present();
@@ -137,16 +143,15 @@ class Panel {
 
     }
 
-    static getPanelDictionary() {
-        return panelDictionary
-    }
+    static toJSON() {
 
-    static setPanelDictionary(panels) {
-        for (let panel of panels) {
-            panelDictionary[ panel.getClassName() ] = panel
+        const json = {}
+        for (let [key, value] of Object.entries( panelDictionary )) {
+            json[ key ] = true === value.isHidden ? 'hidden' : 'visible'
         }
-    }
 
+        return json
+    }
 }
 
 export function doInspectPanelVisibilityCheckbox(panelID) {
