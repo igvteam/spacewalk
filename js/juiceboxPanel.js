@@ -43,14 +43,6 @@ class JuiceboxPanel extends Panel {
 
             const { genomeAssembly, chr, genomicStart, genomicEnd } = data
 
-            console.log(`JuiceboxPanel - DidLoadEnsembleFile - genome id ${ genomeAssembly }`)
-
-            // if (Globals.currentBrowser.genome && genomeAssembly !== Globals.currentBrowser.genome.id) {
-            //     Globals.currentBrowser.reset()
-            // } else {
-            //     this.goto({ chr, start: genomicStart, end: genomicEnd })
-            // }
-
             if (Globals.currentBrowser.genome && genomeAssembly !== Globals.currentBrowser.genome.id) {
                 console.warn(`Juicebox assemply ${ Globals.currentBrowser.genome.id } differs from Ensemble assembly ${ genomeAssembly }`)
             }

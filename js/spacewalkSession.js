@@ -57,9 +57,6 @@ async function loadJuiceboxSession(session) {
 
 async function loadSpacewalkSession (session) {
 
-    SpacewalkEventBus.globalBus.unsubscribe('DidLoadEnsembleFile', igvPanel)
-    SpacewalkEventBus.globalBus.unsubscribe('DidLoadEnsembleFile', juiceboxPanel)
-
     const {
         url,
         traceKey,
@@ -74,14 +71,12 @@ async function loadSpacewalkSession (session) {
         sceneBackground
     } = session
 
-    await ensembleManager.loadURL(url, traceKey)
-    const data = ensembleManager.createEventBusPayload()
-    SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
-
-    SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle })
     guiManager.setRenderStyle(renderStyle)
 
+    await sceneManager.ingestEnsemblePath(url, traceKey)
+
     sceneManager.gnomon.setState({ visibility: gnomonVisibility, ...gnomonColor })
+
     sceneManager.groundPlane.setState({ visibility: groundPlaneVisibility, ...groundplaneColor })
 
     contactFrequencyMapPanel.setState(contactFrequencyMapDistanceThreshold || defaultDistanceThreshold)
@@ -93,9 +88,9 @@ async function loadSpacewalkSession (session) {
     // TODO: Figure out how do deal with background shader
     // sceneManager.setBackgroundState(sceneBackground);
 
+    const data = ensembleManager.createEventBusPayload()
+    SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
 
-    SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', igvPanel)
-    SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', juiceboxPanel)
 }
 
 function getUrlParams(url) {

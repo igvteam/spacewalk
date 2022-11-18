@@ -4,10 +4,6 @@ import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, go
 import {BGZip, FileUtils, GoogleAuth, igvxhr} from 'igv-utils'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
-import GenomicParser from "./genomicParser.js"
-import HDF5Parser from "./hdf5Parser.js";
-import GenomicDataset from "./genomicDataset.js";
-import HDF5Version2Dataset from "./hdf5Version2Dataset.js";
 import ColorMapManager from "./colorMapManager.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
@@ -24,7 +20,7 @@ import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import {getUrlParams, getShareURL, loadSessionURL, toJSON, loadSession, uncompressSession} from "./spacewalkSession.js"
+import {getUrlParams, loadSessionURL, toJSON, loadSession, uncompressSession} from "./spacewalkSession.js"
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
@@ -179,12 +175,10 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
     const fileLoader =
         {
             load: async fileOrPath => {
-
-                await ensembleManager.loadURL(fileOrPath, '0')
+                await sceneManager.ingestEnsemblePath(fileOrPath, '0')
 
                 const data = ensembleManager.createEventBusPayload()
                 SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
-
             }
         }
 
