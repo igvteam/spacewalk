@@ -2,9 +2,8 @@ import {AlertSingleton, EventBus} from 'igv-widgets'
 import igv from './igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { setMaterialProvider } from './utils.js';
-import Panel from "./panel.js";
-import {colorRampMaterialProvider, ensembleManager} from "./app.js"
-import {GenomeUtils} from "./genome/genomeUtils.js"
+import Panel from './panel.js';
+import {colorRampMaterialProvider, ensembleManager} from './app.js'
 
 class IGVPanel extends Panel {
 
@@ -32,7 +31,6 @@ class IGVPanel extends Panel {
 
         SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
         SpacewalkEventBus.globalBus.subscribe("DidChangeMaterialProvider", this)
-        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
     }
 
     getClassName(){ return 'IGVPanel' }
@@ -52,31 +50,6 @@ class IGVPanel extends Panel {
 
             const { trackContainer } = this.browser;
             $(trackContainer).find('.input-group input').prop('checked', false);
-
-        } else if ("DidLoadEnsembleFile" === type) {
-
-            (async () => {
-
-                const { genomeAssembly, chr, genomicStart: start, genomicEnd: end } = data;
-
-                try {
-                    await this.browser.loadGenome(GenomeUtils.GenomeLibrary[ genomeAssembly ])
-                } catch (e) {
-                    AlertSingleton.present(e.message);
-                }
-
-                try {
-                    const str = 'all' === chr ? 'all' : `${ chr }:${ start }-${ end }`;
-                    await this.browser.search(str);
-                } catch (e) {
-                    AlertSingleton.present(e.message);
-                }
-
-                // TODO: Clean up genome management. Rely only on Globals.KNOWN_GENOMES
-                EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: genomeAssembly }})
-
-            })();
-
 
         }
 

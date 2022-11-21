@@ -3,8 +3,8 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import { ensembleManager } from './app.js'
 import {Globals} from './juicebox/globals.js';
-import HICEvent from "./juicebox/hicEvent.js"
-import {createBrowser} from "./juicebox/hicBrowserLifecycle"
+import HICEvent from './juicebox/hicEvent.js'
+import {createBrowser} from './juicebox/hicBrowserLifecycle.js'
 
 class JuiceboxPanel extends Panel {
 
@@ -30,7 +30,7 @@ class JuiceboxPanel extends Panel {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         });
 
-        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+
     }
 
     getClassName(){ return 'JuiceboxPanel' }
@@ -39,21 +39,8 @@ class JuiceboxPanel extends Panel {
 
         super.receiveEvent({ type, data });
 
-        if ('DidLoadEnsembleFile' === type) {
-
-            const { genomeAssembly, chr, genomicStart, genomicEnd } = data
-
-            if (Globals.currentBrowser.genome && genomeAssembly !== Globals.currentBrowser.genome.id) {
-                console.warn(`Juicebox assemply ${ Globals.currentBrowser.genome.id } differs from Ensemble assembly ${ genomeAssembly }`)
-            }
-
-            if (this.isContactMapLoaded() && Globals.currentBrowser.dataset.isLiveContactMapDataSet !== true) {
-                this.goto({ chr, start: genomicStart, end: genomicEnd })
-            }
-
-
-        } else if ('DidHideCrosshairs' === type) {
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' });
+        if ('DidHideCrosshairs' === type) {
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' })
         }
     }
 
@@ -95,6 +82,14 @@ class JuiceboxPanel extends Panel {
         }
 
         Globals.currentBrowser.update()
+
+        Globals.currentBrowser.eventBus.subscribe("MapLoad", () => {
+            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+            this.goto({ chr, start: genomicStart, end: genomicEnd })
+        })
+
+        // Globals.currentBrowser.eventBus.subscribe("LocusChange", () => console.log('Hi from Juicebox Panel. Locus Did Change'))
+
 
     }
 
