@@ -207,15 +207,21 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     await igvPanel.initialize(spacewalkConfig)
 
+    const $igvMain = $(igvPanel.container)
+    const $dropdownMenu = $('#spacewalk-track-dropdown-menu')
+    const $localFileInput = $('#hic-local-track-file-input')
+    const $dropboxButton = $('#spacewalk-track-dropbox-button')
+    const $googleDriveButton = $('#spacewalk-track-dropdown-google-drive-button')
+
     createTrackWidgetsWithTrackRegistry(
-        $(igvPanel.container),
-        $('#spacewalk-track-dropdown-menu'),
-        $('#hic-local-track-file-input'),
-        $('#spacewalk-track-dropbox-button'),
+        $igvMain,
+        $dropdownMenu,
+        $localFileInput,
+        $dropboxButton,
         googleEnabled,
-        $('#spacewalk-track-dropdown-google-drive-button'),
+        $googleDriveButton,
         ['hic-encode-signal-modal', 'hic-encode-other-modal'],
-        'hic-app-track-load-url-modal',
+        'spacewalk-track-load-url-modal',
         'hic-app-track-select-modal',
         undefined,
         spacewalkConfig.trackRegistry,
