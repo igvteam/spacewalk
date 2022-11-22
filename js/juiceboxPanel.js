@@ -5,6 +5,7 @@ import { ensembleManager } from './app.js'
 import {Globals} from './juicebox/globals.js';
 import HICEvent from './juicebox/hicEvent.js'
 import {createBrowser} from './juicebox/hicBrowserLifecycle.js'
+import hic from "./juicebox";
 
 class JuiceboxPanel extends Panel {
 
@@ -66,13 +67,10 @@ class JuiceboxPanel extends Panel {
                 }
         }
 
-        this.locus = config.locus
-
         try {
-
-            await createBrowser(container, session)
-
-        } catch (error) {
+            await hic.restoreSession(container, session)
+            this.locus = config.locus
+        } catch (e) {
             console.warn(error.message)
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
         }
@@ -81,15 +79,10 @@ class JuiceboxPanel extends Panel {
             this.configureMouseHandlers()
         }
 
-        Globals.currentBrowser.update()
-
         Globals.currentBrowser.eventBus.subscribe("MapLoad", () => {
             const { chr, genomicStart, genomicEnd } = ensembleManager.locus
             this.goto({ chr, start: genomicStart, end: genomicEnd })
         })
-
-        // Globals.currentBrowser.eventBus.subscribe("LocusChange", () => console.log('Hi from Juicebox Panel. Locus Did Change'))
-
 
     }
 
