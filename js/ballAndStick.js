@@ -174,11 +174,17 @@ class BallAndStick {
     }
 
     hide () {
+        if (undefined === this.trace) {
+            return
+        }
         this.balls.visible = false
         this.sticks.visible = false
     }
 
     show () {
+        if (undefined === this.trace) {
+            return
+        }
         this.balls.visible = true
         this.sticks.visible = true
     }

@@ -67,11 +67,17 @@ class SceneManager {
         this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle()
 
         if (this.renderStyle === Ribbon.getRenderStyle()) {
+            pointCloud.hide()
             ballAndStick.hide()
             ribbon.show()
         } else if (this.renderStyle === BallAndStick.getRenderStyle()) {
+            pointCloud.hide()
             ribbon.hide()
             ballAndStick.show()
+        } else if (this.renderStyle === PointCloud.getRenderStyle()) {
+            ballAndStick.hide()
+            ribbon.hide()
+            pointCloud.show()
         }
 
         // IGV Panel

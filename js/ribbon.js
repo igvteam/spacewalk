@@ -106,6 +106,9 @@ class Ribbon {
     }
 
     hide () {
+        if (undefined === this.trace) {
+            return
+        }
         this.spline.mesh.visible = false
 
         if (this.highlightBeads) {
@@ -115,12 +118,10 @@ class Ribbon {
     }
 
     show () {
+        if (undefined === this.trace) {
+            return
+        }
         this.spline.mesh.visible = true
-
-        // if (this.highlightBeads) {
-        //     this.highlightBeads[ 0 ].visible = true
-        //     this.highlightBeads[ 1 ].visible = true
-        // }
     }
 
     dispose () {
