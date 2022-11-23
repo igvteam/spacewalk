@@ -108,7 +108,7 @@ class SceneManager {
 
     setupWithTrace(trace) {
 
-        this.dispose();
+        this.dispose()
 
         let scene = new THREE.Scene();
 
@@ -184,15 +184,18 @@ class SceneManager {
 
         if (this.scene) {
 
-            let disposable = this.scene.children.filter(child => disposableSet.has(child.name))
+            const disposable = this.scene.children.filter(child => disposableSet.has(child.name))
 
-            for (let d of disposable) {
+            for (const d of disposable) {
                 this.scene.remove(d)
             }
 
             delete this.scene
         }
 
+        ballAndStick.dispose()
+        ribbon.dispose()
+        pointCloud.dispose()
     }
 
     renderLoopHelper() {

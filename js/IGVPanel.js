@@ -175,10 +175,6 @@ class IGVPanel extends Panel {
 
     }
 
-    toJSON() {
-        return this.browser.toJSON()
-    }
-
     getSessionState() {
 
         for (let trackView of this.browser.trackViews) {

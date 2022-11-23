@@ -53,7 +53,7 @@ class JuiceboxPanel extends Panel {
         if (config.browsers) {
             session = Object.assign({ queryParametersSupported: false }, config)
         } else {
-            const { locus, width, height } = config
+            const { width, height } = config
             session =
                 {
                     browsers:
@@ -178,10 +178,6 @@ class JuiceboxPanel extends Panel {
 
     isContactMapLoaded() {
         return (Globals.currentBrowser && Globals.currentBrowser.dataset)
-    }
-
-    toJSON() {
-        return Globals.currentBrowser.toJSON()
     }
 
 }
