@@ -1,7 +1,7 @@
 import { AlertSingleton } from 'igv-widgets'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
-import { ensembleManager } from './app.js'
+import {ensembleManager, juiceboxPanel} from './app.js'
 import {Globals} from './juicebox/globals.js';
 import HICEvent from './juicebox/hicEvent.js'
 import {createBrowser} from './juicebox/hicBrowserLifecycle.js'
@@ -84,6 +84,17 @@ class JuiceboxPanel extends Panel {
             this.goto({ chr, start: genomicStart, end: genomicEnd })
         })
 
+    }
+
+    async locusDidChange({ chr, genomicStart, genomicEnd }) {
+
+        if (this.isContactMapLoaded() && Globals.currentBrowser.dataset.isLiveContactMapDataSet !== true) {
+            try {
+                await this.goto({ chr, start: genomicStart, end: genomicEnd })
+            } catch (e) {
+                AlertSingleton.present(e.message)
+            }
+        }
     }
 
     configureMouseHandlers() {

@@ -485,14 +485,19 @@ class Browser {
             }
         }
 
-        // Tracks.  Start with genome tracks, if any, then append session tracks
-        const genomeTracks = this.genome.config.tracks || [];
-        const trackConfigurations = session.tracks ? genomeTracks.concat(session.tracks) : genomeTracks;
+        let trackConfigurations = []
+        if (session.tracks && session.tracks.length > 0) {
+            trackConfigurations = session.tracks.filter(({ type, format }) => 'sequence' !== type && 'refgene' !== format)
+        }
 
-        // Insure that we always have a sequence track
-        const pushSequenceTrack = trackConfigurations.filter(track => track.type === 'sequence').length === 0;
-        if (pushSequenceTrack /*&& false !== this.config.showSequence*/) {
-            trackConfigurations.push({type: "sequence", order: defaultSequenceTrackOrder})
+        if (this.genome.config.tracks && this.genome.config.tracks.length > 0) {
+            trackConfigurations.push(...this.genome.config.tracks)
+        }
+
+        // Ensure that we always have a sequence track
+        const doPushSequenceTrack = trackConfigurations.filter(track => track.type === 'sequence').length === 0
+        if (doPushSequenceTrack) {
+            trackConfigurations.push({ type: "sequence", order: defaultSequenceTrackOrder })
         }
 
         // Maintain track order unless explicitly set

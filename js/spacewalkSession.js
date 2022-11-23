@@ -41,6 +41,7 @@ async function loadSession(json) {
 
 async function loadIGVSession(spacewalk, igv) {
 
+    igvPanel.browser.removeAllTracks()
     await igvPanel.browser.loadSession(igv)
     igvPanel.configureMouseHandlers()
 

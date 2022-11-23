@@ -105,6 +105,20 @@ class IGVPanel extends Panel {
         }
     }
 
+    async locusDidChange({ chr, genomicStart, genomicEnd }) {
+        try {
+            if ('all' === chr) {
+                await this.browser.search(chr)
+            } else {
+                await this.browser.search(`${ chr }:${ genomicStart }-${ genomicEnd }`)
+            }
+
+        } catch (e) {
+            AlertSingleton.present(e.message)
+        }
+
+    }
+
     configureMouseHandlers () {
 
         this.browser.on('trackremoved', track => {
@@ -159,10 +173,6 @@ class IGVPanel extends Panel {
             trackView.setTrackLabelName(trackView, config.name);
         }
 
-    }
-
-    loadTrack(trackConfiguration) {
-        this.loadTrackList([trackConfiguration])
     }
 
     toJSON() {

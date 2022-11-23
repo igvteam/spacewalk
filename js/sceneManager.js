@@ -13,9 +13,6 @@ import {pointCloud, ribbon, ballAndStick, ensembleManager, guiManager, juiceboxP
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 import Ribbon from './ribbon.js'
 import {degrees} from "./math.js";
-import {Globals} from "./juicebox/globals.js";
-import {GenomeUtils} from "./genome/genomeUtils.js";
-import {AlertSingleton, EventBus} from "igv-widgets";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -80,30 +77,9 @@ class SceneManager {
             pointCloud.show()
         }
 
-        // IGV Panel
-        try {
-            await igvPanel.browser.loadGenome(GenomeUtils.GenomeLibrary[ ensembleManager.genomeAssembly ])
-        } catch (e) {
-            AlertSingleton.present(e.message)
-        }
+        igvPanel.locusDidChange(ensembleManager.locus)
 
-        const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-
-        try {
-            const str = 'all' === chr ? 'all' : `${ chr }:${ genomicStart }-${ genomicEnd }`
-            await igvPanel.browser.search(str)
-        } catch (e) {
-            AlertSingleton.present(e.message)
-        }
-
-        // Juicebox Panel
-        if (juiceboxPanel.isContactMapLoaded() && Globals.currentBrowser.dataset.isLiveContactMapDataSet !== true) {
-            try {
-                await juiceboxPanel.goto({ chr, start: genomicStart, end: genomicEnd })
-            } catch (e) {
-                AlertSingleton.present(e.message)
-            }
-        }
+        juiceboxPanel.locusDidChange(ensembleManager.locus)
 
         // EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: ensembleManager.genomeAssembly }})
 
