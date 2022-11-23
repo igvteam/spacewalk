@@ -63,7 +63,7 @@ class IGVPanel extends Panel {
 
         try {
             if (session) {
-                const { showTrackLabels, showRuler, showControls,showCursorTrackingGuide } = igvConfig
+                const { showTrackLabels, showRuler, showControls, showCursorTrackingGuide } = igvConfig
                 const mergedConfig = { ...session, ...({ showTrackLabels, showRuler, showControls, showCursorTrackingGuide }) }
                 this.browser = await igv.createBrowser( root, mergedConfig )
             } else {
