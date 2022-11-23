@@ -115,12 +115,18 @@ class PointCloud {
     }
 
     hide () {
+        if (undefined === this.trace) {
+            return
+        }
         for (let mesh of this.meshList) {
             mesh.visible = false;
         }
     }
 
     show () {
+        if (undefined === this.trace) {
+            return
+        }
         for (let mesh of this.meshList) {
             mesh.visible = true;
         }
