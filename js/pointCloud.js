@@ -67,10 +67,6 @@ class PointCloud {
 
     configure(trace) {
 
-        this.dispose();
-
-        this.trace = trace
-
         this.meshList = trace
             .map(({ xyz, rgb, color, drawUsage }) => {
 
@@ -115,20 +111,18 @@ class PointCloud {
     }
 
     hide () {
-        if (undefined === this.trace) {
-            return
-        }
-        for (let mesh of this.meshList) {
-            mesh.visible = false;
+        if (this.meshList) {
+            for (let mesh of this.meshList) {
+                mesh.visible = false;
+            }
         }
     }
 
     show () {
-        if (undefined === this.trace) {
-            return
-        }
-        for (let mesh of this.meshList) {
-            mesh.visible = true;
+        if (this.meshList) {
+            for (let mesh of this.meshList) {
+                mesh.visible = true;
+            }
         }
     }
 

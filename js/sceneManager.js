@@ -7,9 +7,18 @@ import BallAndStick from "./ballAndStick.js";
 import PointCloud from "./pointCloud.js";
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
-import { getMouseXY } from "./utils.js";
+import {getMouseXY, setMaterialProvider} from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import {pointCloud, ribbon, ballAndStick, ensembleManager, guiManager, juiceboxPanel, igvPanel} from "./app.js";
+import {
+    pointCloud,
+    ribbon,
+    ballAndStick,
+    ensembleManager,
+    guiManager,
+    juiceboxPanel,
+    igvPanel,
+    colorRampMaterialProvider
+} from "./app.js";
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 import Ribbon from './ribbon.js'
 import {degrees} from "./math.js";
@@ -76,6 +85,8 @@ class SceneManager {
             ribbon.hide()
             pointCloud.show()
         }
+
+        setMaterialProvider(colorRampMaterialProvider)
 
         igvPanel.locusDidChange(ensembleManager.locus)
 

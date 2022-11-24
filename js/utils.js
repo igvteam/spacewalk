@@ -56,8 +56,8 @@ async function getMaterialProvider (track) {
 }
 
 const setMaterialProvider = materialProvider => {
-    ribbon.updateMaterialProvider(materialProvider);
-    ballAndStick.updateMaterialProvider(materialProvider);
+    ribbon.updateMaterialProvider(materialProvider)
+    ballAndStick.updateMaterialProvider(materialProvider)
 };
 
 const fitToContainer = (canvas, devicePixelRatio) => {

@@ -4,7 +4,7 @@ import { Line2 } from "three/examples/jsm/lines/Line2.js"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
 import EnsembleManager from './ensembleManager.js'
-import {igvPanel, sceneManager} from "./app.js"
+import {igvPanel, sceneManager, ensembleManager} from "./app.js"
 import {appleCrayonColorThreeJS} from "./color.js";
 
 const ribbonWidth = 4/*2*/
@@ -43,10 +43,6 @@ class Ribbon {
 
     configure(trace) {
 
-        this.dispose()
-
-        this.trace = trace;
-
         const str = 'Ribbon.configure()';
         console.time(str);
 
@@ -77,7 +73,7 @@ class Ribbon {
 
         scene.add( this.spline.mesh )
 
-        const { center, radius } = EnsembleManager.getTraceBounds(this.trace)
+        const { center, radius } = EnsembleManager.getTraceBounds(ensembleManager.currentTrace)
 
         this.highlightBeads = []
 
@@ -101,12 +97,11 @@ class Ribbon {
     renderLoopHelper () {
         if (this.spline) {
             this.spline.mesh.material.resolution.set(window.innerWidth, window.innerHeight)
-            // this.updateMaterialProvider(igvPanel.materialProvider)
         }
     }
 
     hide () {
-        if (undefined === this.trace) {
+        if (undefined === this.spline) {
             return
         }
         this.spline.mesh.visible = false
@@ -118,7 +113,7 @@ class Ribbon {
     }
 
     show () {
-        if (undefined === this.trace) {
+        if (undefined === this.spline) {
             return
         }
         this.spline.mesh.visible = true

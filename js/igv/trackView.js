@@ -118,6 +118,8 @@ class TrackView {
 
             input.addEventListener('click', async e => {
                 e.stopPropagation()
+
+                console.log('trackView did click material provider input handler')
                 igvPanel.materialProvider = await getMaterialProvider(track)
                 setMaterialProvider(igvPanel.materialProvider)
 

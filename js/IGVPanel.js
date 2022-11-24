@@ -29,8 +29,7 @@ class IGVPanel extends Panel {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         });
 
-        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
-        SpacewalkEventBus.globalBus.subscribe("DidChangeMaterialProvider", this)
+        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this)
     }
 
     getClassName(){ return 'IGVPanel' }
@@ -44,13 +43,6 @@ class IGVPanel extends Panel {
             if (colorRampMaterialProvider === poster) {
                 this.browser.cursorGuide.updateWithInterpolant(interpolantList[ 0 ])
             }
-        } else if ("DidChangeMaterialProvider" === type) {
-
-            this.materialProvider = data;
-
-            const { trackContainer } = this.browser;
-            $(trackContainer).find('.input-group input').prop('checked', false);
-
         }
 
     }
