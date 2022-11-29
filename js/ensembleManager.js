@@ -45,7 +45,7 @@ class EnsembleManager {
         this.isPointCloud = isPointCloud
 
         const initialIndex = index || 0
-        this.currentTrace = this.genomicDataset.createTrace(initialIndex)
+        this.currentTrace = this.createTrace(initialIndex)
         this.currentIndex = initialIndex
 
     }
@@ -105,9 +105,9 @@ class EnsembleManager {
         return this.genomicDataset.getLiveContactFrequencyMapVertexLists()
     }
 
-    static getLiveContactFrequencyMapTraceVertices(trace) {
+    static getLiveContactFrequencyMapTraceVertices(ensembleTrace) {
 
-        return trace
+        return ensembleTrace
             .map(({ xyz }) => {
                 const { x, y, z, isMissingData } = xyz
                 return true === isMissingData ? { isMissingData } : { x, y, z }

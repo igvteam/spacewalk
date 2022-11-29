@@ -70,11 +70,9 @@ class DistanceMapPanel extends Panel {
 
         if ("DidSelectTrace" === type) {
 
-            const { trace } = data
-            this.trace = trace
-
             if (false === this.isHidden) {
-                this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), this.trace)
+                const { trace } = data
+                this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), trace)
                 this.doUpdateTrace = undefined
             } else {
                 this.doUpdateTrace = true
@@ -82,14 +80,13 @@ class DistanceMapPanel extends Panel {
 
         } else if ("DidLoadEnsembleFile" === type) {
 
-            const { trace } = data
-            this.trace = trace
 
             initializeSharedBuffers(ensembleManager.getTraceLength())
 
             if (false === this.isHidden) {
                 this.updateEnsembleAverageDistanceCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
-                this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), this.trace)
+                const { trace } = data
+                this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             } else {
                 this.doUpdateTrace = this.doUpdateEnsemble = true
@@ -108,7 +105,7 @@ class DistanceMapPanel extends Panel {
         }
 
         if (true === this.doUpdateTrace) {
-            this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), this.trace)
+            this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), ensembleManager.currentTrace)
             this.doUpdateTrace = undefined
         }
 

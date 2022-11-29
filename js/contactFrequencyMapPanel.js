@@ -62,9 +62,13 @@ class ContactFrequencyMapPanel extends Panel {
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
             window.setTimeout(() => {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
+
+                // this.updateEnsembleContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
+
                 this.updateTraceContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.currentTrace)
+
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
+
             }, 0)
         })
 
@@ -97,26 +101,30 @@ class ContactFrequencyMapPanel extends Panel {
             this.doUpdateTrace = true
 
             if (false === this.isHidden) {
-
                 const { trace } = data
-                this.updateTraceContactFrequencyCanvas(ensembleManager.getTraceLength(), trace)
-
+                this.updateTraceContactFrequencyCanvas()
                 this.doUpdateTrace = undefined
             }
 
         } else if ("DidLoadEnsembleFile" === type) {
 
-            this.doUpdateTrace = this.doUpdateEnsemble = true
-
+            this.doUpdateTrace = true
+            this.doUpdateEnsemble = true
             allocateContactFrequencyArray(ensembleManager.getTraceLength())
 
             if (false === this.isHidden) {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
 
-                const { trace } = data
-                this.updateTraceContactFrequencyCanvas(ensembleManager.getTraceLength(), trace)
+                if (true === this.doUpdateEnsemble) {
+                    this.updateEnsembleContactFrequencyCanvas()
+                    this.doUpdateEnsemble = undefined
+                }
 
-                this.doUpdateTrace = this.doUpdateEnsemble = undefined
+                if (true === this.doUpdateTrace) {
+                    const { trace } = data
+                    this.updateTraceContactFrequencyCanvas()
+                    this.doUpdateTrace = undefined
+                }
+
             }
 
         }
@@ -133,12 +141,12 @@ class ContactFrequencyMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
+            this.updateEnsembleContactFrequencyCanvas()
             this.doUpdateEnsemble = undefined
         }
 
         if (true === this.doUpdateTrace) {
-            this.updateTraceContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.currentTrace)
+            this.updateTraceContactFrequencyCanvas()
             this.doUpdateTrace = undefined
         }
 
@@ -148,16 +156,16 @@ class ContactFrequencyMapPanel extends Panel {
 
     getClassName(){ return 'ContactFrequencyMapPanel' }
 
-    updateTraceContactFrequencyCanvas(traceLength, trace) {
+    updateTraceContactFrequencyCanvas() {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const vertices = EnsembleManager.getLiveContactFrequencyMapTraceVertices(trace)
+        const vertices = EnsembleManager.getLiveContactFrequencyMapTraceVertices(ensembleManager.currentTrace)
 
         const data =
             {
                 traceOrEnsemble: 'trace',
-                traceLength,
+                traceLength: ensembleManager.getTraceLength(),
                 verticesString: JSON.stringify(vertices),
                 distanceThreshold: this.distanceThreshold
             }
@@ -170,15 +178,15 @@ class ContactFrequencyMapPanel extends Panel {
 
     }
 
-    updateEnsembleContactFrequencyCanvas(traceLength, vertexLists) {
+    updateEnsembleContactFrequencyCanvas() {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
         const data =
             {
                 traceOrEnsemble: 'ensemble',
-                traceLength,
-                vertexListsString: JSON.stringify(vertexLists),
+                traceLength: ensembleManager.getTraceLength(),
+                vertexListsString: JSON.stringify( ensembleManager.getLiveContactFrequencyMapVertexLists() ),
                 distanceThreshold: this.distanceThreshold
             }
 
