@@ -19,9 +19,9 @@ class HDF5Dataset extends Dataset {
 
         // calc trace count
         const vertexLists = chain.get('spatial_position')
-        this.traceCount = vertexLists.keys().length
+        this.vertexListCount = vertexLists.keys().length
 
-        this.traceLength = createTraceLength(chain)
+        this.vertexCount = createTraceLength(chain)
 
         this.locus = createLocus(this.key, chain)
 
@@ -29,8 +29,8 @@ class HDF5Dataset extends Dataset {
 
     }
 
-    getTraceCount(){
-        return this.traceCount
+    getVertexListCount(){
+        return this.vertexListCount
     }
 
     createTrace(i) {

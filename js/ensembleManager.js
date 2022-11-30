@@ -73,11 +73,11 @@ class EnsembleManager {
     }
 
     getTraceLength() {
-        return this.genomicDataset.traceLength
+        return this.genomicDataset.vertexCount
     }
 
     getTraceCount() {
-        return this.genomicDataset.getTraceCount()
+        return this.genomicDataset.getVertexListCount()
     }
 
     getGenomicInterpolantWindowList(interpolantList) {
