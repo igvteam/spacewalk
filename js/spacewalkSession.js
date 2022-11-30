@@ -1,11 +1,19 @@
-import { URIUtils, BGZip, URLShortener } from 'igv-utils'
+import {URIUtils, BGZip, URLShortener} from 'igv-utils'
 import Zlib from './vendor/zlib_and_gzip.js'
 import hic from './juicebox/index.js'
 import Panel from './panel.js'
-import {parser, igvPanel, juiceboxPanel, ensembleManager, sceneManager, contactFrequencyMapPanel} from './app.js'
-import { getGUIRenderStyle, setGUIRenderStyle } from './guiManager.js'
+import {
+    igvPanel,
+    juiceboxPanel,
+    ensembleManager,
+    sceneManager,
+    contactFrequencyMapPanel,
+    SpacewalkGlobals,
+    guiManager
+} from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {Globals} from "./juicebox/globals"
+import {Globals} from "./juicebox/globals.js"
+import {defaultDistanceThreshold} from "./contactFrequencyMapPanel.js"
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
@@ -33,6 +41,7 @@ async function loadSession(json) {
 
 async function loadIGVSession(spacewalk, igv) {
 
+    igvPanel.browser.removeAllTracks()
     await igvPanel.browser.loadSession(igv)
     igvPanel.configureMouseHandlers()
 
@@ -49,54 +58,43 @@ async function loadJuiceboxSession(session) {
 
 async function loadSpacewalkSession (session) {
 
-    SpacewalkEventBus.globalBus.unsubscribe('DidLoadEnsembleFile', igvPanel)
-    SpacewalkEventBus.globalBus.unsubscribe('DidLoadEnsembleFile', juiceboxPanel)
-    SpacewalkEventBus.globalBus.unsubscribe('RenderStyleDidChange', sceneManager)
-
     const {
         url,
         traceKey,
-        igvPanelState,
         renderStyle,
-        panelVisibility,
         gnomonVisibility,
         groundPlaneVisibility,
-        cameraLightingRig,
         gnomonColor,
         groundplaneColor,
-        sceneBackground,
-        contactFrequencyMapDistanceThreshold
+        contactFrequencyMapDistanceThreshold,
+        panelVisibility,
+        cameraLightingRig,
+        sceneBackground
     } = session
 
-    contactFrequencyMapPanel.setState(contactFrequencyMapDistanceThreshold)
+    guiManager.setRenderStyle(renderStyle)
 
-    await parser.loadSessionTrace({ url, traceKey });
+    await sceneManager.ingestEnsemblePath(url, traceKey)
 
-    setGUIRenderStyle(renderStyle);
+    sceneManager.gnomon.setState({ visibility: gnomonVisibility, ...gnomonColor })
 
-    Panel.setAllPanelVisibility(panelVisibility);
+    sceneManager.groundPlane.setState({ visibility: groundPlaneVisibility, ...groundplaneColor })
 
-    sceneManager.gnomon.setVisibility(gnomonVisibility);
-
-    sceneManager.groundPlane.setVisibility(groundPlaneVisibility);
+    contactFrequencyMapPanel.setState(contactFrequencyMapDistanceThreshold || defaultDistanceThreshold)
+    Panel.setState(panelVisibility)
 
     // TODO: Decide whether to restore camera state
     // sceneManager.cameraLightingRig.setState(cameraLightingRig);
 
-    sceneManager.gnomon.setColorState(gnomonColor);
-
-    sceneManager.groundPlane.setColorState(groundplaneColor);
-
     // TODO: Figure out how do deal with background shader
     // sceneManager.setBackgroundState(sceneBackground);
 
-    SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', igvPanel)
-    SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', juiceboxPanel)
-    SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', sceneManager)
+    const data = ensembleManager.createEventBusPayload()
+    SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
 
 }
 
-const getUrlParams = url => {
+function getUrlParams(url) {
 
     const search = decodeURIComponent( url.slice( url.indexOf( '?' ) + 1 ) );
 
@@ -109,7 +107,7 @@ const getUrlParams = url => {
             return acc;
         }, {});
 
-};
+}
 
 async function getShareURL() {
 
@@ -144,26 +142,40 @@ function getCompressedSession() {
 
 function spacewalkToJSON () {
 
-    const spacewalk = parser.toJSON()
-    spacewalk.locus = ensembleManager.locus
-    spacewalk.traceKey = ensembleManager.getTraceKey(ensembleManager.currentTrace)
-    spacewalk.igvPanelState = igvPanel.getSessionState()
-    spacewalk.renderStyle = getGUIRenderStyle()
-    spacewalk.panelVisibility = {}
+    let spacewalk
+    if (SpacewalkGlobals.url) {
 
-    for (let [key, value] of Object.entries( Panel.getPanelDictionary() )) {
-        spacewalk.panelVisibility[ key ] = true === value.isHidden ? 'hidden' : 'visible'
+        spacewalk = { url: SpacewalkGlobals.url }
+
+        spacewalk.locus = { ...ensembleManager.locus }
+
+        spacewalk.traceKey = ensembleManager.currentIndex.toString()
+
+        spacewalk.igvPanelState = igvPanel.getSessionState()
+
+        spacewalk.renderStyle = guiManager.getRenderStyle()
+
+        spacewalk.panelVisibility = Panel.toJSON()
+
+        let json
+
+        json = sceneManager.gnomon.toJSON()
+        spacewalk.gnomonVisibility = json.visibility
+        spacewalk.gnomonColor = { r:json.r, g:json.g, b:json.b }
+
+        json = sceneManager.groundPlane.toJSON()
+        spacewalk.groundPlaneVisibility = json.visibility
+        spacewalk.groundplaneColor = { r:json.r, g:json.g, b:json.b }
+
+        spacewalk.cameraLightingRig = sceneManager.cameraLightingRig.getState()
+
+        spacewalk.contactFrequencyMapDistanceThreshold = contactFrequencyMapPanel.distanceThreshold
+
+        return spacewalk
+    } else {
+        throw new Error(`Unable to save session. Local files not supported.`)
     }
 
-    spacewalk.gnomonVisibility = true === sceneManager.gnomon.group.visible ? 'visible' : 'hidden'
-    spacewalk.groundPlaneVisibility = true === sceneManager.groundPlane.visible ? 'visible' : 'hidden'
-    spacewalk.cameraLightingRig = sceneManager.cameraLightingRig.getState()
-    spacewalk.gnomonColor = sceneManager.gnomon.getColorState()
-    spacewalk.groundplaneColor = sceneManager.groundPlane.getColorState()
-
-    spacewalk.contactFrequencyMapDistanceThreshold = contactFrequencyMapPanel.distanceThreshold
-
-    return spacewalk
 
 }
 

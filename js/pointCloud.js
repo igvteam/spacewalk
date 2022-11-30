@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { ensembleManager, sceneManager } from "./app.js";
-import EnsembleManager from './ensembleManager.js'
 
 const pointSize = 128;
 
@@ -68,10 +67,6 @@ class PointCloud {
 
     configure(trace) {
 
-        this.dispose();
-
-        this.trace = trace
-
         this.meshList = trace
             .map(({ xyz, rgb, color, drawUsage }) => {
 
@@ -116,14 +111,18 @@ class PointCloud {
     }
 
     hide () {
-        for (let mesh of this.meshList) {
-            mesh.visible = false;
+        if (this.meshList) {
+            for (let mesh of this.meshList) {
+                mesh.visible = false;
+            }
         }
     }
 
     show () {
-        for (let mesh of this.meshList) {
-            mesh.visible = true;
+        if (this.meshList) {
+            for (let mesh of this.meshList) {
+                mesh.visible = true;
+            }
         }
     }
 

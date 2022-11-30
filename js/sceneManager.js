@@ -7,12 +7,21 @@ import BallAndStick from "./ballAndStick.js";
 import PointCloud from "./pointCloud.js";
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
 import Gnomon, { gnomonConfigurator } from './gnomon.js';
-import { getMouseXY } from "./utils.js";
+import {getMouseXY, setMaterialProvider} from "./utils.js";
 import { appleCrayonColorThreeJS } from "./color.js";
-import { pointCloud, ribbon, ballAndStick, ensembleManager } from "./app.js";
-import { getGUIRenderStyle } from "./guiManager.js";
+import {
+    pointCloud,
+    ribbon,
+    ballAndStick,
+    ensembleManager,
+    guiManager,
+    juiceboxPanel,
+    igvPanel,
+    colorRampMaterialProvider
+} from "./app.js";
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
 import Ribbon from './ribbon.js'
+import {degrees} from "./math.js";
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -45,16 +54,46 @@ class SceneManager {
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
 
-        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
-        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
         SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', this);
-
+        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
 
     }
 
     getRenderContainerSize() {
         const { width, height } = this.container.getBoundingClientRect();
         return { width, height };
+    }
+
+    async ingestEnsemblePath(url, traceKey) {
+
+        await ensembleManager.loadURL(url, traceKey)
+
+        this.setupWithTrace(ensembleManager.currentTrace)
+
+        this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle()
+
+        if (this.renderStyle === Ribbon.getRenderStyle()) {
+            pointCloud.hide()
+            ballAndStick.hide()
+            ribbon.show()
+        } else if (this.renderStyle === BallAndStick.getRenderStyle()) {
+            pointCloud.hide()
+            ribbon.hide()
+            ballAndStick.show()
+        } else if (this.renderStyle === PointCloud.getRenderStyle()) {
+            ballAndStick.hide()
+            ribbon.hide()
+            pointCloud.show()
+        }
+
+        setMaterialProvider(colorRampMaterialProvider)
+
+        igvPanel.locusDidChange(ensembleManager.locus)
+
+        juiceboxPanel.locusDidChange(ensembleManager.locus)
+
+        // EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: ensembleManager.genomeAssembly }})
+
     }
 
     receiveEvent({ type, data }) {
@@ -71,25 +110,16 @@ class SceneManager {
                 ballAndStick.show()
             }
 
-        }  else if ('DidLoadEnsembleFile' === type) {
-
-            this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : getGUIRenderStyle();
-
-            const { trace } = data;
-            this.setupWithTrace(trace);
-
-        } else if ('DidSelectTrace' === type) {
-
-            const { trace } = data;
-            this.setupWithTrace(trace);
-
+        }  else if ('DidSelectTrace' === type) {
+            const { trace } = data
+            this.setupWithTrace(trace)
         }
 
     }
 
     setupWithTrace(trace) {
 
-        this.dispose();
+        this.dispose()
 
         let scene = new THREE.Scene();
 
@@ -105,8 +135,9 @@ class SceneManager {
             ballAndStick.addToScene(scene);
         }
 
+
         const {min, max, center, radius} = EnsembleManager.getTraceBounds(trace);
-        const {position, fov} = EnsembleManager.getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
+        const {position, fov} = getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
         this.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
 
     }
@@ -164,19 +195,18 @@ class SceneManager {
 
         if (this.scene) {
 
-            let disposable = this.scene.children.filter(child => disposableSet.has(child.name))
+            const disposable = this.scene.children.filter(child => disposableSet.has(child.name))
 
-            for (let d of disposable) {
+            for (const d of disposable) {
                 this.scene.remove(d)
             }
 
             delete this.scene
         }
 
-    }
-
-    isGoodToGo() {
-        return this.scene && this.cameraLightingRig
+        ballAndStick.dispose()
+        ribbon.dispose()
+        pointCloud.dispose()
     }
 
     renderLoopHelper() {
@@ -236,6 +266,43 @@ class SceneManager {
 
     }
 
+}
+
+function getCameraPoseAlongAxis ({ center, radius, axis, scaleFactor }) {
+
+    const dimen = scaleFactor * radius;
+
+    const theta = Math.atan(radius/dimen);
+    const fov = degrees( 2 * theta);
+
+    const axes =
+        {
+            '-x': () => {
+                return new THREE.Vector3(-dimen, 0, 0);
+            },
+            '+x': () => {
+                return new THREE.Vector3(dimen, 0, 0);
+            },
+            '-y': () => {
+                return new THREE.Vector3(0, -dimen, 0);
+            },
+            '+y': () => {
+                return new THREE.Vector3(0, dimen, 0);
+            },
+            '-z': () => {
+                return new THREE.Vector3(0, 0, -dimen);
+            },
+            '+z': () => {
+                return new THREE.Vector3(0, 0, dimen);
+            },
+        };
+
+    const vector = axes[ axis ]();
+    let position = new THREE.Vector3();
+
+    position.addVectors(center, vector);
+
+    return { target:center, position, fov }
 }
 
 const sceneManagerConfigurator = ({ container, highlightColor }) => {

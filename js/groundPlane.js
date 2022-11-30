@@ -27,17 +27,6 @@ class GroundPlane extends THREE.GridHelper {
 
     }
 
-    getColorState() {
-        const { r, g, b } = this.color;
-        return { r, g, b };
-    }
-
-    setColorState(json) {
-        const { r, g, b } = json;
-        this.setColor(new THREE.Color(r, g, b))
-        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='groundplane']`), json)
-    }
-
     setColor(color) {
 
         const { r, g, b } = color;
@@ -63,6 +52,26 @@ class GroundPlane extends THREE.GridHelper {
 
     }
 
+    setVisibility(status) {
+        if('visible' === status) {
+            this.present();
+        } else {
+            this.dismiss();
+        }
+
+    }
+
+    setState({ r, g, b, visibility}) {
+        this.setVisibility(visibility);
+        this.setColor(new THREE.Color(r, g, b))
+        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='gnomon']`), { r, g, b })
+    }
+
+    toJSON() {
+        const { r, g, b } = this.color
+        return { r, g, b, visibility: this.visible ? 'visible' : 'hidden' }
+    }
+
     renderLoopHelper () {
         this.geometry.attributes.color.needsUpdate = true;
     }
@@ -85,15 +94,6 @@ class GroundPlane extends THREE.GridHelper {
     dismiss() {
         this.visible = false;
         setGroundplaneVisibilityCheckboxStatus(this.visible);
-    }
-
-    setVisibility(status) {
-        if('visible' === status) {
-            this.present();
-        } else {
-            this.dismiss();
-        }
-
     }
 
 }

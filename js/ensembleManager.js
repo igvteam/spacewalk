@@ -1,102 +1,97 @@
-import * as THREE from "three";
-import SpacewalkEventBus from './spacewalkEventBus.js'
-import { colorRampMaterialProvider } from "./app.js";
-import { includes, degrees } from "./math.js";
+import * as THREE from "three"
+import { includes } from "./math.js"
+import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
+import {FileUtils} from "igv-utils";
+import {ensembleManager} from "./app";
+import HDF5Parser from "./hdf5Parser.js";
+import HDF5Dataset from './HDF5Dataset.js'
+import GenomicParser from "./genomicParser.js";
+import GenomicDataset from "./genomicDataset.js";
 
 class EnsembleManager {
 
     constructor () {
     }
 
-    ingest({ sample, genomeAssembly, genomic }, traceKey) {
+    async loadURL(url, traceKey) {
 
-        const str = 'EnsembleManager ingestSW'
-        console.time(str)
+        const extension = FileUtils.getExtension(url)
+        if ('cndb' === extension) {
+            await ensembleManager.load(url, new HDF5Parser(), new HDF5Dataset(), parseInt(traceKey))
+        } else {
+            await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
+        }
+
+    }
+
+    async load(fileOrPath, parser, genomicDataset, index) {
+
+        showGlobalSpinner()
+        const { sample, genomeAssembly } = await parser.parse(fileOrPath, genomicDataset)
+        hideGlobalSpinner()
+
+        this.sample = sample
 
         this.genomeAssembly = genomeAssembly
 
-        this.genomic = genomic
+        this.genomicDataset = genomicDataset
 
-        this.locus = genomic.getLocus()
-        let { chr, genomicStart, genomicEnd } = this.locus
+        const { locus, genomicExtentList, isPointCloud } = this.genomicDataset
 
-        this.isPointCloud = genomic.isPointCloud;
+        this.locus = locus
 
-        this.ensemble = {}
+        this.genomicExtentList = genomicExtentList
 
-        for (let [ key, trace ] of Object.entries(genomic.traces)) {
+        this.isPointCloud = isPointCloud
 
-            const [ ignore, ensembleKey ] = key.split('%')
-            this.ensemble[ ensembleKey ] = []
-
-            const traceValues = Object.values(trace)
-            for (let i = 0; i < traceValues.length; i++) {
-
-                const traceValue = traceValues[ i ]
-
-                const color = colorRampMaterialProvider.colorForInterpolant(genomic.genomicExtentList[ i ].interpolant)
-
-                let xyz
-                let rgb
-
-                if (true === this.isPointCloud) {
-                    xyz = traceValue.flatMap(({ x, y, z }) => [ x, y, z ])
-                    rgb = traceValue.flatMap(ignore => [ color.r, color.g, color.b ])
-                } else {
-                    xyz = traceValue
-                    rgb = color
-                }
-
-                const item =
-                    {
-                        interpolant: genomic.genomicExtentList[ i ].interpolant,
-                        xyz,
-                        rgb,
-                        color,
-                        drawUsage: true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
-                    }
-
-                this.ensemble[ ensembleKey ].push(item)
-
-            }
-
-        }
-
-        console.timeEnd(str);
-
-        const initialKey = traceKey || '0';
-        this.currentTrace = this.getTraceWithName(initialKey);
-        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data: { sample, genomeAssembly, chr, genomicStart, genomicEnd, initialKey, ensemble: this.ensemble, trace: this.currentTrace } });
+        const initialIndex = index || 0
+        this.currentTrace = this.createTrace(initialIndex)
+        this.currentIndex = initialIndex
 
     }
 
-    getTraceKey(trace) {
+    createEventBusPayload() {
 
-        for (let [key, value] of Object.entries(this.ensemble)) {
-            if (trace === value) {
-                return key;
-            }
-        }
+        const { chr, genomicStart, genomicEnd } = this.locus
 
-        return undefined;
+        const payload =
+            {
+                sample: this.sample,
+                genomeAssembly: this.genomeAssembly,
+                chr,
+                genomicStart,
+                genomicEnd,
+                initialIndex: this.currentIndex,
+                trace: this.currentTrace
+            };
+
+        return payload
     }
 
-    getTraceWithName(name) {
-        return this.ensemble[ name ] || undefined;
+    createTrace(i) {
+        return this.genomicDataset.createTrace(i)
+    }
+
+    getTraceLength() {
+        return this.genomicDataset.traceLength
+    }
+
+    getTraceCount() {
+        return this.genomicDataset.getTraceCount()
     }
 
     getGenomicInterpolantWindowList(interpolantList) {
 
         const interpolantWindowList = [];
 
-        for (let genomicExtent of this.genomic.genomicExtentList) {
+        for (let genomicExtent of this.genomicExtentList) {
 
             let { start:a, end:b } = genomicExtent
 
             for (let interpolant of interpolantList) {
 
                 if ( includes({ a, b, value: interpolant }) ) {
-                    interpolantWindowList.push({ genomicExtent, index: this.genomic.genomicExtentList.indexOf(genomicExtent) })
+                    interpolantWindowList.push({ genomicExtent, index: this.genomicExtentList.indexOf(genomicExtent) })
                 }
 
             }
@@ -104,6 +99,20 @@ class EnsembleManager {
         }
 
         return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;
+    }
+
+    getLiveContactFrequencyMapVertexLists() {
+        return this.genomicDataset.getLiveContactFrequencyMapVertexLists()
+    }
+
+    static getEnsembleTraceVertices(ensembleTrace) {
+
+        return ensembleTrace
+            .map(({ xyz }) => {
+                const { x, y, z, isMissingData } = xyz
+                return true === isMissingData ? { isMissingData } : { x, y, z }
+            })
+
     }
 
     static getTraceBounds(trace){
@@ -135,43 +144,6 @@ class EnsembleManager {
         return { min, max, center, radius }
     }
 
-    static getCameraPoseAlongAxis ({ center, radius, axis, scaleFactor }) {
-
-        const dimen = scaleFactor * radius;
-
-        const theta = Math.atan(radius/dimen);
-        const fov = degrees( 2 * theta);
-
-        const axes =
-            {
-                '-x': () => {
-                    return new THREE.Vector3(-dimen, 0, 0);
-                },
-                '+x': () => {
-                    return new THREE.Vector3(dimen, 0, 0);
-                },
-                '-y': () => {
-                    return new THREE.Vector3(0, -dimen, 0);
-                },
-                '+y': () => {
-                    return new THREE.Vector3(0, dimen, 0);
-                },
-                '-z': () => {
-                    return new THREE.Vector3(0, 0, -dimen);
-                },
-                '+z': () => {
-                    return new THREE.Vector3(0, 0, dimen);
-                },
-            };
-
-        const vector = axes[ axis ]();
-        let position = new THREE.Vector3();
-
-        position.addVectors(center, vector);
-
-        return { target:center, position, fov }
-    }
-
     static getSingleCentroidVertices(trace, doFilterMissingData) {
 
         let list
@@ -182,16 +154,6 @@ class EnsembleManager {
         }
 
         return list.map(({ xyz }) => new THREE.Vector3(xyz.x, xyz.y, xyz.z))
-
-    }
-
-    static getLiveMapVertices(trace) {
-
-        return trace
-            .map(({ xyz }) => {
-                const { x, y, z, isMissingData } = xyz
-                return true === isMissingData ? { isMissingData } : { x, y, z }
-            })
 
     }
 

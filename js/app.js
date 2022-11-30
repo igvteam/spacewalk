@@ -1,11 +1,10 @@
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js'
 import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from 'igv-widgets'
-import {BGZip, GoogleAuth, igvxhr, StringUtils} from 'igv-utils'
+import {BGZip, FileUtils, GoogleAuth, igvxhr} from 'igv-utils'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
-import Parser from "./parser.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
@@ -21,7 +20,7 @@ import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
-import {getUrlParams, getShareURL, loadSessionURL, toJSON, loadSession, uncompressSession} from "./spacewalkSession.js"
+import {getUrlParams, loadSessionURL, toJSON, loadSession, uncompressSession} from "./spacewalkSession.js"
 import { initializeMaterialLibrary } from "./materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
@@ -40,7 +39,6 @@ let guiStatsEl
 let pointCloud;
 let ribbon;
 let ballAndStick;
-let parser;
 let ensembleManager;
 let colorMapManager;
 let sceneManager;
@@ -55,6 +53,11 @@ let traceSelect
 let traceNavigator
 let renderContainerController
 let googleEnabled = false
+
+const SpacewalkGlobals =
+    {
+
+    }
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
@@ -98,9 +101,7 @@ const initializationHelper = async container => {
 
     await initializeGenomes(spacewalkConfig)
 
-    await initializeMaterialLibrary();
-
-    parser = new Parser();
+    await initializeMaterialLibrary()
 
     pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(highlightColor), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
@@ -171,6 +172,16 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     traceNavigator = new TraceNavigator(document.querySelector('#spacewalk-trace-navigator-container'))
 
+    const fileLoader =
+        {
+            load: async fileOrPath => {
+                await sceneManager.ingestEnsemblePath(fileOrPath, '0')
+
+                const data = ensembleManager.createEventBusPayload()
+                SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
+            }
+        }
+
     const spacewalkFileLoadConfig =
         {
             rootContainer: document.getElementById('spacewalk-main'),
@@ -180,7 +191,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
             dropboxButton: document.getElementById('spacewalk-sw-dropbox-button'),
             googleDriveButton: document.getElementById('spacewalk-sw-google-drive-button'),
             googleEnabled,
-            fileLoader: parser
+            fileLoader
         };
 
     createSpacewalkFileLoaders(spacewalkFileLoadConfig)
@@ -196,15 +207,21 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     await igvPanel.initialize(spacewalkConfig)
 
+    const $igvMain = $(igvPanel.container)
+    const $dropdownMenu = $('#spacewalk-track-dropdown-menu')
+    const $localFileInput = $('#hic-local-track-file-input')
+    const $dropboxButton = $('#spacewalk-track-dropbox-button')
+    const $googleDriveButton = $('#spacewalk-track-dropdown-google-drive-button')
+
     createTrackWidgetsWithTrackRegistry(
-        $(igvPanel.container),
-        $('#spacewalk-track-dropdown-menu'),
-        $('#hic-local-track-file-input'),
-        $('#spacewalk-track-dropbox-button'),
+        $igvMain,
+        $dropdownMenu,
+        $localFileInput,
+        $dropboxButton,
         googleEnabled,
-        $('#spacewalk-track-dropdown-google-drive-button'),
+        $googleDriveButton,
         ['hic-encode-signal-modal', 'hic-encode-other-modal'],
-        'hic-app-track-load-url-modal',
+        'spacewalk-track-load-url-modal',
         'hic-app-track-select-modal',
         undefined,
         spacewalkConfig.trackRegistry,
@@ -314,6 +331,10 @@ function renderLoop() {
 
     render()
 
+    // if (SpacewalkEventBus.globalBus.isHeld()) {
+    //     SpacewalkEventBus.globalBus.release()
+    // }
+
 }
 
 function render () {
@@ -377,11 +398,11 @@ const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
 }
 
 export {
+    SpacewalkGlobals,
     googleEnabled,
     pointCloud,
     ribbon,
     ballAndStick,
-    parser,
     ensembleManager,
     colorMapManager,
     sceneManager,

@@ -1,4 +1,4 @@
-import { FileUtils, URIUtils, GooglePicker, GoogleUtils, GoogleDrive } from 'igv-utils'
+import {FileUtils, URIUtils, GooglePicker, GoogleUtils, GoogleDrive} from 'igv-utils'
 import {GenericDataSource, ModalTable} from 'data-modal'
 import { appendAndConfigureLoadURLModal } from './app.js'
 import {gsdbDatasourceConfigurator} from './gsdbDatasourceConfig.js'
@@ -8,16 +8,12 @@ let gsdbModal = undefined
 function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadModalId, gsdbModalId, dropboxButton, googleDriveButton, googleEnabled, fileLoader }) {
 
     localFileInput.addEventListener('change', async () => {
-        const file = localFileInput.files[ 0 ];
-        localFileInput.value = '';
-        await fileLoader.load(file);
+        const [ file ] = localFileInput.files
+        localFileInput.value = ''
+        await fileLoader.load(file)
     });
 
-    appendAndConfigureLoadURLModal(rootContainer, urlLoadModalId, async path => {
-
-        const name = FileUtils.getFilename(path);
-        await fileLoader.load(path);
-    })
+    appendAndConfigureLoadURLModal(rootContainer, urlLoadModalId, async path => await fileLoader.load(path))
 
     const gsdbModalConfig =
         {
@@ -41,24 +37,18 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
     const $selectModal = $(select_modal)
     $(rootContainer).append($selectModal)
 
-
     $selectModal.find('select').selectpicker();
-
-    configureSelectOnChange($selectModal.find('select'), $selectModal, async path => {
-
-        const name = FileUtils.getFilename(path);
-        await fileLoader.load(path);
-    });
+    configureSelectOnChange($selectModal.find('select'), $selectModal, async path => await fileLoader.load(path))
 
     dropboxButton.addEventListener('click', () => {
 
         const config =
             {
                 success: async dbFiles => {
-                    const paths = dbFiles.map(dbFile => dbFile.link);
-                    const path = paths[ 0 ];
-                    const name = FileUtils.getFilename(path);
-                    await fileLoader.load(path);
+
+                    const paths = dbFiles.map(dbFile => dbFile.link)
+                    const [ path ] = paths
+                    await fileLoader.load(path)
                 },
                 cancel: () => {},
                 linkType: 'preview',
@@ -81,7 +71,7 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
             GooglePicker.createDropdownButtonPicker(false, async responses => {
 
                 const paths = responses.map(({ name, url }) => url)
-                const path = paths[ 0 ]
+                const [ path ] = paths
 
                 const name = await SpacewalkGetFilename(path)
                 const extension = FileUtils.getExtension(name)

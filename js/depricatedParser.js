@@ -4,7 +4,7 @@ import { ensembleManager } from "./app.js";
 import GenomicDataset from "./genomicDataset.js";
 import NonGenomicDataset from "./nonGenomicDataset.js";
 
-class Parser {
+class DepricatedParser {
 
     constructor () {
 
@@ -29,37 +29,39 @@ class Parser {
         for (let line of lines) {
 
             if (line.startsWith('chromosome')) {
-                datasets[ 'genomic' ] = new GenomicDataset();
-                ds = datasets[ 'genomic' ];
+                datasets.genomic = new GenomicDataset()
+                ds = datasets.genomic
                 continue;
             } else if (line.startsWith('nongenomic')) {
-                datasets[ 'nongenomic' ] = new NonGenomicDataset();
-                ds = datasets[ 'nongenomic' ];
-                continue;
+                datasets.nongenomic = new NonGenomicDataset()
+                ds = datasets.nongenomic
+                continue
             }
 
             if (ds) {
-                ds.consume(line, regex);
+                ds.consumeLine(line, regex)
             }
 
         }
 
-        datasets[ 'genomic' ].postprocess();
-        if (datasets[ 'nongenomic' ]) {
-            datasets[ 'nongenomic' ].postprocess();
+        datasets.genomic.postprocess()
+
+        if (datasets.nongenomic) {
+            datasets.nongenomic.postprocess()
         }
 
         console.timeEnd(str);
 
-        return datasets;
+        return datasets
 
     }
 
     async loadSessionTrace ({ url, traceKey }) {
-        await this.load(url, traceKey);
+        const index = parseInt(traceKey)
+        await this.load(url, index)
     }
 
-    async load (path, traceKey) {
+    async load(path, index) {
 
         this.url = false === FileUtils.isFilePath(path) ? path : undefined;
 
@@ -74,10 +76,11 @@ class Parser {
         }
 
         showGlobalSpinner();
-        const payload = this.parse(string);
+        const datasets = this.parse(string);
         hideGlobalSpinner();
 
-        ensembleManager.ingest(payload, traceKey);
+        const { sample, genomeAssembly, genomic } = datasets
+        ensembleManager.ingest(sample, genomeAssembly, genomic, index)
 
     }
 
@@ -118,5 +121,4 @@ const getSampleNameAndGenome = (lines, regex) => {
     return { sample, genomeAssembly }
 };
 
-
-export default Parser;
+export default DepricatedParser;

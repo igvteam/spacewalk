@@ -70,11 +70,9 @@ class DistanceMapPanel extends Panel {
 
         if ("DidSelectTrace" === type) {
 
-            const { trace } = data
-            this.trace = trace
-
             if (false === this.isHidden) {
-                this.updateTraceDistanceCanvas(ensembleManager.genomic.traceLength, this.trace)
+                const { trace } = data
+                this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), trace)
                 this.doUpdateTrace = undefined
             } else {
                 this.doUpdateTrace = true
@@ -82,15 +80,13 @@ class DistanceMapPanel extends Panel {
 
         } else if ("DidLoadEnsembleFile" === type) {
 
-            const { ensemble, trace } = data
-            this.ensemble = ensemble
-            this.trace = trace
 
-            initializeSharedBuffers(ensembleManager.genomic.traceLength)
+            initializeSharedBuffers(ensembleManager.getTraceLength())
 
             if (false === this.isHidden) {
-                this.updateEnsembleAverageDistanceCanvas(ensembleManager.genomic.traceLength, this.ensemble)
-                this.updateTraceDistanceCanvas(ensembleManager.genomic.traceLength, this.trace)
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
+                const { trace } = data
+                this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             } else {
                 this.doUpdateTrace = this.doUpdateEnsemble = true
@@ -104,12 +100,12 @@ class DistanceMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleAverageDistanceCanvas(ensembleManager.genomic.traceLength, this.ensemble)
+            this.updateEnsembleAverageDistanceCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
             this.doUpdateEnsemble = undefined
         }
 
         if (true === this.doUpdateTrace) {
-            this.updateTraceDistanceCanvas(ensembleManager.genomic.traceLength, this.trace)
+            this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), ensembleManager.currentTrace)
             this.doUpdateTrace = undefined
         }
 
@@ -123,7 +119,7 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const vertices = EnsembleManager.getLiveMapVertices(trace)
+        const vertices = EnsembleManager.getEnsembleTraceVertices(trace)
 
         const data =
             {
@@ -134,16 +130,14 @@ class DistanceMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(canvasArray, ensembleManager.genomic.traceLength)
+        clearCanvasArray(canvasArray, ensembleManager.getTraceLength())
         transferContactFrequencyArrayToCanvas(this.ctx_trace, canvasArray)
 
     }
 
-    updateEnsembleAverageDistanceCanvas(traceLength, ensemble){
+    updateEnsembleAverageDistanceCanvas(traceLength, vertexLists){
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
-
-        const vertexLists = Object.values(ensemble).map(trace => EnsembleManager.getLiveMapVertices(trace))
 
         const data =
             {
@@ -154,7 +148,7 @@ class DistanceMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(ensembleManager.genomic.traceLength)
+        clearCanvasArray(ensembleManager.getTraceLength())
         transferContactFrequencyArrayToCanvas(this.ctx_ensemble, canvasArray)
 
     }

@@ -48,10 +48,6 @@ class BallAndStick {
 
     configure(trace) {
 
-        this.dispose();
-
-        this.trace = trace;
-
         const stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVertices(trace, true))
         const averageCurveDistance  = computeAverageCurveDistance(stickCurves)
         console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`)
@@ -174,11 +170,17 @@ class BallAndStick {
     }
 
     hide () {
+        if (undefined === this.balls) {
+            return
+        }
         this.balls.visible = false
         this.sticks.visible = false
     }
 
     show () {
+        if (undefined === this.balls) {
+            return
+        }
         this.balls.visible = true
         this.sticks.visible = true
     }

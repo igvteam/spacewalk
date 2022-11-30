@@ -2,9 +2,8 @@ import {AlertSingleton, EventBus} from 'igv-widgets'
 import igv from './igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { setMaterialProvider } from './utils.js';
-import Panel from "./panel.js";
-import {colorRampMaterialProvider, ensembleManager} from "./app.js"
-import {GenomeUtils} from "./genome/genomeUtils.js"
+import Panel from './panel.js';
+import {colorRampMaterialProvider, ensembleManager} from './app.js'
 
 class IGVPanel extends Panel {
 
@@ -30,9 +29,7 @@ class IGVPanel extends Panel {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         });
 
-        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
-        SpacewalkEventBus.globalBus.subscribe("DidChangeMaterialProvider", this)
-        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
+        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this)
     }
 
     getClassName(){ return 'IGVPanel' }
@@ -46,38 +43,6 @@ class IGVPanel extends Panel {
             if (colorRampMaterialProvider === poster) {
                 this.browser.cursorGuide.updateWithInterpolant(interpolantList[ 0 ])
             }
-        } else if ("DidChangeMaterialProvider" === type) {
-
-            this.materialProvider = data;
-
-            const { trackContainer } = this.browser;
-            $(trackContainer).find('.input-group input').prop('checked', false);
-
-        } else if ("DidLoadEnsembleFile" === type) {
-
-            (async () => {
-
-                const { genomeAssembly, chr, genomicStart: start, genomicEnd: end } = data;
-
-                try {
-                    await this.browser.loadGenome(GenomeUtils.GenomeLibrary[ genomeAssembly ])
-                } catch (e) {
-                    AlertSingleton.present(e.message);
-                }
-
-                try {
-                    const str = 'all' === chr ? 'all' : `${ chr }:${ start }-${ end }`;
-                    await this.browser.search(str);
-                } catch (e) {
-                    AlertSingleton.present(e.message);
-                }
-
-                // TODO: Clean up genome management. Rely only on Globals.KNOWN_GENOMES
-                EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: genomeAssembly }})
-
-            })();
-
-
         }
 
     }
@@ -90,7 +55,7 @@ class IGVPanel extends Panel {
 
         try {
             if (session) {
-                const { showTrackLabels, showRuler, showControls,showCursorTrackingGuide } = igvConfig
+                const { showTrackLabels, showRuler, showControls, showCursorTrackingGuide } = igvConfig
                 const mergedConfig = { ...session, ...({ showTrackLabels, showRuler, showControls, showCursorTrackingGuide }) }
                 this.browser = await igv.createBrowser( root, mergedConfig )
             } else {
@@ -113,8 +78,8 @@ class IGVPanel extends Panel {
 
                         let str = `all`
 
-                        if (ensembleManager.locus) {
-                            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                        if (ensembleManager.genome) {
+                            const { chr, genomicStart, genomicEnd } = ensembleManager.genome.locus
                             str = `${ chr }:${ genomicStart }-${ genomicEnd }`
                         }
 
@@ -130,6 +95,20 @@ class IGVPanel extends Panel {
         if (this.browser) {
             this.configureMouseHandlers()
         }
+    }
+
+    async locusDidChange({ chr, genomicStart, genomicEnd }) {
+        try {
+            if ('all' === chr) {
+                await this.browser.search(chr)
+            } else {
+                await this.browser.search(`${ chr }:${ genomicStart }-${ genomicEnd }`)
+            }
+
+        } catch (e) {
+            AlertSingleton.present(e.message)
+        }
+
     }
 
     configureMouseHandlers () {
@@ -153,11 +132,11 @@ class IGVPanel extends Panel {
 
         this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
 
-            if (undefined === ensembleManager || undefined === ensembleManager.locus) {
+            if (undefined === ensembleManager || undefined === ensembleManager.genome) {
                 return;
             }
 
-            const { genomicStart, genomicEnd } = ensembleManager.locus;
+            const { genomicStart, genomicEnd } = ensembleManager.genome.locus;
 
             const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
 
@@ -186,14 +165,6 @@ class IGVPanel extends Panel {
             trackView.setTrackLabelName(trackView, config.name);
         }
 
-    }
-
-    loadTrack(trackConfiguration) {
-        this.loadTrackList([trackConfiguration])
-    }
-
-    toJSON() {
-        return this.browser.toJSON()
     }
 
     getSessionState() {

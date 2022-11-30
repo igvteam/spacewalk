@@ -2,8 +2,9 @@
 let subscribers = {};
 
 class SpacewalkEventBus {
-    constructor() {
 
+    constructor() {
+        this.stack = []
     }
 
     subscribe (eventType, object) {
@@ -23,19 +24,43 @@ class SpacewalkEventBus {
 
     post (event) {
 
-        const subscriberList = subscribers[ event.type ];
-        if (subscriberList) {
+        if (this._hold) {
+            this.stack.push(event)
+        } else {
 
-            for (let subscriber of subscriberList) {
+            const subscriberList = subscribers[ event.type ]
+            if (subscriberList) {
 
-                if ("function" === typeof subscriber.receiveEvent) {
-                    subscriber.receiveEvent(event);
-                } else if ("function" === typeof subscriber) {
-                    subscriber(event);
+                for (let subscriber of subscriberList) {
+
+                    if ("function" === typeof subscriber.receiveEvent) {
+                        subscriber.receiveEvent(event);
+                    } else if ("function" === typeof subscriber) {
+                        subscriber(event);
+                    }
                 }
             }
+
         }
+
     }
+
+    isHeld() {
+        return true === this._hold
+    }
+
+    hold() {
+        this._hold = true;
+    }
+
+    release() {
+        this._hold = false;
+        for (let event of this.stack) {
+            this.post(event)
+        }
+        this.stack = []
+    }
+
 }
 
 SpacewalkEventBus.globalBus = new SpacewalkEventBus();

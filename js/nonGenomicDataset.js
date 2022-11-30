@@ -7,7 +7,7 @@ class NonGenomicDataset extends Dataset {
         this.dictionary = {};
     }
 
-    consume(line, regex) {
+    consumeLine(line, regex) {
 
         const string = line.split(regex).shift();
         if ( isNaN(string) ) {

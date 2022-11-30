@@ -1,26 +1,24 @@
-import Dataset from "./dataset.js";
-
+import * as THREE from "three"
+import Dataset from './dataset.js'
+import {colorRampMaterialProvider} from "./app.js"
 
 class GenomicDataset extends Dataset {
 
     constructor() {
-        super();
-
+        super()
         this.traces = {}
-
-        this.genomicStart = Number.POSITIVE_INFINITY;
-        this.genomicEnd = Number.NEGATIVE_INFINITY;
-
-        this.isPointCloud = undefined;
-
-        this.chr = undefined;
-
-        this.traceLength = undefined
-        this.genomicExtentList = undefined
     }
 
-    consume(line, regex) {
+    consumeLines(lines, regex) {
 
+        for (const line of lines) {
+            this.consumeLine(line, regex)
+        }
+
+        this.postprocess()
+    }
+
+    consumeLine(line, regex) {
 
         if (line.startsWith('trace')) {
 
@@ -60,7 +58,6 @@ class GenomicDataset extends Dataset {
                 trace[ traceKey ].push ({ x:'nan', y:'nan', z:'nan', isMissingData:true });
             }
 
-
         }
 
     }
@@ -69,6 +66,8 @@ class GenomicDataset extends Dataset {
 
         let [ anyTrace ] = Object.values(this.traces)
         let [ vertices ] = Object.values(anyTrace)
+
+        this.locus = { chr: this.chr, genomicStart: this.genomicStart, genomicEnd: this.genomicEnd }
 
         this.isPointCloud = (vertices.length > 1)
 
@@ -149,10 +148,51 @@ class GenomicDataset extends Dataset {
 
     }
 
-    getLocus() {
-        const { chr, genomicStart, genomicEnd } = this
-        return { chr, genomicStart, genomicEnd }
+    createTrace(i) {
+
+        const values = Object.values(this.traces)
+
+        const rows = Object.values(values[ i ])
+
+        return rows.map((row, index) => {
+
+            const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[index].interpolant)
+
+            const xyz = true === this.isPointCloud ? row.flatMap(({x, y, z}) => [x, y, z]) : row
+            const rgb = true === this.isPointCloud ? row.flatMap(ignore => [color.r, color.g, color.b]) : color
+            const drawUsage = true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
+
+            return {
+                interpolant: this.genomicExtentList[index].interpolant,
+                xyz,
+                rgb,
+                color,
+                drawUsage
+            }
+
+        })
+
     }
+
+    getTraceCount() {
+        return Object.values(this.traces).length
+    }
+
+    getLiveContactFrequencyMapVertexLists() {
+        const traces = Object.values(this.traces)
+        return traces.map(trace => GenomicDataset.getLiveContactFrequencyMapDatasetVertices(trace))
+    }
+
+    static getLiveContactFrequencyMapDatasetVertices(trace) {
+
+        return Object.values(trace)
+            .map(row => {
+                const { x, y, z, isMissingData } = row
+                return true === isMissingData ? { isMissingData } : { x, y, z }
+            })
+
+    }
+
 }
 
 export default GenomicDataset

@@ -107,26 +107,19 @@ class GUIManager {
         }
     }
 
-}
-
-// Render Style - Ball & Stick | Ribbon
-export function getGUIRenderStyle() {
-    const id = $('#spacewalk_ui_manager_panel').find("input:radio[name='spacewalk-render-style']:checked").attr('id');
-    return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Ribbon.getRenderStyle();
-}
-
-export function setGUIRenderStyle(renderStyle) {
-
-    const $ui_manager_panel = $('#spacewalk_ui_manager_panel');
-
-    if (renderStyle === Ribbon.getRenderStyle()) {
-        $ui_manager_panel.find('#spacewalk-render-style-ribbon').prop('checked', true);
-        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
-    } else if (renderStyle === BallAndStick.getRenderStyle()) {
-        $ui_manager_panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
-        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: renderStyle });
+    setRenderStyle(renderStyle) {
+        const $ui_manager_panel = $('#spacewalk_ui_manager_panel');
+        if (renderStyle === Ribbon.getRenderStyle()) {
+            $ui_manager_panel.find('#spacewalk-render-style-ribbon').prop('checked', true);
+        } else if (renderStyle === BallAndStick.getRenderStyle()) {
+            $ui_manager_panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
+        }
     }
 
+    getRenderStyle() {
+        const id = $('#spacewalk_ui_manager_panel').find("input:radio[name='spacewalk-render-style']:checked").attr('id');
+        return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Ribbon.getRenderStyle();
+    }
 }
 
 function configureRenderStyleControl($input, renderStyle) {

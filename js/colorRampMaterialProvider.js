@@ -4,7 +4,6 @@ import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
 import { defaultColormapName } from "./colorMapManager.js";
 import {colorMapManager, ensembleManager, sceneManager} from "./app.js";
 import Ribbon from './ribbon.js';
-import EnsembleManager from './ensembleManager.js'
 
 const alpha_visible = `rgb(${255},${255},${255})`;
 
@@ -139,7 +138,7 @@ class ColorRampMaterialProvider {
         this.rgb_ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
         this.rgb_ctx.fillRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
 
-        for (let { interpolant, start, end } of ensembleManager.genomic.genomicExtentList) {
+        for (let { interpolant, start, end } of ensembleManager.genomicExtentList) {
 
             this.rgb_ctx.fillStyle = colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
 
