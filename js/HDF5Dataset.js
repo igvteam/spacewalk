@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import Dataset from './dataset.js'
 import {colorRampMaterialProvider} from './app.js'
 
-class HDF5Version2Dataset extends Dataset {
+class HDF5Dataset extends Dataset {
 
     constructor() {
         super()
@@ -121,4 +121,4 @@ function createGenomicExtentList(genomicPositions) {
     return list
 }
 
-export default HDF5Version2Dataset
+export default HDF5Dataset

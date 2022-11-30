@@ -119,7 +119,7 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const vertices = EnsembleManager.getLiveContactFrequencyMapTraceVertices(trace)
+        const vertices = EnsembleManager.getEnsembleTraceVertices(trace)
 
         const data =
             {
