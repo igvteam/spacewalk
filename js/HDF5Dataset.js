@@ -29,7 +29,8 @@ class HDF5Dataset extends Dataset {
 
     createTrace(i) {
 
-        const numbers = this.hdf5.get( `${ this.key }/spatial_position/${ i }` ).value
+        const result = this.hdf5.get( `${ this.key }/spatial_position/${ 1 + i }` )
+        const numbers = result.value
         let j = 0
         const trace = []
         for (let v = 0; v < numbers.length; v += 3) {
