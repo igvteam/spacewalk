@@ -9,11 +9,13 @@ import {
     sceneManager,
     contactFrequencyMapPanel,
     SpacewalkGlobals,
-    guiManager
+    guiManager,
+    colorRampMaterialProvider
 } from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {Globals} from "./juicebox/globals.js"
 import {defaultDistanceThreshold} from "./contactFrequencyMapPanel.js"
+import {setMaterialProvider} from "./utils";
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
@@ -46,7 +48,7 @@ async function loadIGVSession(spacewalk, igv) {
     igvPanel.configureMouseHandlers()
 
     if ('none' !== spacewalk.igvPanelState) {
-        await igvPanel.restoreSessionState(spacewalk.igvPanelState);
+        await igvPanel.restoreSessionState(spacewalk.igvPanelState)
     }
 
 }
