@@ -72,7 +72,7 @@ class BallAndStick {
         // canonical ball geometry
         const widthSegments = 32
         const heightSegments = 16
-        const geometry = new THREE.SphereBufferGeometry(1, widthSegments, heightSegments)
+        const geometry = new THREE.SphereGeometry(1, widthSegments, heightSegments)
         geometry.computeVertexNormals()
 
         console.log(`Ball&Stick. Create ${ StringUtils.numberFormatter(trace.length) } balls. Tesselation width ${ widthSegments } height ${ heightSegments }`)
