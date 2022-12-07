@@ -66,6 +66,10 @@ class Ribbon {
         if (this.spline) {
             const colors = getRGBListWithMaterialAndLength(materialProvider, this.spline.vertexCount)
             this.spline.mesh.geometry.setColors(colors)
+
+            this.spline.mesh.geometry.attributes.instanceStart.needsUpdate = true
+            this.spline.mesh.geometry.attributes.instanceEnd.needsUpdate = true
+
         }
     }
 
@@ -95,8 +99,13 @@ class Ribbon {
     }
 
     renderLoopHelper () {
+
         if (this.spline) {
             this.spline.mesh.material.resolution.set(window.innerWidth, window.innerHeight)
+
+            this.spline.mesh.geometry.attributes.instanceStart.needsUpdate = true
+            this.spline.mesh.geometry.attributes.instanceEnd.needsUpdate = true
+
         }
     }
 

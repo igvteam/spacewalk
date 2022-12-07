@@ -341,6 +341,8 @@ function render () {
 
     pointCloud.renderLoopHelper()
 
+    ballAndStick.renderLoopHelper()
+
     ribbon.renderLoopHelper()
 
     colorRampMaterialProvider.renderLoopHelper()

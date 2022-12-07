@@ -221,6 +221,12 @@ class BallAndStick {
 
         this.balls.geometry.attributes.instanceColor.needsUpdate = true
     }
+    renderLoopHelper () {
+
+        if (this.balls) {
+            this.balls.geometry.attributes.instanceColor.needsUpdate = true
+        }
+    }
 
     dispose () {
 
