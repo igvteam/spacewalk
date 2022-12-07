@@ -10,14 +10,14 @@
   "devDependencies": {
     "btoa": "^1.2.1",
     "data-modal": "github:igvteam/data-modal#spacewalk",
-    "h5wasm": "^0.4.6",
+    "h5wasm": "^0.4.7",
     "http-server": "^14.0.0",
     "igv-ui": "github:igvteam/igv-ui#v1.2.1",
     "igv-utils": "github:igvteam/igv-utils#v1.3.4",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
-    "sass": "^1.54.4",
-    "three": "^0.143.0",
+    "sass": "^1.56.1",
+    "three": "^0.147.0",
     "vanilla-picker": "^2.12.1",
-    "vite": "^3.1.8"
+    "vite": "^3.2.4"
   }
 }

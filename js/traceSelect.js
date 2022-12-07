@@ -39,7 +39,7 @@ class TraceSelect {
     receiveEvent({ type, data }) {
         if ("DidLoadEnsembleFile" === type) {
             currentNumber = data.initialIndex
-            this.input.value = `${ currentNumber } of ${ ensembleManager.getTraceCount() }`
+            this.input.value = `${ currentNumber } of ${ ensembleManager.getTraceCount()}`
         }
     }
 }

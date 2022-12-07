@@ -3,7 +3,7 @@ import { includes } from "./math.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
 import {FileUtils} from "igv-utils";
 import {ensembleManager} from "./app";
-import HDF5Parser from "./hdf5Parser.js";
+import HDF5Parser from "./HDF5Parser.js";
 import HDF5Dataset from './HDF5Dataset.js'
 import GenomicParser from "./genomicParser.js";
 import GenomicDataset from "./genomicDataset.js";
@@ -73,11 +73,11 @@ class EnsembleManager {
     }
 
     getTraceLength() {
-        return this.genomicDataset.traceLength
+        return this.genomicDataset.vertexCount
     }
 
     getTraceCount() {
-        return this.genomicDataset.getTraceCount()
+        return this.genomicDataset.getVertexListCount()
     }
 
     getGenomicInterpolantWindowList(interpolantList) {

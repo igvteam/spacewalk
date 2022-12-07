@@ -6,7 +6,7 @@ class GenomicDataset extends Dataset {
 
     constructor() {
         super()
-        this.traces = {}
+        this.dictionary = {}
     }
 
     consumeLines(lines, regex) {
@@ -23,7 +23,7 @@ class GenomicDataset extends Dataset {
         if (line.startsWith('trace')) {
 
             this.key = line.split(regex).join('%')
-            this.traces[ this.key ] = {}
+            this.dictionary[ this.key ] = {}
             this.genomicExtentList = []
 
         } else {
@@ -37,15 +37,15 @@ class GenomicDataset extends Dataset {
             startBP = parseInt(startBP, 10)
             endBP = parseInt(endBP, 10)
 
-            const trace = this.traces[ this.key ]
+            const vertexDictionary = this.dictionary[ this.key ]
 
-            const traceKey = `${ startBP }%${ endBP }`
+            const key = `${ startBP }%${ endBP }`
 
-            if (undefined === trace[ traceKey ]) {
-                trace[ traceKey ] = []
+            if (undefined === vertexDictionary[ key ]) {
+                vertexDictionary[ key ] = []
             }
 
-            if (0 === trace[ traceKey ].length) {
+            if (0 === vertexDictionary[ key ].length) {
                 this.genomicExtentList.push({ startBP, endBP, centroidBP: Math.round((startBP + endBP) / 2.0), sizeBP: endBP - startBP })
             }
 
@@ -53,9 +53,9 @@ class GenomicDataset extends Dataset {
             this.genomicEnd   = Math.max(this.genomicEnd,     endBP);
 
             if (false === [ x, y, z ].some(isNaN)) {
-                trace[ traceKey ].push ({ x:parseFloat(x), y:parseFloat(y), z:parseFloat(z) });
+                vertexDictionary[ key ].push ({ x:parseFloat(x), y:parseFloat(y), z:parseFloat(z) });
             } else {
-                trace[ traceKey ].push ({ x:'nan', y:'nan', z:'nan', isMissingData:true });
+                vertexDictionary[ key ].push ({ x:'nan', y:'nan', z:'nan', isMissingData:true });
             }
 
         }
@@ -64,16 +64,16 @@ class GenomicDataset extends Dataset {
 
     postprocess() {
 
-        let [ anyTrace ] = Object.values(this.traces)
-        let [ vertices ] = Object.values(anyTrace)
+        let [ vertexDictionary ] = Object.values(this.dictionary)
+        let [ vertices ] = Object.values(vertexDictionary)
 
         this.locus = { chr: this.chr, genomicStart: this.genomicStart, genomicEnd: this.genomicEnd }
 
         this.isPointCloud = (vertices.length > 1)
 
         if (true === this.isPointCloud) {
-            for (let trace of Object.values(this.traces)) {
-                for (let vertices of Object.values(trace)) {
+            for (let vertexDictionary of Object.values(this.dictionary)) {
+                for (let vertices of Object.values(vertexDictionary)) {
                     const filtered = vertices.filter(({ isMissingData }) => {
                         if (true === isMissingData) {
                             console.warn('is missing data')
@@ -88,19 +88,19 @@ class GenomicDataset extends Dataset {
         } else {
 
             // consolidate non-pointcloud data.
-            for (let trace of Object.values(this.traces)) {
+            for (let vertexDictionary of Object.values(this.dictionary)) {
 
-                if (undefined === this.traceLength) {
-                    this.traceLength = Object.keys(trace).length;
+                if (undefined === this.vertexCount) {
+                    this.vertexCount = Object.keys(vertexDictionary).length;
                 }
 
-                for (let key of Object.keys(trace)) {
-                    const [ item ] = trace[ key ]
-                    trace[ key ] = { x:item.x, y:item.y, z:item.z, isMissingData: item.isMissingData }
+                for (let key of Object.keys(vertexDictionary)) {
+                    const [ item ] = vertexDictionary[ key ]
+                    vertexDictionary[ key ] = { x:item.x, y:item.y, z:item.z, isMissingData: item.isMissingData }
                 }
             }
 
-            for (let trace of Object.values(this.traces)) {
+            for (let vertexDictionary of Object.values(this.dictionary)) {
 
                 const bbox =
                     {
@@ -109,7 +109,7 @@ class GenomicDataset extends Dataset {
                         centroid: [ 0, 0, 0 ],
                     }
 
-                for (let { x, y, z } of Object.values(trace)) {
+                for (let { x, y, z } of Object.values(vertexDictionary)) {
                     if ( ![ x, y, z ].some(isNaN) ) {
                         // min
                         bbox.min[ 0 ] = Math.min(bbox.min[ 0 ], x)
@@ -127,11 +127,11 @@ class GenomicDataset extends Dataset {
                 bbox.centroid[ 1 ] = (bbox.min[ 1 ] + bbox.max[ 1 ]) / 2.0
                 bbox.centroid[ 2 ] = (bbox.min[ 2 ] + bbox.max[ 2 ]) / 2.0
 
-                for (let value of Object.values(trace)) {
-                    if (true === value.isMissingData) {
-                        value.x = bbox.centroid[ 0 ]
-                        value.y = bbox.centroid[ 1 ]
-                        value.z = bbox.centroid[ 2 ]
+                for (let vertex of Object.values(vertexDictionary)) {
+                    if (true === vertex.isMissingData) {
+                        vertex.x = bbox.centroid[ 0 ]
+                        vertex.y = bbox.centroid[ 1 ]
+                        vertex.z = bbox.centroid[ 2 ]
                     }
                 }
 
@@ -150,7 +150,7 @@ class GenomicDataset extends Dataset {
 
     createTrace(i) {
 
-        const values = Object.values(this.traces)
+        const values = Object.values(this.dictionary)
 
         const rows = Object.values(values[ i ])
 
@@ -174,18 +174,18 @@ class GenomicDataset extends Dataset {
 
     }
 
-    getTraceCount() {
-        return Object.values(this.traces).length
+    getVertexListCount() {
+        return Object.values(this.dictionary).length
     }
 
     getLiveContactFrequencyMapVertexLists() {
-        const traces = Object.values(this.traces)
-        return traces.map(trace => GenomicDataset.getLiveContactFrequencyMapDatasetVertices(trace))
+        const values = Object.values(this.dictionary)
+        return values.map(vertexDictionary => GenomicDataset.getLiveContactFrequencyMapDatasetVertices(vertexDictionary))
     }
 
-    static getLiveContactFrequencyMapDatasetVertices(trace) {
+    static getLiveContactFrequencyMapDatasetVertices(vertexDictionary) {
 
-        return Object.values(trace)
+        return Object.values(vertexDictionary)
             .map(row => {
                 const { x, y, z, isMissingData } = row
                 return true === isMissingData ? { isMissingData } : { x, y, z }

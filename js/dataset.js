@@ -2,12 +2,14 @@ class Dataset {
     constructor() {
 
         this.chr = undefined;
+
         this.genomicStart = Number.POSITIVE_INFINITY;
+
         this.genomicEnd = Number.NEGATIVE_INFINITY;
 
         this.isPointCloud = undefined;
 
-        this.traceLength = undefined
+        this.vertexCount = undefined
 
         this.genomicExtentList = undefined
     }
@@ -29,8 +31,8 @@ class Dataset {
         return []
     }
 
-    getTraceLength(){
-        console.warn('Warning: Dataset - base class method called getTraceLength()')
+    getVertexListCount() {
+        console.warn('Warning: Dataset - base class method called getTraceCount()')
         return undefined
     }
 

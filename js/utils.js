@@ -11,7 +11,7 @@ function hideGlobalSpinner() {
     document.getElementById('spacewalk-spinner').style.display = 'none'
 }
 
-async function getMaterialProvider (track) {
+async function getMaterialProvider(track) {
 
     // unselect other track's checkboxes
     for (let trackView of track.browser.trackViews) {
@@ -55,30 +55,30 @@ async function getMaterialProvider (track) {
 
 }
 
-const setMaterialProvider = materialProvider => {
+function setMaterialProvider(materialProvider) {
     ribbon.updateMaterialProvider(materialProvider)
     ballAndStick.updateMaterialProvider(materialProvider)
-};
+}
 
-const fitToContainer = (canvas, devicePixelRatio) => {
+function fitToContainer(canvas, devicePixelRatio) {
 
     canvas.style.width ='100%';
     canvas.style.height ='100%';
 
     canvas.width  = devicePixelRatio ? devicePixelRatio * canvas.offsetWidth : canvas.offsetWidth;
     canvas.height = devicePixelRatio ? devicePixelRatio * canvas.offsetHeight : canvas.offsetHeight;
-};
+}
 
-const getMouseXY = (domElement, { clientX, clientY }) => {
+function getMouseXY(domElement, { clientX, clientY }) {
 
     // a DOMRect object with eight properties: left, top, right, bottom, x, y, width, height
     const { left, top, width, height } = domElement.getBoundingClientRect();
 
     return { x: clientX - left,  y: clientY - top, xNormalized: (clientX - left)/width, yNormalized: (clientY - top)/height };
 
-};
+}
 
-let throttle = (fn, threshhold, scope) => {
+function throttle(fn, threshhold, scope) {
 
     threshhold || (threshhold = 200);
 
@@ -96,9 +96,9 @@ let throttle = (fn, threshhold, scope) => {
             fn.apply(context, args);
         }
     }
-};
+}
 
-const readFileAsDataURL = async blob => {
+async function readFileAsDataURL(blob) {
 
     const fileReader = new FileReader();
 
@@ -114,9 +114,9 @@ const readFileAsDataURL = async blob => {
 
         fileReader.readAsDataURL(blob);
     });
-};
+}
 
-const createImage = imageSource => {
+function createImage(imageSource) {
 
     return new Promise((resolve, reject) => {
         let img = new Image();
@@ -125,7 +125,7 @@ const createImage = imageSource => {
         img.src = imageSource;
     });
 
-};
+}
 
 function clearCanvasArray(canvasArray, traceLength) {
 
@@ -155,7 +155,7 @@ function paintContactFrequencyArrayWithColorScale(colorScale, frequencies) {
     }
 }
 
-const transferContactFrequencyArrayToCanvas = async (ctx, contactFrequencyArray) => {
+async function transferContactFrequencyArrayToCanvas(ctx, contactFrequencyArray) {
 
     const { width, height } = ctx.canvas;
 
@@ -173,9 +173,9 @@ const transferContactFrequencyArrayToCanvas = async (ctx, contactFrequencyArray)
 
     ctx.transferFromImageBitmap(imageBitmap);
 
-};
+}
 
-const generateRadiusTable = defaultRadius => {
+function generateRadiusTable(defaultRadius) {
 
     const radiusTableLength = 11;
     const radiusTable = [];
@@ -187,7 +187,7 @@ const generateRadiusTable = defaultRadius => {
     }
 
     return radiusTable
-};
+}
 
 export {
     showGlobalSpinner,

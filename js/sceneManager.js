@@ -211,6 +211,14 @@ class SceneManager {
 
     renderLoopHelper() {
 
+        pointCloud.renderLoopHelper()
+
+        ballAndStick.renderLoopHelper()
+
+        ribbon.renderLoopHelper()
+
+        colorRampMaterialProvider.renderLoopHelper()
+
         this.cameraLightingRig.renderLoopHelper();
 
         if (this.groundPlane) {

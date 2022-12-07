@@ -1,9 +1,9 @@
 import {AlertSingleton, EventBus} from 'igv-widgets'
 import igv from './igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import { setMaterialProvider } from './utils.js';
+import {setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
-import {colorRampMaterialProvider, ensembleManager} from './app.js'
+import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager} from './app.js'
 
 class IGVPanel extends Panel {
 
@@ -116,7 +116,7 @@ class IGVPanel extends Panel {
         this.browser.on('trackremoved', track => {
             if (track.trackView.materialProviderInput && $(track.trackView.materialProviderInput).prop('checked')) {
                 this.materialProvider = colorRampMaterialProvider
-                setMaterialProvider(this.materialProvider)
+                setMaterialProvider(colorRampMaterialProvider)
             }
         })
 
@@ -183,7 +183,21 @@ class IGVPanel extends Panel {
         const { trackViews } = this.browser
         const [ track ] = trackViews.map(({ track }) => track).filter(track => state === track.name)
 
-        $(track.trackView.materialProviderInput).trigger('click.igv-panel-material-provider')
+        const { chr, start, end, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
+        const features = await track.getFeatures(chr, start, end, bpPerPixel)
+
+        if (track.trackView.dataRange()) {
+            const { min, max } = track.trackView.dataRange()
+            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max })
+        } else {
+            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features })
+        }
+
+        this.materialProvider = dataValueMaterialProvider
+        setMaterialProvider(dataValueMaterialProvider)
+
+        track.trackView.materialProviderInput.checked = true
+
     }
 }
 

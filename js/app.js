@@ -339,12 +339,6 @@ function renderLoop() {
 
 function render () {
 
-    pointCloud.renderLoopHelper()
-
-    ribbon.renderLoopHelper()
-
-    colorRampMaterialProvider.renderLoopHelper()
-
     sceneManager.renderLoopHelper()
 
     // stats.update()

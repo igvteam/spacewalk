@@ -63,7 +63,7 @@ class ContactFrequencyMapPanel extends Panel {
 
             window.setTimeout(() => {
 
-                // this.updateEnsembleContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
+                this.updateEnsembleContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
 
                 this.updateTraceContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.currentTrace)
 
@@ -75,6 +75,8 @@ class ContactFrequencyMapPanel extends Panel {
         this.worker = new Worker(new URL('./contactFrequencyMapWorker.js', import.meta.url), { type: 'module' })
 
         this.worker.addEventListener('message', async ({ data }) => {
+
+            console.log(`Contact Frequency ${ data.traceOrEnsemble } map received from worker`)
 
             document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
 
@@ -170,6 +172,7 @@ class ContactFrequencyMapPanel extends Panel {
                 distanceThreshold: this.distanceThreshold
             }
 
+        console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
         this.worker.postMessage(data)
 
         // clearCanvasArray(contactFrequencyArray, ensembleManager.getTraceLength())
@@ -190,6 +193,7 @@ class ContactFrequencyMapPanel extends Panel {
                 distanceThreshold: this.distanceThreshold
             }
 
+        console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
         this.worker.postMessage(data)
 
         // clearCanvasArray(contactFrequencyArray, ensembleManager.getTraceLength())

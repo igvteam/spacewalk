@@ -15,36 +15,27 @@ class HDF5Dataset extends Dataset {
 
         this.key = 'C2'
 
-        const chain = this.hdf5.get( this.key )
+        this.vertexCount = getVertexListLength(this.hdf5.get( this.key ))
 
-        // calc trace count
-        const vertexLists = chain.get('spatial_position')
-        this.traceCount = vertexLists.keys().length
+        this.locus = getLocus(this.key, this.hdf5.get( this.key ))
 
-        this.traceLength = createTraceLength(chain)
-
-        this.locus = createLocus(this.key, chain)
-
-        this.genomicExtentList = createGenomicExtentList(chain.get('genomic_position'))
+        this.genomicExtentList = getGenomicExtentList(hdf5.get(`${ this.key }/genomic_position`))
 
     }
 
-    getTraceCount(){
-        return this.traceCount
+    getVertexListCount(){
+        return this.hdf5.get( `${ this.key }/spatial_position` ).keys().length
     }
 
     createTrace(i) {
 
-        const chain = this.hdf5.get( this.key )
-
-        const vertexLists = chain.get('spatial_position')
-
-        const trace = []
-        const vertices = vertexLists.get( (1 + i).toString() ).value
+        const result = this.hdf5.get( `${ this.key }/spatial_position/${ 1 + i }` )
+        const numbers = result.value
         let j = 0
-        for (let v = 0; v < vertices.length; v += 3) {
+        const trace = []
+        for (let v = 0; v < numbers.length; v += 3) {
 
-            const [ x, y, z ] = Array.from(vertices.subarray(v, v + 3))
+            const [ x, y, z ] = Array.from(numbers.subarray(v, v + 3))
             const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[ j ].interpolant)
 
             const object =
@@ -72,13 +63,12 @@ class HDF5Dataset extends Dataset {
 
 }
 
-function createTraceLength(chain) {
-    const vertexLists = chain.get('spatial_position')
-    const vertices = vertexLists.get( '1' ).value
+function getVertexListLength(chain) {
+    const vertices = chain.get('spatial_position/1').value
     return vertices.length / 3
 }
 
-function createLocus(key, chain) {
+function getLocus(key, chain) {
 
     const lut =
         {
@@ -94,7 +84,7 @@ function createLocus(key, chain) {
 
 }
 
-function createGenomicExtentList(genomicPositions) {
+function getGenomicExtentList(genomicPositions) {
 
     const ints = Array.from(genomicPositions.value).map(bigInt64 => parseInt(bigInt64))
     const list = []
