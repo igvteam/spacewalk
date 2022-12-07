@@ -50,7 +50,7 @@ class BallAndStick {
 
         const stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVertices(trace, true))
         const averageCurveDistance  = computeAverageCurveDistance(stickCurves)
-        console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`)
+        // console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`)
 
         stickRadiusTable = generateRadiusTable(0.5e-1 * averageCurveDistance);
         stickRadiusIndex = Math.floor( stickRadiusTable.length/2 );
