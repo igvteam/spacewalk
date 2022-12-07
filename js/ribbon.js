@@ -6,9 +6,11 @@ import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
 import EnsembleManager from './ensembleManager.js'
 import {igvPanel, sceneManager, ensembleManager} from "./app.js"
 import {appleCrayonColorThreeJS} from "./color.js";
+import {StringUtils} from "igv-utils";
 
 const ribbonWidth = 4/*2*/
 const highlightBeadRadiusScalefactor = 1/(6e1)
+const RibbonScaleFactor = 32
 
 class Ribbon {
 
@@ -43,14 +45,10 @@ class Ribbon {
 
     configure(trace) {
 
-        const str = 'Ribbon.configure()';
+        const str = `Ribbon.configure - Trace has ${ StringUtils.numberFormatter(EnsembleManager.getSingleCentroidVertices(trace, true)) } vertices`
         console.time(str);
 
-        const vertices = EnsembleManager.getSingleCentroidVertices(trace, true)
-        this.curve = new THREE.CatmullRomCurve3( vertices )
-        this.curve.arcLengthDivisions = 1e3;
-
-        this.spline = createFatSpline(this.curve, igvPanel.materialProvider)
+        this.spline = this.createFatSpline(trace, igvPanel.materialProvider)
 
         console.timeEnd(str);
 
@@ -59,6 +57,39 @@ class Ribbon {
         } else {
             this.hide()
         }
+
+    }
+
+    createFatSpline(trace, materialProvider) {
+
+        const traceVertices = EnsembleManager.getSingleCentroidVertices(trace, true)
+        this.curve = new THREE.CatmullRomCurve3( traceVertices )
+        this.curve.arcLengthDivisions = 2e3
+        this.curve.updateArcLengths()
+
+        const geometry = new LineGeometry()
+
+        const curvePointCount = Math.round(traceVertices.length * RibbonScaleFactor)
+        const curveSpacedPoints = this.curve.getSpacedPoints( curvePointCount )
+
+        const geometryVertices = []
+        for (const { x, y, z } of curveSpacedPoints ) {
+            geometryVertices.push(x, y, z)
+        }
+        geometry.setPositions( geometryVertices )
+
+        const geometryColors = getRGBListWithMaterialAndLength(materialProvider, curveSpacedPoints.length)
+        geometry.setColors( geometryColors )
+
+        const material = new LineMaterial( { linewidth: ribbonWidth, vertexColors: true } )
+
+        const mesh = new Line2(geometry, material)
+        mesh.computeLineDistances()
+        mesh.scale.set( 1, 1, 1 )
+        mesh.name = 'ribbon'
+
+
+        return { mesh, vertexCount: curveSpacedPoints.length };
 
     }
 
@@ -143,49 +174,10 @@ class Ribbon {
         }
     }
 
-    static getCountMultiplier(curveLength) {
-        return Math.round( Math.max(1, curveLength / 16000) );
-    }
-
     static getRenderStyle() {
         return 'render-style-ribbon'
     }
 }
-
-function createFatSpline(curve, materialProvider) {
-
-    const pointCount = getFatSplinePointCount(curve.getLength());
-
-    const str = `createFatSpline. ${ pointCount } vertices and colors.`;
-    console.time(str);
-
-    const xyzList = curve.getSpacedPoints( pointCount )
-
-    const colors = getRGBListWithMaterialAndLength(materialProvider, xyzList.length);
-
-    const vertices = [];
-    for (let { x, y, z } of xyzList ) {
-        vertices.push(x, y, z);
-    }
-
-    const geometry = new LineGeometry();
-
-    geometry.setPositions( vertices )
-    geometry.setColors( colors )
-
-    const material = new LineMaterial( { linewidth: ribbonWidth, vertexColors: true } );
-
-    const mesh = new Line2(geometry, material);
-    mesh.computeLineDistances();
-    mesh.scale.set( 1, 1, 1 );
-    mesh.name = 'ribbon';
-
-    console.timeEnd(str);
-
-    return { mesh, vertexCount: xyzList.length };
-
-}
-
 function getRGBListWithMaterialAndLength(materialProvider, length) {
 
     let rgbList = new Float32Array(length * 3)
@@ -195,12 +187,6 @@ function getRGBListWithMaterialAndLength(materialProvider, length) {
     }
 
     return rgbList
-}
-
-const RibbonScaleFactor = 4e3
-
-function getFatSplinePointCount(curveLength) {
-    return Ribbon.getCountMultiplier(curveLength) * RibbonScaleFactor
 }
 
 export default Ribbon;
