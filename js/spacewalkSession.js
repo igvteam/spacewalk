@@ -22,7 +22,13 @@ const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 const loadSessionURL = async spacewalkSessionURL => {
 
     if (spacewalkSessionURL) {
-        await loadSpacewalkSession( JSON.parse( uncompressSession(spacewalkSessionURL) ))
+        const spacewalk = JSON.parse( uncompressSession(spacewalkSessionURL) )
+        await loadSpacewalkSession(spacewalk)
+
+        if ('none' !== spacewalk.igvPanelState) {
+            await igvPanel.restoreSessionState(spacewalk.igvPanelState)
+        }
+
     }
 
 }

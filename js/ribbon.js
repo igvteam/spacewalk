@@ -45,12 +45,8 @@ class Ribbon {
 
     configure(trace) {
 
-        const str = `Ribbon.configure - Trace has ${ StringUtils.numberFormatter(EnsembleManager.getSingleCentroidVertices(trace, true)) } vertices`
-        console.time(str);
 
         this.spline = this.createFatSpline(trace, igvPanel.materialProvider)
-
-        console.timeEnd(str);
 
         if (sceneManager.renderStyle === Ribbon.getRenderStyle()) {
             this.show()
@@ -72,6 +68,10 @@ class Ribbon {
         const curvePointCount = Math.round(traceVertices.length * RibbonScaleFactor)
         const curveSpacedPoints = this.curve.getSpacedPoints( curvePointCount )
 
+        const a = `Trace vertices(${ StringUtils.numberFormatter(traceVertices.length) })`
+        const b = `Curve points(${ StringUtils.numberFormatter(curvePointCount) })`
+
+        console.log(`Ribbon.createFatSpline ${ a } ${ b }`)
         const geometryVertices = []
         for (const { x, y, z } of curveSpacedPoints ) {
             geometryVertices.push(x, y, z)
