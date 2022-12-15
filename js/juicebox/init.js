@@ -23,7 +23,7 @@
 
 import {Alert} from "igv-ui"
 import {extractConfig} from "./urlUtils.js"
-import {getCurrentBrowser} from "./hicMisc.js"
+import {getCurrentBrowser} from "./hicBrowserLifecycle.js"
 import {restoreSession} from "./session.js"
 
 async function init(container, config) {

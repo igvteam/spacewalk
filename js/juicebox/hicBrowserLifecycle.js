@@ -10,10 +10,11 @@ import ColorScale from './colorScale.js'
 import State from './hicState.js'
 import ContactMatrixView from "./contactMatrixView.js"
 
-async function createBrowser(hic_container, session) {
+let allBrowsers = []
+let currentBrowser
 
+async function createBrowser(hic_container, config) {
 
-    const [ config ] = session.browsers
     setDefaults(config)
 
     if (StringUtils.isString(config.state)) {
@@ -30,11 +31,36 @@ async function createBrowser(hic_container, session) {
 
     const browser = new HICBrowser($(hic_container), config)
 
-    Globals.allBrowsers = [ browser ]
-    Globals.currentBrowser = browser
+    allBrowsers = [ browser ]
+    currentBrowser = browser
 
     await browser.init(config)
 
+}
+
+function getCurrentBrowser() {
+    return currentBrowser;
+}
+
+function getAllBrowsers() {
+    return allBrowsers;
+}
+
+function deleteBrowser(browser) {
+    browser.$root.remove();
+    Globals.allBrowsers = Globals.allBrowsers.filter(b => b !== browser);
+    if (Globals.allBrowsers.length <= 1) {
+        Globals.allBrowsers.forEach(function (b) {
+            b.$browser_panel_delete_button.hide();
+        });
+    }
+}
+
+function deleteAllBrowsers() {
+    for (let b of allBrowsers) {
+        b.$root.remove();
+    }
+    allBrowsers = [];
 }
 
 function setDefaults(config) {
@@ -82,4 +108,4 @@ function setDefaults(config) {
 
 }
 
-export { createBrowser }
+export { createBrowser, deleteBrowser, deleteAllBrowsers, getCurrentBrowser, getAllBrowsers }

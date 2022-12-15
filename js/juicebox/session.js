@@ -1,6 +1,6 @@
 import {BGZip} from "igv-utils"
 import {Globals} from "./globals.js"
-import { deleteAllBrowsers, syncBrowsers, getAllBrowsers } from './hicMisc.js'
+import { deleteAllBrowsers, getAllBrowsers } from './hicBrowserLifecycle.js'
 import { createBrowser } from "./hicBrowserLifecycle.js"
 
 
@@ -58,7 +58,8 @@ async function restoreSession(container, session) {
         }
     }
 
-    await createBrowser(container, session);
+    const [ config ] = session.browsers
+    await createBrowser(container, config)
 
 }
 

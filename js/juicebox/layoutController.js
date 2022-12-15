@@ -3,7 +3,7 @@
  */
 
 import Ruler from './ruler.js'
-import {deleteBrowser, setCurrentBrowser} from './hicMisc.js'
+import {deleteBrowser, setCurrentBrowser} from './createBrowser.js'
 
 // Keep in sync with juicebox.scss variables
 
