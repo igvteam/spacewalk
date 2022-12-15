@@ -5,7 +5,7 @@ import Panel from "./panel.js";
 import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
 import {clearCanvasArray, transferContactFrequencyArrayToCanvas} from "./utils.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import ContactRecord from './juicebox/hicStraw/contactRecord.js'
+import ContactRecord from './contactRecord.js'
 import {Globals} from './juicebox/globals.js'
 import State from './juicebox/hicState.js'
 import {GenomeUtils} from './genome/genomeUtils.js'

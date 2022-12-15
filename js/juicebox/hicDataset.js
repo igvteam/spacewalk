@@ -26,7 +26,7 @@
  * @author Jim Robinson
  */
 
-import Straw from './hicStraw/straw.js'
+import Straw from 'hic-straw'
 import {GoogleUtils,StringUtils} from 'igv-utils'
 import {isFile} from "./fileUtils.js"
 import IGVRemoteFile from "./igvRemoteFile.js"
