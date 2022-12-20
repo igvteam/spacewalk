@@ -21,26 +21,12 @@
  *
  */
 
-import {Alert} from "igv-ui"
-import {extractConfig} from "./urlUtils.js"
-import {getCurrentBrowser} from "./hicBrowserLifecycle.js"
-import {restoreSession} from "./session.js"
-
-async function init(container, config) {
-
-    Alert.init(container);
-
-    if (false !== config.queryParametersSupported) {
-        const queryConfig = await extractConfig(window.location.href);
-        if(queryConfig) {
-            config= queryConfig;
-        }
-    }
-
-    await restoreSession(container, config)
-
-    return getCurrentBrowser()
-}
+const Globals = {}
+const Track2DDisplaceModes = {
+    displayAllMatrix: 'displayAllMatrix',
+    displayLowerMatrix: 'displayLowerMatrix',
+    displayUpperMatrix: 'displayUpperMatrix'
+};
 
 
-export { init }
+export {Track2DDisplaceModes, Globals}

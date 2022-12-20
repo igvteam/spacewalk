@@ -1,10 +1,9 @@
-import hic from "./juicebox";
+import hic from 'juicebox.js'
 import { AlertSingleton } from 'igv-widgets'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import {ensembleManager} from './app.js'
-import HICEvent from './juicebox/hicEvent.js'
-import {getCurrentBrowser} from './juicebox/hicBrowserLifecycle.js'
+import HICEvent from './hicEvent.js'
 
 class JuiceboxPanel extends Panel {
 
@@ -74,11 +73,11 @@ class JuiceboxPanel extends Panel {
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
         }
 
-        if (getCurrentBrowser()) {
+        if (hic.getCurrentBrowser()) {
             this.configureMouseHandlers()
         }
 
-        getCurrentBrowser().eventBus.subscribe("MapLoad", () => {
+        hic.getCurrentBrowser().eventBus.subscribe("MapLoad", () => {
             const { chr, genomicStart, genomicEnd } = ensembleManager.locus
             this.goto({ chr, start: genomicStart, end: genomicEnd })
         })
@@ -87,7 +86,7 @@ class JuiceboxPanel extends Panel {
 
     async locusDidChange({ chr, genomicStart, genomicEnd }) {
 
-        if (this.isContactMapLoaded() && getCurrentBrowser().dataset.isLiveContactMapDataSet !== true) {
+        if (this.isContactMapLoaded() && hic.getCurrentBrowser().dataset.isLiveContactMapDataSet !== true) {
             try {
                 await this.goto({ chr, start: genomicStart, end: genomicEnd })
             } catch (e) {
@@ -98,19 +97,19 @@ class JuiceboxPanel extends Panel {
 
     configureMouseHandlers() {
 
-        getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', this)
+        hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', this)
 
-        getCurrentBrowser().contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }`, (event) => {
+        hic.getCurrentBrowser().contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation()
             SpacewalkEventBus.globalBus.post({ type: 'DidEnterGUI', data: this })
         })
 
-        getCurrentBrowser().contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }`, (event) => {
+        hic.getCurrentBrowser().contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: this })
         })
 
-        getCurrentBrowser().setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+        hic.getCurrentBrowser().setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
         })
 
@@ -120,7 +119,7 @@ class JuiceboxPanel extends Panel {
 
         if (this.isContactMapLoaded()) {
             try {
-                await getCurrentBrowser().parseLocusString(`${chr}:${start}-${end}`, true)
+                await hic.getCurrentBrowser().parseLocusString(`${chr}:${start}-${end}`, true)
             } catch (error) {
                 console.warn(error.message);
             }
@@ -140,23 +139,23 @@ class JuiceboxPanel extends Panel {
             } else {
                 this.present()
 
-                await getCurrentBrowser().loadHicFile(config)
+                await hic.getCurrentBrowser().loadHicFile(config)
 
                 if (ensembleManager.genome) {
 
                     const { chr, genomicStart, genomicEnd } = ensembleManager.genome.locus
-                    await getCurrentBrowser().parseLocusString(`${chr}:${genomicStart}-${genomicEnd}`, true)
+                    await hic.getCurrentBrowser().parseLocusString(`${chr}:${genomicStart}-${genomicEnd}`, true)
 
                 } else {
 
                     const eventConfig =
                         {
-                            state: getCurrentBrowser().state,
+                            state: hic.getCurrentBrowser().state,
                             resolutionChanged: true,
                             chrChanged: true
                         }
 
-                    await getCurrentBrowser().update(HICEvent('LocusChange', eventConfig))
+                    await hic.getCurrentBrowser().update(HICEvent('LocusChange', eventConfig))
                 }
 
 
@@ -172,11 +171,11 @@ class JuiceboxPanel extends Panel {
     }
 
     blurb() {
-        return `${ getCurrentBrowser().$contactMaplabel.text() }`
+        return `${ hic.getCurrentBrowser().$contactMaplabel.text() }`
     }
 
     isContactMapLoaded() {
-        return (getCurrentBrowser() && getCurrentBrowser().dataset)
+        return (hic.getCurrentBrowser() && hic.getCurrentBrowser().dataset)
     }
 
 }

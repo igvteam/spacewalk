@@ -26,11 +26,13 @@ import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
-import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
+import configureContactMapLoaders from './contactMapLoad.js'
 import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
+import '../styles/igv/dom.scss'
+import '../styles/juicebox.css'
 
 let stats
 let gui

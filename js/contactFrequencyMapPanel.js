@@ -6,8 +6,6 @@ import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} f
 import {clearCanvasArray, transferContactFrequencyArrayToCanvas} from "./utils.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import ContactRecord from './contactRecord.js'
-import {Globals} from './juicebox/globals.js'
-import State from './juicebox/hicState.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 
@@ -88,7 +86,7 @@ class ContactFrequencyMapPanel extends Panel {
             if ('ensemble' === data.traceOrEnsemble) {
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, ensembleManager.getTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
-                await Globals.currentBrowser.contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, contactFrequencyArray)
+                await hic.getCurrentBrowser().currentBrowser.contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, contactFrequencyArray)
             }
 
         }, false)
@@ -256,7 +254,7 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
     const binSize = (genomicEnd - genomicStart) / binCount
 
     // canvas - pixel x pixel
-    const { width, height } = Globals.currentBrowser.contactMatrixView.getViewDimensions()
+    const { width, height } = hic.getCurrentBrowser().currentBrowser.contactMatrixView.getViewDimensions()
 
     // pixels-per-bin
     const pixelSize = width/binCount

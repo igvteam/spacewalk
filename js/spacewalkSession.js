@@ -1,6 +1,6 @@
 import {URIUtils, BGZip, URLShortener} from 'igv-utils'
 import Zlib from './vendor/zlib_and_gzip.js'
-import hic from './juicebox/index.js'
+import hic from 'juicebox.js'
 import Panel from './panel.js'
 import {
     igvPanel,
@@ -13,7 +13,6 @@ import {
     colorRampMaterialProvider
 } from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {Globals} from "./juicebox/globals.js"
 import {defaultDistanceThreshold} from "./contactFrequencyMapPanel.js"
 import {setMaterialProvider} from "./utils";
 
@@ -123,7 +122,7 @@ async function getShareURL() {
     const igvCompressedSession = igvPanel.browser.compressedSession()
 
     let juiceboxCompressedSession
-    if (Globals.currentBrowser.dataset && undefined === Globals.currentBrowser.dataset.isLiveContactMapDataSet) {
+    if (hic.getCurrentBrowser().dataset && undefined === hic.getCurrentBrowser().dataset.isLiveContactMapDataSet) {
         // Note format is: session=blob:${BGZip.compressString(jsonString)}
         juiceboxCompressedSession = hic.compressedSession()
     }
@@ -195,7 +194,7 @@ function toJSON () {
 
     const json = { spacewalk, igv }
 
-    if (Globals.currentBrowser.dataset && undefined === Globals.currentBrowser.dataset.isLiveContactMapDataSet) {
+    if (hic.getCurrentBrowser().dataset && undefined === hic.getCurrentBrowser().dataset.isLiveContactMapDataSet) {
         json.juicebox = hic.toJSON()
     }
 

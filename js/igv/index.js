@@ -20,7 +20,6 @@ import {
     randomRGB,
     randomRGBConstantAlpha
 } from './util/colorPalletes.js'
-import '../../styles/igv/dom.scss'
 
 const setApiKey = igvxhr.setApiKey;
 
