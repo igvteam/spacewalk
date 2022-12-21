@@ -1,3 +1,4 @@
+import hic from 'juicebox.js'
 import EnsembleManager from './ensembleManager.js'
 import { colorMapManager, ensembleManager } from "./app.js"
 import { clamp } from "./math.js";
@@ -262,7 +263,7 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
     // x, y in Bin units
     const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
 
-    const state = new State(order, order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
+    const state = new hic.State(order, order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
 
     const genome = GenomeUtils.GenomeLibrary[ genomeAssembly ]
     console.warn(`createHICState ${ state.description(genome, binSize, width) }`)

@@ -3,7 +3,7 @@ import { AlertSingleton } from 'igv-widgets'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import {ensembleManager} from './app.js'
-import HICEvent from './hicEvent.js'
+import { HICEvent } from "./juiceboxHelpful.js"
 
 class JuiceboxPanel extends Panel {
 
@@ -119,9 +119,9 @@ class JuiceboxPanel extends Panel {
 
         if (this.isContactMapLoaded()) {
             try {
-                await hic.getCurrentBrowser().parseLocusString(`${chr}:${start}-${end}`, true)
+                await hic.getCurrentBrowser().parseGotoInput(`${chr}:${start}-${end}`)
             } catch (error) {
-                console.warn(error.message);
+                console.warn(error.message)
             }
         }
 
@@ -134,39 +134,28 @@ class JuiceboxPanel extends Panel {
 
             const config = { url, name, isControl }
 
-            if (isControl) {
-                // do nothing
-            } else {
+            if (false === isControl) {
+
                 this.present()
 
                 await hic.getCurrentBrowser().loadHicFile(config)
 
-                if (ensembleManager.genome) {
-
-                    const { chr, genomicStart, genomicEnd } = ensembleManager.genome.locus
-                    await hic.getCurrentBrowser().parseLocusString(`${chr}:${genomicStart}-${genomicEnd}`, true)
-
-                } else {
-
-                    const eventConfig =
-                        {
-                            state: hic.getCurrentBrowser().state,
-                            resolutionChanged: true,
-                            chrChanged: true
-                        }
-
-                    await hic.getCurrentBrowser().update(HICEvent('LocusChange', eventConfig))
-                }
-
-
             }
-
-            $('#spacewalk_info_panel_juicebox').text( this.blurb() )
 
         } catch (e) {
             console.error(e.message)
             AlertSingleton.present(`Error loading ${ url }: ${ e }`)
         }
+
+        const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+
+        try {
+            await hic.getCurrentBrowser().parseGotoInput(`${chr}:${genomicStart}-${genomicEnd}`)
+        } catch (error) {
+            console.warn(error.message)
+        }
+
+        $('#spacewalk_info_panel_juicebox').text( this.blurb() )
 
     }
 
@@ -182,11 +171,11 @@ class JuiceboxPanel extends Panel {
 
 function juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) {
 
-    if (undefined === ensembleManager || undefined === ensembleManager.genome.locus) {
+    if (undefined === ensembleManager || undefined === ensembleManager.locus) {
         return
     }
 
-    const { genomicStart, genomicEnd } = ensembleManager.genome.locus
+    const { genomicStart, genomicEnd } = ensembleManager.locus
 
     const trivialRejection = startXBP > genomicEnd || endXBP < genomicStart || startYBP > genomicEnd || endYBP < genomicStart
 
