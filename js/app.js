@@ -201,7 +201,6 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
     igvPanel.materialProvider = colorRampMaterialProvider;
 
-    // TODO: Resuscitate Shareable URL
     if (igvSessionURL) {
         const str = BGZip.uncompressString(igvSessionURL.substr(5))
         spacewalkConfig.igvConfig = JSON.parse(str)
@@ -231,7 +230,6 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
 
-    // TODO: Resuscitate Shareable URL
     if (juiceboxSessionURL) {
         const str = BGZip.uncompressString(juiceboxSessionURL.substr(5))
         const json = JSON.parse(str)

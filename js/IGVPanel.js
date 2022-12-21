@@ -49,7 +49,7 @@ class IGVPanel extends Panel {
 
     async initialize({ igvConfig, session }) {
 
-        this.browser = undefined;
+        this.browser = undefined
 
         const root = this.$panel.find('#spacewalk_igv_root_container').get(0)
 
