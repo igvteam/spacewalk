@@ -13,7 +13,7 @@ class HDF5Dataset extends Dataset {
 
         this.hdf5 = hdf5
 
-        this.key = 'C2'
+        this.key = 'replica10_chr1'
 
         this.vertexCount = getVertexListLength(this.hdf5.get( this.key ))
 
