@@ -178,103 +178,53 @@ class JuiceboxPanel extends Panel {
 
 function juiceboxAdditions() {
 
-    hic.ContactMatrixView.prototype.renderWithLiveContactFrequencyData = async function(state, dataset, data, contactFrequencyArray) {
+    hic.ContactMatrixView.prototype.renderWithLiveContactFrequencyData = async function (state, liveContactMapDataSet, data, contactFrequencyArray) {
 
         this.ctx.canvas.style.display = 'none'
         this.ctx_live.canvas.style.display = 'block'
 
         const zoomIndexA = state.zoom
         const { chr1, chr2 } = state
-        const zoomData = dataset.getZoomDataByIndex(chr1, chr2, zoomIndexA)
+        const zoomData = liveContactMapDataSet.getZoomDataByIndex(chr1, chr2, zoomIndexA)
 
         // Clear caches
         this.colorScaleThresholdCache = {}
         this.imageTileCache = {}
         this.imageTileCacheKeys = []
 
-        await this.checkColorScale_sw(state, 'LIVE', dataset, zoomData, undefined, undefined, undefined, undefined, state.normalization)
+        this.checkColorScale_sw(state, 'LIVE', liveContactMapDataSet, zoomData)
 
         paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer)
 
         // Render by copying image data to display canvas bitmap render context
         await transferContactFrequencyArrayToCanvas(this.ctx_live, contactFrequencyArray)
 
-
-
-
-        //////
-        return
-        //////
-
-
-        // Update UI
-        this.browser.state = state
-        this.browser.dataset = dataset
-
-        this.browser.eventBus.post(HICEvent('MapLoad', dataset))
-
-        const eventConfig =
-            {
-                state,
-                resolutionChanged: true,
-                chrChanged: true,
-                displayMode: 'LIVE',
-                dataset
-            }
-
-        this.browser.eventBus.post(HICEvent('LocusChange', eventConfig))
-
     }
 
-    hic.ContactMatrixView.prototype.checkColorScale_sw = async function(state, displayMode, dataset, zoomData, row1, row2, col1, col2, normalization) {
+    hic.ContactMatrixView.prototype.checkColorScale_sw = function (state, displayMode, liveContactMapDataSet, zoomData) {
 
-        const colorKey = createColorScaleKey(state, displayMode)
+        const colorScaleKey = createColorScaleKey(state, displayMode)
 
-        if ('AOB' === displayMode || 'BOA' === displayMode) {
-            return this.ratioColorScale
-        }
+        let percentile = computeContactRecordsPercentile(liveContactMapDataSet.contactRecordList, 95)
 
-        if (this.colorScaleThresholdCache[colorKey]) {
-            const changed = this.colorScale.threshold !== this.colorScaleThresholdCache[colorKey];
-            this.colorScale.setThreshold(this.colorScaleThresholdCache[colorKey]);
-            if (changed) {
-                this.browser.eventBus.post(HICEvent("ColorScale", this.colorScale));
-            }
-            return this.colorScale;
-        } else {
-            try {
+        if (!isNaN(percentile)) {
 
-                const contactRecords = await dataset.getContactRecordsWithRegions(normalization, zoomData, imageTileDimension, col1, col2, row1, row2)
-
-                let percentile = computeContactRecordsPercentile(contactRecords, 95)
-
-                if (!isNaN(percentile)) {
-
-                    if (0 === zoomData.chr1.index) {
-
-                        // Heuristic for whole genome view
-                        percentile *= 4
-                    }
-
-                    this.colorScale = new hic.ColorScale(this.colorScale)
-
-                    this.colorScale.setThreshold(percentile)
-
-                    this.browser.eventBus.post(HICEvent("ColorScale", this.colorScale))
-
-                    this.colorScaleThresholdCache[colorKey] = percentile
-
-                } else {
-                    // All blocks are empty
-                }
-
-                return this.colorScale;
-            } finally {
-                this.stopSpinner()
+            if (0 === zoomData.chr1.index) {
+                // Heuristic for whole genome view
+                percentile *= 4
             }
 
+            this.colorScale = new hic.ColorScale(this.colorScale)
+
+            this.colorScale.setThreshold(percentile)
+
+            this.browser.eventBus.post(HICEvent("ColorScale", this.colorScale))
+
+            this.colorScaleThresholdCache[colorScaleKey] = percentile
 
         }
+
+        return this.colorScale
 
     }
 

@@ -1,14 +1,12 @@
 class LiveContactMapDataSet {
 
-    constructor(binSize, genome, chromosomes, contactRecordList, averageCount) {
+    constructor(binSize, genome, contactRecordList, averageCount) {
 
         this.binSize = binSize
 
         this.bpResolutions = [ binSize ]
 
         this.genome = genome
-
-        this.chromosomes = chromosomes
 
         this.averageCount = averageCount
 

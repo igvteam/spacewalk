@@ -234,7 +234,7 @@ function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr,
     const binSize = (genomicEnd - genomicStart) / traceLength
     const genome = GenomeUtils.GenomeLibrary[ ensembleManager.genomeAssembly ]
 
-    const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, hic.getCurrentBrowser().dataset.chromosomes, contactRecordList, averageCount)
+    const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
 
     return { hicState, liveContactMapDataSet }
 
