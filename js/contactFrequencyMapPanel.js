@@ -87,7 +87,7 @@ class ContactFrequencyMapPanel extends Panel {
             if ('ensemble' === data.traceOrEnsemble) {
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, ensembleManager.getTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
-                await hic.getCurrentBrowser().currentBrowser.contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, contactFrequencyArray)
+                await hic.getCurrentBrowser().contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, contactFrequencyArray)
             }
 
         }, false)
@@ -233,9 +233,8 @@ function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr,
 
     const binSize = (genomicEnd - genomicStart) / traceLength
     const genome = GenomeUtils.GenomeLibrary[ ensembleManager.genomeAssembly ]
-    const chromosomes = genome.getChromosome(chr.toLowerCase())
 
-    const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
+    const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, hic.getCurrentBrowser().dataset.chromosomes, contactRecordList, averageCount)
 
     return { hicState, liveContactMapDataSet }
 
@@ -255,7 +254,7 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
     const binSize = (genomicEnd - genomicStart) / binCount
 
     // canvas - pixel x pixel
-    const { width, height } = hic.getCurrentBrowser().currentBrowser.contactMatrixView.getViewDimensions()
+    const { width, height } = hic.getCurrentBrowser().contactMatrixView.getViewDimensions()
 
     // pixels-per-bin
     const pixelSize = width/binCount

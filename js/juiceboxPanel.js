@@ -1,9 +1,14 @@
 import hic from 'juicebox.js'
+import { StringUtils } from 'igv-utils'
 import { AlertSingleton } from 'igv-widgets'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import {ensembleManager} from './app.js'
 import { HICEvent } from "./juiceboxHelpful.js"
+import {paintContactFrequencyArrayWithColorScale, transferContactFrequencyArrayToCanvas} from './utils.js'
+import {func} from "three/nodes";
+
+const imageTileDimension = 685
 
 class JuiceboxPanel extends Panel {
 
@@ -45,7 +50,6 @@ class JuiceboxPanel extends Panel {
 
     async initialize(container, config) {
 
-
         let session
 
         if (config.browsers) {
@@ -74,6 +78,9 @@ class JuiceboxPanel extends Panel {
         }
 
         if (hic.getCurrentBrowser()) {
+
+            juiceboxAdditions()
+
             this.configureMouseHandlers()
         }
 
@@ -166,6 +173,164 @@ class JuiceboxPanel extends Panel {
     isContactMapLoaded() {
         return (hic.getCurrentBrowser() && hic.getCurrentBrowser().dataset)
     }
+
+}
+
+function juiceboxAdditions() {
+
+    hic.ContactMatrixView.prototype.renderWithLiveContactFrequencyData = async function(state, dataset, data, contactFrequencyArray) {
+
+        this.ctx.canvas.style.display = 'none'
+        this.ctx_live.canvas.style.display = 'block'
+
+        const zoomIndexA = state.zoom
+        const { chr1, chr2 } = state
+        const zoomData = dataset.getZoomDataByIndex(chr1, chr2, zoomIndexA)
+
+        // Clear caches
+        this.colorScaleThresholdCache = {}
+        this.imageTileCache = {}
+        this.imageTileCacheKeys = []
+
+        await this.checkColorScale_sw(state, 'LIVE', dataset, zoomData, undefined, undefined, undefined, undefined, state.normalization)
+
+        paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer)
+
+        // Render by copying image data to display canvas bitmap render context
+        await transferContactFrequencyArrayToCanvas(this.ctx_live, contactFrequencyArray)
+
+
+
+
+        //////
+        return
+        //////
+
+
+        // Update UI
+        this.browser.state = state
+        this.browser.dataset = dataset
+
+        this.browser.eventBus.post(HICEvent('MapLoad', dataset))
+
+        const eventConfig =
+            {
+                state,
+                resolutionChanged: true,
+                chrChanged: true,
+                displayMode: 'LIVE',
+                dataset
+            }
+
+        this.browser.eventBus.post(HICEvent('LocusChange', eventConfig))
+
+    }
+
+    hic.ContactMatrixView.prototype.checkColorScale_sw = async function(state, displayMode, dataset, zoomData, row1, row2, col1, col2, normalization) {
+
+        const colorKey = createColorScaleKey(state, displayMode)
+
+        if ('AOB' === displayMode || 'BOA' === displayMode) {
+            return this.ratioColorScale
+        }
+
+        if (this.colorScaleThresholdCache[colorKey]) {
+            const changed = this.colorScale.threshold !== this.colorScaleThresholdCache[colorKey];
+            this.colorScale.setThreshold(this.colorScaleThresholdCache[colorKey]);
+            if (changed) {
+                this.browser.eventBus.post(HICEvent("ColorScale", this.colorScale));
+            }
+            return this.colorScale;
+        } else {
+            try {
+
+                const contactRecords = await dataset.getContactRecordsWithRegions(normalization, zoomData, imageTileDimension, col1, col2, row1, row2)
+
+                let percentile = computeContactRecordsPercentile(contactRecords, 95)
+
+                if (!isNaN(percentile)) {
+
+                    if (0 === zoomData.chr1.index) {
+
+                        // Heuristic for whole genome view
+                        percentile *= 4
+                    }
+
+                    this.colorScale = new hic.ColorScale(this.colorScale)
+
+                    this.colorScale.setThreshold(percentile)
+
+                    this.browser.eventBus.post(HICEvent("ColorScale", this.colorScale))
+
+                    this.colorScaleThresholdCache[colorKey] = percentile
+
+                } else {
+                    // All blocks are empty
+                }
+
+                return this.colorScale;
+            } finally {
+                this.stopSpinner()
+            }
+
+
+        }
+
+    }
+
+    hic.HicState.prototype.description = function(genome, binSize, width) {
+
+        const { chr1, x, pixelSize } = this
+
+        // bp = bin * bp-per-bin
+        const xBP = x * binSize
+
+        // bin = pixel / pixel-per-bin
+        const widthBin = width / pixelSize
+
+        // bp = bin * bp-per-bin
+        const widthBP = widthBin * binSize
+
+        const xEnd = x + widthBin
+
+        const xEndBP = xBP + widthBP
+
+        // chromosome length - bp & bin
+        const { name, size:lengthBP } = genome.getChromosomeAtIndex(chr1)
+        const lengthBin = lengthBP / binSize
+
+        const f = StringUtils.numberFormatter(width)
+        const d = StringUtils.numberFormatter(x)
+        const g = StringUtils.numberFormatter(xBP)
+        const a = StringUtils.numberFormatter(lengthBP)
+        const b = StringUtils.numberFormatter(lengthBin)
+        const c = StringUtils.numberFormatter(binSize)
+        const e = StringUtils.numberFormatter(pixelSize)
+
+        const strings =
+            [
+                `${ name }`,
+                `Screen Width\npixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
+                `Start\nbin(${d}) bp(${g})\nEnd\nbin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`,
+                `Bin Size\nbp-per-bin(${c})\nPixel Size\npixel-per-bin(${e})`
+            ]
+
+        return `\n${ strings.join('\n') }`
+    }
+
+}
+
+function createColorScaleKey(state, displayMode) {
+    return "" + state.chr1 + "_" + state.chr2 + "_" + state.zoom + "_" + state.normalization + "_" + displayMode;
+}
+function computeContactRecordsPercentile(contactRecords, p) {
+
+    const counts = contactRecords.map(({ counts }) => counts)
+
+    counts.sort((a, b) => a - b)
+
+    const index = Math.floor((p / 100) * contactRecords.length);
+    return counts[index];
 
 }
 
