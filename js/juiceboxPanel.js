@@ -211,8 +211,22 @@ function juiceboxAdditions() {
         browser.state = state
         browser.dataset = liveContactMapDataSet
 
-        browser.layoutController.xAxisRuler.update()
-        browser.layoutController.yAxisRuler.update()
+        browser.eventBus.post(HICEvent('MapLoad', liveContactMapDataSet))
+
+        const eventConfig =
+            {
+                state,
+                resolutionChanged: true,
+                chrChanged: true,
+                displayMode: 'LIVE',
+                dataset: liveContactMapDataSet
+            }
+
+        browser.eventBus.post(HICEvent('LocusChange', eventConfig))
+
+
+        // browser.layoutController.xAxisRuler.update()
+        // browser.layoutController.yAxisRuler.update()
 
     }
 
