@@ -3,10 +3,9 @@ import { StringUtils } from 'igv-utils'
 import { AlertSingleton } from 'igv-widgets'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
-import {ensembleManager} from './app.js'
+import {contactFrequencyMapPanel, ensembleManager} from './app.js'
 import { HICEvent } from "./juiceboxHelpful.js"
 import {paintContactFrequencyArrayWithColorScale, transferContactFrequencyArrayToCanvas} from './utils.js'
-import {func} from "three/nodes";
 
 const imageTileDimension = 685
 
@@ -83,6 +82,13 @@ class JuiceboxPanel extends Panel {
 
             this.configureMouseHandlers()
         }
+
+        document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', e => {
+            console.log('hic-live-contact-frequency-map-button was clicked')
+            contactFrequencyMapPanel.calculateContactFrequencies()
+            this.present()
+        })
+
 
         hic.getCurrentBrowser().eventBus.subscribe("MapLoad", () => {
             const { chr, genomicStart, genomicEnd } = ensembleManager.locus

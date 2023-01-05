@@ -157,6 +157,20 @@ class ContactFrequencyMapPanel extends Panel {
 
     getClassName(){ return 'ContactFrequencyMapPanel' }
 
+    calculateContactFrequencies() {
+
+        if (true === this.doUpdateEnsemble) {
+            this.updateEnsembleContactFrequencyCanvas()
+            this.doUpdateEnsemble = undefined
+        }
+
+        if (true === this.doUpdateTrace) {
+            this.updateTraceContactFrequencyCanvas()
+            this.doUpdateTrace = undefined
+        }
+
+    }
+
     updateTraceContactFrequencyCanvas() {
 
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
