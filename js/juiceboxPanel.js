@@ -205,6 +205,15 @@ function juiceboxAdditions() {
         // Render by copying image data to display canvas bitmap render context
         await transferContactFrequencyArrayToCanvas(this.ctx_live, contactFrequencyArray)
 
+        const browser = hic.getCurrentBrowser()
+
+        // Update UI
+        browser.state = state
+        browser.dataset = liveContactMapDataSet
+
+        browser.layoutController.xAxisRuler.update()
+        browser.layoutController.yAxisRuler.update()
+
     }
 
     hic.ContactMatrixView.prototype.checkColorScale_sw = function (state, displayMode, liveContactMapDataSet, zoomData) {

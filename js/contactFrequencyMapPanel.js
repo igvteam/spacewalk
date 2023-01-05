@@ -254,6 +254,7 @@ function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr,
 
 }
 
+
 function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
     const chromosome = GenomeUtils.GenomeLibrary[ genomeAssembly ].getChromosome(chr.toLowerCase())
