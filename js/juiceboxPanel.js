@@ -5,7 +5,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import {contactFrequencyMapPanel, ensembleManager} from './app.js'
 import { HICEvent } from "./juiceboxHelpful.js"
-import {paintContactFrequencyArrayWithColorScale, transferContactFrequencyArrayToCanvas} from './utils.js'
+import {paintContactFrequencyArrayWithColorScale, renderContactFrequencyArrayToCanvas} from './utils.js'
 
 const imageTileDimension = 685
 
@@ -33,18 +33,8 @@ class JuiceboxPanel extends Panel {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         });
 
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
 
-    }
-
-    getClassName(){ return 'JuiceboxPanel' }
-
-    receiveEvent({ type, data }) {
-
-        super.receiveEvent({ type, data });
-
-        if ('DidHideCrosshairs' === type) {
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' })
-        }
     }
 
     async initialize(container, config) {
@@ -84,11 +74,9 @@ class JuiceboxPanel extends Panel {
         }
 
         document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', e => {
-            console.log('hic-live-contact-frequency-map-button was clicked')
             contactFrequencyMapPanel.calculateContactFrequencies()
             this.present()
         })
-
 
         hic.getCurrentBrowser().eventBus.subscribe("MapLoad", () => {
             const { chr, genomicStart, genomicEnd } = ensembleManager.locus
@@ -96,6 +84,19 @@ class JuiceboxPanel extends Panel {
         })
 
     }
+
+    receiveEvent({ type, data }) {
+
+        super.receiveEvent({ type, data })
+
+        if ("DidLoadEnsembleFile" === type && false === this.isHidden) {
+            contactFrequencyMapPanel.calculateContactFrequencies()
+        } else if ('DidHideCrosshairs' === type) {
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' })
+        }
+    }
+
+    getClassName(){ return 'JuiceboxPanel' }
 
     async locusDidChange({ chr, genomicStart, genomicEnd }) {
 
@@ -200,10 +201,10 @@ function juiceboxAdditions() {
 
         this.checkColorScale_sw(state, 'LIVE', liveContactMapDataSet, zoomData)
 
-        paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer)
+        paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer, contactFrequencyArray)
 
         // Render by copying image data to display canvas bitmap render context
-        await transferContactFrequencyArrayToCanvas(this.ctx_live, contactFrequencyArray)
+        await renderContactFrequencyArrayToCanvas(this.ctx_live, contactFrequencyArray)
 
         const browser = hic.getCurrentBrowser()
 

@@ -3,7 +3,7 @@ import { colorMapManager, ensembleManager } from "./app.js";
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
-import {clearCanvasArray, transferContactFrequencyArrayToCanvas} from "./utils.js"
+import {clearCanvasArray, renderContactFrequencyArrayToCanvas} from "./utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 
 const kDistanceUndefined = -1
@@ -52,10 +52,10 @@ class DistanceMapPanel extends Panel {
 
             if ('trace' === data.traceOrEnsemble) {
                 populateDistanceCanvasArray(data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-                transferContactFrequencyArrayToCanvas(this.ctx_trace, canvasArray)
+                renderContactFrequencyArrayToCanvas(this.ctx_trace, canvasArray)
             } else {
                 populateDistanceCanvasArray(data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-                transferContactFrequencyArrayToCanvas(this.ctx_ensemble, canvasArray)
+                renderContactFrequencyArrayToCanvas(this.ctx_ensemble, canvasArray)
             }
 
 
@@ -131,7 +131,7 @@ class DistanceMapPanel extends Panel {
         this.worker.postMessage(data)
 
         clearCanvasArray(canvasArray, ensembleManager.getTraceLength())
-        transferContactFrequencyArrayToCanvas(this.ctx_trace, canvasArray)
+        renderContactFrequencyArrayToCanvas(this.ctx_trace, canvasArray)
 
     }
 
@@ -149,7 +149,7 @@ class DistanceMapPanel extends Panel {
         this.worker.postMessage(data)
 
         clearCanvasArray(ensembleManager.getTraceLength())
-        transferContactFrequencyArrayToCanvas(this.ctx_ensemble, canvasArray)
+        renderContactFrequencyArrayToCanvas(this.ctx_ensemble, canvasArray)
 
     }
 }

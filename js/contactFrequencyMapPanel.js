@@ -4,13 +4,15 @@ import { colorMapManager, ensembleManager } from "./app.js"
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
-import {clearCanvasArray, transferContactFrequencyArrayToCanvas} from "./utils.js"
+import {clearCanvasArray, renderContactFrequencyArrayToCanvas} from "./utils.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import ContactRecord from './contactRecord.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 
-let contactFrequencyArray = undefined
+let ensembleContactFrequencyArray = undefined
+
+let traceContactFrequencyArray = undefined
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
@@ -47,9 +49,6 @@ class ContactFrequencyMapPanel extends Panel {
         this.input = panel.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
         this.input.value = distanceThreshold.toString()
 
-        this.doUpdateTrace = this.doUpdateEnsemble = undefined
-
-        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
@@ -61,13 +60,8 @@ class ContactFrequencyMapPanel extends Panel {
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
             window.setTimeout(() => {
-
                 this.updateEnsembleContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
-
                 this.updateTraceContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.currentTrace)
-
-                this.doUpdateTrace = this.doUpdateEnsemble = undefined
-
             }, 0)
         })
 
@@ -79,55 +73,28 @@ class ContactFrequencyMapPanel extends Panel {
 
             document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
 
-            paintContactFrequencyArrayWithFrequencies(data.workerValuesBuffer)
-            const context = 'trace' === data.traceOrEnsemble ? this.ctx_trace : this.ctx_ensemble
-            await transferContactFrequencyArrayToCanvas(context, contactFrequencyArray)
-
-            // Only ensemble data is used to create the live contact map in Juicebox
             if ('ensemble' === data.traceOrEnsemble) {
+
+                updateContactFrequencyArrayWithFrequencies(data.workerValuesBuffer, ensembleContactFrequencyArray)
+                await renderContactFrequencyArrayToCanvas(this.ctx_ensemble, ensembleContactFrequencyArray)
+
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, ensembleManager.getTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
-                await hic.getCurrentBrowser().contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, contactFrequencyArray)
+
+                await hic.getCurrentBrowser().contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, ensembleContactFrequencyArray)
+            } else {
+                updateContactFrequencyArrayWithFrequencies(data.workerValuesBuffer, traceContactFrequencyArray)
+                await renderContactFrequencyArrayToCanvas(this.ctx_trace, traceContactFrequencyArray)
             }
 
         }, false)
-
 
     }
 
     receiveEvent({ type, data }) {
 
-        if ("DidSelectTrace" === type) {
-
-            this.doUpdateTrace = true
-
-            if (false === this.isHidden) {
-                const { trace } = data
-                this.updateTraceContactFrequencyCanvas()
-                this.doUpdateTrace = undefined
-            }
-
-        } else if ("DidLoadEnsembleFile" === type) {
-
-            this.doUpdateTrace = true
-            this.doUpdateEnsemble = true
+        if ("DidLoadEnsembleFile" === type) {
             allocateContactFrequencyArray(ensembleManager.getTraceLength())
-
-            if (false === this.isHidden) {
-
-                if (true === this.doUpdateEnsemble) {
-                    this.updateEnsembleContactFrequencyCanvas()
-                    this.doUpdateEnsemble = undefined
-                }
-
-                if (true === this.doUpdateTrace) {
-                    const { trace } = data
-                    this.updateTraceContactFrequencyCanvas()
-                    this.doUpdateTrace = undefined
-                }
-
-            }
-
         }
 
         super.receiveEvent({ type, data });
@@ -140,35 +107,14 @@ class ContactFrequencyMapPanel extends Panel {
     }
 
     present() {
-
-        if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleContactFrequencyCanvas()
-            this.doUpdateEnsemble = undefined
-        }
-
-        if (true === this.doUpdateTrace) {
-            this.updateTraceContactFrequencyCanvas()
-            this.doUpdateTrace = undefined
-        }
-
         super.present()
-
     }
 
     getClassName(){ return 'ContactFrequencyMapPanel' }
 
     calculateContactFrequencies() {
-
-        if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleContactFrequencyCanvas()
-            this.doUpdateEnsemble = undefined
-        }
-
-        if (true === this.doUpdateTrace) {
-            this.updateTraceContactFrequencyCanvas()
-            this.doUpdateTrace = undefined
-        }
-
+        this.updateEnsembleContactFrequencyCanvas()
+        this.updateTraceContactFrequencyCanvas()
     }
 
     updateTraceContactFrequencyCanvas() {
@@ -188,10 +134,6 @@ class ContactFrequencyMapPanel extends Panel {
         console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
         this.worker.postMessage(data)
 
-        // clearCanvasArray(contactFrequencyArray, ensembleManager.getTraceLength())
-
-        transferContactFrequencyArrayToCanvas(this.ctx_trace, contactFrequencyArray)
-
     }
 
     updateEnsembleContactFrequencyCanvas() {
@@ -208,10 +150,6 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
         this.worker.postMessage(data)
-
-        // clearCanvasArray(contactFrequencyArray, ensembleManager.getTraceLength())
-
-        transferContactFrequencyArrayToCanvas(this.ctx_ensemble, contactFrequencyArray)
 
     }
 }
@@ -254,7 +192,6 @@ function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr,
 
 }
 
-
 function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
     const chromosome = GenomeUtils.GenomeLibrary[ genomeAssembly ].getChromosome(chr.toLowerCase())
@@ -287,10 +224,11 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
 }
 
 function allocateContactFrequencyArray(traceLength) {
-    contactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
+    ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
+    traceContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
 }
 
-function paintContactFrequencyArrayWithFrequencies(frequencies) {
+function updateContactFrequencyArrayWithFrequencies(frequencies, array) {
 
     const maxFrequency = frequencies.reduce((max, current) => Math.max(max, current), Number.NEGATIVE_INFINITY )
 
@@ -310,14 +248,14 @@ function paintContactFrequencyArrayWithFrequencies(frequencies) {
             rgb = threeJSColorToRGB255(appleCrayonColorThreeJS('silver'))
         }
 
-        contactFrequencyArray[i++] = rgb.r
-        contactFrequencyArray[i++] = rgb.g
-        contactFrequencyArray[i++] = rgb.b
-        contactFrequencyArray[i++] = 255
+        array[i++] = rgb.r
+        array[i++] = rgb.g
+        array[i++] = rgb.b
+        array[i++] = 255
     }
 
 }
 
-export { defaultDistanceThreshold, contactFrequencyArray }
+export { defaultDistanceThreshold }
 
 export default ContactFrequencyMapPanel

@@ -1,7 +1,6 @@
 import {ribbon, ballAndStick, ensembleManager, dataValueMaterialProvider, colorRampMaterialProvider} from "./app.js";
 import {lerp} from "./math.js";
 import {appleCrayonColorRGB255} from './color.js'
-import {contactFrequencyArray} from './contactFrequencyMapPanel.js';
 
 function showGlobalSpinner() {
     document.getElementById('spacewalk-spinner').style.display = 'block'
@@ -141,25 +140,25 @@ function clearCanvasArray(canvasArray, traceLength) {
 
 }
 
-function paintContactFrequencyArrayWithColorScale(colorScale, frequencies) {
+function paintContactFrequencyArrayWithColorScale(colorScale, frequencies, array) {
 
     let i = 0
     for (let frequency of frequencies) {
 
         const { red, green, blue, alpha } = colorScale.getColor(frequency)
 
-        contactFrequencyArray[i++] = red
-        contactFrequencyArray[i++] = green
-        contactFrequencyArray[i++] = blue
-        contactFrequencyArray[i++] = alpha
+        array[i++] = red
+        array[i++] = green
+        array[i++] = blue
+        array[i++] = alpha
     }
 }
 
-async function transferContactFrequencyArrayToCanvas(ctx, contactFrequencyArray) {
+async function renderContactFrequencyArrayToCanvas(ctx, array) {
 
     const { width, height } = ctx.canvas;
 
-    const imageData = new ImageData(contactFrequencyArray, ensembleManager.getTraceLength(), ensembleManager.getTraceLength());
+    const imageData = new ImageData(array, ensembleManager.getTraceLength(), ensembleManager.getTraceLength());
 
     // const config =
     //     {
@@ -197,7 +196,7 @@ export {
     clearCanvasArray,
     createImage,
     paintContactFrequencyArrayWithColorScale,
-    transferContactFrequencyArrayToCanvas,
+    renderContactFrequencyArrayToCanvas,
     readFileAsDataURL,
     fitToContainer,
     getMouseXY,
