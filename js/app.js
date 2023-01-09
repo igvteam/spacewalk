@@ -32,7 +32,7 @@ import {GenomeUtils} from './genome/genomeUtils.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
 import '../styles/igv/dom.scss'
-import '../styles/juicebox.css'
+import '../styles/juicebox.scss'
 
 let stats
 let gui
