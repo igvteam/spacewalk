@@ -44,10 +44,10 @@ class ContactFrequencyMapPanel extends Panel {
         canvas.height = height
         this.ctx_trace = canvas.getContext('bitmaprenderer')
 
-        this.distanceThreshold = distanceThreshold;
-
-        this.input = panel.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
+        this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
         this.input.value = distanceThreshold.toString()
+
+        this.distanceThreshold = distanceThreshold;
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
@@ -55,13 +55,12 @@ class ContactFrequencyMapPanel extends Panel {
 
     initialize(panel) {
 
-        panel.querySelector('#spacewalk_contact_frequency_map__button').addEventListener('click', () => {
+        document.querySelector('#spacewalk_contact_frequency_map__button').addEventListener('click', () => {
 
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
             window.setTimeout(() => {
-                this.updateEnsembleContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
-                this.updateTraceContactFrequencyCanvas(ensembleManager.getTraceLength(), ensembleManager.currentTrace)
+                this.calculateContactFrequencies()
             }, 0)
         })
 
@@ -72,6 +71,8 @@ class ContactFrequencyMapPanel extends Panel {
             console.log(`Contact Frequency ${ data.traceOrEnsemble } map received from worker`)
 
             document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
+
+            allocateContactFrequencyArray(ensembleManager.getTraceLength())
 
             if ('ensemble' === data.traceOrEnsemble) {
 
@@ -94,7 +95,7 @@ class ContactFrequencyMapPanel extends Panel {
     receiveEvent({ type, data }) {
 
         if ("DidLoadEnsembleFile" === type) {
-            allocateContactFrequencyArray(ensembleManager.getTraceLength())
+            ensembleContactFrequencyArray = traceContactFrequencyArray = undefined
         }
 
         super.receiveEvent({ type, data });
@@ -224,8 +225,15 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
 }
 
 function allocateContactFrequencyArray(traceLength) {
-    ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
-    traceContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
+
+    if (undefined === ensembleContactFrequencyArray) {
+        ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
+    }
+
+    if (undefined === traceContactFrequencyArray) {
+        traceContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
+    }
+
 }
 
 function updateContactFrequencyArrayWithFrequencies(frequencies, array) {

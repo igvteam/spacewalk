@@ -684,14 +684,38 @@
       <!-- juicebox panel -->
       <div id="spacewalk_juicebox_panel" class="card">
 
-        <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
 
           <!-- drag handle-->
-          <div class="spacewalk_card_drag_container">
-            <i class="fas fa-square-full"></i>
-            <i class="fas fa-sm fa-grip-horizontal"></i>
-            <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_juicebox"></i>
-          </div>
+          <li class="list-group-item">
+
+            <div class="spacewalk_card_drag_container">
+              <i class="fas fa-square-full"></i>
+              <i class="fas fa-sm fa-grip-horizontal"></i>
+              <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_juicebox"></i>
+            </div>
+
+          </li>
+
+          <!-- live contact map threshold widget -->
+          <li class="list-group-item">
+            <div class="input-group input-group-sm p-2">
+
+              <div class="input-group-prepend">
+                <span class="input-group-text">Threshold</span>
+              </div>
+
+              <input id="spacewalk_contact_frequency_map_adjustment_select_input" type="text" class="form-control text-center">
+
+              <div class="input-group-append">
+                <button id="spacewalk_contact_frequency_map__button" class="btn btn-secondary" type="button">Enter</button>
+              </div>
+
+            </div>
+          </li>
+        </ul>
+
+        <div class="card-body p-0">
 
           <!-- juicebox browser container -->
           <div id="spacewalk_juicebox_root_container"></div>
@@ -783,7 +807,8 @@
             Contact Frequency Map
           </div>
 
-          <!-- contact-frequency adjustment -->
+          <!-- live contact map threshold widget -->
+          <!--
           <div class="form-group">
             <div class="input-group input-group-sm p-2">
 
@@ -799,6 +824,7 @@
 
             </div>
           </div>
+          -->
 
           <ul class="nav nav-tabs card-header-tabs">
             <li class="nav-item">

@@ -31,7 +31,7 @@ class JuiceboxPanel extends Panel {
         this.$panel.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
-        });
+        })
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
 
