@@ -71,16 +71,17 @@ class JuiceboxPanel extends Panel {
             juiceboxAdditions()
 
             this.configureMouseHandlers()
+
+            hic.getCurrentBrowser().eventBus.subscribe("MapLoad", () => {
+                const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                this.goto({ chr, start: genomicStart, end: genomicEnd })
+            })
+
         }
 
         document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', e => {
             contactFrequencyMapPanel.calculateContactFrequencies()
             this.present()
-        })
-
-        hic.getCurrentBrowser().eventBus.subscribe("MapLoad", () => {
-            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-            this.goto({ chr, start: genomicStart, end: genomicEnd })
         })
 
     }

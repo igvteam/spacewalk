@@ -184,7 +184,7 @@
   left: 0;
   right: 0;
   width: 860px;
-  height: 1020px;
+  height: 976px;
   margin: 4px;
   background-color: white;
   border-style: solid;
@@ -275,7 +275,7 @@
 .hic-menu .hic-colorscale-widget-container input {
   display: block;
   margin-right: 4px;
-  height: 32px;
+  height: 26px;
   width: 96px;
   padding: 4px;
   font-family: "Open Sans", sans-serif;
@@ -314,7 +314,7 @@
 }
 .hic-menu .hic-normalization-selector-container select {
   display: block;
-  height: 32px;
+  height: 26px;
   width: 96px;
   font-family: "Open Sans", sans-serif;
   font-weight: 400;
@@ -356,7 +356,7 @@
 }
 .hic-menu .hic-resolution-selector-container select {
   display: block;
-  height: 32px;
+  height: 26px;
   width: 96px;
   font-family: "Open Sans", sans-serif;
   font-weight: 400;
@@ -626,7 +626,7 @@
   justify-content: space-between;
   align-items: center;
   width: 95%;
-  height: 36px;
+  height: 24px;
 }
 .hic-navbar-container div[id$=hic-nav-bar-map-container] div[id$=hic-nav-bar-map-label] {
   height: 100%;
@@ -634,7 +634,7 @@
   white-space: nowrap;
   overflow: hidden;
   vertical-align: middle;
-  line-height: 36px;
+  line-height: 24px;
   background-color: transparent;
 }
 .hic-navbar-container div[id$=hic-nav-bar-map-container] .hic-nav-bar-button-container {
@@ -667,9 +667,9 @@
   justify-content: space-between;
   align-items: center;
   width: 95%;
-  height: 36px;
-  margin-top: 4px;
-  margin-bottom: 4px;
+  height: 30px;
+  margin-top: 2px;
+  margin-bottom: 2px;
 }
 
 .hic-chromosome-goto-container {
@@ -677,7 +677,7 @@
 }
 .hic-chromosome-goto-container input {
   display: block;
-  height: 32px;
+  height: 26px;
   width: 100%;
   padding-left: 4px;
   font-family: "Open Sans", sans-serif;
@@ -714,7 +714,7 @@
 .hic-colorscale-widget-container input {
   display: block;
   margin-right: 4px;
-  height: 32px;
+  height: 26px;
   width: 96px;
   padding: 4px;
   font-family: "Open Sans", sans-serif;
@@ -767,7 +767,7 @@
 }
 .hic-control-map-selector-container select {
   display: block;
-  height: 32px;
+  height: 26px;
   width: 96px;
   font-family: "Open Sans", sans-serif;
   font-weight: 400;
@@ -793,7 +793,7 @@
 }
 .hic-normalization-selector-container select {
   display: block;
-  height: 32px;
+  height: 26px;
   width: 96px;
   font-family: "Open Sans", sans-serif;
   font-weight: 400;
@@ -833,7 +833,7 @@
 }
 .hic-resolution-selector-container select {
   display: block;
-  height: 32px;
+  height: 26px;
   width: 96px;
   font-family: "Open Sans", sans-serif;
   font-weight: 400;
@@ -947,7 +947,7 @@ div[id$=content-container] {
   flex-wrap: nowrap;
   justify-content: space-between;
   width: 100%;
-  height: calc(100% - (160px + 0px));
+  height: calc(100% - (116px + 0px));
   background-color: white;
 }
 div[id$=content-container] div[id$=x-axis-container] {

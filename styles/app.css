@@ -112,14 +112,6 @@ div.navbar-brand {
   width: 100%;
 }
 
-.list-group {
-  width: 100%;
-}
-
-.list-group-item {
-  padding: 0;
-}
-
 .spacewalk_card_drag_container {
   display: flex;
   flex-direction: row;
@@ -212,6 +204,15 @@ div.navbar-brand {
   width: auto;
   height: auto;
   align-items: center;
+}
+#spacewalk_juicebox_panel.card .list-group {
+  width: 100%;
+}
+#spacewalk_juicebox_panel.card .list-group .list-group-item {
+  padding: 0;
+}
+#spacewalk_juicebox_panel.card .list-group .list-group-item:last-child {
+  width: 256px;
 }
 #spacewalk_juicebox_panel.card .card-body #spacewalk_hic_url_form_group {
   width: 95%;

@@ -3,8 +3,8 @@ import EnsembleManager from './ensembleManager.js'
 import { colorMapManager, ensembleManager } from "./app.js"
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
-import {appleCrayonColorRGB255, appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
-import {clearCanvasArray, renderContactFrequencyArrayToCanvas} from "./utils.js"
+import {appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
+import {hideGlobalSpinner, renderContactFrequencyArrayToCanvas, showGlobalSpinner} from "./utils.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import ContactRecord from './contactRecord.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
@@ -88,6 +88,8 @@ class ContactFrequencyMapPanel extends Panel {
                 await renderContactFrequencyArrayToCanvas(this.ctx_trace, traceContactFrequencyArray)
             }
 
+            hideGlobalSpinner()
+
         }, false)
 
     }
@@ -133,6 +135,8 @@ class ContactFrequencyMapPanel extends Panel {
             }
 
         console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
+
+        showGlobalSpinner()
         this.worker.postMessage(data)
 
     }
@@ -150,6 +154,8 @@ class ContactFrequencyMapPanel extends Panel {
             }
 
         console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
+
+        showGlobalSpinner()
         this.worker.postMessage(data)
 
     }

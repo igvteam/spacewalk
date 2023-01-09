@@ -7,6 +7,20 @@
 
   align-items: center;
 
+  .list-group {
+    width: 100%;
+
+    .list-group-item {
+      padding: 0;
+    }
+
+    .list-group-item:last-child {
+      width: 256px;
+    }
+
+  }
+
+
   .card-body {
 
     #spacewalk_hic_url_form_group {
