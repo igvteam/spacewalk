@@ -72,7 +72,12 @@ class JuiceboxPanel extends Panel {
 
             this.configureMouseHandlers()
 
-            hic.getCurrentBrowser().eventBus.subscribe("MapLoad", () => {
+            hic.getCurrentBrowser().eventBus.subscribe('MapLoad', event => {
+
+                const juiceboxPanel = document.querySelector('#spacewalk_juicebox_panel')
+                const [ ignore, thresholdWidget ] = juiceboxPanel.querySelectorAll('li')
+                thresholdWidget.style.display = event.data.isLiveContactMapDataSet ? 'block' : 'none'
+
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
                 this.goto({ chr, start: genomicStart, end: genomicEnd })
             })
