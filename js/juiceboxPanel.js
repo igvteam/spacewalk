@@ -3,7 +3,7 @@ import { StringUtils } from 'igv-utils'
 import { AlertSingleton } from 'igv-widgets'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
-import {contactFrequencyMapPanel, ensembleManager} from './app.js'
+import {colorRampMaterialProvider, contactFrequencyMapPanel, ensembleManager} from './app.js'
 import { HICEvent } from "./juiceboxHelpful.js"
 import {paintContactFrequencyArrayWithColorScale, renderContactFrequencyArrayToCanvas} from './utils.js'
 
@@ -93,7 +93,8 @@ class JuiceboxPanel extends Panel {
         if ("DidLoadEnsembleFile" === type && false === this.isHidden) {
             contactFrequencyMapPanel.calculateContactFrequencies()
         } else if ('DidHideCrosshairs' === type) {
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' })
+            // SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' })
+            colorRampMaterialProvider.repaint()
         }
     }
 
