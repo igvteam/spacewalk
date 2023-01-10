@@ -545,6 +545,7 @@ div#spacewalk_info_panel > div > div:last-child {
 }
 
 .spacewalk-spinner-container {
+  z-index: 8000;
   pointer-events: none;
   position: absolute;
   width: 100%;

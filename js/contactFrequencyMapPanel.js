@@ -71,6 +71,7 @@ class ContactFrequencyMapPanel extends Panel {
             console.log(`Contact Frequency ${ data.traceOrEnsemble } map received from worker`)
 
             document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
+            hideGlobalSpinner()
 
             allocateContactFrequencyArray(ensembleManager.getTraceLength())
 
@@ -88,7 +89,6 @@ class ContactFrequencyMapPanel extends Panel {
                 await renderContactFrequencyArrayToCanvas(this.ctx_trace, traceContactFrequencyArray)
             }
 
-            hideGlobalSpinner()
 
         }, false)
 
@@ -122,6 +122,7 @@ class ContactFrequencyMapPanel extends Panel {
 
     updateTraceContactFrequencyCanvas() {
 
+        showGlobalSpinner()
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
         const vertices = EnsembleManager.getEnsembleTraceVertices(ensembleManager.currentTrace)
@@ -136,13 +137,13 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
 
-        showGlobalSpinner()
         this.worker.postMessage(data)
 
     }
 
     updateEnsembleContactFrequencyCanvas() {
 
+        showGlobalSpinner()
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
         const data =
@@ -155,7 +156,6 @@ class ContactFrequencyMapPanel extends Panel {
 
         console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
 
-        showGlobalSpinner()
         this.worker.postMessage(data)
 
     }
