@@ -70,8 +70,6 @@ class ContactFrequencyMapPanel extends Panel {
 
             console.log(`Contact Frequency ${ data.traceOrEnsemble } map received from worker`)
 
-            document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
-            hideGlobalSpinner()
 
             allocateContactFrequencyArray(ensembleManager.getTraceLength())
 
@@ -84,9 +82,17 @@ class ContactFrequencyMapPanel extends Panel {
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, ensembleManager.getTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
 
                 await hic.getCurrentBrowser().contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, ensembleContactFrequencyArray)
+
+                document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
+                hideGlobalSpinner()
+
             } else {
                 updateContactFrequencyArrayWithFrequencies(data.workerValuesBuffer, traceContactFrequencyArray)
                 await renderContactFrequencyArrayToCanvas(this.ctx_trace, traceContactFrequencyArray)
+
+                document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
+                hideGlobalSpinner()
+
             }
 
 

@@ -68,6 +68,8 @@ class ColorRampMaterialProvider {
 
         } else if ('DidLoadEnsembleFile' === type) {
             this.repaint()
+        } else if ('DidHideCrosshairs' === type) {
+            this.repaint()
         }
     }
 

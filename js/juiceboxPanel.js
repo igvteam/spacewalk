@@ -3,7 +3,7 @@ import { StringUtils } from 'igv-utils'
 import { AlertSingleton } from 'igv-widgets'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
-import {colorRampMaterialProvider, contactFrequencyMapPanel, ensembleManager} from './app.js'
+import {ballAndStick, colorRampMaterialProvider, contactFrequencyMapPanel, ensembleManager, ribbon} from './app.js'
 import { HICEvent } from "./juiceboxHelpful.js"
 import {paintContactFrequencyArrayWithColorScale, renderContactFrequencyArrayToCanvas} from './utils.js'
 
@@ -92,9 +92,6 @@ class JuiceboxPanel extends Panel {
 
         if ("DidLoadEnsembleFile" === type && false === this.isHidden) {
             contactFrequencyMapPanel.calculateContactFrequencies()
-        } else if ('DidHideCrosshairs' === type) {
-            // SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' })
-            colorRampMaterialProvider.repaint()
         }
     }
 
@@ -113,7 +110,9 @@ class JuiceboxPanel extends Panel {
 
     configureMouseHandlers() {
 
-        hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', this)
+        hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', ribbon)
+        hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', ballAndStick)
+        hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', colorRampMaterialProvider)
 
         hic.getCurrentBrowser().contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation()
