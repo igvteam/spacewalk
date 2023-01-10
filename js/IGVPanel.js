@@ -120,23 +120,13 @@ class IGVPanel extends Panel {
             }
         })
 
-        this.browser.columnContainer.addEventListener('mouseenter', event => {
-            event.stopPropagation();
-            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
-        })
-
-        this.browser.columnContainer.addEventListener('mouseleave', event => {
-            event.stopPropagation();
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
-        })
-
         this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
 
-            if (undefined === ensembleManager || undefined === ensembleManager.genome) {
-                return;
+            if (undefined === ensembleManager || undefined === ensembleManager.locus) {
+                return
             }
 
-            const { genomicStart, genomicEnd } = ensembleManager.genome.locus;
+            const { genomicStart, genomicEnd } = ensembleManager.locus
 
             const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
 

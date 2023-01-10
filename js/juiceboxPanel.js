@@ -23,12 +23,12 @@ class JuiceboxPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
-        this.$panel.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
+        this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
         });
 
-        this.$panel.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
+        this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         })
@@ -113,16 +113,6 @@ class JuiceboxPanel extends Panel {
         hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', ribbon)
         hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', ballAndStick)
         hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', colorRampMaterialProvider)
-
-        hic.getCurrentBrowser().contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }`, (event) => {
-            event.stopPropagation()
-            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGUI', data: this })
-        })
-
-        hic.getCurrentBrowser().contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }`, (event) => {
-            event.stopPropagation();
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: this })
-        })
 
         hic.getCurrentBrowser().setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });

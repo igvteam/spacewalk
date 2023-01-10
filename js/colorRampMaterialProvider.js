@@ -40,13 +40,14 @@ class ColorRampMaterialProvider {
         canvasContainer.addEventListener('mouseleave', event => {
             event.stopPropagation()
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' })
-            this.repaint()
+            // this.repaint()
         });
 
         const { r, g, b } = highlightColor
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) )
 
-        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this)
+        SpacewalkEventBus.globalBus.subscribe('DidLeaveGenomicNavigator', this)
+        SpacewalkEventBus.globalBus.subscribe('DidUpdateGenomicInterpolant', this)
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
     }
 
@@ -68,7 +69,7 @@ class ColorRampMaterialProvider {
 
         } else if ('DidLoadEnsembleFile' === type) {
             this.repaint()
-        } else if ('DidHideCrosshairs' === type) {
+        } else if ('DidHideCrosshairs' === type || 'DidLeaveGenomicNavigator' === type) {
             this.repaint()
         }
     }
