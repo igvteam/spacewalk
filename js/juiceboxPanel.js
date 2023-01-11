@@ -58,30 +58,37 @@ class JuiceboxPanel extends Panel {
                 }
         }
 
+        hic.EventBus.globalBus.subscribe('BrowserSelect', event => {
+
+            const browser = event.data
+            console.log(`${ browser.id } is good to go`)
+
+            juiceboxAdditions()
+
+            this.configureMouseHandlers()
+
+        })
+
+        hic.EventBus.globalBus.subscribe('MapLoad', event => {
+
+            const { dataset } = event.data
+
+            const juiceboxPanel = document.querySelector('#spacewalk_juicebox_panel')
+            const [ ignore, thresholdWidget ] = juiceboxPanel.querySelectorAll('li')
+            thresholdWidget.style.display = dataset.isLiveContactMapDataSet ? 'block' : 'none'
+
+            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+            this.goto({ chr, start: genomicStart, end: genomicEnd })
+
+
+        })
+
         try {
             await hic.restoreSession(container, session)
             this.locus = config.locus
         } catch (e) {
             console.warn(error.message)
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
-        }
-
-        if (hic.getCurrentBrowser()) {
-
-            juiceboxAdditions()
-
-            this.configureMouseHandlers()
-
-            hic.getCurrentBrowser().eventBus.subscribe('MapLoad', event => {
-
-                const juiceboxPanel = document.querySelector('#spacewalk_juicebox_panel')
-                const [ ignore, thresholdWidget ] = juiceboxPanel.querySelectorAll('li')
-                thresholdWidget.style.display = event.data.isLiveContactMapDataSet ? 'block' : 'none'
-
-                const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-                this.goto({ chr, start: genomicStart, end: genomicEnd })
-            })
-
         }
 
         document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', e => {
