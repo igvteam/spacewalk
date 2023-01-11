@@ -58,12 +58,12 @@ class JuiceboxPanel extends Panel {
                 }
         }
 
+        juiceboxClassAdditions()
+
         hic.EventBus.globalBus.subscribe('BrowserSelect', event => {
 
             const browser = event.data
             console.log(`${ browser.id } is good to go`)
-
-            juiceboxAdditions()
 
             this.configureMouseHandlers()
 
@@ -75,7 +75,7 @@ class JuiceboxPanel extends Panel {
 
             const juiceboxPanel = document.querySelector('#spacewalk_juicebox_panel')
             const [ ignore, thresholdWidget ] = juiceboxPanel.querySelectorAll('li')
-            thresholdWidget.style.display = dataset.isLiveContactMapDataSet ? 'block' : 'none'
+            thresholdWidget.style.display = undefined === dataset.isLiveContactMapDataSet ? 'none' : 'block'
 
             const { chr, genomicStart, genomicEnd } = ensembleManager.locus
             this.goto({ chr, start: genomicStart, end: genomicEnd })
@@ -86,8 +86,8 @@ class JuiceboxPanel extends Panel {
         try {
             await hic.restoreSession(container, session)
             this.locus = config.locus
-        } catch (e) {
-            console.warn(error.message)
+        } catch (error) {
+            console.error(error.message)
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
         }
 
@@ -102,9 +102,9 @@ class JuiceboxPanel extends Panel {
 
         super.receiveEvent({ type, data })
 
-        if ("DidLoadEnsembleFile" === type && false === this.isHidden) {
-            contactFrequencyMapPanel.calculateContactFrequencies()
-        }
+        // if ("DidLoadEnsembleFile" === type && false === this.isHidden) {
+        //     contactFrequencyMapPanel.calculateContactFrequencies()
+        // }
     }
 
     getClassName(){ return 'JuiceboxPanel' }
@@ -186,7 +186,7 @@ class JuiceboxPanel extends Panel {
 
 }
 
-function juiceboxAdditions() {
+function juiceboxClassAdditions() {
 
     hic.ContactMatrixView.prototype.renderWithLiveContactFrequencyData = async function (state, liveContactMapDataSet, data, contactFrequencyArray) {
 
@@ -215,6 +215,7 @@ function juiceboxAdditions() {
         browser.state = state
         browser.dataset = liveContactMapDataSet
 
+        hic.EventBus.globalBus.post(HICEvent('MapLoad', liveContactMapDataSet))
         browser.eventBus.post(HICEvent('MapLoad', liveContactMapDataSet))
 
         const eventConfig =
