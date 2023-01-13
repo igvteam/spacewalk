@@ -172,8 +172,6 @@ class JuiceboxPanel extends Panel {
             console.warn(error.message)
         }
 
-        $('#spacewalk_info_panel_juicebox').text( this.blurb() )
-
     }
 
     blurb() {

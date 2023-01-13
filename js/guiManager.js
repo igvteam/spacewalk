@@ -93,8 +93,6 @@ class GUIManager {
             str = `Sample ${ sample }`;
             $('#spacewalk_info_panel_ensemble').text( str );
 
-            $('#spacewalk_info_panel_juicebox').text(juiceboxPanel.blurb());
-
             $('#spacewalk_info_panel').show();
 
             if (true === ensembleManager.isPointCloud) {
