@@ -1,12 +1,12 @@
 import * as THREE from "three"
+import {FileUtils} from "igv-utils"
 import { includes } from "./math.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
-import {FileUtils} from "igv-utils";
-import {ensembleManager} from "./app";
-import HDF5Parser from "./HDF5Parser.js";
-import HDF5Dataset from './HDF5Dataset.js'
-import GenomicParser from "./genomicParser.js";
-import GenomicDataset from "./genomicDataset.js";
+import {ensembleManager} from './app.js'
+import GenomicParser from './genomicParser.js'
+import GenomicDataset from './genomicDataset.js'
+import HDF5StreamingParser from './HDF5StreamingParser.js'
+import HDF5StreamingDataset from './HDF5StreamingDataset.js'
 
 class EnsembleManager {
 
@@ -17,7 +17,7 @@ class EnsembleManager {
 
         const extension = FileUtils.getExtension(url)
         if ('cndb' === extension) {
-            await ensembleManager.load(url, new HDF5Parser(), new HDF5Dataset(), parseInt(traceKey))
+            await ensembleManager.load(url, new HDF5StreamingParser(), new HDF5StreamingDataset(), parseInt(traceKey))
         } else {
             await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
         }
@@ -45,7 +45,7 @@ class EnsembleManager {
         this.isPointCloud = isPointCloud
 
         const initialIndex = index || 0
-        this.currentTrace = this.createTrace(initialIndex)
+        this.currentTrace = await this.createTrace(initialIndex)
         this.currentIndex = initialIndex
 
     }
@@ -68,16 +68,16 @@ class EnsembleManager {
         return payload
     }
 
-    createTrace(i) {
-        return this.genomicDataset.createTrace(i)
+    async createTrace(i) {
+        return await this.genomicDataset.createTrace(i)
     }
 
     getTraceLength() {
         return this.genomicDataset.vertexCount
     }
 
-    getTraceCount() {
-        return this.genomicDataset.getVertexListCount()
+    async getTraceCount() {
+        return await this.genomicDataset.getVertexListCount()
     }
 
     getGenomicInterpolantWindowList(interpolantList) {

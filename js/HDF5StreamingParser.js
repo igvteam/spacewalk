@@ -1,31 +1,27 @@
-import {File as h5wasmFile, ready} from 'h5wasm'
+import {openH5File} from 'jsfive'
 import {FileUtils, igvxhr} from 'igv-utils'
 import {hideGlobalSpinner, showGlobalSpinner} from './utils.js'
-import {SpacewalkGlobals} from "./app";
+import {SpacewalkGlobals} from './app.js'
 
-class HDF5Parser {
+class HDF5StreamingParser {
 
     constructor() {
     }
 
     async parse(path, hdf5Dataset) {
 
-        let str
+        const config =
+            {
+                url: path,
+                indexURL: 'https://www.dropbox.com/s/bo7wbuugocg8zie/spleen_1chr1rep.hdf5.index.json?dl=0'
+            }
 
-        str = 'HDF5Parser - load() complete'
-        console.time(str)
-        const arrayBuffer = await this.load(path)
-        console.timeEnd(str)
+        const hdf5 = await openH5File(config)
 
-        const { FS } = await ready
-
-        const name = FileUtils.getFilename(path)
-        FS.writeFile(name, new Uint8Array(arrayBuffer))
-
-        const hdf5 = new h5wasmFile(name, 'r')
-        hdf5Dataset.initialize(hdf5)
+        await hdf5Dataset.initialize(hdf5)
 
         return { sample: 'Dugla Bogus Sample', genomeAssembly: 'hg19' }
+
 
     }
 
@@ -63,4 +59,4 @@ class HDF5Parser {
 
 }
 
-export default HDF5Parser
+export default HDF5StreamingParser

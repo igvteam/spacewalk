@@ -26,12 +26,12 @@ class Dataset {
         console.warn('Warning: Dataset - base class method called postprocess()')
     }
 
-    createTrace(i){
+    async createTrace(i){
         console.warn('Warning: Dataset - base class method called createTrace()')
         return []
     }
 
-    getVertexListCount() {
+    async getVertexListCount() {
         console.warn('Warning: Dataset - base class method called getTraceCount()')
         return undefined
     }
