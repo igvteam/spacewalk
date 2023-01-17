@@ -21,13 +21,12 @@
  *
  */
 
+const Globals = {}
+const Track2DDisplaceModes = {
+    displayAllMatrix: 'displayAllMatrix',
+    displayLowerMatrix: 'displayLowerMatrix',
+    displayUpperMatrix: 'displayUpperMatrix'
+};
 
-function HICEvent (type, data, propogate) {
-    return {
-        type: type,
-        data: data || {},
-        propogate: propogate !== undefined ? propogate : true     // Default to true
-    }
-}
 
-export default HICEvent
+export {Track2DDisplaceModes, Globals}

@@ -8,11 +8,11 @@ class LiveContactMapDataSet {
 
         this.genome = genome
 
+        this.chromosomes = getDatasetChromosomeList(genome.chromosomes)
+
         this.averageCount = averageCount
 
         this.contactRecordList = contactRecordList
-
-        this.wholeGenomeChromosome = genome.getChromosomeAtIndex(0)
 
         this.normalizationTypes = ['NONE']
 
@@ -33,17 +33,21 @@ class LiveContactMapDataSet {
 
     }
 
-    async getContactRecordsWithRegions() {
-        return Promise.resolve(this.contactRecordList)
-    }
-
-    async getContactRecords() {
-        return Promise.resolve(this.contactRecordList)
-    }
-
     isWholeGenome(ignore) {
         return false
     }
+}
+
+function getDatasetChromosomeList(genomeChromosomeDictionary) {
+
+    const dataseChromosomeList = Object.values(genomeChromosomeDictionary).map(({ index, bpLength, size, name }) => {
+        return { index, name, size, bpLength }
+    })
+
+    // 'All' is ununsed
+    dataseChromosomeList.unshift({ index:0 , name:'All', size:0, bpLength:0 })
+
+    return dataseChromosomeList
 }
 
 export default LiveContactMapDataSet

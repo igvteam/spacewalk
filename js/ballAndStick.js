@@ -40,6 +40,8 @@ class BallAndStick {
                     this.pickHighlighter.configureWithInstanceIdList(instanceIdList);
                 }
 
+            } else if ('DidHideCrosshairs' === type) {
+                this.pickHighlighter.unhighlight()
             }
 
         }

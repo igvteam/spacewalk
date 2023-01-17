@@ -69,7 +69,7 @@ import ViewportCenterLine from './ui/viewportCenterLine.js';
 import IdeogramTrack from "./ideogramTrack.js";
 import RulerTrack from "./rulerTrack.js";
 import GtexSelection from "./gtex/gtexSelection.js";
-import {Globals} from "../juicebox/globals.js"
+import {Globals} from '../juiceboxGlobals.js'
 
 // css - $igv-scrollbar-outer-width: 14px;
 const igv_scrollbar_outer_width = 14

@@ -11,17 +11,17 @@ class Panel {
 
     constructor({ container, panel, isHidden, xFunction, yFunction }) {
 
-        this.container = container;
+        this.container = container
 
         this.panel = panel
         this.$panel = $(panel)
 
-        this.isHidden = isHidden;
+        this.isHidden = isHidden
 
-        this.xFunction = xFunction;
-        this.yFunction = yFunction;
+        this.xFunction = xFunction
+        this.yFunction = yFunction
 
-        this.namespace = `panel.${ DOMUtils.guid() }`;
+        this.namespace = `panel.${ DOMUtils.guid() }`
 
         const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
         makeDraggable(panel, dragHandle)
@@ -30,32 +30,19 @@ class Panel {
             event.stopPropagation();
             event.preventDefault();
             SpacewalkEventBus.globalBus.post({ type: "DidSelectPanel", data: this.getClassName() })
-        });
+        })
 
-        const closer = panel.querySelector('i.fa-times-circle');
+        const closer = panel.querySelector('i.fa-times-circle')
         $(closer).on(`click.${ DOMUtils.guid() }`, event => {
-            event.stopPropagation();
-            event.preventDefault();
-            this.dismiss();
-        });
+            event.stopPropagation()
+            event.preventDefault()
+            this.dismiss()
+        })
 
-        $(panel).on(`mouseenter.${ this.namespace }`, event => {
-            event.stopPropagation();
-            event.preventDefault();
-            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGUI', data: this });
-        });
-
-        $(panel).on(`mouseleave.${ this.namespace }`, event => {
-            event.stopPropagation();
-            event.preventDefault();
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: this });
-        });
-
-        SpacewalkEventBus.globalBus.subscribe("DidSelectPanel", this);
-        SpacewalkEventBus.globalBus.subscribe("ToggleUIControl", this);
-        SpacewalkEventBus.globalBus.subscribe("AppWindowDidResize", this);
-        SpacewalkEventBus.globalBus.subscribe("DidEndDrag", this);
-
+        SpacewalkEventBus.globalBus.subscribe('DidSelectPanel', this)
+        SpacewalkEventBus.globalBus.subscribe('ToggleUIControl', this)
+        SpacewalkEventBus.globalBus.subscribe('AppWindowDidResize', this)
+        SpacewalkEventBus.globalBus.subscribe('DidEndDrag', this)
     }
 
     receiveEvent({ type, data }) {

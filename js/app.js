@@ -26,11 +26,13 @@ import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
-import configureContactMapLoaders from "./juicebox/contactMapLoad.js";
+import configureContactMapLoaders from './contactMapLoad.js'
 import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
+import '../styles/igv/dom.scss'
+import '../styles/juicebox.scss'
 
 let stats
 let gui
@@ -199,7 +201,6 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
     igvPanel.materialProvider = colorRampMaterialProvider;
 
-    // TODO: Resuscitate Shareable URL
     if (igvSessionURL) {
         const str = BGZip.uncompressString(igvSessionURL.substr(5))
         spacewalkConfig.igvConfig = JSON.parse(str)
@@ -229,7 +230,6 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
 
-    // TODO: Resuscitate Shareable URL
     if (juiceboxSessionURL) {
         const str = BGZip.uncompressString(juiceboxSessionURL.substr(5))
         const json = JSON.parse(str)

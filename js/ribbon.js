@@ -23,7 +23,7 @@ class Ribbon {
 
         if (this.spline && Ribbon.getRenderStyle() === sceneManager.renderStyle) {
 
-            if ('DidLeaveGenomicNavigator' === type) {
+            if ('DidLeaveGenomicNavigator' === type || 'DidHideCrosshairs' === type) {
                 this.highlightBeads[ 0 ].visible = this.highlightBeads[ 1 ].visible = false
             } else if ('DidUpdateGenomicInterpolant' === type) {
 

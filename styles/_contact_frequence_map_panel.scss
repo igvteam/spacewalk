@@ -10,34 +10,6 @@ $spacewalk_contact_frequency_map_panel_width: 256px;
 
     padding-top: 0;
 
-    .spacewalk_card_drag_container {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      justify-content: space-between;
-      align-items: center;
-
-      width: 100%;
-      height: $spacewalk_card_drag_container_height;
-      background-color: transparent;
-
-      i {
-        cursor: grab;
-        color: $spacewalk_steel;
-        display: block;
-      }
-
-      i:first-child {
-        cursor: unset;
-        color: transparent;
-        background-color: transparent;
-      }
-
-      i:last-child {
-        cursor: pointer;
-      }
-    }
-
     .form-group {
       /* margin-bottom: 1rem; */
       margin-bottom: 0;

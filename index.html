@@ -285,14 +285,21 @@
 
             <ul class="dropdown-menu">
 
-              <!-- Select -->
+              <!-- Live Contact Frequency Map -->
+              <li>
+                <a id="hic-live-contact-frequency-map-button" class="dropdown-item" href="#" role="button">
+                  Load Live Contact Frequency Map ...
+                </a>
+              </li>
+
+              <!-- Juicebox Archive Map -->
               <li>
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#hic-contact-map-modal">
                   Load Juicebox Archive Maps ...
                 </a>
               </li>
 
-              <!-- ENCODE hosted maps -->
+              <!-- ENCODE Maps -->
               <li>
                 <button class="dropdown-item" id="hic-encode-hosted-contact-map-presentation-button" type="button" data-toggle="modal" data-target="#hic-encode-hosted-contact-map-modal">
                   Load ENCODE Maps ...
@@ -490,6 +497,16 @@
       <!-- Info Panel -->
       <div id="spacewalk_info_panel" style="display:none;">
 
+        <!-- ensemble -->
+        <div>
+          <div>
+            TRACE ENSEMBLE:
+          </div>
+          <div id="spacewalk_info_panel_ensemble">
+            -
+          </div>
+        </div>
+
         <!-- genome -->
         <div>
           <div>
@@ -506,26 +523,6 @@
             LOCUS:
           </div>
           <div id="spacewalk_info_panel_locus">
-            -
-          </div>
-        </div>
-
-        <!-- ensemble -->
-        <div>
-          <div>
-            TRACE ENSEMBLE:
-          </div>
-          <div id="spacewalk_info_panel_ensemble">
-            -
-          </div>
-        </div>
-
-        <!-- juicebox -->
-        <div>
-          <div>
-            Hi-C:
-          </div>
-          <div id="spacewalk_info_panel_juicebox">
             -
           </div>
         </div>
@@ -670,21 +667,45 @@
 
       <!-- general purpose spinner -->
       <div class="spacewalk-spinner-container d-flex justify-content-center align-items-center" style="background-color:transparent;">
-        <div id="spacewalk-spinner" class="spinner-border text-light" style="display:none; width: 8rem; height: 8rem;">
+        <div id="spacewalk-spinner" class="spinner-border text-secondary" style="display:none; width: 8rem; height: 8rem;">
         </div>
       </div>
 
       <!-- juicebox panel -->
       <div id="spacewalk_juicebox_panel" class="card">
 
-        <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
 
           <!-- drag handle-->
-          <div class="spacewalk_card_drag_container">
-            <i class="fas fa-square-full"></i>
-            <i class="fas fa-sm fa-grip-horizontal"></i>
-            <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_juicebox"></i>
-          </div>
+          <li class="list-group-item">
+
+            <div class="spacewalk_card_drag_container">
+              <i class="fas fa-square-full"></i>
+              <i class="fas fa-sm fa-grip-horizontal"></i>
+              <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_juicebox"></i>
+            </div>
+
+          </li>
+
+          <!-- live contact map threshold widget -->
+          <li class="list-group-item py-1 pl-1">
+            <div class="input-group input-group-sm">
+
+              <div class="input-group-prepend">
+                <span class="input-group-text">Threshold</span>
+              </div>
+
+              <input id="spacewalk_contact_frequency_map_adjustment_select_input" type="text" class="form-control text-center">
+
+              <div class="input-group-append">
+                <button id="spacewalk_contact_frequency_map__button" class="btn btn-secondary" type="button">Enter</button>
+              </div>
+
+            </div>
+          </li>
+        </ul>
+
+        <div class="card-body p-0">
 
           <!-- juicebox browser container -->
           <div id="spacewalk_juicebox_root_container"></div>
@@ -776,7 +797,8 @@
             Contact Frequency Map
           </div>
 
-          <!-- contact-frequency adjustment -->
+          <!-- live contact map threshold widget -->
+          <!--
           <div class="form-group">
             <div class="input-group input-group-sm p-2">
 
@@ -792,6 +814,7 @@
 
             </div>
           </div>
+          -->
 
           <ul class="nav nav-tabs card-header-tabs">
             <li class="nav-item">

@@ -1,11 +1,13 @@
+import hic from 'juicebox.js'
+import { StringUtils } from 'igv-utils'
 import { AlertSingleton } from 'igv-widgets'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
-import {ensembleManager, juiceboxPanel} from './app.js'
-import {Globals} from './juicebox/globals.js';
-import HICEvent from './juicebox/hicEvent.js'
-import {createBrowser} from './juicebox/hicBrowserLifecycle.js'
-import hic from "./juicebox";
+import {ballAndStick, colorRampMaterialProvider, contactFrequencyMapPanel, ensembleManager, ribbon} from './app.js'
+import { HICEvent } from "./juiceboxHelpful.js"
+import {paintContactFrequencyArrayWithColorScale, renderContactFrequencyArrayToCanvas} from './utils.js'
+
+const imageTileDimension = 685
 
 class JuiceboxPanel extends Panel {
 
@@ -21,32 +23,21 @@ class JuiceboxPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
-        this.$panel.on(`mouseenter.${ this.namespace }.noodle-ribbon-render`, (event) => {
+        this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
         });
 
-        this.$panel.on(`mouseleave.${ this.namespace }.noodle-ribbon-render`, (event) => {
+        this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
-        });
+        })
 
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
 
-    }
-
-    getClassName(){ return 'JuiceboxPanel' }
-
-    receiveEvent({ type, data }) {
-
-        super.receiveEvent({ type, data });
-
-        if ('DidHideCrosshairs' === type) {
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: 'DidLeaveGUI' })
-        }
     }
 
     async initialize(container, config) {
-
 
         let session
 
@@ -67,28 +58,60 @@ class JuiceboxPanel extends Panel {
                 }
         }
 
+        juiceboxClassAdditions()
+
+        hic.EventBus.globalBus.subscribe('BrowserSelect', event => {
+
+            const browser = event.data
+            console.log(`${ browser.id } is good to go`)
+
+            this.configureMouseHandlers()
+
+        })
+
+        hic.EventBus.globalBus.subscribe('MapLoad', event => {
+
+            const { dataset } = event.data
+
+            const juiceboxPanel = document.querySelector('#spacewalk_juicebox_panel')
+            const [ ignore, thresholdWidget ] = juiceboxPanel.querySelectorAll('li')
+            thresholdWidget.style.display = undefined === dataset.isLiveContactMapDataSet ? 'none' : 'block'
+
+            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+            this.goto({ chr, start: genomicStart, end: genomicEnd })
+
+
+        })
+
         try {
             await hic.restoreSession(container, session)
             this.locus = config.locus
-        } catch (e) {
-            console.warn(error.message)
+        } catch (error) {
+            console.error(error.message)
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
         }
 
-        if (Globals.currentBrowser) {
-            this.configureMouseHandlers()
-        }
-
-        Globals.currentBrowser.eventBus.subscribe("MapLoad", () => {
-            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-            this.goto({ chr, start: genomicStart, end: genomicEnd })
+        document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', e => {
+            contactFrequencyMapPanel.calculateContactFrequencies()
+            this.present()
         })
 
     }
 
+    receiveEvent({ type, data }) {
+
+        super.receiveEvent({ type, data })
+
+        // if ("DidLoadEnsembleFile" === type && false === this.isHidden) {
+        //     contactFrequencyMapPanel.calculateContactFrequencies()
+        // }
+    }
+
+    getClassName(){ return 'JuiceboxPanel' }
+
     async locusDidChange({ chr, genomicStart, genomicEnd }) {
 
-        if (this.isContactMapLoaded() && Globals.currentBrowser.dataset.isLiveContactMapDataSet !== true) {
+        if (this.isContactMapLoaded() && hic.getCurrentBrowser().dataset.isLiveContactMapDataSet !== true) {
             try {
                 await this.goto({ chr, start: genomicStart, end: genomicEnd })
             } catch (e) {
@@ -99,19 +122,11 @@ class JuiceboxPanel extends Panel {
 
     configureMouseHandlers() {
 
-        Globals.currentBrowser.eventBus.subscribe('DidHideCrosshairs', this)
+        hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', ribbon)
+        hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', ballAndStick)
+        hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', colorRampMaterialProvider)
 
-        Globals.currentBrowser.contactMatrixView.$viewport.on(`mouseenter.${ this.namespace }`, (event) => {
-            event.stopPropagation()
-            SpacewalkEventBus.globalBus.post({ type: 'DidEnterGUI', data: this })
-        })
-
-        Globals.currentBrowser.contactMatrixView.$viewport.on(`mouseleave.${ this.namespace }`, (event) => {
-            event.stopPropagation();
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGUI', data: this })
-        })
-
-        Globals.currentBrowser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+        hic.getCurrentBrowser().setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
         })
 
@@ -121,9 +136,9 @@ class JuiceboxPanel extends Panel {
 
         if (this.isContactMapLoaded()) {
             try {
-                await Globals.currentBrowser.parseLocusString(`${chr}:${start}-${end}`, true)
+                await hic.getCurrentBrowser().parseGotoInput(`${chr}:${start}-${end}`)
             } catch (error) {
-                console.warn(error.message);
+                console.warn(error.message)
             }
         }
 
@@ -136,59 +151,178 @@ class JuiceboxPanel extends Panel {
 
             const config = { url, name, isControl }
 
-            if (isControl) {
-                // do nothing
-            } else {
+            if (false === isControl) {
+
                 this.present()
 
-                await Globals.currentBrowser.loadHicFile(config)
-
-                if (ensembleManager.genome) {
-
-                    const { chr, genomicStart, genomicEnd } = ensembleManager.genome.locus
-                    await Globals.currentBrowser.parseLocusString(`${chr}:${genomicStart}-${genomicEnd}`, true)
-
-                } else {
-
-                    const eventConfig =
-                        {
-                            state: Globals.currentBrowser.state,
-                            resolutionChanged: true,
-                            chrChanged: true
-                        }
-
-                    await Globals.currentBrowser.update(HICEvent('LocusChange', eventConfig))
-                }
-
+                await hic.getCurrentBrowser().loadHicFile(config)
 
             }
-
-            $('#spacewalk_info_panel_juicebox').text( this.blurb() )
 
         } catch (e) {
             console.error(e.message)
             AlertSingleton.present(`Error loading ${ url }: ${ e }`)
         }
 
+        const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+
+        try {
+            await hic.getCurrentBrowser().parseGotoInput(`${chr}:${genomicStart}-${genomicEnd}`)
+        } catch (error) {
+            console.warn(error.message)
+        }
+
     }
 
     blurb() {
-        return `${ Globals.currentBrowser.$contactMaplabel.text() }`
+        return `${ hic.getCurrentBrowser().$contactMaplabel.text() }`
     }
 
     isContactMapLoaded() {
-        return (Globals.currentBrowser && Globals.currentBrowser.dataset)
+        return (hic.getCurrentBrowser() && hic.getCurrentBrowser().dataset)
     }
+
+}
+
+function juiceboxClassAdditions() {
+
+    hic.ContactMatrixView.prototype.renderWithLiveContactFrequencyData = async function (state, liveContactMapDataSet, data, contactFrequencyArray) {
+
+        this.ctx.canvas.style.display = 'none'
+        this.ctx_live.canvas.style.display = 'block'
+
+        const zoomIndexA = state.zoom
+        const { chr1, chr2 } = state
+        const zoomData = liveContactMapDataSet.getZoomDataByIndex(chr1, chr2, zoomIndexA)
+
+        // Clear caches
+        this.colorScaleThresholdCache = {}
+        this.imageTileCache = {}
+        this.imageTileCacheKeys = []
+
+        this.checkColorScale_sw(state, 'LIVE', liveContactMapDataSet, zoomData)
+
+        paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer, contactFrequencyArray)
+
+        // Render by copying image data to display canvas bitmap render context
+        await renderContactFrequencyArrayToCanvas(this.ctx_live, contactFrequencyArray)
+
+        const browser = hic.getCurrentBrowser()
+
+        // Update UI
+        browser.state = state
+        browser.dataset = liveContactMapDataSet
+
+        hic.EventBus.globalBus.post(HICEvent('MapLoad', liveContactMapDataSet))
+        browser.eventBus.post(HICEvent('MapLoad', liveContactMapDataSet))
+
+        const eventConfig =
+            {
+                state,
+                resolutionChanged: true,
+                chrChanged: true,
+                displayMode: 'LIVE',
+                dataset: liveContactMapDataSet
+            }
+
+        browser.eventBus.post(HICEvent('LocusChange', eventConfig))
+
+
+        // browser.layoutController.xAxisRuler.update()
+        // browser.layoutController.yAxisRuler.update()
+
+    }
+
+    hic.ContactMatrixView.prototype.checkColorScale_sw = function (state, displayMode, liveContactMapDataSet, zoomData) {
+
+        const colorScaleKey = createColorScaleKey(state, displayMode)
+
+        let percentile = computeContactRecordsPercentile(liveContactMapDataSet.contactRecordList, 95)
+
+        if (!isNaN(percentile)) {
+
+            if (0 === zoomData.chr1.index) {
+                // Heuristic for whole genome view
+                percentile *= 4
+            }
+
+            this.colorScale = new hic.ColorScale(this.colorScale)
+
+            this.colorScale.setThreshold(percentile)
+
+            this.browser.eventBus.post(HICEvent("ColorScale", this.colorScale))
+
+            this.colorScaleThresholdCache[colorScaleKey] = percentile
+
+        }
+
+        return this.colorScale
+
+    }
+
+    hic.HicState.prototype.description = function(genome, binSize, width) {
+
+        const { chr1, x, pixelSize } = this
+
+        // bp = bin * bp-per-bin
+        const xBP = x * binSize
+
+        // bin = pixel / pixel-per-bin
+        const widthBin = width / pixelSize
+
+        // bp = bin * bp-per-bin
+        const widthBP = widthBin * binSize
+
+        const xEnd = x + widthBin
+
+        const xEndBP = xBP + widthBP
+
+        // chromosome length - bp & bin
+        const { name, size:lengthBP } = genome.getChromosomeAtIndex(chr1)
+        const lengthBin = lengthBP / binSize
+
+        const f = StringUtils.numberFormatter(width)
+        const d = StringUtils.numberFormatter(x)
+        const g = StringUtils.numberFormatter(xBP)
+        const a = StringUtils.numberFormatter(lengthBP)
+        const b = StringUtils.numberFormatter(lengthBin)
+        const c = StringUtils.numberFormatter(binSize)
+        const e = StringUtils.numberFormatter(pixelSize)
+
+        const strings =
+            [
+                `${ name }`,
+                `Screen Width\npixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
+                `Start\nbin(${d}) bp(${g})\nEnd\nbin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`,
+                `Bin Size\nbp-per-bin(${c})\nPixel Size\npixel-per-bin(${e})`
+            ]
+
+        return `\n${ strings.join('\n') }`
+    }
+
+}
+
+function createColorScaleKey(state, displayMode) {
+    return "" + state.chr1 + "_" + state.chr2 + "_" + state.zoom + "_" + state.normalization + "_" + displayMode;
+}
+function computeContactRecordsPercentile(contactRecords, p) {
+
+    const counts = contactRecords.map(({ counts }) => counts)
+
+    counts.sort((a, b) => a - b)
+
+    const index = Math.floor((p / 100) * contactRecords.length);
+    return counts[index];
 
 }
 
 function juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) {
 
-    if (undefined === ensembleManager || undefined === ensembleManager.genome.locus) {
+    if (undefined === ensembleManager || undefined === ensembleManager.locus) {
         return
     }
 
-    const { genomicStart, genomicEnd } = ensembleManager.genome.locus
+    const { genomicStart, genomicEnd } = ensembleManager.locus
 
     const trivialRejection = startXBP > genomicEnd || endXBP < genomicStart || startYBP > genomicEnd || endYBP < genomicStart
 

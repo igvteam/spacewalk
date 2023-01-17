@@ -166,6 +166,8 @@ $spacewalk-trace-navigator-canvas-width: 40px;
 
 .spacewalk-spinner-container {
 
+  z-index: 8000;
+
   pointer-events:none;
 
   position: absolute;

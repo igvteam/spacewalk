@@ -1,26 +1,25 @@
 $spacewalk_info_panel_top: 2px + $spacewalk_navbar_height;
 $spacewalk_info_panel_right: 0;
+$spacewalk_info_panel_left: 4px;
 $spacewalk_info_panel_height: 24px;
 $spacewalk_info_panel_width: 768px;
 
 div#spacewalk_info_panel {
 
+  position: absolute;
+  top: $spacewalk_info_panel_top;
+  left: $spacewalk_info_panel_left;
+
+  height: $spacewalk_info_panel_height;
+
   font-size: 0.85rem;
-  //font-size: 1.0rem;
   font-weight: 200;
 
   color: white;
   background-color: transparent;
 
-  position: absolute;
-  top: $spacewalk_info_panel_top;
-  right: $spacewalk_info_panel_right;
-
-  width: 100%;
-  height: $spacewalk_info_panel_height;
-
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex-wrap: nowrap;
   justify-content: flex-start;
   align-items: flex-start;
