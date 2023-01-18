@@ -36,7 +36,7 @@ class EnsembleManager {
 
         this.genomicDataset = genomicDataset
 
-        const { locus, genomicExtentList, isPointCloud } = this.genomicDataset
+        const { locus, genomicExtentList, isPointCloud } = genomicDataset
 
         this.locus = locus
 

@@ -148,13 +148,19 @@ class GenomicDataset extends Dataset {
 
     }
 
-    createTrace(i) {
+    async getVertexListCount() {
+        const list = Object.values(this.dictionary)
+
+        return Promise.resolve(list.length)
+    }
+
+    async createTrace(i) {
 
         const values = Object.values(this.dictionary)
 
         const rows = Object.values(values[ i ])
 
-        return rows.map((row, index) => {
+        const trace = rows.map((row, index) => {
 
             const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[index].interpolant)
 
@@ -172,10 +178,7 @@ class GenomicDataset extends Dataset {
 
         })
 
-    }
-
-    getVertexListCount() {
-        return Object.values(this.dictionary).length
+        return Promise.resolve(trace)
     }
 
     getLiveContactFrequencyMapVertexLists() {

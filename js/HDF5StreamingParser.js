@@ -1,6 +1,5 @@
 import {openH5File} from 'jsfive'
-import {FileUtils, igvxhr} from 'igv-utils'
-import {hideGlobalSpinner, showGlobalSpinner} from './utils.js'
+import {FileUtils} from 'igv-utils'
 import {SpacewalkGlobals} from './app.js'
 
 class HDF5StreamingParser {
