@@ -13,7 +13,7 @@ class HDF5StreamingParser {
         const config =
             {
                 url: path,
-                indexURL: 'https://www.dropbox.com/s/bo7wbuugocg8zie/spleen_1chr1rep.hdf5.index.json?dl=0'
+                indexURL: 'https://www.dropbox.com/s/52fyai0p99gca5f/spleen_short.index.json?dl=0'
             }
 
         const hdf5 = await openH5File(config)
