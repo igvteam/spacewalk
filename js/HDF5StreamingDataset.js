@@ -15,32 +15,31 @@ class HDF5Dataset extends Dataset {
 
         this.key = 'replica10_chr1'
 
-        const gotten = await this.hdf5.get( this.key )
+        const group = await this.hdf5.get( this.key )
 
-        this.vertexCount = await getVertexListLength(gotten)
+        this.vertexCount = await getVertexListLength(group)
 
-        this.locus = await getLocus(this.key, gotten)
+        this.locus = await getLocus(this.key, group)
 
-        const result = await hdf5.get(`${ this.key }/genomic_position`)
-        this.genomicExtentList = await getGenomicExtentList(result)
+        const dataset = await hdf5.get(`${ this.key }/genomic_position`)
+        this.genomicExtentList = await getGenomicExtentList(dataset)
 
     }
 
     async getVertexListCount(){
-        const result = await this.hdf5.get( `${ this.key }/spatial_position` )
-        const list = await result.keys
+        const group = await this.hdf5.get( `${ this.key }/spatial_position` )
+        const list = await group.keys
         return list.length
     }
 
     async createTrace(i) {
 
-        const result = await this.hdf5.get( `${ this.key }/spatial_position/${ 1 + i }` )
-        const numbers = await result.value
+        const dataset = await this.hdf5.get( `${ this.key }/spatial_position/${ 1 + i }` )
+        const numbers = await dataset.value
         let j = 0
         const trace = []
         for (let v = 0; v < numbers.length; v += 3) {
 
-            // const [ x, y, z ] = Array.from(numbers.subarray(v, v + 3))
             const [ x, y, z ] = numbers.slice(v, v + 3)
 
             const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[ j ].interpolant)
@@ -70,23 +69,22 @@ class HDF5Dataset extends Dataset {
 
 }
 
-async function getVertexListLength(chain) {
-    const result = await chain.get('spatial_position/1')
-    const vertices = await result.value
-    return vertices.length / 3
+async function getVertexListLength(group) {
+    const dataset = await group.get('spatial_position/1')
+    const floats = await dataset.value
+    return floats.length / 3
 }
 
-async function getLocus(key, chain) {
+async function getLocus(key, group) {
 
     const lut =
         {
             replica10_chr1: 'chr1'
         };
 
-    const result = await chain.get('genomic_position')
-    const list = await result.value
+    const dataset = await group.get('genomic_position')
+    const genomicPositions = await dataset.value
 
-    const genomicPositions = Array.from(list)
     const genomicStart = parseInt(genomicPositions[ 0 ])
     const genomicEnd = parseInt(genomicPositions[ genomicPositions.length - 1 ])
 
@@ -94,15 +92,15 @@ async function getLocus(key, chain) {
 
 }
 
-async function getGenomicExtentList(genomicPositions) {
+async function getGenomicExtentList(dataset) {
 
-    const list = await genomicPositions.value
-    const ints = Array.from(list).map(bigInt64 => parseInt(bigInt64))
+    const bigIntegers = await dataset.value
+    const integers = bigIntegers.map(bigInt64 => parseInt(bigInt64))
 
     const genomicExtentList = []
-    for (let i = 0; i < ints.length; i += 2) {
+    for (let i = 0; i < integers.length; i += 2) {
 
-        const [ startBP, endBP ] = [ ints[ i ], ints[ 1 + i ] ]
+        const [ startBP, endBP ] = [ integers[ i ], integers[ 1 + i ] ]
 
         // lazy assignment to sizeBP
         let sizeBP
