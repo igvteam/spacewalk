@@ -10,6 +10,8 @@ class HDF5StreamingParser {
 
     async parse(path, hdf5Dataset) {
 
+        SpacewalkGlobals.url = false === FileUtils.isFilePath(path) ? path : undefined
+
         const config =
             {
                 url: path,
@@ -22,38 +24,6 @@ class HDF5StreamingParser {
 
         return { sample: 'Dugla Bogus Sample', genomeAssembly: 'hg19' }
 
-
-    }
-
-    async load(path) {
-
-        let arrayBuffer
-
-        showGlobalSpinner()
-
-        if (true === FileUtils.isFilePath(path)) {
-
-            try {
-                arrayBuffer = await path.arrayBuffer()
-            } catch(e) {
-                console.error(e.message)
-            }
-
-        } else {
-
-            try {
-                arrayBuffer = await igvxhr.loadArrayBuffer(path)
-            } catch(e) {
-                console.error(e.message)
-            }
-
-        }
-
-        hideGlobalSpinner()
-
-        SpacewalkGlobals.url = false === FileUtils.isFilePath(path) ? path : undefined
-
-        return arrayBuffer
 
     }
 
