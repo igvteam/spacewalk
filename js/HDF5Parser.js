@@ -2,12 +2,12 @@ import {openH5File} from 'jsfive'
 import {FileUtils} from 'igv-utils'
 import {SpacewalkGlobals} from './app.js'
 
-class HDF5StreamingParser {
+class HDF5Parser {
 
     constructor() {
     }
 
-    async parse(path, hdf5Dataset) {
+    async parse(path, datasource) {
 
         SpacewalkGlobals.url = false === FileUtils.isFilePath(path) ? path : undefined
 
@@ -19,7 +19,7 @@ class HDF5StreamingParser {
 
         const hdf5 = await openH5File(config)
 
-        await hdf5Dataset.initialize(hdf5)
+        await datasource.initialize(hdf5)
 
         return { sample: 'Dugla Bogus Sample', genomeAssembly: 'hg19' }
 
@@ -28,4 +28,4 @@ class HDF5StreamingParser {
 
 }
 
-export default HDF5StreamingParser
+export default HDF5Parser

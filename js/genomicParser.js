@@ -26,7 +26,7 @@ class GenomicParser {
 
     }
 
-    async parse (path, dataset) {
+    async parse(path, datasource) {
 
         let str
 
@@ -49,7 +49,7 @@ class GenomicParser {
         // discard line: chromosome	start	end	x	y	z
         lines.shift()
 
-        dataset.consumeLines(lines, regex)
+        datasource.consumeLines(lines, regex)
 
         console.timeEnd(str)
 

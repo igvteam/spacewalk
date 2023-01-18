@@ -2,11 +2,10 @@ import * as THREE from "three"
 import {FileUtils} from "igv-utils"
 import { includes } from "./math.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
-import {ensembleManager} from './app.js'
 import GenomicParser from './genomicParser.js'
-import GenomicDataset from './genomicDataset.js'
-import HDF5StreamingParser from './HDF5StreamingParser.js'
-import HDF5StreamingDataset from './HDF5StreamingDataset.js'
+import GenomicDatasource from './genomicDatasource.js'
+import HDF5Parser from './HDF5Parser.js'
+import HDF5StreamingDataset from './HDF5Datasource.js'
 
 class EnsembleManager {
 
@@ -17,26 +16,26 @@ class EnsembleManager {
 
         const extension = FileUtils.getExtension(url)
         if ('cndb' === extension) {
-            await ensembleManager.load(url, new HDF5StreamingParser(), new HDF5StreamingDataset(), parseInt(traceKey))
+            await this.load(url, new HDF5Parser(), new HDF5StreamingDataset(), parseInt(traceKey))
         } else {
-            await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
+            await this.load(url, new GenomicParser(), new GenomicDatasource(), parseInt(traceKey))
         }
 
     }
 
-    async load(fileOrPath, parser, genomicDataset, index) {
+    async load(fileOrPath, parser, datasource, index) {
 
         showGlobalSpinner()
-        const { sample, genomeAssembly } = await parser.parse(fileOrPath, genomicDataset)
+        const { sample, genomeAssembly } = await parser.parse(fileOrPath, datasource)
         hideGlobalSpinner()
 
         this.sample = sample
 
         this.genomeAssembly = genomeAssembly
 
-        this.genomicDataset = genomicDataset
+        this.datasource = datasource
 
-        const { locus, genomicExtentList, isPointCloud } = genomicDataset
+        const { locus, genomicExtentList, isPointCloud } = datasource
 
         this.locus = locus
 
@@ -69,15 +68,15 @@ class EnsembleManager {
     }
 
     async createTrace(i) {
-        return await this.genomicDataset.createTrace(i)
+        return await this.datasource.createTrace(i)
     }
 
     getTraceLength() {
-        return this.genomicDataset.vertexCount
+        return this.datasource.vertexCount
     }
 
     async getTraceCount() {
-        return await this.genomicDataset.getVertexListCount()
+        return await this.datasource.getVertexListCount()
     }
 
     getGenomicInterpolantWindowList(interpolantList) {
@@ -102,7 +101,7 @@ class EnsembleManager {
     }
 
     getLiveContactFrequencyMapVertexLists() {
-        return this.genomicDataset.getLiveContactFrequencyMapVertexLists()
+        return this.datasource.getLiveContactFrequencyMapVertexLists()
     }
 
     static getEnsembleTraceVertices(ensembleTrace) {

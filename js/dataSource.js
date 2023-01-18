@@ -1,4 +1,4 @@
-class Dataset {
+class DataSource {
     constructor() {
 
         this.chr = undefined;
@@ -42,4 +42,4 @@ class Dataset {
     }
 }
 
-export default Dataset;
+export default DataSource;
