@@ -13,28 +13,30 @@ class HDF5Datasource extends DataSource {
 
         this.hdf5 = hdf5
 
-        this.key = 'replica10_chr1'
+        this.replicaKeys = await getReplicaKeys(hdf5)
 
-        const group = await this.hdf5.get( this.key )
+        this.replicaKey = this.replicaKeys[ 4 ]
+
+        const group = await this.hdf5.get( this.replicaKey )
 
         this.vertexCount = await getVertexListLength(group)
 
-        this.locus = await getLocus(this.key, group)
+        this.locus = await getLocus(this.replicaKey, group)
 
-        const dataset = await hdf5.get(`${ this.key }/genomic_position`)
+        const dataset = await hdf5.get(`${ this.replicaKey }/genomic_position`)
         this.genomicExtentList = await getGenomicExtentList(dataset)
 
     }
 
     async getVertexListCount(){
-        const group = await this.hdf5.get( `${ this.key }/spatial_position` )
+        const group = await this.hdf5.get( `${ this.replicaKey }/spatial_position` )
         const list = await group.keys
         return list.length
     }
 
     async createTrace(i) {
 
-        const dataset = await this.hdf5.get( `${ this.key }/spatial_position/${ 1 + i }` )
+        const dataset = await this.hdf5.get( `${ this.replicaKey }/spatial_position/${ 1 + i }` )
         const numbers = await dataset.value
         let j = 0
         const trace = []
@@ -69,18 +71,35 @@ class HDF5Datasource extends DataSource {
 
 }
 
+async function getReplicaKeys(hdf5) {
+
+    const scratch = await hdf5.keys
+    scratch.shift()
+
+    const compare = (a, b) => {
+
+        // [ replica chr? ]
+        const [ ignore, aa ] = a.split('_')
+        const [ _ignore_, bb ] = b.split('_')
+
+        // remove 'chr'
+        const aaa = parseInt(aa.substring(3))
+        const bbb = parseInt(bb.substring(3))
+
+        return aaa > bbb ? 1 : -1
+    }
+
+    return scratch.sort(compare)
+
+}
+
 async function getVertexListLength(group) {
     const dataset = await group.get('spatial_position/1')
     const floats = await dataset.value
     return floats.length / 3
 }
 
-async function getLocus(key, group) {
-
-    const lut =
-        {
-            replica10_chr1: 'chr1'
-        };
+async function getLocus(replicaKey, group) {
 
     const dataset = await group.get('genomic_position')
     const genomicPositions = await dataset.value
@@ -88,7 +107,8 @@ async function getLocus(key, group) {
     const genomicStart = parseInt(genomicPositions[ 0 ])
     const genomicEnd = parseInt(genomicPositions[ genomicPositions.length - 1 ])
 
-    return { chr: lut[ key ], genomicStart, genomicEnd }
+    const [ ignore, chr ] = replicaKey.split('_')
+    return { chr, genomicStart, genomicEnd }
 
 }
 
