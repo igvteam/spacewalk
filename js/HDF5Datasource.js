@@ -1,8 +1,8 @@
 import * as THREE from 'three'
-import DataSource from './dataSource.js'
+import DataSourceBase from './dataSourceBase.js'
 import {colorRampMaterialProvider} from './app.js'
 
-class HDF5Datasource extends DataSource {
+class HDF5Datasource extends DataSourceBase {
 
     constructor() {
         super()

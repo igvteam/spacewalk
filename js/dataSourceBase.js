@@ -1,4 +1,4 @@
-class DataSource {
+class DataSourceBase {
     constructor() {
 
         this.chr = undefined;
@@ -42,4 +42,4 @@ class DataSource {
     }
 }
 
-export default DataSource;
+export default DataSourceBase

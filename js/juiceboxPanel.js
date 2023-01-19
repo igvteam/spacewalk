@@ -213,8 +213,8 @@ function juiceboxClassAdditions() {
         browser.state = state
         browser.dataset = liveContactMapDataSet
 
-        hic.EventBus.globalBus.post(HICEvent('MapLoad', liveContactMapDataSet))
-        browser.eventBus.post(HICEvent('MapLoad', liveContactMapDataSet))
+        browser.eventBus.post(HICEvent('MapLoad', browser.dataset))
+        hic.EventBus.globalBus.post(HICEvent('MapLoad', browser))
 
         const eventConfig =
             {
@@ -222,7 +222,7 @@ function juiceboxClassAdditions() {
                 resolutionChanged: true,
                 chrChanged: true,
                 displayMode: 'LIVE',
-                dataset: liveContactMapDataSet
+                dataset: browser.dataset
             }
 
         browser.eventBus.post(HICEvent('LocusChange', eventConfig))

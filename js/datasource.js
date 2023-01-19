@@ -1,8 +1,8 @@
 import * as THREE from "three"
-import DataSource from './dataSource.js'
+import DataSourceBase from './dataSourceBase.js'
 import {colorRampMaterialProvider} from "./app.js"
 
-class GenomicDatasource extends DataSource {
+class Datasource extends DataSourceBase {
 
     constructor() {
         super()
@@ -183,7 +183,7 @@ class GenomicDatasource extends DataSource {
 
     getLiveContactFrequencyMapVertexLists() {
         const values = Object.values(this.dictionary)
-        return values.map(vertexDictionary => GenomicDatasource.getLiveContactFrequencyMapDatasetVertices(vertexDictionary))
+        return values.map(vertexDictionary => Datasource.getLiveContactFrequencyMapDatasetVertices(vertexDictionary))
     }
 
     static getLiveContactFrequencyMapDatasetVertices(vertexDictionary) {
@@ -198,4 +198,4 @@ class GenomicDatasource extends DataSource {
 
 }
 
-export default GenomicDatasource
+export default Datasource

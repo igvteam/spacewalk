@@ -2,13 +2,13 @@ import * as THREE from "three"
 import {FileUtils} from "igv-utils"
 import { includes } from "./math.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
-import GenomicParser from './genomicParser.js'
-import GenomicDatasource from './genomicDatasource.js'
+import Parser from './parser.js'
+import Datasource from './datasource.js'
 import HDF5Parser from './HDF5Parser.js'
-import HDF5StreamingDataset from './HDF5Datasource.js'
+import HDF5Datasource from './HDF5Datasource.js'
 
 class EnsembleManager {
-
+    
     constructor () {
     }
 
@@ -16,9 +16,9 @@ class EnsembleManager {
 
         const extension = FileUtils.getExtension(url)
         if ('cndb' === extension) {
-            await this.load(url, new HDF5Parser(), new HDF5StreamingDataset(), parseInt(traceKey))
+            await this.load(url, new HDF5Parser(), new HDF5Datasource(), parseInt(traceKey))
         } else {
-            await this.load(url, new GenomicParser(), new GenomicDatasource(), parseInt(traceKey))
+            await this.load(url, new Parser(), new Datasource(), parseInt(traceKey))
         }
 
     }
