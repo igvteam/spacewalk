@@ -34,6 +34,11 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
 
     gsdbModal = new ModalTable(gsdbModalConfig)
 
+
+    // select from cndb replica list
+    const el = createCNDBSelectModalDOMElement()
+
+    // select from list
     const $selectModal = $(select_modal)
     $(rootContainer).append($selectModal)
 
@@ -83,6 +88,49 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
         });
     }
 
+}
+
+function createCNDBSelectModalDOMElement() {
+
+    const html =
+        `<div id="spacewalk-sw-load-select-modal" class="modal fade">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <div class="modal-title">Select File</div>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+                    <div>
+                        <div class="input-group my-3">
+
+                            <div class="spinner-border" style="display: none;">
+                            </div>
+
+                            <select data-live-search="true" title="Select an ensemble" data-width="100%">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>`
+
+    const fragment = document.createRange().createContextualFragment(html)
+
+    return fragment.firstChild
 }
 
 async function SpacewalkGetFilename(path){
