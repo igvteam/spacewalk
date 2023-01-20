@@ -2,6 +2,7 @@ import {FileUtils, URIUtils, GooglePicker, GoogleUtils, GoogleDrive} from 'igv-u
 import {GenericDataSource, ModalTable} from 'data-modal'
 import { appendAndConfigureLoadURLModal } from './app.js'
 import {gsdbDatasourceConfigurator} from './gsdbDatasourceConfig.js'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 
 let gsdbModal = undefined
 
@@ -36,13 +37,33 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
 
 
     // select from cndb replica list
-    const el = createCNDBSelectModalDOMElement()
+    const cndbModalElement = createCNDBSelectModalDOMElement()
+    rootContainer.appendChild(cndbModalElement)
+
+    const cndbSelectElement = cndbModalElement.querySelector('select')
+    // $(cndbSelectElement).selectpicker()
+
+    cndbSelectElement.addEventListener('change', event => {
+        event.stopPropagation()
+        const replicaKey = cndbSelectElement.value
+    })
+
+    const hdf5FileLoadHandler = ({ data }) => {
+        for (const key of data ) {
+            const option = document.createElement('option')
+            option.text = key
+            option.value = key
+            cndbSelectElement.appendChild(option)
+        }
+    }
+
+    SpacewalkEventBus.globalBus.subscribe('DidLoadHDF5File', hdf5FileLoadHandler)
 
     // select from list
     const $selectModal = $(select_modal)
     $(rootContainer).append($selectModal)
+    $selectModal.find('select').selectpicker()
 
-    $selectModal.find('select').selectpicker();
     configureSelectOnChange($selectModal.find('select'), $selectModal, async path => await fileLoader.load(path))
 
     dropboxButton.addEventListener('click', () => {
@@ -90,49 +111,6 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
 
 }
 
-function createCNDBSelectModalDOMElement() {
-
-    const html =
-        `<div id="spacewalk-sw-load-select-modal" class="modal fade">
-
-        <div class="modal-dialog">
-
-            <div class="modal-content">
-
-                <div class="modal-header">
-
-                    <div class="modal-title">Select File</div>
-
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-                    <div>
-                        <div class="input-group my-3">
-
-                            <div class="spinner-border" style="display: none;">
-                            </div>
-
-                            <select data-live-search="true" title="Select an ensemble" data-width="100%">
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>`
-
-    const fragment = document.createRange().createContextualFragment(html)
-
-    return fragment.firstChild
-}
-
 async function SpacewalkGetFilename(path){
 
     if (path instanceof File) {
@@ -147,30 +125,41 @@ async function SpacewalkGetFilename(path){
 
 }
 
-function configureSelectOnChange($select, $selectModal, fileLoader) {
+function createCNDBSelectModalDOMElement() {
 
-    $select.on('change', event => {
+    const html =
+        `<div id="spacewalk-cndb-replica-select-modal" class="modal fade">
 
-        event.stopPropagation();
+        <div class="modal-dialog">
 
-        let url = $select.val();
-        url = url || '';
+            <div class="modal-content">
 
-        const index = $select.get(0).selectedIndex;
-        const option = $select.get(0)[ index ];
-        const name = $(option).text();
+                <div class="modal-header">
 
-        if ('' !== url) {
-            fileLoader(url);
-        }
+                    <div class="modal-title">CNDB Replica List</div>
 
-        const $option = $select.find('option:first');
-        $select.val( $option.val() );
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
 
-        $selectModal.modal('hide');
+                </div>
 
-    });
+                <div class="modal-body">
+                    <div>
+                        <select title="Select a Replica">
+                        </select>
+                    </div>
+                </div>
 
+            </div>
+
+        </div>
+
+    </div>`
+
+    const fragment = document.createRange().createContextualFragment(html)
+
+    return fragment.firstChild
 }
 
 const select_modal =
@@ -217,7 +206,29 @@ const select_modal =
 
     </div>`
 
-function createSelectModal() {
+function configureSelectOnChange($select, $selectModal, fileLoader) {
+
+    $select.on('change', event => {
+
+        event.stopPropagation();
+
+        let url = $select.val();
+        url = url || '';
+
+        const index = $select.get(0).selectedIndex;
+        const option = $select.get(0)[ index ];
+        const name = $(option).text();
+
+        if ('' !== url) {
+            fileLoader(url);
+        }
+
+        const $option = $select.find('option:first');
+        $select.val( $option.val() );
+
+        $selectModal.modal('hide');
+
+    });
 
 }
 

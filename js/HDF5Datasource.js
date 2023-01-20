@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import DataSourceBase from './dataSourceBase.js'
 import {colorRampMaterialProvider} from './app.js'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 
 class HDF5Datasource extends DataSourceBase {
 
@@ -25,6 +26,8 @@ class HDF5Datasource extends DataSourceBase {
 
         const dataset = await hdf5.get(`${ this.replicaKey }/genomic_position`)
         this.genomicExtentList = await getGenomicExtentList(dataset)
+
+        SpacewalkEventBus.globalBus.post({ type: 'DidLoadHDF5File', data: this.replicaKeys })
 
     }
 
