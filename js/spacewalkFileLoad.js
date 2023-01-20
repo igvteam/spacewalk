@@ -1,6 +1,6 @@
 import {FileUtils, URIUtils, GooglePicker, GoogleUtils, GoogleDrive} from 'igv-utils'
 import {GenericDataSource, ModalTable} from 'data-modal'
-import { appendAndConfigureLoadURLModal } from './app.js'
+import {appendAndConfigureLoadURLModal, ensembleManager} from './app.js'
 import {gsdbDatasourceConfigurator} from './gsdbDatasourceConfig.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 
@@ -41,20 +41,30 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
     rootContainer.appendChild(cndbModalElement)
 
     const cndbSelectElement = cndbModalElement.querySelector('select')
-    // $(cndbSelectElement).selectpicker()
+    $(cndbSelectElement).selectpicker()
 
-    cndbSelectElement.addEventListener('change', event => {
+    cndbSelectElement.addEventListener('change', async event => {
+
         event.stopPropagation()
-        const replicaKey = cndbSelectElement.value
+
+        $(cndbModalElement).modal('hide')
+
+        await ensembleManager.datasource.updateWithReplicaKey(cndbSelectElement.value)
     })
 
     const hdf5FileLoadHandler = ({ data }) => {
+
+        // discard pre-exisiting option elements
+        cndbSelectElement.innerHTML = ''
+
         for (const key of data ) {
-            const option = document.createElement('option')
-            option.text = key
-            option.value = key
-            cndbSelectElement.appendChild(option)
+            const html = `<option value=\"${ key }\">${ key }</option>`
+            const fragment = document.createRange().createContextualFragment(html)
+            cndbSelectElement.appendChild(fragment.firstChild)
         }
+
+        $(cndbSelectElement).selectpicker('destroy')
+        $(cndbSelectElement).selectpicker('render')
     }
 
     SpacewalkEventBus.globalBus.subscribe('DidLoadHDF5File', hdf5FileLoadHandler)
@@ -146,8 +156,14 @@ function createCNDBSelectModalDOMElement() {
 
                 <div class="modal-body">
                     <div>
-                        <select title="Select a Replica">
-                        </select>
+                        <div class="input-group my-3">
+
+                            <div class="spinner-border" style="display: none;">
+                            </div>
+
+                            <select data-live-search="true" title="Select a replica" data-width="100%">
+                            </select>
+                        </div>
                     </div>
                 </div>
 

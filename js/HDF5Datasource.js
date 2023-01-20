@@ -16,30 +16,40 @@ class HDF5Datasource extends DataSourceBase {
 
         this.replicaKeys = await getReplicaKeys(hdf5)
 
-        this.replicaKey = this.replicaKeys[ 4 ]
-
-        const group = await this.hdf5.get( this.replicaKey )
-
-        this.vertexCount = await getVertexListLength(group)
-
-        this.locus = await getLocus(this.replicaKey, group)
-
-        const dataset = await hdf5.get(`${ this.replicaKey }/genomic_position`)
-        this.genomicExtentList = await getGenomicExtentList(dataset)
+        await this.updateWithReplicaKey(this.replicaKeys[ 0 ])
 
         SpacewalkEventBus.globalBus.post({ type: 'DidLoadHDF5File', data: this.replicaKeys })
 
     }
 
+    async updateWithReplicaKey(replicaKey) {
+
+        const str = `HDF5 Datasource - update with replica key ${ replicaKey }`
+        console.time(str)
+
+        this.currentReplicaKey = replicaKey
+
+        const group = await this.hdf5.get( this.currentReplicaKey )
+
+        this.vertexCount = await getVertexListLength(group)
+
+        this.locus = await getLocus(this.currentReplicaKey, group)
+
+        const dataset = await this.hdf5.get(`${ this.currentReplicaKey }/genomic_position`)
+        this.genomicExtentList = await getGenomicExtentList(dataset)
+
+        console.timeEnd(str)
+    }
+
     async getVertexListCount(){
-        const group = await this.hdf5.get( `${ this.replicaKey }/spatial_position` )
+        const group = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position` )
         const list = await group.keys
         return list.length
     }
 
     async createTrace(i) {
 
-        const dataset = await this.hdf5.get( `${ this.replicaKey }/spatial_position/${ 1 + i }` )
+        const dataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/${ 1 + i }` )
         const numbers = await dataset.value
         let j = 0
         const trace = []
