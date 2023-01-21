@@ -1,6 +1,6 @@
 import {FileUtils, URIUtils, GooglePicker, GoogleUtils, GoogleDrive} from 'igv-utils'
 import {GenericDataSource, ModalTable} from 'data-modal'
-import {appendAndConfigureLoadURLModal, ensembleManager} from './app.js'
+import {appendAndConfigureLoadURLModal, ensembleManager, sceneManager} from './app.js'
 import {gsdbDatasourceConfigurator} from './gsdbDatasourceConfig.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 
@@ -49,7 +49,11 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
 
         $(cndbModalElement).modal('hide')
 
-        await ensembleManager.datasource.updateWithReplicaKey(cndbSelectElement.value)
+        await sceneManager.ingestCNDBReplica(cndbSelectElement.value)
+
+        const data = ensembleManager.createEventBusPayload()
+        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
+
     })
 
     const hdf5FileLoadHandler = ({ data }) => {

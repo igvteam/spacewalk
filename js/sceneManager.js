@@ -94,6 +94,36 @@ class SceneManager {
 
     }
 
+    async ingestCNDBReplica(replicaKey) {
+
+        await ensembleManager.loadReplica(replicaKey)
+
+        this.setupWithTrace(ensembleManager.currentTrace)
+
+        this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle()
+
+        if (this.renderStyle === Ribbon.getRenderStyle()) {
+            pointCloud.hide()
+            ballAndStick.hide()
+            ribbon.show()
+        } else if (this.renderStyle === BallAndStick.getRenderStyle()) {
+            pointCloud.hide()
+            ribbon.hide()
+            ballAndStick.show()
+        } else if (this.renderStyle === PointCloud.getRenderStyle()) {
+            ballAndStick.hide()
+            ribbon.hide()
+            pointCloud.show()
+        }
+
+        setMaterialProvider(colorRampMaterialProvider)
+
+        igvPanel.locusDidChange(ensembleManager.locus)
+
+        juiceboxPanel.locusDidChange(ensembleManager.locus)
+
+    }
+
     receiveEvent({ type, data }) {
 
         if ('RenderStyleDidChange' === type) {

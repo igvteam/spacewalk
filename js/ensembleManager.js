@@ -8,7 +8,7 @@ import HDF5Parser from './HDF5Parser.js'
 import HDF5Datasource from './HDF5Datasource.js'
 
 class EnsembleManager {
-    
+
     constructor () {
     }
 
@@ -20,6 +20,21 @@ class EnsembleManager {
         } else {
             await this.load(url, new Parser(), new Datasource(), parseInt(traceKey))
         }
+
+    }
+
+    async loadReplica(replicaKey) {
+
+        showGlobalSpinner()
+        await this.datasource.updateWithReplicaKey(replicaKey)
+        hideGlobalSpinner()
+
+        this.locus = this.datasource.locus
+
+        this.genomicExtentList = this.datasource.genomicExtentList
+
+        this.currentIndex = 0
+        this.currentTrace = await this.createTrace(this.currentIndex)
 
     }
 

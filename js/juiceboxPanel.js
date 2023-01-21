@@ -33,8 +33,6 @@ class JuiceboxPanel extends Panel {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         })
 
-        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
-
     }
 
     async initialize(container, config) {
