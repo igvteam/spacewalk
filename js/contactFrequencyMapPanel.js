@@ -4,7 +4,7 @@ import { colorMapManager, ensembleManager } from "./app.js"
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import {appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
-import {hideGlobalSpinner, renderContactFrequencyArrayToCanvas, showGlobalSpinner} from "./utils.js"
+import {hideGlobalSpinner, renderArrayToCanvas, showGlobalSpinner} from "./utils.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import ContactRecord from './contactRecord.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
@@ -76,7 +76,7 @@ class ContactFrequencyMapPanel extends Panel {
             if ('ensemble' === data.traceOrEnsemble) {
 
                 updateContactFrequencyArrayWithFrequencies(data.workerValuesBuffer, ensembleContactFrequencyArray)
-                await renderContactFrequencyArrayToCanvas(this.ctx_ensemble, ensembleContactFrequencyArray)
+                await renderArrayToCanvas(this.ctx_ensemble, ensembleContactFrequencyArray)
 
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, ensembleManager.getTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
@@ -88,7 +88,7 @@ class ContactFrequencyMapPanel extends Panel {
 
             } else {
                 updateContactFrequencyArrayWithFrequencies(data.workerValuesBuffer, traceContactFrequencyArray)
-                await renderContactFrequencyArrayToCanvas(this.ctx_trace, traceContactFrequencyArray)
+                await renderArrayToCanvas(this.ctx_trace, traceContactFrequencyArray)
 
                 document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
                 hideGlobalSpinner()

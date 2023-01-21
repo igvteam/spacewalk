@@ -92,8 +92,6 @@ class SceneManager {
 
         juiceboxPanel.locusDidChange(ensembleManager.locus)
 
-        // EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: ensembleManager.genomeAssembly }})
-
     }
 
     receiveEvent({ type, data }) {

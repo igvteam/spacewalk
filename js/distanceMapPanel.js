@@ -3,7 +3,7 @@ import { colorMapManager, ensembleManager } from "./app.js";
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
-import {clearCanvasArray, renderContactFrequencyArrayToCanvas} from "./utils.js"
+import {clearCanvasArray, renderArrayToCanvas} from "./utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 
 const kDistanceUndefined = -1
@@ -50,12 +50,20 @@ class DistanceMapPanel extends Panel {
 
             document.querySelector('#spacewalk-distance-map-spinner').style.display = 'none'
 
+            const traceLength = ensembleManager.getTraceLength()
+
+            if (undefined === canvasArray) {
+                canvasArray = new Uint8ClampedArray(traceLength * traceLength * 4)
+            }
+
+            clearCanvasArray(canvasArray, traceLength)
+
             if ('trace' === data.traceOrEnsemble) {
-                populateDistanceCanvasArray(data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-                renderContactFrequencyArrayToCanvas(this.ctx_trace, canvasArray)
+                populateCanvasArray(canvasArray, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
+                renderArrayToCanvas(this.ctx_trace, canvasArray)
             } else {
-                populateDistanceCanvasArray(data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-                renderContactFrequencyArrayToCanvas(this.ctx_ensemble, canvasArray)
+                populateCanvasArray(canvasArray, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
+                renderArrayToCanvas(this.ctx_ensemble, canvasArray)
             }
 
 
@@ -80,16 +88,14 @@ class DistanceMapPanel extends Panel {
 
         } else if ("DidLoadEnsembleFile" === type) {
 
-
-            initializeSharedBuffers(ensembleManager.getTraceLength())
+            canvasArray = undefined
+            this.doUpdateTrace = this.doUpdateEnsemble = true
 
             if (false === this.isHidden) {
                 this.updateEnsembleAverageDistanceCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
                 const { trace } = data
                 this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
-            } else {
-                this.doUpdateTrace = this.doUpdateEnsemble = true
             }
 
         }
@@ -130,9 +136,6 @@ class DistanceMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(canvasArray, ensembleManager.getTraceLength())
-        renderContactFrequencyArrayToCanvas(this.ctx_trace, canvasArray)
-
     }
 
     updateEnsembleAverageDistanceCanvas(traceLength, vertexLists){
@@ -148,21 +151,18 @@ class DistanceMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
-        clearCanvasArray(ensembleManager.getTraceLength())
-        renderContactFrequencyArrayToCanvas(this.ctx_ensemble, canvasArray)
-
     }
 }
 
-function populateDistanceCanvasArray(distances, maximumDistance, colorMap) {
+function populateCanvasArray(array, distances, maximumDistance, colorMap) {
 
     let i = 0;
     const { r, g, b } = appleCrayonColorRGB255('magnesium');
     for (let x = 0; x < distances.length; x++) {
-        canvasArray[i++] = r;
-        canvasArray[i++] = g;
-        canvasArray[i++] = b;
-        canvasArray[i++] = 255;
+        array[i++] = r;
+        array[i++] = g;
+        array[i++] = b;
+        array[i++] = 255;
     }
 
 
@@ -183,21 +183,16 @@ function populateDistanceCanvasArray(distances, maximumDistance, colorMap) {
 
             const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolantScaled) ][ 'threejs' ]);
 
-            canvasArray[i + 0] = r;
-            canvasArray[i + 1] = g;
-            canvasArray[i + 2] = b;
-            canvasArray[i + 3] = 255;
+            array[i] = r;
+            array[i + 1] = g;
+            array[i + 2] = b;
+            array[i + 3] = 255;
         }
 
         i += 4;
     }
 
 }
-
-function initializeSharedBuffers(traceLength) {
-    canvasArray = new Uint8ClampedArray(traceLength * traceLength * 4)
-}
-
 export function distanceMapPanelConfigurator({ container, isHidden }) {
 
     return {

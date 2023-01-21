@@ -5,7 +5,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import {ballAndStick, colorRampMaterialProvider, contactFrequencyMapPanel, ensembleManager, ribbon} from './app.js'
 import { HICEvent } from "./juiceboxHelpful.js"
-import {paintContactFrequencyArrayWithColorScale, renderContactFrequencyArrayToCanvas} from './utils.js'
+import {paintContactFrequencyArrayWithColorScale, renderArrayToCanvas} from './utils.js'
 
 const imageTileDimension = 685
 
@@ -96,15 +96,6 @@ class JuiceboxPanel extends Panel {
             this.present()
         })
 
-    }
-
-    receiveEvent({ type, data }) {
-
-        super.receiveEvent({ type, data })
-
-        // if ("DidLoadEnsembleFile" === type && false === this.isHidden) {
-        //     contactFrequencyMapPanel.calculateContactFrequencies()
-        // }
     }
 
     getClassName(){ return 'JuiceboxPanel' }
@@ -205,7 +196,7 @@ function juiceboxClassAdditions() {
         paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer, contactFrequencyArray)
 
         // Render by copying image data to display canvas bitmap render context
-        await renderContactFrequencyArrayToCanvas(this.ctx_live, contactFrequencyArray)
+        await renderArrayToCanvas(this.ctx_live, contactFrequencyArray)
 
         const browser = hic.getCurrentBrowser()
 
