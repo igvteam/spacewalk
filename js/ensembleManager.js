@@ -25,9 +25,7 @@ class EnsembleManager {
 
     async loadReplica(replicaKey) {
 
-        showGlobalSpinner()
         await this.datasource.updateWithReplicaKey(replicaKey)
-        hideGlobalSpinner()
 
         this.locus = this.datasource.locus
 

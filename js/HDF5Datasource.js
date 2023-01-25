@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import DataSourceBase from './dataSourceBase.js'
 import {colorRampMaterialProvider} from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
+import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 
 class HDF5Datasource extends DataSourceBase {
 
@@ -24,10 +25,14 @@ class HDF5Datasource extends DataSourceBase {
 
     async updateWithReplicaKey(replicaKey) {
 
+        showGlobalSpinner()
+
         const str = `HDF5 Datasource - update with replica key ${ replicaKey }`
         console.time(str)
 
         this.currentReplicaKey = replicaKey
+
+        this.vertexListCount = undefined
 
         const group = await this.hdf5.get( this.currentReplicaKey )
 
@@ -39,12 +44,20 @@ class HDF5Datasource extends DataSourceBase {
         this.genomicExtentList = await getGenomicExtentList(dataset)
 
         console.timeEnd(str)
+
+        hideGlobalSpinner()
+
     }
 
     async getVertexListCount(){
-        const group = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position` )
-        const list = await group.keys
-        return list.length
+
+        if (undefined === this.vertexListCount) {
+            const group = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position` )
+            const list = await group.keys
+            this.vertexListCount = list.length
+        }
+
+        return this.vertexListCount
     }
 
     async createTrace(i) {
