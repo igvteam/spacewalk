@@ -78,8 +78,8 @@ class IGVPanel extends Panel {
 
                         let str = `all`
 
-                        if (ensembleManager.genome) {
-                            const { chr, genomicStart, genomicEnd } = ensembleManager.genome.locus
+                        if (ensembleManager.locus) {
+                            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
                             str = `${ chr }:${ genomicStart }-${ genomicEnd }`
                         }
 
