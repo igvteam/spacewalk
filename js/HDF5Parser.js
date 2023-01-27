@@ -11,13 +11,8 @@ class HDF5Parser {
 
         SpacewalkGlobals.url = false === FileUtils.isFilePath(path) ? path : undefined
 
-        const config =
-            {
-                url: path,
-                // indexURL: 'https://www.dropbox.com/s/52fyai0p99gca5f/spleen_short.index.json?dl=0'
-                indexURL: 'https://www.dropbox.com/s/2z39jrqas45usoo/spleen_full.index.json?dl=0'
-            }
-
+        const config = getHDF5ReaderConfiguration(path)
+        
         const hdf5 = await openH5File(config)
 
         await datasource.initialize(hdf5)
@@ -27,6 +22,21 @@ class HDF5Parser {
 
     }
 
+}
+
+function getHDF5ReaderConfiguration(path) {
+    const config =
+        {
+            indexURL: 'https://www.dropbox.com/s/2z39jrqas45usoo/spleen_full.index.json?dl=0'
+        };
+
+    if (FileUtils.isFilePath(path)) {
+        config.file = path
+    } else {
+        config.url = path
+    }
+
+    return config
 }
 
 export default HDF5Parser
