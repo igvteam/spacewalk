@@ -75,9 +75,14 @@ class JuiceboxPanel extends Panel {
             const [ ignore, thresholdWidget ] = juiceboxPanel.querySelectorAll('li')
             thresholdWidget.style.display = undefined === dataset.isLiveContactMapDataSet ? 'none' : 'block'
 
-            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-            this.goto({ chr, start: genomicStart, end: genomicEnd })
-
+            if (undefined === ensembleManager.locus) {
+                const [ ab, c ] = config.locus.split('-')
+                const [ a, b ] = ab.split(':')
+                this.goto({ chr:a, start: parseInt(b), end: parseInt(c) })
+            } else {
+                const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                this.goto({ chr, start: genomicStart, end: genomicEnd })
+            }
 
         })
 
