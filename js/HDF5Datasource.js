@@ -100,7 +100,10 @@ class HDF5Datasource extends DataSourceBase {
 async function getReplicaKeys(hdf5) {
 
     const scratch = await hdf5.keys
-    scratch.shift()
+
+    // discard unused keys
+    scratch.shift() // Header
+    scratch.shift() // _index
 
     const compare = (a, b) => {
 
