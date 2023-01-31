@@ -25,15 +25,17 @@ class HDF5Parser {
 }
 
 function getHDF5ReaderConfiguration(path) {
-    const config =
-        {
-            // indexURL: 'https://www.dropbox.com/s/2z39jrqas45usoo/spleen_full.index.json?dl=0'
-        };
+
+    const config = {}
 
     if (FileUtils.isFilePath(path)) {
         config.file = path
     } else {
         config.url = path
+    }
+
+    if('https://dl.dropboxusercontent.com/s/9bcgdsk6u4iqi0m/spleen_full.indexed.cndb?dl=0' === config.url) {
+        config.indexOffset = 129268695620
     }
 
     return config
