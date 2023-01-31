@@ -108,14 +108,19 @@ async function getReplicaKeys(hdf5) {
     const compare = (a, b) => {
 
         // [ replica chr? ]
-        const [ ignore, aa ] = a.split('_')
-        const [ _ignore_, bb ] = b.split('_')
+        const [ replica_a, chr_a ] = a.split('_')
+        const [ replica_b, chr_b ] = b.split('_')
+
+        // remove 'replica'
+        const aaa = parseInt(replica_a.substring(7))
+        const bbb = parseInt(replica_b.substring(7))
 
         // remove 'chr'
-        const aaa = parseInt(aa.substring(3))
-        const bbb = parseInt(bb.substring(3))
+        const ccc = parseInt(chr_a.substring(3))
+        const ddd = parseInt(chr_b.substring(3))
 
-        return aaa > bbb ? 1 : -1
+        // return (aaa - bbb || ccc - ddd)
+        return (ccc - ddd || aaa - bbb)
     }
 
     return scratch.sort(compare)
