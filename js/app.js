@@ -29,10 +29,12 @@ import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from './contactMapLoad.js'
 import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
 import {GenomeUtils} from './genome/genomeUtils.js'
+import { showGlobalSpinner, hideGlobalSpinner } from './utils.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
 import '../styles/igv/dom.scss'
 import '../styles/juicebox.scss'
+
 
 let stats
 let gui
@@ -62,6 +64,11 @@ const SpacewalkGlobals =
     }
 
 document.addEventListener("DOMContentLoaded", async (event) => {
+
+    const str = `DOM Content Loaded Handler`
+    console.time(str)
+
+    showGlobalSpinner()
 
     const container = document.getElementById('spacewalk-root-container');
 
@@ -96,6 +103,12 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     }
 
     await initializationHelper(container)
+
+    document.querySelector('.navbar').style.display = 'flex'
+
+    hideGlobalSpinner()
+
+    console.timeEnd(str)
 
 })
 
