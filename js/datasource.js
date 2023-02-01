@@ -1,8 +1,8 @@
 import * as THREE from "three"
-import Dataset from './dataset.js'
+import DataSourceBase from './dataSourceBase.js'
 import {colorRampMaterialProvider} from "./app.js"
 
-class GenomicDataset extends Dataset {
+class Datasource extends DataSourceBase {
 
     constructor() {
         super()
@@ -148,13 +148,19 @@ class GenomicDataset extends Dataset {
 
     }
 
-    createTrace(i) {
+    async getVertexListCount() {
+        const list = Object.values(this.dictionary)
+
+        return Promise.resolve(list.length)
+    }
+
+    async createTrace(i) {
 
         const values = Object.values(this.dictionary)
 
         const rows = Object.values(values[ i ])
 
-        return rows.map((row, index) => {
+        const trace = rows.map((row, index) => {
 
             const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[index].interpolant)
 
@@ -172,15 +178,12 @@ class GenomicDataset extends Dataset {
 
         })
 
-    }
-
-    getVertexListCount() {
-        return Object.values(this.dictionary).length
+        return Promise.resolve(trace)
     }
 
     getLiveContactFrequencyMapVertexLists() {
         const values = Object.values(this.dictionary)
-        return values.map(vertexDictionary => GenomicDataset.getLiveContactFrequencyMapDatasetVertices(vertexDictionary))
+        return values.map(vertexDictionary => Datasource.getLiveContactFrequencyMapDatasetVertices(vertexDictionary))
     }
 
     static getLiveContactFrequencyMapDatasetVertices(vertexDictionary) {
@@ -195,4 +198,4 @@ class GenomicDataset extends Dataset {
 
 }
 
-export default GenomicDataset
+export default Datasource

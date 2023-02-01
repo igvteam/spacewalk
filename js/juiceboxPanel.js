@@ -5,7 +5,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import {ballAndStick, colorRampMaterialProvider, contactFrequencyMapPanel, ensembleManager, ribbon} from './app.js'
 import { HICEvent } from "./juiceboxHelpful.js"
-import {paintContactFrequencyArrayWithColorScale, renderContactFrequencyArrayToCanvas} from './utils.js'
+import {paintContactFrequencyArrayWithColorScale, renderArrayToCanvas} from './utils.js'
 
 const imageTileDimension = 685
 
@@ -32,8 +32,6 @@ class JuiceboxPanel extends Panel {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         })
-
-        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
 
     }
 
@@ -77,9 +75,14 @@ class JuiceboxPanel extends Panel {
             const [ ignore, thresholdWidget ] = juiceboxPanel.querySelectorAll('li')
             thresholdWidget.style.display = undefined === dataset.isLiveContactMapDataSet ? 'none' : 'block'
 
-            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-            this.goto({ chr, start: genomicStart, end: genomicEnd })
-
+            if (undefined === ensembleManager.locus) {
+                const [ ab, c ] = config.locus.split('-')
+                const [ a, b ] = ab.split(':')
+                this.goto({ chr:a, start: parseInt(b), end: parseInt(c) })
+            } else {
+                const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                this.goto({ chr, start: genomicStart, end: genomicEnd })
+            }
 
         })
 
@@ -96,15 +99,6 @@ class JuiceboxPanel extends Panel {
             this.present()
         })
 
-    }
-
-    receiveEvent({ type, data }) {
-
-        super.receiveEvent({ type, data })
-
-        // if ("DidLoadEnsembleFile" === type && false === this.isHidden) {
-        //     contactFrequencyMapPanel.calculateContactFrequencies()
-        // }
     }
 
     getClassName(){ return 'JuiceboxPanel' }
@@ -205,7 +199,7 @@ function juiceboxClassAdditions() {
         paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer, contactFrequencyArray)
 
         // Render by copying image data to display canvas bitmap render context
-        await renderContactFrequencyArrayToCanvas(this.ctx_live, contactFrequencyArray)
+        await renderArrayToCanvas(this.ctx_live, contactFrequencyArray)
 
         const browser = hic.getCurrentBrowser()
 
@@ -213,8 +207,8 @@ function juiceboxClassAdditions() {
         browser.state = state
         browser.dataset = liveContactMapDataSet
 
-        hic.EventBus.globalBus.post(HICEvent('MapLoad', liveContactMapDataSet))
-        browser.eventBus.post(HICEvent('MapLoad', liveContactMapDataSet))
+        browser.eventBus.post(HICEvent('MapLoad', browser.dataset))
+        hic.EventBus.globalBus.post(HICEvent('MapLoad', browser))
 
         const eventConfig =
             {
@@ -222,7 +216,7 @@ function juiceboxClassAdditions() {
                 resolutionChanged: true,
                 chrChanged: true,
                 displayMode: 'LIVE',
-                dataset: liveContactMapDataSet
+                dataset: browser.dataset
             }
 
         browser.eventBus.post(HICEvent('LocusChange', eventConfig))

@@ -154,7 +154,7 @@ function paintContactFrequencyArrayWithColorScale(colorScale, frequencies, array
     }
 }
 
-async function renderContactFrequencyArrayToCanvas(ctx, array) {
+async function renderArrayToCanvas(ctx, array) {
 
     const { width, height } = ctx.canvas;
 
@@ -196,7 +196,7 @@ export {
     clearCanvasArray,
     createImage,
     paintContactFrequencyArrayWithColorScale,
-    renderContactFrequencyArrayToCanvas,
+    renderArrayToCanvas,
     readFileAsDataURL,
     fitToContainer,
     getMouseXY,

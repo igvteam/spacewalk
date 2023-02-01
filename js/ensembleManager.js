@@ -1,12 +1,11 @@
 import * as THREE from "three"
+import {FileUtils} from "igv-utils"
 import { includes } from "./math.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
-import {FileUtils} from "igv-utils";
-import {ensembleManager} from "./app";
-import HDF5Parser from "./HDF5Parser.js";
-import HDF5Dataset from './HDF5Dataset.js'
-import GenomicParser from "./genomicParser.js";
-import GenomicDataset from "./genomicDataset.js";
+import Parser from './parser.js'
+import Datasource from './datasource.js'
+import HDF5Parser from './HDF5Parser.js'
+import HDF5Datasource from './HDF5Datasource.js'
 
 class EnsembleManager {
 
@@ -17,26 +16,39 @@ class EnsembleManager {
 
         const extension = FileUtils.getExtension(url)
         if ('cndb' === extension) {
-            await ensembleManager.load(url, new HDF5Parser(), new HDF5Dataset(), parseInt(traceKey))
+            await this.load(url, new HDF5Parser(), new HDF5Datasource(), parseInt(traceKey))
         } else {
-            await ensembleManager.load(url, new GenomicParser(), new GenomicDataset(), parseInt(traceKey))
+            await this.load(url, new Parser(), new Datasource(), parseInt(traceKey))
         }
 
     }
 
-    async load(fileOrPath, parser, genomicDataset, index) {
+    async loadReplica(replicaKey) {
+
+        await this.datasource.updateWithReplicaKey(replicaKey)
+
+        this.locus = this.datasource.locus
+
+        this.genomicExtentList = this.datasource.genomicExtentList
+
+        this.currentIndex = 0
+        this.currentTrace = await this.createTrace(this.currentIndex)
+
+    }
+
+    async load(fileOrPath, parser, datasource, index) {
 
         showGlobalSpinner()
-        const { sample, genomeAssembly } = await parser.parse(fileOrPath, genomicDataset)
+        const { sample, genomeAssembly } = await parser.parse(fileOrPath, datasource)
         hideGlobalSpinner()
 
         this.sample = sample
 
         this.genomeAssembly = genomeAssembly
 
-        this.genomicDataset = genomicDataset
+        this.datasource = datasource
 
-        const { locus, genomicExtentList, isPointCloud } = this.genomicDataset
+        const { locus, genomicExtentList, isPointCloud } = datasource
 
         this.locus = locus
 
@@ -45,7 +57,7 @@ class EnsembleManager {
         this.isPointCloud = isPointCloud
 
         const initialIndex = index || 0
-        this.currentTrace = this.createTrace(initialIndex)
+        this.currentTrace = await this.createTrace(initialIndex)
         this.currentIndex = initialIndex
 
     }
@@ -68,16 +80,16 @@ class EnsembleManager {
         return payload
     }
 
-    createTrace(i) {
-        return this.genomicDataset.createTrace(i)
+    async createTrace(i) {
+        return await this.datasource.createTrace(i)
     }
 
     getTraceLength() {
-        return this.genomicDataset.vertexCount
+        return this.datasource.vertexCount
     }
 
-    getTraceCount() {
-        return this.genomicDataset.getVertexListCount()
+    async getTraceCount() {
+        return await this.datasource.getVertexListCount()
     }
 
     getGenomicInterpolantWindowList(interpolantList) {
@@ -102,7 +114,7 @@ class EnsembleManager {
     }
 
     getLiveContactFrequencyMapVertexLists() {
-        return this.genomicDataset.getLiveContactFrequencyMapVertexLists()
+        return this.datasource.getLiveContactFrequencyMapVertexLists()
     }
 
     static getEnsembleTraceVertices(ensembleTrace) {

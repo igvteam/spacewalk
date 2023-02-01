@@ -9,26 +9,26 @@ class TraceSelect {
   constructor() {
 
       this.input = document.querySelector('#spacewalk_trace_select_input')
-      this.input.addEventListener('keyup', (e) => {
+      this.input.addEventListener('keyup', async e => {
 
           // enter (return) key pressed
           if (13 === e.keyCode) {
-              const howmany = ensembleManager.getTraceCount()
-              broadcastTraceSelection(this.input, clamp(parseInt(this.input.value, 10), 0, howmany - 1), howmany)
+              const howmany = await ensembleManager.getTraceCount()
+              await broadcastTraceSelection(this.input, clamp(parseInt(this.input.value, 10), 0, howmany - 1), howmany)
           }
 
       })
 
       const button_minus = document.querySelector('#spacewalk_trace_select_button_minus')
-      button_minus.addEventListener('click', (e) => {
-          const howmany = ensembleManager.getTraceCount()
-          broadcastTraceSelection(this.input, clamp(currentNumber - 1, 0, howmany - 1), howmany)
+      button_minus.addEventListener('click', async () => {
+          const howmany = await ensembleManager.getTraceCount()
+          await broadcastTraceSelection(this.input, clamp(currentNumber - 1, 0, howmany - 1), howmany)
       })
 
       const button_plus = document.querySelector('#spacewalk_trace_select_button_plus')
-      button_plus.addEventListener('click', (e)  => {
-          const howmany = ensembleManager.getTraceCount()
-          broadcastTraceSelection(this.input, clamp(currentNumber + 1, 0, howmany - 1), howmany)
+      button_plus.addEventListener('click', async () => {
+          const howmany = await ensembleManager.getTraceCount()
+          await broadcastTraceSelection(this.input, clamp(currentNumber + 1, 0, howmany - 1), howmany)
       });
 
 
@@ -38,25 +38,27 @@ class TraceSelect {
 
     receiveEvent({ type, data }) {
         if ("DidLoadEnsembleFile" === type) {
-            currentNumber = data.initialIndex
-            this.input.value = `${ currentNumber } of ${ ensembleManager.getTraceCount()}`
+
+            (async () => {
+                currentNumber = data.initialIndex
+                const traceCount = await ensembleManager.getTraceCount()
+                this.input.value = `${ currentNumber } of ${ traceCount }`
+            })()
+
         }
     }
 }
 
-function broadcastTraceSelection(input, number, howmany) {
+async function broadcastTraceSelection(input, number, howmany) {
 
     input.value = `${ number } of ${ howmany }`
 
     currentNumber = number;
 
-    window.setTimeout(() => {
+    ensembleManager.currentTrace = await ensembleManager.createTrace(currentNumber)
+    ensembleManager.currentIndex = currentNumber
 
-        ensembleManager.currentTrace = ensembleManager.createTrace(currentNumber)
-        ensembleManager.currentIndex = currentNumber
-
-        SpacewalkEventBus.globalBus.post({ type: "DidSelectTrace", data: { trace: ensembleManager.currentTrace } })
-    }, 0);
+    SpacewalkEventBus.globalBus.post({ type: "DidSelectTrace", data: { trace: ensembleManager.currentTrace } })
 }
 
 export default TraceSelect

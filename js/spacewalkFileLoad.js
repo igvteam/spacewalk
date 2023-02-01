@@ -1,7 +1,8 @@
 import {FileUtils, URIUtils, GooglePicker, GoogleUtils, GoogleDrive} from 'igv-utils'
 import {GenericDataSource, ModalTable} from 'data-modal'
-import { appendAndConfigureLoadURLModal } from './app.js'
+import {appendAndConfigureLoadURLModal, ensembleManager, sceneManager} from './app.js'
 import {gsdbDatasourceConfigurator} from './gsdbDatasourceConfig.js'
+import SpacewalkEventBus from './spacewalkEventBus.js'
 
 let gsdbModal = undefined
 
@@ -34,10 +35,49 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
 
     gsdbModal = new ModalTable(gsdbModalConfig)
 
+
+    // select from cndb replica list
+    const cndbModalElement = createCNDBSelectModalDOMElement()
+    rootContainer.appendChild(cndbModalElement)
+
+    const cndbSelectElement = cndbModalElement.querySelector('select')
+    $(cndbSelectElement).selectpicker()
+
+    cndbSelectElement.addEventListener('change', async event => {
+
+        event.stopPropagation()
+
+        $(cndbModalElement).modal('hide')
+
+        await sceneManager.ingestCNDBReplica(cndbSelectElement.value)
+
+        const data = ensembleManager.createEventBusPayload()
+        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
+
+    })
+
+    const hdf5FileLoadHandler = ({ data }) => {
+
+        // discard pre-exisiting option elements
+        cndbSelectElement.innerHTML = ''
+
+        for (const key of data ) {
+            const html = `<option value=\"${ key }\">${ key }</option>`
+            const fragment = document.createRange().createContextualFragment(html)
+            cndbSelectElement.appendChild(fragment.firstChild)
+        }
+
+        $(cndbSelectElement).selectpicker('destroy')
+        $(cndbSelectElement).selectpicker('render')
+    }
+
+    SpacewalkEventBus.globalBus.subscribe('DidLoadHDF5File', hdf5FileLoadHandler)
+
+    // select from list
     const $selectModal = $(select_modal)
     $(rootContainer).append($selectModal)
+    $selectModal.find('select').selectpicker()
 
-    $selectModal.find('select').selectpicker();
     configureSelectOnChange($selectModal.find('select'), $selectModal, async path => await fileLoader.load(path))
 
     dropboxButton.addEventListener('click', () => {
@@ -99,30 +139,47 @@ async function SpacewalkGetFilename(path){
 
 }
 
-function configureSelectOnChange($select, $selectModal, fileLoader) {
+function createCNDBSelectModalDOMElement() {
 
-    $select.on('change', event => {
+    const html =
+        `<div id="spacewalk-cndb-replica-select-modal" class="modal fade">
 
-        event.stopPropagation();
+        <div class="modal-dialog">
 
-        let url = $select.val();
-        url = url || '';
+            <div class="modal-content">
 
-        const index = $select.get(0).selectedIndex;
-        const option = $select.get(0)[ index ];
-        const name = $(option).text();
+                <div class="modal-header">
 
-        if ('' !== url) {
-            fileLoader(url);
-        }
+                    <div class="modal-title">CNDB Replica List</div>
 
-        const $option = $select.find('option:first');
-        $select.val( $option.val() );
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
 
-        $selectModal.modal('hide');
+                </div>
 
-    });
+                <div class="modal-body">
+                    <div>
+                        <div class="input-group my-3">
 
+                            <div class="spinner-border" style="display: none;">
+                            </div>
+
+                            <select data-live-search="true" title="Select a replica" data-width="100%">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>`
+
+    const fragment = document.createRange().createContextualFragment(html)
+
+    return fragment.firstChild
 }
 
 const select_modal =
@@ -169,7 +226,29 @@ const select_modal =
 
     </div>`
 
-function createSelectModal() {
+function configureSelectOnChange($select, $selectModal, fileLoader) {
+
+    $select.on('change', event => {
+
+        event.stopPropagation();
+
+        let url = $select.val();
+        url = url || '';
+
+        const index = $select.get(0).selectedIndex;
+        const option = $select.get(0)[ index ];
+        const name = $(option).text();
+
+        if ('' !== url) {
+            fileLoader(url);
+        }
+
+        const $option = $select.find('option:first');
+        $select.val( $option.val() );
+
+        $selectModal.modal('hide');
+
+    });
 
 }
 
