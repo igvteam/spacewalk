@@ -96,7 +96,7 @@ class SceneManager {
         setMaterialProvider(colorRampMaterialProvider)
 
         if (previousGenomeID !== GenomeUtils.currentGenome.id) {
-            console.log(`Genome swap from ${ previousGenomeID } to ${ GenomeUtils.currentGenome.id }. Will post event.`)
+            console.log(`Genome swap from ${ previousGenomeID } to ${ GenomeUtils.currentGenome.id }. Call igv_browser.loadGenome`)
 
             const genomeConfiguration = GenomeUtils.GenomeLibrary[ GenomeUtils.currentGenome.id ]
             await igvPanel.browser.loadGenome(genomeConfiguration)
