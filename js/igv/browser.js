@@ -453,7 +453,8 @@ class Browser {
         createColumn(this.columnContainer, 'igv-gear-menu-column')
 
         const genomeID = session.genome || session.reference.id
-        await this.loadReference(GenomeUtils.GenomeLibrary[ genomeID ], session.locus)
+        const genome = GenomeUtils.GenomeLibrary[ genomeID ]
+        await this.loadReference(genome, session.locus)
 
         this.centerLineList = this.createCenterLineList(this.columnContainer)
 

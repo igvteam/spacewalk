@@ -197,7 +197,7 @@ function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr,
     } // for (wye)
 
     const binSize = (genomicEnd - genomicStart) / traceLength
-    const genome = GenomeUtils.GenomeLibrary[ ensembleManager.genomeAssembly ]
+    const genome = GenomeUtils.GenomeLibrary[ genomeAssembly ]
 
     const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
 
@@ -207,7 +207,9 @@ function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr,
 
 function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
-    const chromosome = GenomeUtils.GenomeLibrary[ genomeAssembly ].getChromosome(chr.toLowerCase())
+    const genome = GenomeUtils.GenomeLibrary[ genomeAssembly ]
+
+    const chromosome = genome.getChromosome(chr.toLowerCase())
 
     // chromosome length and index into chromosome array
     const { bpLength, order } = chromosome
@@ -229,7 +231,6 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
 
     const state = new hic.State(order, order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
 
-    const genome = GenomeUtils.GenomeLibrary[ genomeAssembly ]
     console.warn(`createHICState ${ state.description(genome, binSize, width) }`)
 
     return state

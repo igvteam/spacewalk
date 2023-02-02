@@ -6,90 +6,75 @@ import {buildOptions, isDataURL} from "../igv/util/igvUtils.js"
 import version from "../igv/version.js"
 import Genome from "./genome.js"
 
-const DEFAULT_GENOMES_URL = "https://igv.org/genomes/genomes.json"
-const BACKUP_GENOMES_URL = "https://s3.amazonaws.com/igv.org.genomes/genomes.json"
+const DEFAULT_GENOMES_URL = 'https://igv.org/genomes/genomes.json'
+const BACKUP_GENOMES_URL = 'https://s3.amazonaws.com/igv.org.genomes/genomes.json'
 
 const GenomeUtils = {
 
+    KNOWN_GENOMES: undefined,
     currentGenome: undefined,
 
     loadGenome: async function (options) {
 
-        if (options.chromosomeOrder) {
-            return undefined
+        const sequence = await loadFasta(options)
+
+        let cytobands
+        if (options.cytobandURL) {
+            cytobands = await loadCytobands(options.cytobandURL, sequence.config)
         } else {
-
-            const sequence = await loadFasta(options)
-
-            let cytobands
-            if (options.cytobandURL) {
-                cytobands = await loadCytobands(options.cytobandURL, sequence.config)
-            } else {
-                return undefined
-            }
-
-            let aliases
-            if (options.aliasURL) {
-                aliases = await loadAliases(options.aliasURL, sequence.config)
-            }
-
-            return new Genome(options, sequence, cytobands, aliases)
-
+            return undefined
         }
+
+        let aliases
+        if (options.aliasURL) {
+            aliases = await loadAliases(options.aliasURL, sequence.config)
+        }
+
+        return new Genome(options, sequence, cytobands, aliases)
 
     },
 
-    initializeGenomes: async function (config) {
+    initializeGenomes: async () => {
 
-        if (!GenomeUtils.KNOWN_GENOMES) {
+        if (undefined === GenomeUtils.KNOWN_GENOMES) {
 
-            const table = {}
-
-            // Default genomes
             try {
                 const url = DEFAULT_GENOMES_URL + `?randomSeed=${Math.random().toString(36)}&version=${version()}`  // prevent caching
                 const jsonArray = await igvxhr.loadJson(url, {timeout: 5000})
-                processJson(jsonArray)
+                GenomeUtils.KNOWN_GENOMES = processJson(jsonArray)
             } catch (e) {
                 console.error(e)
                 try {
                     const url = BACKUP_GENOMES_URL + `?randomSeed=${Math.random().toString(36)}&version=${version()}`  // prevent caching
                     const jsonArray = await igvxhr.loadJson(url, {})
-                    processJson(jsonArray)
+                    GenomeUtils.KNOWN_GENOMES = processJson(jsonArray)
                 } catch (e) {
                     console.error(e)
                     console.warn("Errors loading default genome definitions.")
                 }
             }
 
-            // User-defined genomes
-            const genomeList = config.genomeList || config.genomes
-            if (genomeList) {
-                if (typeof genomeList === 'string') {
-                    const jsonArray = await igvxhr.loadJson(genomeList, {})
-                    processJson(jsonArray)
-                } else {
-                    processJson(genomeList)
-                }
-            }
-
-            GenomeUtils.KNOWN_GENOMES = table
-
             GenomeUtils.GenomeLibrary = {}
-            for (let [ genomeId, genome_configuration ] of Object.entries(GenomeUtils.KNOWN_GENOMES)) {
-                const genome = await GenomeUtils.loadGenome(genome_configuration)
-                if (genome) {
-                    GenomeUtils.GenomeLibrary[ genomeId ] = genome
-                }
-             }
 
-            function processJson(jsonArray) {
-                jsonArray.forEach(function (json) {
-                    table[json.id] = json
-                })
-                return table
-            }
         }
+    },
+
+    getGenome: async genomeID => {
+
+        let genome = undefined
+
+        if (undefined === GenomeUtils.GenomeLibrary[ genomeID ]) {
+            const genomeConfiguration = GenomeUtils.KNOWN_GENOMES[ genomeID ]
+            genome = await GenomeUtils.loadGenome(genomeConfiguration)
+        }
+
+        if (undefined === genome) {
+            console.error(`Genome ${ genomeID } is invalid`)
+        }
+
+        GenomeUtils.GenomeLibrary[ genomeID ] = GenomeUtils.currentGenome = genome
+
+        return GenomeUtils.currentGenome
     },
 
     isWholeGenomeView: function (chr) {
@@ -129,6 +114,16 @@ const GenomeUtils = {
             return idOrConfig
         }
     }
+}
+
+function processJson(jsonArray) {
+
+    const table = {}
+    for (const json of jsonArray) {
+        table[ json.id ] = json
+    }
+
+    return table
 }
 
 async function loadCytobands(cytobandUrl, config) {

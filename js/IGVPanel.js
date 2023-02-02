@@ -4,6 +4,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
 import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager} from './app.js'
+import {GenomeUtils} from "./genome/genomeUtils";
 
 class IGVPanel extends Panel {
 
@@ -32,36 +33,27 @@ class IGVPanel extends Panel {
         SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this)
     }
 
-    getClassName(){ return 'IGVPanel' }
-
-    receiveEvent({ type, data }) {
-
-        super.receiveEvent({ type, data });
-
-        if ("DidUpdateGenomicInterpolant" === type) {
-            const { poster, interpolantList } = data
-            if (colorRampMaterialProvider === poster) {
-                this.browser.cursorGuide.updateWithInterpolant(interpolantList[ 0 ])
-            }
-        }
-
-    }
-
     async initialize({ igvConfig, session }) {
 
         this.browser = undefined
 
         const root = this.$panel.find('#spacewalk_igv_root_container').get(0)
 
-        try {
-            if (session) {
-                const { showTrackLabels, showRuler, showControls, showCursorTrackingGuide } = igvConfig
-                const mergedConfig = { ...session, ...({ showTrackLabels, showRuler, showControls, showCursorTrackingGuide }) }
-                this.browser = await igv.createBrowser( root, mergedConfig )
-            } else {
-                this.browser = await igv.createBrowser( root, igvConfig )
-            }
+        let mergedConfig
 
+        if (session) {
+            const { showTrackLabels, showRuler, showControls, showCursorTrackingGuide } = igvConfig
+            mergedConfig = { ...session, ...({ showTrackLabels, showRuler, showControls, showCursorTrackingGuide }) }
+         } else {
+            mergedConfig = { ...igvConfig }
+        }
+
+        if (undefined === mergedConfig.genome) {
+            mergedConfig.genome = GenomeUtils.currentGenome.id
+        }
+
+        try {
+            this.browser = await igv.createBrowser( root, mergedConfig )
         } catch (e) {
             AlertSingleton.present(e.message)
         }
@@ -95,6 +87,21 @@ class IGVPanel extends Panel {
         if (this.browser) {
             this.configureMouseHandlers()
         }
+    }
+
+    getClassName(){ return 'IGVPanel' }
+
+    receiveEvent({ type, data }) {
+
+        super.receiveEvent({ type, data });
+
+        if ("DidUpdateGenomicInterpolant" === type) {
+            const { poster, interpolantList } = data
+            if (colorRampMaterialProvider === poster) {
+                this.browser.cursorGuide.updateWithInterpolant(interpolantList[ 0 ])
+            }
+        }
+
     }
 
     async locusDidChange({ chr, genomicStart, genomicEnd }) {
