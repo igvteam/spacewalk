@@ -1,7 +1,7 @@
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js'
 import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from 'igv-widgets'
-import {BGZip, FileUtils, GoogleAuth, igvxhr} from 'igv-utils'
+import {BGZip, GoogleAuth, igvxhr} from 'igv-utils'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
@@ -308,7 +308,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     contactFrequencyMapPanel.initialize(contactFrequencyMapPanelConfiguration.panel)
 
-    EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
+    EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: GenomeUtils.currentGenome.id }})
 
     Panel.setPanelDictionary([ igvPanel, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel ]);
 
@@ -326,28 +326,14 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
 }
 
-async function initializeGenomes(spacewalkConfig) {
-
-    const { genomeID, genomes } = spacewalkConfig
-
-    await GenomeUtils.initializeGenomes({ genomes })
-
-    GenomeUtils.currentGenome = GenomeUtils.GenomeLibrary[ genomeID ]
-
-    spacewalkConfig.igvConfig.genome = genomeID
-
+async function initializeGenomes({ genomeID }) {
+    await GenomeUtils.initializeGenomes()
+    await GenomeUtils.updateGenomeLibrary(genomeID)
 }
 
 function renderLoop() {
-
     requestAnimationFrame( renderLoop )
-
     render()
-
-    // if (SpacewalkEventBus.globalBus.isHeld()) {
-    //     SpacewalkEventBus.globalBus.release()
-    // }
-
 }
 
 function render () {
