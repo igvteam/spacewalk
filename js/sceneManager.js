@@ -1,14 +1,19 @@
-import EnsembleManager from "./ensembleManager.js";
+import * as THREE from 'three'
+import {EventBus} from 'igv-widgets'
+import EnsembleManager from "./ensembleManager.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import * as THREE from "three";
-import CameraLightingRig from './cameraLightingRig.js';
-import Picker from "./picker.js";
-import BallAndStick from "./ballAndStick.js";
-import PointCloud from "./pointCloud.js";
-import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js';
-import Gnomon, { gnomonConfigurator } from './gnomon.js';
-import {getMouseXY, setMaterialProvider} from "./utils.js";
-import { appleCrayonColorThreeJS } from "./color.js";
+import CameraLightingRig from './cameraLightingRig.js'
+import Picker from "./picker.js"
+import BallAndStick from "./ballAndStick.js"
+import PointCloud from "./pointCloud.js"
+import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js'
+import Gnomon, { gnomonConfigurator } from './gnomon.js'
+import {getMouseXY, setMaterialProvider} from "./utils.js"
+import { appleCrayonColorThreeJS } from "./color.js"
+import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js"
+import Ribbon from './ribbon.js'
+import {degrees} from "./math.js"
+import {GenomeUtils} from './genome/genomeUtils.js'
 import {
     pointCloud,
     ribbon,
@@ -18,10 +23,7 @@ import {
     juiceboxPanel,
     igvPanel,
     colorRampMaterialProvider
-} from "./app.js";
-import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js";
-import Ribbon from './ribbon.js'
-import {degrees} from "./math.js";
+} from "./app.js"
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -68,6 +70,11 @@ class SceneManager {
 
         await ensembleManager.loadURL(url, traceKey)
 
+        const previousGenomeID = GenomeUtils.currentGenome.id
+        if (undefined === GenomeUtils.GenomeLibrary[ ensembleManager.genomeAssembly ]) {
+            await GenomeUtils.updateGenomeLibrary(ensembleManager.genomeAssembly)
+        }
+
         this.setupWithTrace(ensembleManager.currentTrace)
 
         this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle()
@@ -88,9 +95,16 @@ class SceneManager {
 
         setMaterialProvider(colorRampMaterialProvider)
 
-        igvPanel.locusDidChange(ensembleManager.locus)
+        if (previousGenomeID !== GenomeUtils.currentGenome.id) {
+            console.log(`Genome swap from ${ previousGenomeID } to ${ GenomeUtils.currentGenome.id }. Call igv_browser.loadGenome`)
 
-        juiceboxPanel.locusDidChange(ensembleManager.locus)
+            const genomeConfiguration = GenomeUtils.GenomeLibrary[ GenomeUtils.currentGenome.id ]
+            await igvPanel.browser.loadGenome(genomeConfiguration)
+        }
+
+        await igvPanel.locusDidChange(ensembleManager.locus)
+
+        await juiceboxPanel.locusDidChange(ensembleManager.locus)
 
     }
 
