@@ -12,45 +12,49 @@ class DataValueMaterialProvider {
         this.interpolantWindows = []
         for (let feature of features) {
 
+            let colorInterpolant
+            if (undefined === min && undefined === max) {
+                colorInterpolant = 1
+            } else {
+                colorInterpolant = (feature.value - min) / (max - min)
+            }
+
+            console.log(`color interpolant ${ colorInterpolant.toFixed(3)}`)
+
             // interpolant window
             const start = (feature.start - startBP) / (endBP - startBP)
             const end = (feature.end - startBP) / (endBP - startBP)
 
             if (feature.color) {
                 const [ r, g, b ] = colorString2Tokens(feature.color)
-                this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
+                this.interpolantWindows.push({ colorInterpolant, start, end, color: rgb255(r, g, b) })
             } else if ('function' === typeof track.getColorForFeature) {
                 const color = track.getColorForFeature(feature)
 
                 if (color.startsWith('#')) {
                     const { r, g, b } = hex2RGB255(color)
-                    this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
+                    this.interpolantWindows.push({ colorInterpolant, start, end, color: rgb255(r, g, b) })
                 } else {
                     const [ r, g, b ] = colorString2Tokens(color)
-                    this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
+                    this.interpolantWindows.push({ colorInterpolant, start, end, color: rgb255(r, g, b) })
                 }
 
-
-            } else if(track.color)  {
-
-                if (track.color.startsWith('#')) {
-                    const { r, g, b } = hex2RGB255(track.color)
-                    this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
-                } else {
-                    const [ r, g, b ] = colorString2Tokens(track.color)
-                    this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
-                }
 
             } else {
 
-                let colorInterpolant
-                if (undefined === min && undefined === max) {
-                    colorInterpolant = 1
-                } else {
-                    colorInterpolant = (feature.value - min) / (max - min)
+                const color = track.color || track.defaultColor
+
+                if (color) {
+
+                    if (color.startsWith('#')) {
+                        const { r, g, b } = hex2RGB255(color)
+                        this.interpolantWindows.push({ colorInterpolant, start, end, color: rgb255(r, g, b) })
+                    } else {
+                        const [ r, g, b ] = colorString2Tokens(color)
+                        this.interpolantWindows.push({ colorInterpolant, start, end, color: rgb255(r, g, b) })
+                    }
                 }
 
-                this.interpolantWindows.push({ start, end, colorInterpolant })
             }
 
         }
@@ -65,7 +69,11 @@ class DataValueMaterialProvider {
             if (interpolant > start && interpolant < end) {
 
                 if (interpolantWindow.color) {
-                    return interpolantWindow.color
+                    // return interpolantWindow.color
+
+                    const { r, g, b } = rgb255Lerp(this.colorMinimum, interpolantWindow.color, interpolantWindow.colorInterpolant)
+                    return rgb255ToThreeJSColor(r, g, b)
+
                 } else {
                     const { r, g, b } = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolantWindow.colorInterpolant)
                     return rgb255ToThreeJSColor(r, g, b)
