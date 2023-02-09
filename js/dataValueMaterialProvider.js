@@ -1,4 +1,4 @@
-import {colorString2Tokens, rgb255, rgb255Lerp, rgb255ToThreeJSColor} from './color.js'
+import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255ToThreeJSColor} from './color.js'
 
 class DataValueMaterialProvider {
 
@@ -20,8 +20,27 @@ class DataValueMaterialProvider {
                 const [ r, g, b ] = colorString2Tokens(feature.color)
                 this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
             } else if ('function' === typeof track.getColorForFeature) {
-                const [ r, g, b ] = colorString2Tokens(track.getColorForFeature(feature))
-                this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
+                const color = track.getColorForFeature(feature)
+
+                if (color.startsWith('#')) {
+                    const { r, g, b } = hex2RGB255(color)
+                    this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
+                } else {
+                    const [ r, g, b ] = colorString2Tokens(color)
+                    this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
+                }
+
+
+            } else if(track.color)  {
+
+                if (track.color.startsWith('#')) {
+                    const { r, g, b } = hex2RGB255(track.color)
+                    this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
+                } else {
+                    const [ r, g, b ] = colorString2Tokens(track.color)
+                    this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
+                }
+
             } else {
 
                 let colorInterpolant
