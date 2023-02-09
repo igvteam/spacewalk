@@ -7,7 +7,7 @@ class DataValueMaterialProvider {
         this.colorMaximum = colorMaximum;
     }
 
-    configure({ startBP, endBP, features, min, max }) {
+    configure({ track, startBP, endBP, features, min, max }) {
 
         this.interpolantWindows = []
         for (let feature of features) {
@@ -19,7 +19,11 @@ class DataValueMaterialProvider {
             if (feature.color) {
                 const [ r, g, b ] = colorString2Tokens(feature.color)
                 this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
+            } else if ('function' === typeof track.getColorForFeature) {
+                const [ r, g, b ] = colorString2Tokens(track.getColorForFeature(feature))
+                this.interpolantWindows.push({ start, end, color: rgb255ToThreeJSColor(r, g, b) })
             } else {
+
                 let colorInterpolant
                 if (undefined === min && undefined === max) {
                     colorInterpolant = 1
@@ -51,13 +55,6 @@ class DataValueMaterialProvider {
             }
 
         }
-
-        // for (let { start, end, colorInterpolant } of this.interpolantWindows) {
-        //     if (interpolant > start && interpolant < end) {
-        //         const { r, g, b } = rgb255Lerp(this.colorMinimum, this.colorMaximum, colorInterpolant)
-        //         return rgb255ToThreeJSColor(r, g, b)
-        //     }
-        // }
 
         const { r, g, b } = this.colorMinimum
         return rgb255ToThreeJSColor(r, g, b)
