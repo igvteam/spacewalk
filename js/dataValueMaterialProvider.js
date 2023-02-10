@@ -19,40 +19,21 @@ class DataValueMaterialProvider {
                 colorInterpolant = (feature.value - min) / (max - min)
             }
 
-            console.log(`color interpolant ${ colorInterpolant.toFixed(3)}`)
-
-            // interpolant window
             const start = (feature.start - startBP) / (endBP - startBP)
             const end = (feature.end - startBP) / (endBP - startBP)
 
             if (feature.color) {
+
                 const [ r, g, b ] = colorString2Tokens(feature.color)
                 this.interpolantWindows.push({ colorInterpolant, start, end, color: rgb255(r, g, b) })
             } else if ('function' === typeof track.getColorForFeature) {
-                const color = track.getColorForFeature(feature)
 
-                if (color.startsWith('#')) {
-                    const { r, g, b } = hex2RGB255(color)
-                    this.interpolantWindows.push({ colorInterpolant, start, end, color: rgb255(r, g, b) })
-                } else {
-                    const [ r, g, b ] = colorString2Tokens(color)
-                    this.interpolantWindows.push({ colorInterpolant, start, end, color: rgb255(r, g, b) })
-                }
-
-
+                this.interpolantWindows.push({ colorInterpolant, start, end, color: getRGB255(track.getColorForFeature(feature))})
             } else {
 
                 const color = track.color || track.defaultColor
-
                 if (color) {
-
-                    if (color.startsWith('#')) {
-                        const { r, g, b } = hex2RGB255(color)
-                        this.interpolantWindows.push({ colorInterpolant, start, end, color: rgb255(r, g, b) })
-                    } else {
-                        const [ r, g, b ] = colorString2Tokens(color)
-                        this.interpolantWindows.push({ colorInterpolant, start, end, color: rgb255(r, g, b) })
-                    }
+                    this.interpolantWindows.push({ colorInterpolant, start, end, color: getRGB255(color)})
                 }
 
             }
@@ -86,6 +67,18 @@ class DataValueMaterialProvider {
         const { r, g, b } = this.colorMinimum
         return rgb255ToThreeJSColor(r, g, b)
 
+    }
+
+}
+
+function getRGB255(color) {
+
+    if (color.startsWith('#')) {
+        const { r, g, b } = hex2RGB255(color)
+        return rgb255(r, g, b)
+    } else {
+        const [ r, g, b ] = colorString2Tokens(color)
+        return rgb255(r, g, b)
     }
 
 }
