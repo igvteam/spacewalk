@@ -186,9 +186,9 @@ class IGVPanel extends Panel {
 
         if (track.trackView.dataRange()) {
             const { min, max } = track.trackView.dataRange()
-            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max })
+            dataValueMaterialProvider.configure({ track, startBP: start, endBP: end, features, min, max })
         } else {
-            dataValueMaterialProvider.configure({ startBP: start, endBP: end, features })
+            dataValueMaterialProvider.configure({ track, startBP: start, endBP: end, features })
         }
 
         this.materialProvider = dataValueMaterialProvider

@@ -1,6 +1,21 @@
 import * as THREE from "three";
 import { lerp, clamp, random } from './math.js';
 
+function colorString2Tokens(string) {
+
+    if (string.startsWith('rgba(')) {
+        const [ignore, part ] = string.split('(')
+        const [ rgba ] = part.split(')')
+        return rgba.split(',').map((string, index) => index < 3 ? parseInt(string) : parseFloat(string))
+    } else if (string.startsWith('rgb(')) {
+        const [ignore, part ] = string.split('(')
+        const [ rgb ] = part.split(')')
+        return rgb.split(',').map((string) => parseInt(string))
+    } else {
+        return undefined
+    }
+}
+
 export const threeJSColorToRGB255 = (color) => {
     const { r, g, b } = color;
     return { r: Math.floor(r*255), g: Math.floor(g*255), b: Math.floor(b*255) };
@@ -252,5 +267,5 @@ const appleCrayonColorRGB255 = name => {
 
 const highlightColor = appleCrayonColorThreeJS('honeydew')
 
-export { highlightColor, appleCrayonNames, appleCrayonRandomBrightColorThreeJS, appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomColorHexValue, appleCrayonColorRGB255 };
+export { highlightColor, appleCrayonNames, hex2RGB255, colorString2Tokens, appleCrayonRandomBrightColorThreeJS, appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomColorHexValue, appleCrayonColorRGB255 };
 
