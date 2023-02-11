@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { ensembleManager, sceneManager } from "./app.js";
+import {StringUtils} from "igv-utils";
 
 const pointSize = 128;
 
@@ -67,6 +68,17 @@ class PointCloud {
 
     configure(trace) {
 
+        //  const sum = array.reduce((total, item) => total + item);
+        const list = trace.map(({ xyz }) => xyz.length / 3)
+        for (const length of list) {
+            console.log(`Point cloud cluster(${ list.indexOf(length) }) ${ StringUtils.numberFormatter(length)} points`)
+        }
+
+        const sum = list.reduce((total, item) => total + item)
+
+        const str = `Point cloud total ${ StringUtils.numberFormatter(sum)} points`
+        console.time(str)
+
         this.meshList = trace
             .map(({ xyz, rgb, color, drawUsage }) => {
 
@@ -87,6 +99,8 @@ class PointCloud {
             })
 
         sceneManager.renderStyle === PointCloud.getRenderStyle() ? this.show() : this.hide()
+
+        console.timeEnd(str)
 
     }
 
