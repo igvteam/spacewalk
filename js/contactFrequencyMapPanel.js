@@ -1,13 +1,12 @@
 import hic from 'juicebox.js'
 import EnsembleManager from './ensembleManager.js'
-import { colorMapManager, ensembleManager } from "./app.js"
+import {colorMapManager, ensembleManager, igvPanel} from "./app.js"
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import {appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
 import {hideGlobalSpinner, renderArrayToCanvas, showGlobalSpinner} from "./utils.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import ContactRecord from './contactRecord.js'
-import {GenomeUtils} from './genome/genomeUtils.js'
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 
 let ensembleContactFrequencyArray = undefined
@@ -197,7 +196,7 @@ function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr,
     } // for (wye)
 
     const binSize = (genomicEnd - genomicStart) / traceLength
-    const genome = GenomeUtils.GenomeLibrary[ genomeAssembly ]
+    const genome = igvPanel.browser.genome
 
     const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
 
@@ -207,7 +206,7 @@ function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr,
 
 function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
-    const genome = GenomeUtils.GenomeLibrary[ genomeAssembly ]
+    const genome = igvPanel.browser.genome
 
     const chromosome = genome.getChromosome(chr.toLowerCase())
 

@@ -13,7 +13,6 @@ import { appleCrayonColorThreeJS } from "./color.js"
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js"
 import Ribbon from './ribbon.js'
 import {degrees} from "./math.js"
-import {GenomeUtils} from './genome/genomeUtils.js'
 import {
     pointCloud,
     ribbon,
@@ -70,11 +69,6 @@ class SceneManager {
 
         await ensembleManager.loadURL(url, traceKey)
 
-        const previousGenomeID = GenomeUtils.currentGenome.id
-        if (undefined === GenomeUtils.GenomeLibrary[ ensembleManager.genomeAssembly ]) {
-            await GenomeUtils.updateGenomeLibrary(ensembleManager.genomeAssembly)
-        }
-
         this.setupWithTrace(ensembleManager.currentTrace)
 
         this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle()
@@ -95,16 +89,16 @@ class SceneManager {
 
         setMaterialProvider(colorRampMaterialProvider)
 
-        if (previousGenomeID !== GenomeUtils.currentGenome.id) {
-            console.log(`Genome swap from ${ previousGenomeID } to ${ GenomeUtils.currentGenome.id }. Call igv_browser.loadGenome`)
-
-            const genomeConfiguration = GenomeUtils.GenomeLibrary[ GenomeUtils.currentGenome.id ]
-            await igvPanel.browser.loadGenome(genomeConfiguration)
+        if (ensembleManager.genomeAssembly !== igvPanel.browser.genome.id) {
+            console.log(`Genome swap from ${ igvPanel.browser.genome.id } to ${ ensembleManager.genomeAssembly }. Call igv_browser.loadGenome`)
+            await igvPanel.browser.loadGenome(ensembleManager.genomeAssembly)
         }
 
         await igvPanel.locusDidChange(ensembleManager.locus)
 
         await juiceboxPanel.locusDidChange(ensembleManager.locus)
+
+        EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
     }
 

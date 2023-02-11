@@ -40,7 +40,7 @@ import C2S from "./canvas2svg.js";
 import TrackFactory from "./trackFactory.js";
 import ROI from "./roi.js";
 import XMLSession from "./session/igvXmlSession.js";
-import {GenomeUtils} from '../genome/genomeUtils.js'
+import GenomeUtils from './genome/genome.js'
 import loadPlinkFile from "./sampleInformation.js";
 import {adjustReferenceFrame, createReferenceFrameList, createReferenceFrameWithAlignment} from "./referenceFrame.js";
 import {buildOptions, createColumn, doAutoscale, getFilename, createViewport} from "./util/igvUtils.js";
@@ -452,12 +452,15 @@ class Browser {
         // Track gear column
         createColumn(this.columnContainer, 'igv-gear-menu-column')
 
-        const genomeID = session.genome || session.reference.id
+        const genomeOrReference = session.reference || session.genome
+        if(!genomeOrReference) {
+            console.warn("No genome or reference object specified")
+            return;
+        }
+        const genomeConfig = await GenomeUtils.expandReference(Alert, genomeOrReference)
 
-        await GenomeUtils.updateGenomeLibrary(genomeID)
-        const genome = GenomeUtils.GenomeLibrary[ genomeID ]
 
-        await this.loadReference(genome, session.locus)
+        await this.loadReference(genomeConfig, session.locus)
 
         this.centerLineList = this.createCenterLineList(this.columnContainer)
 
@@ -534,7 +537,9 @@ class Browser {
         return centerLineList
     }
 
-    async loadReference(genome, initialLocus) {
+    async loadReference(genomeConfig, initialLocus) {
+
+        const genome = await GenomeUtils.loadGenome(genomeConfig)
 
         const genomeChange = undefined === this.genome || (this.genome.id !== genome.id)
 
@@ -543,16 +548,20 @@ class Browser {
         this.updateNavbarDOMWithGenome(genome)
 
         if (genomeChange) {
-            this.removeAllTracks();
+            this.removeAllTracks()
         }
 
-        let locus = getInitialLocus(initialLocus, genome);
-        const locusFound = await this.search(locus, true);
+        let locus = getInitialLocus(initialLocus, genome)
+        const locusFound = await this.search(locus, true)
         if (!locusFound) {
-            console.log("Initial locus not found: " + locus);
+            console.log("Initial locus not found: " + locus)
             locus = genome.getHomeChromosomeName()
-            await this.search(locus);
+            const locusFound = await this.search(locus, true)
+            if (!locusFound) {
+                throw new Error("Cannot set initial locus")
+            }
         }
+
     }
 
     cleanHouseForSession() {
@@ -576,23 +585,24 @@ class Browser {
         this.chromosomeSelectWidget.update(genome);
     }
 
-    async loadGenome(genome) {
+    async loadGenome(idOrConfig) {
 
-        await this.loadReference(genome, undefined)
+        const genomeConfig = await GenomeUtils.expandReference(Alert, idOrConfig)
+        await this.loadReference(genomeConfig, undefined)
 
-        const tracks = genome.config.tracks || []
+        const tracks = genomeConfig.tracks || []
 
-        // Insure that we always have a sequence track
-        const pushSequenceTrack = tracks.filter(track => track.type === 'sequence').length === 0;
+        // Ensure that we always have a sequence track
+        const pushSequenceTrack = tracks.filter(track => track.type === 'sequence').length === 0
         if (pushSequenceTrack) {
             tracks.push({type: "sequence", order: defaultSequenceTrackOrder})
         }
 
-        await this.loadTrackList(tracks);
+        await this.loadTrackList(tracks)
 
-        await this.updateViews();
+        await this.updateViews()
 
-        return this.genome;
+        return this.genome
     }
 
     /**

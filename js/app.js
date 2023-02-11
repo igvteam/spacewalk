@@ -28,7 +28,6 @@ import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from './contactMapLoad.js'
 import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
-import {GenomeUtils} from './genome/genomeUtils.js'
 import { showGlobalSpinner, hideGlobalSpinner } from './utils.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
@@ -113,8 +112,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 })
 
 const initializationHelper = async container => {
-
-    await initializeGenomes(spacewalkConfig)
 
     await initializeMaterialLibrary()
 
@@ -308,7 +305,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     contactFrequencyMapPanel.initialize(contactFrequencyMapPanelConfiguration.panel)
 
-    EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: GenomeUtils.currentGenome.id }})
+    EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
     Panel.setPanelDictionary([ igvPanel, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel ]);
 
@@ -324,11 +321,6 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
     });
 
 
-}
-
-async function initializeGenomes({ genomeID }) {
-    await GenomeUtils.initializeGenomes()
-    await GenomeUtils.updateGenomeLibrary(genomeID)
 }
 
 function renderLoop() {
