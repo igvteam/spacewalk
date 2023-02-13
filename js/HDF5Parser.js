@@ -17,7 +17,7 @@ class HDF5Parser {
 
         await datasource.initialize(hdf5)
 
-        return { sample: 'Dugla Bogus Sample', genomeAssembly: 'hg19' }
+        return { sample: 'Unspecified Sample', genomeAssembly: SpacewalkGlobals.defaultGenomeAssembly }
 
 
     }
