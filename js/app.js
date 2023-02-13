@@ -60,7 +60,7 @@ let googleEnabled = false
 
 const SpacewalkGlobals =
     {
-
+        defaultGenomeAssembly:'hg38'
     }
 
 document.addEventListener("DOMContentLoaded", async (event) => {
