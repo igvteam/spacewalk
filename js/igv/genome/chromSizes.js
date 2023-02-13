@@ -26,7 +26,7 @@
 // Indexed fasta files
 import {BGZip, igvxhr, StringUtils} from "igv-utils"
 import Chromosome from "./chromosome.js"
-import {isDataURL} from "../igv/util/igvUtils.js"
+import {isDataURL} from "../util/igvUtils.js"
 
 const splitLines = StringUtils.splitLines
 
@@ -74,7 +74,7 @@ class ChromSizes {
             const tokens = nextLine.split('\t')
             this.chromosomeNames.push(tokens[0])
             const chrLength = Number.parseInt(tokens[1])
-            const chromosome = new Chromosome(tokens[0], order++, 0, chrLength)
+            const chromosome = new Chromosome(tokens[0], order++, chrLength)
             this.chromosomes[tokens[0]] = chromosome
 
         }

@@ -3,7 +3,6 @@ import igv from './igv/index.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
-import {GenomeUtils} from './genome/genomeUtils.js'
 import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager} from './app.js'
 
 class IGVPanel extends Panel {
@@ -46,10 +45,6 @@ class IGVPanel extends Panel {
             mergedConfig = { ...session, ...({ showTrackLabels, showRuler, showControls, showCursorTrackingGuide }) }
          } else {
             mergedConfig = { ...igvConfig }
-        }
-
-        if (undefined === mergedConfig.genome) {
-            mergedConfig.genome = GenomeUtils.currentGenome.id
         }
 
         try {

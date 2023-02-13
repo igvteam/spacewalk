@@ -27,7 +27,7 @@
 import {BGZip, igvxhr, StringUtils} from "igv-utils"
 import GenomicInterval from "./genomicInterval.js"
 import Chromosome from "./chromosome.js"
-import {buildOptions} from "../igv/util/igvUtils.js"
+import {buildOptions} from "../util/igvUtils.js"
 
 const splitLines = StringUtils.splitLines
 
@@ -120,7 +120,7 @@ class FastaSequence {
 
                     this.chromosomeNames.push(chr)
                     this.index[chr] = indexEntry
-                    this.chromosomes[chr] = new Chromosome(chr, order++, 0, size)
+                    this.chromosomes[chr] = new Chromosome(chr, order++, size)
                 }
             }
             return this.index

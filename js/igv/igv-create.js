@@ -25,7 +25,7 @@
 
 import {GoogleAuth, igvxhr, oauth} from 'igv-utils';
 import Browser from "./browser.js";
-import {GenomeUtils} from '../genome/genomeUtils.js'
+import GenomeUtils from "./genome/genome.js"
 
 let allBrowsers = [];
 
@@ -40,7 +40,12 @@ async function createBrowser(parentDiv, config) {
 
     if (undefined === config) config = {};
 
-    setDefaults(config);
+    // Initialize pre-defined genomes.  The genome list is shared among all browser instances
+    if (!GenomeUtils.KNOWN_GENOMES) {
+        await GenomeUtils.initializeGenomes(config)
+    }
+
+    setDefaults(config)
 
     if (config.queryParametersSupported !== false) {
         extractQuery(config);

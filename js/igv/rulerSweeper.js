@@ -26,7 +26,7 @@
 
 import {DOMUtils} from "igv-utils"
 import {validateLocusExtent} from "./util/igvUtils.js";
-import {GenomeUtils} from '../genome/genomeUtils.js'
+import GenomeUtils from './genome/genome.js'
 
 class RulerSweeper {
 
