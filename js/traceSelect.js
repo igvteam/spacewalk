@@ -52,8 +52,7 @@ class TraceSelect {
 }
 
 function getDisplayString(number, total) {
-    const str = `${ StringUtils.numberFormatter(number) } of ${ StringUtils.numberFormatter(total) }`
-    return str
+    return `${ StringUtils.numberFormatter(number) } of ${ StringUtils.numberFormatter(total) }`
 }
 
 function getBroadcastValue(number, total, incrementOrDecrement) {
@@ -68,17 +67,21 @@ function getBroadcastValue(number, total, incrementOrDecrement) {
 
 }
 async function broadcastTraceSelection(input, number, total) {
+    
+    if (numberForDisplay !== number) {
+        console.log(`TraceSelect. Will change number from ${StringUtils.numberFormatter(numberForDisplay)} to ${StringUtils.numberFormatter(number)}`)
 
-    numberForDisplay = number
+        numberForDisplay = number
 
-    input.value = getDisplayString(numberForDisplay, total)
+        input.value = getDisplayString(numberForDisplay, total)
 
-    const index = numberForDisplay - 1
+        const index = numberForDisplay - 1
 
-    ensembleManager.currentTrace = await ensembleManager.createTrace(index)
-    ensembleManager.currentIndex = index
+        ensembleManager.currentTrace = await ensembleManager.createTrace(index)
+        ensembleManager.currentIndex = index
 
-    SpacewalkEventBus.globalBus.post({ type: "DidSelectTrace", data: { trace: ensembleManager.currentTrace } })
+        SpacewalkEventBus.globalBus.post({type: "DidSelectTrace", data: {trace: ensembleManager.currentTrace}})
+    }
 }
 
 export default TraceSelect
