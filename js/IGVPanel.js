@@ -1,5 +1,5 @@
-import {AlertSingleton, EventBus} from 'igv-widgets'
-import igv from 'igv'
+import {AlertSingleton} from 'igv-widgets'
+import igv from '../node_modules/igv/js/index.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
