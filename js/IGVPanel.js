@@ -72,7 +72,7 @@ class IGVPanel extends Panel {
                             str = `${ chr }:${ genomicStart }-${ genomicEnd }`
                         }
 
-                        this.browser.resize()
+                        // this.browser.resize()
                         this.browser.search(str)
 
                     }
