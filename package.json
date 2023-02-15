@@ -2,7 +2,7 @@
   "name": "Spacewalk",
   "version": "1.1.1",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
     "build": "vite build",
     "preview": "vite preview",
     "start": "http-server -a localhost dist"

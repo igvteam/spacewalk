@@ -1,7 +1,8 @@
 import {AlertSingleton} from 'igv-widgets'
+import { DOMUtils } from 'igv-utils'
 import igv from '../node_modules/igv/js/index.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {setMaterialProvider} from './utils.js';
+import {getMaterialProvider, setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
 import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager} from './app.js'
 
@@ -80,6 +81,7 @@ class IGVPanel extends Panel {
         this.$panel.resizable(config)
 
         if (this.browser) {
+            igvClassAdditions(this)
             this.configureMouseHandlers()
         }
 
@@ -190,6 +192,49 @@ class IGVPanel extends Panel {
         setMaterialProvider(dataValueMaterialProvider)
 
         track.trackView.materialProviderInput.checked = true
+
+    }
+}
+
+function igvClassAdditions(igvPanel) {
+
+    igv.TrackView.prototype.createAxis = function(browser, track) {
+
+        const exclusionTrackTypes = new Set(['ruler', 'sequence', 'ideogram'])
+
+        const axis = DOMUtils.div()
+
+        browser.columnContainer.querySelector('.igv-axis-column').appendChild(axis);
+
+        axis.style.height = `${track.height}px`;
+
+        if (false === exclusionTrackTypes.has(track.type)) {
+
+            const {width, height} = axis.getBoundingClientRect();
+
+            this.axisCanvas = document.createElement('canvas');
+            this.axisCanvas.style.width = `${width}px`;
+            this.axisCanvas.style.height = `${height}px`;
+            axis.appendChild(this.axisCanvas);
+
+            const input = document.createElement('input')
+            input.setAttribute('type', 'checkbox')
+            axis.appendChild(input)
+
+            input.addEventListener('click', async e => {
+                e.stopPropagation()
+
+                console.log('trackView did click material provider input handler')
+                igvPanel.materialProvider = await getMaterialProvider(track)
+                setMaterialProvider(igvPanel.materialProvider)
+
+            })
+
+            this.materialProviderInput = input
+
+        }
+
+        return axis
 
     }
 }
