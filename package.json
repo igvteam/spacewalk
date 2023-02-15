@@ -13,7 +13,6 @@
     "hdf5-indexed-reader": "github:jrobinso/hdf5-indexed-reader",
     "http-server": "^14.0.0",
     "igv": "github:igvteam/igv.js#spacewalk",
-    "igv-ui": "github:igvteam/igv-ui#v1.2.1",
     "igv-utils": "github:igvteam/igv-utils#v1.3.4",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
     "juicebox.js": "github:igvteam/juicebox.js#spacewalk",
