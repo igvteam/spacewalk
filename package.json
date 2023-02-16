@@ -2,7 +2,7 @@
   "name": "Spacewalk",
   "version": "1.1.1",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
     "build": "vite build",
     "preview": "vite preview",
     "start": "http-server -a localhost dist"
@@ -12,8 +12,8 @@
     "data-modal": "github:igvteam/data-modal#spacewalk",
     "hdf5-indexed-reader": "github:jrobinso/hdf5-indexed-reader",
     "http-server": "^14.0.0",
-    "igv-ui": "github:igvteam/igv-ui#v1.2.1",
-    "igv-utils": "github:igvteam/igv-utils#v1.3.4",
+    "igv": "github:igvteam/igv.js#spacewalk",
+    "igv-utils": "github:igvteam/igv-utils#v1.3.15",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
     "juicebox.js": "github:igvteam/juicebox.js#spacewalk",
     "node-fetch": "^3.3.0",

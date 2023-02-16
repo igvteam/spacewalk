@@ -1,7 +1,8 @@
-import {AlertSingleton, EventBus} from 'igv-widgets'
-import igv from './igv/index.js'
+import {AlertSingleton} from 'igv-widgets'
+import { DOMUtils } from 'igv-utils'
+import igv from 'igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {setMaterialProvider} from './utils.js';
+import {getMaterialProvider, setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
 import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager} from './app.js'
 
@@ -32,23 +33,14 @@ class IGVPanel extends Panel {
         SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this)
     }
 
-    async initialize({ igvConfig, session }) {
+    async initialize(igvConfig) {
 
         this.browser = undefined
 
         const root = this.$panel.find('#spacewalk_igv_root_container').get(0)
 
-        let mergedConfig
-
-        if (session) {
-            const { showTrackLabels, showRuler, showControls, showCursorTrackingGuide } = igvConfig
-            mergedConfig = { ...session, ...({ showTrackLabels, showRuler, showControls, showCursorTrackingGuide }) }
-         } else {
-            mergedConfig = { ...igvConfig }
-        }
-
         try {
-            this.browser = await igv.createBrowser( root, mergedConfig )
+            this.browser = await igv.createBrowser( root, igvConfig )
         } catch (e) {
             AlertSingleton.present(e.message)
         }
@@ -70,7 +62,7 @@ class IGVPanel extends Panel {
                             str = `${ chr }:${ genomicStart }-${ genomicEnd }`
                         }
 
-                        this.browser.resize()
+                        // this.browser.resize()
                         this.browser.search(str)
 
                     }
@@ -80,6 +72,7 @@ class IGVPanel extends Panel {
         this.$panel.resizable(config)
 
         if (this.browser) {
+            igvClassAdditions(this)
             this.configureMouseHandlers()
         }
 
@@ -194,4 +187,48 @@ class IGVPanel extends Panel {
     }
 }
 
+function igvClassAdditions(igvPanel) {
+
+    igv.TrackView.prototype.createAxis = function(browser, track) {
+
+        const exclusionTrackTypes = new Set(['ruler', 'sequence', 'ideogram'])
+
+        const axis = DOMUtils.div()
+
+        browser.columnContainer.querySelector('.igv-axis-column').appendChild(axis);
+
+        axis.style.height = `${track.height}px`;
+
+        if (false === exclusionTrackTypes.has(track.type)) {
+
+            const {width, height} = axis.getBoundingClientRect();
+
+            this.axisCanvas = document.createElement('canvas');
+            this.axisCanvas.style.width = `${width}px`;
+            this.axisCanvas.style.height = `${height}px`;
+            axis.appendChild(this.axisCanvas);
+
+            const input = document.createElement('input')
+            input.setAttribute('type', 'checkbox')
+            axis.appendChild(input)
+
+            input.addEventListener('click', async e => {
+                e.stopPropagation()
+
+                console.log('trackView did click material provider input handler')
+                igvPanel.materialProvider = await getMaterialProvider(track)
+                setMaterialProvider(igvPanel.materialProvider)
+
+            })
+
+            this.materialProviderInput = input
+
+        }
+
+        return axis
+
+    }
+}
+
+export { igvClassAdditions }
 export default IGVPanel

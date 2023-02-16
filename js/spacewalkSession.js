@@ -2,19 +2,10 @@ import {URIUtils, BGZip, URLShortener} from 'igv-utils'
 import Zlib from './vendor/zlib_and_gzip.js'
 import hic from 'juicebox.js'
 import Panel from './panel.js'
-import {
-    igvPanel,
-    juiceboxPanel,
-    ensembleManager,
-    sceneManager,
-    contactFrequencyMapPanel,
-    SpacewalkGlobals,
-    guiManager,
-    colorRampMaterialProvider
-} from './app.js'
+import { igvPanel, juiceboxPanel, ensembleManager, sceneManager, contactFrequencyMapPanel, SpacewalkGlobals, guiManager } from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {defaultDistanceThreshold} from "./contactFrequencyMapPanel.js"
-import {setMaterialProvider} from "./utils";
+import {defaultDistanceThreshold} from './contactFrequencyMapPanel.js'
+import {igvClassAdditions} from './IGVPanel.js'
 
 const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
 
@@ -50,6 +41,7 @@ async function loadIGVSession(spacewalk, igv) {
 
     igvPanel.browser.removeAllTracks()
     await igvPanel.browser.loadSession(igv)
+    igvClassAdditions(this)
     igvPanel.configureMouseHandlers()
 
     if ('none' !== spacewalk.igvPanelState) {
