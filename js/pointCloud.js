@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import { ensembleManager, sceneManager } from "./app.js";
+import {ensembleManager, pointCloud, sceneManager} from "./app.js";
 import {StringUtils} from "igv-utils";
 
 const pointSize = 128;
@@ -55,9 +55,8 @@ class PointCloud {
             const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
             if (interpolantWindowList) {
-                const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ]);
-                this.pickHighlighter.configureObjectList(objectList);
-
+                const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ])
+                this.pickHighlighter.configureObjectList(objectList)
             }
 
         } else if ("DidLeaveGenomicNavigator" === type) {
@@ -79,6 +78,8 @@ class PointCloud {
         const str = `Point cloud total ${ StringUtils.numberFormatter(sum)} points`
         console.time(str)
 
+        this.deemphasisColorAttribute = undefined
+
         this.meshList = trace
             .map(({ xyz, rgb, color, drawUsage }) => {
 
@@ -87,13 +88,20 @@ class PointCloud {
                 const positionAttribute = new THREE.Float32BufferAttribute(xyz, 3 )
                 geometry.setAttribute('position', positionAttribute)
 
-                const colorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
-                colorAttribute.setUsage(drawUsage)
-                geometry.setAttribute('color', colorAttribute )
-
                 geometry.userData.color = color
+                geometry.userData.colorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
 
-                const mesh = new THREE.Points( geometry, this.material )
+                if (undefined === this.deemphasisColorAttribute) {
+
+                    this.deemphasisColorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
+                    setGeometryColorAttribute(this.deemphasisColorAttribute.array, pointCloud.deemphasizedColor)
+                }
+
+                geometry.userData.colorAttribute.setUsage(drawUsage)
+                geometry.setAttribute('color', geometry.userData.colorAttribute)
+
+
+                const mesh = new THREE.Points(geometry, this.material)
                 mesh.name = 'point_cloud'
                 return mesh
             })
@@ -156,10 +164,10 @@ class PointCloud {
     }
 }
 
-const setGeometryColorAttribute = (colorList, colorThreeJS) => {
+const setGeometryColorAttribute = (geometryColorAttributeArray, colorThreeJS) => {
 
-    for (let c = 0; c < colorList.length; c++) {
-        colorThreeJS.toArray(colorList, c * 3);
+    for (let c = 0; c < geometryColorAttributeArray.length; c++) {
+        colorThreeJS.toArray(geometryColorAttributeArray, c * 3);
     }
 
 };
