@@ -33,23 +33,14 @@ class IGVPanel extends Panel {
         SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this)
     }
 
-    async initialize({ igvConfig, session }) {
+    async initialize(igvConfig) {
 
         this.browser = undefined
 
         const root = this.$panel.find('#spacewalk_igv_root_container').get(0)
 
-        let mergedConfig
-
-        if (session) {
-            const { showTrackLabels, showRuler, showControls, showCursorTrackingGuide } = igvConfig
-            mergedConfig = { ...session, ...({ showTrackLabels, showRuler, showControls, showCursorTrackingGuide }) }
-         } else {
-            mergedConfig = { ...igvConfig }
-        }
-
         try {
-            this.browser = await igv.createBrowser( root, mergedConfig )
+            this.browser = await igv.createBrowser( root, igvConfig )
         } catch (e) {
             AlertSingleton.present(e.message)
         }
@@ -239,4 +230,5 @@ function igvClassAdditions(igvPanel) {
     }
 }
 
+export { igvClassAdditions }
 export default IGVPanel

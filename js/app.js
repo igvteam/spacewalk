@@ -213,10 +213,15 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     if (igvSessionURL) {
         const str = BGZip.uncompressString(igvSessionURL.substr(5))
-        spacewalkConfig.igvConfig = JSON.parse(str)
-    }
+        const sessionIGVConfig = JSON.parse(str)
 
-    await igvPanel.initialize(spacewalkConfig)
+        const { showTrackLabels, showRuler, showControls, showCursorTrackingGuide, queryParametersSupported } = spacewalkConfig.igvConfig
+        const mergedConfig = { ...sessionIGVConfig, ...{ showTrackLabels, showRuler, showControls, showCursorTrackingGuide, queryParametersSupported } }
+
+        await igvPanel.initialize(mergedConfig)
+    } else {
+        await igvPanel.initialize(spacewalkConfig.igvConfig)
+    }
 
     const $igvMain = $(igvPanel.container)
     const $dropdownMenu = $('#spacewalk-track-dropdown-menu')
