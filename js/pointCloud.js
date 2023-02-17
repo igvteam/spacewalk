@@ -15,7 +15,6 @@ class PointCloud {
         const materialConfig =
             {
                 size: pointSize,
-                // vertexColors: THREE.VertexColors,
                 vertexColors: true,
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
@@ -30,7 +29,6 @@ class PointCloud {
         const deemphasizedConfig =
             {
                 size: pointSize,
-                // vertexColors: THREE.VertexColors,
                 vertexColors: true,
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
@@ -56,7 +54,7 @@ class PointCloud {
 
             if (interpolantWindowList) {
                 const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ])
-                this.pickHighlighter.configureObjectList(objectList)
+                this.pickHighlighter.highlightWithObjectList(objectList)
             }
 
         } else if ("DidLeaveGenomicNavigator" === type) {
@@ -81,22 +79,20 @@ class PointCloud {
         this.deemphasisColorAttribute = undefined
 
         this.meshList = trace
-            .map(({ xyz, rgb, color, drawUsage }) => {
+            .map(({ xyz, rgb, drawUsage }) => {
 
                 const geometry = new THREE.BufferGeometry()
 
-                const positionAttribute = new THREE.Float32BufferAttribute(xyz, 3 )
-                geometry.setAttribute('position', positionAttribute)
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(xyz, 3 ))
 
-                geometry.userData.color = color
+                // retain a copy of color for use during highlight/unhighlight
                 geometry.userData.colorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
-
-                geometry.userData.deemphasisColorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
-                setGeometryColorAttribute(geometry.userData.deemphasisColorAttribute.array, pointCloud.deemphasizedColor)
-
                 geometry.userData.colorAttribute.setUsage(drawUsage)
                 geometry.setAttribute('color', geometry.userData.colorAttribute)
 
+                // retain a copy of emphasise color for use during highlight/unhighlight
+                geometry.userData.deemphasisColorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
+                setGeometryColorAttribute(geometry.userData.deemphasisColorAttribute.array, pointCloud.deemphasizedColor)
 
                 const mesh = new THREE.Points(geometry, this.material)
                 mesh.name = 'point_cloud'
@@ -161,13 +157,10 @@ class PointCloud {
     }
 }
 
-const setGeometryColorAttribute = (geometryColorAttributeArray, colorThreeJS) => {
-
+function setGeometryColorAttribute(geometryColorAttributeArray, threeJSColor) {
     for (let c = 0; c < geometryColorAttributeArray.length; c++) {
-        colorThreeJS.toArray(geometryColorAttributeArray, c * 3);
+        threeJSColor.toArray(geometryColorAttributeArray, c * 3);
     }
+}
 
-};
-
-export { setGeometryColorAttribute }
 export default PointCloud;
