@@ -30,11 +30,19 @@ class PointCloud {
             {
                 size: pointSize,
                 vertexColors: true,
+                // map: new THREE.TextureLoader().load( "texture/blank.png" ),
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
                 alphaTest: 0.5,
-                transparent: true,
-                depthTest: true
+
+                // NOTE: Turning off transparency makes the deemphasized points a backdrop for
+                //       the highlighted points
+                // transparent: true,
+                transparent: false,
+
+                // Do not participate in depth testing
+                // depthTest: true
+                depthTest: false
             };
 
         this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );

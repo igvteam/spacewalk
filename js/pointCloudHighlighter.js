@@ -28,14 +28,16 @@ class PointCloudHighlighter {
             return
         }
 
-        for (const { geometry } of pointCloud.meshList) {
-            geometry.setAttribute('color', geometry.userData.deemphasisColorAttribute)
-            geometry.attributes.color.needsUpdate = true
+        for (const mesh of pointCloud.meshList) {
+            mesh.material = pointCloud.deemphasizedMaterial
+            mesh.geometry.setAttribute('color', mesh.geometry.userData.deemphasisColorAttribute)
+            mesh.geometry.attributes.color.needsUpdate = true
         }
 
-        for (const { geometry } of this.objects) {
-            geometry.setAttribute('color', geometry.userData.colorAttribute )
-            geometry.attributes.color.needsUpdate = true
+        for (const mesh of this.objects) {
+            mesh.material = pointCloud.material
+            mesh.geometry.setAttribute('color', mesh.geometry.userData.colorAttribute )
+            mesh.geometry.attributes.color.needsUpdate = true
         }
     }
 
@@ -45,9 +47,10 @@ class PointCloudHighlighter {
             return
         }
 
-        for (const { geometry }  of pointCloud.meshList) {
-            geometry.setAttribute('color', geometry.userData.colorAttribute )
-            geometry.attributes.color.needsUpdate = true
+        for (const mesh of pointCloud.meshList) {
+            mesh.material = pointCloud.material
+            mesh.geometry.setAttribute('color', mesh.geometry.userData.colorAttribute )
+            mesh.geometry.attributes.color.needsUpdate = true
         }
 
         this.objects = undefined
