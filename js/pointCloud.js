@@ -91,11 +91,8 @@ class PointCloud {
                 geometry.userData.color = color
                 geometry.userData.colorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
 
-                if (undefined === this.deemphasisColorAttribute) {
-
-                    this.deemphasisColorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
-                    setGeometryColorAttribute(this.deemphasisColorAttribute.array, pointCloud.deemphasizedColor)
-                }
+                geometry.userData.deemphasisColorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
+                setGeometryColorAttribute(geometry.userData.deemphasisColorAttribute.array, pointCloud.deemphasizedColor)
 
                 geometry.userData.colorAttribute.setUsage(drawUsage)
                 geometry.setAttribute('color', geometry.userData.colorAttribute)

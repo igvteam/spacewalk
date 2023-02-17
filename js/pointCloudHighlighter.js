@@ -36,7 +36,7 @@ class PointCloudHighlighter {
         const str = `PointCloud - Highlight`
         console.time(str)
         for (const object of pointCloud.meshList) {
-            object.geometry.setAttribute('color', pointCloud.deemphasisColorAttribute)
+            object.geometry.setAttribute('color', object.geometry.userData.deemphasisColorAttribute)
             object.geometry.attributes.color.needsUpdate = true
         }
         for (const object of this.objects) {
@@ -57,7 +57,6 @@ class PointCloudHighlighter {
         for (let object of pointCloud.meshList) {
             object.geometry.setAttribute('color', object.geometry.userData.colorAttribute )
             object.geometry.attributes.color.needsUpdate = true
-            // setGeometryColorAttribute(object.geometry.attributes.color.array, object.geometry.userData.color)
         }
 
         this.objects = undefined
