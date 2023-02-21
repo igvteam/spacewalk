@@ -4,7 +4,7 @@ import igv from 'igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {getMaterialProvider, setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
-import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager} from './app.js'
+import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, igvPanel } from './app.js'
 
 class IGVPanel extends Panel {
 
@@ -72,7 +72,7 @@ class IGVPanel extends Panel {
         this.$panel.resizable(config)
 
         if (this.browser) {
-            igvClassAdditions(this)
+            igvClassAdditions()
             this.configureMouseHandlers()
         }
 
@@ -187,7 +187,7 @@ class IGVPanel extends Panel {
     }
 }
 
-function igvClassAdditions(igvPanel) {
+function igvClassAdditions() {
 
     igv.TrackView.prototype.createAxis = function(browser, track) {
 
