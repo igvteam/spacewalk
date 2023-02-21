@@ -115,7 +115,7 @@ const initializationHelper = async container => {
 
     await initializeMaterialLibrary()
 
-    pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(highlightColor), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
+    pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
     ribbon = new Ribbon();
 

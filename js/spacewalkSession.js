@@ -41,7 +41,7 @@ async function loadIGVSession(spacewalk, igv) {
 
     igvPanel.browser.removeAllTracks()
     await igvPanel.browser.loadSession(igv)
-    igvClassAdditions(this)
+    igvClassAdditions()
     igvPanel.configureMouseHandlers()
 
     if ('none' !== spacewalk.igvPanelState) {
