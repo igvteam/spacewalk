@@ -21,15 +21,15 @@ class LiveContactMapDataSet {
 
     getZoomDataByIndex(chr1, chr2, zoomIndex) {
 
-        const zoomData =
-            {
+        const chr1Object = this.genome.getChromosome(this.genome.wgChromosomeNames[ chr1 ])
+        const chr2Object = this.genome.getChromosome(this.genome.wgChromosomeNames[ chr2 ])
+
+        return {
                 averageCount: this.averageCount,
-                chr1: this.genome.getChromosomeAtIndex(chr1),
-                chr2: this.genome.getChromosomeAtIndex(chr2),
+                chr1: chr1Object,
+                chr2: chr2Object,
                 zoom: { index: 0, unit: 'BP', binSize: this.binSize }
             }
-
-        return zoomData
 
     }
 

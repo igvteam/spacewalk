@@ -117,11 +117,11 @@ class EnsembleManager {
         return this.datasource.getLiveContactFrequencyMapVertexLists()
     }
 
-    static getEnsembleTraceVertices(ensembleTrace) {
+    getEnsembleTraceVertices(ensembleTrace) {
 
         return ensembleTrace
-            .map(({ xyz }) => {
-                const { x, y, z, isMissingData } = xyz
+            .map(record => {
+                const { x, y, z, isMissingData } = true === this.isPointCloud ? record.centroid : record.xyz
                 return true === isMissingData ? { isMissingData } : { x, y, z }
             })
 

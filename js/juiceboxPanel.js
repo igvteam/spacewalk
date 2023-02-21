@@ -272,13 +272,13 @@ function juiceboxClassAdditions() {
         const xEndBP = xBP + widthBP
 
         // chromosome length - bp & bin
-        const { name, size:lengthBP } = genome.getChromosomeAtIndex(chr1)
-        const lengthBin = lengthBP / binSize
+        const { name, bpLength } = genome.getChromosome(genome.wgChromosomeNames[ chr1 ])
+        const lengthBin = bpLength / binSize
 
         const f = StringUtils.numberFormatter(width)
         const d = StringUtils.numberFormatter(x)
         const g = StringUtils.numberFormatter(xBP)
-        const a = StringUtils.numberFormatter(lengthBP)
+        const a = StringUtils.numberFormatter(bpLength)
         const b = StringUtils.numberFormatter(lengthBin)
         const c = StringUtils.numberFormatter(binSize)
         const e = StringUtils.numberFormatter(pixelSize)
