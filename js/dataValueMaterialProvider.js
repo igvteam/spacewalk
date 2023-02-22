@@ -1,3 +1,4 @@
+import {StringUtils} from "igv-utils";
 import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255ToThreeJSColor} from './color.js'
 
 class DataValueMaterialProvider {
@@ -39,6 +40,8 @@ class DataValueMaterialProvider {
             }
 
         }
+
+        console.log(`data value material provider - features(${ StringUtils.numberFormatter(features.length) }) interpolant-window ${ StringUtils.numberFormatter(this.interpolantWindows.length) }`)
     }
 
     colorForInterpolant(interpolant) {
