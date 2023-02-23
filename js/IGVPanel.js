@@ -169,15 +169,7 @@ class IGVPanel extends Panel {
         const { trackViews } = this.browser
         const [ track ] = trackViews.map(({ track }) => track).filter(track => state === track.name)
 
-        const { chr, start, end, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
-        const features = await track.getFeatures(chr, start, end, bpPerPixel)
-
-        if (track.trackView.dataRange()) {
-            const { min, max } = track.trackView.dataRange()
-            dataValueMaterialProvider.configure({ track, startBP: start, endBP: end, features, min, max })
-        } else {
-            dataValueMaterialProvider.configure({ track, startBP: start, endBP: end, features })
-        }
+        await dataValueMaterialProvider.configure(track)
 
         this.materialProvider = dataValueMaterialProvider
         setMaterialProvider(dataValueMaterialProvider)
