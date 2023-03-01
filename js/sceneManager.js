@@ -94,8 +94,6 @@ class SceneManager {
             await igvPanel.browser.loadGenome(ensembleManager.genomeAssembly)
         }
 
-        await igvPanel.locusDidChange(ensembleManager.locus)
-
         await juiceboxPanel.locusDidChange(ensembleManager.locus)
 
         EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
@@ -126,9 +124,9 @@ class SceneManager {
 
         setMaterialProvider(colorRampMaterialProvider)
 
-        igvPanel.locusDidChange(ensembleManager.locus)
+        await igvPanel.locusDidChange(ensembleManager.locus)
 
-        juiceboxPanel.locusDidChange(ensembleManager.locus)
+        await juiceboxPanel.locusDidChange(ensembleManager.locus)
 
     }
 

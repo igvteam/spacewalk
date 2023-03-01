@@ -72,30 +72,30 @@ const showNormalsMaterial = new THREE.MeshNormalMaterial();
 let sceneBackgroundDiagnosticTexture = undefined;
 let sceneBackgroundTexture = undefined;
 
-const initializeMaterialLibrary = async () => {
+async function initializeMaterialLibrary() {
 
     shaderLibrary.init()
 
-    let str;
-
-    str = `Specular Cubic Texture Load of ${ specularTextureRoot } Complete`;
-    console.time(str);
+    // let str;
+    //
+    // str = `Specular Cubic Texture Load of ${ specularTextureRoot } Complete`;
+    // console.time(str);
 
     await specularCubicMapManager.loadTexture();
     specularCubicTexture = specularCubicMapManager.cubicTexture;
 
-    console.timeEnd(str);
-
-    str = `Diffuse Cubic Texture Load of ${ diffuseTextureRoot } Complete`;
-    console.time(str);
+    // console.timeEnd(str);
+    //
+    // str = `Diffuse Cubic Texture Load of ${ diffuseTextureRoot } Complete`;
+    // console.time(str);
 
     await diffuseCubicMapManager.loadTexture();
     diffuseCubicTexture = diffuseCubicMapManager.cubicTexture;
 
-    console.timeEnd(str);
-
-    str = `Scene Background Texture Load Complete`;
-    console.time(str);
+    // console.timeEnd(str);
+    //
+    // str = `Scene Background Texture Load Complete`;
+    // console.time(str);
 
     const sceneBackgroundTexturePromise = new Promise(resolve => {
         new THREE.TextureLoader().load(sceneBackgroundTextureFile, resolve);
@@ -103,10 +103,10 @@ const initializeMaterialLibrary = async () => {
 
     sceneBackgroundTexture = await sceneBackgroundTexturePromise;
 
-    console.timeEnd(str);
-
-    str = `Scene Background Diagnostic Texture Load Complete`;
-    console.time(str);
+    // console.timeEnd(str);
+    //
+    // str = `Scene Background Diagnostic Texture Load Complete`;
+    // console.time(str);
 
     const sceneBackgroundDiagnosticTexturePromise = new Promise(resolve => {
         new THREE.TextureLoader().load(sceneBackgroundDiagnosticTextureFile, resolve);
@@ -114,8 +114,8 @@ const initializeMaterialLibrary = async () => {
 
     sceneBackgroundDiagnosticTexture = await sceneBackgroundDiagnosticTexturePromise;
 
-    console.timeEnd(str);
+    // console.timeEnd(str);
 
-};
+}
 
 export { initializeMaterialLibrary, sceneBackgroundDiagnosticTexture, sceneBackgroundTexture, diffuseCubicTexture, specularCubicTexture, showNormalsMaterial, shaderLibrary };

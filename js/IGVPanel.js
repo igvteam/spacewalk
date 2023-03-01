@@ -166,9 +166,11 @@ class IGVPanel extends Panel {
 
     async restoreSessionState(state) {
 
-        const { trackViews } = this.browser
-        const [ track ] = trackViews.map(({ track }) => track).filter(track => state === track.name)
+        const [ track ] = this.browser.trackViews.map(({ track }) => track).filter(track => state === track.name)
 
+        if (false === track.trackView.loading) {
+            console.warn(`Danger. track(${ track.name }) is NOT loaded. Can not use for feature mapping`)
+        }
         await dataValueMaterialProvider.configure(track)
 
         this.materialProvider = dataValueMaterialProvider
