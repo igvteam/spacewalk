@@ -15,7 +15,6 @@ class DataValueMaterialProvider {
         const { chr, start:startBP, end:endBP, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
         const [ viewport ] = track.trackView.viewports
 
-        console.log('dvmp - track.getFeatures(...)')
         const features = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
 
         const dataRange = igv.IGVUtils.doAutoscale(features)
