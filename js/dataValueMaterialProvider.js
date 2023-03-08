@@ -17,7 +17,10 @@ class DataValueMaterialProvider {
 
         console.log('dvmp - track.getFeatures(...)')
         const features = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
-        const { min, max } = igv.IGVUtils.doAutoscale(features)
+
+        const dataRange = igv.IGVUtils.doAutoscale(features)
+
+        const { min, max } = dataRange
 
         this.interpolantWindows = []
         for (let feature of features) {
@@ -54,18 +57,16 @@ class DataValueMaterialProvider {
     async _IN_PROGRESS_configure(track) {
 
         const { chr, start, end, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
-
         const [ viewport ] = track.trackView.viewports
-        const { features } = viewport.featureCache
 
-        const allFeatures = await track.getFeatures(chr, start, end, bpPerPixel)
+        const allFeatures = await viewport.getFeatures(track, chr, start, end, bpPerPixel)
         const dataRange = igv.IGVUtils.doAutoscale(allFeatures)
         const { min:globalMin, max:globalMax } = dataRange
 
         this.colorList = []
         for (const { startBP, endBP } of ensembleManager.datasource.genomicExtentList) {
 
-            const features = await track.getFeatures(chr, startBP, endBP, bpPerPixel)
+            const features = await viewport.getFeatures(chr, startBP, endBP, bpPerPixel)
 
             if (features && features.length > 0) {
 

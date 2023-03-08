@@ -193,7 +193,13 @@ function igvClassAdditions() {
 
         axis.style.height = `${track.height}px`;
 
-        if (false === exclusionTrackTypes.has(track.type)) {
+        let isRefGene = false
+
+        if ((track.config && track.config.format && 'refgene' === track.config.format)) {
+            isRefGene = true
+        }
+
+        if (false === exclusionTrackTypes.has(track.type) && false === isRefGene) {
 
             const {width, height} = axis.getBoundingClientRect();
 
