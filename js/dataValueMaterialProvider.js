@@ -13,7 +13,10 @@ class DataValueMaterialProvider {
     async configure(track) {
 
         const { chr, start:startBP, end:endBP, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
-        const features = await track.getFeatures(chr, startBP, endBP, bpPerPixel)
+        const [ viewport ] = track.trackView.viewports
+
+        console.log('dvmp - track.getFeatures(...)')
+        const features = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
         const { min, max } = igv.IGVUtils.doAutoscale(features)
 
         this.interpolantWindows = []

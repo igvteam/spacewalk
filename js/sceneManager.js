@@ -94,6 +94,8 @@ class SceneManager {
             await igvPanel.browser.loadGenome(ensembleManager.genomeAssembly)
         }
 
+        await igvPanel.locusDidChange(ensembleManager.locus)
+
         await juiceboxPanel.locusDidChange(ensembleManager.locus)
 
         EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
