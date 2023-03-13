@@ -1,5 +1,5 @@
 import igv from 'igv'
-import {StringUtils} from 'igv-utils';
+import {StringUtils} from 'igv-utils'
 import {ensembleManager} from './app.js'
 import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255ToThreeJSColor} from './color.js'
 
@@ -14,12 +14,8 @@ class DataValueMaterialProvider {
 
         const { chr, start:startBP, end:endBP, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
         const [ viewport ] = track.trackView.viewports
-
         const features = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
-
-        const dataRange = igv.IGVUtils.doAutoscale(features)
-
-        const { min, max } = dataRange
+        const { min, max } = track.dataRange
 
         this.interpolantWindows = []
         for (let feature of features) {
