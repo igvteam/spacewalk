@@ -2,6 +2,7 @@ import igv from 'igv'
 import {StringUtils} from 'igv-utils'
 import {ensembleManager} from './app.js'
 import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255ToThreeJSColor} from './color.js'
+import * as THREE from "three";
 
 class DataValueMaterialProvider {
 
@@ -47,6 +48,53 @@ class DataValueMaterialProvider {
             }
 
         }
+
+        // IN PROGRESS
+        const str = `DVMP - Testing revised configuration)`
+        console.time(str)
+
+        this.colorList = []
+        for (const { startBP, endBP } of ensembleManager.datasource.genomicExtentList) {
+            const features = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
+            if (features && features.length > 0) {
+
+                const result = features.reduce((acc, feature, currentIndex) => {
+
+                    if (feature.value > acc.max) {
+                        acc.max = feature.value
+                        acc.index = currentIndex
+                    }
+
+                    return acc
+
+                }, { max: Number.NEGATIVE_INFINITY, index: 0 })
+
+                const interpolant = (result.max - min)/(max - min)
+                const feature = features[ result.index ]
+
+                let color
+                if (feature.color) {
+
+                    const [ r, g, b ] = colorString2Tokens(feature.color)
+                    color = rgb255(r, g, b)
+                } else if ('function' === typeof track.getColorForFeature) {
+
+                    color = getRGB255(track.getColorForFeature(feature))
+                } else {
+
+                    color = track.color || track.defaultColor
+                    if (color) {
+                        color = getRGB255(color)
+                    }
+                }
+
+                this.colorList.push({ color, interpolant })
+
+            }
+        }
+        console.timeEnd(str)
+
+        console.log(`DVMP - colorlist ${ StringUtils.numberFormatter(this.colorList.length )}`)
     }
 
     async _IN_PROGRESS_configure(track) {
@@ -59,8 +107,11 @@ class DataValueMaterialProvider {
         const { min:globalMin, max:globalMax } = dataRange
 
         this.colorList = []
-        for (const { startBP, endBP } of ensembleManager.datasource.genomicExtentList) {
+        const tempColor = new THREE.Color()
+        this.rgbFloat32Array = new Float32Array(ensembleManager.datasource.genomicExtentList.length)
+        for (let i = 0; i < ensembleManager.datasource.genomicExtentList.length; i++) {
 
+            const { startBP, endBP } = ensembleManager.datasource.genomicExtentList[ i ]
             const features = await viewport.getFeatures(chr, startBP, endBP, bpPerPixel)
 
             if (features && features.length > 0) {
@@ -94,7 +145,8 @@ class DataValueMaterialProvider {
                     }
                 }
 
-                this.colorList.push({ color, interpolant })
+                const { r, g, b } = color
+                tempColor.set(rgb255ToThreeJSColor(r, g, b)).toArray(this.rgbFloat32Array, i * 3)
 
             } // if (features)
 
