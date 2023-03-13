@@ -4,7 +4,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { clamp } from './math.js'
 import { generateRadiusTable } from "./utils.js"
-import { ensembleManager, sceneManager } from './app.js'
+import {ensembleManager, igvPanel, sceneManager} from './app.js'
 import { appleCrayonColorThreeJS } from "./color.js"
 import EnsembleManager from './ensembleManager.js'
 
@@ -61,6 +61,10 @@ class BallAndStick {
         ballRadiusTable = generateRadiusTable(2e-1 * averageCurveDistance);
         ballRadiusIndex = Math.floor( ballRadiusTable.length/2 );
         this.balls = this.createBalls(trace, ballRadiusTable[ ballRadiusIndex ]);
+
+        if (igvPanel.materialProvider) {
+            this.updateMaterialProvider(igvPanel.materialProvider)
+        }
 
         if (sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
