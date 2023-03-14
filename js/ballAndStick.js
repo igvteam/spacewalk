@@ -4,7 +4,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { clamp } from './math.js'
 import { generateRadiusTable } from "./utils.js"
-import {ensembleManager, igvPanel, sceneManager} from './app.js'
+import {colorRampMaterialProvider, ensembleManager, igvPanel, sceneManager} from './app.js'
 import { appleCrayonColorThreeJS } from "./color.js"
 import EnsembleManager from './ensembleManager.js'
 
@@ -83,12 +83,16 @@ class BallAndStick {
 
         console.log(`Ball&Stick. Create ${ StringUtils.numberFormatter(trace.length) } balls. Tesselation width ${ widthSegments } height ${ heightSegments }`)
 
-        // material stuff
-        this.rgb = trace.map(({ color }) => color)
+        this.rgb = []
 
-        const threeJSColor = new THREE.Color()
-        const list = new Array(trace.length).fill().flatMap((_, i) => threeJSColor.set(this.rgb[ i ]).toArray())
-        this.rgbFloat32Array = Float32Array.from(list)
+        const colorList = new Array(trace.length)
+            .fill()
+            .flatMap((_, i) => {
+                this.rgb[ i ] = colorRampMaterialProvider.colorForInterpolant(ensembleManager.datasource.genomicExtentList[ i ].interpolant)
+                return this.rgb[ i ].toArray()
+            })
+
+        this.rgbFloat32Array = Float32Array.from(colorList)
 
         // assign instance color list to canonical geometry
         geometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(this.rgbFloat32Array, 3) )
@@ -215,14 +219,12 @@ class BallAndStick {
             return
         }
 
-        const color = new THREE.Color()
-
         this.rgb = []
         for (let i = 0; i < ensembleManager.currentTrace.length; i++) {
             const { interpolant } = ensembleManager.currentTrace[ i ]
-            const interpolatedColor = materialProvider.colorForInterpolant(interpolant)
-            this.rgb.push( interpolatedColor );
-            color.set(interpolatedColor).toArray(this.rgbFloat32Array, i * 3)
+            const color = materialProvider.colorForInterpolant(interpolant)
+            this.rgb.push( color )
+            color.toArray(this.rgbFloat32Array, i * 3)
         }
 
         this.balls.geometry.attributes.instanceColor.needsUpdate = true

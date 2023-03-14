@@ -16,7 +16,14 @@ class DataValueMaterialProvider {
         const { chr, start:startBP, end:endBP, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
         const [ viewport ] = track.trackView.viewports
         const features = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
-        const { min, max } = track.dataRange
+
+        let min = undefined
+        let max = undefined
+
+        if (track.dataRange) {
+            min = track.dataRange.min
+            max = track.dataRange.max
+        }
 
         this.interpolantWindows = []
         for (let feature of features) {
@@ -69,7 +76,6 @@ class DataValueMaterialProvider {
 
                 }, { max: Number.NEGATIVE_INFINITY, index: 0 })
 
-                const interpolant = (result.max - min)/(max - min)
                 const feature = features[ result.index ]
 
                 let color
@@ -88,7 +94,8 @@ class DataValueMaterialProvider {
                     }
                 }
 
-                this.colorList.push({ color, interpolant })
+                const { r, g, b } = color
+                this.colorList.push(rgb255ToThreeJSColor(r, g, b))
 
             }
         }
