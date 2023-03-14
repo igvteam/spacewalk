@@ -1,7 +1,7 @@
 import igv from 'igv'
 import {StringUtils} from 'igv-utils'
 import {ensembleManager} from './app.js'
-import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255ToThreeJSColor} from './color.js'
+import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255String, rgb255ToThreeJSColor} from './color.js'
 import * as THREE from "three";
 
 class DataValueMaterialProvider {
@@ -25,6 +25,7 @@ class DataValueMaterialProvider {
             max = track.dataRange.max
         }
 
+        // TODO: Currently still using this for Ribbon
         this.interpolantWindows = []
         for (let feature of features) {
 
@@ -56,13 +57,13 @@ class DataValueMaterialProvider {
 
         }
 
-        // IN PROGRESS
-        const str = `DVMP - Testing revised configuration)`
-        console.time(str)
+        // TODO: Make this the Ribbon color source
 
         this.colorList = []
         for (const { startBP, endBP } of ensembleManager.datasource.genomicExtentList) {
-            const features = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
+            const everything = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
+            const features = everything.filter(({ start, end }) => !(end < startBP) && !(start > endBP))
+
             if (features && features.length > 0) {
 
                 const result = features.reduce((acc, feature, currentIndex) => {
@@ -94,14 +95,13 @@ class DataValueMaterialProvider {
                     }
                 }
 
-                const { r, g, b } = color
+                const interpolant = (feature.value - min) / (max - min)
+                const { r, g, b } = rgb255Lerp(this.colorMinimum, color, interpolant)
                 this.colorList.push(rgb255ToThreeJSColor(r, g, b))
 
             }
         }
-        console.timeEnd(str)
 
-        console.log(`DVMP - colorlist ${ StringUtils.numberFormatter(this.colorList.length )}`)
     }
 
     async _IN_PROGRESS_configure(track) {

@@ -4,7 +4,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { clamp } from './math.js'
 import { generateRadiusTable } from "./utils.js"
-import {colorRampMaterialProvider, ensembleManager, igvPanel, sceneManager} from './app.js'
+import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, igvPanel, sceneManager} from './app.js'
 import { appleCrayonColorThreeJS } from "./color.js"
 import EnsembleManager from './ensembleManager.js'
 
@@ -52,7 +52,6 @@ class BallAndStick {
 
         const stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVertices(trace, true))
         const averageCurveDistance  = computeAverageCurveDistance(stickCurves)
-        // console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`)
 
         stickRadiusTable = generateRadiusTable(0.5e-1 * averageCurveDistance);
         stickRadiusIndex = Math.floor( stickRadiusTable.length/2 );
@@ -60,11 +59,7 @@ class BallAndStick {
 
         ballRadiusTable = generateRadiusTable(2e-1 * averageCurveDistance);
         ballRadiusIndex = Math.floor( ballRadiusTable.length/2 );
-        this.balls = this.createBalls(trace, ballRadiusTable[ ballRadiusIndex ]);
-
-        if (igvPanel.materialProvider) {
-            this.updateMaterialProvider(igvPanel.materialProvider)
-        }
+        this.balls = this.createBalls(trace, igvPanel.materialProvider, ballRadiusTable[ ballRadiusIndex ]);
 
         if (sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
@@ -73,7 +68,7 @@ class BallAndStick {
         }
     }
 
-    createBalls(trace, ballRadius) {
+    createBalls(trace, materialProvider, ballRadius) {
 
         // canonical ball geometry
         const widthSegments = 32
@@ -88,7 +83,13 @@ class BallAndStick {
         const colorList = new Array(trace.length)
             .fill()
             .flatMap((_, i) => {
-                this.rgb[ i ] = colorRampMaterialProvider.colorForInterpolant(ensembleManager.datasource.genomicExtentList[ i ].interpolant)
+
+                if (materialProvider === dataValueMaterialProvider) {
+                    this.rgb[ i ] = materialProvider.colorList[ i ]
+                } else {
+                    this.rgb[ i ] = materialProvider.colorForInterpolant(ensembleManager.datasource.genomicExtentList[ i ].interpolant)
+                }
+
                 return this.rgb[ i ].toArray()
             })
 
@@ -215,19 +216,33 @@ class BallAndStick {
 
     updateMaterialProvider (materialProvider) {
 
-        if (undefined === this.balls) {
-            return
+        if (this.balls) {
+
+            this.rgb = []
+
+            if (dataValueMaterialProvider === materialProvider) {
+
+                for (let i = 0; i < materialProvider.colorList.length; i++) {
+                    const color = materialProvider.colorList[ i ]
+                    this.rgb.push( color )
+                    color.toArray(this.rgbFloat32Array, i * 3)
+                }
+
+            } else {
+
+                for (let i = 0; i < ensembleManager.currentTrace.length; i++) {
+                    const { interpolant } = ensembleManager.currentTrace[ i ]
+                    const color = materialProvider.colorForInterpolant(interpolant)
+                    this.rgb.push( color )
+                    color.toArray(this.rgbFloat32Array, i * 3)
+                }
+
+            }
+
+            this.balls.geometry.attributes.instanceColor.needsUpdate = true
+
         }
 
-        this.rgb = []
-        for (let i = 0; i < ensembleManager.currentTrace.length; i++) {
-            const { interpolant } = ensembleManager.currentTrace[ i ]
-            const color = materialProvider.colorForInterpolant(interpolant)
-            this.rgb.push( color )
-            color.toArray(this.rgbFloat32Array, i * 3)
-        }
-
-        this.balls.geometry.attributes.instanceColor.needsUpdate = true
     }
     renderLoopHelper () {
 

@@ -47,10 +47,6 @@ class Ribbon {
 
         this.spline = this.createFatSpline(trace, igvPanel.materialProvider)
 
-        if (igvPanel.materialProvider) {
-            this.updateMaterialProvider(igvPanel.materialProvider)
-        }
-
         if (sceneManager.renderStyle === Ribbon.getRenderStyle()) {
             this.show()
         } else {
