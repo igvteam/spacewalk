@@ -98,7 +98,11 @@ async function initializeMaterialLibrary() {
     // console.time(str);
 
     const sceneBackgroundTexturePromise = new Promise(resolve => {
-        new THREE.TextureLoader().load(sceneBackgroundTextureFile, resolve);
+
+        const texas = new THREE.TextureLoader().load(sceneBackgroundTextureFile, resolve)
+        texas.colorSpace = THREE.SRGBColorSpace
+
+        return texas
     });
 
     sceneBackgroundTexture = await sceneBackgroundTexturePromise;
@@ -109,7 +113,10 @@ async function initializeMaterialLibrary() {
     // console.time(str);
 
     const sceneBackgroundDiagnosticTexturePromise = new Promise(resolve => {
-        new THREE.TextureLoader().load(sceneBackgroundDiagnosticTextureFile, resolve);
+        const texas = new THREE.TextureLoader().load(sceneBackgroundDiagnosticTextureFile, resolve)
+        texas.colorSpace = THREE.SRGBColorSpace
+
+        return texas
     });
 
     sceneBackgroundDiagnosticTexture = await sceneBackgroundDiagnosticTexturePromise;

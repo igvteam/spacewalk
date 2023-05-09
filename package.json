@@ -18,8 +18,8 @@
     "juicebox.js": "github:igvteam/juicebox.js#spacewalk",
     "node-fetch": "^3.3.0",
     "sass": "^1.58.3",
-    "three": "^0.150.1",
+    "three": "^0.152.2",
     "vanilla-picker": "^2.12.1",
-    "vite": "^4.1.4"
+    "vite": "^4.3.5"
   }
 }

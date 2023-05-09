@@ -22,7 +22,7 @@ export const threeJSColorToRGB255 = (color) => {
 }
 
 export const rgb255ToThreeJSColor = (r, g, b) => {
-    return new THREE.Color(r/255, g/255, b/255);
+    return new THREE.Color(r/255, g/255, b/255).convertSRGBToLinear()
 }
 
 export const rgb255String = ({r, g, b}) => {
@@ -257,7 +257,9 @@ const appleCrayonRandomColorHexValue = () => {
 }
 
 const appleCrayonColorThreeJS = name => {
-    return new THREE.Color(appleCrayonColorHexValue(name));
+    // HEX colors are automatically converted to linear color space.
+    // No need explicitly call convertSRGBToLinear()
+    return new THREE.Color(appleCrayonPaletteDictionary[ name ])
 }
 
 const appleCrayonColorRGB255 = name => {

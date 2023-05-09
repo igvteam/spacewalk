@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import { ensembleManager, colorRampMaterialProvider, ballAndStick } from "./app.js";
 
-const rgbTemp = new THREE.Color();
-
 class BallHighlighter {
 
     constructor (highlightColor) {
@@ -42,7 +40,7 @@ class BallHighlighter {
         if (ballAndStick.balls && this.instanceIdList) {
 
             for (let instanceId of this.instanceIdList) {
-                rgbTemp.set(this.highlightColor).toArray(ballAndStick.rgbFloat32Array, instanceId * 3)
+                this.highlightColor.toArray(ballAndStick.rgbFloat32Array, instanceId * 3)
             }
 
             ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true
