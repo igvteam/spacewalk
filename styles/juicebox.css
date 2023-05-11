@@ -410,9 +410,9 @@
   justify-content: flex-end;
   align-items: center;
   width: 100%;
-  height: 32px;
-  margin-top: 4px;
-  margin-bottom: 4px;
+  height: calc(-.5 * hic-menu-item-height);
+  margin-top: calc(-.5 * hic-menu-margin);
+  margin-bottom: calc(-.5 * hic-menu-margin);
   padding-right: 8px;
 }
 .hic-menu-close-button i.fa {
@@ -937,7 +937,7 @@ div[id$=x-track-container] div[id$=x-tracks] .x-track-canvas-container .x-track-
   left: 50%;
   width: 36px;
   height: 36px;
-  margin-left: -18px;
+  margin-left: calc(-.5 * track-height);
   background-color: rgba(255, 255, 255, 0);
 }
 
@@ -1041,7 +1041,7 @@ div[id$=content-container] div[id$=y-tracks-y-axis-viewport-y-scrollbar] div[id$
   left: 0;
   width: 36px;
   height: 36px;
-  margin-top: -18px;
+  margin-top: calc(-.5 * track-height);
   background-color: rgba(255, 255, 255, 0);
 }
 div[id$=content-container] div[id$=y-tracks-y-axis-viewport-y-scrollbar] div[id$=y-axis] {
