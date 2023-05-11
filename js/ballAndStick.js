@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { StringUtils } from 'igv-utils'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { clamp } from './math.js'
 import { generateRadiusTable } from "./utils.js"
 import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, igvPanel, sceneManager} from './app.js'
@@ -169,7 +169,7 @@ class BallAndStick {
 
         // Aggregate geometry list into single BufferGeometry
         const material = sceneManager.stickMaterial.clone();
-        const mesh = new THREE.Mesh(mergeBufferGeometries( geometries ), material);
+        const mesh = new THREE.Mesh(mergeGeometries( geometries ), material);
         mesh.name = 'stick';
         return mesh;
 
@@ -211,7 +211,7 @@ class BallAndStick {
         stickRadiusIndex = clamp(stickRadiusIndex + increment, 0, stickRadiusTable.length - 1);
         const radius = stickRadiusTable[ stickRadiusIndex ];
         // const geometries = this.stickCurves.map(curve => new THREE.TubeBufferGeometry(curve, stickTesselation.length, radius, stickTesselation.radial, false));
-        // this.sticks.geometry.copy(mergeBufferGeometries( geometries ));
+        // this.sticks.geometry.copy(mergeGeometries( geometries ));
     }
 
     updateMaterialProvider (materialProvider) {
