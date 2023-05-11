@@ -16,15 +16,6 @@ function colorString2Tokens(string) {
     }
 }
 
-export const threeJSColorToRGB255 = (color) => {
-    const { r, g, b } = color;
-    return { r: Math.floor(r*255), g: Math.floor(g*255), b: Math.floor(b*255) };
-}
-
-export const rgb255ToThreeJSColor = (r, g, b) => {
-    return new THREE.Color(r/255, g/255, b/255).convertSRGBToLinear()
-}
-
 export const rgb255String = ({r, g, b}) => {
     return `rgb(${r},${g},${b})`;
 }
@@ -87,7 +78,7 @@ export const rgbaRandomConstantAlpha255 = (min, max, alpha) => {
 
 const rgb2hex = (r255, g255, b255) => {
     return ((r255&0x0ff)<<16)|((g255&0x0ff)<<8)|(b255&0x0ff);
-};
+}
 
 const hex2RGB255 = (hex) => {
 
@@ -98,7 +89,7 @@ const hex2RGB255 = (hex) => {
 
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {  r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : undefined;
-};
+}
 
 const appleCrayonPaletteDictionary =
     {
@@ -155,119 +146,27 @@ const appleCrayonPaletteDictionary =
         carnation: "#ff7fd3"
     };
 
-const appleCrayonNames = Object.keys(appleCrayonPaletteDictionary);
-
-const appleCrayonPaletteNoGreyDictionary =
-    {
-        //
-        cayenne: "#891100",
-        mocha: "#894800",
-        aspargus: "#888501",
-        fern: "#458401",
-        clover: "#028401",
-        moss: "#018448",
-        teal: "#008688",
-        ocean: "#004a88",
-        midnight: "#001888",
-        eggplant: "#491a88",
-        plum: "#891e88",
-        maroon: "#891648",
-        //
-        maraschino: "#ff2101",
-        tangerine: "#ff8802",
-        lemon: "#fffa03",
-        lime: "#83f902",
-        spring: "#05f802",
-        seam_foam: "#03f987",
-        turquoise: "#00fdff",
-        aqua: "#008cff",
-        blueberry: "#002eff",
-        grape: "#8931ff",
-        magenta: "#ff39ff",
-        strawberry: "#ff2987",
-        //
-        salmon: "#ff726e",
-        cantaloupe: "#ffce6e",
-        banana: "#fffb6d",
-        honeydew: "#cefa6e",
-        flora: "#68f96e",
-        spindrift: "#68fbd0",
-        ice: "#68fdff",
-        sky: "#6acfff",
-        orchid: "#6e76ff",
-        lavender: "#d278ff",
-        bubblegum: "#ff7aff",
-        carnation: "#ff7fd3"
-    };
-
-const appleCrayonNamesNoGrey = Object.keys(appleCrayonPaletteNoGreyDictionary);
-
-const appleCrayonPaletteBrightDictionary =
-    {
-        maraschino: "#ff2101",
-        tangerine: "#ff8802",
-        lemon: "#fffa03",
-        lime: "#83f902",
-        spring: "#05f802",
-        seam_foam: "#03f987",
-        turquoise: "#00fdff",
-        aqua: "#008cff",
-        blueberry: "#002eff",
-        grape: "#8931ff",
-        magenta: "#ff39ff",
-        strawberry: "#ff2987",
-        //
-        salmon: "#ff726e",
-        cantaloupe: "#ffce6e",
-        banana: "#fffb6d",
-        honeydew: "#cefa6e",
-        flora: "#68f96e",
-        spindrift: "#68fbd0",
-        ice: "#68fdff",
-        sky: "#6acfff",
-        orchid: "#6e76ff",
-        lavender: "#d278ff",
-        bubblegum: "#ff7aff",
-        carnation: "#ff7fd3"
-    };
-
-const appleCrayonNamesBright = Object.keys(appleCrayonPaletteBrightDictionary)
-
-const appleCrayonColorHexValue = name => {
-    const string = appleCrayonPaletteDictionary[ name ];
-    const tokens = string.split('');
-    tokens.shift();
-    const hexString = tokens.join('');
-    return parseInt(hexString, 16);
-}
-
-const appleCrayonRandomBrightColorThreeJS = () => {
-    const index = Math.floor(Math.random() * Math.floor(appleCrayonNamesBright.length));
-    const name = appleCrayonNamesBright[ index ];
-    return appleCrayonColorThreeJS(name);
-}
-
-const appleCrayonRandomColorHexValue = () => {
-    const index = Math.floor(Math.random() * Math.floor(appleCrayonNamesNoGrey.length));
-    const string = appleCrayonPaletteNoGreyDictionary[ appleCrayonNamesNoGrey[ index ] ];
-    const tokens = string.split('');
-    tokens.shift();
-    const hexString = tokens.join('');
-    return parseInt(hexString, 16);
-}
-
-const appleCrayonColorThreeJS = name => {
+function appleCrayonColorThreeJS (name) {
     // HEX colors are automatically converted to linear color space.
     // No need explicitly call convertSRGBToLinear()
     return new THREE.Color(appleCrayonPaletteDictionary[ name ])
 }
 
-const appleCrayonColorRGB255 = name => {
+function appleCrayonColorRGB255(name) {
     const hex = appleCrayonPaletteDictionary[ name ];
     return hex2RGB255(hex)
 }
 
+function threeJSColorToRGB255  (color) {
+    const { r, g, b } = color;
+    return { r: Math.floor(r*255), g: Math.floor(g*255), b: Math.floor(b*255) };
+}
+
+function rgb255ToThreeJSColor  (r, g, b) {
+    return new THREE.Color(r/255, g/255, b/255).convertSRGBToLinear()
+}
+
 const highlightColor = appleCrayonColorThreeJS('honeydew')
 
-export { highlightColor, appleCrayonNames, hex2RGB255, colorString2Tokens, appleCrayonRandomBrightColorThreeJS, appleCrayonColorHexValue, appleCrayonColorThreeJS, appleCrayonRandomColorHexValue, appleCrayonColorRGB255 };
+export { highlightColor, hex2RGB255, colorString2Tokens, threeJSColorToRGB255, rgb255ToThreeJSColor, appleCrayonColorThreeJS, appleCrayonColorRGB255 };
 
