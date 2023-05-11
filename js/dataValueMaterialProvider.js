@@ -13,8 +13,9 @@ class DataValueMaterialProvider {
 
     async configure(track) {
 
-        const { chr, start:startBP, end:endBP, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
         const [ viewport ] = track.trackView.viewports
+
+        const { chr, start:startBP, end:endBP, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
         const features = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
 
         let min = undefined
@@ -25,7 +26,8 @@ class DataValueMaterialProvider {
             max = track.dataRange.max
         }
 
-        // TODO: Currently still using this for Ribbon
+        // Used for Ribbon
+        // TODO: Use the this.colorList rather then interpolantWindows for Ribbon
         this.interpolantWindows = []
         for (let feature of features) {
 
@@ -57,16 +59,16 @@ class DataValueMaterialProvider {
 
         }
 
-        // TODO: Make this the Ribbon color source
-
+        // Used for Ball&Stick and PointCloud
         this.colorList = []
+        const maxFeatureList = []
         for (const { startBP, endBP } of ensembleManager.datasource.genomicExtentList) {
-            const everything = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
-            const features = everything.filter(({ start, end }) => !(end < startBP) && !(start > endBP))
+            const raw = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
+            const featuresForGenomicExtent = raw.filter(({ start, end }) => !(end < startBP) && !(start > endBP))
 
-            if (features && features.length > 0) {
+            if (featuresForGenomicExtent && featuresForGenomicExtent.length > 0) {
 
-                const result = features.reduce((acc, feature, currentIndex) => {
+                const result = featuresForGenomicExtent.reduce((acc, feature, currentIndex) => {
 
                     if (feature.value > acc.max) {
                         acc.max = feature.value
@@ -77,30 +79,41 @@ class DataValueMaterialProvider {
 
                 }, { max: Number.NEGATIVE_INFINITY, index: 0 })
 
-                const feature = features[ result.index ]
+                maxFeatureList.push(featuresForGenomicExtent[ result.index ])
 
-                let color
-                if (feature.color) {
 
-                    const [ r, g, b ] = colorString2Tokens(feature.color)
-                    color = rgb255(r, g, b)
-                } else if ('function' === typeof track.getColorForFeature) {
+            } // if (...)
 
-                    color = getRGB255(track.getColorForFeature(feature))
-                } else {
+        } //for (ensembleManager.datasource.genomicExtentList)
 
-                    color = track.color || track.defaultColor
-                    if (color) {
-                        color = getRGB255(color)
-                    }
+        // find global min/max
+        const featureValues = maxFeatureList.map(({ value }) => value)
+        min = Math.min(...featureValues)
+        max = Math.max(...featureValues)
+
+        for (const feature of maxFeatureList) {
+
+            let color
+            if (feature.color) {
+
+                const [ r, g, b ] = colorString2Tokens(feature.color)
+                color = rgb255(r, g, b)
+            } else if ('function' === typeof track.getColorForFeature) {
+
+                color = getRGB255(track.getColorForFeature(feature))
+            } else {
+
+                color = track.color || track.defaultColor
+                if (color) {
+                    color = getRGB255(color)
                 }
-
-                const interpolant = (feature.value - min) / (max - min)
-                const { r, g, b } = rgb255Lerp(this.colorMinimum, color, interpolant)
-                this.colorList.push(rgb255ToThreeJSColor(r, g, b))
-
             }
-        }
+
+            const interpolant = (feature.value - min) / (max - min)
+            const { r, g, b } = rgb255Lerp(this.colorMinimum, color, interpolant)
+            this.colorList.push(rgb255ToThreeJSColor(r, g, b))
+
+        } // for (maxFeatureList)
 
     }
 
