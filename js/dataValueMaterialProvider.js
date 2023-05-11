@@ -1,7 +1,7 @@
 import igv from 'igv'
 import {StringUtils} from 'igv-utils'
 import {ensembleManager} from './app.js'
-import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255String, rgb255ToThreeJSColor} from './color.js'
+import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255ToThreeJSColor} from './color.js'
 import * as THREE from "three";
 
 class DataValueMaterialProvider {
