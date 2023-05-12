@@ -1,8 +1,5 @@
-import igv from 'igv'
-import {StringUtils} from 'igv-utils'
 import {ensembleManager} from './app.js'
 import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255ToThreeJSColor} from './color.js'
-import * as THREE from "three";
 
 class DataValueMaterialProvider {
 
@@ -13,11 +10,6 @@ class DataValueMaterialProvider {
 
     async configure(track) {
 
-        const [ viewport ] = track.trackView.viewports
-
-        const { chr, start:startBP, end:endBP, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
-        const features = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
-
         let min = undefined
         let max = undefined
 
@@ -26,41 +18,9 @@ class DataValueMaterialProvider {
             max = track.dataRange.max
         }
 
-        // Used for Ribbon
-        // TODO: Use the this.colorList rather then interpolantWindows for Ribbon
-        this.interpolantWindows = []
-        for (let feature of features) {
+        const [ viewport ] = track.trackView.viewports
+        const { chr, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
 
-            let colorInterpolant
-            if (undefined === min && undefined === max) {
-                colorInterpolant = 1
-            } else {
-                colorInterpolant = (feature.value - min) / (max - min)
-            }
-
-            const start = (feature.start - startBP) / (endBP - startBP)
-            const end = (feature.end - startBP) / (endBP - startBP)
-
-            if (feature.color) {
-
-                const [ r, g, b ] = colorString2Tokens(feature.color)
-                this.interpolantWindows.push({ colorInterpolant, start, end, color: rgb255(r, g, b) })
-            } else if ('function' === typeof track.getColorForFeature) {
-
-                this.interpolantWindows.push({ colorInterpolant, start, end, color: getRGB255(track.getColorForFeature(feature))})
-            } else {
-
-                const color = track.color || track.defaultColor
-                if (color) {
-                    this.interpolantWindows.push({ colorInterpolant, start, end, color: getRGB255(color)})
-                }
-
-            }
-
-        }
-
-        // Used for Ball&Stick and PointCloud
-        this.colorList = []
         const maxFeatureList = []
         for (const { startBP, endBP } of ensembleManager.datasource.genomicExtentList) {
             const raw = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
@@ -81,17 +41,16 @@ class DataValueMaterialProvider {
 
                 maxFeatureList.push(featuresForGenomicExtent[ result.index ])
 
-
             } // if (...)
 
-        } //for (ensembleManager.datasource.genomicExtentList)
+        } //for (genomicExtentList)
 
         // find global min/max
         const featureValues = maxFeatureList.map(({ value }) => value)
         min = Math.min(...featureValues)
         max = Math.max(...featureValues)
 
-        for (const feature of maxFeatureList) {
+        this.colorList = maxFeatureList.map(feature => {
 
             let color
             if (feature.color) {
@@ -99,7 +58,6 @@ class DataValueMaterialProvider {
                 const [ r, g, b ] = colorString2Tokens(feature.color)
                 color = rgb255(r, g, b)
             } else if ('function' === typeof track.getColorForFeature) {
-
                 color = getRGB255(track.getColorForFeature(feature))
             } else {
 
@@ -110,97 +68,22 @@ class DataValueMaterialProvider {
             }
 
             const interpolant = (feature.value - min) / (max - min)
-            const { r, g, b } = rgb255Lerp(this.colorMinimum, color, interpolant)
-            this.colorList.push(rgb255ToThreeJSColor(r, g, b))
 
-        } // for (maxFeatureList)
-
-    }
-
-    async _IN_PROGRESS_configure(track) {
-
-        const { chr, start, end, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
-        const [ viewport ] = track.trackView.viewports
-
-        const allFeatures = await viewport.getFeatures(track, chr, start, end, bpPerPixel)
-        const dataRange = igv.IGVUtils.doAutoscale(allFeatures)
-        const { min:globalMin, max:globalMax } = dataRange
-
-        this.colorList = []
-        const tempColor = new THREE.Color()
-        this.rgbFloat32Array = new Float32Array(ensembleManager.datasource.genomicExtentList.length)
-        for (let i = 0; i < ensembleManager.datasource.genomicExtentList.length; i++) {
-
-            const { startBP, endBP } = ensembleManager.datasource.genomicExtentList[ i ]
-            const features = await viewport.getFeatures(chr, startBP, endBP, bpPerPixel)
-
-            if (features && features.length > 0) {
-
-                const result = features.reduce((acc, feature, currentIndex, array) => {
-
-                    if (feature.value > acc.max) {
-                        acc.max = feature.value
-                        acc.index = currentIndex
-                    }
-
-                    return acc
-                }, { max: Number.NEGATIVE_INFINITY, index: 0 })
-
-                const interpolant = (result.max - globalMin)/(globalMax - globalMin)
-                const feature = features[ result.index ]
-
-                let color
-                if (feature.color) {
-
-                    const [ r, g, b ] = colorString2Tokens(feature.color)
-                    color = rgb255(r, g, b)
-                } else if ('function' === typeof track.getColorForFeature) {
-
-                    color = getRGB255(track.getColorForFeature(feature))
-                } else {
-
-                    color = track.color || track.defaultColor
-                    if (color) {
-                        color = getRGB255(color)
-                    }
-                }
-
-                const { r, g, b } = color
-                tempColor.set(rgb255ToThreeJSColor(r, g, b)).toArray(this.rgbFloat32Array, i * 3)
-
-            } // if (features)
-
-        } // for (genomicExtentList)
-
-        console.log(`data value material - colorlist ${ StringUtils.numberFormatter(this.colorList.length )}`)
-    }
-
-    colorForInterpolant(interpolant) {
-
-        for (const interpolantWindow of this.interpolantWindows) {
-
-            const { start, end } = interpolantWindow
-
-            if (interpolant > start && interpolant < end) {
-
-                if (interpolantWindow.color) {
-                    // return interpolantWindow.color
-
-                    const { r, g, b } = rgb255Lerp(this.colorMinimum, interpolantWindow.color, interpolantWindow.colorInterpolant)
-                    return rgb255ToThreeJSColor(r, g, b)
-
-                } else {
-                    const { r, g, b } = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolantWindow.colorInterpolant)
-                    return rgb255ToThreeJSColor(r, g, b)
-                }
-
+            if (color) {
+                const { r, g, b } = rgb255Lerp(this.colorMinimum, color, interpolant)
+                return rgb255ToThreeJSColor(r, g, b)
+            } else {
+                const { r, g, b } = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolant)
+                return rgb255ToThreeJSColor(r, g, b)
             }
 
-        }
 
-        const { r, g, b } = this.colorMinimum
-        return rgb255ToThreeJSColor(r, g, b)
+        })
 
+    }
+    colorForInterpolant(interpolant) {
+        const index = Math.floor(interpolant * (this.colorList.length - 1))
+        return this.colorList[ index ]
     }
 
 }

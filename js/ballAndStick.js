@@ -4,7 +4,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { clamp } from './math.js'
 import { generateRadiusTable } from "./utils.js"
-import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, igvPanel, sceneManager} from './app.js'
+import {ensembleManager, igvPanel, sceneManager} from './app.js'
 import { appleCrayonColorThreeJS } from "./color.js"
 import EnsembleManager from './ensembleManager.js'
 
@@ -83,13 +83,7 @@ class BallAndStick {
         const colorList = new Array(trace.length)
             .fill()
             .flatMap((_, i) => {
-
-                if (materialProvider === dataValueMaterialProvider) {
-                    this.rgb[ i ] = materialProvider.colorList[ i ]
-                } else {
-                    this.rgb[ i ] = materialProvider.colorForInterpolant(ensembleManager.datasource.genomicExtentList[ i ].interpolant)
-                }
-
+                this.rgb[ i ] = materialProvider.colorForInterpolant(ensembleManager.datasource.genomicExtentList[ i ].interpolant)
                 return this.rgb[ i ].toArray()
             })
 
@@ -220,23 +214,11 @@ class BallAndStick {
 
             this.rgb = []
 
-            if (dataValueMaterialProvider === materialProvider) {
-
-                for (let i = 0; i < materialProvider.colorList.length; i++) {
-                    const color = materialProvider.colorList[ i ]
-                    this.rgb.push( color )
-                    color.toArray(this.rgbFloat32Array, i * 3)
-                }
-
-            } else {
-
-                for (let i = 0; i < ensembleManager.currentTrace.length; i++) {
-                    const { interpolant } = ensembleManager.currentTrace[ i ]
-                    const color = materialProvider.colorForInterpolant(interpolant)
-                    this.rgb.push( color )
-                    color.toArray(this.rgbFloat32Array, i * 3)
-                }
-
+            for (let i = 0; i < ensembleManager.currentTrace.length; i++) {
+                const { interpolant } = ensembleManager.currentTrace[ i ]
+                const color = materialProvider.colorForInterpolant(interpolant)
+                this.rgb.push( color )
+                color.toArray(this.rgbFloat32Array, i * 3)
             }
 
             this.balls.geometry.attributes.instanceColor.needsUpdate = true

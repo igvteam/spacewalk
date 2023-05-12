@@ -1,4 +1,5 @@
 import * as THREE from "three"
+import {StringUtils} from "igv-utils";
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { Line2 } from "three/examples/jsm/lines/Line2.js"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
@@ -6,7 +7,6 @@ import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
 import EnsembleManager from './ensembleManager.js'
 import {igvPanel, sceneManager, ensembleManager} from "./app.js"
 import {appleCrayonColorThreeJS} from "./color.js";
-import {StringUtils} from "igv-utils";
 
 const ribbonWidth = 4/*2*/
 const highlightBeadRadiusScalefactor = 1/(6e1)
@@ -45,18 +45,6 @@ class Ribbon {
 
     configure(trace) {
 
-        this.spline = this.createFatSpline(trace, igvPanel.materialProvider)
-
-        if (sceneManager.renderStyle === Ribbon.getRenderStyle()) {
-            this.show()
-        } else {
-            this.hide()
-        }
-
-    }
-
-    createFatSpline(trace, materialProvider) {
-
         const traceVertices = EnsembleManager.getSingleCentroidVertices(trace, true)
         this.curve = new THREE.CatmullRomCurve3( traceVertices )
         this.curve.arcLengthDivisions = 2e3
@@ -65,20 +53,20 @@ class Ribbon {
         const geometry = new LineGeometry()
 
         const curvePointCount = Math.round(traceVertices.length * RibbonScaleFactor)
-        const curveSpacedPoints = this.curve.getSpacedPoints( curvePointCount )
+        const curvePoints = this.curve.getSpacedPoints( curvePointCount )
 
         const a = `Trace vertices(${ StringUtils.numberFormatter(traceVertices.length) })`
         const b = `Curve points(${ StringUtils.numberFormatter(curvePointCount) })`
 
         console.log(`Ribbon.createFatSpline ${ a } ${ b }`)
-        const geometryVertices = []
-        for (const { x, y, z } of curveSpacedPoints ) {
-            geometryVertices.push(x, y, z)
+        const positions = []
+        for (const { x, y, z } of curvePoints ) {
+            positions.push(x, y, z)
         }
-        geometry.setPositions( geometryVertices )
+        geometry.setPositions( positions )
 
-        const geometryColors = getRGBListWithMaterialAndLength(materialProvider, curveSpacedPoints.length)
-        geometry.setColors( geometryColors )
+        const colors = getRGBListWithMaterialAndLength(igvPanel.materialProvider, curvePoints.length)
+        geometry.setColors( colors )
 
         const material = new LineMaterial( { linewidth: ribbonWidth, vertexColors: true } )
 
@@ -87,8 +75,13 @@ class Ribbon {
         mesh.scale.set( 1, 1, 1 )
         mesh.name = 'ribbon'
 
+        this.spline = { mesh, vertexCount: curvePoints.length }
 
-        return { mesh, vertexCount: curveSpacedPoints.length };
+        if (sceneManager.renderStyle === Ribbon.getRenderStyle()) {
+            this.show()
+        } else {
+            this.hide()
+        }
 
     }
 
@@ -179,7 +172,7 @@ class Ribbon {
 }
 function getRGBListWithMaterialAndLength(materialProvider, length) {
 
-    let rgbList = new Float32Array(length * 3)
+    const rgbList = new Float32Array(length * 3)
 
     for (let i = 0; i < length; i++) {
         materialProvider.colorForInterpolant(i / (length - 1)).toArray(rgbList, i * 3)
