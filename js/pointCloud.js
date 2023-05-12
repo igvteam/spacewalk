@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {ensembleManager, pointCloud, sceneManager} from "./app.js";
+import {ensembleManager, igvPanel, pointCloud, sceneManager} from "./app.js";
 import {StringUtils} from "igv-utils";
 
 const pointSize = 128;
@@ -87,19 +87,23 @@ class PointCloud {
         this.deemphasisColorAttribute = undefined
 
         this.meshList = trace
-            .map(({ xyz, rgb, drawUsage }) => {
+            .map(({ xyz, interpolant, drawUsage }) => {
 
                 const geometry = new THREE.BufferGeometry()
 
+                // xyz
                 geometry.setAttribute('position', new THREE.Float32BufferAttribute(xyz, 3 ))
 
-                // retain a copy of color for use during highlight/unhighlight
-                geometry.userData.colorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
+                // rgb
+                geometry.userData.colorAttribute = new THREE.Float32BufferAttribute(new Float32Array(xyz.length * 3), 3)
                 geometry.userData.colorAttribute.setUsage(drawUsage)
+
+                const rgb = igvPanel.materialProvider.colorForInterpolant(interpolant)
+                setGeometryColorAttribute(geometry.userData.colorAttribute.array, rgb)
                 geometry.setAttribute('color', geometry.userData.colorAttribute)
 
                 // retain a copy of emphasise color for use during highlight/unhighlight
-                geometry.userData.deemphasisColorAttribute = new THREE.Float32BufferAttribute(rgb, 3)
+                geometry.userData.deemphasisColorAttribute = new THREE.Float32BufferAttribute(new Float32Array(xyz.length * 3), 3)
                 setGeometryColorAttribute(geometry.userData.deemphasisColorAttribute.array, pointCloud.deemphasizedColor)
 
                 const mesh = new THREE.Points(geometry, this.material)
@@ -114,7 +118,18 @@ class PointCloud {
     }
 
     updateMaterialProvider (materialProvider) {
-        // do stuff
+        for (const mesh of this.meshList) {
+
+            mesh.material = this.material
+
+            const index = this.meshList.indexOf(mesh)
+            const { interpolant } = ensembleManager.currentTrace[ index ]
+            const rgb = materialProvider.colorForInterpolant(interpolant)
+
+            setGeometryColorAttribute(mesh.geometry.userData.colorAttribute.array, rgb)
+            mesh.geometry.setAttribute('color', mesh.geometry.userData.colorAttribute)
+            mesh.geometry.attributes.color.needsUpdate = true
+        }
     }
 
     addToScene (scene) {
@@ -160,6 +175,7 @@ class PointCloud {
 
     }
 
+
     static getRenderStyle() {
         return 'render-style-point-cloud';
     }
@@ -171,4 +187,5 @@ function setGeometryColorAttribute(geometryColorAttributeArray, threeJSColor) {
     }
 }
 
+export { setGeometryColorAttribute }
 export default PointCloud;

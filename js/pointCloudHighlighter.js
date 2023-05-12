@@ -1,4 +1,6 @@
-import { pointCloud } from "./app.js";
+import * as THREE from "three";
+import {ensembleManager, igvPanel, pointCloud} from "./app.js";
+import {setGeometryColorAttribute} from "./pointCloud.js";
 
 class PointCloudHighlighter {
 
@@ -24,34 +26,51 @@ class PointCloudHighlighter {
 
     highlight() {
 
-        if (undefined === pointCloud.meshList) {
-            return
+        if (pointCloud.meshList) {
+
+            for (const mesh of pointCloud.meshList) {
+                mesh.material = pointCloud.deemphasizedMaterial
+                mesh.geometry.setAttribute('color', mesh.geometry.userData.deemphasisColorAttribute)
+                mesh.geometry.attributes.color.needsUpdate = true
+            }
+
+            for (const mesh of this.objects) {
+
+                mesh.material = pointCloud.material
+
+                const index = pointCloud.meshList.indexOf(mesh)
+                const { interpolant } = ensembleManager.currentTrace[ index ]
+                const rgb = igvPanel.materialProvider.colorForInterpolant(interpolant)
+
+                setGeometryColorAttribute(mesh.geometry.userData.colorAttribute.array, rgb)
+                mesh.geometry.setAttribute('color', mesh.geometry.userData.colorAttribute)
+                mesh.geometry.attributes.color.needsUpdate = true
+            }
+
         }
 
-        for (const mesh of pointCloud.meshList) {
-            mesh.material = pointCloud.deemphasizedMaterial
-            mesh.geometry.setAttribute('color', mesh.geometry.userData.deemphasisColorAttribute)
-            mesh.geometry.attributes.color.needsUpdate = true
-        }
-
-        for (const mesh of this.objects) {
-            mesh.material = pointCloud.material
-            mesh.geometry.setAttribute('color', mesh.geometry.userData.colorAttribute )
-            mesh.geometry.attributes.color.needsUpdate = true
-        }
     }
 
     unhighlight() {
 
-        if (undefined === pointCloud.meshList) {
-            return
+        if (pointCloud.meshList) {
+
+            for (const mesh of pointCloud.meshList) {
+
+                mesh.material = pointCloud.material
+
+                const index = pointCloud.meshList.indexOf(mesh)
+                const { interpolant } = ensembleManager.currentTrace[ index ]
+                const rgb = igvPanel.materialProvider.colorForInterpolant(interpolant)
+
+                setGeometryColorAttribute(mesh.geometry.userData.colorAttribute.array, rgb)
+                mesh.geometry.setAttribute('color', mesh.geometry.userData.colorAttribute)
+                mesh.geometry.attributes.color.needsUpdate = true
+            }
+
         }
 
-        for (const mesh of pointCloud.meshList) {
-            mesh.material = pointCloud.material
-            mesh.geometry.setAttribute('color', mesh.geometry.userData.colorAttribute )
-            mesh.geometry.attributes.color.needsUpdate = true
-        }
+
 
         this.objects = undefined
     }
