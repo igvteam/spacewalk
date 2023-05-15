@@ -78,19 +78,15 @@ class BallAndStick {
 
         console.log(`Ball&Stick. Create ${ StringUtils.numberFormatter(trace.length) } balls. Tesselation width ${ widthSegments } height ${ heightSegments }`)
 
-        this.rgb = []
-
         const colorList = new Array(trace.length)
             .fill()
             .flatMap((_, i) => {
-                this.rgb[ i ] = materialProvider.colorForInterpolant(ensembleManager.datasource.genomicExtentList[ i ].interpolant)
-                return this.rgb[ i ].toArray()
+                const color = materialProvider.colorForInterpolant(ensembleManager.datasource.genomicExtentList[ i ].interpolant)
+                return color.toArray()
             })
 
-        this.rgbFloat32Array = Float32Array.from(colorList)
-
         // assign instance color list to canonical geometry
-        geometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(this.rgbFloat32Array, 3) )
+        geometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(new Float32Array(colorList), 3) )
 
         const material = getColorRampMaterial('instanceColor')
         // const material = new THREE.MeshNormalMaterial()
@@ -212,13 +208,12 @@ class BallAndStick {
 
         if (this.balls) {
 
-            this.rgb = []
-
             for (let i = 0; i < ensembleManager.currentTrace.length; i++) {
                 const { interpolant } = ensembleManager.currentTrace[ i ]
                 const color = materialProvider.colorForInterpolant(interpolant)
-                this.rgb.push( color )
-                color.toArray(this.rgbFloat32Array, i * 3)
+
+                const bufferAttribute = this.balls.geometry.getAttribute('instanceColor')
+                color.toArray(bufferAttribute.array, i * 3)
             }
 
             this.balls.geometry.attributes.instanceColor.needsUpdate = true

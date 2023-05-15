@@ -1,5 +1,4 @@
-import * as THREE from "three";
-import { ensembleManager, colorRampMaterialProvider, ballAndStick } from "./app.js";
+import {ensembleManager, colorRampMaterialProvider, ballAndStick, igvPanel} from "./app.js";
 
 class BallHighlighter {
 
@@ -39,11 +38,14 @@ class BallHighlighter {
 
         if (ballAndStick.balls && this.instanceIdList) {
 
-            for (let instanceId of this.instanceIdList) {
-                this.highlightColor.toArray(ballAndStick.rgbFloat32Array, instanceId * 3)
+            const bufferAttribute = ballAndStick.balls.geometry.getAttribute('instanceColor')
+
+            for (const instanceId of this.instanceIdList) {
+                this.highlightColor.toArray(bufferAttribute.array, instanceId * 3)
             }
 
             ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true
+
             const interpolantWindowList = Array.from(this.instanceIdList).map(instanceId => ensembleManager.genomicExtentList[ instanceId ])
             colorRampMaterialProvider.highlightWithInterpolantWindowList(interpolantWindowList)
 
@@ -55,18 +57,16 @@ class BallHighlighter {
 
         if (ballAndStick.balls && this.instanceIdList) {
 
-            for (let instanceId of this.instanceIdList) {
+            const bufferAttribute = ballAndStick.balls.geometry.getAttribute('instanceColor')
 
-                if (ballAndStick.rgb && ballAndStick.rgbFloat32Array && instanceId >= 0 && instanceId < ballAndStick.rgb.length) {
-                    ballAndStick.rgb[ instanceId ].toArray(ballAndStick.rgbFloat32Array, instanceId * 3)
-                }
-
+            for (const instanceId of this.instanceIdList) {
+                const color = igvPanel.materialProvider.colorForInterpolant(ensembleManager.datasource.genomicExtentList[ instanceId ].interpolant)
+                color.toArray(bufferAttribute.array, instanceId * 3)
             }
 
-            this.instanceIdList = undefined
-
             ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true;
-
+            
+            this.instanceIdList = undefined
          }
 
     }
