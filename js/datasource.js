@@ -1,6 +1,5 @@
 import * as THREE from "three"
 import DataSourceBase from './dataSourceBase.js'
-import {colorRampMaterialProvider} from "./app.js"
 
 class Datasource extends DataSourceBase {
 
@@ -166,18 +165,13 @@ class Datasource extends DataSourceBase {
 
         const trace = rows.map((row, index) => {
 
-            const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[index].interpolant)
-
             const xyz = true === this.isPointCloud ? row.vertices.flatMap(({x, y, z}) => [x, y, z]) : row
-            const rgb = true === this.isPointCloud ? row.vertices.flatMap(ignore => [color.r, color.g, color.b]) : color
             const drawUsage = true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
 
             const hash =
                 {
                     interpolant: this.genomicExtentList[index].interpolant,
                     xyz,
-                    rgb,
-                    color,
                     drawUsage
                 };
 
