@@ -118,17 +118,20 @@ class PointCloud {
     }
 
     updateMaterialProvider (materialProvider) {
-        for (const mesh of this.meshList) {
 
-            mesh.material = this.material
+        if (this.meshList) {
+            for (const mesh of this.meshList) {
 
-            const index = this.meshList.indexOf(mesh)
-            const { interpolant } = ensembleManager.currentTrace[ index ]
-            const rgb = materialProvider.colorForInterpolant(interpolant)
+                mesh.material = this.material
 
-            setGeometryColorAttribute(mesh.geometry.userData.colorAttribute.array, rgb)
-            mesh.geometry.setAttribute('color', mesh.geometry.userData.colorAttribute)
-            mesh.geometry.attributes.color.needsUpdate = true
+                const index = this.meshList.indexOf(mesh)
+                const { interpolant } = ensembleManager.currentTrace[ index ]
+                const rgb = materialProvider.colorForInterpolant(interpolant)
+
+                setGeometryColorAttribute(mesh.geometry.userData.colorAttribute.array, rgb)
+                mesh.geometry.setAttribute('color', mesh.geometry.userData.colorAttribute)
+                mesh.geometry.attributes.color.needsUpdate = true
+            }
         }
     }
 
