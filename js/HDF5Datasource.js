@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import DataSourceBase from './dataSourceBase.js'
-import {colorRampMaterialProvider} from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 
@@ -70,14 +69,10 @@ class HDF5Datasource extends DataSourceBase {
 
             const [ x, y, z ] = numbers.slice(v, v + 3)
 
-            const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[ j ].interpolant)
-
             const object =
                 {
                     interpolant: this.genomicExtentList[ j ].interpolant,
                     xyz: { x, y, z },
-                    color,
-                    rgb: color,
                     drawUsage: THREE.StaticDrawUsage
                 }
 

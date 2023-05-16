@@ -166,18 +166,12 @@ class IGVPanel extends Panel {
 
     async restoreSessionState(state) {
 
-        const { trackViews } = this.browser
-        const [ track ] = trackViews.map(({ track }) => track).filter(track => state === track.name)
+        const [ track ] = this.browser.trackViews.map(({ track }) => track).filter(track => state === track.name)
 
-        const { chr, start, end, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
-        const features = await track.getFeatures(chr, start, end, bpPerPixel)
-
-        if (track.trackView.dataRange()) {
-            const { min, max } = track.trackView.dataRange()
-            dataValueMaterialProvider.configure({ track, startBP: start, endBP: end, features, min, max })
-        } else {
-            dataValueMaterialProvider.configure({ track, startBP: start, endBP: end, features })
+        if (false === track.trackView.loading) {
+            console.warn(`Danger. track(${ track.name }) is NOT loaded. Can not use for feature mapping`)
         }
+        await dataValueMaterialProvider.configure(track)
 
         this.materialProvider = dataValueMaterialProvider
         setMaterialProvider(dataValueMaterialProvider)
@@ -199,7 +193,13 @@ function igvClassAdditions() {
 
         axis.style.height = `${track.height}px`;
 
-        if (false === exclusionTrackTypes.has(track.type)) {
+        let isRefGene = false
+
+        if ((track.config && track.config.format && 'refgene' === track.config.format)) {
+            isRefGene = true
+        }
+
+        if (false === exclusionTrackTypes.has(track.type) && false === isRefGene) {
 
             const {width, height} = axis.getBoundingClientRect();
 

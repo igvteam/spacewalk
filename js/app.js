@@ -64,8 +64,8 @@ const SpacewalkGlobals =
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
-    const str = `DOM Content Loaded Handler`
-    console.time(str)
+    // const str = `DOM Content Loaded Handler`
+    // console.time(str)
 
     showGlobalSpinner()
 
@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     hideGlobalSpinner()
 
-    console.timeEnd(str)
+    // console.timeEnd(str)
 
 })
 

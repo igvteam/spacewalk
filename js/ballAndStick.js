@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import { StringUtils } from 'igv-utils'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { clamp } from './math.js'
 import { generateRadiusTable } from "./utils.js"
-import { ensembleManager, sceneManager } from './app.js'
+import {ensembleManager, igvPanel, sceneManager} from './app.js'
 import { appleCrayonColorThreeJS } from "./color.js"
 import EnsembleManager from './ensembleManager.js'
 
@@ -52,7 +52,6 @@ class BallAndStick {
 
         const stickCurves = createStickCurves(EnsembleManager.getSingleCentroidVertices(trace, true))
         const averageCurveDistance  = computeAverageCurveDistance(stickCurves)
-        // console.log(`Ball&Stick. Average Curve Distance ${StringUtils.numberFormatter(Math.round(averageCurveDistance)) }`)
 
         stickRadiusTable = generateRadiusTable(0.5e-1 * averageCurveDistance);
         stickRadiusIndex = Math.floor( stickRadiusTable.length/2 );
@@ -60,7 +59,7 @@ class BallAndStick {
 
         ballRadiusTable = generateRadiusTable(2e-1 * averageCurveDistance);
         ballRadiusIndex = Math.floor( ballRadiusTable.length/2 );
-        this.balls = this.createBalls(trace, ballRadiusTable[ ballRadiusIndex ]);
+        this.balls = this.createBalls(trace, igvPanel.materialProvider, ballRadiusTable[ ballRadiusIndex ]);
 
         if (sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
             this.show();
@@ -69,7 +68,7 @@ class BallAndStick {
         }
     }
 
-    createBalls(trace, ballRadius) {
+    createBalls(trace, materialProvider, ballRadius) {
 
         // canonical ball geometry
         const widthSegments = 32
@@ -79,15 +78,15 @@ class BallAndStick {
 
         console.log(`Ball&Stick. Create ${ StringUtils.numberFormatter(trace.length) } balls. Tesselation width ${ widthSegments } height ${ heightSegments }`)
 
-        // material stuff
-        this.rgb = trace.map(({ color }) => color)
-
-        const threeJSColor = new THREE.Color()
-        const list = new Array(trace.length).fill().flatMap((_, i) => threeJSColor.set(this.rgb[ i ]).toArray())
-        this.rgbFloat32Array = Float32Array.from(list)
+        const colorList = new Array(trace.length)
+            .fill()
+            .flatMap((_, i) => {
+                const color = materialProvider.colorForInterpolant(ensembleManager.datasource.genomicExtentList[ i ].interpolant)
+                return color.toArray()
+            })
 
         // assign instance color list to canonical geometry
-        geometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(this.rgbFloat32Array, 3) )
+        geometry.setAttribute('instanceColor', new THREE.InstancedBufferAttribute(new Float32Array(colorList), 3) )
 
         const material = getColorRampMaterial('instanceColor')
         // const material = new THREE.MeshNormalMaterial()
@@ -160,7 +159,7 @@ class BallAndStick {
 
         // Aggregate geometry list into single BufferGeometry
         const material = sceneManager.stickMaterial.clone();
-        const mesh = new THREE.Mesh(mergeBufferGeometries( geometries ), material);
+        const mesh = new THREE.Mesh(mergeGeometries( geometries ), material);
         mesh.name = 'stick';
         return mesh;
 
@@ -202,26 +201,25 @@ class BallAndStick {
         stickRadiusIndex = clamp(stickRadiusIndex + increment, 0, stickRadiusTable.length - 1);
         const radius = stickRadiusTable[ stickRadiusIndex ];
         // const geometries = this.stickCurves.map(curve => new THREE.TubeBufferGeometry(curve, stickTesselation.length, radius, stickTesselation.radial, false));
-        // this.sticks.geometry.copy(mergeBufferGeometries( geometries ));
+        // this.sticks.geometry.copy(mergeGeometries( geometries ));
     }
 
     updateMaterialProvider (materialProvider) {
 
-        if (undefined === this.balls) {
-            return
+        if (this.balls) {
+
+            for (let i = 0; i < ensembleManager.currentTrace.length; i++) {
+                const { interpolant } = ensembleManager.currentTrace[ i ]
+                const color = materialProvider.colorForInterpolant(interpolant)
+
+                const bufferAttribute = this.balls.geometry.getAttribute('instanceColor')
+                color.toArray(bufferAttribute.array, i * 3)
+            }
+
+            this.balls.geometry.attributes.instanceColor.needsUpdate = true
+
         }
 
-        const color = new THREE.Color()
-
-        this.rgb = []
-        for (let i = 0; i < ensembleManager.currentTrace.length; i++) {
-            const { interpolant } = ensembleManager.currentTrace[ i ]
-            const interpolatedColor = materialProvider.colorForInterpolant(interpolant)
-            this.rgb.push( interpolatedColor );
-            color.set(interpolatedColor).toArray(this.rgbFloat32Array, i * 3)
-        }
-
-        this.balls.geometry.attributes.instanceColor.needsUpdate = true
     }
     renderLoopHelper () {
 

@@ -125,7 +125,7 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const vertices = EnsembleManager.getEnsembleTraceVertices(trace)
+        const vertices = ensembleManager.getEnsembleTraceVertices(trace)
 
         const data =
             {

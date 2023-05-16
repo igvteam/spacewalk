@@ -1,6 +1,5 @@
 import * as THREE from "three"
 import DataSourceBase from './dataSourceBase.js'
-import {colorRampMaterialProvider} from "./app.js"
 
 class Datasource extends DataSourceBase {
 
@@ -72,8 +71,11 @@ class Datasource extends DataSourceBase {
         this.isPointCloud = (vertices.length > 1)
 
         if (true === this.isPointCloud) {
-            for (let vertexDictionary of Object.values(this.dictionary)) {
-                for (let vertices of Object.values(vertexDictionary)) {
+
+            for (let traceDictionary of Object.values(this.dictionary)) {
+                for (let [ key, vertices ] of Object.entries(traceDictionary)) {
+
+                    // discard missing data
                     const filtered = vertices.filter(({ isMissingData }) => {
                         if (true === isMissingData) {
                             console.warn('is missing data')
@@ -82,21 +84,18 @@ class Datasource extends DataSourceBase {
                             return true
                         }
                     })
-                    vertices = filtered.slice()
+
+                    traceDictionary[ key ] = { centroid: computeCentroid(filtered), vertices: filtered }
                 }
             }
+
         } else {
 
             // consolidate non-pointcloud data.
-            for (let vertexDictionary of Object.values(this.dictionary)) {
-
-                if (undefined === this.vertexCount) {
-                    this.vertexCount = Object.keys(vertexDictionary).length;
-                }
-
-                for (let key of Object.keys(vertexDictionary)) {
-                    const [ item ] = vertexDictionary[ key ]
-                    vertexDictionary[ key ] = { x:item.x, y:item.y, z:item.z, isMissingData: item.isMissingData }
+            for (let traceDictionary of Object.values(this.dictionary)) {
+                for (let key of Object.keys(traceDictionary)) {
+                    const [ item ] = traceDictionary[ key ]
+                    traceDictionary[ key ] = { x:item.x, y:item.y, z:item.z, isMissingData: item.isMissingData }
                 }
             }
 
@@ -139,6 +138,10 @@ class Datasource extends DataSourceBase {
 
         }
 
+        // Record vertex count. Assume ALL traces have same number of vertices
+        const [ traceDictionary ] = Object.values(this.dictionary)
+        this.vertexCount = Object.keys(traceDictionary).length
+
         for (let i = 0; i < this.genomicExtentList.length; i++) {
             const item = this.genomicExtentList[ i ]
             item.interpolant = (item.centroidBP - this.genomicStart) / (this.genomicEnd - this.genomicStart)
@@ -151,7 +154,7 @@ class Datasource extends DataSourceBase {
     async getVertexListCount() {
         const list = Object.values(this.dictionary)
 
-        return Promise.resolve(list.length)
+        return list.length
     }
 
     async createTrace(i) {
@@ -162,20 +165,20 @@ class Datasource extends DataSourceBase {
 
         const trace = rows.map((row, index) => {
 
-            const color = colorRampMaterialProvider.colorForInterpolant(this.genomicExtentList[index].interpolant)
-
-            const xyz = true === this.isPointCloud ? row.flatMap(({x, y, z}) => [x, y, z]) : row
-            const rgb = true === this.isPointCloud ? row.flatMap(ignore => [color.r, color.g, color.b]) : color
+            const xyz = true === this.isPointCloud ? row.vertices.flatMap(({x, y, z}) => [x, y, z]) : row
             const drawUsage = true === this.isPointCloud ? THREE.DynamicDrawUsage : THREE.StaticDrawUsage
 
-            return {
-                interpolant: this.genomicExtentList[index].interpolant,
-                xyz,
-                rgb,
-                color,
-                drawUsage
-            }
+            const hash =
+                {
+                    interpolant: this.genomicExtentList[index].interpolant,
+                    xyz,
+                    drawUsage
+                };
 
+            if (true === this.isPointCloud) {
+                hash.centroid = row.centroid
+            }
+            return hash
         })
 
         return Promise.resolve(trace)
@@ -183,18 +186,30 @@ class Datasource extends DataSourceBase {
 
     getLiveContactFrequencyMapVertexLists() {
         const values = Object.values(this.dictionary)
-        return values.map(vertexDictionary => Datasource.getLiveContactFrequencyMapDatasetVertices(vertexDictionary))
+        return values.map(traceDictionary => {
+            return this.getLiveContactFrequencyMapDatasetVertices(traceDictionary)
+        })
     }
 
-    static getLiveContactFrequencyMapDatasetVertices(vertexDictionary) {
+    getLiveContactFrequencyMapDatasetVertices(traceDictionary) {
 
-        return Object.values(vertexDictionary)
+        return Object.values(traceDictionary)
             .map(row => {
-                const { x, y, z, isMissingData } = row
+                const { x, y, z, isMissingData } = true === this.isPointCloud ? row.centroid : row
                 return true === isMissingData ? { isMissingData } : { x, y, z }
             })
 
     }
+
+}
+
+function computeCentroid(vertices) {
+
+    const { x, y, z } = vertices.reduce((acc, current) => {
+        return { x: acc.x + current.x, y: acc.y + current.y, z: acc.z + current.z }
+    }, { x:0, y:0, z:0 })
+
+    return { x: x/vertices.length, y: y/vertices.length, z: z/vertices.length }
 
 }
 

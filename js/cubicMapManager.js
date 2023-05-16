@@ -11,14 +11,14 @@ class CubicMapManager {
             const paths = pathsOpenEXRStyleWithRoot(textureRoot, suffix);
 
             const promise = new Promise(resolve => {
-                new THREE.CubeTextureLoader().setPath(textureRoot).load(paths, resolve);
+                const texas = new THREE.CubeTextureLoader().setPath(textureRoot).load(paths, resolve)
+                texas.colorSpace = THREE.SRGBColorSpace
             });
 
             const cubicTexture = await promise;
 
             cubicTexture.format   = THREE.RGBFormat;
             cubicTexture.mapping  = THREE.CubeReflectionMapping;
-            // cubicTexture.encoding = THREE.sRGBEncoding;
 
             this.cubicTexture = cubicTexture;
 

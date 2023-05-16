@@ -25,29 +25,13 @@ async function getMaterialProvider(track) {
 
         // If "zoom in" notice is displayed do not paint features on trace
         if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
-            dataValueMaterialProvider.configure({ track, startBP: start, endBP: end, features: undefined, min: undefined, max: undefined });
+            console.warn(`Track ${ track.name } is showing Zoom In message. Can not render track features on trace`)
+            return colorRampMaterialProvider
         } else {
-
-            const features = await track.getFeatures(chr, start, end, bpPerPixel);
-
-            if (track.trackView.dataRange()) {
-                const { min, max } = track.trackView.dataRange()
-                dataValueMaterialProvider.configure({ track, startBP: start, endBP: end, features, min, max });
-            } else {
-                dataValueMaterialProvider.configure({ track, startBP: start, endBP: end, features });
-            }
-
-            // if ('varying' === track.featureDescription) {
-            //     const { min, max } = track.dataRange;
-            //     console.log(`wig track features. ${ bpPerPixel } start ${ StringUtils.numberFormatter(start) } end ${ StringUtils.numberFormatter(end) } min ${ min } max ${ max }`);
-            //     dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min, max });
-            // } else {
-            //     dataValueMaterialProvider.configure({ startBP: start, endBP: end, features, min: undefined, max: undefined });
-            // }
-
+            await dataValueMaterialProvider.configure(track)
+            return dataValueMaterialProvider
         }
 
-        return dataValueMaterialProvider
     } else {
         return colorRampMaterialProvider
     }

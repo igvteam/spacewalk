@@ -1,11 +1,11 @@
 import * as THREE from 'three'
-import { MapControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import {sceneManager} from "./app.js"
 
 let cameraWorldDirection = new THREE.Vector3()
 let crossed = new THREE.Vector3()
 
-class CameraLightingRig extends MapControls {
+class CameraLightingRig extends OrbitControls {
 
     constructor ({ fov, near, far, domElement, aspect, hemisphereLight }) {
 

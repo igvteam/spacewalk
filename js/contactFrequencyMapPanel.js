@@ -130,7 +130,7 @@ class ContactFrequencyMapPanel extends Panel {
         showGlobalSpinner()
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const vertices = EnsembleManager.getEnsembleTraceVertices(ensembleManager.currentTrace)
+        const vertices = ensembleManager.getEnsembleTraceVertices(ensembleManager.currentTrace)
 
         const data =
             {

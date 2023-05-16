@@ -109,7 +109,7 @@ class ColorMapManager {
 
 const retrieveRGB = (rgbList, interpolant, key) => {
     const index = Math.floor(interpolant * (rgbList.length - 1));
-    return rgbList[ index ][ key ];
+    return rgbList[ index ][ key ]
 };
 
 const rgbListWithImage = image => {

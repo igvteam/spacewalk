@@ -126,9 +126,9 @@ class SceneManager {
 
         setMaterialProvider(colorRampMaterialProvider)
 
-        igvPanel.locusDidChange(ensembleManager.locus)
+        await igvPanel.locusDidChange(ensembleManager.locus)
 
-        juiceboxPanel.locusDidChange(ensembleManager.locus)
+        await juiceboxPanel.locusDidChange(ensembleManager.locus)
 
     }
 
@@ -354,12 +354,34 @@ const sceneManagerConfigurator = ({ container, highlightColor }) => {
     const str = `Scene Manager Configuration Builder Complete`;
     console.time(str);
 
+
+    // Opt out of linear color workflow for now
+    // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
+    // THREE.ColorManagement.enabled = false;
+
+    // Enable linear color workflow
+    THREE.ColorManagement.enabled = true;
+
+
+
     // const stickMaterial = showSMaterial;
     // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
     const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
     stickMaterial.side = THREE.DoubleSide;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+
+
+    // Opt out of linear color workflow for now
+    // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
+    // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+
+    // Enable linear color workflow
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+
+
     // renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
     // renderer.setClearColor (appleCrayonColorThreeJS('strawberry'));
 

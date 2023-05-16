@@ -28,7 +28,7 @@ function aidenLabParser(str) {
 
         obj['url'] = obj['NVI'] ? `${url}?nvi=${obj['NVI']}` : url;
 
-        // Insure that all visible columns have a value
+        // Ensure all visible columns have a value
         for (let key of configuration.columns) {
             obj[key] = obj[key] || '-'
         }

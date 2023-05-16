@@ -1,11 +1,27 @@
 import {GenericDataSource, ModalTable} from 'data-modal'
 import {FileUtils, GooglePicker} from 'igv-utils'
 import {aidenLabContactMapDatasourceConfigurator} from './aidenLabContactMapDatasourceConfig.js'
-import {encodeContactMapDatasourceConfiguration} from "./encodeContactMapDatasourceConfig.js"
 
 let mapType = undefined;
 let encodeHostedContactMapModal;
 let contactMapModal;
+
+const encodeContactMapDatasourceConfiguration =
+    {
+        url: 'https://s3.amazonaws.com/igv.org.app/encode/hic/hic.txt',
+        columns:
+            [
+                // 'HREF',
+                'Assembly',
+                'Biosample',
+                'Description',
+                'BioRep',
+                'TechRep',
+                'Lab',
+                'Accession',
+                'Experiment'
+            ],
+    }
 
 function configureContactMapLoaders({
                                         rootContainer,
