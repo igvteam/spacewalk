@@ -1,4 +1,11 @@
-import {ribbon, ballAndStick, ensembleManager, dataValueMaterialProvider, colorRampMaterialProvider} from "./app.js";
+import {
+    ribbon,
+    ballAndStick,
+    pointCloud,
+    ensembleManager,
+    dataValueMaterialProvider,
+    colorRampMaterialProvider
+} from "./app.js";
 import {lerp} from "./math.js";
 import {appleCrayonColorRGB255} from './color.js'
 
@@ -21,8 +28,6 @@ async function getMaterialProvider(track) {
 
     if ($(track.trackView.materialProviderInput).is(':checked')) {
 
-        const { chr, start, end, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
-
         // If "zoom in" notice is displayed do not paint features on trace
         if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
             console.warn(`Track ${ track.name } is showing Zoom In message. Can not render track features on trace`)
@@ -41,6 +46,7 @@ async function getMaterialProvider(track) {
 function setMaterialProvider(materialProvider) {
     ribbon.updateMaterialProvider(materialProvider)
     ballAndStick.updateMaterialProvider(materialProvider)
+    pointCloud.updateMaterialProvider(materialProvider)
 }
 
 function fitToContainer(canvas, devicePixelRatio) {
