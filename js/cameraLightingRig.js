@@ -9,7 +9,9 @@ class CameraLightingRig extends OrbitControls {
 
     constructor ({ fov, near, far, domElement, aspect, hemisphereLight }) {
 
-        super (new THREE.PerspectiveCamera(fov, aspect, near, far), domElement);
+        super (new THREE.PerspectiveCamera(fov, aspect, near, far), domElement)
+
+        this.attachMouseHandlers()
 
         // OrbitControls refers to the camera as "object"
         this.object.name = 'orbital_camera';
@@ -28,6 +30,29 @@ class CameraLightingRig extends OrbitControls {
         // this.enableKeys = false;
         // this.enablePan = false;
 
+    }
+
+    attachMouseHandlers() {
+
+        this.boundPointerUpHandler = pointerUpHandler
+        this.domElement.addEventListener('pointerup', this.boundPointerUpHandler)
+
+        function pointerUpHandler () {
+            document.querySelector('#spacewalk-threejs-canvas-center-dot').style.display = 'none'
+        }
+
+        this.boundPointerDownHandler = pointerDownHandler
+        this.domElement.addEventListener('pointerdown', this.boundPointerDownHandler)
+
+        function pointerDownHandler () {
+            document.querySelector('#spacewalk-threejs-canvas-center-dot').style.display = 'block'
+        }
+
+    }
+
+    removeMouseHandlers() {
+        this.domElement.removeEventListener('pointerup', this.boundPointerUpHandler)
+        this.domElement.removeEventListener('pointerdown', this.boundPointerDownHandler)
     }
 
     configure ({ fov, aspect, position, centroid, boundingDiameter }) {
@@ -136,7 +161,7 @@ class CameraLightingRig extends OrbitControls {
     }
 
     dispose() {
-        //
+        this.removeMouseHandlers()
         delete this.object;
     }
 
