@@ -1,4 +1,3 @@
-import SpacewalkEventBus from './spacewalkEventBus.js'
 import { configureRenderContainerDrag } from './renderContainerDrag.js'
 import { traceNavigator } from './app.js'
 
@@ -14,7 +13,8 @@ class RenderContainerController {
 
         const config =
             {
-                handles: "w, sw, s, se, e",
+                // handles: "w, sw, s, se, e",
+                handles: "se",
                 autoHide: true,
                 aspectRatio: true,
                 helper: "spacewalk-threejs-container-resizable-helper",
