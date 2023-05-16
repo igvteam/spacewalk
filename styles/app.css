@@ -479,6 +479,19 @@ div#spacewalk_info_panel > div > div:last-child {
   height: 512px;
   background-color: #888787;
 }
+#spacewalk-threejs-container #spacewalk-threejs-trace-navigator-container #spacewalk-threejs-canvas-container #spacewalk-threejs-canvas-center-dot {
+  z-index: 512;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  border-style: solid;
+  border-width: thin;
+  border-color: black;
+}
 #spacewalk-threejs-container #spacewalk-threejs-trace-navigator-container #spacewalk-trace-navigator-container {
   width: 48px;
   height: 512px;

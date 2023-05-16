@@ -10,6 +10,8 @@ $spacewalk-trace-navigator-width: 48px;
 $spacewalk-trace-navigator-label-height: 32px;
 $spacewalk-trace-navigator-canvas-width: 40px;
 
+$spacewalk-threejs-canvas-center-dot-radius:6px;
+
 @import "color";
 @import "navbar";
 @import "checkbox-menu";
@@ -77,6 +79,21 @@ $spacewalk-trace-navigator-canvas-width: 40px;
       height:$spacewalk-threejs-canvas-container-size;
       background-color: $spacewalk_nickel;
 
+      #spacewalk-threejs-canvas-center-dot {
+        z-index: 512;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        width:  2 * $spacewalk-threejs-canvas-center-dot-radius;
+        height: 2 * $spacewalk-threejs-canvas-center-dot-radius;
+
+        border-radius: $spacewalk-threejs-canvas-center-dot-radius;
+        border-style: solid;
+        border-width: thin;
+        border-color: black;
+      }
     }
 
     #spacewalk-trace-navigator-container {
