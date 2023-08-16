@@ -385,8 +385,9 @@ const sceneManagerConfigurator = ({ container, highlightColor }) => {
     // renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
     // renderer.setClearColor (appleCrayonColorThreeJS('strawberry'));
 
-    // const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('nickel'), (1) );
-    const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('tin'), (1) );
+    // Update due to r155 changes to illumination: Multiply light intensities by PI to get same brightness as previous threejs release.
+    // See: https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733
+    const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('tin'), Math.PI );
 
     const { width, height } = container.getBoundingClientRect();
     const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (width/height) ];

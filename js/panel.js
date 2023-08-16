@@ -1,4 +1,4 @@
-import { DOMUtils } from 'igv-utils'
+import { DOMUtils } from 'igv-ui'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { makeDraggable } from "./draggable.js"
 
@@ -32,7 +32,7 @@ class Panel {
             SpacewalkEventBus.globalBus.post({ type: "DidSelectPanel", data: this.getClassName() })
         })
 
-        const closer = panel.querySelector('i.fa-times-circle')
+        const closer = panel.querySelector('span:last-child')
         $(closer).on(`click.${ DOMUtils.guid() }`, event => {
             event.stopPropagation()
             event.preventDefault()

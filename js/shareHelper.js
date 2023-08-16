@@ -26,7 +26,7 @@ import {igvPanel} from './app.js'
 
 let urlShortener;
 
-export function setURLShortener(obj) {
+function setURLShortener(obj) {
 
     let fn;
     if (typeof obj === "function") {
@@ -57,21 +57,7 @@ export function setURLShortener(obj) {
 
 }
 
-export function sessionURL() {
-
-    let surl,
-        path,
-        idx;
-
-    path = window.location.href.slice();
-    idx = path.indexOf("?");
-
-    surl = (idx > 0 ? path.substring(0, idx) : path) + "?sessionURL=blob:" + igvPanel.browser.compressedSession();
-
-    return surl;
-}
-
-export function shortSessionURL(base, session) {
+function shortSessionURL(base, session) {
 
     const url = base + "?sessionURL=blob:" + session;
 
@@ -86,3 +72,5 @@ function shortenURL(url) {
         return Promise.resolve(url);
     }
 }
+
+export { setURLShortener, shortSessionURL, shortenURL }
