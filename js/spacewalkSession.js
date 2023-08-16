@@ -200,7 +200,7 @@ function uncompressSession(url) {
 
     if (url.indexOf('/gzip;base64') > 0) {
 
-        const bytes = URIUtils.decodeDataURI(url);
+        const bytes = BGZip.decodeDataURI(url, undefined)
         let json = '';
         for (let b of bytes) {
             json += String.fromCharCode(b)
@@ -209,7 +209,7 @@ function uncompressSession(url) {
     } else {
 
         let enc = url.substring(5);
-        return BGZip.uncompressString(enc, Zlib);
+        return BGZip.uncompressString(enc)
     }
 }
 
