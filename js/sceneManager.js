@@ -356,7 +356,7 @@ function getCameraPoseAlongAxis ({ center, radius, axis, scaleFactor }) {
     return { target:center, position, fov }
 }
 
-const sceneManagerConfigurator = ({ container, highlightColor }) => {
+const sceneManagerConfigurator = (container) => {
 
     const str = `Scene Manager Configuration Builder Complete`;
     console.time(str);

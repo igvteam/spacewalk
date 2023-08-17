@@ -26,20 +26,18 @@ class RenderContainerController {
 
         $(sceneManager.container).resizable(config)
 
+        const navbar = document.querySelector('.navbar')
+        const topConstraint = navbar.getBoundingClientRect().height
+
         const dragConfig =
             {
                 target: this.threejsContainer,
                 handle: this.threejsContainer.querySelector('#spacewalk-threejs-drag-container'),
                 container: this.rootContainer,
-                topConstraint: document.querySelector('.navbar').getBoundingClientRect().height
+                topConstraint
             }
 
         configureRenderContainerDrag(dragConfig)
-
-        // SpacewalkEventBus.globalBus.subscribe("AppWindowDidResize", this);
-        // SpacewalkEventBus.globalBus.subscribe("DidEndRenderContainerDrag", this);
-
-        this.sceneManager = sceneManager;
 
     }
 
