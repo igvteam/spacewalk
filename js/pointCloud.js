@@ -61,7 +61,10 @@ class PointCloud {
             const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
             if (interpolantWindowList) {
-                const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ])
+                const objectList = interpolantWindowList.map(({ index }) => {
+                    const mesh = this.meshList[ index ]
+                    return mesh
+                })
                 this.pickHighlighter.highlightWithObjectList(objectList)
             }
 
