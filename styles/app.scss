@@ -225,3 +225,8 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
   width: 14px !important;
   height: 14px !important;
 }
+
+::selection {
+  color: none;
+  background: none;
+}

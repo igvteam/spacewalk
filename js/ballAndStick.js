@@ -7,6 +7,7 @@ import { generateRadiusTable } from "./utils.js"
 import {ensembleManager, igvPanel, sceneManager} from './app.js'
 import { appleCrayonColorThreeJS } from "./color.js"
 import EnsembleManager from './ensembleManager.js'
+import {BufferGeometry} from "three";
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
@@ -115,7 +116,7 @@ class BallAndStick {
 
             matrix.compose(point, quaternion, scale)
 
-            mesh.setMatrixAt(i++, matrix)
+            mesh.setMatrixAt(i, matrix)
         })
 
         return mesh
@@ -158,8 +159,10 @@ class BallAndStick {
         }
 
         // Aggregate geometry list into single BufferGeometry
-        const material = sceneManager.stickMaterial.clone();
-        const mesh = new THREE.Mesh(mergeGeometries( geometries ), material);
+        const material = sceneManager.stickMaterial.clone()
+
+        const bufferGeometry = mergeGeometries(geometries)
+        const mesh = new THREE.Mesh(bufferGeometry, material)
         mesh.name = 'stick';
         return mesh;
 
@@ -191,16 +194,27 @@ class BallAndStick {
         ballRadiusIndex = clamp(ballRadiusIndex + increment, 0, ballRadiusTable.length - 1)
         const radius = ballRadiusTable[ ballRadiusIndex ]
 
-        for (let mesh of this.balls) {
-            mesh.scale.setScalar(radius);
+        const matrix = new THREE.Matrix4()
+        const pp = new THREE.Vector3()
+        const qq = new THREE.Quaternion()
+        const ss = new THREE.Vector3()
+        for (let i = 0; i < ensembleManager.currentTrace.length; i++) {
+
+            this.balls.getMatrixAt(i, matrix)
+            matrix.decompose(pp, qq, ss)
+
+            ss.setScalar(radius)
+            matrix.compose(pp, qq, ss)
+            this.balls.setMatrixAt(i, matrix)
         }
 
+        this.balls.instanceMatrix.needsUpdate = true
     }
 
     updateStickRadius(increment) {
-        stickRadiusIndex = clamp(stickRadiusIndex + increment, 0, stickRadiusTable.length - 1);
-        const radius = stickRadiusTable[ stickRadiusIndex ];
-        // const geometries = this.stickCurves.map(curve => new THREE.TubeBufferGeometry(curve, stickTesselation.length, radius, stickTesselation.radial, false));
+        stickRadiusIndex = clamp(stickRadiusIndex + increment, 0, stickRadiusTable.length - 1)
+        const radius = stickRadiusTable[ stickRadiusIndex ]
+        // const geometries = this.sticks.map(curve => new THREE.TubeBufferGeometry(curve, stickTesselation.length, radius, stickTesselation.radial, false));
         // this.sticks.geometry.copy(mergeGeometries( geometries ));
     }
 

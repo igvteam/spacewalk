@@ -10,16 +10,17 @@
   "devDependencies": {
     "btoa": "^1.2.1",
     "data-modal": "github:igvteam/data-modal#spacewalk",
-    "hdf5-indexed-reader": "github:jrobinso/hdf5-indexed-reader",
+    "hdf5-indexed-reader": "github:jrobinso/hdf5-indexed-reader#v0.5.3",
     "http-server": "^14.0.0",
     "igv": "github:igvteam/igv.js#spacewalk",
-    "igv-utils": "github:igvteam/igv-utils#v1.3.15",
+    "igv-ui": "github:igvteam/igv-ui#v1.5.0",
+    "igv-utils": "github:igvteam/igv-utils#v1.4.7",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
     "juicebox.js": "github:igvteam/juicebox.js#spacewalk",
     "node-fetch": "^3.3.0",
-    "sass": "^1.58.3",
-    "three": "^0.152.2",
+    "sass": "^1.65.1",
+    "three": "^0.155.0",
     "vanilla-picker": "^2.12.1",
-    "vite": "^4.3.5"
+    "vite": "^5.1.1"
   }
 }

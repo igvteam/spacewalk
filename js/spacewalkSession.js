@@ -1,4 +1,4 @@
-import {URIUtils, BGZip, URLShortener} from 'igv-utils'
+import {URIUtils, BGZip} from 'igv-utils'
 import Zlib from './vendor/zlib_and_gzip.js'
 import hic from 'juicebox.js'
 import Panel from './panel.js'
@@ -6,8 +6,7 @@ import { igvPanel, juiceboxPanel, ensembleManager, sceneManager, contactFrequenc
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {defaultDistanceThreshold} from './contactFrequencyMapPanel.js'
 import {igvClassAdditions} from './IGVPanel.js'
-
-const urlShortener = URLShortener.getShortener({ provider: "tinyURL" })
+import { shortenURL } from "./shareHelper.js"
 
 const loadSessionURL = async spacewalkSessionURL => {
 
@@ -133,7 +132,7 @@ async function getShareURL() {
         url = `${ prefix }?spacewalkSessionURL=blob:${ spacewalkCompressedSession }&sessionURL=blob:${ igvCompressedSession }`
     }
 
-    return urlShortener.shortenURL(url)
+    return shortenURL(url)
 
 }
 
@@ -201,7 +200,7 @@ function uncompressSession(url) {
 
     if (url.indexOf('/gzip;base64') > 0) {
 
-        const bytes = URIUtils.decodeDataURI(url);
+        const bytes = BGZip.decodeDataURI(url, undefined)
         let json = '';
         for (let b of bytes) {
             json += String.fromCharCode(b)
@@ -210,7 +209,7 @@ function uncompressSession(url) {
     } else {
 
         let enc = url.substring(5);
-        return BGZip.uncompressString(enc, Zlib);
+        return BGZip.uncompressString(enc)
     }
 }
 

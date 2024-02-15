@@ -103,8 +103,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     await initializationHelper(container)
 
-    document.querySelector('.navbar').style.display = 'flex'
-
     hideGlobalSpinner()
 
     // console.timeEnd(str)
@@ -131,9 +129,7 @@ const initializationHelper = async container => {
 
     colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
-    sceneManager = new SceneManager(sceneManagerConfigurator({ container: document.querySelector('#spacewalk-threejs-canvas-container'), highlightColor }));
-
-    renderContainerController = new RenderContainerController(container, sceneManager)
+    sceneManager = new SceneManager(sceneManagerConfigurator(document.querySelector('#spacewalk-threejs-canvas-container')));
 
     const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = getUrlParams(window.location.href);
 
@@ -165,9 +161,12 @@ const initializationHelper = async container => {
     //
     // perfFolder.__ul.appendChild( guiStatsEl )
     // perfFolder.open()
-
-
+    
     await loadSessionURL(spacewalkSessionURL)
+
+    document.querySelector('.navbar').style.display = 'flex'
+
+    renderContainerController = new RenderContainerController(container, sceneManager)
 
     renderLoop()
 

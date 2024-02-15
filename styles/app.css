@@ -594,4 +594,9 @@ div#spacewalk_info_panel > div > div:last-child {
   height: 14px !important;
 }
 
+::selection {
+  color: none;
+  background: none;
+}
+
 /*# sourceMappingURL=app.css.map */

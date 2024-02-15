@@ -166,14 +166,4 @@ class CameraLightingRig extends OrbitControls {
     }
 
 }
-
-const createLightSource = ({ x, y, z, color, intensity }) => {
-
-    const [ distance, decay ] = [ 0, 1 ];
-    let lightSource = new THREE.PointLight(color, intensity, distance, decay);
-    lightSource.position.set(x, y, z);
-
-    return lightSource;
-}
-
 export default CameraLightingRig
