@@ -22,7 +22,9 @@ class DataValueMaterialProvider {
         const { chr, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
 
         const maxFeatureList = []
-        for (const { startBP, endBP } of ensembleManager.datasource.genomicExtentList) {
+
+        const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
+        for (const { startBP, endBP } of genomicExtentList) {
             const raw = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
             const featuresForGenomicExtent = raw.filter(({ start, end }) => !(end < startBP) && !(start > endBP))
 
@@ -43,7 +45,7 @@ class DataValueMaterialProvider {
 
             } // if (...)
 
-        } //for (genomicExtentList)
+        }
 
         // find global min/max
         const featureValues = maxFeatureList.map(({ value }) => value)

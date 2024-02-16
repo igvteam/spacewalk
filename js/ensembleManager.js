@@ -29,7 +29,8 @@ class EnsembleManager {
 
         this.locus = this.datasource.locus
 
-        this.genomicExtentList = this.datasource.genomicExtentList
+        // TODO: Remove this. genomicExtentList is a trace attribute
+        // this.genomicExtentList = this.datasource.genomicExtentList
 
         this.currentIndex = 0
         this.currentTrace = await this.createTrace(this.currentIndex)
@@ -48,11 +49,9 @@ class EnsembleManager {
 
         this.datasource = datasource
 
-        const { locus, genomicExtentList, isPointCloud } = datasource
+        const { locus, isPointCloud } = datasource
 
         this.locus = locus
-
-        this.genomicExtentList = genomicExtentList
 
         this.isPointCloud = isPointCloud
 
@@ -64,15 +63,18 @@ class EnsembleManager {
 
     createEventBusPayload() {
 
-        const { chr, genomicStart, genomicEnd } = this.locus
+        const { chr } = this.locus
+
+        const { genomicStart, genomicEnd, genomicExtentList } = Object.values(this.datasource.dictionary)[ this.currentIndex ]
 
         const payload =
             {
                 sample: this.sample,
                 genomeAssembly: this.genomeAssembly,
-                chr,
+                chr: this.locus.chr,
                 genomicStart,
                 genomicEnd,
+                genomicExtentList,
                 initialIndex: this.currentIndex,
                 trace: this.currentTrace
             };
@@ -92,22 +94,26 @@ class EnsembleManager {
         return await this.datasource.getVertexListCount()
     }
 
+    getCurrentGenomicExtentList() {
+        const { genomicExtentList } = Object.values(this.datasource.dictionary)[ this.currentIndex ]
+        return genomicExtentList
+    }
+
     getGenomicInterpolantWindowList(interpolantList) {
 
         const interpolantWindowList = [];
 
-        for (let genomicExtent of this.genomicExtentList) {
+        const { genomicExtentList } = Object.values(this.datasource.dictionary)[ this.currentIndex ]
+
+        for (let genomicExtent of genomicExtentList) {
 
             let { start:a, end:b } = genomicExtent
 
             for (let interpolant of interpolantList) {
-
                 if ( includes({ a, b, value: interpolant }) ) {
-                    interpolantWindowList.push({ genomicExtent, index: this.genomicExtentList.indexOf(genomicExtent) })
+                    interpolantWindowList.push({ genomicExtent, index: genomicExtentList.indexOf(genomicExtent) })
                 }
-
             }
-
         }
 
         return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;

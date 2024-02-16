@@ -46,7 +46,8 @@ class BallHighlighter {
 
             ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true
 
-            const interpolantWindowList = Array.from(this.instanceIdList).map(instanceId => ensembleManager.genomicExtentList[ instanceId ])
+            const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
+            const interpolantWindowList = Array.from(this.instanceIdList).map(instanceId => genomicExtentList[ instanceId ])
             colorRampMaterialProvider.highlightWithInterpolantWindowList(interpolantWindowList)
 
         }
@@ -59,13 +60,14 @@ class BallHighlighter {
 
             const bufferAttribute = ballAndStick.balls.geometry.getAttribute('instanceColor')
 
+            const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
             for (const instanceId of this.instanceIdList) {
-                const color = igvPanel.materialProvider.colorForInterpolant(ensembleManager.datasource.genomicExtentList[ instanceId ].interpolant)
+                const color = igvPanel.materialProvider.colorForInterpolant(genomicExtentList[ instanceId ].interpolant)
                 color.toArray(bufferAttribute.array, instanceId * 3)
             }
 
             ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true;
-            
+
             this.instanceIdList = undefined
          }
 

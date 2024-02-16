@@ -8,10 +8,6 @@ class DataSourceBase {
         this.genomicEnd = Number.NEGATIVE_INFINITY;
 
         this.isPointCloud = undefined;
-
-        this.vertexCount = undefined
-
-        this.genomicExtentList = undefined
     }
 
     consumeLines(lines, regex) {
