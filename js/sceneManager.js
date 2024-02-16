@@ -154,6 +154,9 @@ class SceneManager {
             }
 
         }  else if ('DidSelectTrace' === type) {
+
+            const eventBusPayload = ensembleManager.createEventBusPayload()
+
             const { trace } = data
             this.setupWithTrace(trace)
         }
