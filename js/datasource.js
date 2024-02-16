@@ -136,11 +136,6 @@ class Datasource extends DataSourceBase {
             }
         }
 
-
-        // TODO: 16 Feb 2024 - BUG! BUG! BUG! BUG! BUG! BUG!
-        // const [ traceDictionary ] = Object.values(this.dictionary)
-        // this.vertexCount = Object.keys(traceDictionary).length
-
         // Each trace requires a genomicStart and genomicEnd
         for (const key of Object.keys(this.dictionary)) {
             const { genomicExtentList } = this.dictionary[ key ]

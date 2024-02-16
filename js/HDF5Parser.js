@@ -34,10 +34,6 @@ function getHDF5ReaderConfiguration(path) {
         config.url = path
     }
 
-    if('https://dl.dropboxusercontent.com/s/9bcgdsk6u4iqi0m/spleen_full.indexed.cndb?dl=0' === config.url) {
-        config.indexOffset = 129268695620
-    }
-
     return config
 }
 

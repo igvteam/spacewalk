@@ -24,17 +24,10 @@ class EnsembleManager {
     }
 
     async loadReplica(replicaKey) {
-
         await this.datasource.updateWithReplicaKey(replicaKey)
-
         this.locus = this.datasource.locus
-
-        // TODO: Remove this. genomicExtentList is a trace attribute
-        // this.genomicExtentList = this.datasource.genomicExtentList
-
         this.currentIndex = 0
         this.currentTrace = await this.createTrace(this.currentIndex)
-
     }
 
     async load(fileOrPath, parser, datasource, index) {
@@ -87,7 +80,7 @@ class EnsembleManager {
     }
 
     getTraceLength() {
-        return this.datasource.vertexCount
+        return this.currentTrace.length
     }
 
     async getTraceCount() {
@@ -105,11 +98,11 @@ class EnsembleManager {
 
         const { genomicExtentList } = Object.values(this.datasource.dictionary)[ this.currentIndex ]
 
-        for (let genomicExtent of genomicExtentList) {
+        for (const genomicExtent of genomicExtentList) {
 
             let { start:a, end:b } = genomicExtent
 
-            for (let interpolant of interpolantList) {
+            for (const interpolant of interpolantList) {
                 if ( includes({ a, b, value: interpolant }) ) {
                     interpolantWindowList.push({ genomicExtent, index: genomicExtentList.indexOf(genomicExtent) })
                 }

@@ -35,12 +35,7 @@ class HDF5Datasource extends DataSourceBase {
 
         const group = await this.hdf5.get( this.currentReplicaKey )
 
-        this.vertexCount = await getVertexListLength(group)
-
         this.locus = await getLocus(this.currentReplicaKey, group)
-
-        const dataset = await this.hdf5.get(`${ this.currentReplicaKey }/genomic_position`)
-        this.genomicExtentList = await getGenomicExtentList(dataset)
 
         console.timeEnd(str)
 
@@ -69,9 +64,12 @@ class HDF5Datasource extends DataSourceBase {
 
             const [ x, y, z ] = numbers.slice(v, v + 3)
 
+            const dataset = await this.hdf5.get(`${ this.currentReplicaKey }/genomic_position`)
+            const genomicExtentList = await getGenomicExtentList(dataset)
+
             const object =
                 {
-                    interpolant: this.genomicExtentList[ j ].interpolant,
+                    interpolant: genomicExtentList[ j ].interpolant,
                     xyz: { x, y, z },
                     drawUsage: THREE.StaticDrawUsage
                 }
