@@ -56,9 +56,7 @@ class EnsembleManager {
 
     createEventBusPayload() {
 
-        const { chr } = this.locus
-
-        const { genomicStart, genomicEnd } = Object.values(this.datasource.dictionary)[ this.currentIndex ]
+        const { genomicStart, genomicEnd } = this.datasource.getGenomicExtentWithIndex(this.currentIndex)
 
         const payload =
             {

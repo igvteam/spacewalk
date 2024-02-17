@@ -79,6 +79,11 @@ class HDF5Datasource extends DataSourceBase {
         return this.currentGenomicExtentList
     }
 
+    getGenomicExtentWithIndex(index) {
+        const genomicExtentList = this.getGenomicExtentListWithIndex(index)
+        return { genomicStart: genomicExtentList[ 0 ].startBP, genomicEnd: genomicExtentList[ genomicExtentList.length - 1 ].endBP }
+    }
+
     async createTrace(i) {
 
         const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/${ 1 + i }` )
