@@ -58,7 +58,7 @@ class EnsembleManager {
 
         const { chr } = this.locus
 
-        const { genomicStart, genomicEnd, genomicExtentList } = Object.values(this.datasource.dictionary)[ this.currentIndex ]
+        const { genomicStart, genomicEnd } = Object.values(this.datasource.dictionary)[ this.currentIndex ]
 
         const payload =
             {
@@ -67,7 +67,7 @@ class EnsembleManager {
                 chr: this.locus.chr,
                 genomicStart,
                 genomicEnd,
-                genomicExtentList,
+                genomicExtentList : this.getCurrentGenomicExtentList(),
                 initialIndex: this.currentIndex,
                 trace: this.currentTrace
             };
@@ -88,15 +88,14 @@ class EnsembleManager {
     }
 
     getCurrentGenomicExtentList() {
-        const { genomicExtentList } = Object.values(this.datasource.dictionary)[ this.currentIndex ]
-        return genomicExtentList
+        return this.datasource.getGenomicExtentListWithIndex(this.currentIndex)
     }
 
     getGenomicInterpolantWindowList(interpolantList) {
 
         const interpolantWindowList = [];
 
-        const { genomicExtentList } = Object.values(this.datasource.dictionary)[ this.currentIndex ]
+        const genomicExtentList = this.getCurrentGenomicExtentList()
 
         for (const genomicExtent of genomicExtentList) {
 

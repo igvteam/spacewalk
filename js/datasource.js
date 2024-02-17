@@ -159,6 +159,11 @@ class Datasource extends DataSourceBase {
         return list.length
     }
 
+    getGenomicExtentListWithIndex(index) {
+        const { genomicExtentList } = Object.values(this.dictionary)[ index ]
+        return genomicExtentList
+    }
+
     async createTrace(i) {
 
         const traceValues = Object.values(this.dictionary)

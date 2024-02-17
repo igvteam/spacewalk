@@ -27,6 +27,11 @@ class DataSourceBase {
         return []
     }
 
+    getGenomicExtentListWithIndex(index) {
+        console.warn(`Warning: Dataset - base class method called getGenomicExtentListWithIndex(${ index })`)
+        return undefined
+    }
+
     async getVertexListCount() {
         console.warn('Warning: Dataset - base class method called getTraceCount()')
         return undefined

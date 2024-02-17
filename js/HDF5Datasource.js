@@ -8,9 +8,30 @@ class HDF5Datasource extends DataSourceBase {
     constructor() {
         super()
         this.isPointCloud = false
+        this.currentGenomicExtentList = undefined
     }
 
     async initialize(hdf5) {
+
+        this.hdf5 = hdf5
+
+        const scratch = await hdf5.keys
+
+        // discard unused keys
+        scratch.shift() // Header
+
+        this.replicaKeys = scratch
+
+        // this.replicaKeys = await getReplicaKeys(hdf5)
+
+        await this.updateWithReplicaKey(this.replicaKeys[ 0 ])
+
+        SpacewalkEventBus.globalBus.post({ type: 'DidLoadHDF5File', data: this.replicaKeys })
+
+    }
+
+    // DEPRICATED - 17 Feb 2024
+    async _initialize(hdf5) {
 
         this.hdf5 = hdf5
 
@@ -54,22 +75,27 @@ class HDF5Datasource extends DataSourceBase {
         return this.vertexListCount
     }
 
+    getGenomicExtentListWithIndex(ignore) {
+        return this.currentGenomicExtentList
+    }
+
     async createTrace(i) {
 
-        const dataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/${ 1 + i }` )
-        const numbers = await dataset.value
+        const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/${ 1 + i }` )
+        const numbers = await xyzDataset.value
+
+        const bpDataset = await this.hdf5.get(`${ this.currentReplicaKey }/genomic_position`)
+        this.currentGenomicExtentList = await getGenomicExtentList(bpDataset)
+
         let j = 0
         const trace = []
         for (let v = 0; v < numbers.length; v += 3) {
 
             const [ x, y, z ] = numbers.slice(v, v + 3)
 
-            const dataset = await this.hdf5.get(`${ this.currentReplicaKey }/genomic_position`)
-            const genomicExtentList = await getGenomicExtentList(dataset)
-
             const object =
                 {
-                    interpolant: genomicExtentList[ j ].interpolant,
+                    interpolant: this.currentGenomicExtentList[ j ].interpolant,
                     xyz: { x, y, z },
                     drawUsage: THREE.StaticDrawUsage
                 }
