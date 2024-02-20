@@ -17,16 +17,18 @@ class HDF5Datasource extends DataSourceBase {
 
         const scratch = await hdf5.keys
 
-        // discard unused keys
-        scratch.shift() // Header
+        this.header = scratch.shift()
+
+        // discard _index key if present
+        if (new Set(scratch).has('_index')) {
+            scratch.shift()
+        }
 
         this.replicaKeys = scratch
 
-        // this.replicaKeys = await getReplicaKeys(hdf5)
-
         await this.updateWithReplicaKey(this.replicaKeys[ 0 ])
 
-        SpacewalkEventBus.globalBus.post({ type: 'DidLoadHDF5File', data: this.replicaKeys })
+        // SpacewalkEventBus.globalBus.post({ type: 'DidLoadHDF5File', data: this.replicaKeys })
 
     }
 
@@ -176,13 +178,7 @@ function createBoundingBox(numbers) {
     return bbox
 }
 
-async function getReplicaKeys(hdf5) {
-
-    const scratch = await hdf5.keys
-
-    // discard unused keys
-    scratch.shift() // Header
-    scratch.shift() // _index
+async function getReplicaKeys(list) {
 
     const compare = (a, b) => {
 
