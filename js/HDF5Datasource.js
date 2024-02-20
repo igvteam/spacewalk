@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import DataSourceBase from './dataSourceBase.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
+import {createBoundingBoxWithFlatXYZList} from "./math.js"
 
 class HDF5Datasource extends DataSourceBase {
 
@@ -112,7 +113,7 @@ class HDF5Datasource extends DataSourceBase {
 
 function createCleanXYZ(numbers) {
 
-    const bbox = createBoundingBox(numbers)
+    const bbox = createBoundingBoxWithFlatXYZList(numbers)
     const centroid = { x: bbox.centroid[ 0 ], y: bbox.centroid[ 1 ], z: bbox.centroid[ 2 ] }
 
     const list = []
@@ -132,38 +133,6 @@ function createCleanXYZ(numbers) {
     return list
 }
 
-function createBoundingBox(numbers) {
-
-    const bbox =
-        {
-            min: [ Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY ],
-            max: [ Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY ],
-            centroid: [ 0, 0, 0 ],
-        }
-
-    for (let n = 0; n < numbers.length; n += 3) {
-
-        const [ x, y, z ] = numbers.slice(n, n + 3)
-
-        if ( ![ x, y, z ].some(isNaN) ) {
-            // min
-            bbox.min[ 0 ] = Math.min(bbox.min[ 0 ], x)
-            bbox.min[ 1 ] = Math.min(bbox.min[ 1 ], y)
-            bbox.min[ 2 ] = Math.min(bbox.min[ 2 ], z)
-
-            // max
-            bbox.max[ 0 ] = Math.max(bbox.max[ 0 ], x)
-            bbox.max[ 1 ] = Math.max(bbox.max[ 1 ], y)
-            bbox.max[ 2 ] = Math.max(bbox.max[ 2 ], z)
-        }
-    }
-
-    bbox.centroid[ 0 ] = (bbox.min[ 0 ] + bbox.max[ 0 ]) / 2.0
-    bbox.centroid[ 1 ] = (bbox.min[ 1 ] + bbox.max[ 1 ]) / 2.0
-    bbox.centroid[ 2 ] = (bbox.min[ 2 ] + bbox.max[ 2 ]) / 2.0
-
-    return bbox
-}
 async function getVertexListLength(group) {
     const dataset = await group.get('spatial_position/1')
     const floats = await dataset.value
