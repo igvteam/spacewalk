@@ -35,7 +35,6 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
 
     gsdbModal = new ModalTable(gsdbModalConfig)
 
-
     // select from cndb replica list
     const cndbModalElement = createCNDBSelectModalDOMElement()
     rootContainer.appendChild(cndbModalElement)

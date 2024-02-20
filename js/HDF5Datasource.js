@@ -28,19 +28,6 @@ class HDF5Datasource extends DataSourceBase {
 
         await this.updateWithReplicaKey(this.replicaKeys[ 0 ])
 
-        // SpacewalkEventBus.globalBus.post({ type: 'DidLoadHDF5File', data: this.replicaKeys })
-
-    }
-
-    // DEPRICATED - 17 Feb 2024
-    async _initialize(hdf5) {
-
-        this.hdf5 = hdf5
-
-        this.replicaKeys = await getReplicaKeys(hdf5)
-
-        await this.updateWithReplicaKey(this.replicaKeys[ 0 ])
-
         SpacewalkEventBus.globalBus.post({ type: 'DidLoadHDF5File', data: this.replicaKeys })
 
     }
@@ -177,31 +164,6 @@ function createBoundingBox(numbers) {
 
     return bbox
 }
-
-async function getReplicaKeys(list) {
-
-    const compare = (a, b) => {
-
-        // [ replica chr? ]
-        const [ replica_a, chr_a ] = a.split('_')
-        const [ replica_b, chr_b ] = b.split('_')
-
-        // remove 'replica'
-        const aaa = parseInt(replica_a.substring(7))
-        const bbb = parseInt(replica_b.substring(7))
-
-        // remove 'chr'
-        const ccc = parseInt(chr_a.substring(3))
-        const ddd = parseInt(chr_b.substring(3))
-
-        // return (aaa - bbb || ccc - ddd)
-        return (ccc - ddd || aaa - bbb)
-    }
-
-    return scratch.sort(compare)
-
-}
-
 async function getVertexListLength(group) {
     const dataset = await group.get('spatial_position/1')
     const floats = await dataset.value
