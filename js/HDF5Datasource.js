@@ -16,15 +16,20 @@ class HDF5Datasource extends DataSourceBase {
 
         this.hdf5 = hdf5
 
+        const headerGroup = await hdf5.get('/Header')
+        this.header = await headerGroup.attrs
+
         const scratch = await hdf5.keys
 
-        this.header = scratch.shift()
+        // discard "Header" key
+        scratch.shift()
 
-        // discard _index key if present
+        // if present, discard _index key
         if (new Set(scratch).has('_index')) {
             scratch.shift()
         }
 
+        // the remaining keys are the trace(s)
         this.replicaKeys = scratch
 
         await this.updateWithReplicaKey(this.replicaKeys[ 0 ])
@@ -82,7 +87,7 @@ class HDF5Datasource extends DataSourceBase {
         const bpDataset = await this.hdf5.get(`${ this.currentReplicaKey }/genomic_position`)
         this.currentGenomicExtentList = await getGenomicExtentList(bpDataset)
 
-        const xyzList = createCleanXYZ(numbers)
+        const xyzList = createCleanFlatXYZList(numbers)
 
         const trace = []
         let j = 0
@@ -111,7 +116,7 @@ class HDF5Datasource extends DataSourceBase {
 
 }
 
-function createCleanXYZ(numbers) {
+function createCleanFlatXYZList(numbers) {
 
     const bbox = createBoundingBoxWithFlatXYZList(numbers)
     const centroid = { x: bbox.centroid[ 0 ], y: bbox.centroid[ 1 ], z: bbox.centroid[ 2 ] }
