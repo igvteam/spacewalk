@@ -137,13 +137,6 @@ function createCleanFlatXYZList(numbers) {
 
     return list
 }
-
-async function getVertexListLength(group) {
-    const dataset = await group.get('spatial_position/1')
-    const floats = await dataset.value
-    return floats.length / 3
-}
-
 async function getLocus(replicaKey, group) {
 
     const dataset = await group.get('genomic_position')
