@@ -3,59 +3,77 @@ import DataSourceBase from './dataSourceBase.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 import {createBoundingBoxWithFlatXYZList} from "./math.js"
+import {StringUtils} from "igv-utils"
 
 class HDF5Datasource extends DataSourceBase {
 
     constructor() {
         super()
-        this.isPointCloud = false
         this.currentGenomicExtentList = undefined
     }
 
     async initialize(hdf5) {
 
-        this.hdf5 = hdf5
+        showGlobalSpinner()
 
+        this.hdf5 = hdf5
         const headerGroup = await hdf5.get('/Header')
         this.header = await headerGroup.attrs
 
-        const scratch = await hdf5.keys
+        this.replicaKeys = await getReplicaKeys(hdf5)
 
-        // discard "Header" key
-        scratch.shift()
-
-        // if present, discard _index key
-        if (new Set(scratch).has('_index')) {
-            scratch.shift()
-        }
-
-        // the remaining keys are the trace(s)
-        this.replicaKeys = scratch
+        this.isPointCloud = await isPointCloud(hdf5, this.replicaKeys)
 
         await this.updateWithReplicaKey(this.replicaKeys[ 0 ])
 
-        SpacewalkEventBus.globalBus.post({ type: 'DidLoadHDF5File', data: this.replicaKeys })
+        hideGlobalSpinner()
 
+        // Update the CNDB select list with list of replica keys, if more than one.
+        if (this.replicaKeys.length > 1) {
+            SpacewalkEventBus.globalBus.post({ type: 'DidLoadHDF5File', data: this.replicaKeys })
+        }
+
+        return { sample: 'Unspecified Sample', genomeAssembly: this.header.genome }
     }
 
     async updateWithReplicaKey(replicaKey) {
-
-        showGlobalSpinner()
-
-        const str = `HDF5 Datasource - update with replica key ${ replicaKey }`
-        console.time(str)
 
         this.currentReplicaKey = replicaKey
 
         this.vertexListCount = undefined
 
-        const group = await this.hdf5.get( this.currentReplicaKey )
+        let genomicStart
+        let genomicEnd
+        let genomicPositions
+        const traceGroup = await this.hdf5.get( this.currentReplicaKey )
 
-        this.locus = await getLocus(this.currentReplicaKey, group)
+        if (true === this.isPointCloud) {
 
-        console.timeEnd(str)
+            const dataset = await traceGroup.get(`genomic_position/1`)
+            const list = await dataset.value
 
-        hideGlobalSpinner()
+            // format of each item start&end
+            genomicPositions = list.map(item => item.split('&').map(str => parseInt(str))).flat()
+            genomicStart = parseInt(genomicPositions[ 0 ])
+            genomicEnd = parseInt(genomicPositions[ genomicPositions.length - 1 ])
+        } else {
+            const genomicPositionDataset = await traceGroup.get('genomic_position')
+            genomicPositions = await genomicPositionDataset.value
+            genomicStart = parseInt(genomicPositions[ 0 ])
+            genomicEnd = parseInt(genomicPositions[ genomicPositions.length - 1 ])
+        }
+
+        // HACK!! Use only during development
+        // IMG90 - IMR90_chr21-18-20Mb.cndb (IMR90_chr21-18-20Mb.sw)
+        //  PGP1 - pointcloud_test_newversion.cndb (multiple-traces-multiple-genomic-locations.sw)
+        const lut =
+            {
+                IMR90 : 'chr21',
+                PGP1 : 'chr19'
+            };
+
+        const chr = lut[ replicaKey ] || 'chr21'
+        this.locus = { chr, genomicStart, genomicEnd }
 
     }
 
@@ -81,28 +99,79 @@ class HDF5Datasource extends DataSourceBase {
 
     async createTrace(i) {
 
-        const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/${ 1 + i }` )
-        const numbers = await xyzDataset.value
+        let trace
+        if (true === this.isPointCloud) {
+            const traceGroup = await this.hdf5.get( this.currentReplicaKey )
+            const genomicPositionDataset = await traceGroup.get(`genomic_position/${1+i}`)
 
-        const bpDataset = await this.hdf5.get(`${ this.currentReplicaKey }/genomic_position`)
-        this.currentGenomicExtentList = await getGenomicExtentList(bpDataset)
+            // raw list of start&end strings that encode start/end bp values
+            const startEndEncodingList = await genomicPositionDataset.value
 
-        const xyzList = createCleanFlatXYZList(numbers)
+            const bpList = startEndEncodingList.map(item => item.split('&').map(str => parseInt(str))).flat()
+            const bpMin = Math.min(...bpList)
+            const bpMax = Math.max(...bpList)
 
-        const trace = []
-        let j = 0
-        for (const xyz of xyzList) {
-
-            const object =
-                {
-                    interpolant: this.currentGenomicExtentList[ j ].interpolant,
-                    xyz,
-                    drawUsage: THREE.StaticDrawUsage
+            this.currentGenomicExtentList = startEndEncodingList.map((item) => {
+                const [ startBP, endBP ] = item.split('&').map(string => parseInt(string))
+                const centroidBP = (endBP+startBP)/2
+                const sizeBP = endBP - startBP
+                return {
+                    startBP,
+                    endBP,
+                    centroidBP,
+                    sizeBP,
+                    interpolant: (centroidBP - bpMin)/(bpMax - bpMin)
                 }
+            })
 
-            trace.push(object)
+            const spatialPositionGroup = await traceGroup.get(`spatial_position/${1+i}`)
 
-            ++j
+            trace = []
+            for (let i = 0; i < startEndEncodingList.length; i++) {
+
+                const key = startEndEncodingList[ i ]
+
+                const xyzDataset = await spatialPositionGroup.get(`${ key }`)
+
+                const xyz = await xyzDataset.value
+                const { centroid } = createBoundingBoxWithFlatXYZList(xyz)
+
+                const hash =
+                    {
+                        interpolant: this.currentGenomicExtentList[ i ].interpolant,
+                        xyz,
+                        centroid,
+                        drawUsage: THREE.DynamicDrawUsage
+                    };
+
+                trace.push(hash)
+            }
+
+        } else {
+            const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/${ 1 + i }` )
+            const numbers = await xyzDataset.value
+
+            const bpDataset = await this.hdf5.get(`${ this.currentReplicaKey }/genomic_position`)
+            this.currentGenomicExtentList = await getGenomicExtentList(bpDataset)
+
+            const xyzList = createCleanFlatXYZList(numbers)
+
+            trace = []
+            let j = 0
+            for (const xyz of xyzList) {
+
+                const object =
+                    {
+                        interpolant: this.currentGenomicExtentList[ j ].interpolant,
+                        xyz,
+                        drawUsage: THREE.StaticDrawUsage
+                    }
+
+                trace.push(object)
+
+                ++j
+            }
+
         }
 
         return trace
@@ -115,41 +184,6 @@ class HDF5Datasource extends DataSourceBase {
     }
 
 }
-
-function createCleanFlatXYZList(numbers) {
-
-    const bbox = createBoundingBoxWithFlatXYZList(numbers)
-    const centroid = { x: bbox.centroid[ 0 ], y: bbox.centroid[ 1 ], z: bbox.centroid[ 2 ] }
-
-    const list = []
-    for (let v = 0; v < numbers.length; v += 3) {
-
-        const [ x, y, z ] = numbers.slice(v, v + 3)
-
-        if ( [ x, y, z ].some(isNaN) ) {
-            // console.warn('is missing data')
-            list.push(centroid)
-        } else {
-            list.push({ x, y, z })
-        }
-
-    }
-
-    return list
-}
-async function getLocus(replicaKey, group) {
-
-    const dataset = await group.get('genomic_position')
-    const genomicPositions = await dataset.value
-
-    const genomicStart = parseInt(genomicPositions[ 0 ])
-    const genomicEnd = parseInt(genomicPositions[ genomicPositions.length - 1 ])
-
-    const [ ignore, chr ] = replicaKey.split('_')
-    return { chr, genomicStart, genomicEnd }
-
-}
-
 async function getGenomicExtentList(dataset) {
 
     const bigIntegers = await dataset.value
@@ -177,6 +211,64 @@ async function getGenomicExtentList(dataset) {
     }
 
     return genomicExtentList
+}
+
+function createCleanFlatXYZList(numbers) {
+
+    const bbox = createBoundingBoxWithFlatXYZList(numbers)
+    const centroid = { x: bbox.centroid[ 0 ], y: bbox.centroid[ 1 ], z: bbox.centroid[ 2 ] }
+
+    const list = []
+    for (let v = 0; v < numbers.length; v += 3) {
+
+        const [ x, y, z ] = numbers.slice(v, v + 3)
+
+        if ( [ x, y, z ].some(isNaN) ) {
+            // console.warn('is missing data')
+            list.push(centroid)
+        } else {
+            list.push({ x, y, z })
+        }
+
+    }
+
+    return list
+}
+
+async function isPointCloud(hdf5, replicaKeys) {
+
+    const replicaKey = replicaKeys[ 0 ]
+    const group = await hdf5.get( replicaKey )
+    const genomicPositionDataset = await group.get('genomic_position')
+
+    const probe = await genomicPositionDataset.value
+
+    return (undefined === probe)
+
+    // if (undefined === probe) {
+    //     console.log('pointcloud')
+    //     const dataset = await group.get(`genomic_position/1`)
+    //     const listOfGenomicStartEnds = await dataset.value
+    //     this.isPointCloud = true
+    // } else {
+    //     console.log('ball & stick')
+    // }
+
+}
+
+async function getReplicaKeys(hdf5) {
+
+    const scratch = await hdf5.keys
+
+    // discard "Header" key
+    scratch.shift()
+
+    // if present, discard _index key
+    if (new Set(scratch).has('_index')) {
+        scratch.shift()
+    }
+
+    return scratch
 }
 
 export default HDF5Datasource

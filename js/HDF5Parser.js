@@ -15,10 +15,9 @@ class HDF5Parser {
 
         const hdf5 = await openH5File(config)
 
-        await datasource.initialize(hdf5)
+        const { sample, genomeAssembly } = await datasource.initialize(hdf5)
 
-        return { sample: 'Unspecified Sample', genomeAssembly: SpacewalkGlobals.defaultGenomeAssembly }
-
+        return { sample, genomeAssembly }
 
     }
 
