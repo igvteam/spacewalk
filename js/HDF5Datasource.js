@@ -68,8 +68,9 @@ class HDF5Datasource extends DataSourceBase {
         //  PGP1 - pointcloud_test_newversion.cndb (multiple-traces-multiple-genomic-locations.sw)
         const lut =
             {
-                IMR90 : 'chr21',
-                PGP1 : 'chr19'
+                IMR90: 'chr21',
+                PGP1: 'chr19',
+                A549: 'chr1'
             };
 
         const chr = lut[ replicaKey ] || 'chr21'
@@ -260,10 +261,10 @@ async function isPointCloud(hdf5, replicaKeys) {
 
 async function getReplicaKeys(hdf5) {
 
-    const scratch = await hdf5.keys
+    let scratch = await hdf5.keys
 
-    // discard "Header" key
-    scratch.shift()
+    // discard Header key
+    scratch = scratch.filter(item => 'Header' !== item)
 
     // if present, discard _index key
     if (new Set(scratch).has('_index')) {
