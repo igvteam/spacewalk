@@ -108,8 +108,8 @@ class HDF5Datasource extends DataSourceBase {
             const startEndEncodingList = await genomicPositionDataset.value
 
             const bpList = startEndEncodingList.map(item => item.split('&').map(str => parseInt(str))).flat()
-            const bpMin = Math.min(...bpList)
-            const bpMax = Math.max(...bpList)
+            const minBP = Math.min(...bpList)
+            const maxBP = Math.max(...bpList)
 
             this.currentGenomicExtentList = startEndEncodingList.map((item) => {
                 const [ startBP, endBP ] = item.split('&').map(string => parseInt(string))
@@ -120,7 +120,9 @@ class HDF5Datasource extends DataSourceBase {
                     endBP,
                     centroidBP,
                     sizeBP,
-                    interpolant: (centroidBP - bpMin)/(bpMax - bpMin)
+                    start: (startBP - minBP)/(maxBP - minBP),
+                    interpolant: (centroidBP - minBP)/(maxBP - minBP),
+                    end: (endBP - minBP)/(maxBP - minBP)
                 }
             })
 
