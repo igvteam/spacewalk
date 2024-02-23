@@ -215,7 +215,7 @@ async function getGenomicExtentList(dataset) {
 function createCleanFlatXYZList(numbers) {
 
     const bbox = createBoundingBoxWithFlatXYZList(numbers)
-    const centroid = { x: bbox.centroid[ 0 ], y: bbox.centroid[ 1 ], z: bbox.centroid[ 2 ] }
+    const isMissingData = { x: bbox.centroid[ 0 ], y: bbox.centroid[ 1 ], z: bbox.centroid[ 2 ], isMissingData: true }
 
     const list = []
     for (let v = 0; v < numbers.length; v += 3) {
@@ -223,10 +223,10 @@ function createCleanFlatXYZList(numbers) {
         const [ x, y, z ] = numbers.slice(v, v + 3)
 
         if ( [ x, y, z ].some(isNaN) ) {
-            // console.warn('is missing data')
-            list.push(centroid)
+            // console.warn('is missing xyz value. will replace with centroid')
+            list.push(isMissingData)
         } else {
-            list.push({ x, y, z })
+            list.push({ x, y, z, isMissingData: undefined })
         }
 
     }
