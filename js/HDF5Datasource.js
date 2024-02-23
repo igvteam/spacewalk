@@ -63,17 +63,13 @@ class HDF5Datasource extends DataSourceBase {
             genomicEnd = parseInt(genomicPositions[ genomicPositions.length - 1 ])
         }
 
-        // HACK!! Use only during development
-        // IMG90 - IMR90_chr21-18-20Mb.cndb (IMR90_chr21-18-20Mb.sw)
-        //  PGP1 - pointcloud_test_newversion.cndb (multiple-traces-multiple-genomic-locations.sw)
-        const lut =
-            {
-                IMR90: 'chr21',
-                PGP1: 'chr19',
-                A549: 'chr1'
-            };
+        if (undefined === this.header.chromosome) {
+            console.warn(`HDF5Datasource - no chromosome defined in header`)
+        }
 
-        const chr = lut[ replicaKey ] || 'chr21'
+        const chr = this.header.chromosome || 'all'
+        console.log(`HDF5Datasource - chromosome ${ chr }`)
+
         this.locus = { chr, genomicStart, genomicEnd }
 
     }
