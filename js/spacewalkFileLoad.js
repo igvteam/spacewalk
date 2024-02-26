@@ -70,7 +70,7 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
         $(cndbSelectElement).selectpicker('render')
     }
 
-    SpacewalkEventBus.globalBus.subscribe('DidLoadHDF5File', hdf5FileLoadHandler)
+    SpacewalkEventBus.globalBus.subscribe('DidLoadCNDBFile', hdf5FileLoadHandler)
 
     // select from list
     const $selectModal = $(select_modal)

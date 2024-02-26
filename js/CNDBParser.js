@@ -11,7 +11,7 @@ class CNDBParser {
 
         SpacewalkGlobals.url = false === FileUtils.isFilePath(path) ? path : undefined
 
-        const config = getHDF5ReaderConfiguration(path)
+        const config = getCNDBReaderConfiguration(path)
 
         const hdf5 = await openH5File(config)
 
@@ -23,7 +23,7 @@ class CNDBParser {
 
 }
 
-function getHDF5ReaderConfiguration(path) {
+function getCNDBReaderConfiguration(path) {
 
     const config = {}
 

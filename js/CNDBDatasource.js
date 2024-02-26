@@ -9,6 +9,7 @@ class CNDBDatasource extends DataSourceBase {
 
     constructor() {
         super()
+        this.currentXYZList = undefined
     }
 
     async initialize(hdf5) {
@@ -29,7 +30,7 @@ class CNDBDatasource extends DataSourceBase {
 
         // Update the CNDB select list with list of replica keys, if more than one.
         if (this.replicaKeys.length > 1) {
-            SpacewalkEventBus.globalBus.post({ type: 'DidLoadHDF5File', data: this.replicaKeys })
+            SpacewalkEventBus.globalBus.post({ type: 'DidLoadCNDBFile', data: this.replicaKeys })
         }
 
         return { sample: 'Unspecified Sample', genomeAssembly: this.header.genome }
@@ -63,11 +64,11 @@ class CNDBDatasource extends DataSourceBase {
         }
 
         if (undefined === this.header.chromosome) {
-            console.warn(`HDF5Datasource - no chromosome defined in header`)
+            console.warn(`CNDBDatasource - no chromosome defined in header`)
         }
 
         const chr = this.header.chromosome || 'all'
-        console.log(`HDF5Datasource - chromosome ${ chr }`)
+        console.log(`CNDBDatasource - chromosome ${ chr }`)
 
         this.locus = { chr, genomicStart, genomicEnd }
 
@@ -143,11 +144,11 @@ class CNDBDatasource extends DataSourceBase {
             const bpDataset = await this.hdf5.get(`${ this.currentReplicaKey }/genomic_position`)
             this.currentGenomicExtentList = await getGenomicExtentList(bpDataset)
 
-            const xyzList = createCleanFlatXYZList(numbers)
+            this.currentXYZList = createCleanFlatXYZList(numbers)
 
             trace = []
             let j = 0
-            for (const xyz of xyzList) {
+            for (const xyz of this.currentXYZList) {
 
                 const object =
                     {
@@ -168,8 +169,13 @@ class CNDBDatasource extends DataSourceBase {
     }
 
     getLiveContactFrequencyMapVertexLists() {
-        console.warn('HDF5Version2Dataset.getLiveContactFrequencyMapVertexLists() NOT IMPLEMENTED')
-        return undefined
+
+        if (this.isPointCloud) {
+            return undefined
+        } else {
+            return this.currentXYZList
+        }
+
     }
 
 }
