@@ -192,13 +192,13 @@ class Datasource extends DataSourceBase {
     getLiveContactFrequencyMapVertexLists() {
         const values = Object.values(this.dictionary)
         return values.map(traceDictionary => {
-            return this.getLiveContactFrequencyMapDatasetVertices(traceDictionary)
+            return this.getLiveContactFrequencyMapDatasetVertices(traceDictionary.vertexDictionary)
         })
     }
 
-    getLiveContactFrequencyMapDatasetVertices(traceDictionary) {
+    getLiveContactFrequencyMapDatasetVertices(vertexDictionary) {
 
-        return Object.values(traceDictionary)
+        return Object.values(vertexDictionary)
             .map(row => {
                 const { x, y, z, isMissingData } = true === this.isPointCloud ? row.centroid : row
                 return true === isMissingData ? { isMissingData } : { x, y, z }
