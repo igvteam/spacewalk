@@ -139,8 +139,8 @@ class Datasource extends DataSourceBase {
         // Each trace requires a genomicStart and genomicEnd
         for (const key of Object.keys(this.dictionary)) {
             const { genomicExtentList } = this.dictionary[ key ]
-            this.dictionary[ key ].genomicStart = genomicExtentList[ 0 ].startBP
-            this.dictionary[ key ].genomicEnd = genomicExtentList[ genomicExtentList.length - 1 ].endBP
+            this.dictionary[ key ].genomicStart = Math.min(...genomicExtentList.map(({ startBP }) => startBP))
+            this.dictionary[ key ].genomicEnd = Math.max(...genomicExtentList.map(({ endBP }) => endBP))
         }
 
         for (const { genomicStart, genomicEnd, genomicExtentList } of Object.values(this.dictionary)) {
