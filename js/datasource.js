@@ -159,20 +159,13 @@ class Datasource extends DataSourceBase {
         return list.length
     }
 
-    getGenomicExtentListWithIndex(index) {
-        const { genomicExtentList } = Object.values(this.dictionary)[ index ]
-        return genomicExtentList
-    }
-
-    getGenomicExtentWithIndex(index) {
-        const genomicExtentList = this.getGenomicExtentListWithIndex(index)
-        return { genomicStart: genomicExtentList[ 0 ].startBP, genomicEnd: genomicExtentList[ genomicExtentList.length - 1 ].endBP }
-    }
-
     async createTrace(i) {
 
         const traceValues = Object.values(this.dictionary)
         const { vertexDictionary, genomicExtentList } = traceValues[ i ]
+
+        this.currentGenomicExtentList = genomicExtentList
+
         const rows = Object.values(vertexDictionary)
 
         const trace = rows.map((row, index) => {
@@ -193,7 +186,7 @@ class Datasource extends DataSourceBase {
             return hash
         })
 
-        return Promise.resolve(trace)
+        return trace
     }
 
     getLiveContactFrequencyMapVertexLists() {

@@ -2,7 +2,7 @@ import {openH5File} from 'hdf5-indexed-reader'
 import {FileUtils} from 'igv-utils'
 import {SpacewalkGlobals} from './app.js'
 
-class HDF5Parser {
+class CNDBParser {
 
     constructor() {
     }
@@ -36,4 +36,4 @@ function getHDF5ReaderConfiguration(path) {
     return config
 }
 
-export default HDF5Parser
+export default CNDBParser

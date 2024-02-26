@@ -5,11 +5,10 @@ import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 import {createBoundingBoxWithFlatXYZList} from "./math.js"
 import {StringUtils} from "igv-utils"
 
-class HDF5Datasource extends DataSourceBase {
+class CNDBDatasource extends DataSourceBase {
 
     constructor() {
         super()
-        this.currentGenomicExtentList = undefined
     }
 
     async initialize(hdf5) {
@@ -83,15 +82,6 @@ class HDF5Datasource extends DataSourceBase {
         }
 
         return this.vertexListCount
-    }
-
-    getGenomicExtentListWithIndex(ignore) {
-        return this.currentGenomicExtentList
-    }
-
-    getGenomicExtentWithIndex(index) {
-        const genomicExtentList = this.getGenomicExtentListWithIndex(index)
-        return { genomicStart: genomicExtentList[ 0 ].startBP, genomicEnd: genomicExtentList[ genomicExtentList.length - 1 ].endBP }
     }
 
     async createTrace(i) {
@@ -183,6 +173,7 @@ class HDF5Datasource extends DataSourceBase {
     }
 
 }
+
 async function getGenomicExtentList(dataset) {
 
     const bigIntegers = await dataset.value
@@ -270,4 +261,4 @@ async function getReplicaKeys(hdf5) {
     return scratch
 }
 
-export default HDF5Datasource
+export default CNDBDatasource
