@@ -24,7 +24,7 @@ class Panel {
         this.namespace = `panel.${ DOMUtils.guid() }`
 
         const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
-        makeDraggable(panel, dragHandle)
+        makeDraggable(panel, dragHandle.querySelector('.fa-grip-horizontal'))
 
         $(dragHandle).on(`mousedown.${ this.namespace }`, event => {
             event.stopPropagation();
@@ -32,7 +32,8 @@ class Panel {
             SpacewalkEventBus.globalBus.post({ type: "DidSelectPanel", data: this.getClassName() })
         })
 
-        const closer = panel.querySelector('span:last-child')
+        // const closer = panel.querySelector('span:last-child')
+        const closer = dragHandle.querySelector('.fa-times-circle')
         $(closer).on(`click.${ DOMUtils.guid() }`, event => {
             event.stopPropagation()
             event.preventDefault()
