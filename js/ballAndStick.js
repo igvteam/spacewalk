@@ -79,10 +79,12 @@ class BallAndStick {
 
         console.log(`Ball&Stick. Create ${ StringUtils.numberFormatter(trace.length) } balls. Tesselation width ${ widthSegments } height ${ heightSegments }`)
 
+        const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
+
         const colorList = new Array(trace.length)
             .fill()
             .flatMap((_, i) => {
-                const color = materialProvider.colorForInterpolant(ensembleManager.datasource.genomicExtentList[ i ].interpolant)
+                const color = materialProvider.colorForInterpolant(genomicExtentList[ i ].interpolant)
                 return color.toArray()
             })
 

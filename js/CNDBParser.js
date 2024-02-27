@@ -2,7 +2,7 @@ import {openH5File} from 'hdf5-indexed-reader'
 import {FileUtils} from 'igv-utils'
 import {SpacewalkGlobals} from './app.js'
 
-class HDF5Parser {
+class CNDBParser {
 
     constructor() {
     }
@@ -11,20 +11,19 @@ class HDF5Parser {
 
         SpacewalkGlobals.url = false === FileUtils.isFilePath(path) ? path : undefined
 
-        const config = getHDF5ReaderConfiguration(path)
+        const config = getCNDBReaderConfiguration(path)
 
         const hdf5 = await openH5File(config)
 
-        await datasource.initialize(hdf5)
+        const { sample, genomeAssembly } = await datasource.initialize(hdf5)
 
-        return { sample: 'Unspecified Sample', genomeAssembly: SpacewalkGlobals.defaultGenomeAssembly }
-
+        return { sample, genomeAssembly }
 
     }
 
 }
 
-function getHDF5ReaderConfiguration(path) {
+function getCNDBReaderConfiguration(path) {
 
     const config = {}
 
@@ -34,11 +33,7 @@ function getHDF5ReaderConfiguration(path) {
         config.url = path
     }
 
-    if('https://dl.dropboxusercontent.com/s/9bcgdsk6u4iqi0m/spleen_full.indexed.cndb?dl=0' === config.url) {
-        config.indexOffset = 129268695620
-    }
-
     return config
 }
 
-export default HDF5Parser
+export default CNDBParser

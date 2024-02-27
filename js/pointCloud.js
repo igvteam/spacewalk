@@ -75,13 +75,13 @@ class PointCloud {
 
         //  const sum = array.reduce((total, item) => total + item);
         const list = trace.map(({ xyz }) => xyz.length / 3)
-        for (const length of list) {
-            console.log(`Point cloud cluster(${ list.indexOf(length) }) ${ StringUtils.numberFormatter(length)} points`)
-        }
+        // for (const length of list) {
+        //     console.log(`Point cloud cluster(${ list.indexOf(length) }) ${ StringUtils.numberFormatter(length)} points`)
+        // }
 
         const sum = list.reduce((total, item) => total + item)
 
-        const str = `Point cloud total ${ StringUtils.numberFormatter(sum)} points`
+        const str = `PointCloud. trace(${ trace.length }) points(${ StringUtils.numberFormatter(sum)})`
         console.time(str)
 
         this.deemphasisColorAttribute = undefined

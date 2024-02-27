@@ -3,15 +3,13 @@ class DataSourceBase {
 
         this.chr = undefined;
 
-        this.genomicStart = Number.POSITIVE_INFINITY;
+        this.genomicStart = Number.POSITIVE_INFINITY
 
-        this.genomicEnd = Number.NEGATIVE_INFINITY;
+        this.genomicEnd = Number.NEGATIVE_INFINITY
 
-        this.isPointCloud = undefined;
+        this.isPointCloud = undefined
 
-        this.vertexCount = undefined
-
-        this.genomicExtentList = undefined
+        this.currentGenomicExtentList = undefined
     }
 
     consumeLines(lines, regex) {
@@ -29,6 +27,11 @@ class DataSourceBase {
     async createTrace(i){
         console.warn('Warning: Dataset - base class method called createTrace()')
         return []
+    }
+
+    getGenomicExtentWithIndex(index) {
+        const genomicExtentList = this.currentGenomicExtentList
+        return { genomicStart: genomicExtentList[ 0 ].startBP, genomicEnd: genomicExtentList[ genomicExtentList.length - 1 ].endBP }
     }
 
     async getVertexListCount() {

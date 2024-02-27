@@ -22,10 +22,10 @@ class Datasource extends DataSourceBase {
         if (line.startsWith('trace')) {
 
             this.key = line.split(regex).join('%')
-            this.dictionary[ this.key ] = {}
-            this.genomicExtentList = []
-
+            this.dictionary[ this.key ] = { genomicExtentList:[], vertexDictionary:{} }
         } else {
+
+            const { genomicExtentList, vertexDictionary } = this.dictionary[ this.key ]
 
             let [ chr, startBP, endBP, x, y, z ] = line.split(regex)
 
@@ -36,7 +36,6 @@ class Datasource extends DataSourceBase {
             startBP = parseInt(startBP, 10)
             endBP = parseInt(endBP, 10)
 
-            const vertexDictionary = this.dictionary[ this.key ]
 
             const key = `${ startBP }%${ endBP }`
 
@@ -45,7 +44,7 @@ class Datasource extends DataSourceBase {
             }
 
             if (0 === vertexDictionary[ key ].length) {
-                this.genomicExtentList.push({ startBP, endBP, centroidBP: Math.round((startBP + endBP) / 2.0), sizeBP: endBP - startBP })
+                genomicExtentList.push({ startBP, endBP, centroidBP: Math.round((startBP + endBP) / 2.0), sizeBP: endBP - startBP })
             }
 
             this.genomicStart = Math.min(this.genomicStart, startBP);
@@ -63,17 +62,18 @@ class Datasource extends DataSourceBase {
 
     postprocess() {
 
-        let [ vertexDictionary ] = Object.values(this.dictionary)
-        let [ vertices ] = Object.values(vertexDictionary)
-
         this.locus = { chr: this.chr, genomicStart: this.genomicStart, genomicEnd: this.genomicEnd }
+
+        const [ anyKey ] = Object.keys(this.dictionary)
+        const { vertexDictionary } = this.dictionary[ anyKey ]
+        const [ vertices ] = Object.values(vertexDictionary)
 
         this.isPointCloud = (vertices.length > 1)
 
         if (true === this.isPointCloud) {
 
-            for (let traceDictionary of Object.values(this.dictionary)) {
-                for (let [ key, vertices ] of Object.entries(traceDictionary)) {
+            for (const { vertexDictionary } of Object.values(this.dictionary)) {
+                for (let [ key, vertices ] of Object.entries(vertexDictionary)) {
 
                     // discard missing data
                     const filtered = vertices.filter(({ isMissingData }) => {
@@ -85,21 +85,21 @@ class Datasource extends DataSourceBase {
                         }
                     })
 
-                    traceDictionary[ key ] = { centroid: computeCentroid(filtered), vertices: filtered }
+                    vertexDictionary[ key ] = { centroid: computeCentroid(filtered), vertices: filtered }
                 }
             }
 
         } else {
 
             // consolidate non-pointcloud data.
-            for (let traceDictionary of Object.values(this.dictionary)) {
-                for (let key of Object.keys(traceDictionary)) {
-                    const [ item ] = traceDictionary[ key ]
-                    traceDictionary[ key ] = { x:item.x, y:item.y, z:item.z, isMissingData: item.isMissingData }
+            for (const { vertexDictionary } of Object.values(this.dictionary)) {
+                for (const key of Object.keys(vertexDictionary)) {
+                    const { x, y, z, isMissingData } = vertexDictionary[ key ][ 0 ]
+                    vertexDictionary[ key ] = { x, y, z, isMissingData }
                 }
             }
 
-            for (let vertexDictionary of Object.values(this.dictionary)) {
+            for (const { vertexDictionary } of Object.values(this.dictionary)) {
 
                 const bbox =
                     {
@@ -108,7 +108,7 @@ class Datasource extends DataSourceBase {
                         centroid: [ 0, 0, 0 ],
                     }
 
-                for (let { x, y, z } of Object.values(vertexDictionary)) {
+                for (const { x, y, z } of Object.values(vertexDictionary)) {
                     if ( ![ x, y, z ].some(isNaN) ) {
                         // min
                         bbox.min[ 0 ] = Math.min(bbox.min[ 0 ], x)
@@ -126,42 +126,47 @@ class Datasource extends DataSourceBase {
                 bbox.centroid[ 1 ] = (bbox.min[ 1 ] + bbox.max[ 1 ]) / 2.0
                 bbox.centroid[ 2 ] = (bbox.min[ 2 ] + bbox.max[ 2 ]) / 2.0
 
-                for (let vertex of Object.values(vertexDictionary)) {
+                for (const vertex of Object.values(vertexDictionary)) {
                     if (true === vertex.isMissingData) {
                         vertex.x = bbox.centroid[ 0 ]
                         vertex.y = bbox.centroid[ 1 ]
                         vertex.z = bbox.centroid[ 2 ]
                     }
                 }
-
             }
-
         }
 
-        // Record vertex count. Assume ALL traces have same number of vertices
-        const [ traceDictionary ] = Object.values(this.dictionary)
-        this.vertexCount = Object.keys(traceDictionary).length
+        // Each trace requires a genomicStart and genomicEnd
+        for (const key of Object.keys(this.dictionary)) {
+            const { genomicExtentList } = this.dictionary[ key ]
+            this.dictionary[ key ].genomicStart = Math.min(...genomicExtentList.map(({ startBP }) => startBP))
+            this.dictionary[ key ].genomicEnd = Math.max(...genomicExtentList.map(({ endBP }) => endBP))
+        }
 
-        for (let i = 0; i < this.genomicExtentList.length; i++) {
-            const item = this.genomicExtentList[ i ]
-            item.interpolant = (item.centroidBP - this.genomicStart) / (this.genomicEnd - this.genomicStart)
-            item.start  = (item.startBP - this.genomicStart) / (this.genomicEnd - this.genomicStart)
-            item.end    = (item.endBP   - this.genomicStart) / (this.genomicEnd - this.genomicStart)
+        for (const { genomicStart, genomicEnd, genomicExtentList } of Object.values(this.dictionary)) {
+            const genomicExtent = genomicEnd - genomicStart
+            for (const item of genomicExtentList) {
+                item.interpolant = (item.centroidBP - genomicStart) / genomicExtent
+                item.start  = (item.startBP - genomicStart) / genomicExtent
+                item.end    = (item.endBP   - genomicStart) / genomicExtent
+            }
         }
 
     }
 
     async getVertexListCount() {
         const list = Object.values(this.dictionary)
-
         return list.length
     }
 
     async createTrace(i) {
 
-        const values = Object.values(this.dictionary)
+        const traceValues = Object.values(this.dictionary)
+        const { vertexDictionary, genomicExtentList } = traceValues[ i ]
 
-        const rows = Object.values(values[ i ])
+        this.currentGenomicExtentList = genomicExtentList
+
+        const rows = Object.values(vertexDictionary)
 
         const trace = rows.map((row, index) => {
 
@@ -170,7 +175,7 @@ class Datasource extends DataSourceBase {
 
             const hash =
                 {
-                    interpolant: this.genomicExtentList[index].interpolant,
+                    interpolant: genomicExtentList[index].interpolant,
                     xyz,
                     drawUsage
                 };
@@ -181,19 +186,19 @@ class Datasource extends DataSourceBase {
             return hash
         })
 
-        return Promise.resolve(trace)
+        return trace
     }
 
     getLiveContactFrequencyMapVertexLists() {
         const values = Object.values(this.dictionary)
         return values.map(traceDictionary => {
-            return this.getLiveContactFrequencyMapDatasetVertices(traceDictionary)
+            return this.getLiveContactFrequencyMapDatasetVertices(traceDictionary.vertexDictionary)
         })
     }
 
-    getLiveContactFrequencyMapDatasetVertices(traceDictionary) {
+    getLiveContactFrequencyMapDatasetVertices(vertexDictionary) {
 
-        return Object.values(traceDictionary)
+        return Object.values(vertexDictionary)
             .map(row => {
                 const { x, y, z, isMissingData } = true === this.isPointCloud ? row.centroid : row
                 return true === isMissingData ? { isMissingData } : { x, y, z }

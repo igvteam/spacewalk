@@ -60,7 +60,6 @@ let clamp = (value, min, max) => {
     return Math.min(Math.max(value, min), max);
 };
 
-
 // Returns a random number between min (inclusive) and max (exclusive)
 let random = (min, max) => {
     return Math.random() * (max - min) + min;
@@ -69,4 +68,50 @@ let random = (min, max) => {
 let radians = degrees => degrees * Math.PI / 180;
 let degrees = radians => radians * 180 / Math.PI;
 
-export { includes, radians, degrees, lerp, clamp, whichTile, quantize, random, prettyMatrix4Print, prettyVector3Print, prettyVector3String };
+function createBoundingBoxWithFlatXYZList(numbers) {
+
+    const bbox =
+        {
+            min: [ Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY ],
+            max: [ Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY ],
+            centroid: [ 0, 0, 0 ],
+        }
+
+    for (let n = 0; n < numbers.length; n += 3) {
+
+        const [ x, y, z ] = numbers.slice(n, n + 3)
+
+        if ( ![ x, y, z ].some(isNaN) ) {
+            // min
+            bbox.min[ 0 ] = Math.min(bbox.min[ 0 ], x)
+            bbox.min[ 1 ] = Math.min(bbox.min[ 1 ], y)
+            bbox.min[ 2 ] = Math.min(bbox.min[ 2 ], z)
+
+            // max
+            bbox.max[ 0 ] = Math.max(bbox.max[ 0 ], x)
+            bbox.max[ 1 ] = Math.max(bbox.max[ 1 ], y)
+            bbox.max[ 2 ] = Math.max(bbox.max[ 2 ], z)
+        }
+    }
+
+    bbox.centroid[ 0 ] = (bbox.min[ 0 ] + bbox.max[ 0 ]) / 2.0
+    bbox.centroid[ 1 ] = (bbox.min[ 1 ] + bbox.max[ 1 ]) / 2.0
+    bbox.centroid[ 2 ] = (bbox.min[ 2 ] + bbox.max[ 2 ]) / 2.0
+
+    return bbox
+}
+
+export {
+    includes,
+    radians,
+    degrees,
+    lerp,
+    clamp,
+    whichTile,
+    quantize,
+    random,
+    prettyMatrix4Print,
+    prettyVector3Print,
+    prettyVector3String,
+    createBoundingBoxWithFlatXYZList
+};

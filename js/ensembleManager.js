@@ -4,8 +4,8 @@ import { includes } from "./math.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
 import Parser from './parser.js'
 import Datasource from './datasource.js'
-import HDF5Parser from './HDF5Parser.js'
-import HDF5Datasource from './HDF5Datasource.js'
+import CNDBParser from './CNDBParser.js'
+import CNDBDatasource from './CNDBDatasource.js'
 
 class EnsembleManager {
 
@@ -16,7 +16,7 @@ class EnsembleManager {
 
         const extension = FileUtils.getExtension(url)
         if ('cndb' === extension) {
-            await this.load(url, new HDF5Parser(), new HDF5Datasource(), parseInt(traceKey))
+            await this.load(url, new CNDBParser(), new CNDBDatasource(), parseInt(traceKey))
         } else {
             await this.load(url, new Parser(), new Datasource(), parseInt(traceKey))
         }
@@ -24,16 +24,10 @@ class EnsembleManager {
     }
 
     async loadReplica(replicaKey) {
-
         await this.datasource.updateWithReplicaKey(replicaKey)
-
         this.locus = this.datasource.locus
-
-        this.genomicExtentList = this.datasource.genomicExtentList
-
         this.currentIndex = 0
         this.currentTrace = await this.createTrace(this.currentIndex)
-
     }
 
     async load(fileOrPath, parser, datasource, index) {
@@ -48,11 +42,9 @@ class EnsembleManager {
 
         this.datasource = datasource
 
-        const { locus, genomicExtentList, isPointCloud } = datasource
+        const { locus, isPointCloud } = datasource
 
         this.locus = locus
-
-        this.genomicExtentList = genomicExtentList
 
         this.isPointCloud = isPointCloud
 
@@ -64,15 +56,16 @@ class EnsembleManager {
 
     createEventBusPayload() {
 
-        const { chr, genomicStart, genomicEnd } = this.locus
+        const { genomicStart, genomicEnd } = this.datasource.getGenomicExtentWithIndex(this.currentIndex)
 
         const payload =
             {
                 sample: this.sample,
                 genomeAssembly: this.genomeAssembly,
-                chr,
+                chr: this.locus.chr,
                 genomicStart,
                 genomicEnd,
+                genomicExtentList : this.getCurrentGenomicExtentList(),
                 initialIndex: this.currentIndex,
                 trace: this.currentTrace
             };
@@ -85,29 +78,32 @@ class EnsembleManager {
     }
 
     getTraceLength() {
-        return this.datasource.vertexCount
+        return this.currentTrace.length
     }
 
     async getTraceCount() {
         return await this.datasource.getVertexListCount()
     }
 
+    getCurrentGenomicExtentList() {
+        return this.datasource.currentGenomicExtentList
+    }
+
     getGenomicInterpolantWindowList(interpolantList) {
 
         const interpolantWindowList = [];
 
-        for (let genomicExtent of this.genomicExtentList) {
+        const genomicExtentList = this.getCurrentGenomicExtentList()
+
+        for (const genomicExtent of genomicExtentList) {
 
             let { start:a, end:b } = genomicExtent
 
-            for (let interpolant of interpolantList) {
-
+            for (const interpolant of interpolantList) {
                 if ( includes({ a, b, value: interpolant }) ) {
-                    interpolantWindowList.push({ genomicExtent, index: this.genomicExtentList.indexOf(genomicExtent) })
+                    interpolantWindowList.push({ genomicExtent, index: genomicExtentList.indexOf(genomicExtent) })
                 }
-
             }
-
         }
 
         return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;

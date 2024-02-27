@@ -181,7 +181,9 @@ function populateCanvasArray(array, distances, maximumDistance, colorMap) {
             const interpolantFlipped = 1.0 - clamp(interpolant, 0, 1)
             const interpolantScaled = scale * interpolantFlipped
 
-            const { r, g, b } = threeJSColorToRGB255(colorMap[ Math.floor(interpolantScaled) ][ 'threejs' ]);
+            const floorInterpolantScaled = Math.floor(interpolantScaled)
+            const result = colorMap[ floorInterpolantScaled ][ 'threejs' ]
+            const { r, g, b } = threeJSColorToRGB255(result)
 
             array[i] = r;
             array[i + 1] = g;
