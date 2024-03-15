@@ -33,7 +33,7 @@ class CNDBDatasource extends DataSourceBase {
             SpacewalkEventBus.globalBus.post({ type: 'DidLoadCNDBFile', data: this.replicaKeys })
         }
 
-        return { sample: 'Unspecified Sample', genomeAssembly: this.header.genome }
+        return { sample: 'Unspecified Sample', genomeAssembly: (this.header.genome || 'hg19') }
     }
 
     async updateWithReplicaKey(replicaKey) {
