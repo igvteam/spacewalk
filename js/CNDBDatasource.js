@@ -87,6 +87,11 @@ class CNDBDatasource extends DataSourceBase {
 
     async createTrace(i) {
 
+        const str = `CNDB Datasource - createTrace(${i})`
+        console.time(str)
+
+        showGlobalSpinner()
+
         let trace
         if (true === this.isPointCloud) {
             const traceGroup = await this.hdf5.get( this.currentReplicaKey )
@@ -163,6 +168,9 @@ class CNDBDatasource extends DataSourceBase {
             }
 
         }
+
+        hideGlobalSpinner()
+        console.timeEnd(str)
 
         return trace
 
