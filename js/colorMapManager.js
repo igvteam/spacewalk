@@ -3,10 +3,12 @@ import { rgb255String, rgb255ToThreeJSColor } from "./color.js";
 import { createImage, readFileAsDataURL } from './utils.js';
 
 import { peter_kovesi_colors } from './peter_kovesi.js'
+import cyclic from '/resources/colormaps/cyclic/cyclic-color-ramp.png'
 import bintu_et_al from '/resources/colormaps/bintu_et_al/bintu_et_al.png'
 import juicebox_default from '/resources/colormaps/juicebox_default/juicebox_default.png'
 
-export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
+// export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
+export const defaultColormapName = 'cyclic';
 
 class ColorMapManager {
 
@@ -17,7 +19,13 @@ class ColorMapManager {
     async configure () {
 
         try {
-            await this.addMap({ name: defaultColormapName, path: peter_kovesi_colors });
+            await this.addMap({ name: 'peter_kovesi_rainbow_bgyr_35_85_c72_n256', path: peter_kovesi_colors });
+        } catch (e) {
+            console.warn(e.message);
+        }
+
+        try {
+            await this.addMap({ name: 'cyclic', path: cyclic });
         } catch (e) {
             console.warn(e.message);
         }
