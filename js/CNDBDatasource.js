@@ -33,7 +33,7 @@ class CNDBDatasource extends DataSourceBase {
             SpacewalkEventBus.globalBus.post({ type: 'DidLoadCNDBFile', data: this.replicaKeys })
         }
 
-        return { sample: 'Unspecified Sample', genomeAssembly: this.header.genome }
+        return { sample: 'Unspecified Sample', genomeAssembly: (this.header.genome || 'hg19') }
     }
 
     async updateWithReplicaKey(replicaKey) {
@@ -48,14 +48,7 @@ class CNDBDatasource extends DataSourceBase {
         const traceGroup = await this.hdf5.get( this.currentReplicaKey )
 
         if (true === this.isPointCloud) {
-
-            const dataset = await traceGroup.get(`genomic_position/1`)
-            const list = await dataset.value
-
-            // format of each item start&end
-            genomicPositions = list.map(item => item.split('&').map(str => parseInt(str))).flat()
-            genomicStart = parseInt(genomicPositions[ 0 ])
-            genomicEnd = parseInt(genomicPositions[ genomicPositions.length - 1 ])
+            [ genomicStart, genomicEnd ] = await deriveLocusFromGenomicExtentLists(traceGroup)
         } else {
             const genomicPositionDataset = await traceGroup.get('genomic_position')
             genomicPositions = await genomicPositionDataset.value
@@ -86,6 +79,11 @@ class CNDBDatasource extends DataSourceBase {
     }
 
     async createTrace(i) {
+
+        const str = `CNDB Datasource - createTrace(${i})`
+        console.time(str)
+
+        showGlobalSpinner()
 
         let trace
         if (true === this.isPointCloud) {
@@ -164,6 +162,9 @@ class CNDBDatasource extends DataSourceBase {
 
         }
 
+        hideGlobalSpinner()
+        console.timeEnd(str)
+
         return trace
 
     }
@@ -178,6 +179,25 @@ class CNDBDatasource extends DataSourceBase {
 
     }
 
+}
+
+async function deriveLocusFromGenomicExtentLists(traceGroup) {
+
+    const group = await traceGroup.get(`genomic_position`)
+    const keys = await group.keys
+
+    const all = []
+    for (const key of keys) {
+        const dataset = await traceGroup.get(`genomic_position/${ key }`)
+        const list = await dataset.value
+        const unique = new Set( list.map(item => item.split('&').map(str => parseInt(str))).flat() )
+        all.push( [ ...unique ] )
+    }
+
+    const flat = all.flat()
+    const min = Math.min(...flat)
+    const max = Math.max(...flat)
+    return [ min, max ]
 }
 
 async function getGenomicExtentList(dataset) {
