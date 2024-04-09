@@ -4,8 +4,8 @@ import { includes } from "./math.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
 import Parser from './parser.js'
 import Datasource from './datasource.js'
-import CNDBParser from './CNDBParser.js'
-import CNDBDatasource from './CNDBDatasource.js'
+import HDF5Parser from "./HDF5Parser.js"
+import HDF5Datasource from "./HDF5Datasource.js"
 
 class EnsembleManager {
 
@@ -16,7 +16,7 @@ class EnsembleManager {
 
         const extension = FileUtils.getExtension(url)
         if ('cndb' === extension) {
-            await this.load(url, new CNDBParser(), new CNDBDatasource(), parseInt(traceKey))
+            await this.load(url, new HDF5Parser(), new HDF5Datasource(), parseInt(traceKey))
         } else {
             await this.load(url, new Parser(), new Datasource(), parseInt(traceKey))
         }

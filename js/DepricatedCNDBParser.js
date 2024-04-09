@@ -2,7 +2,7 @@ import {openH5File} from 'hdf5-indexed-reader'
 import {FileUtils} from 'igv-utils'
 import {SpacewalkGlobals} from './app.js'
 
-class CNDBParser {
+class DepricatedCNDBParser {
 
     constructor() {
     }
@@ -36,4 +36,4 @@ function getCNDBReaderConfiguration(path) {
     return config
 }
 
-export default CNDBParser
+export default DepricatedCNDBParser

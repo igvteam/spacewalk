@@ -6,7 +6,7 @@ import {createBoundingBoxWithFlatXYZList} from "./math.js"
 import {StringUtils} from "igv-utils"
 import igv from 'igv'
 
-class CNDBDatasource extends DataSourceBase {
+class DepricatedCNDBDatasource extends DataSourceBase {
 
     constructor() {
         super()
@@ -295,4 +295,4 @@ async function getReplicaKeys(hdf5) {
     return scratch
 }
 
-export default CNDBDatasource
+export default DepricatedCNDBDatasource
