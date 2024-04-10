@@ -2,7 +2,7 @@ import {openH5File} from 'hdf5-indexed-reader'
 import {FileUtils} from 'igv-utils'
 import {SpacewalkGlobals} from './app.js'
 
-class DepricatedCNDBParser {
+class SWBParser {
 
     constructor() {
     }
@@ -11,9 +11,7 @@ class DepricatedCNDBParser {
 
         SpacewalkGlobals.url = false === FileUtils.isFilePath(path) ? path : undefined
 
-        const config = getCNDBReaderConfiguration(path)
-
-        const hdf5 = await openH5File(config)
+        const hdf5 = await openH5File(FileUtils.isFilePath(path) ? { file:path } : { url: path })
 
         const { sample, genomeAssembly } = await datasource.initialize(hdf5)
 
@@ -23,17 +21,4 @@ class DepricatedCNDBParser {
 
 }
 
-function getCNDBReaderConfiguration(path) {
-
-    const config = {}
-
-    if (FileUtils.isFilePath(path)) {
-        config.file = path
-    } else {
-        config.url = path
-    }
-
-    return config
-}
-
-export default DepricatedCNDBParser
+export default SWBParser

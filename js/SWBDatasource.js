@@ -1,11 +1,9 @@
 import * as THREE from 'three'
 import DataSourceBase from './dataSourceBase.js'
-import SpacewalkEventBus from './spacewalkEventBus.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 import {createBoundingBoxWithFlatXYZList} from "./math.js"
-import {StringUtils} from "igv-utils"
 
-class HDF5Datasource extends DataSourceBase {
+class SWBDatasource extends DataSourceBase {
 
     constructor() {
         super()
@@ -26,11 +24,6 @@ class HDF5Datasource extends DataSourceBase {
 
         hideGlobalSpinner()
 
-        // Update the CNDB select list with list of replica keys, if more than one.
-        if (this.replicaKeys.length > 1) {
-            SpacewalkEventBus.globalBus.post({ type: 'DidLoadCNDBFile', data: this.replicaKeys })
-        }
-
         return { sample: 'Unspecified Sample', genomeAssembly: (this.header.genome || 'hg19') }
     }
 
@@ -48,7 +41,7 @@ class HDF5Datasource extends DataSourceBase {
                 genomicEnd:genomicExtentList[genomicExtentList.length-1].endBP
             }
 
-        console.log(`HDF5Datasource - chromosome ${ this.locus.chr }`)
+        console.log(`SWBDatasource - chromosome ${ this.locus.chr }`)
 
         this.globaleGenomicExtentList = genomicExtentList
 
@@ -76,7 +69,7 @@ class HDF5Datasource extends DataSourceBase {
 
     async createTrace(i) {
 
-        const str = `CNDB Datasource - createTrace(${i})`
+        const str = `SWBDatasource - createTrace(${i})`
         console.time(str)
 
         showGlobalSpinner()
@@ -221,4 +214,4 @@ async function getReplicaKeys(hdf5) {
     return scratch
 }
 
-export default HDF5Datasource
+export default SWBDatasource
