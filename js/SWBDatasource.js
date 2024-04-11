@@ -52,15 +52,9 @@ class SWBDatasource extends DataSourceBase {
 
     async getVertexListCount(){
 
-        let list
         if (undefined === this.vertexListCount) {
-            if (true === this.isPointCloud) {
-                const multiPointGroup = await this.hdf5.get( `${this.currentReplicaKey}/spatial_position/multi_point` )
-                list = await multiPointGroup.keys
-            } else {
-                const singlePointGroup = await this.hdf5.get( `${this.currentReplicaKey}/spatial_position/single_point` )
-                list = await singlePointGroup.keys
-            }
+            const group = await this.hdf5.get( `${this.currentReplicaKey}/spatial_position` )
+            const list = await group.keys
             this.vertexListCount = list.length
         }
 
@@ -76,7 +70,7 @@ class SWBDatasource extends DataSourceBase {
 
         let trace
         if (true === this.isPointCloud) {
-            const traceGroup = await this.hdf5.get( `${this.currentReplicaKey}/spatial_position/multi_point/${i}` )
+            const traceGroup = await this.hdf5.get( `${this.currentReplicaKey}/spatial_position/${i}` )
 
             // The dataset keys are string representations of the index into the currentGenomicExtentList.
             // Use this index to retrieve the genomic extent corresponding to the xyz values in the dataset
@@ -110,7 +104,7 @@ class SWBDatasource extends DataSourceBase {
 
             this.currentGenomicExtentList = this.globaleGenomicExtentList
 
-            const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/single_point/${i}` )
+            const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/${i}` )
             const numbers = await xyzDataset.value
             this.currentXYZList = createCleanFlatXYZList(numbers)
 
