@@ -36,6 +36,7 @@ class CNDBDatasource extends DataSourceBase {
 
         let genomeAssembly
         if (undefined === this.header.genome || undefined === igv.GenomeUtils.KNOWN_GENOMES[ this.header.genome ]) {
+            console.warn(`Warning: Unrecognized genome ${ this.header.genome || 'undefined' }`)
             genomeAssembly = 'hg19'
         } else {
             genomeAssembly = this.header.genome
