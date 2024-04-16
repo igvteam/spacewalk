@@ -4,6 +4,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 import {createBoundingBoxWithFlatXYZList} from "./math.js"
 import {StringUtils} from "igv-utils"
+import igv from 'igv'
 
 class CNDBDatasource extends DataSourceBase {
 
@@ -33,7 +34,13 @@ class CNDBDatasource extends DataSourceBase {
             SpacewalkEventBus.globalBus.post({ type: 'DidLoadCNDBFile', data: this.replicaKeys })
         }
 
-        return { sample: 'Unspecified Sample', genomeAssembly: (this.header.genome || 'hg19') }
+        let genomeAssembly
+        if (undefined === this.header.genome || undefined === igv.GenomeUtils.KNOWN_GENOMES[ this.header.genome ]) {
+            genomeAssembly = 'hg19'
+        } else {
+            genomeAssembly = this.header.genome
+        }
+        return { sample: 'Unspecified Sample', genomeAssembly }
     }
 
     async updateWithReplicaKey(replicaKey) {
