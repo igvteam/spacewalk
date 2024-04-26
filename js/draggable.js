@@ -3,59 +3,74 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 const namespace = '.spacewalk-drag';
 let dragData;
 
-let makeDraggable = (targetElement, handleElement) => {
-    $(handleElement).on('mousedown' + namespace, dragStart.bind(targetElement));
-};
+function makeDraggable(targetElement, handleElement, constraint){
+    $(handleElement).on('mousedown' + namespace, dragStart.bind(targetElement))
 
-function dragStart(event) {
+    function dragStart(event) {
 
-    event.stopPropagation();
-    // event.preventDefault();
+        event.stopPropagation();
 
-    const dragFunction = drag.bind(this);
-    const dragEndFunction = dragEnd.bind(this);
+        const { x, y } = this.getBoundingClientRect()
 
-    const { x, y } = this.getBoundingClientRect();
+        dragData =
+            {
+                dx: x - event.screenX,
+                dy: y - event.screenY
+            };
 
-    dragData =
-        {
-            dragFunction: dragFunction,
-            dragEndFunction: dragEndFunction,
-            dx: x - event.screenX,
-            dy: y - event.screenY
-        };
+        $(document).on('mousemove' + namespace, drag.bind(this));
+        $(document).on('mouseup' + namespace, dragEnd.bind(this));
+        $(document).on('mouseleave' + namespace, dragEnd.bind(this));
+        $(document).on('mouseexit' + namespace, dragEnd.bind(this));
 
-    $(document).on('mousemove' + namespace, dragFunction);
-    $(document).on('mouseup' + namespace, dragEndFunction);
-    $(document).on('mouseleave' + namespace, dragEndFunction);
-    $(document).on('mouseexit' + namespace, dragEndFunction);
+    }
 
 }
 
 function drag(event) {
 
+    event.stopPropagation();
+
     if(!dragData) {
         console.log("No drag data!");
         return;
     }
 
-    event.stopPropagation();
+    // console.log(`left(${ dragData.dx + event.screenX }) top(${ dragData.dy + event.screenY })`)
 
-    this.style.left = `${ dragData.dx + event.screenX }px`;
-    this.style.top  = `${ dragData.dy + event.screenY }px`;
+    // constrain drag extent
+
+    const { height:topConstraint } = document.querySelector('.navbar').getBoundingClientRect()
+
+    let  top = Math.max(topConstraint, dragData.dy + event.screenY )
+    let left = Math.max(      0, dragData.dx + event.screenX )
+
+    const { width, height } = this.getBoundingClientRect()
+
+    if (top + height > window.innerHeight) {
+        top = window.innerHeight - height
+    }
+
+    if (left + width > window.innerWidth) {
+        left = window.innerWidth - width
+    }
+
+    this.style.left = `${ left }px`;
+    this.style.top  = `${ top }px`;
 
 }
+
 function dragEnd(event) {
+
+    event.stopPropagation();
 
     if(!dragData) {
         console.log("No drag data!");
         return;
     }
 
-    event.stopPropagation();
-
-    this.style.left = `${ dragData.dx + event.screenX }px`;
-    this.style.top  = `${ dragData.dy + event.screenY }px`;
+    // this.style.left = `${ dragData.dx + event.screenX }px`
+    // this.style.top  = `${ dragData.dy + event.screenY }px`
 
     $(document).off(namespace);
     dragData = undefined;
@@ -65,4 +80,4 @@ function dragEnd(event) {
 
 }
 
-export { makeDraggable };
+export { makeDraggable }
