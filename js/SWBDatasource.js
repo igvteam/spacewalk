@@ -78,28 +78,34 @@ class SWBDatasource extends DataSourceBase {
 
     async createTrace(i) {
 
-        const str = `SWBDatasource - createTrace(${i})`
+        const name = `t_${i}`
+        const str = `SWBDatasource - createTrace(${name})`
         console.time(str)
 
         showGlobalSpinner()
 
         let trace
         if (true === this.isPointCloud) {
-            const traceGroup = await this.hdf5.get( `${this.currentReplicaKey}/spatial_position/${i}` )
+            const traceGroup = await this.hdf5.get( `${this.currentReplicaKey}/spatial_position/${name}` )
 
             // The dataset keys are string representations of the index into the currentGenomicExtentList.
             // Use this index to retrieve the genomic extent corresponding to the xyz values in the dataset
-            const datasetKeys = await traceGroup.keys
+            const keys = await traceGroup.keys
+            const regionDataIndices = keys.map(key => {
+                const str = key.split('_')[1]
+                return parseInt(str, 10)
+            }).sort((a, b) => a - b)
+
             this.currentGenomicExtentList = []
-            for (const key of datasetKeys) {
-                this.currentGenomicExtentList.push(this.globaleGenomicExtentList[parseInt(key, 10)])
+            for (const index of regionDataIndices) {
+                this.currentGenomicExtentList.push(this.globaleGenomicExtentList[ index ])
             }
 
             trace = []
             for (let i = 0; i < this.currentGenomicExtentList.length; i++) {
                 const { interpolant } = this.currentGenomicExtentList[ i ]
-                const key = datasetKeys[ i ]
-                const xyzDataset = await traceGroup.get(`${ key }`)
+                const index = regionDataIndices[ i ]
+                const xyzDataset = await traceGroup.get(`r_${ index }`)
                 const xyz = await xyzDataset.value
 
                 const { centroid } = createBoundingBoxWithFlatXYZList(xyz)
@@ -119,7 +125,7 @@ class SWBDatasource extends DataSourceBase {
 
             this.currentGenomicExtentList = this.globaleGenomicExtentList
 
-            const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/${i}` )
+            const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/t_${i}` )
             const numbers = await xyzDataset.value
             this.currentXYZList = createCleanFlatXYZList(numbers)
 
