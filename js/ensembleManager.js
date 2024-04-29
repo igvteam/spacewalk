@@ -4,7 +4,6 @@ import { includes } from "./math.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
 import Parser from './parser.js'
 import Datasource from './datasource.js'
-import SWBParser from "./SWBParser.js"
 import SWBDatasource from "./SWBDatasource.js"
 import CNDBParser from "./CNDBParser.js"
 import CNDBDatasource from "./CNDBDatasource.js"
@@ -18,7 +17,8 @@ class EnsembleManager {
 
         const extension = FileUtils.getExtension(url)
         if ('swb' === extension) {
-            await this.load(url, new SWBParser(), new SWBDatasource(), parseInt(traceKey))
+            const datasource = new SWBDatasource()
+            await this.load(url, datasource, datasource, parseInt(traceKey))
         } else if ('cndb' === extension) {
             await this.load(url, new CNDBParser(), new CNDBDatasource(), parseInt(traceKey))
         } else {
