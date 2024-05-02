@@ -41,7 +41,7 @@ class CNDBDatasource extends DataSourceBase {
         } else {
             genomeAssembly = this.header.genome
         }
-        return { sample: 'Unspecified Sample', genomeAssembly }
+        return { sample: this.header.genome, genomeAssembly }
     }
 
     async updateWithReplicaKey(replicaKey) {
@@ -68,7 +68,20 @@ class CNDBDatasource extends DataSourceBase {
             console.warn(`CNDBDatasource - no chromosome defined in header`)
         }
 
-        const chr = this.header.chromosome || 'all'
+        const extractCHRSubstring = input => {
+            const re = /CHR_\d+/g
+            let list = input.match(re)
+
+            // handle leading 0 for digits less than 10
+            list = list.map(match => match.replace(/^CHR_0+(\d+)/, 'CHR_$1'))
+
+            const [ str, number ] = list[0].split('_')
+            const chr = `${str.toLowerCase()}${number}`
+            return chr
+        }
+
+        // const chr = this.header.chromosome || 'all'
+        const chr = extractCHRSubstring(replicaKey)
         console.log(`CNDBDatasource - chromosome ${ chr }`)
 
         this.locus = { chr, genomicStart, genomicEnd }
