@@ -84,30 +84,47 @@ class SWBDatasource extends DataSourceBase {
 
         showGlobalSpinner()
 
+        const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/t_${i}` )
+        const numbers = await xyzDataset.value
+
         let trace
         if (true === this.isPointCloud) {
-            const traceGroup = await this.hdf5.get( `${this.currentReplicaKey}/spatial_position/${name}` )
 
-            // The dataset keys are string representations of the index into the currentGenomicExtentList.
-            // Use this index to retrieve the genomic extent corresponding to the xyz values in the dataset
-            const keys = await traceGroup.keys
-            const regionDataIndices = keys.map(key => {
-                const str = key.split('_')[1]
-                return parseInt(str, 10)
-            }).sort((a, b) => a - b)
+            const makeNby4 = (arr) => {
 
+                const nby4 = []
+                for (let i = 0; i < arr.length; i += 4) {
+                    let row = arr.slice(i, i + 4);
+                    nby4.push(row);
+                }
+
+                return nby4
+            }
+
+            const regionXYZList = makeNby4(numbers)
+
+            const dictionary = splitMatrixByFirstColumnValue(regionXYZList)
+            for (let matrix of Object.values(dictionary)) {
+                // discard first column
+                matrix.map(row => row.shift())
+            }
+            const regionIndexStrings = Object.keys(dictionary).sort((aString, bString) => parseInt(aString, 10) - parseInt(bString, 10))
             this.currentGenomicExtentList = []
-            for (const index of regionDataIndices) {
+            for (const index of regionIndexStrings) {
                 this.currentGenomicExtentList.push(this.globaleGenomicExtentList[ index ])
+            }
+
+            // flatten 2D arrays
+            for (const [ key, value ] of Object.entries(dictionary)) {
+                dictionary[key] = value.flat()
             }
 
             trace = []
             for (let i = 0; i < this.currentGenomicExtentList.length; i++) {
-                const { interpolant } = this.currentGenomicExtentList[ i ]
-                const index = regionDataIndices[ i ]
-                const xyzDataset = await traceGroup.get(`r_${ index }`)
-                const xyz = await xyzDataset.value
 
+                const { interpolant } = this.currentGenomicExtentList[ i ]
+                const key = regionIndexStrings[ i ]
+                const xyz = dictionary[ key ]
                 const { centroid } = createBoundingBoxWithFlatXYZList(xyz)
 
                 const hash =
@@ -122,12 +139,9 @@ class SWBDatasource extends DataSourceBase {
             }
 
         } else {
+            this.currentXYZList = createCleanFlatXYZList(numbers)
 
             this.currentGenomicExtentList = this.globaleGenomicExtentList
-
-            const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/t_${i}` )
-            const numbers = await xyzDataset.value
-            this.currentXYZList = createCleanFlatXYZList(numbers)
 
             trace = []
             let j = 0
@@ -164,6 +178,25 @@ class SWBDatasource extends DataSourceBase {
 
     }
 
+}
+
+function splitMatrixByFirstColumnValue(matrix) {
+    let subMatrices = {};
+    let currentSubMatrix = [];
+    let currentValue = matrix[0][0];
+
+    for (let row of matrix) {
+        if (row[0] === currentValue) {
+            currentSubMatrix.push(row);
+        } else {
+            subMatrices[currentValue.toString()] = currentSubMatrix;
+            currentSubMatrix = [row];
+            currentValue = row[0];
+        }
+    }
+    // Push the last group
+    subMatrices[currentValue.toString()] = currentSubMatrix;
+    return subMatrices;
 }
 
 async function getGlobalGenomicExtentList(dataset) {
