@@ -78,14 +78,16 @@ class SWBDatasource extends DataSourceBase {
 
     async createTrace(i) {
 
-        const name = `t_${i}`
-        const str = `SWBDatasource - createTrace(${name})`
-        console.time(str)
-
         showGlobalSpinner()
 
+        let str = `createTrace() - retrieve dataset: ${ this.currentReplicaKey }/spatial_position/t_${i}`
+        console.time(str)
         const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/t_${i}` )
         const numbers = await xyzDataset.value
+        console.timeEnd(str)
+
+        str = `createTrace() - build ${ true === this.isPointCloud ? 'pointcloud' : 'ball & stick' } trace`
+        console.time(str)
 
         let trace
         if (true === this.isPointCloud) {
@@ -160,9 +162,9 @@ class SWBDatasource extends DataSourceBase {
             }
 
         }
+        console.timeEnd(str)
 
         hideGlobalSpinner()
-        console.timeEnd(str)
 
         return trace
 
