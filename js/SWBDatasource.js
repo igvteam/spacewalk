@@ -92,33 +92,29 @@ class SWBDatasource extends DataSourceBase {
         let trace
         if (true === this.isPointCloud) {
 
-            const makeNby4 = (arr) => {
+            const makeNby4 = flatArray => {
 
                 const nby4 = []
-                for (let i = 0; i < arr.length; i += 4) {
-                    let row = arr.slice(i, i + 4);
+                for (let i = 0; i < flatArray.length; i += 4) {
+                    let row = flatArray.slice(i, i + 4);
                     nby4.push(row);
                 }
 
                 return nby4
             }
 
-            const regionXYZList = makeNby4(numbers)
+            // Convert flat (one-dimensional array) to two-dimensional matrix. Each row is: region-id | x | y | z
+            // The result is a stack of sub-matrices each corresponding to a region-id
+            const regionXYZMatrix = makeNby4(numbers)
 
-            const dictionary = splitMatrixByFirstColumnValue(regionXYZList)
-            for (let matrix of Object.values(dictionary)) {
-                // discard first column
-                matrix.map(row => row.shift())
-            }
+            // Convert stacked sub-matrices to a dictionary.
+            // key: region-id
+            // value: sub-matrix
+            const dictionary = splitMatrixByFirstColumnValue(regionXYZMatrix)
             const regionIndexStrings = Object.keys(dictionary).sort((aString, bString) => parseInt(aString, 10) - parseInt(bString, 10))
             this.currentGenomicExtentList = []
             for (const index of regionIndexStrings) {
                 this.currentGenomicExtentList.push(this.globaleGenomicExtentList[ index ])
-            }
-
-            // flatten 2D arrays
-            for (const [ key, value ] of Object.entries(dictionary)) {
-                dictionary[key] = value.flat()
             }
 
             trace = []
@@ -183,7 +179,7 @@ class SWBDatasource extends DataSourceBase {
 }
 
 function splitMatrixByFirstColumnValue(matrix) {
-    let subMatrices = {};
+    const subMatrixDictionary = {}
     let currentSubMatrix = [];
     let currentValue = matrix[0][0];
 
@@ -191,14 +187,25 @@ function splitMatrixByFirstColumnValue(matrix) {
         if (row[0] === currentValue) {
             currentSubMatrix.push(row);
         } else {
-            subMatrices[currentValue.toString()] = currentSubMatrix;
+            subMatrixDictionary[currentValue.toString()] = currentSubMatrix;
             currentSubMatrix = [row];
             currentValue = row[0];
         }
     }
     // Push the last group
-    subMatrices[currentValue.toString()] = currentSubMatrix;
-    return subMatrices;
+    subMatrixDictionary[currentValue.toString()] = currentSubMatrix;
+
+    // discard first column
+    for (let matrix of Object.values(subMatrixDictionary)) {
+        matrix.map(row => row.shift())
+    }
+
+    // flatten matrices into one-dimensional array
+    for (const [ key, value ] of Object.entries(subMatrixDictionary)) {
+        subMatrixDictionary[key] = value.flat()
+    }
+
+    return subMatrixDictionary
 }
 
 async function getGlobalGenomicExtentList(dataset) {
