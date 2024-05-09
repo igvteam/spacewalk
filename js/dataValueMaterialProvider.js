@@ -26,7 +26,14 @@ class DataValueMaterialProvider {
         const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
         for (const { startBP, endBP } of genomicExtentList) {
             const raw = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
-            const featuresForGenomicExtent = raw.filter(({ start, end }) => !(end < startBP) && !(start > endBP))
+            const featuresForGenomicExtent = raw.filter(({ start, end }) => {
+
+                const a = start < startBP && startBP < end
+                const b = start < endBP && endBP < end
+                const c = start > startBP && end < endBP
+
+                return a || b || c
+            })
 
             if (featuresForGenomicExtent && featuresForGenomicExtent.length > 0) {
 
