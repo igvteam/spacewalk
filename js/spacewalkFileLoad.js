@@ -36,41 +36,42 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
     gsdbModal = new ModalTable(gsdbModalConfig)
 
     // select from cndb replica list
-    const cndbModalElement = createCNDBSelectModalDOMElement()
-    rootContainer.appendChild(cndbModalElement)
+    const ensembleGroupModalElement = createEnsembleGroupSelectDOMElement()
+    rootContainer.appendChild(ensembleGroupModalElement)
 
-    const cndbSelectElement = cndbModalElement.querySelector('select')
-    $(cndbSelectElement).selectpicker()
+    const ensembleGroupSelectElement = ensembleGroupModalElement.querySelector('select')
+    $(ensembleGroupSelectElement).selectpicker()
 
-    cndbSelectElement.addEventListener('change', async event => {
+    ensembleGroupSelectElement.addEventListener('change', async event => {
 
         event.stopPropagation()
 
-        $(cndbModalElement).modal('hide')
+        $(ensembleGroupModalElement).modal('hide')
 
-        await sceneManager.ingestCNDBReplica(cndbSelectElement.value)
+        await sceneManager.ingestEnsembleGroup(ensembleGroupSelectElement.value)
 
         const data = ensembleManager.createEventBusPayload()
         SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
 
     })
 
-    const hdf5FileLoadHandler = ({ data }) => {
+    const ensembleGroupHandler = ({ data }) => {
 
         // discard pre-exisiting option elements
-        cndbSelectElement.innerHTML = ''
+        ensembleGroupSelectElement.innerHTML = ''
 
         for (const key of data ) {
             const html = `<option value=\"${ key }\">${ key }</option>`
             const fragment = document.createRange().createContextualFragment(html)
-            cndbSelectElement.appendChild(fragment.firstChild)
+            ensembleGroupSelectElement.appendChild(fragment.firstChild)
         }
 
-        $(cndbSelectElement).selectpicker('destroy')
-        $(cndbSelectElement).selectpicker('render')
+        $(ensembleGroupSelectElement).selectpicker('destroy')
+        $(ensembleGroupSelectElement).selectpicker('render')
     }
 
-    SpacewalkEventBus.globalBus.subscribe('DidLoadCNDBFile', hdf5FileLoadHandler)
+    SpacewalkEventBus.globalBus.subscribe('DidLoadCNDBFile', ensembleGroupHandler)
+    SpacewalkEventBus.globalBus.subscribe('DidLoadSWBEnsembleGroup', ensembleGroupHandler)
 
     // select from list
     const $selectModal = $(select_modal)
@@ -138,10 +139,10 @@ async function SpacewalkGetFilename(path){
 
 }
 
-function createCNDBSelectModalDOMElement() {
+function createEnsembleGroupSelectDOMElement() {
 
     const html =
-        `<div id="spacewalk-cndb-replica-select-modal" class="modal fade">
+        `<div id="spacewalk-ensemble-group-select-modal" class="modal fade">
 
         <div class="modal-dialog">
 
@@ -149,7 +150,7 @@ function createCNDBSelectModalDOMElement() {
 
                 <div class="modal-header">
 
-                    <div class="modal-title">CNDB Replica List</div>
+                    <div class="modal-title">Ensemble Group Selection</div>
 
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -164,7 +165,7 @@ function createCNDBSelectModalDOMElement() {
                             <div class="spinner-border" style="display: none;">
                             </div>
 
-                            <select data-live-search="true" title="Select a replica" data-width="100%">
+                            <select data-live-search="true" title="Select an ensemble group" data-width="100%">
                             </select>
                         </div>
                     </div>

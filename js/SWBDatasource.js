@@ -5,6 +5,7 @@ import {SpacewalkGlobals} from './app.js'
 import DataSourceBase from './dataSourceBase.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 import {createBoundingBoxWithFlatXYZList} from "./math.js"
+import SpacewalkEventBus from "./spacewalkEventBus"
 
 class SWBDatasource extends DataSourceBase {
 
@@ -33,20 +34,26 @@ class SWBDatasource extends DataSourceBase {
         const headerGroup = await hdf5.get('/Header')
         this.header = await headerGroup.attrs
 
-        this.replicaKeys = await getReplicaKeys(hdf5)
+        this.ensembleGroupKeys = await getEnsembleGroupKeys(hdf5)
 
-        await this.updateWithReplicaKey(this.replicaKeys[ 0 ])
+        await this.updateWithEnsembleGroupKey(this.ensembleGroupKeys[0])
 
         hideGlobalSpinner()
+
+
+        // Update the ensemble group select list with list of ensemble group keys, if more than one.
+        if (this.ensembleGroupKeys.length > 1) {
+            SpacewalkEventBus.globalBus.post({ type: 'DidLoadSWBEnsembleGroup', data: this.ensembleGroupKeys })
+        }
 
         return { sample: 'Unspecified Sample', genomeAssembly: (this.header.genome || 'hg19') }
     }
 
-    async updateWithReplicaKey(replicaKey) {
+    async updateWithEnsembleGroupKey(ensembleGroupKey) {
 
-        this.currentReplicaKey = replicaKey
+        this.currentEnsembleGroupKey = ensembleGroupKey
 
-        const genomicPositionGroup = await this.hdf5.get( `${ this.currentReplicaKey }/genomic_position` )
+        const genomicPositionGroup = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/genomic_position` )
         const dataset = await genomicPositionGroup.get('regions')
         const { chromosome, genomicExtentList } = await getGlobalGenomicExtentList(dataset)
         this.locus =
@@ -68,7 +75,7 @@ class SWBDatasource extends DataSourceBase {
     async getVertexListCount(){
 
         if (undefined === this.vertexListCount) {
-            const group = await this.hdf5.get( `${this.currentReplicaKey}/spatial_position` )
+            const group = await this.hdf5.get( `${this.currentEnsembleGroupKey}/spatial_position` )
             const list = await group.keys
             this.vertexListCount = list.length
         }
@@ -80,9 +87,9 @@ class SWBDatasource extends DataSourceBase {
 
         showGlobalSpinner()
 
-        let str = `createTrace() - retrieve dataset: ${ this.currentReplicaKey }/spatial_position/t_${i}`
+        let str = `createTrace() - retrieve dataset: ${ this.currentEnsembleGroupKey }/spatial_position/t_${i}`
         console.time(str)
-        const xyzDataset = await this.hdf5.get( `${ this.currentReplicaKey }/spatial_position/t_${i}` )
+        const xyzDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
         const numbers = await xyzDataset.value
         console.timeEnd(str)
 
@@ -256,7 +263,7 @@ function createCleanFlatXYZList(numbers) {
     return list
 }
 
-async function getReplicaKeys(hdf5) {
+async function getEnsembleGroupKeys(hdf5) {
 
     let scratch = await hdf5.keys
 

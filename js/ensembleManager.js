@@ -27,8 +27,8 @@ class EnsembleManager {
 
     }
 
-    async loadReplica(replicaKey) {
-        await this.datasource.updateWithReplicaKey(replicaKey)
+    async loadEnsembleGroup(ensembleGroupKey) {
+        await this.datasource.updateWithEnsembleGroupKey(ensembleGroupKey)
         this.locus = this.datasource.locus
         this.currentIndex = 0
         this.currentTrace = await this.createTrace(this.currentIndex)

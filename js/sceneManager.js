@@ -109,9 +109,9 @@ class SceneManager {
 
     }
 
-    async ingestCNDBReplica(replicaKey) {
+    async ingestEnsembleGroup(ensembleGroupKey) {
 
-        await ensembleManager.loadReplica(replicaKey)
+        await ensembleManager.loadEnsembleGroup(ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
 
