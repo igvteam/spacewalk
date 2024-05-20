@@ -16,12 +16,13 @@ class EnsembleManager {
     async loadURL(url, traceKey) {
 
         const extension = FileUtils.getExtension(url)
-        if ('swb' === extension) {
+        const swbSet = new Set(['swb', 'sw'])
+        if (swbSet.has(extension)) {
             const datasource = new SWBDatasource()
             await this.load(url, datasource, datasource, parseInt(traceKey))
         } else if ('cndb' === extension) {
             await this.load(url, new CNDBParser(), new CNDBDatasource(), parseInt(traceKey))
-        } else {
+        } else if ('swt' === extension) {
             await this.load(url, new Parser(), new Datasource(), parseInt(traceKey))
         }
 
