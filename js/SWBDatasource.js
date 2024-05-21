@@ -6,6 +6,7 @@ import DataSourceBase from './dataSourceBase.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 import {createBoundingBoxWithFlatXYZList} from "./math.js"
 import SpacewalkEventBus from "./spacewalkEventBus"
+import igv from "igv"
 
 class SWBDatasource extends DataSourceBase {
 
@@ -46,7 +47,18 @@ class SWBDatasource extends DataSourceBase {
             SpacewalkEventBus.globalBus.post({ type: 'DidLoadSWBEnsembleGroup', data: this.ensembleGroupKeys })
         }
 
-        return { sample: 'Unspecified Sample', genomeAssembly: (this.header.genome || 'hg19') }
+        let genomeAssembly
+        const a = undefined === this.header.genome
+        const b = undefined === igv.GenomeUtils.KNOWN_GENOMES[ this.header.genome ]
+        if (a || b) {
+            console.warn(`Warning: Unrecognized genome ${ this.header.genome || 'undefined' }`)
+            genomeAssembly = 'hg19'
+        } else {
+            genomeAssembly = this.header.genome
+        }
+
+
+        return { sample: 'Unspecified Sample', genomeAssembly }
     }
 
     async updateWithEnsembleGroupKey(ensembleGroupKey) {
