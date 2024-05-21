@@ -36,41 +36,42 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
     gsdbModal = new ModalTable(gsdbModalConfig)
 
     // select from cndb replica list
-    const cndbModalElement = createCNDBSelectModalDOMElement()
-    rootContainer.appendChild(cndbModalElement)
+    const ensembleGroupModalElement = createEnsembleGroupSelectDOMElement()
+    rootContainer.appendChild(ensembleGroupModalElement)
 
-    const cndbSelectElement = cndbModalElement.querySelector('select')
-    $(cndbSelectElement).selectpicker()
+    const ensembleGroupSelectElement = ensembleGroupModalElement.querySelector('select')
+    $(ensembleGroupSelectElement).selectpicker()
 
-    cndbSelectElement.addEventListener('change', async event => {
+    ensembleGroupSelectElement.addEventListener('change', async event => {
 
         event.stopPropagation()
 
-        $(cndbModalElement).modal('hide')
+        $(ensembleGroupModalElement).modal('hide')
 
-        await sceneManager.ingestCNDBReplica(cndbSelectElement.value)
+        await sceneManager.ingestEnsembleGroup(ensembleGroupSelectElement.value)
 
         const data = ensembleManager.createEventBusPayload()
         SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
 
     })
 
-    const hdf5FileLoadHandler = ({ data }) => {
+    const ensembleGroupHandler = ({ data }) => {
 
         // discard pre-exisiting option elements
-        cndbSelectElement.innerHTML = ''
+        ensembleGroupSelectElement.innerHTML = ''
 
         for (const key of data ) {
             const html = `<option value=\"${ key }\">${ key }</option>`
             const fragment = document.createRange().createContextualFragment(html)
-            cndbSelectElement.appendChild(fragment.firstChild)
+            ensembleGroupSelectElement.appendChild(fragment.firstChild)
         }
 
-        $(cndbSelectElement).selectpicker('destroy')
-        $(cndbSelectElement).selectpicker('render')
+        $(ensembleGroupSelectElement).selectpicker('destroy')
+        $(ensembleGroupSelectElement).selectpicker('render')
     }
 
-    SpacewalkEventBus.globalBus.subscribe('DidLoadCNDBFile', hdf5FileLoadHandler)
+    SpacewalkEventBus.globalBus.subscribe('DidLoadCNDBFile', ensembleGroupHandler)
+    SpacewalkEventBus.globalBus.subscribe('DidLoadSWBEnsembleGroup', ensembleGroupHandler)
 
     // select from list
     const $selectModal = $(select_modal)
@@ -138,10 +139,10 @@ async function SpacewalkGetFilename(path){
 
 }
 
-function createCNDBSelectModalDOMElement() {
+function createEnsembleGroupSelectDOMElement() {
 
     const html =
-        `<div id="spacewalk-cndb-replica-select-modal" class="modal fade">
+        `<div id="spacewalk-ensemble-group-select-modal" class="modal fade">
 
         <div class="modal-dialog">
 
@@ -149,7 +150,7 @@ function createCNDBSelectModalDOMElement() {
 
                 <div class="modal-header">
 
-                    <div class="modal-title">CNDB Replica List</div>
+                    <div class="modal-title">Ensemble Group Selection</div>
 
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -164,7 +165,7 @@ function createCNDBSelectModalDOMElement() {
                             <div class="spinner-border" style="display: none;">
                             </div>
 
-                            <select data-live-search="true" title="Select a replica" data-width="100%">
+                            <select data-live-search="true" title="Select an ensemble group" data-width="100%">
                             </select>
                         </div>
                     </div>
@@ -206,12 +207,12 @@ const select_modal =
                                 <!-- spinner border-radius: .25rem; -->
                             </div>
                             <select data-live-search="true" title="Select an ensemble" data-width="100%">
-                                <option value="https://www.dropbox.com/scl/fi/slx5xkk540i8si7wr6tv5/A549_chr21-28-30Mb.sw?rlkey=mufheyn60384w0hemlknm53ad&dl=0">A549 chr21:28-30</option>
-                                <option value="https://www.dropbox.com/scl/fi/6by67mrc3ywm646j6zm8f/HCT116_chr21-28-30Mb_6h_auxin.sw?rlkey=0zrb50erkuznyxvv0fnfzfy48&dl=0">HCT116 6h_auxin chr21:28-30</option>
-                                <option value="https://www.dropbox.com/scl/fi/sl5q79az2r7sdxtaz6j0g/HCT116_chr21-28-30Mb_untreated.sw?rlkey=8tjwzsgtybwlukyfrt0s5aa5e&dl=0">HCT116 untreated chr21:28-30</option>
-                                <option value="https://www.dropbox.com/scl/fi/e5hcmfp8a5uzghytdbxwr/IMR90_chr21-18-20Mb.sw?rlkey=6qr9rekct5vc8e3a5c8g2mg3o&dl=0">IMR90 chr21:18-20</option>
-                                <option value="https://www.dropbox.com/scl/fi/295mfufin32ps41ejffxw/IMR90_chr21-28-30Mb.sw?rlkey=q0lxcfccr4mbh3jtzj8hwuwr7&dl=0">IMR90 chr21:28-30</option>
-                                <option value="https://www.dropbox.com/scl/fi/xukd5fxx99syofnrag9zr/K562_chr21-28-30Mb.sw?rlkey=mzbpzf5o72gusgfzqlpye0h5u&dl=0">K562 chr21:28-30</option>
+                                <option value="https://www.dropbox.com/scl/fi/slx5xkk540i8si7wr6tv5/A549_chr21-28-30Mb.sw?rlkey=mufheyn60384w0hemlknm53ad&st=gnhzxw34&dl=0">A549 chr21:28-30</option>
+                                <option value="https://www.dropbox.com/scl/fi/6by67mrc3ywm646j6zm8f/HCT116_chr21-28-30Mb_6h_auxin.sw?rlkey=0zrb50erkuznyxvv0fnfzfy48&st=zbir0o2m&dl=0">HCT116 6h_auxin chr21:28-30</option>
+                                <option value="https://www.dropbox.com/scl/fi/sl5q79az2r7sdxtaz6j0g/HCT116_chr21-28-30Mb_untreated.sw?rlkey=8tjwzsgtybwlukyfrt0s5aa5e&st=lrcsoowv&dl=0">HCT116 untreated chr21:28-30</option>
+                                <option value="https://www.dropbox.com/scl/fi/e5hcmfp8a5uzghytdbxwr/IMR90_chr21-18-20Mb.sw?rlkey=6qr9rekct5vc8e3a5c8g2mg3o&st=7imvnbq1&dl=0">IMR90 chr21:18-20</option>
+                                <option value="https://www.dropbox.com/scl/fi/295mfufin32ps41ejffxw/IMR90_chr21-28-30Mb.sw?rlkey=q0lxcfccr4mbh3jtzj8hwuwr7&st=8f8d1n2k&dl=0">IMR90 chr21:28-30</option>
+                                <option value="https://www.dropbox.com/scl/fi/xukd5fxx99syofnrag9zr/K562_chr21-28-30Mb.sw?rlkey=mzbpzf5o72gusgfzqlpye0h5u&st=lfvf6s09&dl=0">K562 chr21:28-30</option>
                             </select>
                         </div>
                     </div>

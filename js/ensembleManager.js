@@ -4,8 +4,9 @@ import { includes } from "./math.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
 import Parser from './parser.js'
 import Datasource from './datasource.js'
-import CNDBParser from './CNDBParser.js'
-import CNDBDatasource from './CNDBDatasource.js'
+import SWBDatasource from "./SWBDatasource.js"
+import CNDBParser from "./CNDBParser.js"
+import CNDBDatasource from "./CNDBDatasource.js"
 
 class EnsembleManager {
 
@@ -15,16 +16,20 @@ class EnsembleManager {
     async loadURL(url, traceKey) {
 
         const extension = FileUtils.getExtension(url)
-        if ('cndb' === extension) {
+        const swbSet = new Set(['swb', 'sw'])
+        if (swbSet.has(extension)) {
+            const datasource = new SWBDatasource()
+            await this.load(url, datasource, datasource, parseInt(traceKey))
+        } else if ('cndb' === extension) {
             await this.load(url, new CNDBParser(), new CNDBDatasource(), parseInt(traceKey))
-        } else {
+        } else if ('swt' === extension) {
             await this.load(url, new Parser(), new Datasource(), parseInt(traceKey))
         }
 
     }
 
-    async loadReplica(replicaKey) {
-        await this.datasource.updateWithReplicaKey(replicaKey)
+    async loadEnsembleGroup(ensembleGroupKey) {
+        await this.datasource.updateWithEnsembleGroupKey(ensembleGroupKey)
         this.locus = this.datasource.locus
         this.currentIndex = 0
         this.currentTrace = await this.createTrace(this.currentIndex)
