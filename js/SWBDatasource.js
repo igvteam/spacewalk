@@ -187,12 +187,19 @@ class SWBDatasource extends DataSourceBase {
 
     getLiveContactFrequencyMapVertexLists() {
 
-        if (this.isPointCloud) {
-            return undefined
-        } else {
-            return this.currentXYZList
-        }
+        // TODO: Find a way around the await trap of all this HDF5 shite.
 
+        // try {
+        //     for (let i = 0; i < this.vertexListCount; i++) {
+        //         const xyzDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
+        //         const numbers = await xyzDataset.value
+        //         result.push(createCleanFlatXYZList(numbers))
+        //     }
+        // } catch (error) {
+        //     console.error('What the heck?', error)
+        // }
+
+        super.getLiveContactFrequencyMapVertexLists()
     }
 
 }
