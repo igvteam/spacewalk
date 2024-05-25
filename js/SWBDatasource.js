@@ -110,7 +110,7 @@ class SWBDatasource extends DataSourceBase {
 
             this.currentGenomicExtentList = genomicExtentList
 
-            trace = genomicExtentList.map((genomicExtentList, index) => getTracePayload(index, genomicExtentList, regionIndexStrings, dictionary))
+            trace = genomicExtentList.map((genomicExtent, index) => getTracePayload(index, genomicExtent, regionIndexStrings, dictionary))
         } else {
 
             this.currentGenomicExtentList = this.globaleGenomicExtentList
@@ -164,9 +164,9 @@ class SWBDatasource extends DataSourceBase {
 
 }
 
-function getTracePayload(i, genomicExtentList, regionIndexStrings, dictionary) {
+function getTracePayload(i, genomicExtent, regionIndexStrings, dictionary) {
 
-    const { interpolant } = genomicExtentList[ i ]
+    const { interpolant } = genomicExtent
     const key = regionIndexStrings[ i ]
     const xyz = dictionary[ key ]
     const { centroid } = createBoundingBoxWithFlatXYZList(xyz)
