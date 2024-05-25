@@ -6,6 +6,7 @@ import Panel from './panel.js'
 import {ballAndStick, colorRampMaterialProvider, contactFrequencyMapPanel, ensembleManager, ribbon} from './app.js'
 import { HICEvent } from "./juiceboxHelpful.js"
 import {paintContactFrequencyArrayWithColorScale, renderArrayToCanvas} from './utils.js'
+import SWBDatasource from "./SWBDatasource"
 
 const imageTileDimension = 685
 
@@ -94,9 +95,15 @@ class JuiceboxPanel extends Panel {
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
         }
 
-        document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', e => {
+        document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', async e => {
+
+            if (ensembleManager.datasource instanceof SWBDatasource) {
+                await ensembleManager.datasource.calculateLiveContactFrequencyMapVertexLists()
+            }
+
             contactFrequencyMapPanel.calculateContactFrequencies()
             this.present()
+
         })
 
     }
