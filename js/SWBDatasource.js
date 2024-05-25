@@ -110,7 +110,7 @@ class SWBDatasource extends DataSourceBase {
 
             this.currentGenomicExtentList = genomicExtentList
 
-            trace = genomicExtentList.map((genomicExtent, index) => getTracePayload(index, genomicExtent, regionIndexStrings, dictionary))
+            trace = genomicExtentList.map((genomicExtent, index) => createPointCloudPayload(index, genomicExtent, regionIndexStrings, dictionary))
         } else {
 
             this.currentGenomicExtentList = this.globaleGenomicExtentList
@@ -131,40 +131,48 @@ class SWBDatasource extends DataSourceBase {
 
     }
 
-    getLiveContactFrequencyMapVertexLists() {
+    async calculateLiveContactFrequencyMapVertexLists() {
 
-        if (true === this.isPointCloud) {
+        // TODO: This is incredibly slow for Ball & Stick
 
-        } else {
+        const result = [];
 
-            // TODO: This is incredibly slow ...
-            const result = [];
+        try {
 
-            (async () => {
-                try {
-                    for (let i = 0; i < this.vertexListCount; i++) {
-                        console.log(`SWDatasource: Harvest vertices at index ${i}`)
-                        const xyzDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
-                        const numbers = await xyzDataset.value
-                        result.push(createCleanFlatXYZList(numbers))
-                    }
+            for (let i = 0; i < this.vertexListCount; i++) {
 
-                    SpacewalkEventBus.globalBus.post({ type: 'DidCreateSWBLiveContactMapVertices', data: result })
+                console.log(`SWDatasource: Harvest ${ true === this.isPointCloud ? 'Pointcloud' : 'Ball & Stick' } vertices at index ${i}`)
 
-                } catch (error) {
-                    console.error('What the heck?', error)
+                const xyzDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
+                const numbers = await xyzDataset.value
+
+                if (true === this.isPointCloud) {
+                    const { genomicExtentList, dictionary, regionIndexStrings } = createGenomicExtentList(numbers, this.globaleGenomicExtentList)
+                    const centroidList = genomicExtentList
+                        .map((genomicExtent, index) => createPointCloudPayload(index, genomicExtent, regionIndexStrings, dictionary))
+                        .map(({ centroid }) => { return { x:centroid[0], y:centroid[1], z:centroid[2] }})
+
+                    result.push(centroidList)
+                } else {
+                    result.push(createCleanFlatXYZList(numbers))
                 }
-            })()
 
+            }
+
+        } catch (error) {
+            console.error('What the heck?', error)
         }
 
+        this.liveContactFrequencyMapVertexLists = result
+    }
 
-
+    getLiveContactFrequencyMapVertexLists(){
+        return this.liveContactFrequencyMapVertexLists
     }
 
 }
 
-function getTracePayload(i, genomicExtent, regionIndexStrings, dictionary) {
+function createPointCloudPayload(i, genomicExtent, regionIndexStrings, dictionary) {
 
     const { interpolant } = genomicExtent
     const key = regionIndexStrings[ i ]

@@ -95,15 +95,14 @@ class JuiceboxPanel extends Panel {
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
         }
 
-        document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', e => {
+        document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', async e => {
 
             if (ensembleManager.datasource instanceof SWBDatasource) {
-                console.warn('Spacewalk Files Do not currently support Live Contact Maps')
-                // ensembleManager.getLiveContactFrequencyMapVertexLists()
-            } else {
-                contactFrequencyMapPanel.calculateContactFrequencies()
-                this.present()
+                await ensembleManager.datasource.calculateLiveContactFrequencyMapVertexLists()
             }
+
+            contactFrequencyMapPanel.calculateContactFrequencies()
+            this.present()
 
         })
 
