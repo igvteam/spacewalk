@@ -10,11 +10,6 @@ import igv from "igv"
 
 class SWBDatasource extends DataSourceBase {
 
-    constructor() {
-        super()
-        this.currentXYZList = undefined
-    }
-
     async parse(path, datasource) {
 
         SpacewalkGlobals.url = false === FileUtils.isFilePath(path) ? path : undefined
@@ -111,70 +106,21 @@ class SWBDatasource extends DataSourceBase {
         let trace
         if (true === this.isPointCloud) {
 
-            const makeNby4 = flatArray => {
+            const { genomicExtentList, dictionary, regionIndexStrings } = createGenomicExtentList(numbers, this.globaleGenomicExtentList)
 
-                const nby4 = []
-                for (let i = 0; i < flatArray.length; i += 4) {
-                    let row = flatArray.slice(i, i + 4);
-                    nby4.push(row);
-                }
+            this.currentGenomicExtentList = genomicExtentList
 
-                return nby4
-            }
-
-            // Convert flat (one-dimensional array) to two-dimensional matrix. Each row is: region-id | x | y | z
-            // The result is a stack of sub-matrices each corresponding to a region-id
-            const regionXYZMatrix = makeNby4(numbers)
-
-            // Convert stacked sub-matrices to a dictionary.
-            // key: region-id
-            // value: sub-matrix
-            const dictionary = splitMatrixByFirstColumnValue(regionXYZMatrix)
-            const regionIndexStrings = Object.keys(dictionary).sort((aString, bString) => parseInt(aString, 10) - parseInt(bString, 10))
-            this.currentGenomicExtentList = []
-            for (const index of regionIndexStrings) {
-                this.currentGenomicExtentList.push(this.globaleGenomicExtentList[ index ])
-            }
-
-            trace = []
-            for (let i = 0; i < this.currentGenomicExtentList.length; i++) {
-
-                const { interpolant } = this.currentGenomicExtentList[ i ]
-                const key = regionIndexStrings[ i ]
-                const xyz = dictionary[ key ]
-                const { centroid } = createBoundingBoxWithFlatXYZList(xyz)
-
-                const hash =
-                    {
-                        interpolant,
-                        xyz,
-                        centroid,
-                        drawUsage: THREE.DynamicDrawUsage
-                    };
-
-                trace.push(hash)
-            }
-
+            trace = genomicExtentList.map((genomicExtentList, index) => getTracePayload(index, genomicExtentList, regionIndexStrings, dictionary))
         } else {
-            this.currentXYZList = createCleanFlatXYZList(numbers)
 
             this.currentGenomicExtentList = this.globaleGenomicExtentList
 
-            trace = []
-            let j = 0
-            for (const xyz of this.currentXYZList) {
+            const xyzList = createCleanFlatXYZList(numbers)
 
-                const object =
-                    {
-                        interpolant: this.currentGenomicExtentList[ j ].interpolant,
-                        xyz,
-                        drawUsage: THREE.StaticDrawUsage
-                    }
-
-                trace.push(object)
-
-                ++j
-            }
+            trace = xyzList.map((xyz, index) => {
+                const { interpolant } = this.currentGenomicExtentList[ index ]
+                return { interpolant, xyz, drawUsage: THREE.StaticDrawUsage}
+            })
 
         }
         console.timeEnd(str)
@@ -187,21 +133,76 @@ class SWBDatasource extends DataSourceBase {
 
     getLiveContactFrequencyMapVertexLists() {
 
-        // TODO: Find a way around the await trap of all this HDF5 shite.
+        if (true === this.isPointCloud) {
 
-        // try {
-        //     for (let i = 0; i < this.vertexListCount; i++) {
-        //         const xyzDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
-        //         const numbers = await xyzDataset.value
-        //         result.push(createCleanFlatXYZList(numbers))
-        //     }
-        // } catch (error) {
-        //     console.error('What the heck?', error)
-        // }
+        } else {
 
-        super.getLiveContactFrequencyMapVertexLists()
+            // TODO: This is incredibly slow ...
+            const result = [];
+
+            (async () => {
+                try {
+                    for (let i = 0; i < this.vertexListCount; i++) {
+                        console.log(`SWDatasource: Harvest vertices at index ${i}`)
+                        const xyzDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
+                        const numbers = await xyzDataset.value
+                        result.push(createCleanFlatXYZList(numbers))
+                    }
+
+                    SpacewalkEventBus.globalBus.post({ type: 'DidCreateSWBLiveContactMapVertices', data: result })
+
+                } catch (error) {
+                    console.error('What the heck?', error)
+                }
+            })()
+
+        }
+
+
+
     }
 
+}
+
+function getTracePayload(i, genomicExtentList, regionIndexStrings, dictionary) {
+
+    const { interpolant } = genomicExtentList[ i ]
+    const key = regionIndexStrings[ i ]
+    const xyz = dictionary[ key ]
+    const { centroid } = createBoundingBoxWithFlatXYZList(xyz)
+
+    return { interpolant, xyz, centroid, drawUsage: THREE.DynamicDrawUsage }
+
+}
+
+function createGenomicExtentList(xyzDatasetNumbers, globalGenomicExtentList) {
+
+    const makeNby4 = flatArray => {
+
+        const nby4 = []
+        for (let i = 0; i < flatArray.length; i += 4) {
+            let row = flatArray.slice(i, i + 4);
+            nby4.push(row);
+        }
+
+        return nby4
+    }
+
+    // Convert flat (one-dimensional array) to two-dimensional matrix. Each row is: region-id | x | y | z
+    // The result is a stack of sub-matrices each corresponding to a region-id
+    const regionXYZMatrix = makeNby4(xyzDatasetNumbers)
+
+    // Convert stacked sub-matrices to a dictionary.
+    // key: region-id
+    // value: sub-matrix
+    const dictionary = splitMatrixByFirstColumnValue(regionXYZMatrix)
+    const regionIndexStrings = Object.keys(dictionary).sort((aString, bString) => parseInt(aString, 10) - parseInt(bString, 10))
+    const genomicExtentList = []
+    for (const index of regionIndexStrings) {
+        genomicExtentList.push(globalGenomicExtentList[ index ])
+    }
+
+    return { genomicExtentList, dictionary, regionIndexStrings }
 }
 
 function splitMatrixByFirstColumnValue(matrix) {

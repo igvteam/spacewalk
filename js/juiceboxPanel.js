@@ -6,6 +6,7 @@ import Panel from './panel.js'
 import {ballAndStick, colorRampMaterialProvider, contactFrequencyMapPanel, ensembleManager, ribbon} from './app.js'
 import { HICEvent } from "./juiceboxHelpful.js"
 import {paintContactFrequencyArrayWithColorScale, renderArrayToCanvas} from './utils.js'
+import SWBDatasource from "./SWBDatasource"
 
 const imageTileDimension = 685
 
@@ -95,8 +96,15 @@ class JuiceboxPanel extends Panel {
         }
 
         document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', e => {
-            contactFrequencyMapPanel.calculateContactFrequencies()
-            this.present()
+
+            if (ensembleManager.datasource instanceof SWBDatasource) {
+                console.warn('Spacewalk Files Do not currently support Live Contact Maps')
+                // ensembleManager.getLiveContactFrequencyMapVertexLists()
+            } else {
+                contactFrequencyMapPanel.calculateContactFrequencies()
+                this.present()
+            }
+
         })
 
     }
