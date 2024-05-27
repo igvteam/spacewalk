@@ -96,8 +96,8 @@ class SWBDatasource extends DataSourceBase {
 
         let str = `createTrace() - retrieve dataset: ${ this.currentEnsembleGroupKey }/spatial_position/t_${i}`
         console.time(str)
-        const xyzDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
-        const numbers = await xyzDataset.value
+        const traceDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
+        const traceValues = await traceDataset.value
         console.timeEnd(str)
 
         str = `createTrace() - build ${ true === this.isPointCloud ? 'pointcloud' : 'ball & stick' } trace`
@@ -106,16 +106,16 @@ class SWBDatasource extends DataSourceBase {
         let trace
         if (true === this.isPointCloud) {
 
-            const { genomicExtentList, dictionary, regionIndexStrings } = createGenomicExtentList(numbers, this.globaleGenomicExtentList)
+            const { genomicExtentList, regionXYZDictionary, regionIndexStrings } = createGenomicExtentList(traceValues, this.globaleGenomicExtentList)
 
             this.currentGenomicExtentList = genomicExtentList
 
-            trace = genomicExtentList.map((genomicExtent, index) => createPointCloudPayload(index, genomicExtent, regionIndexStrings, dictionary))
+            trace = genomicExtentList.map((genomicExtent, index) => createPointCloudPayload(index, genomicExtent, regionIndexStrings, regionXYZDictionary))
         } else {
 
             this.currentGenomicExtentList = this.globaleGenomicExtentList
 
-            const xyzList = createCleanFlatXYZList(numbers)
+            const xyzList = createCleanFlatXYZList(traceValues)
 
             trace = xyzList.map((xyz, index) => {
                 const { interpolant } = this.currentGenomicExtentList[ index ]
@@ -133,7 +133,14 @@ class SWBDatasource extends DataSourceBase {
 
     async calculateLiveContactFrequencyMapVertexLists() {
 
-        // TODO: This is incredibly slow for Ball & Stick
+        // TODO: This is incredibly slow for large ensembles containing
+        //       many short ball & stick traces.
+
+
+        showGlobalSpinner()
+
+        let str = `Calculate Live Contact Frequency Map VertexLists`
+        console.time(str)
 
         const result = [];
 
@@ -143,18 +150,21 @@ class SWBDatasource extends DataSourceBase {
 
                 console.log(`SWDatasource: Harvest ${ true === this.isPointCloud ? 'Pointcloud' : 'Ball & Stick' } vertices at index ${i}`)
 
-                const xyzDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
-                const numbers = await xyzDataset.value
+                const traceDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
+
+                // traceValues is a flat list of N region_id, x, y, z quadruples, one after the other
+                // in one long flat list
+                const traceValues = await traceDataset.value
 
                 if (true === this.isPointCloud) {
-                    const { genomicExtentList, dictionary, regionIndexStrings } = createGenomicExtentList(numbers, this.globaleGenomicExtentList)
+                    const { genomicExtentList, regionXYZDictionary, regionIndexStrings } = createGenomicExtentList(traceValues, this.globaleGenomicExtentList)
                     const centroidList = genomicExtentList
-                        .map((genomicExtent, index) => createPointCloudPayload(index, genomicExtent, regionIndexStrings, dictionary))
+                        .map((genomicExtent, index) => createPointCloudPayload(index, genomicExtent, regionIndexStrings, regionXYZDictionary))
                         .map(({ centroid }) => { return { x:centroid[0], y:centroid[1], z:centroid[2] }})
 
                     result.push(centroidList)
                 } else {
-                    result.push(createCleanFlatXYZList(numbers))
+                    result.push(createCleanFlatXYZList(traceValues))
                 }
 
             }
@@ -162,6 +172,10 @@ class SWBDatasource extends DataSourceBase {
         } catch (error) {
             console.error('What the heck?', error)
         }
+
+        console.timeEnd(str)
+
+        hideGlobalSpinner()
 
         this.liveContactFrequencyMapVertexLists = result
     }
@@ -172,24 +186,24 @@ class SWBDatasource extends DataSourceBase {
 
 }
 
-function createPointCloudPayload(i, genomicExtent, regionIndexStrings, dictionary) {
+function createPointCloudPayload(i, genomicExtent, regionIndexStrings, regionXYZDictionary) {
 
     const { interpolant } = genomicExtent
     const key = regionIndexStrings[ i ]
-    const xyz = dictionary[ key ]
+    const xyz = regionXYZDictionary[ key ]
     const { centroid } = createBoundingBoxWithFlatXYZList(xyz)
 
     return { interpolant, xyz, centroid, drawUsage: THREE.DynamicDrawUsage }
 
 }
 
-function createGenomicExtentList(xyzDatasetNumbers, globalGenomicExtentList) {
+function createGenomicExtentList(traceValues, globalGenomicExtentList) {
 
-    const makeNby4 = flatArray => {
+    const makeRegionXYZStack = regionXYZList => {
 
         const nby4 = []
-        for (let i = 0; i < flatArray.length; i += 4) {
-            let row = flatArray.slice(i, i + 4);
+        for (let i = 0; i < regionXYZList.length; i += 4) {
+            let row = regionXYZList.slice(i, i + 4);
             nby4.push(row);
         }
 
@@ -197,50 +211,50 @@ function createGenomicExtentList(xyzDatasetNumbers, globalGenomicExtentList) {
     }
 
     // Convert flat (one-dimensional array) to two-dimensional matrix. Each row is: region-id | x | y | z
-    // The result is a stack of sub-matrices each corresponding to a region-id
-    const regionXYZMatrix = makeNby4(xyzDatasetNumbers)
+    // The result is a stack of sub-matrices each corresponding to a specific region-id
+    const regionXYZStack = makeRegionXYZStack(traceValues)
 
-    // Convert stacked sub-matrices to a dictionary.
+    // Convert stacked sub-matrices to dictionary.
     // key: region-id
     // value: sub-matrix
-    const dictionary = splitMatrixByFirstColumnValue(regionXYZMatrix)
-    const regionIndexStrings = Object.keys(dictionary).sort((aString, bString) => parseInt(aString, 10) - parseInt(bString, 10))
+    const regionXYZDictionary = convertRegionXYZStackToDictionary(regionXYZStack)
+    const regionIndexStrings = Object.keys(regionXYZDictionary).sort((aString, bString) => parseInt(aString, 10) - parseInt(bString, 10))
     const genomicExtentList = []
     for (const index of regionIndexStrings) {
         genomicExtentList.push(globalGenomicExtentList[ index ])
     }
 
-    return { genomicExtentList, dictionary, regionIndexStrings }
+    return { genomicExtentList, regionXYZDictionary, regionIndexStrings }
 }
 
-function splitMatrixByFirstColumnValue(matrix) {
-    const subMatrixDictionary = {}
+function convertRegionXYZStackToDictionary(regionXYZStack) {
+    const regionXYZDictionary = {}
     let currentSubMatrix = [];
-    let currentValue = matrix[0][0];
+    let currentValue = regionXYZStack[0][0];
 
-    for (let row of matrix) {
+    for (let row of regionXYZStack) {
         if (row[0] === currentValue) {
             currentSubMatrix.push(row);
         } else {
-            subMatrixDictionary[currentValue.toString()] = currentSubMatrix;
+            regionXYZDictionary[currentValue.toString()] = currentSubMatrix;
             currentSubMatrix = [row];
             currentValue = row[0];
         }
     }
     // Push the last group
-    subMatrixDictionary[currentValue.toString()] = currentSubMatrix;
+    regionXYZDictionary[currentValue.toString()] = currentSubMatrix;
 
     // discard first column
-    for (let matrix of Object.values(subMatrixDictionary)) {
+    for (let matrix of Object.values(regionXYZDictionary)) {
         matrix.map(row => row.shift())
     }
 
     // flatten matrices into one-dimensional array
-    for (const [ key, value ] of Object.entries(subMatrixDictionary)) {
-        subMatrixDictionary[key] = value.flat()
+    for (const [ key, value ] of Object.entries(regionXYZDictionary)) {
+        regionXYZDictionary[key] = value.flat()
     }
 
-    return subMatrixDictionary
+    return regionXYZDictionary
 }
 
 async function getGlobalGenomicExtentList(dataset) {
