@@ -4,7 +4,7 @@ import { StringUtils } from 'igv-utils'
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import {rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor, rgba255String} from "./color.js"
-import { ballAndStick, sceneManager, juiceboxPanel, ensembleManager } from "./app.js";
+import {ballAndStick, sceneManager, juiceboxPanel, ensembleManager, pointCloud} from "./app.js";
 
 class GUIManager {
 
@@ -23,11 +23,13 @@ class GUIManager {
         $panel.get(0).addEventListener(    'click', e => e.stopPropagation())
         $panel.get(0).addEventListener('mousemove', e => e.stopPropagation())
 
+        // Configure Ground Plane Toggle
         document.querySelector(`#spacewalk_ui_manager_groundplane`).addEventListener('change', e => {
             e.stopPropagation()
             sceneManager.groundPlane.toggle()
         })
 
+        // Configure Gnomon Toggle
         document.querySelector(`#spacewalk_ui_manager_gnomon`).addEventListener('change', e => {
             e.stopPropagation()
             sceneManager.gnomon.toggle()
@@ -56,22 +58,28 @@ class GUIManager {
 
         configureRenderStyleControl($('#spacewalk-render-style-ribbon'), Ribbon.getRenderStyle());
 
-        // ball radius
+        // Ball radius
         const $ball_radius_control = $('#spacewalk-ball-radius-control');
-
         $ball_radius_control.find('i.fa-minus-circle').on('click.spacewalk-ball-radius-minus', () => ballAndStick.updateBallRadius(-1))
         $ball_radius_control.find('i.fa-plus-circle').on('click.spacewalk-ball-radius-plus',   () => ballAndStick.updateBallRadius(1))
 
-        // stick radius
+        // Stick radius
         const $stick_radius_control = $('#spacewalk-stick-radius-control');
-
         $stick_radius_control.find('i.fa-minus-circle').on('click.spacewalk-stick-radius-minus', () => {
             ballAndStick.updateStickRadius(-1);
         });
-
         $stick_radius_control.find('i.fa-plus-circle').on('click.spacewalk-stick-radius-plus', () => {
             ballAndStick.updateStickRadius(1);
         });
+
+        // PointCloud Point Size
+        const $point_size_control = $('#spacewalk-point-size-radius-control');
+        $point_size_control.find('i.fa-minus-circle').on('click.spacewalk-point-size-minus', () => {
+            pointCloud.updatePointSize(-1)
+        })
+        $point_size_control.find('i.fa-plus-circle').on('click.spacewalk-point-size-plus', () => {
+            pointCloud.updatePointSize(1)
+        })
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
@@ -97,7 +105,9 @@ class GUIManager {
 
             if (true === ensembleManager.isPointCloud) {
                 $('#spacewalk_ui_manager_render_styles').hide();
+                $('#spacewalk_ui_manager_pointcloud_render_style').show();
             } else {
+                $('#spacewalk_ui_manager_pointcloud_render_style').hide();
                 $('#spacewalk_ui_manager_render_styles').show();
             }
 

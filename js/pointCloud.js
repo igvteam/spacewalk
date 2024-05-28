@@ -9,12 +9,14 @@ class PointCloud {
 
     constructor ({ pickHighlighter, deemphasizedColor }) {
 
+        this.pointSize = 128
+
         this.pickHighlighter = pickHighlighter;
         this.deemphasizedColor = deemphasizedColor;
 
         const materialConfig =
             {
-                size: pointSize,
+                size: this.pointSize,
                 vertexColors: true,
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
@@ -28,7 +30,7 @@ class PointCloud {
 
         const deemphasizedConfig =
             {
-                size: pointSize,
+                size: this.pointSize,
                 vertexColors: true,
                 // map: new THREE.TextureLoader().load( "texture/blank.png" ),
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
@@ -165,6 +167,17 @@ class PointCloud {
                 mesh.visible = true;
             }
         }
+    }
+
+    updatePointSize(increment) {
+
+        this.pointSize += increment < 0 ? -32 : 32
+
+        this.material.size = this.pointSize
+        this.material.needsUpdate = true
+
+        this.deemphasizedMaterial.size = this.pointSize
+        this.deemphasizedMaterial.needsUpdate = true
     }
 
     dispose () {
