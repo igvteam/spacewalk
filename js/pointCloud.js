@@ -2,8 +2,7 @@ import * as THREE from "three";
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {ensembleManager, igvPanel, pointCloud, sceneManager} from "./app.js";
 import {StringUtils} from "igv-utils";
-
-const pointSize = 128;
+import EnsembleManager from "./ensembleManager"
 
 class PointCloud {
 
@@ -54,26 +53,10 @@ class PointCloud {
         SpacewalkEventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
-    receiveEvent({ type, data }) {
-
-        if (this.meshList && "DidUpdateGenomicInterpolant" === type && PointCloud.getRenderStyle() === sceneManager.renderStyle) {
-
-            const { interpolantList } = data;
-
-            const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
-
-            if (interpolantWindowList) {
-                const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ])
-                this.pickHighlighter.highlightWithObjectList(objectList)
-            }
-
-        } else if ("DidLeaveGenomicNavigator" === type) {
-            this.pickHighlighter.unhighlight()
-        }
-
-    }
-
     configure(trace) {
+
+        const { radius } = EnsembleManager.getTraceBounds(trace)
+        this.pointSize = Math.max(8, Math.floor(radius/100))
 
         //  const sum = array.reduce((total, item) => total + item);
         const list = trace.map(({ xyz }) => xyz.length / 3)
@@ -116,6 +99,25 @@ class PointCloud {
         sceneManager.renderStyle === PointCloud.getRenderStyle() ? this.show() : this.hide()
 
         console.timeEnd(str)
+
+    }
+
+    receiveEvent({ type, data }) {
+
+        if (this.meshList && "DidUpdateGenomicInterpolant" === type && PointCloud.getRenderStyle() === sceneManager.renderStyle) {
+
+            const { interpolantList } = data;
+
+            const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
+
+            if (interpolantWindowList) {
+                const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ])
+                this.pickHighlighter.highlightWithObjectList(objectList)
+            }
+
+        } else if ("DidLeaveGenomicNavigator" === type) {
+            this.pickHighlighter.unhighlight()
+        }
 
     }
 
