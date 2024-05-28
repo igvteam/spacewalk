@@ -19,9 +19,13 @@ class PointCloud {
                 vertexColors: true,
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
-                alphaTest: 0.5,
+                depthTest: true,
                 transparent: true,
-                depthTest: true
+
+                // NOTE: alphaTest value must be less than opacity, otherwise nothing will appear onscreen
+                opacity: 0.25,
+                alphaTest: 0.125,
+
             };
 
         this.material = new THREE.PointsMaterial( materialConfig );

@@ -376,7 +376,7 @@ const sceneManagerConfigurator = (container) => {
     const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
     stickMaterial.side = THREE.DoubleSide;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
 
 
