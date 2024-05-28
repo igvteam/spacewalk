@@ -55,8 +55,12 @@ class PointCloud {
 
     configure(trace) {
 
+        // Scale point size to pointcloud bbox
         const { radius } = EnsembleManager.getTraceBounds(trace)
-        this.pointSize = Math.max(8, Math.floor(radius/100))
+        this.pointSize = Math.max(4, Math.floor(radius/16))
+
+        this.material.size = this.pointSize
+        this.deemphasizedMaterial.size = this.pointSize
 
         //  const sum = array.reduce((total, item) => total + item);
         const list = trace.map(({ xyz }) => xyz.length / 3)

@@ -73,7 +73,7 @@ class GUIManager {
         });
 
         // PointCloud Point Size
-        const $point_size_control = $('#spacewalk-point-size-radius-control');
+        const $point_size_control = $('#spacewalk_ui_manager_pointcloud_render_style');
         $point_size_control.find('i.fa-minus-circle').on('click.spacewalk-point-size-minus', () => {
             pointCloud.updatePointSize(-1)
         })

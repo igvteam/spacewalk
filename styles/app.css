@@ -333,6 +333,21 @@ div.navbar-brand {
   display: block;
 }
 
+li#spacewalk_ui_manager_pointcloud_render_style > div {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+li#spacewalk_ui_manager_pointcloud_render_style > div > div {
+  margin-right: 8px;
+}
+li#spacewalk_ui_manager_pointcloud_render_style > div > div:first-child {
+  margin-right: 16px;
+}
+
 li#spacewalk_ui_manager_render_styles > div {
   width: -webkit-fill-available;
 }
