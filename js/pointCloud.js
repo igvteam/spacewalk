@@ -62,12 +62,7 @@ class PointCloud {
         this.material.size = this.pointSize
         this.deemphasizedMaterial.size = this.pointSize
 
-        //  const sum = array.reduce((total, item) => total + item);
         const list = trace.map(({ xyz }) => xyz.length / 3)
-        // for (const length of list) {
-        //     console.log(`Point cloud cluster(${ list.indexOf(length) }) ${ StringUtils.numberFormatter(length)} points`)
-        // }
-
         const sum = list.reduce((total, item) => total + item)
 
         const str = `PointCloud. trace(${ trace.length }) points(${ StringUtils.numberFormatter(sum)})`
