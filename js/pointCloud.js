@@ -20,11 +20,14 @@ class PointCloud {
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
                 depthTest: true,
+                depthWrite: true,
                 transparent: true,
 
-                // NOTE: alphaTest value must be less than opacity, otherwise nothing will appear onscreen
-                opacity: 0.25,
-                alphaTest: 0.125,
+
+                // NOTE: alphaTest value must ALWAYS be less than opacity value
+                // If not, nothing will appear onscreen
+                alphaTest: 0.375/2,
+                opacity: 0.375,
 
             };
 
@@ -38,16 +41,21 @@ class PointCloud {
                 // map: new THREE.TextureLoader().load( "texture/blank.png" ),
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
-                alphaTest: 0.5,
 
-                // NOTE: Turning off transparency makes the deemphasized points a backdrop for
-                //       the highlighted points
-                // transparent: true,
-                transparent: false,
+                // depthTest: true,
+                // Do NOT participate in depth testing
+                depthTest: false,
+                depthWrite: false,
 
-                // Do not participate in depth testing
-                // depthTest: true
-                depthTest: false
+                transparent: true,
+                // Turning off transparency makes deemphasized points a backdrop for highlighted points
+                // transparent: false,
+
+                // alphaTest: 0.5,
+
+                alphaTest: 0.125/4,
+                opacity: 0.125/2,
+
             };
 
         this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );
