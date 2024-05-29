@@ -9,6 +9,8 @@ class PointCloud {
     constructor ({ pickHighlighter, deemphasizedColor }) {
 
         this.pointSize = 128
+        this.pointOpacity = 0.375
+        this.deemphasizedPointOpacity = 0.125/2
 
         this.pickHighlighter = pickHighlighter;
         this.deemphasizedColor = deemphasizedColor;
@@ -19,15 +21,16 @@ class PointCloud {
                 vertexColors: true,
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
+
                 depthTest: true,
                 depthWrite: true,
+
                 transparent: true,
 
-
+                opacity: this.pointOpacity,
                 // NOTE: alphaTest value must ALWAYS be less than opacity value
                 // If not, nothing will appear onscreen
-                alphaTest: 0.375/2,
-                opacity: 0.375,
+                alphaTest: this.pointOpacity/2,
 
             };
 
@@ -38,23 +41,23 @@ class PointCloud {
             {
                 size: this.pointSize,
                 vertexColors: true,
-                // map: new THREE.TextureLoader().load( "texture/blank.png" ),
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
 
-                // depthTest: true,
-                // Do NOT participate in depth testing
-                depthTest: false,
-                depthWrite: false,
+                // Do NOT participate in depth testing or depth writing
+                // depthTest: false,
+                // depthWrite: false,
+
+                depthTest: true,
+                depthWrite: true,
+
 
                 transparent: true,
-                // Turning off transparency makes deemphasized points a backdrop for highlighted points
-                // transparent: false,
 
-                // alphaTest: 0.5,
-
-                alphaTest: 0.125/4,
-                opacity: 0.125/2,
+                opacity: this.deemphasizedPointOpacity,
+                // NOTE: alphaTest value must ALWAYS be less than opacity value
+                // If not, nothing will appear onscreen
+                alphaTest: this.deemphasizedPointOpacity/2,
 
             };
 
@@ -67,7 +70,7 @@ class PointCloud {
 
     configure(trace) {
 
-        // Scale point size to pointcloud bbox
+        // Scale point size to pointcloud bbox for reasonable starting point size
         const { radius } = EnsembleManager.getTraceBounds(trace)
         this.pointSize = Math.max(4, Math.floor(radius/16))
 
@@ -98,7 +101,7 @@ class PointCloud {
                 setGeometryColorAttribute(geometry.userData.colorAttribute.array, rgb)
                 geometry.setAttribute('color', geometry.userData.colorAttribute)
 
-                // retain a copy of emphasise color for use during highlight/unhighlight
+                // retain a copy of deemphasis color for use during highlight/unhighlight
                 geometry.userData.deemphasisColorAttribute = new THREE.Float32BufferAttribute(new Float32Array(xyz.length * 3), 3)
                 setGeometryColorAttribute(geometry.userData.deemphasisColorAttribute.array, pointCloud.deemphasizedColor)
 
