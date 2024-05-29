@@ -495,9 +495,15 @@ div#spacewalk_info_panel > div > div:last-child {
   flex-wrap: nowrap;
   justify-content: flex-start;
   align-items: flex-start;
-  border-style: solid;
-  border-width: thin;
-  border-color: black;
+  border-left-style: solid;
+  border-left-width: thin;
+  border-left-color: black;
+  border-bottom-style: solid;
+  border-bottom-width: thin;
+  border-bottom-color: black;
+  border-right-style: solid;
+  border-right-width: thin;
+  border-right-color: black;
 }
 #spacewalk-threejs-container #spacewalk-threejs-trace-navigator-container #spacewalk-threejs-canvas-container {
   position: relative;
@@ -543,7 +549,7 @@ div#spacewalk_info_panel > div > div:last-child {
 #spacewalk-threejs-container #spacewalk-threejs-trace-navigator-container #spacewalk-trace-navigator-container #spacewalk-trace-navigator-widget {
   position: relative;
   cursor: pointer;
-  width: 40px;
+  width: 46px;
   height: 100%;
 }
 #spacewalk-threejs-container #spacewalk-threejs-trace-navigator-container #spacewalk-trace-navigator-container #spacewalk-trace-navigator-widget canvas {

@@ -8,7 +8,7 @@ $spacewalk-threejs-drag-container-height: 32px;
 
 $spacewalk-trace-navigator-width: 48px;
 $spacewalk-trace-navigator-label-height: 32px;
-$spacewalk-trace-navigator-canvas-width: 40px;
+$spacewalk-trace-navigator-canvas-width: 46px;
 
 $spacewalk-threejs-canvas-center-dot-radius:6px;
 
@@ -74,9 +74,17 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
     justify-content: flex-start;
     align-items: flex-start;
 
-    border-style: solid;
-    border-width: thin;
-    border-color: black;
+    border-left-style: solid;
+    border-left-width: thin;
+    border-left-color: black;
+
+    border-bottom-style: solid;
+    border-bottom-width: thin;
+    border-bottom-color: black;
+
+    border-right-style: solid;
+    border-right-width: thin;
+    border-right-color: black;
 
     #spacewalk-threejs-canvas-container {
       position: relative;
