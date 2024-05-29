@@ -66,21 +66,27 @@ $spacewalk-ball-stick-control-y-margin: 4px;
   .list-group:last-child {
     margin-bottom: unset;
   }
+}
 
-  li {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    align-items: center;
-    input {
-      cursor: pointer;
-      display: block;
-    }
+li.spacewalk-colorpicker-li {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  input {
+    cursor: pointer;
+    display: block;
   }
 }
 
 li#spacewalk_ui_manager_pointcloud_render_style {
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
 
   >div {
     width: 100%;

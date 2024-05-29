@@ -321,18 +321,26 @@ div.navbar-brand {
 #spacewalk_ui_manager_panel.card .list-group:last-child {
   margin-bottom: unset;
 }
-#spacewalk_ui_manager_panel.card li {
+
+li.spacewalk-colorpicker-li {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: flex-start;
   align-items: center;
 }
-#spacewalk_ui_manager_panel.card li input {
+li.spacewalk-colorpicker-li input {
   cursor: pointer;
   display: block;
 }
 
+li#spacewalk_ui_manager_pointcloud_render_style {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
 li#spacewalk_ui_manager_pointcloud_render_style > div {
   width: 100%;
   display: flex;

@@ -196,6 +196,17 @@ class PointCloud {
         this.deemphasizedMaterial.needsUpdate = true
     }
 
+    updatePointTransparency(increment) {
+
+        this.pointSize += increment < 0 ? -32 : 32
+
+        this.material.size = this.pointSize
+        this.material.needsUpdate = true
+
+        this.deemphasizedMaterial.size = this.pointSize
+        this.deemphasizedMaterial.needsUpdate = true
+    }
+
     dispose () {
 
         if (this.meshList) {

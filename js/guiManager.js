@@ -73,12 +73,21 @@ class GUIManager {
         });
 
         // PointCloud Point Size
-        const $point_size_control = $('#spacewalk_ui_manager_pointcloud_render_style');
+        const $point_size_control = $('#spacewalk_ui_manager_pointcloud_point_size');
         $point_size_control.find('i.fa-minus-circle').on('click.spacewalk-point-size-minus', () => {
             pointCloud.updatePointSize(-1)
         })
         $point_size_control.find('i.fa-plus-circle').on('click.spacewalk-point-size-plus', () => {
             pointCloud.updatePointSize(1)
+        })
+
+        // PointCloud Point Transparency
+        const $point_transparency_control = $('#spacewalk_ui_manager_pointcloud_point_transparency');
+        $point_transparency_control.find('i.fa-minus-circle').on('click.spacewalk-point-transparency-minus', () => {
+            pointCloud.updatePointTransparency(-1)
+        })
+        $point_size_control.find('i.fa-plus-circle').on('click.spacewalk-point-transparency-plus', () => {
+            pointCloud.updatePointTransparency(1)
         })
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
