@@ -405,8 +405,9 @@ const sceneManagerConfigurator = (container) => {
     const centroid = new THREE.Vector3(133394, 54542, 4288);
     cameraLightingRig.setPose(position, centroid);
 
+    const background = appleCrayonColorThreeJS('snow');
     // const background = appleCrayonColorThreeJS('nickel');
-    const background = sceneBackgroundTexture;
+    // const background = sceneBackgroundTexture;
 
     const scene = new THREE.Scene();
     scene.background = background;

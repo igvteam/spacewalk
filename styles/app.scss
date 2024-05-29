@@ -54,7 +54,8 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
 
     width: 100%;
     height: $spacewalk-threejs-drag-container-height;
-    background-color: $spacewalk_snow;
+    //background-color: $spacewalk_snow;
+    background-color: rgba(0, 0, 0, 0.2);
 
     cursor: grab;
 
@@ -73,11 +74,16 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
     justify-content: flex-start;
     align-items: flex-start;
 
+    border-style: solid;
+    border-width: thin;
+    border-color: black;
+
     #spacewalk-threejs-canvas-container {
       position: relative;
       width: $spacewalk-threejs-canvas-container-size;
       height:$spacewalk-threejs-canvas-container-size;
-      background-color: $spacewalk_nickel;
+      //background-color: $spacewalk_nickel;
+      background-color: white;
 
       #spacewalk-threejs-canvas-center-dot {
         z-index: 512;
@@ -101,6 +107,10 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
       width: $spacewalk-trace-navigator-width;
       height: $spacewalk-threejs-canvas-container-size;
       background-color: white;
+
+      border-left-style: solid;
+      border-left-width: thin;
+      border-left-color: black;
 
       display: flex;
       flex-direction: column;

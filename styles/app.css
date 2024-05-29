@@ -305,7 +305,7 @@ div.navbar-brand {
   left: 64px;
   width: 300px;
   height: auto;
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(0, 0, 0, 0.1);
   border-color: #3a3a3a;
 }
 #spacewalk_ui_manager_panel.card .list-group {
@@ -474,7 +474,7 @@ div#spacewalk_info_panel > div > div:last-child {
   align-items: center;
   width: 100%;
   height: 32px;
-  background-color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.2);
   cursor: grab;
 }
 #spacewalk-threejs-container #spacewalk-threejs-drag-container i {
@@ -487,12 +487,15 @@ div#spacewalk_info_panel > div > div:last-child {
   flex-wrap: nowrap;
   justify-content: flex-start;
   align-items: flex-start;
+  border-style: solid;
+  border-width: thin;
+  border-color: black;
 }
 #spacewalk-threejs-container #spacewalk-threejs-trace-navigator-container #spacewalk-threejs-canvas-container {
   position: relative;
   width: 512px;
   height: 512px;
-  background-color: #888787;
+  background-color: white;
 }
 #spacewalk-threejs-container #spacewalk-threejs-trace-navigator-container #spacewalk-threejs-canvas-container #spacewalk-threejs-canvas-center-dot {
   z-index: 512;
@@ -511,6 +514,9 @@ div#spacewalk_info_panel > div > div:last-child {
   width: 48px;
   height: 512px;
   background-color: white;
+  border-left-style: solid;
+  border-left-width: thin;
+  border-left-color: black;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
