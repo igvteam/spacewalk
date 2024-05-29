@@ -3,6 +3,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {ensembleManager, igvPanel, pointCloud, sceneManager} from "./app.js";
 import {StringUtils} from "igv-utils";
 import EnsembleManager from "./ensembleManager"
+import {clamp} from "./math"
 
 class PointCloud {
 
@@ -24,6 +25,9 @@ class PointCloud {
 
                 depthTest: true,
                 depthWrite: true,
+
+                // depthTest: false,
+                // depthWrite: false,
 
                 transparent: true,
 
@@ -198,13 +202,12 @@ class PointCloud {
 
     updatePointTransparency(increment) {
 
-        this.pointSize += increment < 0 ? -32 : 32
+        this.pointOpacity += (increment < 0 ? -1 : 1) * (10 / 100) * this.pointOpacity
+        this.pointOpacity = clamp(1/10, 9/10, this.pointOpacity)
 
-        this.material.size = this.pointSize
+        this.material.opacity = this.pointOpacity
+        this.material.alphaTest = this.pointOpacity/2
         this.material.needsUpdate = true
-
-        this.deemphasizedMaterial.size = this.pointSize
-        this.deemphasizedMaterial.needsUpdate = true
     }
 
     dispose () {
