@@ -133,44 +133,57 @@ class SWBDatasource extends DataSourceBase {
 
     async calculateLiveContactFrequencyMapVertexLists() {
 
-        // TODO: This is incredibly slow for large ensembles containing
-        //       many short ball & stick traces.
-
-
         showGlobalSpinner()
 
         let str = `Calculate Live Contact Frequency Map VertexLists`
         console.time(str)
 
-        const result = [];
+        const result = []
 
-        try {
 
-            for (let i = 0; i < this.vertexListCount; i++) {
+        if (true === this.isPointCloud) {
+            try {
 
-                console.log(`SWDatasource: Harvest ${ true === this.isPointCloud ? 'Pointcloud' : 'Ball & Stick' } vertices at index ${i}`)
+                for (let i = 0; i < this.vertexListCount; i++) {
 
-                const traceDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
+                    console.log(`SWDatasource: Harvest ${ true === this.isPointCloud ? 'Pointcloud' : 'Ball & Stick' } vertices at index ${i}`)
 
-                // traceValues is a flat list of N region_id, x, y, z quadruples, one after the other
-                // in one long flat list
-                const traceValues = await traceDataset.value
+                    const traceDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/spatial_position/t_${i}` )
 
-                if (true === this.isPointCloud) {
+                    // traceValues is a flat list of N region_id, x, y, z quadruples, one after the other
+                    // in one long flat list
+                    const traceValues = await traceDataset.value
+
                     const { genomicExtentList, regionXYZDictionary, regionIndexStrings } = createGenomicExtentList(traceValues, this.globaleGenomicExtentList)
                     const centroidList = genomicExtentList
                         .map((genomicExtent, index) => createPointCloudPayload(index, genomicExtent, regionIndexStrings, regionXYZDictionary))
                         .map(({ centroid }) => { return { x:centroid[0], y:centroid[1], z:centroid[2] }})
 
                     result.push(centroidList)
-                } else {
-                    result.push(createCleanFlatXYZList(traceValues))
+
                 }
 
+            } catch (error) {
+                console.error('What the heck?', error)
             }
+        } else {
 
-        } catch (error) {
-            console.error('What the heck?', error)
+            const group = await this.hdf5.get(`${ this.currentEnsembleGroupKey }`)
+            const keys = await group.keys
+            const keySet = new Set(keys)
+
+            if (keySet.has('live_contact_map_vertices')) {
+                const liveContactMapVertexListDataset = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/live_contact_map_vertices` )
+                const allTraceValues = await liveContactMapVertexListDataset.value
+                const xyzList = createCleanFlatXYZList(allTraceValues)
+
+                const howmany = this.vertexListCount
+                const traceLength = this.globaleGenomicExtentList.length
+                for (let i = 0, ts = 0; i < howmany; i++, ts += traceLength) {
+                    const trace = xyzList.slice(ts, ts + traceLength)
+                    result.push(trace)
+                }
+            }
         }
 
         console.timeEnd(str)
