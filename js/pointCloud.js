@@ -9,16 +9,18 @@ class PointCloud {
 
     constructor ({ pickHighlighter, deemphasizedColor }) {
 
-        this.pointSize = 128
-        this.pointOpacity = 0.375
-        this.deemphasizedPointOpacity = 0.125/2
-
         this.pickHighlighter = pickHighlighter;
         this.deemphasizedColor = deemphasizedColor;
 
+        this.pointSizeBoundRadiusPercentage = undefined
+        this.pointSize = undefined
+
+        this.pointOpacity = 0.375
+        this.deemphasizedPointOpacity = 0.125/2
+
         const materialConfig =
             {
-                size: this.pointSize,
+                size: 4,
                 vertexColors: true,
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
@@ -43,7 +45,7 @@ class PointCloud {
 
         const deemphasizedConfig =
             {
-                size: this.pointSize,
+                size: 4,
                 vertexColors: true,
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
@@ -76,7 +78,8 @@ class PointCloud {
 
         // Scale point size to pointcloud bbox for reasonable starting point size
         const { radius } = EnsembleManager.getTraceBounds(trace)
-        this.pointSize = Math.max(4, Math.floor(radius/16))
+
+        this.pointSize = undefined === this.pointSizeBoundRadiusPercentage ? Math.max(4, Math.floor(radius/16)) : this.pointSizeBoundRadiusPercentage * radius
 
         this.material.size = this.pointSize
         this.deemphasizedMaterial.size = this.pointSize
@@ -198,6 +201,9 @@ class PointCloud {
 
         this.deemphasizedMaterial.size = this.pointSize
         this.deemphasizedMaterial.needsUpdate = true
+
+        const { radius } = EnsembleManager.getTraceBounds(ensembleManager.currentTrace)
+        this.pointSizeBoundRadiusPercentage = this.pointSize / radius
     }
 
     updatePointTransparency(increment) {
