@@ -4,7 +4,7 @@ import {FileUtils} from 'igv-utils'
 import {SpacewalkGlobals} from './app.js'
 import DataSourceBase from './dataSourceBase.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
-import {createBoundingBoxWithFlatXYZList} from "./math.js"
+import {createBoundingBoxWithFlatXYZList, cullDuplicateXYZ} from "./math.js"
 import SpacewalkEventBus from "./spacewalkEventBus"
 import igv from "igv"
 
@@ -203,9 +203,11 @@ function createPointCloudPayload(i, genomicExtent, regionIndexStrings, regionXYZ
 
     const { interpolant } = genomicExtent
     const key = regionIndexStrings[ i ]
-    const xyz = regionXYZDictionary[ key ]
+    const xyz = cullDuplicateXYZ(regionXYZDictionary[ key ])
     const { centroid } = createBoundingBoxWithFlatXYZList(xyz)
 
+    console.warn(`Pointcloud: Did cull points from ${regionXYZDictionary[ key ].length } to ${ xyz.length }`)
+    
     return { interpolant, xyz, centroid, drawUsage: THREE.DynamicDrawUsage }
 
 }
