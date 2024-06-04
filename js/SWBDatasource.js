@@ -110,7 +110,10 @@ class SWBDatasource extends DataSourceBase {
 
             this.currentGenomicExtentList = genomicExtentList
 
-            trace = genomicExtentList.map((genomicExtent, index) => createPointCloudPayload(index, genomicExtent, regionIndexStrings, regionXYZDictionary))
+            trace = genomicExtentList.map((genomicExtent, index) => {
+                const key = regionIndexStrings[ index ]
+                return createPointCloudPayload(key, genomicExtent, regionXYZDictionary[ key ])
+            })
         } else {
 
             this.currentGenomicExtentList = this.globaleGenomicExtentList
@@ -156,7 +159,10 @@ class SWBDatasource extends DataSourceBase {
 
                     const { genomicExtentList, regionXYZDictionary, regionIndexStrings } = createGenomicExtentList(traceValues, this.globaleGenomicExtentList)
                     const centroidList = genomicExtentList
-                        .map((genomicExtent, index) => createPointCloudPayload(index, genomicExtent, regionIndexStrings, regionXYZDictionary))
+                        .map((genomicExtent, index) => {
+                            const key = regionIndexStrings[ index ]
+                            return createPointCloudPayload(key, genomicExtent, regionXYZDictionary[ key ])
+                        })
                         .map(({ centroid }) => { return { x:centroid[0], y:centroid[1], z:centroid[2] }})
 
                     result.push(centroidList)
@@ -199,15 +205,14 @@ class SWBDatasource extends DataSourceBase {
 
 }
 
-function createPointCloudPayload(i, genomicExtent, regionIndexStrings, regionXYZDictionary) {
+function createPointCloudPayload(key, genomicExtent, rawXYZ) {
 
     const { interpolant } = genomicExtent
-    const key = regionIndexStrings[ i ]
-    const xyz = cullDuplicateXYZ(regionXYZDictionary[ key ])
+    const xyz = cullDuplicateXYZ(rawXYZ)
     const { centroid } = createBoundingBoxWithFlatXYZList(xyz)
 
-    console.warn(`Pointcloud: Did cull points from ${regionXYZDictionary[ key ].length } to ${ xyz.length }`)
-    
+    console.warn(`Pointcloud: Did cull points from ${ rawXYZ.length } to ${ xyz.length }`)
+
     return { interpolant, xyz, centroid, drawUsage: THREE.DynamicDrawUsage }
 
 }
