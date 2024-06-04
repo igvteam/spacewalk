@@ -165,6 +165,17 @@ class SWBDatasource extends DataSourceBase {
                         })
                         .map(({ centroid }) => { return { x:centroid[0], y:centroid[1], z:centroid[2] }})
 
+                    const shimmed = []
+                    const regionIndexStringSet = new Set(regionIndexStrings)
+                    for (let i=0; i < this.globaleGenomicExtentList.length; i++) {
+                        const str = `${ i }`
+                        if (regionIndexStringSet.has(str)) {
+                            const index = regionIndexStrings.indexOf(str)
+                            shimmed.push(centroidList[ index ])
+                        } else {
+                            shimmed.push({ isMissingData: true })
+                        }
+                    }
                     result.push(centroidList)
 
                 }
