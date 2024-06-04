@@ -281,8 +281,8 @@ div.navbar-brand {
 
 #spacewalk-threejs-settings-button-container {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 96px;
+  left: 32px;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -301,8 +301,8 @@ div.navbar-brand {
 #spacewalk_ui_manager_panel.card {
   z-index: 2048;
   position: absolute;
-  top: 64px;
-  left: 64px;
+  top: 150px;
+  left: 32px;
   width: 300px;
   height: auto;
   background-color: rgba(0, 0, 0, 0.1);

@@ -498,6 +498,149 @@
 
     <div id="spacewalk-root-container">
 
+      <!-- Render Settings Button -->
+      <div id="spacewalk-threejs-settings-button-container">
+
+        <button id="spacewalk-threejs-settings-button" type="button" class="btn btn-default">
+          <i class="fas fa-cog fa-lg"></i>
+        </button>
+
+      </div>
+
+      <!-- Render Settings Panel -->
+      <div id="spacewalk_ui_manager_panel" class="card" style="display: none;">
+
+        <ul class="list-group list-group-flush">
+
+          <!-- PointCloud render style -->
+          <li id="spacewalk_ui_manager_pointcloud_render_style" class="list-group-item">
+
+            <!--  Point Size-->
+            <div id="spacewalk_ui_manager_pointcloud_point_size">
+              <div>
+                Point Size
+              </div>
+              <div>
+                <i class="fas fa-minus-circle"></i>
+              </div>
+              <div>
+                <i class="fas fa-plus-circle"></i>
+              </div>
+            </div>
+
+            <!--  Point Transparency -->
+            <div id="spacewalk_ui_manager_pointcloud_point_transparency">
+              <div>
+                Point Transparency
+              </div>
+              <div>
+                <i class="fas fa-minus-circle"></i>
+              </div>
+              <div>
+                <i class="fas fa-plus-circle"></i>
+              </div>
+            </div>
+
+          </li>
+
+          <!-- Ball & Stick and Ribbon render styles -->
+          <li id="spacewalk_ui_manager_render_styles" class="list-group-item">
+            <div>
+
+              <div class="form-check">
+                <input name="spacewalk-render-style" id="spacewalk-render-style-ball-stick" class="form-check-input" type="radio" checked>
+                <label class="form-check-label" for="spacewalk-render-style-ball-stick">Ball & Stick</label>
+              </div>
+
+              <div id="spacewalk-ball-radius-control" class="spacewalk-ball-stick-control">
+                <div>
+                  Ball Radius
+                </div>
+                <div>
+                  <i class="fas fa-minus-circle"></i>
+                  <i class="fas fa-plus-circle"></i>
+                </div>
+              </div>
+
+              <div id="spacewalk-stick-radius-control" class="spacewalk-ball-stick-control">
+                <div>
+                  Stick Radius
+                </div>
+                <div>
+                  <i class="fas fa-minus-circle"></i>
+                  <i class="fas fa-plus-circle"></i>
+                </div>
+              </div>
+
+              <div class="form-check">
+                <input name="spacewalk-render-style" id="spacewalk-render-style-ribbon" class="form-check-input" type="radio">
+                <label class="form-check-label" for="spacewalk-render-style-ribbon">Ribbon</label>
+              </div>
+
+            </div>
+          </li>
+
+          <!-- Ground Plane -->
+          <li class="list-group-item spacewalk-colorpicker-li">
+
+            <div class="input-group">
+
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <input id="spacewalk_ui_manager_groundplane" type="checkbox">
+                </div>
+                <div class="input-group-text">Ground Plane</div>
+              </div>
+
+              <div class="input-group-append">
+                <div class="input-group-text" data-colorpicker="groundplane"></div>
+              </div>
+
+            </div>
+
+          </li>
+
+          <!-- Axes (Gnomon) -->
+          <li class="list-group-item spacewalk-colorpicker-li">
+
+            <div class="input-group">
+
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <input id="spacewalk_ui_manager_gnomon" type="checkbox">
+                </div>
+                <span class="input-group-text">Axes</span>
+              </div>
+
+              <div class="input-group-append">
+                <div class="input-group-text" data-colorpicker="gnomon"></div>
+              </div>
+
+            </div>
+
+          </li>
+
+          <!-- Background -->
+          <li class="list-group-item spacewalk-colorpicker-li">
+
+            <div class="input-group">
+
+              <div class="input-group-prepend">
+                <span class="input-group-text">Background</span>
+              </div>
+
+              <div class="input-group-append">
+                <div class="input-group-text" data-colorpicker="background"></div>
+              </div>
+
+            </div>
+
+          </li>
+
+        </ul>
+
+      </div>
+
       <!-- Info Panel -->
       <div id="spacewalk_info_panel" style="display:none;">
 
@@ -546,149 +689,6 @@
 
           <!-- three-js canvas container -->
           <div id="spacewalk-threejs-canvas-container">
-
-            <!-- Render Settings Button -->
-            <div id="spacewalk-threejs-settings-button-container">
-
-              <button id="spacewalk-threejs-settings-button" type="button" class="btn btn-default">
-                <i class="fas fa-cog fa-lg"></i>
-              </button>
-
-            </div>
-
-            <!-- Render Settings Panel -->
-            <div id="spacewalk_ui_manager_panel" class="card" style="display: none;">
-
-              <ul class="list-group list-group-flush">
-
-                <!-- PointCloud render style -->
-                <li id="spacewalk_ui_manager_pointcloud_render_style" class="list-group-item">
-
-                  <!--  Point Size-->
-                  <div id="spacewalk_ui_manager_pointcloud_point_size">
-                    <div>
-                      Point Size
-                    </div>
-                    <div>
-                      <i class="fas fa-minus-circle"></i>
-                    </div>
-                    <div>
-                      <i class="fas fa-plus-circle"></i>
-                    </div>
-                  </div>
-
-                  <!--  Point Transparency -->
-                  <div id="spacewalk_ui_manager_pointcloud_point_transparency">
-                    <div>
-                      Point Transparency
-                    </div>
-                    <div>
-                      <i class="fas fa-minus-circle"></i>
-                    </div>
-                    <div>
-                      <i class="fas fa-plus-circle"></i>
-                    </div>
-                  </div>
-
-                </li>
-
-                <!-- Ball & Stick and Ribbon render styles -->
-                <li id="spacewalk_ui_manager_render_styles" class="list-group-item">
-                  <div>
-
-                    <div class="form-check">
-                      <input name="spacewalk-render-style" id="spacewalk-render-style-ball-stick" class="form-check-input" type="radio" checked>
-                      <label class="form-check-label" for="spacewalk-render-style-ball-stick">Ball & Stick</label>
-                    </div>
-
-                    <div id="spacewalk-ball-radius-control" class="spacewalk-ball-stick-control">
-                      <div>
-                        Ball Radius
-                      </div>
-                      <div>
-                        <i class="fas fa-minus-circle"></i>
-                        <i class="fas fa-plus-circle"></i>
-                      </div>
-                    </div>
-
-                    <div id="spacewalk-stick-radius-control" class="spacewalk-ball-stick-control">
-                      <div>
-                        Stick Radius
-                      </div>
-                      <div>
-                        <i class="fas fa-minus-circle"></i>
-                        <i class="fas fa-plus-circle"></i>
-                      </div>
-                    </div>
-
-                    <div class="form-check">
-                      <input name="spacewalk-render-style" id="spacewalk-render-style-ribbon" class="form-check-input" type="radio">
-                      <label class="form-check-label" for="spacewalk-render-style-ribbon">Ribbon</label>
-                    </div>
-
-                  </div>
-                </li>
-
-                <!-- Ground Plane -->
-                <li class="list-group-item spacewalk-colorpicker-li">
-
-                  <div class="input-group">
-
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">
-                        <input id="spacewalk_ui_manager_groundplane" type="checkbox">
-                      </div>
-                      <div class="input-group-text">Ground Plane</div>
-                    </div>
-
-                    <div class="input-group-append">
-                        <div class="input-group-text" data-colorpicker="groundplane"></div>
-                    </div>
-
-                  </div>
-
-                </li>
-
-                <!-- Axes (Gnomon) -->
-                <li class="list-group-item spacewalk-colorpicker-li">
-
-                  <div class="input-group">
-
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">
-                        <input id="spacewalk_ui_manager_gnomon" type="checkbox">
-                      </div>
-                      <span class="input-group-text">Axes</span>
-                    </div>
-
-                    <div class="input-group-append">
-                      <div class="input-group-text" data-colorpicker="gnomon"></div>
-                    </div>
-
-                  </div>
-
-                </li>
-
-                <!-- Background -->
-                <li class="list-group-item spacewalk-colorpicker-li">
-
-                  <div class="input-group">
-
-                    <div class="input-group-prepend">
-                      <span class="input-group-text">Background</span>
-                    </div>
-
-                    <div class="input-group-append">
-                      <div class="input-group-text" data-colorpicker="background"></div>
-                    </div>
-
-                  </div>
-
-                </li>
-
-              </ul>
-
-            </div>
 
             <div id="spacewalk-threejs-canvas-center-dot" style="display: none;">
 
