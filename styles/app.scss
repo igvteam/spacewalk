@@ -24,6 +24,11 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
 @import "ui_manager";
 @import "info_panel";
 
+#spacewalk-info-menu-container {
+  color:unset;
+  width: max-content;
+}
+
 #spacewalk-root-container {
   position: absolute;
   top: 0;

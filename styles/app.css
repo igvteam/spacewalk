@@ -455,6 +455,11 @@ div#spacewalk_info_panel > div > div:last-child {
   margin-left: 8px;
 }
 
+#spacewalk-info-menu-container {
+  color: unset;
+  width: max-content;
+}
+
 #spacewalk-root-container {
   position: absolute;
   top: 0;

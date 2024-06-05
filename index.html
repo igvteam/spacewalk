@@ -126,7 +126,9 @@
 
   <nav class="navbar fixed-top py-0 navbar-expand-sm navbar-dark bg-dark justify-content-between" style="display: none;">
 
-    <div class="navbar-brand text-center align-middle">SpaceWalk</div>
+    <div class="navbar-brand text-center align-middle">
+      SpaceWalk
+    </div>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#spacewalk-navbar-content">
       <span class="navbar-toggler-icon"></span>
@@ -142,7 +144,7 @@
           <div class="dropdown ml-2 mt-1">
 
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              Spacewalk
+              File
             </a>
 
             <ul id="spacewalk-file-dropdown" class="dropdown-menu">
@@ -216,13 +218,121 @@
 
         </li>
 
+        <!-- trace-select widget -->
+        <div class="ml-2 input-group">
+          <input type="text" class="form-control text-center" id="spacewalk_trace_select_input">
+          <div class="input-group-append">
+            <button id="spacewalk_trace_select_button_minus" class="btn btn-light  btn-sm" type="button"><i class="fas fa-minus"></i></button>
+            <button id="spacewalk_trace_select_button_plus" class="btn btn-light  btn-sm" type="button"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
+
+        <!-- Share (generate URL) -->
+        <li class="nav-item">
+          <div class="ml-2 mt-1">
+            <a id="igv-app-share-button" href="#"  class="nav-link" data-toggle="modal" data-target="#igv-app-share-modal">
+              Share
+            </a>
+          </div>
+        </li>
+
+        <!-- Session -->
+        <li class="nav-item">
+          <div class="dropdown ml-2 mt-1">
+
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+              Session
+            </a>
+
+            <div id="spacewalk-session-dropdown-menu" class="dropdown-menu">
+
+              <!-- Session Local file -->
+              <label class="dropdown-item btn btn-default btn-file">
+                <div class="igv-app-dropdown-item-cloud-storage">
+                  <div>
+                    Local File ...
+                  </div>
+                  <div>
+                    <input id="igv-app-dropdown-local-session-file-input" type="file" name="file" style="display: none;">
+                  </div>
+                </div>
+              </label>
+
+              <!-- Session Dropbox -->
+
+              <!-- Session Google Drive -->
+
+              <!-- Session URL -->
+              <button class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-session-url-modal">
+                Load URL ...
+              </button>
+
+              <div class="dropdown-divider"></div>
+
+              <!-- Save Session Local file -->
+              <button class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-session-save-modal">
+                Save ...
+              </button>
+
+            </div>
+
+          </div>
+        </li>
+
+        <!-- View -->
+        <li class="nav-item">
+          <div class="dropdown ml-2 mt-1">
+
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+              View
+            </a>
+
+            <ul id="spacewalk-viewers-dropdown-menu" class="dropdown-menu checkbox-menu allow-focus">
+
+              <!-- IGV Viewer -->
+              <li >
+                <label>
+                  <input id="spacewalk_ui_manager_ui_controls_igv" data-target="spacewalk_igv_panel" type="checkbox">
+                  Show IGV
+                </label>
+              </li>
+
+              <!-- Juicebox Viewer -->
+              <li >
+                <label>
+                  <input id="spacewalk_ui_manager_ui_controls_juicebox" data-target="spacewalk_juicebox_panel" type="checkbox">
+                  Show Juicebox
+                </label>
+              </li>
+
+              <!-- Contact Frequency Map -->
+              <li >
+                <label>
+                  <input id="spacewalk_ui_manager_ui_controls_contact_frequency_map" data-target="spacewalk_contact_frequency_map_panel" type="checkbox">
+                  Show Contact Frequency Map
+                </label>
+              </li>
+
+              <!-- Distance Map -->
+              <li >
+                <label>
+                  <input id="spacewalk_ui_manager_ui_controls_distance_map" data-target="spacewalk_distance_map_panel" type="checkbox">
+                  Show Distance Map
+                </label>
+              </li>
+
+            </ul>
+
+          </div>
+        </li>
+
         <!-- IGV Files -->
         <li class="nav-item">
 
           <div class="dropdown ml-2 mt-1">
 
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              IGV
+              IGV Files
             </a>
 
             <ul id="spacewalk-track-dropdown-menu"  class="dropdown-menu">
@@ -284,7 +394,7 @@
           <div class="dropdown ml-2 mt-1">
 
             <a id="hic-contact-map-dropdown" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              Juicebox
+              Juicebox Files
             </a>
 
             <ul class="dropdown-menu">
@@ -365,114 +475,6 @@
 
         </li>
 
-        <!-- View -->
-        <li class="nav-item">
-          <div class="dropdown ml-2 mt-1">
-
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              View
-            </a>
-
-            <ul id="spacewalk-viewers-dropdown-menu" class="dropdown-menu checkbox-menu allow-focus">
-
-              <!-- IGV Viewer -->
-              <li >
-                <label>
-                  <input id="spacewalk_ui_manager_ui_controls_igv" data-target="spacewalk_igv_panel" type="checkbox">
-                  Show IGV
-                </label>
-              </li>
-
-              <!-- Juicebox Viewer -->
-              <li >
-                <label>
-                  <input id="spacewalk_ui_manager_ui_controls_juicebox" data-target="spacewalk_juicebox_panel" type="checkbox">
-                  Show Juicebox
-                </label>
-              </li>
-
-              <!-- Contact Frequency Map -->
-              <li >
-                <label>
-                  <input id="spacewalk_ui_manager_ui_controls_contact_frequency_map" data-target="spacewalk_contact_frequency_map_panel" type="checkbox">
-                  Show Contact Frequency Map
-                </label>
-              </li>
-
-              <!-- Distance Map -->
-              <li >
-                <label>
-                  <input id="spacewalk_ui_manager_ui_controls_distance_map" data-target="spacewalk_distance_map_panel" type="checkbox">
-                  Show Distance Map
-                </label>
-              </li>
-
-            </ul>
-
-          </div>
-        </li>
-
-        <!-- trace-select widget -->
-        <div class="ml-2 input-group">
-          <input type="text" class="form-control text-center" id="spacewalk_trace_select_input">
-          <div class="input-group-append">
-            <button id="spacewalk_trace_select_button_minus" class="btn btn-light  btn-sm" type="button"><i class="fas fa-minus"></i></button>
-            <button id="spacewalk_trace_select_button_plus" class="btn btn-light  btn-sm" type="button"><i class="fas fa-plus"></i></button>
-          </div>
-        </div>
-
-        <!-- Session -->
-        <li class="nav-item">
-          <div class="dropdown ml-2 mt-1">
-
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              Session
-            </a>
-
-            <div id="spacewalk-session-dropdown-menu" class="dropdown-menu">
-
-              <!-- Session Local file -->
-              <label class="dropdown-item btn btn-default btn-file">
-                <div class="igv-app-dropdown-item-cloud-storage">
-                  <div>
-                    Local File ...
-                  </div>
-                  <div>
-                    <input id="igv-app-dropdown-local-session-file-input" type="file" name="file" style="display: none;">
-                  </div>
-                </div>
-              </label>
-
-              <!-- Session Dropbox -->
-
-              <!-- Session Google Drive -->
-
-              <!-- Session URL -->
-              <button class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-session-url-modal">
-                Load URL ...
-              </button>
-
-              <div class="dropdown-divider"></div>
-
-              <!-- Save Session Local file -->
-              <button class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-session-save-modal">
-                Save ...
-              </button>
-
-            </div>
-
-          </div>
-        </li>
-
-        <!-- Share (generate URL) -->
-        <li class="nav-item">
-          <div class="ml-2 mt-1">
-            <a id="igv-app-share-button" href="#"  class="nav-link" data-toggle="modal" data-target="#igv-app-share-modal">
-              Share
-            </a>
-          </div>
-        </li>
-
       </ul>
 
     </div>
@@ -480,13 +482,16 @@
     <div id="spacewalk-help-icon-container" class="btn-group dropleft mr-2">
 
       <div class="dropdown">
-        <button id="dropdownMenuButton" type="button" data-toggle="dropdown" class="btn dropdown-toggle">
+        <button type="button" data-toggle="dropdown" class="btn dropdown-toggle">
           <span class="fas fa-info-circle"></span>
         </button>
 
-        <div class="dropdown-menu">
-          <a href="https://github.com/igvteam/spacewalk#spacewalk" target="_blank" class="nav-link">Spacewalk Project</a>
-          <a href="https://github.com/turner/sw2swb/wiki/The-Spacewalk-Binary-File-Format" target="_blank" class="nav-link">Spacewalk File Format</a>
+        <div id="spacewalk-info-menu-container" class="dropdown-menu">
+          <a href="https://github.com/igvteam/spacewalk#spacewalk" target="_blank" class="dropdown-item">Github</a>
+          <div class="dropdown-divider"></div>
+          <a href="https://github.com/turner/sw2swb/wiki/The-Spacewalk-Binary-File-Format" target="_blank" class="dropdown-item">File Format</a>
+          <div class="dropdown-divider"></div>
+          <a id="spacewalk-info-menu-release" class="dropdown-item" href="#"></a>
         </div>
       </div>
 

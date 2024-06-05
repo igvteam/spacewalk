@@ -29,10 +29,12 @@ import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from './contactMapLoad.js'
 import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
 import { showGlobalSpinner, hideGlobalSpinner } from './utils.js'
+import {showRelease} from "./release.js"
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
 import '../styles/igv/dom.scss'
 import '../styles/juicebox.scss'
+
 
 
 let stats
@@ -101,6 +103,10 @@ document.addEventListener("DOMContentLoaded", async (event) => {
         }
     }
 
+    const { tag_name } = await showRelease()
+    document.querySelector('#spacewalk-info-menu-release').innerHTML = `Spacewalk release ${ tag_name }`
+    console.log(`Spacewalk release ${ tag_name }`)
+
     await initializationHelper(container)
 
     hideGlobalSpinner()
@@ -161,7 +167,7 @@ const initializationHelper = async container => {
     //
     // perfFolder.__ul.appendChild( guiStatsEl )
     // perfFolder.open()
-    
+
     await loadSessionURL(spacewalkSessionURL)
 
     document.querySelector('.navbar').style.display = 'flex'
