@@ -55,10 +55,12 @@ class SceneManager {
         this.scene = scene;
 
         this.colorPicker = configureColorPicker(document.querySelector(`div[data-colorpicker='background']`), this.scene.background, color => {
-            this.scene.background = color
+            this.background = color
+            this.scene.background = this.background
+
         })
 
-        const { r, g, b } = this.scene.background
+        const { r, g, b } = this.background
         updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='background']`), { r, g, b })
 
         this.cameraLightingRig = cameraLightingRig;
