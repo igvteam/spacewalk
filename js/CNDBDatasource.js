@@ -67,7 +67,7 @@ class CNDBDatasource extends DataSourceBase {
         if (undefined === this.header.chromosome) {
             console.warn(`CNDBDatasource - no chromosome defined in header`)
         }
-        
+
         const chr = this.header.chromosome || 'all'
         console.log(`CNDBDatasource - chromosome ${ chr }`)
 
@@ -177,7 +177,7 @@ class CNDBDatasource extends DataSourceBase {
 
     }
 
-    getLiveContactFrequencyMapVertexLists() {
+    getLiveMapVertexLists() {
 
         if (this.isPointCloud) {
             return undefined

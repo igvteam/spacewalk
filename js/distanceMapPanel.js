@@ -50,7 +50,7 @@ class DistanceMapPanel extends Panel {
 
             document.querySelector('#spacewalk-distance-map-spinner').style.display = 'none'
 
-            const traceLength = ensembleManager.getTraceLength()
+            const traceLength = ensembleManager.getLiveMapTraceLength()
 
             if (undefined === canvasArray) {
                 canvasArray = new Uint8ClampedArray(traceLength * traceLength * 4)
@@ -80,7 +80,7 @@ class DistanceMapPanel extends Panel {
 
             if (false === this.isHidden) {
                 const { trace } = data
-                this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), trace)
+                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), trace)
                 this.doUpdateTrace = undefined
             } else {
                 this.doUpdateTrace = true
@@ -92,9 +92,9 @@ class DistanceMapPanel extends Panel {
             this.doUpdateTrace = this.doUpdateEnsemble = true
 
             if (false === this.isHidden) {
-                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
                 const { trace } = data
-                this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), trace)
+                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), trace)
                 this.doUpdateTrace = this.doUpdateEnsemble = undefined
             }
 
@@ -106,12 +106,12 @@ class DistanceMapPanel extends Panel {
     present() {
 
         if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleAverageDistanceCanvas(ensembleManager.getTraceLength(), ensembleManager.getLiveContactFrequencyMapVertexLists())
+            this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
             this.doUpdateEnsemble = undefined
         }
 
         if (true === this.doUpdateTrace) {
-            this.updateTraceDistanceCanvas(ensembleManager.getTraceLength(), ensembleManager.currentTrace)
+            this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
             this.doUpdateTrace = undefined
         }
 
@@ -125,7 +125,7 @@ class DistanceMapPanel extends Panel {
 
         document.querySelector('#spacewalk-distance-map-spinner').style.display = 'block'
 
-        const vertices = ensembleManager.getEnsembleTraceVertices(trace)
+        const vertices = ensembleManager.getLiveMapTraceVertices(trace)
 
         const data =
             {

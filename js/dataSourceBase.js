@@ -39,7 +39,7 @@ class DataSourceBase {
         return undefined
     }
 
-    getLiveContactFrequencyMapVertexLists(){
+    getLiveMapVertexLists(){
         console.warn('Warning: Dataset - base class method called getLiveContactFrequencyMapVertexLists()')
         return []
     }

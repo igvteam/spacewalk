@@ -70,7 +70,7 @@ class ContactFrequencyMapPanel extends Panel {
             console.log(`Contact Frequency ${ data.traceOrEnsemble } map received from worker`)
 
 
-            allocateContactFrequencyArray(ensembleManager.getTraceLength())
+            allocateContactFrequencyArray(ensembleManager.getLiveMapTraceLength())
 
             if ('ensemble' === data.traceOrEnsemble) {
 
@@ -78,7 +78,7 @@ class ContactFrequencyMapPanel extends Panel {
                 await renderArrayToCanvas(this.ctx_ensemble, ensembleContactFrequencyArray)
 
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-                const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, ensembleManager.getTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
+                const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, ensembleManager.getLiveMapTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
 
                 await hic.getCurrentBrowser().contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, ensembleContactFrequencyArray)
 
@@ -130,12 +130,12 @@ class ContactFrequencyMapPanel extends Panel {
         showGlobalSpinner()
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
-        const vertices = ensembleManager.getEnsembleTraceVertices(ensembleManager.currentTrace)
+        const vertices = ensembleManager.getLiveMapTraceVertices(ensembleManager.currentTrace)
 
         const data =
             {
                 traceOrEnsemble: 'trace',
-                traceLength: ensembleManager.getTraceLength(),
+                                        traceLength: ensembleManager.getLiveMapTraceLength(),
                 verticesString: JSON.stringify(vertices),
                 distanceThreshold: this.distanceThreshold
             }
@@ -154,8 +154,8 @@ class ContactFrequencyMapPanel extends Panel {
         const data =
             {
                 traceOrEnsemble: 'ensemble',
-                traceLength: ensembleManager.getTraceLength(),
-                vertexListsString: JSON.stringify( ensembleManager.getLiveContactFrequencyMapVertexLists() ),
+                traceLength: ensembleManager.getLiveMapTraceLength(),
+                vertexListsString: JSON.stringify( ensembleManager.getLiveMapVertexLists()),
                 distanceThreshold: this.distanceThreshold
             }
 

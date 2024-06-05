@@ -100,6 +100,8 @@ class SWBDatasource extends DataSourceBase {
         const traceValues = await traceDataset.value
         console.timeEnd(str)
 
+        this.currentTraceIndex = i
+
         str = `createTrace() - build ${ true === this.isPointCloud ? 'pointcloud' : 'ball & stick' } trace`
         console.time(str)
 
@@ -134,7 +136,7 @@ class SWBDatasource extends DataSourceBase {
 
     }
 
-    async calculateLiveContactFrequencyMapVertexLists() {
+    async calculateLiveMapVertexLists() {
 
         showGlobalSpinner()
 
@@ -176,7 +178,7 @@ class SWBDatasource extends DataSourceBase {
                             shimmed.push({ isMissingData: true })
                         }
                     }
-                    result.push(centroidList)
+                    result.push(shimmed)
 
                 }
 
@@ -210,8 +212,12 @@ class SWBDatasource extends DataSourceBase {
         this.liveContactFrequencyMapVertexLists = result
     }
 
-    getLiveContactFrequencyMapVertexLists(){
+    getLiveMapVertexLists(){
         return this.liveContactFrequencyMapVertexLists
+    }
+
+    getLiveMapTraceVertices(trace) {
+        return this.liveContactFrequencyMapVertexLists[ this.currentTraceIndex ]
     }
 
 }
