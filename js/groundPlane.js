@@ -106,7 +106,7 @@ export const groundPlaneConfigurator = (position, size) => {
         size,
         divisions: 16,
         position,
-        color: appleCrayonColorThreeJS( 'mercury'),
+        color: appleCrayonColorThreeJS( 'iron'),
         opacity: 0.25,
         isHidden: doConfigureGroundplaneHidden()
     }
