@@ -1,0 +1,38 @@
+name: Build and Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # Use the Node.js version that your project requires
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Archive built files
+        run: |
+          mkdir -p build
+          cp -r dist/* build/  # Adjust this to match your build output directory
+          tar -czf build.tar.gz -C build .
+
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: build.tar.gz
+          asset_name: build.tar.gz
+          asset_content_type: application/gzip
