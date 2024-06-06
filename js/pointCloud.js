@@ -16,7 +16,7 @@ class PointCloud {
         this.pointSize = undefined
 
         this.pointOpacity = 0.375
-        this.deemphasizedPointOpacity = 0.125/2
+        this.deemphasizedPointOpacity = 0.125/4
 
         const materialConfig =
             {
@@ -51,11 +51,11 @@ class PointCloud {
                 sizeAttenuation: true,
 
                 // Do NOT participate in depth testing or depth writing
-                // depthTest: false,
-                // depthWrite: false,
+                depthTest: false,
+                depthWrite: false,
 
-                depthTest: true,
-                depthWrite: true,
+                // depthTest: true,
+                // depthWrite: true,
 
 
                 transparent: true,
