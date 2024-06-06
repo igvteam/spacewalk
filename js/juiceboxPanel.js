@@ -98,7 +98,7 @@ class JuiceboxPanel extends Panel {
         document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', async e => {
 
             if (ensembleManager.datasource instanceof SWBDatasource) {
-                await ensembleManager.datasource.calculateLiveContactFrequencyMapVertexLists()
+                await ensembleManager.datasource.calculateLiveMapVertexLists()
             }
 
             contactFrequencyMapPanel.calculateContactFrequencies()

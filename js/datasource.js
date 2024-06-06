@@ -189,14 +189,14 @@ class Datasource extends DataSourceBase {
         return trace
     }
 
-    getLiveContactFrequencyMapVertexLists() {
+    getLiveMapVertexLists() {
         const values = Object.values(this.dictionary)
         return values.map(traceDictionary => {
-            return this.getLiveContactFrequencyMapDatasetVertices(traceDictionary.vertexDictionary)
+            return this.getLiveMapVertices(traceDictionary.vertexDictionary)
         })
     }
 
-    getLiveContactFrequencyMapDatasetVertices(vertexDictionary) {
+    getLiveMapVertices(vertexDictionary) {
 
         return Object.values(vertexDictionary)
             .map(row => {

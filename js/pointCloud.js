@@ -2,8 +2,8 @@ import * as THREE from "three";
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {ensembleManager, igvPanel, pointCloud, sceneManager} from "./app.js";
 import {StringUtils} from "igv-utils";
-
-const pointSize = 128;
+import EnsembleManager from "./ensembleManager"
+import {clamp} from "./math"
 
 class PointCloud {
 
@@ -12,15 +12,32 @@ class PointCloud {
         this.pickHighlighter = pickHighlighter;
         this.deemphasizedColor = deemphasizedColor;
 
+        this.pointSizeBoundRadiusPercentage = undefined
+        this.pointSize = undefined
+
+        this.pointOpacity = 0.375
+        this.deemphasizedPointOpacity = 0.125/2
+
         const materialConfig =
             {
-                size: pointSize,
+                size: 4,
                 vertexColors: true,
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
-                alphaTest: 0.5,
+
+                depthTest: true,
+                depthWrite: true,
+
+                // depthTest: false,
+                // depthWrite: false,
+
                 transparent: true,
-                depthTest: true
+
+                opacity: this.pointOpacity,
+                // NOTE: alphaTest value must ALWAYS be less than opacity value
+                // If not, nothing will appear onscreen
+                alphaTest: this.pointOpacity/2,
+
             };
 
         this.material = new THREE.PointsMaterial( materialConfig );
@@ -28,21 +45,26 @@ class PointCloud {
 
         const deemphasizedConfig =
             {
-                size: pointSize,
+                size: 4,
                 vertexColors: true,
-                // map: new THREE.TextureLoader().load( "texture/blank.png" ),
                 map: new THREE.TextureLoader().load( "texture/dot.png" ),
                 sizeAttenuation: true,
-                alphaTest: 0.5,
 
-                // NOTE: Turning off transparency makes the deemphasized points a backdrop for
-                //       the highlighted points
-                // transparent: true,
-                transparent: false,
+                // Do NOT participate in depth testing or depth writing
+                // depthTest: false,
+                // depthWrite: false,
 
-                // Do not participate in depth testing
-                // depthTest: true
-                depthTest: false
+                depthTest: true,
+                depthWrite: true,
+
+
+                transparent: true,
+
+                opacity: this.deemphasizedPointOpacity,
+                // NOTE: alphaTest value must ALWAYS be less than opacity value
+                // If not, nothing will appear onscreen
+                alphaTest: this.deemphasizedPointOpacity/2,
+
             };
 
         this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );
@@ -52,33 +74,17 @@ class PointCloud {
         SpacewalkEventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
-    receiveEvent({ type, data }) {
-
-        if (this.meshList && "DidUpdateGenomicInterpolant" === type && PointCloud.getRenderStyle() === sceneManager.renderStyle) {
-
-            const { interpolantList } = data;
-
-            const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
-
-            if (interpolantWindowList) {
-                const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ])
-                this.pickHighlighter.highlightWithObjectList(objectList)
-            }
-
-        } else if ("DidLeaveGenomicNavigator" === type) {
-            this.pickHighlighter.unhighlight()
-        }
-
-    }
-
     configure(trace) {
 
-        //  const sum = array.reduce((total, item) => total + item);
-        const list = trace.map(({ xyz }) => xyz.length / 3)
-        // for (const length of list) {
-        //     console.log(`Point cloud cluster(${ list.indexOf(length) }) ${ StringUtils.numberFormatter(length)} points`)
-        // }
+        // Scale point size to pointcloud bbox for reasonable starting point size
+        const { radius } = EnsembleManager.getTraceBounds(trace)
 
+        this.pointSize = undefined === this.pointSizeBoundRadiusPercentage ? Math.max(4, Math.floor(radius/16)) : this.pointSizeBoundRadiusPercentage * radius
+
+        this.material.size = this.pointSize
+        this.deemphasizedMaterial.size = this.pointSize
+
+        const list = trace.map(({ xyz }) => xyz.length / 3)
         const sum = list.reduce((total, item) => total + item)
 
         const str = `PointCloud. trace(${ trace.length }) points(${ StringUtils.numberFormatter(sum)})`
@@ -102,7 +108,7 @@ class PointCloud {
                 setGeometryColorAttribute(geometry.userData.colorAttribute.array, rgb)
                 geometry.setAttribute('color', geometry.userData.colorAttribute)
 
-                // retain a copy of emphasise color for use during highlight/unhighlight
+                // retain a copy of deemphasis color for use during highlight/unhighlight
                 geometry.userData.deemphasisColorAttribute = new THREE.Float32BufferAttribute(new Float32Array(xyz.length * 3), 3)
                 setGeometryColorAttribute(geometry.userData.deemphasisColorAttribute.array, pointCloud.deemphasizedColor)
 
@@ -114,6 +120,25 @@ class PointCloud {
         sceneManager.renderStyle === PointCloud.getRenderStyle() ? this.show() : this.hide()
 
         console.timeEnd(str)
+
+    }
+
+    receiveEvent({ type, data }) {
+
+        if (this.meshList && "DidUpdateGenomicInterpolant" === type && PointCloud.getRenderStyle() === sceneManager.renderStyle) {
+
+            const { interpolantList } = data;
+
+            const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
+
+            if (interpolantWindowList) {
+                const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ])
+                this.pickHighlighter.highlightWithObjectList(objectList)
+            }
+
+        } else if ("DidLeaveGenomicNavigator" === type) {
+            this.pickHighlighter.unhighlight()
+        }
 
     }
 
@@ -165,6 +190,30 @@ class PointCloud {
                 mesh.visible = true;
             }
         }
+    }
+
+    updatePointSize(increment) {
+
+        this.pointSize += increment < 0 ? -32 : 32
+
+        this.material.size = this.pointSize
+        this.material.needsUpdate = true
+
+        this.deemphasizedMaterial.size = this.pointSize
+        this.deemphasizedMaterial.needsUpdate = true
+
+        const { radius } = EnsembleManager.getTraceBounds(ensembleManager.currentTrace)
+        this.pointSizeBoundRadiusPercentage = this.pointSize / radius
+    }
+
+    updatePointTransparency(increment) {
+
+        this.pointOpacity += (increment < 0 ? -1 : 1) * (10 / 100) * this.pointOpacity
+        this.pointOpacity = clamp(1/10, 9/10, this.pointOpacity)
+
+        this.material.opacity = this.pointOpacity
+        this.material.alphaTest = this.pointOpacity/2
+        this.material.needsUpdate = true
     }
 
     dispose () {

@@ -7,6 +7,7 @@ import Datasource from './datasource.js'
 import SWBDatasource from "./SWBDatasource.js"
 import CNDBParser from "./CNDBParser.js"
 import CNDBDatasource from "./CNDBDatasource.js"
+import {ensembleManager} from "./app"
 
 class EnsembleManager {
 
@@ -82,10 +83,6 @@ class EnsembleManager {
         return await this.datasource.createTrace(i)
     }
 
-    getTraceLength() {
-        return this.currentTrace.length
-    }
-
     async getTraceCount() {
         return await this.datasource.getVertexListCount()
     }
@@ -114,18 +111,29 @@ class EnsembleManager {
         return 0 === interpolantWindowList.length ? undefined : interpolantWindowList;
     }
 
-    getLiveContactFrequencyMapVertexLists() {
-        return this.datasource.getLiveContactFrequencyMapVertexLists()
+    getLiveMapTraceLength() {
+        if (this.datasource instanceof SWBDatasource && true === this.isPointCloud) {
+            return this.datasource.globaleGenomicExtentList.length
+        } else {
+            return this.currentTrace.length
+        }
     }
 
-    getEnsembleTraceVertices(ensembleTrace) {
+    getLiveMapVertexLists() {
+        return this.datasource.getLiveMapVertexLists()
+    }
 
-        return ensembleTrace
-            .map(record => {
-                const { x, y, z, isMissingData } = true === this.isPointCloud ? record.centroid : record.xyz
-                return true === isMissingData ? { isMissingData } : { x, y, z }
-            })
+    getLiveMapTraceVertices(trace) {
 
+        if (this.datasource instanceof SWBDatasource && true === this.isPointCloud) {
+            return this.datasource.getLiveMapTraceVertices(trace)
+        } else {
+            return trace
+                .map(record => {
+                    const { x, y, z, isMissingData } = true === this.isPointCloud ? record.centroid : record.xyz
+                    return true === isMissingData ? { isMissingData } : { x, y, z }
+                })
+        }
     }
 
     static getTraceBounds(trace){

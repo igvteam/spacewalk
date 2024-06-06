@@ -13,6 +13,7 @@ import { appleCrayonColorThreeJS } from "./color.js"
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js"
 import Ribbon from './ribbon.js'
 import {degrees} from "./math.js"
+import {configureColorPicker, updateColorPicker} from "./guiManager.js"
 import {
     pointCloud,
     ribbon,
@@ -23,6 +24,7 @@ import {
     igvPanel,
     colorRampMaterialProvider
 } from "./app.js"
+
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -51,6 +53,15 @@ class SceneManager {
 
         // stub configuration
         this.scene = scene;
+
+        this.colorPicker = configureColorPicker(document.querySelector(`div[data-colorpicker='background']`), this.scene.background, color => {
+            this.background = color
+            this.scene.background = this.background
+
+        })
+
+        const { r, g, b } = this.background
+        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='background']`), { r, g, b })
 
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
@@ -361,7 +372,6 @@ const sceneManagerConfigurator = (container) => {
     const str = `Scene Manager Configuration Builder Complete`;
     console.time(str);
 
-
     // Opt out of linear color workflow for now
     // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
     // THREE.ColorManagement.enabled = false;
@@ -369,16 +379,12 @@ const sceneManagerConfigurator = (container) => {
     // Enable linear color workflow
     THREE.ColorManagement.enabled = true;
 
-
-
     // const stickMaterial = showSMaterial;
     // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
     const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
     stickMaterial.side = THREE.DoubleSide;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-
-
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
     // Opt out of linear color workflow for now
     // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
@@ -386,8 +392,6 @@ const sceneManagerConfigurator = (container) => {
 
     // Enable linear color workflow
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-
-
 
     // renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
     // renderer.setClearColor (appleCrayonColorThreeJS('strawberry'));
@@ -405,8 +409,9 @@ const sceneManagerConfigurator = (container) => {
     const centroid = new THREE.Vector3(133394, 54542, 4288);
     cameraLightingRig.setPose(position, centroid);
 
+    const background = appleCrayonColorThreeJS('snow');
     // const background = appleCrayonColorThreeJS('nickel');
-    const background = sceneBackgroundTexture;
+    // const background = sceneBackgroundTexture;
 
     const scene = new THREE.Scene();
     scene.background = background;

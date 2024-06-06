@@ -1,9 +1,9 @@
 
-$spacewalk-threejs-settings-button-container_top: 16px;
-$spacewalk-threejs-settings-button-container_left: 16px;
+$spacewalk-threejs-settings-button-container_top: 96px;
+$spacewalk-threejs-settings-button-container_left: 32px;
 
-$spacewalk_ui_manager_panel_top: 64px;
-$spacewalk_ui_manager_panel_left: 64px;
+$spacewalk_ui_manager_panel_top: 150px;
+$spacewalk_ui_manager_panel_left: 32px;
 
 $spacewalk_ui_manager_panel_width: 300px;
 $spacewalk_ui_manager_margin: 6px;
@@ -47,7 +47,7 @@ $spacewalk-ball-stick-control-y-margin: 4px;
   width: $spacewalk_ui_manager_panel_width;
   height: auto;
 
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(0, 0, 0, 0.1);
   border-color: $spacewalk_tungsten;
 
   .list-group {
@@ -66,16 +66,40 @@ $spacewalk-ball-stick-control-y-margin: 4px;
   .list-group:last-child {
     margin-bottom: unset;
   }
+}
 
-  li {
+li.spacewalk-colorpicker-li {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  input {
+    cursor: pointer;
+    display: block;
+  }
+}
+
+li#spacewalk_ui_manager_pointcloud_render_style {
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+
+  >div {
+    width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: flex-start;
     align-items: center;
-    input {
-      cursor: pointer;
-      display: block;
+    >div {
+      margin-right: 8px;
+    }
+    >div:first-child {
+      margin-right: 16px;
     }
   }
 }

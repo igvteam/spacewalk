@@ -215,7 +215,7 @@ export const gnomonConfigurator = (min, max, boundingDiameter) => {
         min,
         max,
         boundingDiameter,
-        color: appleCrayonColorThreeJS('snow'),
+        color: appleCrayonColorThreeJS('iron'),
         isHidden: doConfigureGnomonHidden()
     }
 

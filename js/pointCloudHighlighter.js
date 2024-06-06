@@ -30,6 +30,10 @@ class PointCloudHighlighter {
 
             for (const mesh of pointCloud.meshList) {
                 mesh.material = pointCloud.deemphasizedMaterial
+
+                // Ensure deemphasized points are drawn BEFORE highlighted points
+                mesh.renderOrder = 0;
+
                 mesh.geometry.setAttribute('color', mesh.geometry.userData.deemphasisColorAttribute)
                 mesh.geometry.attributes.color.needsUpdate = true
             }
@@ -37,6 +41,9 @@ class PointCloudHighlighter {
             for (const mesh of this.objects) {
 
                 mesh.material = pointCloud.material
+
+                // Ensure highlighted points are drawn AFTER deemphasized points
+                mesh.renderOrder = 1;
 
                 const index = pointCloud.meshList.indexOf(mesh)
                 const { interpolant } = ensembleManager.currentTrace[ index ]

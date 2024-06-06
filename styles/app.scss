@@ -8,7 +8,7 @@ $spacewalk-threejs-drag-container-height: 32px;
 
 $spacewalk-trace-navigator-width: 48px;
 $spacewalk-trace-navigator-label-height: 32px;
-$spacewalk-trace-navigator-canvas-width: 40px;
+$spacewalk-trace-navigator-canvas-width: 46px;
 
 $spacewalk-threejs-canvas-center-dot-radius:6px;
 
@@ -23,6 +23,11 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
 @import "igv_panel";
 @import "ui_manager";
 @import "info_panel";
+
+#spacewalk-info-menu-container {
+  color:unset;
+  width: max-content;
+}
 
 #spacewalk-root-container {
   position: absolute;
@@ -54,7 +59,8 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
 
     width: 100%;
     height: $spacewalk-threejs-drag-container-height;
-    background-color: $spacewalk_snow;
+    //background-color: $spacewalk_snow;
+    background-color: rgba(0, 0, 0, 0.2);
 
     cursor: grab;
 
@@ -73,11 +79,24 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
     justify-content: flex-start;
     align-items: flex-start;
 
+    border-left-style: solid;
+    border-left-width: thin;
+    border-left-color: black;
+
+    border-bottom-style: solid;
+    border-bottom-width: thin;
+    border-bottom-color: black;
+
+    border-right-style: solid;
+    border-right-width: thin;
+    border-right-color: black;
+
     #spacewalk-threejs-canvas-container {
       position: relative;
       width: $spacewalk-threejs-canvas-container-size;
       height:$spacewalk-threejs-canvas-container-size;
-      background-color: $spacewalk_nickel;
+      //background-color: $spacewalk_nickel;
+      background-color: white;
 
       #spacewalk-threejs-canvas-center-dot {
         z-index: 512;
@@ -101,6 +120,10 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
       width: $spacewalk-trace-navigator-width;
       height: $spacewalk-threejs-canvas-container-size;
       background-color: white;
+
+      border-left-style: solid;
+      border-left-width: thin;
+      border-left-color: black;
 
       display: flex;
       flex-direction: column;

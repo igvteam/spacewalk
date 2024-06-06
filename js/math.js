@@ -101,6 +101,36 @@ function createBoundingBoxWithFlatXYZList(numbers) {
     return bbox
 }
 
+function cullDuplicateXYZ(numbers) {
+
+    const culled = []
+    let previous
+    for (let n = 0; n < numbers.length; n += 3) {
+
+        const [ x, y, z ] = numbers.slice(n, n + 3)
+
+        if (previous) {
+
+            const [px, py, pz ] = previous
+
+            const ix = Math.floor(x)
+            const iy = Math.floor(y)
+            const iz = Math.floor(z)
+
+            if (px !== ix || py !== iy || pz !== iz) {
+                culled.push(ix, iy, iz)
+                previous = [ix, iy, iz]
+            }
+        } else {
+            previous = [ Math.floor(x), Math.floor(y), Math.floor(z) ]
+            culled.push(...previous)
+        }
+
+    }
+
+    return culled
+}
+
 export {
     includes,
     radians,
@@ -113,5 +143,6 @@ export {
     prettyMatrix4Print,
     prettyVector3Print,
     prettyVector3String,
-    createBoundingBoxWithFlatXYZList
+    createBoundingBoxWithFlatXYZList,
+    cullDuplicateXYZ
 };

@@ -148,7 +148,7 @@ async function renderArrayToCanvas(ctx, array) {
 
     const { width, height } = ctx.canvas;
 
-    const imageData = new ImageData(array, ensembleManager.getTraceLength(), ensembleManager.getTraceLength());
+    const imageData = new ImageData(array, ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapTraceLength());
 
     // const config =
     //     {
