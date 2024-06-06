@@ -7,6 +7,7 @@ import {ballAndStick, colorRampMaterialProvider, contactFrequencyMapPanel, ensem
 import { HICEvent } from "./juiceboxHelpful.js"
 import {paintContactFrequencyArrayWithColorScale, renderArrayToCanvas} from './utils.js'
 import SWBDatasource from "./SWBDatasource"
+import {makeDraggable} from "./draggable"
 
 const imageTileDimension = 685
 
@@ -23,6 +24,9 @@ class JuiceboxPanel extends Panel {
         };
 
         super({ container, panel, isHidden, xFunction, yFunction });
+
+        const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
+        makeDraggable(panel, dragHandle)
 
         this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();

@@ -208,6 +208,14 @@ div.navbar-brand {
 #spacewalk_juicebox_panel.card .list-group {
   width: 100%;
 }
+#spacewalk_juicebox_panel.card .list-group .spacewalk_card_drag_container i.fa-grip-horizontal {
+  cursor: unset;
+  color: transparent;
+  background-color: transparent;
+}
+#spacewalk_juicebox_panel.card .list-group .spacewalk_card_drag_container a.dropdown-toggle {
+  color: unset;
+}
 #spacewalk_juicebox_panel.card .list-group .list-group-item {
   padding: 0;
 }
@@ -268,6 +276,14 @@ div.navbar-brand {
 }
 #spacewalk_igv_panel.card #spacewalk_igv_container.card-body {
   height: unset;
+}
+#spacewalk_igv_panel.card #spacewalk_igv_container.card-body .spacewalk_card_drag_container i.fa-grip-horizontal {
+  cursor: unset;
+  color: transparent;
+  background-color: transparent;
+}
+#spacewalk_igv_panel.card #spacewalk_igv_container.card-body .spacewalk_card_drag_container a.dropdown-toggle {
+  color: unset;
 }
 #spacewalk_igv_panel.card #spacewalk_igv_container.card-body #spacewalk_igv_root_container {
   overflow: scroll;

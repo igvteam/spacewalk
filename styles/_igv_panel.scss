@@ -62,6 +62,19 @@ $spacewalk_igv_panel_heigth: 256px;
 
     height: unset;
 
+    .spacewalk_card_drag_container {
+
+      i.fa-grip-horizontal {
+        cursor: unset;
+        color: transparent;
+        background-color: transparent;
+      }
+
+      a.dropdown-toggle {
+        color: unset;
+      }
+    }
+
     #spacewalk_igv_root_container {
 
       overflow: scroll;
