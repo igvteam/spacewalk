@@ -141,7 +141,8 @@ class JuiceboxPanel extends Panel {
 
         if (this.isContactMapLoaded()) {
             try {
-                await hic.getCurrentBrowser().parseGotoInput(`${chr}:${start}-${end}`)
+                const browser = hic.getCurrentBrowser()
+                await browser.parseGotoInput(`${chr}:${start}-${end}`)
             } catch (error) {
                 console.warn(error.message)
             }

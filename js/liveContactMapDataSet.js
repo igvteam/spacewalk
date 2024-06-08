@@ -45,7 +45,7 @@ function getDatasetChromosomeList(genomeChromosomeDictionary) {
     })
 
     // 'All' is ununsed
-    dataseChromosomeList.unshift({ index:0 , name:'All', size:0, bpLength:0 })
+    // dataseChromosomeList.unshift({ index:0 , name:'All', size:0, bpLength:0 })
 
     return dataseChromosomeList
 }
