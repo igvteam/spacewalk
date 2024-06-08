@@ -103,6 +103,8 @@ class ContactFrequencyMapPanel extends Panel {
 
         if ("DidLoadEnsembleFile" === type) {
             ensembleContactFrequencyArray = traceContactFrequencyArray = undefined
+            this.ctx_trace.transferFromImageBitmap(null)
+            this.ctx_ensemble.transferFromImageBitmap(null)
         }
 
         super.receiveEvent({ type, data });

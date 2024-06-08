@@ -91,6 +91,9 @@ class DistanceMapPanel extends Panel {
             canvasArray = undefined
             this.doUpdateTrace = this.doUpdateEnsemble = true
 
+            this.ctx_trace.transferFromImageBitmap(null)
+            this.ctx_ensemble.transferFromImageBitmap(null)
+
             if (false === this.isHidden) {
                 this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
                 const { trace } = data

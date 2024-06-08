@@ -38,6 +38,7 @@ class JuiceboxPanel extends Panel {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         })
 
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
     }
 
     async initialize(container, config) {
@@ -111,6 +112,18 @@ class JuiceboxPanel extends Panel {
         })
 
     }
+
+    receiveEvent({ type, data }) {
+
+        if ('DidLoadEnsembleFile' === type) {
+            const ctx = hic.getCurrentBrowser().contactMatrixView.ctx_live
+            ctx.transferFromImageBitmap(null)
+        }
+
+        super.receiveEvent({ type, data });
+
+    }
+
 
     getClassName(){ return 'JuiceboxPanel' }
 
