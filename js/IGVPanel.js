@@ -5,6 +5,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {getMaterialProvider, setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
 import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, igvPanel } from './app.js'
+import {makeDraggable} from "./draggable"
 
 class IGVPanel extends Panel {
 
@@ -18,7 +19,10 @@ class IGVPanel extends Panel {
             return hc - (hp * 1.1);
         };
 
-        super({ container, panel, isHidden, xFunction, yFunction });
+        super({ container, panel, isHidden, xFunction, yFunction })
+
+        const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
+        makeDraggable(panel, dragHandle)
 
         this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();

@@ -7,6 +7,7 @@ import {ballAndStick, colorRampMaterialProvider, contactFrequencyMapPanel, ensem
 import { HICEvent } from "./juiceboxHelpful.js"
 import {paintContactFrequencyArrayWithColorScale, renderArrayToCanvas} from './utils.js'
 import SWBDatasource from "./SWBDatasource"
+import {makeDraggable} from "./draggable"
 
 const imageTileDimension = 685
 
@@ -24,6 +25,9 @@ class JuiceboxPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
+        const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
+        makeDraggable(panel, dragHandle)
+
         this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
@@ -34,6 +38,7 @@ class JuiceboxPanel extends Panel {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         })
 
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
     }
 
     async initialize(container, config) {
@@ -108,6 +113,18 @@ class JuiceboxPanel extends Panel {
 
     }
 
+    receiveEvent({ type, data }) {
+
+        if ('DidLoadEnsembleFile' === type) {
+            const ctx = hic.getCurrentBrowser().contactMatrixView.ctx_live
+            ctx.transferFromImageBitmap(null)
+            this.dismiss()
+        }
+
+        super.receiveEvent({ type, data });
+
+    }
+
     getClassName(){ return 'JuiceboxPanel' }
 
     async locusDidChange({ chr, genomicStart, genomicEnd }) {
@@ -137,7 +154,8 @@ class JuiceboxPanel extends Panel {
 
         if (this.isContactMapLoaded()) {
             try {
-                await hic.getCurrentBrowser().parseGotoInput(`${chr}:${start}-${end}`)
+                const browser = hic.getCurrentBrowser()
+                await browser.parseGotoInput(`${chr}:${start}-${end}`)
             } catch (error) {
                 console.warn(error.message)
             }
