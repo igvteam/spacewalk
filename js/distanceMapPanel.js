@@ -88,18 +88,20 @@ class DistanceMapPanel extends Panel {
 
         } else if ("DidLoadEnsembleFile" === type) {
 
+            this.dismiss()
+
             canvasArray = undefined
             this.doUpdateTrace = this.doUpdateEnsemble = true
 
             this.ctx_trace.transferFromImageBitmap(null)
             this.ctx_ensemble.transferFromImageBitmap(null)
 
-            if (false === this.isHidden) {
-                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
-                const { trace } = data
-                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), trace)
-                this.doUpdateTrace = this.doUpdateEnsemble = undefined
-            }
+            // if (false === this.isHidden) {
+            //     this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
+            //     const { trace } = data
+            //     this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), trace)
+            //     this.doUpdateTrace = this.doUpdateEnsemble = undefined
+            // }
 
         }
 
