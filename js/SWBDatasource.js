@@ -7,6 +7,7 @@ import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 import {createBoundingBoxWithFlatXYZList, cullDuplicateXYZ} from "./math.js"
 import SpacewalkEventBus from "./spacewalkEventBus"
 import igv from "igv"
+import {call} from "three/nodes"
 
 class SWBDatasource extends DataSourceBase {
 
@@ -220,6 +221,12 @@ class SWBDatasource extends DataSourceBase {
         return this.liveContactFrequencyMapVertexLists[ this.currentTraceIndex ]
     }
 
+    async distanceMapPresentationHandler(distanceMapHandler) {
+        if (undefined === this.liveContactFrequencyMapVertexLists) {
+            await this.calculateLiveMapVertexLists()
+        }
+        distanceMapHandler()
+    }
 }
 
 function createPointCloudPayload(key, genomicExtent, rawXYZ) {

@@ -5,6 +5,7 @@ import Panel from "./panel.js";
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import {clearCanvasArray, renderArrayToCanvas} from "./utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
+import SWBDatasource from "./SWBDatasource"
 
 const kDistanceUndefined = -1
 
@@ -110,17 +111,39 @@ class DistanceMapPanel extends Panel {
 
     present() {
 
-        if (true === this.doUpdateEnsemble) {
-            this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
-            this.doUpdateEnsemble = undefined
-        }
+        if (ensembleManager.datasource instanceof SWBDatasource) {
 
-        if (true === this.doUpdateTrace) {
-            this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
-            this.doUpdateTrace = undefined
-        }
+            ensembleManager.datasource.distanceMapPresentationHandler(() => {
 
-        super.present()
+                if (true === this.doUpdateEnsemble) {
+                    this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
+                    this.doUpdateEnsemble = undefined
+                }
+
+                if (true === this.doUpdateTrace) {
+                    this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+                    this.doUpdateTrace = undefined
+                }
+
+                super.present()
+
+            })
+
+        } else {
+
+            if (true === this.doUpdateEnsemble) {
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
+                this.doUpdateEnsemble = undefined
+            }
+
+            if (true === this.doUpdateTrace) {
+                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+                this.doUpdateTrace = undefined
+            }
+
+            super.present()
+
+        }
 
     }
 

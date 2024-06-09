@@ -134,10 +134,13 @@ class ContactFrequencyMapPanel extends Panel {
 
         const vertices = ensembleManager.getLiveMapTraceVertices(ensembleManager.currentTrace)
 
+        this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
+        this.input.value = this.distanceThreshold.toString()
+
         const data =
             {
                 traceOrEnsemble: 'trace',
-                                        traceLength: ensembleManager.getLiveMapTraceLength(),
+                traceLength: ensembleManager.getLiveMapTraceLength(),
                 verticesString: JSON.stringify(vertices),
                 distanceThreshold: this.distanceThreshold
             }
@@ -153,6 +156,9 @@ class ContactFrequencyMapPanel extends Panel {
         showGlobalSpinner()
         document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
+        this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
+        this.input.value = this.distanceThreshold.toString()
+
         const data =
             {
                 traceOrEnsemble: 'ensemble',
@@ -166,6 +172,11 @@ class ContactFrequencyMapPanel extends Panel {
         this.worker.postMessage(data)
 
     }
+}
+
+function distanceThresholdEstimate(trace) {
+    const { radius } = EnsembleManager.getTraceBounds(trace)
+    return Math.floor(2 * radius / 4)
 }
 
 // Contact Matrix is m by m where m = traceLength
