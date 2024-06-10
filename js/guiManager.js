@@ -99,7 +99,7 @@ class GUIManager {
             str = `${ chr } : ${StringUtils.numberFormatter(genomicStart) } - ${ StringUtils.numberFormatter(genomicEnd) }`;
             $('#spacewalk_info_panel_locus').text( str );
 
-            str = `Sample ${ sample }`;
+            str = `${ sample }`;
             $('#spacewalk_info_panel_ensemble').text( str );
 
             $('#spacewalk_info_panel').show();
