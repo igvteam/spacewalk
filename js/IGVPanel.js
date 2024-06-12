@@ -6,6 +6,7 @@ import {getMaterialProvider, setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
 import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, igvPanel } from './app.js'
 import {makeDraggable} from "./draggable"
+import { spacewalkConfig } from "../spacewalk-config.js";
 
 class IGVPanel extends Panel {
 
@@ -43,6 +44,9 @@ class IGVPanel extends Panel {
 
         const root = this.$panel.find('#spacewalk_igv_root_container').get(0)
 
+        if (undefined === igvConfig.genomeList) {
+            igvConfig.genomeList = [ ...spacewalkConfig.igvConfig.genomeList ]
+        }
         try {
             this.browser = await igv.createBrowser( root, igvConfig )
         } catch (e) {
