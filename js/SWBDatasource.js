@@ -330,7 +330,7 @@ async function getGlobalGenomicExtentList(dataset) {
 }
 
 function woollyMammothGenomeIDHack(str) {
-    return 'woolly mammoth' ? 'Loxafr3.0_HiC' : str
+    return 'woolly mammoth' === str ? 'Loxafr3.0_HiC' : str
 }
 function createCleanFlatXYZList(numbers) {
 
