@@ -1,4 +1,4 @@
-// import genomes from '/public/resources/genomes.json'
+import genomes from '/public/resources/genomes.json'
 import trackRegistry from '/public/resources/tracks/trackRegistry.json'
 const spacewalkConfig =
     {
@@ -7,6 +7,7 @@ const spacewalkConfig =
             {
                 genome: 'hg19',
                 locus: 'all',
+                genomeList: genomes,
                 showTrackLabels: false,
                 showControls: false,
                 showCursorTrackingGuide: true,

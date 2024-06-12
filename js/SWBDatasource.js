@@ -44,13 +44,15 @@ class SWBDatasource extends DataSourceBase {
         }
 
         let genomeAssembly
-        const a = undefined === this.header.genome
-        const b = undefined === igv.GenomeUtils.KNOWN_GENOMES[ this.header.genome ]
+
+        const hackedGenomeID = woollyMammothGenomeIDHack(this.header.genome)
+        const a = undefined === hackedGenomeID
+        const b = undefined === igv.GenomeUtils.KNOWN_GENOMES[ hackedGenomeID ]
         if (a || b) {
             console.warn(`Warning: Unrecognized genome ${ this.header.genome || 'undefined' }`)
             genomeAssembly = 'hg19'
         } else {
-            genomeAssembly = this.header.genome
+            genomeAssembly = hackedGenomeID
         }
 
 
@@ -327,6 +329,9 @@ async function getGlobalGenomicExtentList(dataset) {
     return { chromosome, genomicExtentList }
 }
 
+function woollyMammothGenomeIDHack(str) {
+    return 'woolly mammoth' ? 'Loxafr3.0_HiC' : str
+}
 function createCleanFlatXYZList(numbers) {
 
     const bbox = createBoundingBoxWithFlatXYZList(numbers)
