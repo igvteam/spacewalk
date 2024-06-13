@@ -1,13 +1,11 @@
 import * as THREE from 'three'
 import {openH5File} from 'hdf5-indexed-reader'
 import {FileUtils} from 'igv-utils'
-import {SpacewalkGlobals} from './app.js'
+import {igvPanel, SpacewalkGlobals} from './app.js'
 import DataSourceBase from './dataSourceBase.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 import {createBoundingBoxWithFlatXYZList, cullDuplicateXYZ} from "./math.js"
 import SpacewalkEventBus from "./spacewalkEventBus"
-import igv from "igv"
-import {call} from "three/nodes"
 
 class SWBDatasource extends DataSourceBase {
 
@@ -47,7 +45,7 @@ class SWBDatasource extends DataSourceBase {
 
         const hackedGenomeID = woollyMammothGenomeIDHack(this.header.genome)
         const a = undefined === hackedGenomeID
-        const b = undefined === igv.GenomeUtils.KNOWN_GENOMES[ hackedGenomeID ]
+        const b = undefined === igvPanel.knownGenomes[ hackedGenomeID ]
         if (a || b) {
             console.warn(`Warning: Unrecognized genome ${ this.header.genome || 'undefined' }`)
             genomeAssembly = 'hg19'

@@ -10,7 +10,7 @@ const spacewalkConfig =
                 genomeList: genomes,
                 showTrackLabels: false,
                 showControls: false,
-                showCursorTrackingGuide: true,
+                showCursorGuide: true,
                 queryParametersSupported: false,
                 tracks: []
             },

@@ -1,6 +1,5 @@
+import igv from '../node_modules/igv/js/index.js'
 import {AlertSingleton} from 'igv-widgets'
-import { DOMUtils } from 'igv-ui'
-import igv from 'igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {getMaterialProvider, setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
@@ -48,7 +47,9 @@ class IGVPanel extends Panel {
             igvConfig.genomeList = [ ...spacewalkConfig.igvConfig.genomeList ]
         }
         try {
-            this.browser = await igv.createBrowser( root, igvConfig )
+            const { browser, knownGenomes } = await igv.createBrowser( root, igvConfig )
+            this.browser = browser
+            this.knownGenomes = knownGenomes
         } catch (e) {
             AlertSingleton.present(e.message)
         }
@@ -80,7 +81,7 @@ class IGVPanel extends Panel {
         this.$panel.resizable(config)
 
         if (this.browser) {
-            igvClassAdditions()
+            // igvClassAdditions()
             this.configureMouseHandlers()
         }
 
@@ -116,6 +117,15 @@ class IGVPanel extends Panel {
     }
 
     configureMouseHandlers () {
+
+        this.browser.on('dataValueMaterialCheckbox', async track => {
+
+            console.log(`${track.name} did set data value material provider input ${ true === track.trackView.materialProviderInput.checked ? 'true' : 'false' }`)
+
+            this.materialProvider = await getMaterialProvider(track)
+            setMaterialProvider(this.materialProvider)
+
+        })
 
         this.browser.on('trackremoved', track => {
             if (track.trackView.materialProviderInput && $(track.trackView.materialProviderInput).prop('checked')) {
@@ -195,7 +205,7 @@ function igvClassAdditions() {
 
         const exclusionTrackTypes = new Set(['ruler', 'sequence', 'ideogram'])
 
-        const axis = DOMUtils.div()
+        const axis = igv.DOMUtils.div()
 
         browser.columnContainer.querySelector('.igv-axis-column').appendChild(axis);
 
