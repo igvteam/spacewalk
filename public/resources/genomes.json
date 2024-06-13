@@ -7,10 +7,8 @@
     "tracks": [
       {
         "name": "Refseq Genes",
-        "format": "refgene",
         "id": "Loxafr3_0_HiC_genes",
         "url": "https://dnazoo.s3.wasabisys.com/Loxodonta_africana/Loxafr3.0_HiC.refseq_annotations.bed",
-        "indexed": "false",
         "removable": false,
         "order": 1000000
       }
