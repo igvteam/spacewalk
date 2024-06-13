@@ -12,7 +12,7 @@
     "data-modal": "github:igvteam/data-modal#spacewalk",
     "hdf5-indexed-reader": "github:jrobinso/hdf5-indexed-reader#v0.5.4",
     "http-server": "^14.0.0",
-    "igv": "github:igvteam/igv.js#spacewalk",
+    "igv": "github:igvteam/igv.js#spacewalk_commit_ad1bcbd8",
     "igv-utils": "github:igvteam/igv-utils#v1.5.5",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
     "juicebox.js": "github:igvteam/juicebox.js#spacewalk",

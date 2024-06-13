@@ -1,4 +1,4 @@
-import igv from '../node_modules/igv/js/index.js'
+import igv from 'igv'
 import {AlertSingleton} from 'igv-widgets'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {getMaterialProvider, setMaterialProvider} from './utils.js';
