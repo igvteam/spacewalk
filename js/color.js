@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import chroma from "chroma-js";
 import { lerp, clamp, random } from './math.js';
 
 function colorString2Tokens(string) {
@@ -166,7 +167,38 @@ function rgb255ToThreeJSColor  (r, g, b) {
     return new THREE.Color(r/255, g/255, b/255).convertSRGBToLinear()
 }
 
+function blendColorsLab(colorList) {
+    let L_sum = 0;
+    let a_sum = 0;
+    let b_sum = 0;
+
+    // Number of colors
+    const num_colors = colorList.length;
+
+    // Sum up each component in Lab space
+    colorList.forEach(color => {
+        const lab = chroma(color).lab();
+        L_sum += lab[0];
+        a_sum += lab[1];
+        b_sum += lab[2];
+    });
+
+    // Calculate averages
+    const avg_L = L_sum / num_colors;
+    const avg_a = a_sum / num_colors;
+    const avg_b = b_sum / num_colors;
+
+    // Form the blended Lab color
+    const blended_lab = [avg_L, avg_a, avg_b];
+
+    // Convert the blended Lab color back to RGB
+    const blended_rgb = chroma.lab(blended_lab).rgb();
+
+    // Convert RGB values to integer and return
+    return blended_rgb.map(value => Math.round(value));
+}
+
 const highlightColor = appleCrayonColorThreeJS('honeydew')
 
-export { highlightColor, hex2RGB255, colorString2Tokens, threeJSColorToRGB255, rgb255ToThreeJSColor, appleCrayonColorThreeJS, appleCrayonColorRGB255 };
+export { highlightColor, hex2RGB255, colorString2Tokens, threeJSColorToRGB255, rgb255ToThreeJSColor, appleCrayonColorThreeJS, appleCrayonColorRGB255, blendColorsLab };
 
