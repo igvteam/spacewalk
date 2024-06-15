@@ -40,7 +40,8 @@ class DataValueMaterialProvider {
                 const list = featuresForGenomicExtent.filter(feature => undefined === feature.value)
 
                 if (list.length > 0) {
-                    const featureColors = featuresForGenomicExtent.map(({ color }) => {
+                    const featureColors = featuresForGenomicExtent.map((feature) => {
+                        const color = feature.color || track.constructor.getDefaultColor()
                         let [ a, green, b ] = color.split(',')
                         let [ c, red ] = a.split('(')
                         let [ blue, d ] = b.split(')')
