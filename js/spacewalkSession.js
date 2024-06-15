@@ -5,7 +5,6 @@ import Panel from './panel.js'
 import { igvPanel, juiceboxPanel, ensembleManager, sceneManager, contactFrequencyMapPanel, SpacewalkGlobals, guiManager } from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {defaultDistanceThreshold} from './contactFrequencyMapPanel.js'
-import {igvClassAdditions} from './IGVPanel.js'
 import { shortenURL } from "./shareHelper.js"
 
 const loadSessionURL = async spacewalkSessionURL => {
@@ -40,7 +39,6 @@ async function loadIGVSession(spacewalk, igv) {
 
     igvPanel.browser.removeAllTracks()
     await igvPanel.browser.loadSession(igv)
-    // igvClassAdditions()
     igvPanel.configureMouseHandlers()
 
     if ('none' !== spacewalk.igvPanelState) {

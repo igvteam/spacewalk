@@ -81,7 +81,6 @@ class IGVPanel extends Panel {
         this.$panel.resizable(config)
 
         if (this.browser) {
-            // igvClassAdditions()
             this.configureMouseHandlers()
         }
 
@@ -199,54 +198,4 @@ class IGVPanel extends Panel {
     }
 }
 
-function igvClassAdditions() {
-
-    igv.TrackView.prototype.createAxis = function(browser, track) {
-
-        const exclusionTrackTypes = new Set(['ruler', 'sequence', 'ideogram'])
-
-        const axis = igv.DOMUtils.div()
-
-        browser.columnContainer.querySelector('.igv-axis-column').appendChild(axis);
-
-        axis.style.height = `${track.height}px`;
-
-        let isRefGene = false
-
-        if ((track.config && track.config.format && 'refgene' === track.config.format)) {
-            isRefGene = true
-        }
-
-        if (false === exclusionTrackTypes.has(track.type) && false === isRefGene) {
-
-            const {width, height} = axis.getBoundingClientRect();
-
-            this.axisCanvas = document.createElement('canvas');
-            this.axisCanvas.style.width = `${width}px`;
-            this.axisCanvas.style.height = `${height}px`;
-            axis.appendChild(this.axisCanvas);
-
-            const input = document.createElement('input')
-            input.setAttribute('type', 'checkbox')
-            axis.appendChild(input)
-
-            input.addEventListener('click', async e => {
-                e.stopPropagation()
-
-                console.log('trackView did click material provider input handler')
-                igvPanel.materialProvider = await getMaterialProvider(track)
-                setMaterialProvider(igvPanel.materialProvider)
-
-            })
-
-            this.materialProviderInput = input
-
-        }
-
-        return axis
-
-    }
-}
-
-export { igvClassAdditions }
 export default IGVPanel

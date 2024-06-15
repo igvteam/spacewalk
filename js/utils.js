@@ -17,6 +17,13 @@ function hideGlobalSpinner() {
     document.getElementById('spacewalk-spinner').style.display = 'none'
 }
 
+function unsetDataMaterialProviderCheckbox(trackViews) {
+    for (const trackView of trackViews) {
+        $(trackView.materialProviderInput).prop('checked', false)
+    }
+
+}
+
 async function getMaterialProvider(track) {
 
     // unselect other track's checkboxes
@@ -181,6 +188,7 @@ function generateRadiusTable(defaultRadius) {
 export {
     showGlobalSpinner,
     hideGlobalSpinner,
+    unsetDataMaterialProviderCheckbox,
     getMaterialProvider,
     setMaterialProvider,
     clearCanvasArray,

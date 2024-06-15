@@ -8,22 +8,13 @@ import BallAndStick from "./ballAndStick.js"
 import PointCloud from "./pointCloud.js"
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js'
 import Gnomon, { gnomonConfigurator } from './gnomon.js'
-import {getMouseXY, setMaterialProvider} from "./utils.js"
+import {getMouseXY, setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils.js"
 import { appleCrayonColorThreeJS } from "./color.js"
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js"
 import Ribbon from './ribbon.js'
 import {degrees} from "./math.js"
 import {configureColorPicker, updateColorPicker} from "./guiManager.js"
-import {
-    pointCloud,
-    ribbon,
-    ballAndStick,
-    ensembleManager,
-    guiManager,
-    juiceboxPanel,
-    igvPanel,
-    colorRampMaterialProvider
-} from "./app.js"
+import { pointCloud, ribbon, ballAndStick, ensembleManager, guiManager, juiceboxPanel, igvPanel, colorRampMaterialProvider } from "./app.js"
 
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
@@ -98,6 +89,8 @@ class SceneManager {
             pointCloud.show()
         }
 
+        unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
+
         setMaterialProvider(colorRampMaterialProvider)
 
         if (ensembleManager.genomeAssembly !== igvPanel.browser.genome.id) {
@@ -141,6 +134,8 @@ class SceneManager {
             ribbon.hide()
             pointCloud.show()
         }
+
+        unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
 
         setMaterialProvider(colorRampMaterialProvider)
 
