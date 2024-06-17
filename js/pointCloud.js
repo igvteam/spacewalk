@@ -195,7 +195,7 @@ class PointCloud {
 
     updatePointSize(increment) {
 
-        this.pointSize += increment < 0 ? -32 : 32
+        this.pointSize = Math.max(4, this.pointSize + (increment < 0 ? -32 : 32))
         document.querySelector('#spacewalk_ui_manager_pointcloud_point_size_label').innerHTML = `Point Size (${ Math.floor(this.pointSize)} nm)`
 
         this.material.size = this.pointSize
