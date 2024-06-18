@@ -43,6 +43,57 @@ class DistanceMapPanel extends Panel {
 
         this.ctx_ensemble = canvas.getContext('bitmaprenderer');
 
+        const canvas_container = $canvas_container.get(0)
+
+        const horizontalLine = document.createElement('div')
+        horizontalLine.classList.add('crosshair', 'horizontal')
+        canvas_container.appendChild(horizontalLine)
+
+        const verticalLine = document.createElement('div')
+        verticalLine.classList.add('crosshair', 'vertical')
+        canvas_container.appendChild(verticalLine)
+
+        canvas_container.addEventListener('mousedown', ({ clientX, clientY }) => {
+            verticalLine.style.display = horizontalLine.style.display = 'block'
+            const { left, top} = canvas_container.getBoundingClientRect()
+            const x = clientX - left
+            const y = clientY - top
+
+            horizontalLine.style.top = `${y}px`
+            verticalLine.style.left = `${x}px`
+
+        })
+
+        canvas_container.addEventListener('mouseup', () => {
+            verticalLine.style.display = horizontalLine.style.display = 'none'
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+        })
+
+        canvas_container.addEventListener('mouseleave', () => {
+            verticalLine.style.display = horizontalLine.style.display = 'none'
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+        })
+
+        canvas_container.addEventListener('mousemove', ({ clientX, clientY }) => {
+
+            if ('block' === verticalLine.style.display && 'block' === horizontalLine.style.display) {
+
+                const { left, top, width, height} = canvas_container.getBoundingClientRect()
+                const x = clientX - left
+                const y = clientY - top
+
+                horizontalLine.style.top = `${y}px`
+                verticalLine.style.left = `${x}px`
+
+                const xNormalized = x / width
+                const yNormalized = y / height
+
+                SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList: [ xNormalized, yNormalized ] } })
+
+            }
+
+        });
+
         this.doUpdateTrace = this.doUpdateEnsemble = undefined
 
         this.worker = new Worker(new URL('./distanceMapWorker.js', import.meta.url), { type: 'module' })

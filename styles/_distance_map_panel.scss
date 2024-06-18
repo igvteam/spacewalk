@@ -1,5 +1,6 @@
 
-$spacewalk_distance_map_panel_width: 256px;
+//$spacewalk_distance_map_panel_width: 256px;
+$spacewalk_distance_map_panel_width: 480px;
 
 #spacewalk_distance_map_panel.card {
 
@@ -29,6 +30,28 @@ $spacewalk_distance_map_panel_width: 256px;
       position: relative;
       width: $spacewalk_distance_map_panel_width;
       height: $spacewalk_distance_map_panel_width;
+
+      cursor: pointer;
+
+      .crosshair {
+        display: none;
+        position: absolute;
+        background-color: #02f7ff;
+        z-index: 256;
+      }
+
+      .crosshair.horizontal {
+        left: 0;
+        height: 2px;
+        width: 100%;
+      }
+
+      .crosshair.vertical {
+        top: 0;
+        width: 2px;
+        height: 100%;
+      }
+
     }
 
   }
