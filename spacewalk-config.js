@@ -8,7 +8,7 @@ const spacewalkConfig =
                 genome: 'hg19',
                 locus: 'all',
                 genomeList: genomes,
-                showTrackLabels: false,
+                showTrackLabels: true,
                 showControls: false,
                 showCursorGuide: true,
                 queryParametersSupported: false,
