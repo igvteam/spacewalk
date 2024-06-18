@@ -68,7 +68,7 @@ async function loadSpacewalkSession (session) {
         contactFrequencyMapDistanceThreshold,
         panelVisibility,
         cameraLightingRig,
-        sceneBackground
+        backgroundColor
     } = session
 
     guiManager.setRenderStyle(renderStyle)
@@ -85,8 +85,9 @@ async function loadSpacewalkSession (session) {
     // TODO: Decide whether to restore camera state
     // sceneManager.cameraLightingRig.setState(cameraLightingRig);
 
-    // TODO: Figure out how do deal with background shader
-    // sceneManager.setBackgroundState(sceneBackground);
+    if (backgroundColor) {
+        sceneManager.setBackground(backgroundColor);
+    }
 
     const data = ensembleManager.createEventBusPayload()
     SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
@@ -158,13 +159,18 @@ function spacewalkToJSON () {
 
         let json
 
+        // gnomon
         json = sceneManager.gnomon.toJSON()
         spacewalk.gnomonVisibility = json.visibility
         spacewalk.gnomonColor = { r:json.r, g:json.g, b:json.b }
 
+        // groundplane
         json = sceneManager.groundPlane.toJSON()
         spacewalk.groundPlaneVisibility = json.visibility
         spacewalk.groundplaneColor = { r:json.r, g:json.g, b:json.b }
+
+        // background
+        spacewalk.backgroundColor = sceneManager.toJSON()
 
         spacewalk.cameraLightingRig = sceneManager.cameraLightingRig.getState()
 
