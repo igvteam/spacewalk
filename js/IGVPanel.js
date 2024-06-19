@@ -1,11 +1,11 @@
-import {AlertSingleton} from 'igv-widgets'
-import { DOMUtils } from 'igv-ui'
 import igv from 'igv'
+import {AlertSingleton} from 'igv-widgets'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {getMaterialProvider, setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
 import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, igvPanel } from './app.js'
 import {makeDraggable} from "./draggable"
+import { spacewalkConfig } from "../spacewalk-config.js";
 
 class IGVPanel extends Panel {
 
@@ -43,8 +43,13 @@ class IGVPanel extends Panel {
 
         const root = this.$panel.find('#spacewalk_igv_root_container').get(0)
 
+        if (undefined === igvConfig.genomeList) {
+            igvConfig.genomeList = [ ...spacewalkConfig.igvConfig.genomeList ]
+        }
         try {
-            this.browser = await igv.createBrowser( root, igvConfig )
+            const { browser, knownGenomes } = await igv.createBrowser( root, igvConfig )
+            this.browser = browser
+            this.knownGenomes = knownGenomes
         } catch (e) {
             AlertSingleton.present(e.message)
         }
@@ -76,7 +81,6 @@ class IGVPanel extends Panel {
         this.$panel.resizable(config)
 
         if (this.browser) {
-            igvClassAdditions()
             this.configureMouseHandlers()
         }
 
@@ -112,6 +116,15 @@ class IGVPanel extends Panel {
     }
 
     configureMouseHandlers () {
+
+        this.browser.on('dataValueMaterialCheckbox', async track => {
+
+            console.log(`${track.name} did set data value material provider input ${ true === track.trackView.materialProviderInput.checked ? 'true' : 'false' }`)
+
+            this.materialProvider = await getMaterialProvider(track)
+            setMaterialProvider(this.materialProvider)
+
+        })
 
         this.browser.on('trackremoved', track => {
             if (track.trackView.materialProviderInput && $(track.trackView.materialProviderInput).prop('checked')) {
@@ -185,54 +198,4 @@ class IGVPanel extends Panel {
     }
 }
 
-function igvClassAdditions() {
-
-    igv.TrackView.prototype.createAxis = function(browser, track) {
-
-        const exclusionTrackTypes = new Set(['ruler', 'sequence', 'ideogram'])
-
-        const axis = DOMUtils.div()
-
-        browser.columnContainer.querySelector('.igv-axis-column').appendChild(axis);
-
-        axis.style.height = `${track.height}px`;
-
-        let isRefGene = false
-
-        if ((track.config && track.config.format && 'refgene' === track.config.format)) {
-            isRefGene = true
-        }
-
-        if (false === exclusionTrackTypes.has(track.type) && false === isRefGene) {
-
-            const {width, height} = axis.getBoundingClientRect();
-
-            this.axisCanvas = document.createElement('canvas');
-            this.axisCanvas.style.width = `${width}px`;
-            this.axisCanvas.style.height = `${height}px`;
-            axis.appendChild(this.axisCanvas);
-
-            const input = document.createElement('input')
-            input.setAttribute('type', 'checkbox')
-            axis.appendChild(input)
-
-            input.addEventListener('click', async e => {
-                e.stopPropagation()
-
-                console.log('trackView did click material provider input handler')
-                igvPanel.materialProvider = await getMaterialProvider(track)
-                setMaterialProvider(igvPanel.materialProvider)
-
-            })
-
-            this.materialProviderInput = input
-
-        }
-
-        return axis
-
-    }
-}
-
-export { igvClassAdditions }
 export default IGVPanel

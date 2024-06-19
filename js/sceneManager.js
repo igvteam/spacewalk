@@ -8,22 +8,13 @@ import BallAndStick from "./ballAndStick.js"
 import PointCloud from "./pointCloud.js"
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js'
 import Gnomon, { gnomonConfigurator } from './gnomon.js'
-import {getMouseXY, setMaterialProvider} from "./utils.js"
+import {getMouseXY, setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils.js"
 import { appleCrayonColorThreeJS } from "./color.js"
 import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js"
 import Ribbon from './ribbon.js'
 import {degrees} from "./math.js"
 import {configureColorPicker, updateColorPicker} from "./guiManager.js"
-import {
-    pointCloud,
-    ribbon,
-    ballAndStick,
-    ensembleManager,
-    guiManager,
-    juiceboxPanel,
-    igvPanel,
-    colorRampMaterialProvider
-} from "./app.js"
+import { pointCloud, ribbon, ballAndStick, ensembleManager, guiManager, juiceboxPanel, igvPanel, colorRampMaterialProvider } from "./app.js"
 
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
@@ -98,6 +89,8 @@ class SceneManager {
             pointCloud.show()
         }
 
+        unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
+
         setMaterialProvider(colorRampMaterialProvider)
 
         if (ensembleManager.genomeAssembly !== igvPanel.browser.genome.id) {
@@ -141,6 +134,8 @@ class SceneManager {
             ribbon.hide()
             pointCloud.show()
         }
+
+        unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
 
         setMaterialProvider(colorRampMaterialProvider)
 
@@ -289,36 +284,15 @@ class SceneManager {
 
     }
 
-    setBackground(rgbJS) {
-        this.background = rgbJS;
-        this.scene.background = this.background;
+    toJSON() {
+        const { r, g, b } = this.scene.background
+        return  { r, g, b }
     }
 
-    getBackgroundState() {
-
-        if (true === this.scene.background.isColor) {
-            const { r, g, b } = this.scene.background;
-            return  { r, g, b }
-        } else if (true === this.scene.background.isTexture) {
-            return 'sceneBackgroundTexture';
-        } else {
-            console.log('dunno');
-        }
-
-    }
-
-    setBackgroundState(json) {
-
-        if ('string' === typeof json) {
-            this.background = sceneBackgroundTexture;
-            this.scene.background = this.background;
-        } else if ('object' === typeof json) {
-            const { r, g, b } = json;
-            this.setBackground(new THREE.Color(r, g, b));
-        } else {
-            console.log('dunno');
-        }
-    }
+    setBackground({ r, g, b }) {
+        this.background = new THREE.Color(r, g, b)
+        this.scene.background = this.background
+     }
 
     resetCamera() {
 

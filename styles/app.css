@@ -148,7 +148,7 @@ div.navbar-brand {
 }
 
 #spacewalk_distance_map_panel.card {
-  width: 256px;
+  width: 480px;
   height: unset;
 }
 #spacewalk_distance_map_panel.card .card-header {
@@ -161,13 +161,30 @@ div.navbar-brand {
   justify-content: space-between;
   align-items: center;
   padding: 0.125rem;
-  width: 256px;
+  width: 480px;
   height: unset;
 }
 #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body #spacewalk_distance_map_panel_container {
   position: relative;
-  width: 256px;
-  height: 256px;
+  width: 480px;
+  height: 480px;
+  cursor: pointer;
+}
+#spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body #spacewalk_distance_map_panel_container .crosshair {
+  display: none;
+  position: absolute;
+  background-color: #02f7ff;
+  z-index: 256;
+}
+#spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body #spacewalk_distance_map_panel_container .crosshair.horizontal {
+  left: 0;
+  height: 2px;
+  width: 100%;
+}
+#spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body #spacewalk_distance_map_panel_container .crosshair.vertical {
+  top: 0;
+  width: 2px;
+  height: 100%;
 }
 
 #spacewalk_contact_frequency_map_panel.card {

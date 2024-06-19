@@ -3,8 +3,7 @@ import DataSourceBase from './dataSourceBase.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 import {createBoundingBoxWithFlatXYZList} from "./math.js"
-import {StringUtils} from "igv-utils"
-import igv from 'igv'
+import {igvPanel} from './app.js'
 
 class CNDBDatasource extends DataSourceBase {
 
@@ -35,7 +34,7 @@ class CNDBDatasource extends DataSourceBase {
         }
 
         let genomeAssembly
-        if (undefined === this.header.genome || undefined === igv.GenomeUtils.KNOWN_GENOMES[ this.header.genome ]) {
+        if (undefined === this.header.genome || undefined === igvPanel.knownGenomes[ this.header.genome ]) {
             console.warn(`Warning: Unrecognized genome ${ this.header.genome || 'undefined' }`)
             genomeAssembly = 'hg19'
         } else {

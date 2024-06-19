@@ -1,0 +1,977 @@
+[
+  {
+    "id": "Loxafr3.0_HiC",
+    "name": "Woolly Mammoth",
+    "fastaURL": "https://dnazoo.s3.wasabisys.com/Loxodonta_africana/Loxafr3.0_HiC.fasta",
+    "indexURL": "https://dnazoo.s3.wasabisys.com/Loxodonta_africana/Loxafr3.0_HiC.fasta.fai",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "id": "Loxafr3_0_HiC_genes",
+        "url": "https://dnazoo.s3.wasabisys.com/Loxodonta_africana/Loxafr3.0_HiC.refseq_annotations.bed",
+        "removable": false,
+        "order": 1000000
+      }
+    ]
+
+  },
+  {
+    "id": "chm13v2.0",
+    "name": "Human (T2T CHM13-v2.0)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/chm13v2.0/chm13v2.0.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/chm13v2.0/chm13v2.0.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/chm13v2.0/CHM13_v2.0.cytoBandMapped.bed",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/chm13v2.0/GCA_009914755.4.chromAlias.txt",
+    "tracks": [
+      {
+        "id": "catLiftOffGenesV1",
+        "name": "CAT/Liftoff Genes",
+        "format": "bigbed",
+        "description": " <a target = \"_blank\" href = \"https://hgdownload.soe.ucsc.edu/hubs/GCA/009/914/755/GCA_009914755.4/html/GCA_009914755.4_T2T-CHM13v2.0.catLiftOffGenesV1.html\">CAT + Liftoff Gene Annotations</a>",
+        "url": "https://hgdownload.soe.ucsc.edu/hubs/GCA/009/914/755/GCA_009914755.4/bbi/GCA_009914755.4_T2T-CHM13v2.0.catLiftOffGenesV1/catLiftOffGenesV1.bb",
+        "displayMode": "EXPANDED",
+        "height": 200,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false,
+        "order": 1000000
+      },
+      {
+        "id": "augustus",
+        "name": "Augustus",
+        "format": "bigbed",
+        "description": " <a target = \"_blank\" href = \"https://hgdownload.soe.ucsc.edu/hubs/GCA/009/914/755/GCA_009914755.4/html/GCA_009914755.4_T2T-CHM13v2.0.augustus\">Augustus Gene Predictions</a>",
+        "url": "https://hgdownload.soe.ucsc.edu/hubs/GCA/009/914/755/GCA_009914755.4/bbi/GCA_009914755.4_T2T-CHM13v2.0.augustus.bb",
+        "displayMode": "EXPANDED",
+        "color": "rgb(180,0,0)",
+        "height": 200,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false,
+        "order": 1000001
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/chm13v2.0/chm13v2.0_geneLocations.short.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "chm13v1.1",
+    "name": "Human (T2T CHM13-v1.1)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/t2t-chm13-v1.1/GCA_009914755.3_CHM13_T2T_v1.1_genomic.fna",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/t2t-chm13-v1.1/GCA_009914755.3_CHM13_T2T_v1.1_genomic.fna.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/t2t-chm13-v1.1/cytoBandIdeo.bed",
+    "tracks": [
+      {
+        "name": "Annotations",
+        "type": "annotation",
+        "format": "bigbed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/t2t-chm13-v1.1/CHM13.combined.v4.bb",
+        "supportsWholeGenome": false,
+        "height": 200,
+        "displayMode": "EXPANDED",
+        "order": 1000000,
+        "description": "Annotations from <a target='_blank' href='https://genome.ucsc.edu/cgi-bin/hgTracks?db=hub_2395475_t2t-chm13-v1.1'>UCSC</a>.<br/>blue - protein coding<br/>green - non coding<br/>pink - psuedo gene",
+        "visibilityWindow": -1
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/t2t-chm13-v1.1/CHM13.names.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "hg38",
+    "name": "Human (GRCh38/hg38)",
+    "fastaURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/seq/hg38/hg38.fa",
+    "indexURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/seq/hg38/hg38.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/hg38/annotations/cytoBandIdeo.txt.gz",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/hg38/hg38_alias.tab",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/ncbiRefSeq.txt.gz",
+        "indexed": false,
+        "removable": false,
+        "order": 1000000,
+        "infoURL": "https://www.ncbi.nlm.nih.gov/gene/?term=$$"
+      }
+    ],
+    "chromosomeOrder": "chr1, chr2, chr3, chr4, chr5, chr6, chr7, chr8, chr9, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18, chr19, chr20, chr21, chr22, chrX, chrY"
+  },
+  {
+    "id": "hg38_1kg",
+    "ucscID": "hg38",
+    "blatDB": "hg38",
+    "name": "Human (hg38 1kg/GATK)",
+    "fastaURL": "https://1000genomes.s3.amazonaws.com/technical/reference/GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa",
+    "indexURL": "https://1000genomes.s3.amazonaws.com/technical/reference/GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/hg38/annotations/cytoBandIdeo.txt.gz",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "id": "hg19_genes",
+        "url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/ncbiRefSeq.txt.gz",
+        "indexed": false,
+        "removable": false,
+        "order": 1000000,
+        "infoURL": "https://www.ncbi.nlm.nih.gov/gene/?term=$$"
+      }
+    ],
+    "chromosomeOrder": "chr1, chr2, chr3, chr4, chr5, chr6, chr7, chr8, chr9, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18, chr19, chr20, chr21, chr22, chrX, chrY"
+  },
+  {
+    "id": "hg19",
+    "name": "Human (GRCh37/hg19)",
+    "fastaURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/seq/hg19/hg19.fasta",
+    "indexURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/seq/hg19/hg19.fasta.fai",
+    "cytobandURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/seq/hg19/cytoBand.txt",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/hg19/hg19_alias.tab",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "id": "hg19_genes",
+        "url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/ncbiRefSeq.txt.gz",
+        "indexed": false,
+        "removable": false,
+        "order": 1000000,
+        "infoURL": "https://www.ncbi.nlm.nih.gov/gene/?term=$$"
+      }
+    ],
+    "chromosomeOrder": "chr1, chr2, chr3, chr4, chr5, chr6, chr7, chr8, chr9, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18, chr19, chr20, chr21, chr22, chrX, chrY"
+  },
+  {
+    "id": "hg18",
+    "name": "Human (hg18)",
+    "fastaURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg18/hg18.fasta",
+    "indexURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg18/hg18.fasta.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/hg18/cytoBandIdeo.txt.gz",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/hg18/refGene.txt.gz",
+        "indexed": false,
+        "visibilityWindow": -1,
+        "removable": false,
+        "order": 1000000,
+        "searchable": true
+      }
+    ],
+    "chromosomeOrder": "chr1, chr2, chr3, chr4, chr5, chr6, chr7, chr8, chr9, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18, chr19, chr20, chr21, chr22, chrX, chrY"
+  },
+  {
+    "id": "mm39",
+    "name": "Mouse (GRCm39/mm39)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/mm39/mm39.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/mm39/mm39.fa.fai",
+    "cytobandURL": "https://hgdownload.soe.ucsc.edu/goldenPath/mm39/database/cytoBandIdeo.txt.gz",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/mm39/mm39_alias.tab",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://hgdownload.soe.ucsc.edu/goldenPath/mm39/database/ncbiRefSeq.txt.gz",
+        "indexed": false,
+        "removable": false,
+        "order": 1000000
+      }
+    ]
+  },
+  {
+    "id": "mm10",
+    "name": "Mouse (GRCm38/mm10)",
+    "fastaURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/mm10/mm10.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/mm10/mm10.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.broadinstitute.org/annotations/mm10/cytoBandIdeo.txt.gz",
+    "order": 1000000,
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://hgdownload.soe.ucsc.edu/goldenPath/mm10/database/ncbiRefSeq.txt.gz",
+        "indexed": false,
+        "removable": false,
+        "order": 1000000
+      }
+    ]
+  },
+  {
+    "id": "mm9",
+    "name": "Mouse (NCBI37/mm9)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/mm9/mm9.fasta",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/mm9/mm9.fasta.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/mm9/cytoBandIdeo.txt.gz",
+    "order": 1000000,
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/mm9/refGene.sorted.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/mm9/refGene.sorted.txt.gz.tbi",
+        "order": 1000000,
+        "removable": false,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_mm9.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "rn7",
+    "name": "Rat (rn7) ",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/rn7/rn7.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/rn7/rn7.fa.fai",
+    "cytobandURL": "https://hgdownload.soe.ucsc.edu/goldenPath/rn7/database/cytoBandIdeo.txt.gz",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/rn7/chrAlias.tab.gz",
+    "tracks": [
+      {
+        "name": "Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/rn7/ncbiRefSeq.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/rn7/ncbiRefSeq.txt.gz.tbi",
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_rn7.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "rn6",
+    "name": "Rat (RGCS 6.0/rn6)",
+    "fastaURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/rn6/rn6.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/rn6/rn6.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/rn6/cytoBand.txt.gz",
+    "order": 1000000,
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/rn6/ncbiRefSeq.sorted.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/rn6/ncbiRefSeq.sorted.txt.gz.tbi",
+        "order": 1000000,
+        "removable": false,
+        "supportsWholeGenome": false,
+        "visibilityWindow": -1
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_rn6.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "gorGor6",
+    "name": "Gorilla (Kamilah_GGO_v0/gorGor6) ",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/gorGor6/gorGor6.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/gorGor6/gorGor6.fa.fai",
+    "cytobandURL": "https://hgdownload.soe.ucsc.edu/goldenPath/gorGor6/database/cytoBandIdeo.txt.gz",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/gorGor6/chrAlias.tab.gz",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/gorGor6/ncbiRefSeq.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/gorGor6/ncbiRefSeq.txt.gz.tbi",
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_gorGor6.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "gorGor4",
+    "name": "Gorilla (gorGor4.1/gorGor4)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/gorGor4/gorGor4.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/gorGor4/gorGor4.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/gorGor4/cytoBandIdeo.txt.gz",
+    "chromosomeOrder": "chr1,chr2A,chr2B,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/gorGor4/refGene.txt.gz",
+        "indexed": false,
+        "order": 1000000,
+        "removable": false,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      }
+    ]
+  },
+  {
+    "id": "panTro6",
+    "name": "Chimp (panTro6) (panTro6)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/panTro6/panTro6.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/panTro6/panTro6.fa.fai",
+    "cytobandURL": "https://hgdownload.soe.ucsc.edu/goldenPath/panTro6/database/cytoBandIdeo.txt.gz",
+    "chromosomeOrder": "chr1,chr2A,chr2B,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/panTro6/ncbiRefSeq.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/panTro6/ncbiRefSeq.txt.gz.tbi",
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_panTro6.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "panTro5",
+    "name": "Chimp (panTro5) (panTro5)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/panTro5/panTro5.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/panTro5/panTro5.fa.fai",
+    "cytobandURL": "https://hgdownload.soe.ucsc.edu/goldenPath/panTro5/database/cytoBandIdeo.txt.gz",
+    "chromosomeOrder": "chr1,chr2A,chr2B,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/panTro5/ncbiRefSeq.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/panTro5/ncbiRefSeq.txt.gz.tbi",
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_panTro5.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "panTro4",
+    "name": " Chimp (SAC 2.1.4/panTro4)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/panTro4/panTro4.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/panTro4/panTro4.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/panTro4/cytoBandIdeo.txt.gz",
+    "chromosomeOrder": "chr1,chr2A,chr2B,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/panTro4/refGene.sorted.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/panTro4/refGene.sorted.txt.gz.tbi",
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_panTro4.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "macFas5",
+    "name": "Macaca fascicularis (macFas5)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/macFas5/macFas5.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/macFas5/macFas5.fa.fai",
+    "cytobandURL": "https://hgdownload.soe.ucsc.edu/goldenPath/macFas5/database/cytoBandIdeo.txt.gz",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/macFas5/chrAlias.tab.gz",
+    "tracks": [
+      {
+        "name": "Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/macFas5/ncbiRefSeq.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/macFas5/ncbiRefSeq.txt.gz.tbi",
+        "removable": false,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false,
+        "order": 1000000
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_macFas5.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "GCA_011100615.1",
+    "blatDB": "GCA_011100615.1",
+    "name": "Macaca fascicularis 6.0 (GCA_011100615.1)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/GCA_011100615.1/Macaca_fascicularis.Macaca_fascicularis_6.0.dna.toplevel.fa.gz",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/GCA_011100615.1/Macaca_fascicularis.Macaca_fascicularis_6.0.dna.toplevel.fa.gz.fai",
+    "compressedIndexURL": "https://s3.amazonaws.com/igv.org.genomes/GCA_011100615.1/Macaca_fascicularis.Macaca_fascicularis_6.0.dna.toplevel.fa.gz.gzi",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/GCA_011100615.1/GCA_011100615.1_chromAlias.tab",
+    "tracks": [
+      {
+        "name": "Annotations",
+        "format": "gff3",
+        "description": " <a target = \"_blank\" href = \"https://uswest.ensembl.org/Macaca_fascicularis/Info/Annotation\">Ensembl gene annotation 8-11-2022</a>",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/GCA_011100615.1/Macaca_fascicularis.Macaca_fascicularis_6.0.108.sorted.gff3.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/GCA_011100615.1/Macaca_fascicularis.Macaca_fascicularis_6.0.108.sorted.gff3.gz.tbi",
+        "visibilityWindow": -1,
+        "displayMode": "EXPANDED",
+        "height": 200
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/GCA_011100615.1/GCA_011100615.1_ucsc_ensGene.bed",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "panPan2",
+    "name": "Bonobo (MPI-EVA panpan1.1/panPan2)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/panPan2/panPan2.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/panPan2/panPan2.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/panPan2/cytoBandIdeo.txt.gz",
+    "chromosomeOrder": "chr1,chr2A,chr2B,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/panPan2/ncbiRefSeq.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/panPan2/ncbiRefSeq.txt.gz.tbi",
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_panPan2.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "canFam3",
+    "name": "Dog (Broad CanFam3.1/canFam3)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/canFam3/canFam3.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/canFam3/canFam3.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/canFam3/cytoBandIdeo.txt.gz",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/canFam3/ncbiRefSeq.sorted.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/canFam3/ncbiRefSeq.sorted.txt.gz.tbi",
+        "indexed": false,
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_canFam3.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "canFam4",
+    "name": "Dog (UU_Cfam_GSD_1.0/canFam4)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/canFam4/canFam4.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/canFam4/canFam4.fa.fai",
+    "cytobandURL": "https://hgdownload.soe.ucsc.edu/goldenPath/canFam4/database/cytoBandIdeo.txt.gz",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/canFam5/chrAlias.tab.gz",
+    "tracks": [
+      {
+        "name": "Genes",
+        "format": "refgene",
+        "url": "https://hgdownload.soe.ucsc.edu/goldenPath/canFam4/database/ncbiRefSeq.txt.gz",
+        "indexed": false,
+        "removable": false,
+        "order": 1000000
+      }
+    ]
+  },
+  {
+    "id": "canFam5",
+    "name": "Dog (canFam5) ",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/canFam5/canFam5.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/canFam5/canFam5.fa.fai",
+    "cytobandURL": "https://hgdownload.soe.ucsc.edu/goldenPath/canFam5/database/cytoBandIdeo.txt.gz",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/canFam5/chrAlias.tab.gz",
+    "tracks": [
+      {
+        "name": "Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/canFam5/refGene.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/canFam5/refGene.txt.gz.tbi",
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_canFam5.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "bosTau9",
+    "name": "Cow (ARS-UCD1.2/bosTau9)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/bosTau9/bosTau9.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/bosTau9/bosTau9.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/bosTau9/cytoBandIdeo.txt.gz",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/bosTau9/ncbiRefSeq.sorted.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/bosTau9/ncbiRefSeq.sorted.txt.gz.tbi",
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_bosTau9.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "bosTau8",
+    "name": "Cow (UMD_3.1.1/bosTau8)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/bosTau8/bosTau8.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/bosTau8/bosTau8.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/bosTau8/cytoBandIdeo.txt.gz",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/bosTau8/refGene.sorted.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/bosTau8/refGene.sorted.txt.gz.tbi",
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_bosTau8.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "susScr11",
+    "name": "Pig (SGSC Sscrofa11.1/susScr11)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/susScr11/susScr11.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/susScr11/susScr11.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/susScr11/cytoBandIdeo.txt.gz",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/susScr11/refGene.sorted.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/susScr11/refGene.sorted.txt.gz.tbi",
+        "indexed": false,
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_susScr11.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "galGal6",
+    "name": " Chicken (galGal6)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/galGal6/galGal6.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/galGal6/galGal6.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/galGal6/cytoBandIdeo.txt",
+    "tracks": [
+      {
+        "name": "NCBI Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/galGal6/ncbiRefSeq.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/galGal6/ncbiRefSeq.txt.gz.tbi",
+        "removable": false,
+        "order": 1000000,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "GCF_016699485.2",
+    "name": "Gallus gallus (GCF_016699485.2)",
+    "fastaURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/GCF_016699485.2/GCF_016699485.2.fa",
+    "indexURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/GCF_016699485.2/GCF_016699485.2.fa.fai",
+    "aliasURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/GCF_016699485.2/GCF_016699485.2_chromAlias.tab",
+    "blatDB": "GCF_016699485.2",
+    "tracks": [
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://igv-genepattern-org.s3.amazonaws.com/genomes/GCF_016699485.2/GCF_016699485.2_gene_names.bed",
+        "hidden": true,
+        "displayMode": "COLLAPSED"
+      },
+      {
+        "id": "ncbiRefSeqCurated",
+        "name": "RefSeq Transcripts",
+        "description": " <a target = \"_blank\" href = \"https://hgdownload.gi.ucsc.edu/hubs/birds/https://hgdownload.gi.ucsc.edu/hubs/birds/../GCF/016/699/485/GCF_016699485.2/html/GCF_016699485.2_bGalGal1.mat.broiler.GRCg7b.refSeqComposite\">NCBI RefSeq genes, curated subset (NM_*, NR_*, NP_* or YP_*)</a>",
+        "url": "https://hgdownload.gi.ucsc.edu/hubs/birds/../GCF/016/699/485/GCF_016699485.2/bbi/GCF_016699485.2_bGalGal1.mat.broiler.GRCg7b.ncbiRefSeqCurated.bb",
+        "displayMode": "EXPANDED",
+        "color": "rgb(12,12,120)",
+        "parent": "refSeqComposite on",
+        "height": 300
+      }
+    ]
+  },
+  {
+    "id": "danRer11",
+    "name": "Zebrafish (GRCZ11/danRer11)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/danRer11/danRer11.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/danRer11/danRer11.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/danRer11/cytoBandIdeo.txt.gz",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/danRer11/chromAlias.txt.gz",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/danRer11/ncbiRefSeq.sorted.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/danRer11/ncbiRefSeq.sorted.txt.gz.tbi",
+        "order": 1000000,
+        "removable": false,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_danRer11.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "danRer10",
+    "name": "Zebrafish (GRCZ10/danRer10)",
+    "fastaURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/danRer10/danRer10.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/danRer10/danRer10.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/danRer10/cytoBandIdeo.txt.gz",
+    "order": 1000000,
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/danRer10/ncbiRefSeq.sorted.txt.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/danRer10/ncbiRefSeq.sorted.txt.gz.tbi",
+        "order": 1000000,
+        "removable": false,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false
+      },
+      {
+        "name": "Genes",
+        "format": "bed",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/locations/geneLocations_danRer10.bed.gz",
+        "hidden": true,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "ce11",
+    "name": "C. elegans (ce11)",
+    "fastaURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/ce11/ce11.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/ce11/ce11.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/ce11/cytoBandIdeo.txt.gz",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/ce11/refGene.sorted.txt.gz",
+        "indexed": false,
+        "order": 1000000,
+        "removable": false,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "dm6",
+    "name": "D. melanogaster (dm6)",
+    "fastaURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/dm6/dm6.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/dm6/dm6.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/dm6/cytoBandIdeo.txt.gz",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/dm6/ncbiRefSeq.txt.gz",
+        "indexed": false,
+        "order": 1000000,
+        "removable": false,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "dm3",
+    "name": "D. melanogaster (dm3)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/dm3/dm3.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/dm3/dm3.fa.fai",
+    "cytobandURL": "https://s3.amazonaws.com/igv.org.genomes/dm3/cytoBand.txt.gz",
+    "tracks": [
+      {
+        "name": "UCSC Refseq Genes",
+        "format": "refgene",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/dm3/refGene.txt.gz",
+        "indexed": false,
+        "order": 1000000,
+        "removable": false,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "dmel_r5.9",
+    "name": "D. melanogaster (dmel_r5.9)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/dmel_r5.9/dmel-all-chromosome-r5.9.fasta",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/dmel_r5.9/dmel-all-chromosome-r5.9.fasta.fai",
+    "tracks": [
+      {
+        "name": "Transcripts",
+        "format": "gff3",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/dmel_r5.9/dmel-r5.9.transcripts.sorted.gff.gz",
+        "indexed": false,
+        "order": 1000000,
+        "removable": false,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "sacCer3",
+    "name": "S. cerevisiae (sacCer3)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/sacCer3/sacCer3.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/sacCer3/sacCer3.fa.fai",
+    "tracks": [
+      {
+        "name": "Refseq Genes",
+        "type": "annotation",
+        "format": "refgene",
+        "displayMode": "EXPANDED",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/sacCer3/ncbiRefGene.txt.gz",
+        "indexed": false,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "ASM294v2",
+    "name": "S. pombe (ASM294v2)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/ASM294v2/Schizosaccharomyces_pombe_all_chromosomes.fa",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/ASM294v2/Schizosaccharomyces_pombe_all_chromosomes.fa.fai",
+    "tracks": [
+      {
+        "name": "Pombase forward strand",
+        "type": "annotation",
+        "format": "gff3",
+        "displayMode": "EXPANDED",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/ASM294v2/Schizosaccharomyces_pombe_all_chromosomes.plus.gff3.gz",
+        "indexed": false,
+        "supportsWholeGenome": true,
+        "labelAllFeatures": true,
+        "height": 150,
+        "color": "rgb(5,75,180)"
+      },
+      {
+        "name": "Pombase reverse strand",
+        "type": "annotation",
+        "format": "gff3",
+        "displayMode": "EXPANDED",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/ASM294v2/Schizosaccharomyces_pombe_all_chromosomes.minus.gff3.gz",
+        "indexed": false,
+        "supportsWholeGenome": true,
+        "height": 150,
+        "color": "rgb(7,123,220)"
+      }
+    ]
+  },
+  {
+    "id": "ASM985889v3",
+    "name": "Sars-CoV-2 (ASM985889v3)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/ASM985889v3/GCF_009858895.2_ASM985889v3_genomic.fna",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/ASM985889v3/GCF_009858895.2_ASM985889v3_genomic.fna.fai",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/ASM985889v3/alias.tab",
+    "order": 1000000,
+    "tracks": [
+      {
+        "name": "Annotations",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/ASM985889v3/GCF_009858895.2_ASM985889v3_genomic.gff.gz",
+        "displayMode": "EXPANDED",
+        "nameField": "gene",
+        "height": 150
+      }
+    ]
+  },
+  {
+    "id": "tair10",
+    "name": "A. thaliana (TAIR 10)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/tair10/TAIR10_chr_all.fas",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/tair10/TAIR10_chr_all.fas.fai",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/tair10/TAIR10_alias.tab",
+    "tracks": [
+      {
+        "name": "Genes",
+        "format": "gff3",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/tair10/TAIR10_GFF3_genes.gff",
+        "indexed": false,
+        "removable": false,
+        "order": 1000000,
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "GCA_003086295.2",
+    "name": "Peanut (GCA_003086295.2)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/GCA_003086295.2/GCF_003086295.2_arahy.Tifrunner.gnm1.KYV3_genomic.fna",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/GCA_003086295.2/GCF_003086295.2_arahy.Tifrunner.gnm1.KYV3_genomic.fna.fai",
+    "tracks": [
+      {
+        "name": "Annotations",
+        "format": "gff3",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/GCA_003086295.2/GCF_003086295.2_arahy.Tifrunner.gnm1.KYV3_genomic.gff.gz",
+        "indexURL": "https://s3.amazonaws.com/igv.org.genomes/GCA_003086295.2/GCF_003086295.2_arahy.Tifrunner.gnm1.KYV3_genomic.gff.gz.tbi",
+        "removable": false,
+        "order": 1000000,
+        "visibilityWindow": -1,
+        "supportsWholeGenome": false,
+        "displayMode": "EXPANDED",
+        "height": 300
+      }
+    ]
+  },
+  {
+    "id": "GCF_001433935.1",
+    "name": "O. sativa IRGSP-1.0 (GCF_001433935.1)",
+    "fastaURL": "https://s3.amazonaws.com/igv.org.genomes/GCF_001433935.1/GCF_001433935.1_IRGSP-1.0_genomic.fna.gz",
+    "indexURL": "https://s3.amazonaws.com/igv.org.genomes/GCF_001433935.1/GCF_001433935.1_IRGSP-1.0_genomic.fna.gz.fai",
+    "compressedIndexURL": "https://s3.amazonaws.com/igv.org.genomes/GCF_001433935.1/GCF_001433935.1_IRGSP-1.0_genomic.fna.gz.gzi",
+    "aliasURL": "https://s3.amazonaws.com/igv.org.genomes/GCF_001433935.1/GCF_001433935.1_chromAlias.tab",
+    "tracks": [
+      {
+        "name": "MSU V7 genes",
+        "format": "gff3",
+        "description": " <a target = \"_blank\" href = \"http://rice.uga.edu/\">Rice Genome Annotation Project</a>",
+        "url": "https://s3.amazonaws.com/igv.org.genomes/GCF_001433935.1/MSU_V7.gff3.gz",
+        "displayMode": "EXPANDED",
+        "height": 200
+      }
+    ]
+  },
+  {
+    "id": "NC_016856.1",
+    "name": "Salmonella enterica subsp. enterica serovar Typhimurium str. 14028S",
+    "fastaURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/NC_016856.1/NC_016856.1.fna",
+    "indexURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/NC_016856.1/NC_016856.1.fna.fai",
+    "tracks": [
+      {
+        "url": "https://igv-genepattern-org.s3.amazonaws.com/genomes/NC_016856.1/NC_016856.1.gff.gz",
+        "name": "NC_016856.1.gff.gz",
+        "format": "gff3",
+        "type": "annotation",
+        "searchable": true
+      }
+    ]
+  },
+  {
+    "id": "GCA_000182895.1",
+    "name": "Coprinopsis cinerea okayama7#130 (GCA_000182895.1)",
+    "fastaURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/GCA_000182895.1/GCA_000182895.1.fa",
+    "indexURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/GCA_000182895.1/GCA_000182895.1.fa.fai",
+    "aliasURL": "https://igv-genepattern-org.s3.amazonaws.com/genomes/GCA_000182895.1/GCA_000182895.1_chromAlias.tab",
+    "blatDB": "GCA_000182895.1",
+    "tracks": [
+      {
+        "id": "ncbiGene",
+        "name": "Gene models",
+        "format": "bigGenePred",
+        "description": " <a target = \"_blank\" href = \"https://hgdownload.soe.ucsc.edu/hubs/GCA/000/182/895/GCA_000182895.1/https://hgdownload.soe.ucsc.edu/hubs/GCA/000/182/895/GCA_000182895.1/html/GCA_000182895.1_CC3.ncbiGene\">Gene models submitted to NCBI</a>",
+        "url": "https://hgdownload.soe.ucsc.edu/hubs/GCA/000/182/895/GCA_000182895.1/bbi/GCA_000182895.1_CC3.ncbiGene.bb",
+        "displayMode": "EXPANDED",
+        "color": "rgb(0,80,150)",
+        "altColor": "rgb(0,150,80)",
+        "colorBy": "strand",
+        "infoURL": "https://hgdownload.soe.ucsc.edu/hubs/GCA/000/182/895/GCA_000182895.1/https://www.ncbi.nlm.nih.gov/gene/?term=$$"
+      }
+    ]
+  }
+]
