@@ -117,7 +117,7 @@ class JuiceboxPanel extends Panel {
         if ('DidLoadEnsembleFile' === type) {
             const ctx = hic.getCurrentBrowser().contactMatrixView.ctx_live
             ctx.transferFromImageBitmap(null)
-            this.dismiss()
+            // this.dismiss()
         }
 
         super.receiveEvent({ type, data });
