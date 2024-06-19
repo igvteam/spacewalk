@@ -75,10 +75,9 @@ class JuiceboxPanel extends Panel {
 
         hic.EventBus.globalBus.subscribe('MapLoad', event => {
 
+            // hic-live-contact-frequency-map-threshold-widget
             const { dataset } = event.data
-
-            const juiceboxPanel = document.querySelector('#spacewalk_juicebox_panel')
-            const [ ignore, thresholdWidget ] = juiceboxPanel.querySelectorAll('li')
+            const thresholdWidget = document.querySelector('#hic-live-contact-frequency-map-threshold-widget')
             thresholdWidget.style.display = undefined === dataset.isLiveContactMapDataSet ? 'none' : 'block'
 
             if (undefined === ensembleManager.locus) {
@@ -118,7 +117,7 @@ class JuiceboxPanel extends Panel {
         if ('DidLoadEnsembleFile' === type) {
             const ctx = hic.getCurrentBrowser().contactMatrixView.ctx_live
             ctx.transferFromImageBitmap(null)
-            this.dismiss()
+            // this.dismiss()
         }
 
         super.receiveEvent({ type, data });
