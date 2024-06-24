@@ -26,11 +26,20 @@ class EnsembleManager {
 
     async loadEnsembleGroup(ensembleGroupKey) {
 
+        showGlobalSpinner()
+
+        let str = `loadEnsembleGroup(${ ensembleGroupKey })`
+        console.time(str)
+
         this.datasource.currentEnsembleGroupKey = ensembleGroupKey
         await this.datasource.updateWithEnsembleGroupKey(ensembleGroupKey)
         this.locus = this.datasource.locus
         this.currentIndex = 0
         this.currentTrace = await this.createTrace(this.currentIndex)
+
+        console.timeEnd(str)
+
+        hideGlobalSpinner()
     }
 
     async loadSWB(path, datasource, index, ensembleGroupKey) {

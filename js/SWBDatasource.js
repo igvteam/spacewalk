@@ -5,7 +5,7 @@ import {igvPanel, SpacewalkGlobals} from './app.js'
 import DataSourceBase from './dataSourceBase.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
 import {createBoundingBoxWithFlatXYZList, cullDuplicateXYZ} from "./math.js"
-import SpacewalkEventBus from "./spacewalkEventBus"
+import SpacewalkEventBus from "./spacewalkEventBus.js"
 
 class SWBDatasource extends DataSourceBase {
 
@@ -77,6 +77,7 @@ class SWBDatasource extends DataSourceBase {
         this.isPointCloud = ('multi_point' === this.header.point_type)
         this.vertexListCount = undefined
 
+        SpacewalkEventBus.globalBus.post({ type: "DidSelectEnsembleGroup", data: ensembleGroupKey })
     }
 
     async getVertexListCount(){
