@@ -83,6 +83,7 @@ class GUIManager {
         $point_transparency_control.find('i.fa-plus-circle').on('click.spacewalk-point-transparency-plus', () => pointCloud.updatePointTransparency(1))
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+        SpacewalkEventBus.globalBus.subscribe('DidSelectEnsembleGroup', this);
 
     }
 
@@ -99,8 +100,8 @@ class GUIManager {
             str = `${ chr } : ${StringUtils.numberFormatter(genomicStart) } - ${ StringUtils.numberFormatter(genomicEnd) }`;
             $('#spacewalk_info_panel_locus').text( str );
 
-            str = `${ sample }`;
-            $('#spacewalk_info_panel_ensemble').text( str );
+            // str = `${ sample }`;
+            // $('#spacewalk_info_panel_ensemble').text( str );
 
             $('#spacewalk_info_panel').show();
 
@@ -112,7 +113,10 @@ class GUIManager {
                 $('#spacewalk_ui_manager_render_styles').show();
             }
 
-
+        } else if ('DidSelectEnsembleGroup' === type) {
+            const el = document.querySelector('#spacewalk_info_panel_ensemble_group')
+            el.innerText = data
+            el.style.display = 'block'
         }
     }
 

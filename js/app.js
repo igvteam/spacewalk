@@ -192,7 +192,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
     const fileLoader =
         {
             load: async fileOrPath => {
-                await sceneManager.ingestEnsemblePath(fileOrPath, '0')
+                await sceneManager.ingestEnsemblePath(fileOrPath, '0', undefined)
 
                 const data = ensembleManager.createEventBusPayload()
                 SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })

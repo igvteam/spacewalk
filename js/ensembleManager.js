@@ -5,24 +5,19 @@ import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
 import Parser from './parser.js'
 import Datasource from './datasource.js'
 import SWBDatasource from "./SWBDatasource.js"
-import CNDBParser from "./CNDBParser.js"
-import CNDBDatasource from "./CNDBDatasource.js"
-import {ensembleManager} from "./app"
 
 class EnsembleManager {
 
     constructor () {
     }
 
-    async loadURL(url, traceKey) {
+    async loadURL(url, traceKey, ensembleGroupKey) {
 
         const extension = FileUtils.getExtension(url)
         const swbSet = new Set(['swb', 'sw'])
         if (swbSet.has(extension)) {
             const datasource = new SWBDatasource()
-            await this.load(url, datasource, datasource, parseInt(traceKey))
-        } else if ('cndb' === extension) {
-            await this.load(url, new CNDBParser(), new CNDBDatasource(), parseInt(traceKey))
+            await this.loadSWB(url, datasource, parseInt(traceKey), ensembleGroupKey)
         } else if ('swt' === extension) {
             await this.load(url, new Parser(), new Datasource(), parseInt(traceKey))
         }
@@ -30,13 +25,47 @@ class EnsembleManager {
     }
 
     async loadEnsembleGroup(ensembleGroupKey) {
+
+        showGlobalSpinner()
+
+        let str = `loadEnsembleGroup(${ ensembleGroupKey })`
+        console.time(str)
+
+        this.datasource.currentEnsembleGroupKey = ensembleGroupKey
         await this.datasource.updateWithEnsembleGroupKey(ensembleGroupKey)
         this.locus = this.datasource.locus
         this.currentIndex = 0
         this.currentTrace = await this.createTrace(this.currentIndex)
+
+        console.timeEnd(str)
+
+        hideGlobalSpinner()
     }
 
-    async load(fileOrPath, parser, datasource, index) {
+    async loadSWB(path, datasource, index, ensembleGroupKey) {
+
+        showGlobalSpinner()
+        const { sample, genomeAssembly } = await datasource.load(path, ensembleGroupKey)
+        hideGlobalSpinner()
+
+        this.sample = sample
+        this.genomeAssembly = genomeAssembly
+
+        this.datasource = datasource
+
+        const { locus, isPointCloud } = datasource
+
+        this.locus = locus
+
+        this.isPointCloud = isPointCloud
+
+        const initialIndex = index || 0
+        this.currentTrace = await this.createTrace(initialIndex)
+        this.currentIndex = initialIndex
+
+    }
+
+    async load(fileOrPath, parser, datasource, index, ensembleGroupKey) {
 
         showGlobalSpinner()
         const { sample, genomeAssembly } = await parser.parse(fileOrPath, datasource)
