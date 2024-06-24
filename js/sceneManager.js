@@ -67,9 +67,9 @@ class SceneManager {
         return { width, height };
     }
 
-    async ingestEnsemblePath(url, traceKey) {
+    async ingestEnsemblePath(url, traceKey, ensembleGroupKey) {
 
-        await ensembleManager.loadURL(url, traceKey)
+        await ensembleManager.loadURL(url, traceKey, ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
 

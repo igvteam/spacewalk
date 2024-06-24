@@ -9,19 +9,18 @@ import SpacewalkEventBus from "./spacewalkEventBus"
 
 class SWBDatasource extends DataSourceBase {
 
-    async parse(path, datasource) {
+    async load(path, ensembleGroupKey) {
 
         SpacewalkGlobals.url = false === FileUtils.isFilePath(path) ? path : undefined
 
         const hdf5 = await openH5File(FileUtils.isFilePath(path) ? { file:path } : { url: path })
 
-        const { sample, genomeAssembly } = await datasource.initialize(hdf5)
+        const { sample, genomeAssembly } = await this.initialize(hdf5, ensembleGroupKey)
 
         return { sample, genomeAssembly }
-
     }
 
-    async initialize(hdf5) {
+    async initialize(hdf5, ensembleGroupKey) {
 
         showGlobalSpinner()
 
@@ -31,7 +30,9 @@ class SWBDatasource extends DataSourceBase {
 
         this.ensembleGroupKeys = await getEnsembleGroupKeys(hdf5)
 
-        await this.updateWithEnsembleGroupKey(this.ensembleGroupKeys[0])
+        this.currentEnsembleGroupKey = ensembleGroupKey || this.ensembleGroupKeys[ 0 ]
+
+        await this.updateWithEnsembleGroupKey(this.currentEnsembleGroupKey)
 
         hideGlobalSpinner()
 
@@ -59,9 +60,7 @@ class SWBDatasource extends DataSourceBase {
 
     async updateWithEnsembleGroupKey(ensembleGroupKey) {
 
-        this.currentEnsembleGroupKey = ensembleGroupKey
-
-        const genomicPositionGroup = await this.hdf5.get( `${ this.currentEnsembleGroupKey }/genomic_position` )
+        const genomicPositionGroup = await this.hdf5.get( `${ ensembleGroupKey }/genomic_position` )
         const dataset = await genomicPositionGroup.get('regions')
         const { chromosome, genomicExtentList } = await getGlobalGenomicExtentList(dataset)
         this.locus =

@@ -60,6 +60,7 @@ async function loadSpacewalkSession (session) {
     const {
         url,
         traceKey,
+        ensembleGroupKey,
         renderStyle,
         gnomonVisibility,
         groundPlaneVisibility,
@@ -73,7 +74,7 @@ async function loadSpacewalkSession (session) {
 
     guiManager.setRenderStyle(renderStyle)
 
-    await sceneManager.ingestEnsemblePath(url, traceKey)
+    await sceneManager.ingestEnsemblePath(url, traceKey, ensembleGroupKey)
 
     sceneManager.gnomon.setState({ visibility: gnomonVisibility, ...gnomonColor })
 
@@ -150,6 +151,8 @@ function spacewalkToJSON () {
         spacewalk.locus = { ...ensembleManager.locus }
 
         spacewalk.traceKey = ensembleManager.currentIndex.toString()
+
+        spacewalk.ensembleGroupKey = ensembleManager.datasource.currentEnsembleGroupKey
 
         spacewalk.igvPanelState = igvPanel.getSessionState()
 
