@@ -241,7 +241,7 @@ function createPointCloudPayload(key, genomicExtent, rawXYZ) {
 
 }
 
-function createGenomicExtentList(traceValues, globalGenomicExtentList) {
+function createGenomicExtentList(traceValues, ƒ) {
 
     const makeRegionXYZStack = regionXYZList => {
 
@@ -312,7 +312,7 @@ async function getGlobalGenomicExtentList(dataset) {
         if (undefined === chromosome) {
             chromosome = chr
         }
-        startBP = parseInt(startBP)
+        startBP = Math.max(1, parseInt(startBP))
         endBP = parseInt(endBP)
         genomicExtentList.push({ startBP, endBP, centroidBP: Math.floor((endBP+startBP)/2), sizeBP: (endBP-startBP) })
     }
