@@ -1,15 +1,10 @@
-import hic from 'juicebox.js'
-import { StringUtils } from 'igv-utils'
+import hic from '../node_modules/juicebox.js/js/index.js'
 import { AlertSingleton } from 'igv-widgets'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import {ballAndStick, colorRampMaterialProvider, contactFrequencyMapPanel, ensembleManager, ribbon} from './app.js'
-import { HICEvent } from "./juiceboxHelpful.js"
-import {paintContactFrequencyArrayWithColorScale, renderArrayToCanvas} from './utils.js'
 import SWBDatasource from "./SWBDatasource"
 import {makeDraggable} from "./draggable"
-
-const imageTileDimension = 685
 
 class JuiceboxPanel extends Panel {
 
@@ -45,6 +40,8 @@ class JuiceboxPanel extends Panel {
 
         let session
 
+        // juiceboxClassAdditions()
+
         if (config.browsers) {
             session = Object.assign({ queryParametersSupported: false }, config)
         } else {
@@ -62,16 +59,15 @@ class JuiceboxPanel extends Panel {
                 }
         }
 
-        juiceboxClassAdditions()
+        try {
+            this.browser = await hic.restoreSession(container, session)
+            this.locus = config.locus
+        } catch (error) {
+            console.error(error.message)
+            AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
+        }
 
-        hic.EventBus.globalBus.subscribe('BrowserSelect', event => {
-
-            const browser = event.data
-            console.log(`${ browser.id } is good to go`)
-
-            this.configureMouseHandlers()
-
-        })
+        this.configureMouseHandlers()
 
         hic.EventBus.globalBus.subscribe('MapLoad', event => {
 
@@ -91,14 +87,6 @@ class JuiceboxPanel extends Panel {
 
         })
 
-        try {
-            await hic.restoreSession(container, session)
-            this.locus = config.locus
-        } catch (error) {
-            console.error(error.message)
-            AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
-        }
-
         document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', async e => {
 
             if (ensembleManager.datasource instanceof SWBDatasource) {
@@ -115,7 +103,7 @@ class JuiceboxPanel extends Panel {
     receiveEvent({ type, data }) {
 
         if ('DidLoadEnsembleFile' === type) {
-            const ctx = hic.getCurrentBrowser().contactMatrixView.ctx_live
+            const ctx = this.browser.contactMatrixView.ctx_live
             ctx.transferFromImageBitmap(null)
             // this.dismiss()
         }
@@ -128,7 +116,7 @@ class JuiceboxPanel extends Panel {
 
     async locusDidChange({ chr, genomicStart, genomicEnd }) {
 
-        if (this.isContactMapLoaded() && hic.getCurrentBrowser().dataset.isLiveContactMapDataSet !== true) {
+        if (this.isContactMapLoaded() && this.browser.dataset.isLiveContactMapDataSet !== true) {
             try {
                 await this.goto({ chr, start: genomicStart, end: genomicEnd })
             } catch (e) {
@@ -139,11 +127,11 @@ class JuiceboxPanel extends Panel {
 
     configureMouseHandlers() {
 
-        hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', ribbon)
-        hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', ballAndStick)
-        hic.getCurrentBrowser().eventBus.subscribe('DidHideCrosshairs', colorRampMaterialProvider)
+        this.browser.eventBus.subscribe('DidHideCrosshairs', ribbon)
+        this.browser.eventBus.subscribe('DidHideCrosshairs', ballAndStick)
+        this.browser.eventBus.subscribe('DidHideCrosshairs', colorRampMaterialProvider)
 
-        hic.getCurrentBrowser().setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+        this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
         })
 
@@ -153,7 +141,7 @@ class JuiceboxPanel extends Panel {
 
         if (this.isContactMapLoaded()) {
             try {
-                const browser = hic.getCurrentBrowser()
+                const browser = this.browser
                 await browser.parseGotoInput(`${chr}:${start}-${end}`)
             } catch (error) {
                 console.warn(error.message)
@@ -173,7 +161,7 @@ class JuiceboxPanel extends Panel {
 
                 this.present()
 
-                await hic.getCurrentBrowser().loadHicFile(config)
+                await this.browser.loadHicFile(config)
 
             }
 
@@ -185,7 +173,7 @@ class JuiceboxPanel extends Panel {
         const { chr, genomicStart, genomicEnd } = ensembleManager.locus
 
         try {
-            await hic.getCurrentBrowser().parseGotoInput(`${chr}:${genomicStart}-${genomicEnd}`)
+            await this.browser.parseGotoInput(`${chr}:${genomicStart}-${genomicEnd}`)
         } catch (error) {
             console.warn(error.message)
         }
@@ -193,144 +181,12 @@ class JuiceboxPanel extends Panel {
     }
 
     blurb() {
-        return `${ hic.getCurrentBrowser().$contactMaplabel.text() }`
+        return `${ this.browser.$contactMaplabel.text() }`
     }
 
     isContactMapLoaded() {
-        return (hic.getCurrentBrowser() && hic.getCurrentBrowser().dataset)
+        return (this.browser && this.browser.dataset)
     }
-
-}
-
-function juiceboxClassAdditions() {
-
-    hic.ContactMatrixView.prototype.renderWithLiveContactFrequencyData = async function (state, liveContactMapDataSet, data, contactFrequencyArray) {
-
-        this.ctx.canvas.style.display = 'none'
-        this.ctx_live.canvas.style.display = 'block'
-
-        const zoomIndexA = state.zoom
-        const { chr1, chr2 } = state
-        const zoomData = liveContactMapDataSet.getZoomDataByIndex(chr1, chr2, zoomIndexA)
-
-        // Clear caches
-        this.colorScaleThresholdCache = {}
-        this.imageTileCache = {}
-        this.imageTileCacheKeys = []
-
-        this.checkColorScale_sw(state, 'LIVE', liveContactMapDataSet, zoomData)
-
-        paintContactFrequencyArrayWithColorScale(this.colorScale, data.workerValuesBuffer, contactFrequencyArray)
-
-        // Render by copying image data to display canvas bitmap render context
-        await renderArrayToCanvas(this.ctx_live, contactFrequencyArray)
-
-        const browser = hic.getCurrentBrowser()
-
-        // Update UI
-        browser.state = state
-        browser.dataset = liveContactMapDataSet
-
-        browser.eventBus.post(HICEvent('MapLoad', browser.dataset))
-        hic.EventBus.globalBus.post(HICEvent('MapLoad', browser))
-
-        const eventConfig =
-            {
-                state,
-                resolutionChanged: true,
-                chrChanged: true,
-                displayMode: 'LIVE',
-                dataset: browser.dataset
-            }
-
-        browser.eventBus.post(HICEvent('LocusChange', eventConfig))
-
-
-        // browser.layoutController.xAxisRuler.update()
-        // browser.layoutController.yAxisRuler.update()
-
-    }
-
-    hic.ContactMatrixView.prototype.checkColorScale_sw = function (state, displayMode, liveContactMapDataSet, zoomData) {
-
-        const colorScaleKey = createColorScaleKey(state, displayMode)
-
-        let percentile = computeContactRecordsPercentile(liveContactMapDataSet.contactRecordList, 95)
-
-        if (!isNaN(percentile)) {
-
-            if (0 === zoomData.chr1.index) {
-                // Heuristic for whole genome view
-                percentile *= 4
-            }
-
-            this.colorScale = new hic.ColorScale(this.colorScale)
-
-            this.colorScale.setThreshold(percentile)
-
-            this.browser.eventBus.post(HICEvent("ColorScale", this.colorScale))
-
-            this.colorScaleThresholdCache[colorScaleKey] = percentile
-
-        }
-
-        return this.colorScale
-
-    }
-
-    hic.HicState.prototype.description = function(genome, binSize, width) {
-
-        const { chr1, x, pixelSize } = this
-
-        // bp = bin * bp-per-bin
-        const xBP = x * binSize
-
-        // bin = pixel / pixel-per-bin
-        const widthBin = width / pixelSize
-
-        // bp = bin * bp-per-bin
-        const widthBP = widthBin * binSize
-
-        const xEnd = x + widthBin
-
-        const xEndBP = xBP + widthBP
-
-        // chromosome length - bp & bin
-        const { name, bpLength } = genome.getChromosome(genome.wgChromosomeNames[ chr1 ])
-        const lengthBin = bpLength / binSize
-
-        const f = StringUtils.numberFormatter(width)
-        const d = StringUtils.numberFormatter(x)
-        const g = StringUtils.numberFormatter(xBP)
-        const a = StringUtils.numberFormatter(bpLength)
-        const b = StringUtils.numberFormatter(lengthBin)
-        const c = StringUtils.numberFormatter(binSize)
-        const e = StringUtils.numberFormatter(pixelSize)
-
-        const strings =
-            [
-                `${ name }`,
-                `Screen Width\npixel(${f}) bin(${ StringUtils.numberFormatter(widthBin)}) bp(${ StringUtils.numberFormatter(widthBP)})`,
-                `Start\nbin(${d}) bp(${g})\nEnd\nbin(${ StringUtils.numberFormatter(xEnd) }) bp(${ StringUtils.numberFormatter(xEndBP)})`,
-                `Bin Size\nbp-per-bin(${c})\nPixel Size\npixel-per-bin(${e})`
-            ]
-
-        return `\n${ strings.join('\n') }`
-    }
-
-}
-
-function createColorScaleKey(state, displayMode) {
-    return "" + state.chr1 + "_" + state.chr2 + "_" + state.zoom + "_" + state.normalization + "_" + displayMode;
-}
-function computeContactRecordsPercentile(contactRecords, p) {
-
-    const counts = contactRecords.map(({ counts }) => counts)
-
-    counts.sort((a, b) => a - b)
-
-    const index = Math.floor((p / 100) * contactRecords.length);
-    return counts[index];
 
 }
 

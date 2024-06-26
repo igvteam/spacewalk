@@ -137,20 +137,6 @@ function clearCanvasArray(canvasArray, traceLength) {
 
 }
 
-function paintContactFrequencyArrayWithColorScale(colorScale, frequencies, array) {
-
-    let i = 0
-    for (let frequency of frequencies) {
-
-        const { red, green, blue, alpha } = colorScale.getColor(frequency)
-
-        array[i++] = red
-        array[i++] = green
-        array[i++] = blue
-        array[i++] = alpha
-    }
-}
-
 async function renderArrayToCanvas(ctx, array) {
 
     const { width, height } = ctx.canvas;
@@ -193,7 +179,6 @@ export {
     setMaterialProvider,
     clearCanvasArray,
     createImage,
-    paintContactFrequencyArrayWithColorScale,
     renderArrayToCanvas,
     readFileAsDataURL,
     fitToContainer,

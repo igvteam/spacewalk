@@ -1,6 +1,6 @@
-import hic from 'juicebox.js'
+import hic from '../node_modules/juicebox.js/js/index.js'
 import EnsembleManager from './ensembleManager.js'
-import {colorMapManager, ensembleManager, igvPanel} from "./app.js"
+import {colorMapManager, ensembleManager, igvPanel, juiceboxPanel} from "./app.js"
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import {appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
@@ -78,9 +78,9 @@ class ContactFrequencyMapPanel extends Panel {
                 await renderArrayToCanvas(this.ctx_ensemble, ensembleContactFrequencyArray)
 
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-                const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(data.workerValuesBuffer, ensembleManager.getLiveMapTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
+                const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(juiceboxPanel.browser.contactMatrixView.getViewDimensions(), data.workerValuesBuffer, ensembleManager.getLiveMapTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
 
-                await hic.getCurrentBrowser().contactMatrixView.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data, ensembleContactFrequencyArray)
+                await juiceboxPanel.browser.contactMatrixView.renderWithLiveContactFrequencyData(juiceboxPanel.browser, hicState, liveContactMapDataSet, data, ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
 
                 document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
                 hideGlobalSpinner()
@@ -180,9 +180,9 @@ function distanceThresholdEstimate(trace) {
 }
 
 // Contact Matrix is m by m where m = traceLength
-function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
+function createLiveContactMapDataSet(contactMatrixViewDimensions, contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
-    const hicState = createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
+    const hicState = createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
 
     const contactRecordList = []
 
@@ -217,11 +217,9 @@ function createLiveContactMapDataSet(contacts, traceLength, genomeAssembly, chr,
 
 }
 
-function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
+function createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
-    const genome = igvPanel.browser.genome
-
-    const chromosome = genome.getChromosome(chr.toLowerCase())
+    const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
 
     // chromosome length and index into chromosome array
     const { bpLength, order } = chromosome
@@ -233,7 +231,7 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
     const binSize = (genomicEnd - genomicStart) / binCount
 
     // canvas - pixel x pixel
-    const { width, height } = hic.getCurrentBrowser().contactMatrixView.getViewDimensions()
+    const { width, height } = contactMatrixViewDimensions
 
     // pixels-per-bin
     const pixelSize = width/binCount
@@ -241,11 +239,7 @@ function createHICState(traceLength, genomeAssembly, chr, genomicStart, genomicE
     // x, y in Bin units
     const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
 
-    const state = new hic.State(order, order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
-
-    console.warn(`createHICState ${ state.description(genome, binSize, width) }`)
-
-    return state
+    return new hic.State(order, order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
 
 }
 
