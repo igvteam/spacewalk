@@ -104,46 +104,7 @@ class DistanceMapPanel extends Panel {
 
                 const interpolantList = [ xNormalized, yNormalized ]
 
-                if (BallAndStick.getRenderStyle() === sceneManager.renderStyle) {
-
-                    const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
-
-                    const instanceIdList = interpolantWindowList.map(({ index }) => index)
-
-                    let bufferAttribute = ballAndStick.balls.geometry.getAttribute('instanceColor')
-
-                    // un-highlight
-                    if (ballAndStick.pickHighlighter.instanceIdList) {
-                        const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
-                        for (const instanceId of ballAndStick.pickHighlighter.instanceIdList) {
-                            const color = igvPanel.materialProvider.colorForInterpolant(genomicExtentList[ instanceId ].interpolant)
-                            color.toArray(bufferAttribute.array, instanceId * 3)
-                        }
-                        ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true;
-                        this.instanceIdList = undefined
-                    }
-
-                    // highlight
-                    ballAndStick.pickHighlighter.instanceIdList = new Set()
-
-                    for (let instanceId of instanceIdList) {
-                        ballAndStick.pickHighlighter.instanceIdList.add(instanceId)
-                    }
-
-                    bufferAttribute = ballAndStick.balls.geometry.getAttribute('instanceColor')
-
-                    for (const instanceId of ballAndStick.pickHighlighter.instanceIdList) {
-                        ballAndStick.pickHighlighter.highlightColor.toArray(bufferAttribute.array, instanceId * 3)
-                    }
-
-                    ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true
-
-                    colorRampMaterialProvider.highlightWithInterpolantWindowList(interpolantWindowList)
-
-                } else {
-                    SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } })
-                }
-
+                SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } })
             }
 
         });
