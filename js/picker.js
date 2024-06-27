@@ -37,31 +37,21 @@ class Picker {
             if (hitList.length > 0) {
                 const [ hit ] = hitList
 
-                if (hit.instanceId !== currentInstanceId) {
+                if (hit.instanceId && hit.instanceId !== currentInstanceId) {
                     currentInstanceId = hit.instanceId
-                    console.log(`hit ${ currentInstanceId }`)
+                    // console.log(`hightlight ${ currentInstanceId }`)
                     ballAndStick.pickHighlighter.processHit(hit)
                 }
 
-            }
+            } else {
 
-            // if (hitList.length > 0) {
-            //
-            //     // Hit list contains all instances along the ray of intersection. Select the first.
-            //     const [ hit ] = hitList;
-            //
-            //     if (undefined !== hit.instanceId) {
-            //         ballAndStick.pickHighlighter.processHit(hit)
-            //     }
-            //
-            // } else {
-            //
-            //     if (ballAndStick.pickHighlighter.instanceIdList) {
-            //         // console.log(`${ Date.now() } Picker - ballHighlighter.unhighlight() then  colorRampMaterialProvider.repaint()`)
-            //         ballAndStick.pickHighlighter.unhighlight()
-            //         colorRampMaterialProvider.repaint()
-            //     }
-            // }
+                if (currentInstanceId) {
+                    // console.log(`UN HIGHLIGHT ${ currentInstanceId }`)
+                    currentInstanceId = undefined
+                    ballAndStick.pickHighlighter.unhighlight()
+                    colorRampMaterialProvider.repaint()
+                }
+            }
 
         }
     }
