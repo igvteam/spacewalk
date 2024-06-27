@@ -1,11 +1,19 @@
-import EnsembleManager from './ensembleManager.js'
-import { colorMapManager, ensembleManager } from "./app.js";
+import {
+    ballAndStick,
+    colorMapManager,
+    colorRampMaterialProvider,
+    ensembleManager, igvPanel,
+    juiceboxPanel,
+    sceneManager
+} from "./app.js";
 import { clamp } from "./math.js";
 import Panel from "./panel.js";
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
 import {clearCanvasArray, renderArrayToCanvas} from "./utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
-import SWBDatasource from "./SWBDatasource"
+import SWBDatasource from "./SWBDatasource.js"
+import {HICEvent} from "./juiceboxHelpful.js"
+import BallAndStick from "./ballAndStick.js"
 
 const kDistanceUndefined = -1
 
@@ -44,43 +52,49 @@ class DistanceMapPanel extends Panel {
         this.ctx_ensemble = canvas.getContext('bitmaprenderer');
 
         const canvas_container = $canvas_container.get(0)
+        this.canvas_container = canvas_container
 
         const horizontalLine = document.createElement('div')
         horizontalLine.classList.add('crosshair', 'horizontal')
         canvas_container.appendChild(horizontalLine)
+        this.horizontalLine = horizontalLine
 
         const verticalLine = document.createElement('div')
         verticalLine.classList.add('crosshair', 'vertical')
         canvas_container.appendChild(verticalLine)
+        this.verticalLine = verticalLine
 
-        canvas_container.addEventListener('mousedown', ({ clientX, clientY }) => {
-            verticalLine.style.display = horizontalLine.style.display = 'block'
-            const { left, top} = canvas_container.getBoundingClientRect()
-            const x = clientX - left
-            const y = clientY - top
+        this.willShowCrosshairs = undefined
 
-            horizontalLine.style.top = `${y}px`
-            verticalLine.style.left = `${x}px`
+        canvas_container.addEventListener('mousedown', event => {
+            event.preventDefault()
+            event.stopPropagation()
 
+            if (undefined === this.willShowCrosshairs) {
+                this.willShowCrosshairs = true
+                this.showCrosshairs(event)
+            }
         })
 
-        canvas_container.addEventListener('mouseup', () => {
-            verticalLine.style.display = horizontalLine.style.display = 'none'
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+        canvas_container.addEventListener('mouseup', event => {
+            event.preventDefault()
+            event.stopPropagation()
+
+            this.hideCrosshairs()
+            this.willShowCrosshairs = undefined
+            juiceboxPanel.browser.eventBus.post(HICEvent('DidHideCrosshairs', 'DidHideCrosshairs', false))
         })
 
-        canvas_container.addEventListener('mouseleave', () => {
-            verticalLine.style.display = horizontalLine.style.display = 'none'
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
-        })
+        canvas_container.addEventListener('mousemove', event => {
 
-        canvas_container.addEventListener('mousemove', ({ clientX, clientY }) => {
+            event.preventDefault()
+            event.stopPropagation()
 
-            if ('block' === verticalLine.style.display && 'block' === horizontalLine.style.display) {
+            if (this.willShowCrosshairs) {
 
                 const { left, top, width, height} = canvas_container.getBoundingClientRect()
-                const x = clientX - left
-                const y = clientY - top
+                const x = event.clientX - left
+                const y = event.clientY - top
 
                 horizontalLine.style.top = `${y}px`
                 verticalLine.style.left = `${x}px`
@@ -88,7 +102,47 @@ class DistanceMapPanel extends Panel {
                 const xNormalized = x / width
                 const yNormalized = y / height
 
-                SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList: [ xNormalized, yNormalized ] } })
+                const interpolantList = [ xNormalized, yNormalized ]
+
+                if (BallAndStick.getRenderStyle() === sceneManager.renderStyle) {
+
+                    const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
+
+                    const instanceIdList = interpolantWindowList.map(({ index }) => index)
+
+                    let bufferAttribute = ballAndStick.balls.geometry.getAttribute('instanceColor')
+
+                    // un-highlight
+                    if (ballAndStick.pickHighlighter.instanceIdList) {
+                        const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
+                        for (const instanceId of ballAndStick.pickHighlighter.instanceIdList) {
+                            const color = igvPanel.materialProvider.colorForInterpolant(genomicExtentList[ instanceId ].interpolant)
+                            color.toArray(bufferAttribute.array, instanceId * 3)
+                        }
+                        ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true;
+                        this.instanceIdList = undefined
+                    }
+
+                    // highlight
+                    ballAndStick.pickHighlighter.instanceIdList = new Set()
+
+                    for (let instanceId of instanceIdList) {
+                        ballAndStick.pickHighlighter.instanceIdList.add(instanceId)
+                    }
+
+                    bufferAttribute = ballAndStick.balls.geometry.getAttribute('instanceColor')
+
+                    for (const instanceId of ballAndStick.pickHighlighter.instanceIdList) {
+                        ballAndStick.pickHighlighter.highlightColor.toArray(bufferAttribute.array, instanceId * 3)
+                    }
+
+                    ballAndStick.balls.geometry.attributes.instanceColor.needsUpdate = true
+
+                    colorRampMaterialProvider.highlightWithInterpolantWindowList(interpolantWindowList)
+
+                } else {
+                    SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } })
+                }
 
             }
 
@@ -230,6 +284,22 @@ class DistanceMapPanel extends Panel {
 
         this.worker.postMessage(data)
 
+    }
+
+    showCrosshairs({ clientX, clientY }) {
+
+        this.verticalLine.style.display = this.horizontalLine.style.display = 'block'
+
+        const { left, top} = this.canvas_container.getBoundingClientRect()
+        const x = clientX - left
+        const y = clientY - top
+
+        this.horizontalLine.style.top = `${y}px`
+        this.verticalLine.style.left = `${x}px`
+    }
+
+    hideCrosshairs() {
+        this.verticalLine.style.display = this.horizontalLine.style.display = 'none'
     }
 }
 

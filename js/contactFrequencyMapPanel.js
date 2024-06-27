@@ -1,4 +1,4 @@
-import hic from '../node_modules/juicebox.js/js/index.js'
+import hic from 'juicebox.js'
 import EnsembleManager from './ensembleManager.js'
 import {colorMapManager, ensembleManager, igvPanel, juiceboxPanel} from "./app.js"
 import { clamp } from "./math.js";

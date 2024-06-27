@@ -16,7 +16,7 @@
     "igv": "github:igvteam/igv.js#spacewalk_commit_ad1bcbd8",
     "igv-utils": "github:igvteam/igv-utils#v1.5.5",
     "igv-widgets": "github:igvteam/igv-widgets#spacewalk",
-    "juicebox.js": "github:igvteam/juicebox.js#spacewalk",
+    "juicebox.js": "github:igvteam/juicebox.js#spacewalk_revive_live_contact_maps",
     "node-fetch": "^3.3.0",
     "sass": "^1.70.0",
     "three": "^0.161.0",

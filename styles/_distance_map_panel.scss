@@ -31,6 +31,14 @@ $spacewalk_distance_map_panel_width: 480px;
       width: $spacewalk_distance_map_panel_width;
       height: $spacewalk_distance_map_panel_width;
 
+      >div.spacewalk-spinner-container {
+        pointer-events: none;
+      }
+
+      >canvas {
+        pointer-events: none;
+      }
+
       cursor: pointer;
 
       .crosshair {

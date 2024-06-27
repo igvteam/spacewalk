@@ -1,6 +1,6 @@
 import {URIUtils, BGZip} from 'igv-utils'
 import Zlib from './vendor/zlib_and_gzip.js'
-import hic from '../node_modules/juicebox.js/js/index.js'
+import hic from 'juicebox.js'
 import Panel from './panel.js'
 import { igvPanel, juiceboxPanel, ensembleManager, sceneManager, contactFrequencyMapPanel, SpacewalkGlobals, guiManager } from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'

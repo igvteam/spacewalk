@@ -315,7 +315,9 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     contactFrequencyMapPanel.initialize(contactFrequencyMapPanelConfiguration.panel)
 
-    EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
+    if (igvPanel.browser) {
+        EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
+    }
 
     Panel.setPanelDictionary([ igvPanel, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel ]);
 
