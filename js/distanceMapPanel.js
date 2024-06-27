@@ -82,7 +82,8 @@ class DistanceMapPanel extends Panel {
 
             this.hideCrosshairs()
             this.willShowCrosshairs = undefined
-            juiceboxPanel.browser.eventBus.post(HICEvent('DidHideCrosshairs', 'DidHideCrosshairs', false))
+            // juiceboxPanel.browser.eventBus.post(HICEvent('DidHideCrosshairs', 'DidHideCrosshairs', false))
+            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         })
 
         canvas_container.addEventListener('mousemove', event => {
