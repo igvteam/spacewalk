@@ -241,7 +241,7 @@ function createPointCloudPayload(key, genomicExtent, rawXYZ) {
 
 }
 
-function createGenomicExtentList(traceValues, ƒ) {
+function createGenomicExtentList(traceValues, globalGenomicExtentList) {
 
     const makeRegionXYZStack = regionXYZList => {
 
