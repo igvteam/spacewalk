@@ -38,16 +38,9 @@ class LiveContactMapDataSet {
     }
 }
 
-function getDatasetChromosomeList(genomeChromosomeDictionary) {
-
-    const dataseChromosomeList = Object.values(genomeChromosomeDictionary).map(({ index, bpLength, size, name }) => {
-        return { index, name, size, bpLength }
-    })
-
-    // 'All' is ununsed
-    // dataseChromosomeList.unshift({ index:0 , name:'All', size:0, bpLength:0 })
-
-    return dataseChromosomeList
+function getDatasetChromosomeList(genomeChromosomeMap) {
+    const hash = Object.fromEntries(genomeChromosomeMap)
+    return Object.values(hash).map(({ index, bpLength, size, name }) => { return { index, name, size, bpLength }})
 }
 
 export default LiveContactMapDataSet

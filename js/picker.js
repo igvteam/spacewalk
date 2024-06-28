@@ -3,6 +3,7 @@ import {ballAndStick, colorRampMaterialProvider} from './app.js';
 
 const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud', 'ribbon', 'stick' ]);
 
+let currentInstanceId = undefined
 class Picker {
 
     constructor(raycaster) {
@@ -29,23 +30,24 @@ class Picker {
 
         if (true === this.isEnabled && x && y) {
 
-            this.raycaster.setFromCamera({ x, y }, camera);
+            this.raycaster.setFromCamera({ x, y }, camera)
 
-            const hitList = this.raycaster.intersectObjects(scene.children).filter(item => !exclusionSet.has(item.object.name) && true === item.object.visible);
+            const hitList = this.raycaster.intersectObjects(scene.children).filter(item => !exclusionSet.has(item.object.name) && true === item.object.visible)
 
             if (hitList.length > 0) {
+                const [ hit ] = hitList
 
-                // Hit list contains all instances along the ray of intersection. Select the first.
-                const [ hit ] = hitList;
-
-                if (undefined !== hit.instanceId) {
+                if (hit.instanceId && hit.instanceId !== currentInstanceId) {
+                    currentInstanceId = hit.instanceId
+                    // console.log(`hightlight ${ currentInstanceId }`)
                     ballAndStick.pickHighlighter.processHit(hit)
                 }
 
             } else {
 
-                if (ballAndStick.pickHighlighter.instanceIdList) {
-                    // console.log(`${ Date.now() } Picker - ballHighlighter.unhighlight() then  colorRampMaterialProvider.repaint()`)
+                if (currentInstanceId) {
+                    // console.log(`UN HIGHLIGHT ${ currentInstanceId }`)
+                    currentInstanceId = undefined
                     ballAndStick.pickHighlighter.unhighlight()
                     colorRampMaterialProvider.repaint()
                 }
