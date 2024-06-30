@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Spacewalk built with Snowpack" />
-    <title>Spacewalk - Vite.js Build - Netlify Deployment</title>
+    <title>Spacewalk</title>
 
     <link rel="icon" href="./favicon.ico" />
 
@@ -323,6 +323,15 @@
 
             </ul>
 
+          </div>
+        </li>
+
+        <!-- About -->
+        <li class="nav-item">
+          <div class="ml-2 mt-1">
+            <button id="spacewalk-about-button" title="About" type="button" class="btn nav-link" data-toggle="popover" data-placement="bottom" data-html="true">
+              About
+            </button>
           </div>
         </li>
 
@@ -948,6 +957,25 @@
     </div>
 
   </main>
+
+  <!-- About button content -->
+  <div id="spacewalk-about-button-content" style="display: none;">
+    <p>
+      The Spacewalk browser is a project at the Aiden Lab as part of the NSF Center for Theoretical Biological Physics
+      and the NIH Center for Genome Imaging.
+    </p>
+
+    <p>
+      The lead developer of Spacewalk is Doug Turner. The application development team includes Dimos Gkountaroulis,
+      Olga Dudchenko, and Guy Nir.
+    </p>
+
+    <p>
+      The Spacewalk browser uses a custom .sw file format. This format was developed in collaboration with the laboratory of Jose Onuchic,
+      and it's development was led by Vinicius Contessoto,  Matheus Mello, Antonio Oliveira Junior, Jim Robinson, and Doug Turner.
+    </p>
+
+  </div>
 
   </body>
 </html>

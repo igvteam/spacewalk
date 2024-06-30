@@ -117,6 +117,9 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
 const initializationHelper = async container => {
 
+    const aboutButtonContent = document.getElementById('spacewalk-about-button-content').innerHTML
+    $('#spacewalk-about-button').popover({ content: aboutButtonContent });
+
     await initializeMaterialLibrary()
 
     pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
