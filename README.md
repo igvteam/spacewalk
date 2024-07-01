@@ -1,9 +1,9 @@
-# SpaceWalk
+# Spacewalk
 
 ![spacewalk](readme_img/spacewalk-screenshot.png)
 
-SpaceWalk is an application for displaying and interacting with super-resolution chromatin tracing data in 3D. 
-SpaceWalk includes [igv.js](https://github.com/igvteam/igv.js) and [juicebox.js](https://github.com/igvteam/juicebox.js) 
+Spacewalk is an application for displaying and interacting with super-resolution chromatin tracing data in 3D. 
+Spacewalk includes [igv.js](https://github.com/igvteam/igv.js) and [juicebox.js](https://github.com/igvteam/juicebox.js) 
 instances for rapid and intuitive visual comparison and interaction between 3D data and 1D genomic data.
 
 ## Requirements
@@ -12,7 +12,7 @@ instances for rapid and intuitive visual comparison and interaction between 3D d
 
 ## Supported Browsers
 
-SpaceWalk require a modern web browser with support for Javascript ECMAScript 2015.
+Spacewalk require a modern web browser with support for Javascript ECMAScript 2015.
 
 ## Installation
 * Clone this repository.
@@ -41,7 +41,7 @@ After launching the app. You will see a blank 3D space. Use one of the dropdown 
 
 ![file load](readme_img/spacewalk-file-load.png)
 
-SpaceWalk supports loading files of various types:
+Spacewalk supports loading files of various types:
 - Point Cloud - Each file contains a list of point clusters. Each cluster corresponds to a genomic range.
 - Segment List - Each file contains a list of traces. Each trace contains a list of segments. Each segment is a genomic range.
 - IGV Tracks - Track files consumed by the IGV panel. Refer to the track section of the [igv.js wiki](https://github.com/igvteam/igv.js/wiki/Tracks-2.0)
