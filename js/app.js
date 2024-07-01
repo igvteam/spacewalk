@@ -126,7 +126,7 @@ const initializationHelper = async container => {
             html: true,
             template: '<div class="popover spacewalk-popover-about" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
         }
-    $('#spacewalk-about-button').popover(aboutConfig);
+    $('#spacewalk-about-button').popover(aboutConfig)
 
     // Help button
     const helpButtonContent = document.getElementById('spacewalk-help-button-content').innerHTML
