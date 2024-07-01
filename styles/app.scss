@@ -24,6 +24,19 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
 @import "ui_manager";
 @import "info_panel";
 
+.spacewalk-popover-about {
+  max-width: 512px;
+  .popover-body {
+    font-size: 1rem;
+  }
+}
+
+.spacewalk-popover-help {
+  .popover-body {
+    font-size: 1rem;
+  }
+}
+
 #spacewalk-info-menu-container {
   color:unset;
   width: max-content;

@@ -503,6 +503,17 @@ div#spacewalk_info_panel > div:last-child {
   padding-right: unset;
 }
 
+.spacewalk-popover-about {
+  max-width: 512px;
+}
+.spacewalk-popover-about .popover-body {
+  font-size: 1rem;
+}
+
+.spacewalk-popover-help .popover-body {
+  font-size: 1rem;
+}
+
 #spacewalk-info-menu-container {
   color: unset;
   width: max-content;
