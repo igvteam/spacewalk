@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Spacewalk built with Snowpack" />
-    <title>Spacewalk - Vite.js Build - Netlify Deployment</title>
+    <meta name="description" content="Spacewalk built with Vitejs" />
+    <title>Spacewalk</title>
 
     <link rel="icon" href="./favicon.ico" />
 
@@ -127,7 +127,7 @@
   <nav class="navbar fixed-top py-0 navbar-expand-sm navbar-dark bg-dark justify-content-between" style="display: none;">
 
     <div class="navbar-brand text-center align-middle">
-      SpaceWalk
+      Spacewalk
     </div>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#spacewalk-navbar-content">
@@ -326,25 +326,25 @@
           </div>
         </li>
 
+        <!-- About -->
+        <li class="nav-item">
+          <div class="ml-2 mt-1">
+            <button id="spacewalk-about-button" title="About" type="button" class="btn nav-link" data-trigger="focus" data-toggle="popover" data-placement="bottom" data-html="true">
+              About
+            </button>
+          </div>
+        </li>
+
+        <!-- Help -->
+        <li class="nav-item">
+          <div class="ml-2 mt-1">
+            <button id="spacewalk-help-button" title="Help" type="button" class="btn nav-link" data-trigger="focus" data-toggle="popover" data-placement="bottom" data-html="true">
+              Help
+            </button>
+          </div>
+        </li>
+
       </ul>
-
-    </div>
-
-    <div id="spacewalk-help-icon-container" class="btn-group dropleft mr-2">
-
-      <div class="dropdown">
-        <button type="button" data-toggle="dropdown" class="btn dropdown-toggle">
-          <span class="fas fa-info-circle"></span>
-        </button>
-
-        <div id="spacewalk-info-menu-container" class="dropdown-menu">
-          <a href="https://github.com/igvteam/spacewalk#spacewalk" target="_blank" class="dropdown-item">Github</a>
-          <div class="dropdown-divider"></div>
-          <a href="https://github.com/turner/sw2swb/wiki/The-Spacewalk-Binary-File-Format" target="_blank" class="dropdown-item">File Format</a>
-          <div class="dropdown-divider"></div>
-          <a id="spacewalk-info-menu-release" class="dropdown-item" href="#"></a>
-        </div>
-      </div>
 
     </div>
 
@@ -948,6 +948,56 @@
     </div>
 
   </main>
+
+  <!-- About button content -->
+  <div id="spacewalk-about-button-content" style="display: none;">
+    <p>
+      The Spacewalk browser is a project at the <a href="https://aidenlab.org/" target="_blank">Aiden Lab</a> as part of the NSF Center for Theoretical Biological Physics
+      and the NIH Center for Genome Imaging.
+    </p>
+
+    <p>
+      The lead developer of Spacewalk is Doug Turner. The application development team includes Dimos Gkountaroulis,
+      Olga Dudchenko, and Guy Nir.
+    </p>
+
+    <p>
+      The Spacewalk browser uses a custom .sw file format. This format was developed in collaboration with the laboratory of Jose Onuchic,
+      and it's development was led by Vinicius Contessoto,  Matheus Mello, Antonio Oliveira Junior, Jim Robinson, and Doug Turner. More information
+      on the file format is available <a href="https://github.com/turner/sw2swb/wiki/The-Spacewalk-Binary-File-Format" target="_blank">here</a>
+    </p>
+
+  </div>
+
+  <!--  Help button content -->
+  <div id="spacewalk-help-button-content" style="display: none;">
+
+    <!-- Docuumentation -->
+    <p>
+      <a href="https://github.com/igvteam/spacewalk/blob/master/README.md" target="_blank">Documentation</a>
+    </p>
+
+    <!-- Github Code -->
+    <p>
+      <a href="https://github.com/igvteam/spacewalk" target="_blank">Github Repository</a>
+    </p>
+
+    <!-- File Format -->
+    <p>
+      <a href="https://github.com/turner/sw2swb/wiki/The-Spacewalk-Binary-File-Format" target="_blank">File Format</a>
+    </p>
+
+    <!-- Issues -->
+    <p>
+      <a href="https://github.com/igvteam/spacewalk/issues" target="_blank">Issues</a>
+    </p>
+
+    <!-- Release Number-->
+    <p id="spacewalk-help-menu-release">
+
+    </p>
+
+  </div>
 
   </body>
 </html>
