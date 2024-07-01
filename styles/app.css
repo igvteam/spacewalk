@@ -10,6 +10,10 @@
   font-weight: 600;
   color: #ffffff;
 }
+.navbar .navbar-nav .btn:focus, .navbar .navbar-nav a:focus {
+  outline: none;
+  box-shadow: none;
+}
 .navbar .input-group {
   margin: 0.4rem;
 }

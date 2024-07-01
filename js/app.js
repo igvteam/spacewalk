@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     }
 
     const { tag_name } = await showRelease()
-    document.querySelector('#spacewalk-info-menu-release').innerHTML = `Spacewalk release ${ tag_name }`
+    document.getElementById('spacewalk-help-menu-release').innerHTML = `Spacewalk release ${ tag_name }`
     console.log(`Spacewalk release ${ tag_name }`)
 
     await initializationHelper(container)
@@ -117,8 +117,17 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
 const initializationHelper = async container => {
 
+    // About button
     const aboutButtonContent = document.getElementById('spacewalk-about-button-content').innerHTML
     $('#spacewalk-about-button').popover({ content: aboutButtonContent });
+
+    // Help button
+    const helpButtonContent = document.getElementById('spacewalk-help-button-content').innerHTML
+    $('#spacewalk-help-button').popover({ content: helpButtonContent });
+
+    // Dismiss on click away from popover
+    $('.popover-dismiss').popover({ trigger: 'focus' })
+
 
     await initializeMaterialLibrary()
 
