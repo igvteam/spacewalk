@@ -57,6 +57,18 @@ class SceneManager {
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
 
+        const resizeableContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
+
+        this.resizeObserver = new ResizeObserver(entries => {
+            const { width, height } = container.getBoundingClientRect()
+            this.renderer.setSize(width, height)
+            this.cameraLightingRig.object.aspect = width / height
+            this.cameraLightingRig.object.updateProjectionMatrix()
+            this.renderer.render(this.scene, this.cameraLightingRig.object);
+        });
+
+        this.resizeObserver.observe(resizeableContainer)
+
         SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', this);
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
 

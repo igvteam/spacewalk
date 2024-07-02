@@ -1,16 +1,19 @@
 $spacewalk_navbar_height: 42px;
 $spacewalk_spinner_size: 128px;
 
-$spacewalk-threejs-canvas-container-size: 512px;
-//$spacewalk-threejs-canvas-container-size: 256px;
-
-$spacewalk-threejs-drag-container-height: 32px;
-
 $spacewalk-trace-navigator-width: 48px;
 $spacewalk-trace-navigator-label-height: 32px;
 $spacewalk-trace-navigator-canvas-width: 46px;
 
 $spacewalk-threejs-canvas-center-dot-radius:6px;
+
+$spacewalk-threejs-canvas-container-size: 512px;
+//$spacewalk-threejs-canvas-container-size: 256px;
+
+$spacewalk-threejs-trace-navigator-container-height: 512px;
+$spacewalk-threejs-trace-navigator-container-width: calc(#{$spacewalk-threejs-canvas-container-size} + #{$spacewalk-trace-navigator-width});
+
+$spacewalk-threejs-drag-container-height: 32px;
 
 @import "color";
 @import "navbar";
@@ -63,143 +66,159 @@ $spacewalk-threejs-canvas-center-dot-radius:6px;
   justify-content: flex-start;
   align-items: flex-start;
 
-  #spacewalk-threejs-drag-container {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
+}
 
-    width: 100%;
-    height: $spacewalk-threejs-drag-container-height;
-    //background-color: $spacewalk_snow;
-    background-color: rgba(0, 0, 0, 0.2);
+#spacewalk-threejs-drag-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
 
-    cursor: grab;
+  width: 100%;
+  height: $spacewalk-threejs-drag-container-height;
+  //background-color: $spacewalk_snow;
+  background-color: rgba(0, 0, 0, 0.2);
 
-    i {
-      color: $spacewalk_steel;
-      display: block;
-    }
+  cursor: grab;
 
+  i {
+    color: $spacewalk_steel;
+    display: block;
   }
 
-  #spacewalk-threejs-trace-navigator-container {
+}
+
+#spacewalk-threejs-trace-navigator-container {
+
+  display: flex;
+
+  width: $spacewalk-threejs-trace-navigator-container-width;
+  height:$spacewalk-threejs-trace-navigator-container-height;
+
+  border-left-style: solid;
+  border-left-width: thin;
+  border-left-color: black;
+
+  border-bottom-style: solid;
+  border-bottom-width: thin;
+  border-bottom-color: black;
+
+  border-right-style: solid;
+  border-right-width: thin;
+  border-right-color: black;
+
+  resize: both;
+  overflow: auto;
+
+  #spacewalk-threejs-canvas-container {
+    position: relative;
+    height: 100%;
+    width: calc(100% - #{$spacewalk-trace-navigator-width});
+    background-color: #ffffff;
+
+    #spacewalk-threejs-canvas-center-dot {
+      z-index: 512;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
+      width:  2 * $spacewalk-threejs-canvas-center-dot-radius;
+      height: 2 * $spacewalk-threejs-canvas-center-dot-radius;
+
+      border-radius: $spacewalk-threejs-canvas-center-dot-radius;
+      border-style: solid;
+      border-width: thin;
+      border-color: black;
+    }
+  }
+
+  #spacewalk-trace-navigator-container {
 
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    align-items: flex-start;
+    flex-direction: column;
+
+    width: $spacewalk-trace-navigator-width;
+    align-self: stretch;
+
+    background-color: white;
 
     border-left-style: solid;
     border-left-width: thin;
     border-left-color: black;
 
-    border-bottom-style: solid;
-    border-bottom-width: thin;
-    border-bottom-color: black;
+    #spacewalk-trace-navigator-header {
+      align-self: stretch;
+      height: $spacewalk-trace-navigator-label-height;
 
-    border-right-style: solid;
-    border-right-width: thin;
-    border-right-color: black;
+      font-size: .85rem;
+      line-height: $spacewalk-trace-navigator-label-height;
+      vertical-align: middle;
+      text-align: center;
+      background-color: white;
+    }
+
+    #spacewalk-trace-navigator-widget {
+      position: relative;
+      cursor: pointer;
+
+      width: $spacewalk-trace-navigator-canvas-width;
+      height: 100%;
+
+      //background-color: #6495ed;
+
+      canvas {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      canvas#spacewalk_color_ramp_canvas_highlight {
+        z-index: 128;
+      }
+
+      canvas#spacewalk_color_ramp_canvas_rgb {
+        z-index: inherit;
+      }
+
+      canvas#spacewalk_color_ramp_canvas_alpha {
+        z-index: -128;
+      }
+
+    }
+
+    #spacewalk-trace-navigator-footer {
+      align-self: stretch;
+      height: $spacewalk-trace-navigator-label-height;
+
+      font-size: .85rem;
+      line-height: $spacewalk-trace-navigator-label-height;
+      vertical-align: middle;
+      text-align: center;
+
+      background-color: white;
+    }
+
+  }
+}
+
+.fullscreen {
+  #spacewalk-threejs-trace-navigator-container {
+    width: 100vw;
+    height: 100vh;
+    border: none;
 
     #spacewalk-threejs-canvas-container {
-      position: relative;
-      width: $spacewalk-threejs-canvas-container-size;
-      height:$spacewalk-threejs-canvas-container-size;
-      //background-color: $spacewalk_nickel;
-      background-color: white;
 
-      #spacewalk-threejs-canvas-center-dot {
-        z-index: 512;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-
-        width:  2 * $spacewalk-threejs-canvas-center-dot-radius;
-        height: 2 * $spacewalk-threejs-canvas-center-dot-radius;
-
-        border-radius: $spacewalk-threejs-canvas-center-dot-radius;
-        border-style: solid;
-        border-width: thin;
-        border-color: black;
-      }
     }
 
     #spacewalk-trace-navigator-container {
-
-      width: $spacewalk-trace-navigator-width;
-      height: $spacewalk-threejs-canvas-container-size;
-      background-color: white;
-
-      border-left-style: solid;
-      border-left-width: thin;
-      border-left-color: black;
-
-      display: flex;
-      flex-direction: column;
-      flex-wrap: nowrap;
-      justify-content: flex-start;
-      align-items: center;
-
-      #spacewalk-trace-navigator-header {
-        width: 100%;
-        height: $spacewalk-trace-navigator-label-height;
-
-        font-size: .85rem;
-        line-height: $spacewalk-trace-navigator-label-height;
-        vertical-align: middle;
-        text-align: center;
-        background-color: white;
-      }
-
-      #spacewalk-trace-navigator-widget {
-        position: relative;
-        cursor: pointer;
-
-        width: $spacewalk-trace-navigator-canvas-width;
-        height: 100%;
-
-        //background-color: #6495ed;
-
-        canvas {
-          display: block;
-          position: absolute;
-          top: 0;
-          left: 0;
-        }
-
-        canvas#spacewalk_color_ramp_canvas_highlight {
-          z-index: 128;
-        }
-
-        canvas#spacewalk_color_ramp_canvas_rgb {
-          z-index: inherit;
-        }
-
-        canvas#spacewalk_color_ramp_canvas_alpha {
-          z-index: -128;
-        }
-
-      }
-
-      #spacewalk-trace-navigator-footer {
-        width: 100%;
-        height: $spacewalk-trace-navigator-label-height;
-
-        font-size: .85rem;
-        line-height: $spacewalk-trace-navigator-label-height;
-        vertical-align: middle;
-        text-align: center;
-
-        background-color: white;
-      }
-
+      height: 100vh;
     }
-  }
 
+  }
 }
 
 // jQuery UI hack
