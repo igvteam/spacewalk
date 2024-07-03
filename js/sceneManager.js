@@ -79,14 +79,25 @@ class SceneManager {
 
         window.addEventListener('resize', onWindowResize);
 
-        document.getElementById('spacewalk-fullscreen-button').addEventListener('click', async () => {
+        document.getElementById('spacewalk-fullscreen-button').addEventListener('click', () => {
             if (!document.fullscreenElement) {
-                await resizeableContainer.requestFullscreen()
-                document.body.classList.add('fullscreen')
+                resizeableContainer.requestFullscreen().then(() => {
+                    document.body.classList.add('fullscreen');
+                }).catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
             } else {
-                await document.exitFullscreen()
-                document.body.classList.remove('fullscreen')
-                onWindowResize()
+                document.exitFullscreen().then(() => {
+                    document.body.classList.remove('fullscreen');
+                }).catch(err => {
+                    alert(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`);
+                });
+            }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.body.classList.remove('fullscreen');
             }
         });
 
