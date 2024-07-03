@@ -69,6 +69,31 @@ class SceneManager {
 
         this.resizeObserver.observe(resizeableContainer)
 
+        const onWindowResize = () => {
+            const { width, height } = container.getBoundingClientRect()
+            this.renderer.setSize(width, height)
+            this.cameraLightingRig.object.aspect = width / height
+            this.cameraLightingRig.object.updateProjectionMatrix()
+            this.renderer.render(this.scene, this.cameraLightingRig.object);
+        }
+
+        window.addEventListener('resize', onWindowResize);
+
+        document.getElementById('spacewalk-fullscreen-button').addEventListener('click', async () => {
+            if (!document.fullscreenElement) {
+                await resizeableContainer.requestFullscreen()
+                document.body.classList.add('fullscreen')
+            } else {
+                await document.exitFullscreen()
+                document.body.classList.remove('fullscreen')
+                onWindowResize()
+            }
+        });
+
+
+
+
+
         SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', this);
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
 
