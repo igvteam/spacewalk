@@ -199,7 +199,7 @@ const initializationHelper = async container => {
 
     document.querySelector('.navbar').style.display = 'flex'
 
-    renderContainerController = new RenderContainerController(container, sceneManager)
+    renderContainerController = new RenderContainerController(container)
 
     renderLoop()
 

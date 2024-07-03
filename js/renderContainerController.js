@@ -2,7 +2,7 @@ import { configureRenderContainerDrag } from './renderContainerDrag.js'
 
 class RenderContainerController {
 
-    constructor(rootContainer, sceneManager) {
+    constructor(rootContainer) {
 
         this.rootContainer = rootContainer
         this.threejsContainer = rootContainer.querySelector('#spacewalk-threejs-container')
