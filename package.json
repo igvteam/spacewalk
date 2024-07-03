@@ -1,6 +1,16 @@
 {
-  "name": "Spacewalk",
-  "version": "1.1.1",
+  "name": "spacewalk",
+  "author": "Douglass Turner",
+  "license": "MIT",
+  "version": "7.0.0",
+  "description": "3D Visualization App for Super Resolution Imaging",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/igvteam/spacewalk"
+  },
+  "bugs": {
+    "url": "https://github.com/igvteam/spacewalk/issues"
+  },
   "scripts": {
     "dev": "vite --force",
     "build": "vite build",
