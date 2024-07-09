@@ -77,17 +77,17 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     const { userAgent } = window.navigator;
 
-    const isChromeUserAgent = userAgent.indexOf("Chrome") > -1;
-
-    try {
-
-        if (!isChromeUserAgent) {
-            throw new Error("Spacewalk only supports Chrome Browser");
-        }
-
-    } catch (e) {
-        AlertSingleton.present(e.message)
-    }
+    // const isChromeUserAgent = userAgent.indexOf("Chrome") > -1;
+    //
+    // try {
+    //
+    //     if (!isChromeUserAgent) {
+    //         throw new Error("Spacewalk only supports Chrome Browser");
+    //     }
+    //
+    // } catch (e) {
+    //     AlertSingleton.present(e.message)
+    // }
 
     const { clientId, apiKey } = spacewalkConfig
     const enableGoogle = clientId && 'CLIENT_ID' !== clientId && (window.location.protocol === "https:" || window.location.host === "localhost")
