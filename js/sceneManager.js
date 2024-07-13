@@ -57,6 +57,54 @@ class SceneManager {
         this.cameraLightingRig = cameraLightingRig;
         this.cameraLightingRig.addToScene(this.scene);
 
+        const resizeableContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
+
+        this.resizeObserver = new ResizeObserver(entries => {
+            const { width, height } = container.getBoundingClientRect()
+            this.renderer.setSize(width, height)
+            this.cameraLightingRig.object.aspect = width / height
+            this.cameraLightingRig.object.updateProjectionMatrix()
+            this.renderer.render(this.scene, this.cameraLightingRig.object);
+        });
+
+        this.resizeObserver.observe(resizeableContainer)
+
+        const onWindowResize = () => {
+            const { width, height } = container.getBoundingClientRect()
+            this.renderer.setSize(width, height)
+            this.cameraLightingRig.object.aspect = width / height
+            this.cameraLightingRig.object.updateProjectionMatrix()
+            this.renderer.render(this.scene, this.cameraLightingRig.object);
+        }
+
+        window.addEventListener('resize', onWindowResize);
+
+        document.getElementById('spacewalk-fullscreen-button').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                resizeableContainer.requestFullscreen().then(() => {
+                    document.body.classList.add('fullscreen');
+                }).catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    document.body.classList.remove('fullscreen');
+                }).catch(err => {
+                    alert(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`);
+                });
+            }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.body.classList.remove('fullscreen');
+            }
+        });
+
+
+
+
+
         SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', this);
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
 

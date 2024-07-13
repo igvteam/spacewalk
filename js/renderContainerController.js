@@ -1,30 +1,13 @@
 import { configureRenderContainerDrag } from './renderContainerDrag.js'
-import { traceNavigator } from './app.js'
 
 class RenderContainerController {
 
-    constructor(rootContainer, sceneManager) {
+    constructor(rootContainer) {
 
         this.rootContainer = rootContainer
         this.threejsContainer = rootContainer.querySelector('#spacewalk-threejs-container')
 
         this.setTopLeftPercentages(this.rootContainer, this.threejsContainer)
-
-
-        const config =
-            {
-                // handles: "w, sw, s, se, e",
-                handles: "se",
-                autoHide: true,
-                aspectRatio: true,
-                helper: "spacewalk-threejs-container-resizable-helper",
-                stop: () => {
-                    sceneManager.resizeContainer()
-                    traceNavigator.resize(sceneManager.container)
-                }
-            };
-
-        $(sceneManager.container).resizable(config)
 
         const navbar = document.querySelector('.navbar')
         const topConstraint = navbar.getBoundingClientRect().height
