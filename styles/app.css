@@ -169,10 +169,10 @@ div.navbar-brand {
   height: unset;
 }
 #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body #spacewalk_distance_map_panel_container {
+  cursor: pointer;
   position: relative;
   width: 480px;
   height: 480px;
-  cursor: pointer;
 }
 #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body #spacewalk_distance_map_panel_container > div.spacewalk-spinner-container {
   pointer-events: none;

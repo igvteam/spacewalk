@@ -27,6 +27,7 @@ $spacewalk_distance_map_panel_width: 480px;
     height: unset;
 
     #spacewalk_distance_map_panel_container {
+      cursor: pointer;
       position: relative;
       width: $spacewalk_distance_map_panel_width;
       height: $spacewalk_distance_map_panel_width;
@@ -38,8 +39,6 @@ $spacewalk_distance_map_panel_width: 480px;
       >canvas {
         pointer-events: none;
       }
-
-      cursor: pointer;
 
       .crosshair {
         display: none;
