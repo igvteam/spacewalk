@@ -1,11 +1,12 @@
 import {GenericDataSource, ModalTable} from 'data-modal'
 import {FileUtils, GooglePicker} from 'igv-utils'
 import {aidenLabContactMapDatasourceConfigurator} from './aidenLabContactMapDatasourceConfig.js'
+import { createAndConfigureLoadURLModal } from './spacewalkFileLoad.js'
 
 let mapType = undefined;
 let encodeHostedContactMapModal;
 let contactMapModal;
-
+let urlModal
 const encodeContactMapDatasourceConfiguration =
     {
         url: 'https://s3.amazonaws.com/igv.org.app/encode/hic/hic.txt',
@@ -88,7 +89,7 @@ function configureContactMapLoaders({
         $googleDriveButtons.parent().hide();
     }
 
-    appendAndConfigureLoadURLModal(rootContainer, urlLoadModalId, path => {
+    urlModal = createAndConfigureLoadURLModal(rootContainer, urlLoadModalId, path => {
         const name = FileUtils.getFilename(path);
         loadHandler(path, name, mapType);
     });
@@ -133,53 +134,6 @@ function configureContactMapLoaders({
     const datasource = new GenericDataSource(encodeContactMapDatasourceConfiguration)
     encodeHostedContactMapModal.setDatasource(datasource)
 
-}
-
-
-function appendAndConfigureLoadURLModal(root, id, input_handler) {
-
-    const html =
-        `<div id="${id}" class="modal fade">
-            <div class="modal-dialog  modal-lg">
-                <div class="modal-content">
-
-                <div class="modal-header">
-                    <div class="modal-title">Load URL</div>
-
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Enter URL">
-                    </div>
-
-                </div>
-
-                </div>
-            </div>
-        </div>`;
-
-    $(root).append(html);
-
-    const $modal = $(root).find(`#${id}`);
-    $modal.find('input').on('change', function () {
-
-        const path = $(this).val();
-        $(this).val("");
-
-        $(`#${id}`).modal('hide');
-
-        input_handler(path);
-
-
-    });
-
-    return html;
 }
 
 export default configureContactMapLoaders

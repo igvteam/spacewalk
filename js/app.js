@@ -231,7 +231,8 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
             rootContainer: document.getElementById('spacewalk-main'),
             localFileInput: document.getElementById('spacewalk-sw-load-local-input'),
             urlLoadModalId: 'spacewalk-sw-load-url-modal',
-            gsdbModalId: 'spacewalk-gsdb-modal',
+            traceModalId: 'spacewalk-sw-load-select-modal',
+            ensembleGroupModalId: 'spacewalk-ensemble-group-select-modal',
             dropboxButton: document.getElementById('spacewalk-sw-dropbox-button'),
             googleDriveButton: document.getElementById('spacewalk-sw-google-drive-button'),
             googleEnabled,
@@ -375,52 +376,6 @@ function render () {
 
 }
 
-const appendAndConfigureLoadURLModal = (root, id, input_handler) => {
-
-    const html =
-        `<div id="${id}" class="modal fade">
-            <div class="modal-dialog  modal-lg">
-                <div class="modal-content">
-
-                <div class="modal-header">
-                    <div class="modal-title">Load URL</div>
-
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Enter URL">
-                    </div>
-
-                </div>
-
-                </div>
-            </div>
-        </div>`;
-
-    $(root).append(html);
-
-    const $modal = $(root).find(`#${ id }`);
-    $modal.find('input').on('change', function () {
-
-        const path = $(this).val();
-        $(this).val("");
-
-        $(`#${ id }`).modal('hide');
-
-        input_handler(path);
-
-
-    });
-
-    return html;
-}
-
 export {
     SpacewalkGlobals,
     googleEnabled,
@@ -437,5 +392,4 @@ export {
     distanceMapPanel,
     contactFrequencyMapPanel,
     igvPanel,
-    traceNavigator,
-    appendAndConfigureLoadURLModal }
+    traceNavigator }

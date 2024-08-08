@@ -1,52 +1,42 @@
 import {FileUtils, URIUtils, GooglePicker, GoogleUtils, GoogleDrive} from 'igv-utils'
-import {GenericDataSource, ModalTable} from 'data-modal'
-import {appendAndConfigureLoadURLModal, ensembleManager, sceneManager} from './app.js'
-import {gsdbDatasourceConfigurator} from './gsdbDatasourceConfig.js'
+import {ensembleManager, sceneManager} from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 
-let gsdbModal = undefined
+let urlModal
+let traceSelectModal
+let ensembleGroupModal
 
-function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadModalId, gsdbModalId, dropboxButton, googleDriveButton, googleEnabled, fileLoader }) {
+function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadModalId, traceModalId, ensembleGroupModalId, dropboxButton, googleDriveButton, googleEnabled, fileLoader }) {
 
+    // local file
     localFileInput.addEventListener('change', async () => {
         const [ file ] = localFileInput.files
         localFileInput.value = ''
         await fileLoader.load(file)
     });
 
-    appendAndConfigureLoadURLModal(rootContainer, urlLoadModalId, async path => await fileLoader.load(path))
+    // URL
+    urlModal = createAndConfigureLoadURLModal(rootContainer, urlLoadModalId, async path => await fileLoader.load(path))
 
-    const gsdbModalConfig =
-        {
-            id: gsdbModalId,
-            title: 'GSDB',
-            selectionStyle: 'single',
-            pageLength: 100,
-            datasource: new GenericDataSource(gsdbDatasourceConfigurator('http://calla.rnet.missouri.edu/genome3d/GSDB/GSDB_JSON_URL_LIST.txt')),
-            okHandler: (selections) => {
+    // trace from select list
+    const traceSelectModalElement = createTraceSelectModalElement(traceModalId)
+    rootContainer.appendChild(traceSelectModalElement)
+    traceSelectModal = new bootstrap.Modal(traceSelectModalElement)
 
-                if (selections.length > 0) {
-                    let { name, url } = selections[ 0 ]
-                    url = `http://${ url }`
-                    fileLoader.load(url)
-                }
-            }
-        };
+    configureSelectOnChange(traceSelectModalElement.querySelector('select'), traceSelectModal, async path => await fileLoader.load(path))
 
-    gsdbModal = new ModalTable(gsdbModalConfig)
-
-    // select from cndb replica list
-    const ensembleGroupModalElement = createEnsembleGroupSelectDOMElement()
+    // Ensemble group from select list
+    const ensembleGroupModalElement = createEnsembleGroupModalElement(ensembleGroupModalId)
     rootContainer.appendChild(ensembleGroupModalElement)
+    ensembleGroupModal = new bootstrap.Modal(ensembleGroupModalElement)
 
     const ensembleGroupSelectElement = ensembleGroupModalElement.querySelector('select')
-    $(ensembleGroupSelectElement).selectpicker()
 
     ensembleGroupSelectElement.addEventListener('change', async event => {
 
         event.stopPropagation()
 
-        $(ensembleGroupModalElement).modal('hide')
+        ensembleGroupModal.hide()
 
         await sceneManager.ingestEnsembleGroup(ensembleGroupSelectElement.value)
 
@@ -65,21 +55,12 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
             const fragment = document.createRange().createContextualFragment(html)
             ensembleGroupSelectElement.appendChild(fragment.firstChild)
         }
-
-        $(ensembleGroupSelectElement).selectpicker('destroy')
-        $(ensembleGroupSelectElement).selectpicker('render')
     }
 
     SpacewalkEventBus.globalBus.subscribe('DidLoadCNDBFile', ensembleGroupHandler)
     SpacewalkEventBus.globalBus.subscribe('DidLoadSWBEnsembleGroup', ensembleGroupHandler)
 
-    // select from list
-    const $selectModal = $(select_modal)
-    $(rootContainer).append($selectModal)
-    $selectModal.find('select').selectpicker()
-
-    configureSelectOnChange($selectModal.find('select'), $selectModal, async path => await fileLoader.load(path))
-
+    // Dropbox
     dropboxButton.addEventListener('click', () => {
 
         const config =
@@ -100,6 +81,7 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
 
     });
 
+    // Google Drive
     if (false === googleEnabled) {
         googleDriveButton.parentNode.style.display = 'none';
     }
@@ -139,74 +121,50 @@ async function SpacewalkGetFilename(path){
 
 }
 
-function createEnsembleGroupSelectDOMElement() {
+function createEnsembleGroupModalElement(ensembleGroupModalId) {
 
     const html =
-        `<div id="spacewalk-ensemble-group-select-modal" class="modal fade">
-
+        `<div id="${ ensembleGroupModalId }" class="modal fade">
         <div class="modal-dialog">
-
             <div class="modal-content">
-
                 <div class="modal-header">
-
                     <div class="modal-title">Ensemble Group Selection</div>
-
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
                 <div class="modal-body">
                     <div>
                         <div class="input-group my-3">
-
-                            <div class="spinner-border" style="display: none;">
-                            </div>
-
-                            <select data-live-search="true" title="Select an ensemble group" data-width="100%">
-                            </select>
+                            <div class="spinner-border" style="display: none;"></div>
+                            <select class="form-select" data-live-search="true" title="Select an ensemble group" data-width="100%"></select>
                         </div>
                     </div>
                 </div>
-
             </div>
-
         </div>
-
-    </div>`
+    </div>`;
 
     const fragment = document.createRange().createContextualFragment(html)
 
     return fragment.firstChild
 }
 
-const select_modal =
-    `<div id="spacewalk-sw-load-select-modal" class="modal fade">
+function createTraceSelectModalElement(traceModalId) {
 
+    const html =
+        `<div id="${traceModalId}" class="modal fade">
         <div class="modal-dialog">
-
             <div class="modal-content">
-
                 <div class="modal-header">
-
                     <div class="modal-title">Select File</div>
-
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
                 <div class="modal-body">
                     <div>
                         <div class="input-group my-3">
-
                             <div class="spinner-border" style="display: none;">
                                 <!-- spinner border-radius: .25rem; -->
                             </div>
-                            <select data-live-search="true" title="Select an ensemble" data-width="100%">
+                            <select class="form-select" data-live-search="true" title="Select an ensemble" data-width="100%">
                                 <option value="https://www.dropbox.com/scl/fi/slx5xkk540i8si7wr6tv5/A549_chr21-28-30Mb.sw?rlkey=mufheyn60384w0hemlknm53ad&st=gnhzxw34&dl=0">A549 chr21:28-30</option>
                                 <option value="https://www.dropbox.com/scl/fi/6by67mrc3ywm646j6zm8f/HCT116_chr21-28-30Mb_6h_auxin.sw?rlkey=0zrb50erkuznyxvv0fnfzfy48&st=zbir0o2m&dl=0">HCT116 6h_auxin chr21:28-30</option>
                                 <option value="https://www.dropbox.com/scl/fi/sl5q79az2r7sdxtaz6j0g/HCT116_chr21-28-30Mb_untreated.sw?rlkey=8tjwzsgtybwlukyfrt0s5aa5e&st=lrcsoowv&dl=0">HCT116 untreated chr21:28-30</option>
@@ -217,37 +175,77 @@ const select_modal =
                         </div>
                     </div>
                 </div>
-
             </div>
-
         </div>
+    </div>`;
 
-    </div>`
+    const fragment = document.createRange().createContextualFragment(html)
 
-function configureSelectOnChange($select, $selectModal, fileLoader) {
+    return fragment.firstChild
 
-    $select.on('change', event => {
+}
+
+function configureSelectOnChange(select, selectModal, fileLoader) {
+
+    select.addEventListener('change', event => {
 
         event.stopPropagation();
 
-        let url = $select.val();
-        url = url || '';
+        let selectElement = event.target;
+        let url = selectElement.value || '';
 
-        const index = $select.get(0).selectedIndex;
-        const option = $select.get(0)[ index ];
-        const name = $(option).text();
+        const index = selectElement.selectedIndex;
+        const option = selectElement.options[index];
+        const name = option.textContent;
 
-        if ('' !== url) {
+        if (url !== '') {
             fileLoader(url);
         }
 
-        const $option = $select.find('option:first');
-        $select.val( $option.val() );
+        selectElement.value = selectElement.options[0].value;
 
-        $selectModal.modal('hide');
+        selectModal.hide();
 
     });
 
 }
 
-export { createSpacewalkFileLoaders }
+
+function createAndConfigureLoadURLModal(root, id, input_handler) {
+
+    const html =
+        `<div id="${id}" class="modal fade">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title">Load URL</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Enter URL">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+    root.insertAdjacentHTML('beforeend', html);
+
+    const modalElement = document.getElementById(id);
+    const inputElement = modalElement.querySelector('input');
+
+    inputElement.addEventListener('change', function () {
+        const path = inputElement.value;
+        inputElement.value = "";
+
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        modalInstance.hide();
+
+        input_handler(path);
+    });
+
+    return new bootstrap.Modal(modalElement)
+}
+
+export { createSpacewalkFileLoaders, createAndConfigureLoadURLModal }
