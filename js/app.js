@@ -1,7 +1,9 @@
-import Stats from 'three/examples/jsm/libs/stats.module.js'
-import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js'
-import { AlertSingleton, EventBus, createSessionWidgets, dropboxDropdownItem, googleDriveDropdownItem, createTrackWidgetsWithTrackRegistry } from 'igv-widgets'
 import {BGZip, GoogleAuth, igvxhr} from 'igv-utils'
+import AlertSingleton from './widgets/alertSingleton.js'
+import EventBus from './widgets/eventBus.js'
+import {createSessionWidgets} from './widgets/sessionWidgets.js'
+import { dropboxDropdownItem, googleDriveDropdownItem } from "./widgets/markupFactory.js"
+import { createTrackWidgetsWithTrackRegistry } from './widgets/trackWidgets.js'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./colorMapManager.js";
@@ -35,12 +37,6 @@ import '../styles/app.scss'
 import '../styles/igv/dom.scss'
 import '../styles/juicebox.scss'
 
-
-
-let stats
-let gui
-let guiStatsEl
-
 let pointCloud;
 let ribbon;
 let ballAndStick;
@@ -66,28 +62,11 @@ const SpacewalkGlobals =
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 
-    // const str = `DOM Content Loaded Handler`
-    // console.time(str)
-
     showGlobalSpinner()
 
     const container = document.getElementById('spacewalk-root-container');
 
     AlertSingleton.init(container)
-
-    const { userAgent } = window.navigator;
-
-    // const isChromeUserAgent = userAgent.indexOf("Chrome") > -1;
-    //
-    // try {
-    //
-    //     if (!isChromeUserAgent) {
-    //         throw new Error("Spacewalk only supports Chrome Browser");
-    //     }
-    //
-    // } catch (e) {
-    //     AlertSingleton.present(e.message)
-    // }
 
     const { clientId, apiKey } = spacewalkConfig
     const enableGoogle = clientId && 'CLIENT_ID' !== clientId && (window.location.protocol === "https:" || window.location.host === "localhost")
@@ -110,8 +89,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     await initializationHelper(container)
 
     hideGlobalSpinner()
-
-    // console.timeEnd(str)
 
 })
 
@@ -179,22 +156,6 @@ const initializationHelper = async container => {
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
     guiManager = new GUIManager({ settingsButton, $panel: $('#spacewalk_ui_manager_panel') });
 
-    // frame rate
-    // stats = new Stats()
-    // document.body.appendChild( stats.dom )
-
-    // draw calls
-    // gui = new GUI()
-    //
-    // const perfFolder = gui.addFolder('Performance')
-    //
-    // guiStatsEl = document.createElement('li')
-    // guiStatsEl.classList.add('gui-stats')
-    // guiStatsEl.innerHTML = '<i>GPU draw calls</i>: 1'
-    //
-    // perfFolder.__ul.appendChild( guiStatsEl )
-    // perfFolder.open()
-
     await loadSessionURL(spacewalkSessionURL)
 
     document.querySelector('.navbar').style.display = 'flex'
@@ -256,25 +217,92 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
         await igvPanel.initialize(spacewalkConfig.igvConfig)
     }
 
-    const $igvMain = $(igvPanel.container)
-    const $dropdownMenu = $('#spacewalk-track-dropdown-menu')
-    const $localFileInput = $('#hic-local-track-file-input')
-    const $dropboxButton = $('#spacewalk-track-dropbox-button')
-    const $googleDriveButton = $('#spacewalk-track-dropdown-google-drive-button')
+    // const $igvMain = $(igvPanel.container)
+    // const $dropdownMenu = $('#spacewalk-track-dropdown-menu')
+    // const $localFileInput = $('#hic-local-track-file-input')
+    // const $dropboxButton = $('#spacewalk-track-dropbox-button')
+    // const $googleDriveButton = $('#spacewalk-track-dropdown-google-drive-button')
+    //
+    // createTrackWidgetsWithTrackRegistry(
+    //     $igvMain,
+    //     $dropdownMenu,
+    //     $localFileInput,
+    //     $dropboxButton,
+    //     googleEnabled,
+    //     $googleDriveButton,
+    //     ['hic-encode-signal-modal', 'hic-encode-other-modal'],
+    //     'spacewalk-track-load-url-modal',
+    //     'hic-app-track-select-modal',
+    //     undefined,
+    //     spacewalkConfig.trackRegistry,
+    //     (configurations) => igvPanel.loadTrackList(configurations))
 
-    createTrackWidgetsWithTrackRegistry(
-        $igvMain,
-        $dropdownMenu,
-        $localFileInput,
-        $dropboxButton,
+
+
+    const initializeDropbox = () => false
+
+    const trackMenuHandler = configList => {
+
+        const idSet = new Set(igvPanel.browser.tracks.filter(track => undefined !== track.id).map(track => track.id))
+
+        for (const {element, trackConfiguration} of configList) {
+            const id = trackConfiguration.id === undefined ? trackConfiguration.name : trackConfiguration.id
+            if (idSet.has(id)) {
+                element.setAttribute('disabled', true)
+            } else {
+                element.removeAttribute('disabled')
+            }
+        }
+
+    }
+
+    createTrackWidgetsWithTrackRegistry(igvPanel.container,
+        document.getElementById('spacewalk-track-dropdown-menu'),
+        document.getElementById('hic-local-track-file-input'),
+        initializeDropbox,
+        document.getElementById('spacewalk-track-dropbox-button'),
         googleEnabled,
-        $googleDriveButton,
-        ['hic-encode-signal-modal', 'hic-encode-other-modal'],
+        document.getElementById('spacewalk-track-dropdown-google-drive-button'),
+        ['spacewalk-encode-signals-chip-modal', 'spacewalk-encode-signals-other-modal', 'spacewalk-encode-others-modal'],
         'spacewalk-track-load-url-modal',
-        'hic-app-track-select-modal',
+        undefined,
         undefined,
         spacewalkConfig.trackRegistry,
-        (configurations) => igvPanel.loadTrackList(configurations))
+        (configurations) => igvPanel.loadTrackList(configurations),
+        trackMenuHandler)
+
+
+    // const $main = $('#spacewalk-main')
+    // createSessionWidgets($main,
+    //     igvxhr,
+    //     'spacewalk',
+    //     'igv-app-dropdown-local-session-file-input',
+    //     'igv-app-dropdown-dropbox-session-file-button',
+    //     'igv-app-dropdown-google-drive-session-file-button',
+    //     'spacewalk-session-url-modal',
+    //     'spacewalk-session-save-modal',
+    //     googleEnabled,
+    //     async json => await loadSession(json),
+    //     () => toJSON());
+
+
+
+    // Session - Dropbox and Google Drive buttons
+    $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-app-dropdown-dropbox-session-file-button'));
+    $('div#spacewalk-session-dropdown-menu > :nth-child(2)').after(googleDriveDropdownItem('igv-app-dropdown-google-drive-session-file-button'));
+
+    createSessionWidgets(document.getElementById('spacewalk-main'),
+        'spacewalk',
+        'igv-app-dropdown-local-session-file-input',
+        initializeDropbox,
+        'igv-app-dropdown-dropbox-session-file-button',
+        'igv-app-dropdown-google-drive-session-file-button',
+        'spacewalk-session-url-modal',
+        'spacewalk-session-save-modal',
+        googleEnabled,
+        async json => await loadSession(json),
+        () => toJSON())
+
 
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
 
@@ -306,27 +334,6 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
         }
 
     configureContactMapLoaders(contactMapLoadConfig)
-
-    // $('#spacewalk-reset-camera-button').on('click.spacewalk-reset-camera-button', e => {
-    //     sceneManager.resetCamera();
-    // });
-
-    // Session - Dropbox and Google Drive buttons
-    $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-app-dropdown-dropbox-session-file-button'));
-    $('div#spacewalk-session-dropdown-menu > :nth-child(2)').after(googleDriveDropdownItem('igv-app-dropdown-google-drive-session-file-button'));
-
-    const $main = $('#spacewalk-main')
-    createSessionWidgets($main,
-        igvxhr,
-        'spacewalk',
-        'igv-app-dropdown-local-session-file-input',
-        'igv-app-dropdown-dropbox-session-file-button',
-        'igv-app-dropdown-google-drive-session-file-button',
-        'spacewalk-session-url-modal',
-        'spacewalk-session-save-modal',
-        googleEnabled,
-        async json => await loadSession(json),
-        () => toJSON());
 
     createShareWidgets(shareWidgetConfigurator({ provider: 'tinyURL' }))
 
@@ -369,11 +376,7 @@ function renderLoop() {
 }
 
 function render () {
-
     sceneManager.renderLoopHelper()
-
-    // stats.update()
-
 }
 
 export {

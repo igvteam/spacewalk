@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  *
  */
-import {AlertSingleton} from 'igv-widgets'
+import AlertSingleton from './widgets/alertSingleton.js'
 import {bitlyShortener, googleShortener, tinyURLShortener} from "./urlShortener.js";
 import {igvPanel} from './app.js'
 

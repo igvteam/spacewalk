@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import {EventBus} from 'igv-widgets'
+import EventBus from './widgets/eventBus.js'
 import EnsembleManager from "./ensembleManager.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import CameraLightingRig from './cameraLightingRig.js'

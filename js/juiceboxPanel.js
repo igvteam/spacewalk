@@ -1,5 +1,5 @@
 import hic from 'juicebox.js'
-import { AlertSingleton } from 'igv-widgets'
+import AlertSingleton from './widgets/alertSingleton.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import Panel from './panel.js'
 import {ballAndStick, colorRampMaterialProvider, contactFrequencyMapPanel, ensembleManager, ribbon} from './app.js'
