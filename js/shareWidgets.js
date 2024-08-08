@@ -21,38 +21,41 @@
  *
  */
 
-import {setURLShortener, shortSessionURL} from './shareHelper.js'
+import {setURLShortener} from './shareHelper.js'
 import { getShareURL } from "./spacewalkSession.js"
 
-function createShareWidgets({ browser, modal, share_input, copy_link_button }) {
+let shareModal
 
-    $(modal).on('shown.bs.modal', async () => {
+function createShareWidgets({ modalElement, inputElement, button }) {
 
-        share_input.value = await getShareURL()
-        share_input.select()
+    shareModal = new bootstrap.Modal(modalElement)
 
+    modalElement.addEventListener('shown.bs.modal', async () => {
+        inputElement.value = await getShareURL()
+        inputElement.focus()
+        inputElement.select()
     });
 
-    copy_link_button.addEventListener('click', () => {
-        share_input.select();
-        const success = document.execCommand('copy');
-        if (success) {
-            $(modal).modal('hide');
-        } else {
-            console.error('fail!');
+    button.addEventListener('click', async () => {
+        try {
+            inputElement.focus()
+            inputElement.select()
+            await navigator.clipboard.writeText(inputElement.value)
+            shareModal.hide()
+        } catch (error) {
+            console.error('The Share widget failed to copy to the clipboard: ', error);
         }
     });
-
 }
 
-function shareWidgetConfigurator(urlShortener) {
+function shareWidgetConfigurator(shortenerConfig) {
 
-    setURLShortener(urlShortener)
+    setURLShortener(shortenerConfig)
 
     return {
-        modal: document.getElementById('igv-app-share-modal'),
-        share_input: document.getElementById('igv-app-share-input'),
-        copy_link_button: document.getElementById('igv-app-copy-link-button'),
+        modalElement: document.getElementById('igv-app-share-modal'),
+        inputElement: document.getElementById('igv-app-share-input'),
+        button: document.getElementById('igv-app-copy-link-button'),
     };
 
 }
