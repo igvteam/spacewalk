@@ -270,23 +270,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
         spacewalkConfig.trackRegistry,
         (configurations) => igvPanel.loadTrackList(configurations),
         trackMenuHandler)
-
-
-    // const $main = $('#spacewalk-main')
-    // createSessionWidgets($main,
-    //     igvxhr,
-    //     'spacewalk',
-    //     'igv-app-dropdown-local-session-file-input',
-    //     'igv-app-dropdown-dropbox-session-file-button',
-    //     'igv-app-dropdown-google-drive-session-file-button',
-    //     'spacewalk-session-url-modal',
-    //     'spacewalk-session-save-modal',
-    //     googleEnabled,
-    //     async json => await loadSession(json),
-    //     () => toJSON());
-
-
-
+    
     // Session - Dropbox and Google Drive buttons
     $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-app-dropdown-dropbox-session-file-button'));
     $('div#spacewalk-session-dropdown-menu > :nth-child(2)').after(googleDriveDropdownItem('igv-app-dropdown-google-drive-session-file-button'));
@@ -300,7 +284,11 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
         'spacewalk-session-url-modal',
         'spacewalk-session-save-modal',
         googleEnabled,
-        async json => await loadSession(json),
+        async config => {
+            const urlOrFile = config.url || config.file
+            const json = await igvxhr.loadJson(urlOrFile)
+            await loadSession(json)
+        },
         () => toJSON())
 
 
