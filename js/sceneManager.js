@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import EventBus from './widgets/eventBus.js'
 import EnsembleManager from "./ensembleManager.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import CameraLightingRig from './cameraLightingRig.js'
@@ -156,8 +155,6 @@ class SceneManager {
         await igvPanel.locusDidChange(ensembleManager.locus)
 
         await juiceboxPanel.locusDidChange(ensembleManager.locus)
-
-        EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
     }
 

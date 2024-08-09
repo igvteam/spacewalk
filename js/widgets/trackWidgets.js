@@ -265,6 +265,32 @@ function configureSelectModal(genericSelectModalElement, buttonConfiguration) {
     }
 }
 
+async function getPathsWithTrackRegistry(genomeID, trackRegistry) {
+
+    const JSONFilePaths = trackRegistry[genomeID]
+
+    if (undefined === JSONFilePaths) {
+        return undefined
+    }
+
+    let responses = []
+    try {
+        responses = await Promise.all(JSONFilePaths.map(path => fetch(path)))
+    } catch (e) {
+        AlertSingleton.present(e.message)
+    }
+
+    let trackConfigurations = []
+    try {
+        trackConfigurations = await Promise.all(responses.map(response => response.json()))
+    } catch (e) {
+        AlertSingleton.present(e.message)
+    }
+
+    return trackConfigurations
+
+}
+
 async function getPathsWithTrackRegistryFile(genomeID, trackRegistryFile) {
 
     let response = undefined
@@ -310,5 +336,6 @@ async function getPathsWithTrackRegistryFile(genomeID, trackRegistryFile) {
 export {
     updateTrackMenusWithTrackConfigurations,
     createTrackWidgetsWithTrackRegistry,
-    getPathsWithTrackRegistryFile
+    getPathsWithTrackRegistryFile,
+    getPathsWithTrackRegistry
 }

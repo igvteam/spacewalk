@@ -1,6 +1,5 @@
 import {BGZip, GoogleAuth, igvxhr} from 'igv-utils'
 import AlertSingleton from './widgets/alertSingleton.js'
-import EventBus from './widgets/eventBus.js'
 import {createSessionWidgets} from './widgets/sessionWidgets.js'
 import { dropboxDropdownItem, googleDriveDropdownItem } from "./widgets/markupFactory.js"
 import { createTrackWidgetsWithTrackRegistry } from './widgets/trackWidgets.js'
@@ -202,43 +201,6 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     createSpacewalkFileLoaders(spacewalkFileLoadConfig)
 
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
-    igvPanel.materialProvider = colorRampMaterialProvider;
-
-    if (igvSessionURL) {
-        const str = BGZip.uncompressString(igvSessionURL.substr(5))
-        const sessionIGVConfig = JSON.parse(str)
-
-        const { showTrackLabels, showRuler, showControls, showCursorTrackingGuide, queryParametersSupported } = spacewalkConfig.igvConfig
-        const mergedConfig = { ...sessionIGVConfig, ...{ showTrackLabels, showRuler, showControls, showCursorTrackingGuide, queryParametersSupported } }
-
-        await igvPanel.initialize(mergedConfig)
-    } else {
-        await igvPanel.initialize(spacewalkConfig.igvConfig)
-    }
-
-    // const $igvMain = $(igvPanel.container)
-    // const $dropdownMenu = $('#spacewalk-track-dropdown-menu')
-    // const $localFileInput = $('#hic-local-track-file-input')
-    // const $dropboxButton = $('#spacewalk-track-dropbox-button')
-    // const $googleDriveButton = $('#spacewalk-track-dropdown-google-drive-button')
-    //
-    // createTrackWidgetsWithTrackRegistry(
-    //     $igvMain,
-    //     $dropdownMenu,
-    //     $localFileInput,
-    //     $dropboxButton,
-    //     googleEnabled,
-    //     $googleDriveButton,
-    //     ['hic-encode-signal-modal', 'hic-encode-other-modal'],
-    //     'spacewalk-track-load-url-modal',
-    //     'hic-app-track-select-modal',
-    //     undefined,
-    //     spacewalkConfig.trackRegistry,
-    //     (configurations) => igvPanel.loadTrackList(configurations))
-
-
-
     const initializeDropbox = () => false
 
     const trackMenuHandler = configList => {
@@ -256,7 +218,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     }
 
-    createTrackWidgetsWithTrackRegistry(igvPanel.container,
+    createTrackWidgetsWithTrackRegistry(document.getElementById('spacewalk_igv_panel'),
         document.getElementById('spacewalk-track-dropdown-menu'),
         document.getElementById('hic-local-track-file-input'),
         initializeDropbox,
@@ -270,7 +232,22 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
         spacewalkConfig.trackRegistry,
         (configurations) => igvPanel.loadTrackList(configurations),
         trackMenuHandler)
-    
+
+    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
+    igvPanel.materialProvider = colorRampMaterialProvider;
+
+    if (igvSessionURL) {
+        const str = BGZip.uncompressString(igvSessionURL.substr(5))
+        const sessionIGVConfig = JSON.parse(str)
+
+        const { showTrackLabels, showRuler, showControls, showCursorTrackingGuide, queryParametersSupported } = spacewalkConfig.igvConfig
+        const mergedConfig = { ...sessionIGVConfig, ...{ showTrackLabels, showRuler, showControls, showCursorTrackingGuide, queryParametersSupported } }
+
+        await igvPanel.initialize(mergedConfig)
+    } else {
+        await igvPanel.initialize(spacewalkConfig.igvConfig)
+    }
+
     // Session - Dropbox and Google Drive buttons
     $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-app-dropdown-dropbox-session-file-button'));
     $('div#spacewalk-session-dropdown-menu > :nth-child(2)').after(googleDriveDropdownItem('igv-app-dropdown-google-drive-session-file-button'));
@@ -337,10 +314,6 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
     contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfiguration)
 
     contactFrequencyMapPanel.initialize(contactFrequencyMapPanelConfiguration.panel)
-
-    if (igvPanel.browser) {
-        EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
-    }
 
     Panel.setPanelDictionary([ igvPanel, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel ]);
 

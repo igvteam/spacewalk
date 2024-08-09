@@ -219,10 +219,6 @@ async function loadGenome(genomeConfiguration, custom = false) {
     } finally {
         Globals.browser.stopSpinner()
     }
-
-    // if (g) {
-    //     EventBus.globalBus.post({type: "DidChangeGenome", data: g.id});
-    // }
 }
 
 export {createGenomeWidgets, loadGenome, initializeGenomeWidgets}

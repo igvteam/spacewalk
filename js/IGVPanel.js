@@ -5,6 +5,7 @@ import {getMaterialProvider, setMaterialProvider} from './utils.js';
 import Panel from './panel.js';
 import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, igvPanel } from './app.js'
 import {makeDraggable} from "./draggable"
+import { getPathsWithTrackRegistry, updateTrackMenusWithTrackConfigurations } from './widgets/trackWidgets.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 
 class IGVPanel extends Panel {
@@ -38,6 +39,22 @@ class IGVPanel extends Panel {
     }
 
     async initialize(igvConfig) {
+
+        igvConfig.listeners = {
+
+            'genomechange': async ({genome, trackConfigurations}) => {
+
+                let configs = await getPathsWithTrackRegistry(genome.id, spacewalkConfig.trackRegistry)
+
+                if (undefined === configs) {
+                    configs = trackConfigurations
+                }
+
+                if (configs) {
+                    await updateTrackMenusWithTrackConfigurations(genome.id, undefined, configs, document.getElementById('spacewalk-track-dropdown-menu'))
+                }
+            }
+        }
 
         this.browser = undefined
 
