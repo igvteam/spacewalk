@@ -26,6 +26,31 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/styles/fontawesome/all.css">
 
+    <!-- jQuery JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+
+    <!-- jQuery UI JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+
+    <!-- Bootstrap 5.3.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Spectrum colorpicker JS -->
+    <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2@2.0.0/dist/spectrum.min.js"></script>
+
+    <!-- Dropbox Chooser API - supports aidenlab.org and netlify.app -->
+    <script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="dmf9qrwim29nbad"></script>
+
+    <!-- Datatables JS -->
+    <script src="https://cdn.datatables.net/v/dt/dt-1.10.20/sl-1.3.1/datatables.min.js"></script>
+
+    <!-- Google Platform JS -->
+    <script src="https://apis.google.com/js/platform.js"></script>
+
+    <!--  Spacewalk app entrypoint  -->
+    <script type="module" src="./js/app.js"></script>
+
+    <!-- helpful shaders -->
     <script type="x-shader/x-vertex" id="diffuse_cube_vert">
 
       vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
@@ -85,34 +110,6 @@
         }
       }
     </script>
-
-    <!-- jQuery JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-
-    <!-- jQuery UI JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
-
-    <!-- Bootstrap 5.3.3 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Spectrum colorpicker JS -->
-    <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2@2.0.0/dist/spectrum.min.js"></script>
-
-    <!-- Dropbox Chooser API -->
-    <!-- supports aidenlab.org and netlify.app -->
-    <script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="dmf9qrwim29nbad"></script>
-
-    <!-- Datatables JS -->
-    <script src="https://cdn.datatables.net/v/dt/dt-1.10.20/sl-1.3.1/datatables.min.js"></script>
-
-    <!-- Google Platform JS -->
-    <script src="https://apis.google.com/js/platform.js"></script>
-
-    <!-- Twitter -->
-    <script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-    <!--  Spacewalk app entrypoint  -->
-    <script type="module" src="./js/app.js"></script>
 
   </head>
   <body>
