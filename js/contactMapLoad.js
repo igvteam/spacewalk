@@ -1,7 +1,7 @@
 import {GenericDataSource, ModalTable} from 'data-modal'
 import {FileUtils, GooglePicker} from 'igv-utils'
 import {aidenLabContactMapDatasourceConfigurator} from './aidenLabContactMapDatasourceConfig.js'
-import { createAndConfigureLoadURLModal } from './spacewalkFileLoad.js'
+import { createAndConfigureURLLoadModal } from './spacewalkFileLoad.js'
 
 let mapType = undefined;
 let encodeHostedContactMapModal;
@@ -89,7 +89,7 @@ function configureContactMapLoaders({
         $googleDriveButtons.parent().hide();
     }
 
-    urlModal = createAndConfigureLoadURLModal(rootContainer, urlLoadModalId, path => {
+    urlModal = createAndConfigureURLLoadModal(rootContainer, urlLoadModalId, path => {
         const name = FileUtils.getFilename(path);
         loadHandler(path, name, mapType);
     });
@@ -99,6 +99,7 @@ function configureContactMapLoaders({
         const modalTableConfig =
             {
                 id: dataModalId,
+                parent: rootContainer,
                 title: 'Contact Map',
                 selectionStyle: 'single',
                 pageLength: 10,
@@ -119,6 +120,7 @@ function configureContactMapLoaders({
     const encodeModalTableConfig =
         {
             id: encodeHostedModalId,
+            parent: rootContainer,
             title: 'ENCODE Hosted Contact Map',
             selectionStyle: 'single',
             pageLength: 10,

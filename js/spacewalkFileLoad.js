@@ -2,7 +2,7 @@ import {FileUtils, URIUtils, GooglePicker, GoogleUtils, GoogleDrive} from 'igv-u
 import {ensembleManager, sceneManager} from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 
-let urlModal
+let traceURLlModal
 let traceSelectModal
 let ensembleGroupModal
 
@@ -16,51 +16,13 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
     });
 
     // URL
-    urlModal = createAndConfigureLoadURLModal(rootContainer, urlLoadModalId, async path => await fileLoader.load(path))
+    traceURLlModal = createAndConfigureURLLoadModal(rootContainer, urlLoadModalId, async path => await fileLoader.load(path))
 
     // trace from select list
-    const traceSelectModalElement = createTraceSelectModalElement(traceModalId)
-    rootContainer.appendChild(traceSelectModalElement)
-    traceSelectModal = new bootstrap.Modal(traceSelectModalElement)
-
-    configureSelectOnChange(traceSelectModalElement.querySelector('select'), traceSelectModal, async path => await fileLoader.load(path))
+    traceSelectModal = createAndConfigureTraceSelectModal(rootContainer, traceModalId, async path => await fileLoader.load(path))
 
     // Ensemble group from select list
-    const ensembleGroupModalElement = createEnsembleGroupModalElement(ensembleGroupModalId)
-    rootContainer.appendChild(ensembleGroupModalElement)
-    ensembleGroupModal = new bootstrap.Modal(ensembleGroupModalElement)
-
-    const ensembleGroupSelectElement = ensembleGroupModalElement.querySelector('select')
-
-    ensembleGroupSelectElement.addEventListener('change', async event => {
-
-        event.stopPropagation()
-
-        ensembleGroupModal.hide()
-
-        await sceneManager.ingestEnsembleGroup(ensembleGroupSelectElement.value)
-
-        const data = ensembleManager.createEventBusPayload()
-        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
-
-    })
-
-    const ensembleGroupHandler = ({ data }) => {
-
-        // discard pre-exisiting option elements
-        ensembleGroupSelectElement.innerHTML = ''
-
-        ensembleGroupSelectElement.appendChild(createPlaceholderOptionElement())
-
-        for (const key of data ) {
-            const html = `<option value=\"${ key }\">${ key }</option>`
-            const fragment = document.createRange().createContextualFragment(html)
-            ensembleGroupSelectElement.appendChild(fragment.firstChild)
-        }
-    }
-
-    SpacewalkEventBus.globalBus.subscribe('DidLoadCNDBFile', ensembleGroupHandler)
-    SpacewalkEventBus.globalBus.subscribe('DidLoadSWBEnsembleGroup', ensembleGroupHandler)
+    ensembleGroupModal = createAndConfigureEnsembleGroupSelectModal(rootContainer, ensembleGroupModalId)
 
     // Dropbox
     dropboxButton.addEventListener('click', () => {
@@ -123,34 +85,7 @@ async function SpacewalkGetFilename(path){
 
 }
 
-function createEnsembleGroupModalElement(ensembleGroupModalId) {
-
-    const html =
-        `<div id="${ ensembleGroupModalId }" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="modal-title">Ensemble Group Selection</div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div>
-                        <div class="input-group my-3">
-                            <div class="spinner-border" style="display: none;"></div>
-                            <select class="form-select" data-live-search="true" title="Select an ensemble group" data-width="100%"></select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>`;
-
-    const fragment = document.createRange().createContextualFragment(html)
-
-    return fragment.firstChild
-}
-
-function createTraceSelectModalElement(traceModalId) {
+function createAndConfigureTraceSelectModal(parentElement, traceModalId, fileLoader) {
 
     const html =
         `<div id="${traceModalId}" class="modal fade">
@@ -184,37 +119,110 @@ function createTraceSelectModalElement(traceModalId) {
 
     const fragment = document.createRange().createContextualFragment(html)
 
-    return fragment.firstChild
+    const traceSelectModalElement =  fragment.firstChild
 
-}
+    parentElement.appendChild(traceSelectModalElement)
 
-function configureSelectOnChange(select, selectModal, fileLoader) {
+    const modal = new bootstrap.Modal(traceSelectModalElement)
 
-    select.addEventListener('change', event => {
+    const selectElement = traceSelectModalElement.querySelector('select')
 
-        event.stopPropagation();
+    selectElement.addEventListener('change', event => {
 
-        let selectElement = event.target;
-        let url = selectElement.value || '';
+        event.stopPropagation()
 
-        const index = selectElement.selectedIndex;
-        const option = selectElement.options[index];
-        const name = option.textContent;
-
-        if (url !== '') {
-            fileLoader(url);
+        if ('' !== selectElement.value) {
+            fileLoader(selectElement.value);
         }
 
-        selectElement.value = selectElement.options[0].value;
+        modal.hide();
 
-        selectModal.hide();
+    })
 
-    });
+    return modal
 
 }
 
+function createAndConfigureEnsembleGroupSelectModal(parentElement, ensembleGroupModalId) {
 
-function createAndConfigureLoadURLModal(root, id, input_handler) {
+    const modalElement = createEnsembleGroupModalElement(ensembleGroupModalId)
+    parentElement.appendChild(modalElement)
+
+    const modal = new bootstrap.Modal(modalElement)
+
+    const selectElement = modalElement.querySelector('select')
+
+    selectElement.addEventListener('change', async event => {
+
+        event.stopPropagation()
+
+        modal.hide()
+
+        await sceneManager.ingestEnsembleGroup(selectElement.value)
+
+        const data = ensembleManager.createEventBusPayload()
+
+        SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data })
+
+    })
+
+    const loadEventHandler = ({ data }) => {
+
+        // discard pre-exisiting option elements
+        selectElement.innerHTML = ''
+
+        selectElement.appendChild(createPlaceholderOptionElement())
+
+        for (const key of data ) {
+            const html = `<option value=\"${ key }\">${ key }</option>`
+            const fragment = document.createRange().createContextualFragment(html)
+            selectElement.appendChild(fragment.firstChild)
+        }
+    }
+
+    SpacewalkEventBus.globalBus.subscribe('DidLoadCNDBFile', loadEventHandler)
+    SpacewalkEventBus.globalBus.subscribe('DidLoadSWBEnsembleGroup', loadEventHandler)
+
+    return modal
+}
+
+function createEnsembleGroupModalElement(ensembleGroupModalId) {
+
+    const html =
+        `<div id="${ ensembleGroupModalId }" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Ensemble Group Selection</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <div class="input-group my-3">
+                            <div class="spinner-border" style="display: none;"></div>
+                            <select class="form-select" data-live-search="true" title="Select an ensemble group" data-width="100%"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+    const fragment = document.createRange().createContextualFragment(html)
+
+    return fragment.firstChild
+}
+
+function createPlaceholderOptionElement() {
+    const placeholderOption = document.createElement('option')
+    placeholderOption.text = 'Please select'
+    placeholderOption.disabled = true
+    placeholderOption.selected = true
+    placeholderOption.hidden = true
+    return placeholderOption
+}
+
+function createAndConfigureURLLoadModal(root, id, input_handler) {
 
     const html =
         `<div id="${id}" class="modal fade">
@@ -251,15 +259,4 @@ function createAndConfigureLoadURLModal(root, id, input_handler) {
     return new bootstrap.Modal(modalElement)
 }
 
-
-function createPlaceholderOptionElement() {
-    const placeholderOption = document.createElement('option')
-    placeholderOption.text = 'Please select'
-    placeholderOption.disabled = true
-    placeholderOption.selected = true
-    placeholderOption.hidden = true
-    return placeholderOption
-}
-
-
-export { createSpacewalkFileLoaders, createAndConfigureLoadURLModal }
+export { createSpacewalkFileLoaders, createAndConfigureURLLoadModal }

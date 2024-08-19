@@ -1,7 +1,7 @@
 function createURLModalElement(id, title) {
 
     const html =
-    `<div id="${id}" class="modal fade" tabindex="-1">
+    `<div id="${id}" class="modal fade">
 
         <div class="modal-dialog modal-lg">
     

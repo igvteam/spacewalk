@@ -63,7 +63,7 @@ function createSessionWidgets(rootContainer,
 function configureSaveSessionModal(rootContainer, prefix, JSONProvider, sessionSaveModalId) {
 
     const html =
-        `<div id="${sessionSaveModalId}" class="modal fade igv-app-file-save-modal" tabindex="-1" aria-labelledby="${sessionSaveModalId}Label" aria-hidden="true">
+        `<div id="${sessionSaveModalId}" class="modal fade">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
