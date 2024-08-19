@@ -50,6 +50,8 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
         // discard pre-exisiting option elements
         ensembleGroupSelectElement.innerHTML = ''
 
+        ensembleGroupSelectElement.appendChild(createPlaceholderOptionElement())
+
         for (const key of data ) {
             const html = `<option value=\"${ key }\">${ key }</option>`
             const fragment = document.createRange().createContextualFragment(html)
@@ -165,6 +167,7 @@ function createTraceSelectModalElement(traceModalId) {
                                 <!-- spinner border-radius: .25rem; -->
                             </div>
                             <select class="form-select" data-live-search="true" title="Select an ensemble" data-width="100%">
+                                <option value="" disabled selected hidden>Please select</option>
                                 <option value="https://www.dropbox.com/scl/fi/slx5xkk540i8si7wr6tv5/A549_chr21-28-30Mb.sw?rlkey=mufheyn60384w0hemlknm53ad&st=gnhzxw34&dl=0">A549 chr21:28-30</option>
                                 <option value="https://www.dropbox.com/scl/fi/6by67mrc3ywm646j6zm8f/HCT116_chr21-28-30Mb_6h_auxin.sw?rlkey=0zrb50erkuznyxvv0fnfzfy48&st=zbir0o2m&dl=0">HCT116 6h_auxin chr21:28-30</option>
                                 <option value="https://www.dropbox.com/scl/fi/sl5q79az2r7sdxtaz6j0g/HCT116_chr21-28-30Mb_untreated.sw?rlkey=8tjwzsgtybwlukyfrt0s5aa5e&st=lrcsoowv&dl=0">HCT116 untreated chr21:28-30</option>
@@ -247,5 +250,16 @@ function createAndConfigureLoadURLModal(root, id, input_handler) {
 
     return new bootstrap.Modal(modalElement)
 }
+
+
+function createPlaceholderOptionElement() {
+    const placeholderOption = document.createElement('option')
+    placeholderOption.text = 'Please select'
+    placeholderOption.disabled = true
+    placeholderOption.selected = true
+    placeholderOption.hidden = true
+    return placeholderOption
+}
+
 
 export { createSpacewalkFileLoaders, createAndConfigureLoadURLModal }
