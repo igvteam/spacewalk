@@ -1,7 +1,7 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import { fitToContainer, getMouseXY } from "./utils.js";
-import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./color.js";
-import { defaultColormapName } from "./colorMapManager.js";
+import { fitToContainer, getMouseXY } from "./utils/utils.js";
+import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./utils/color.js";
+import { defaultColormapName } from "./utils/colorMapManager.js";
 import {colorMapManager, ensembleManager, sceneManager} from "./app.js";
 import Ribbon from './ribbon.js';
 

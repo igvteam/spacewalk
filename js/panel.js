@@ -1,6 +1,6 @@
 import igv from 'igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import { makeDraggable } from "./draggable.js"
+import { makeDraggable } from "./utils/draggable.js"
 
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;

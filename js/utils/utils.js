@@ -5,7 +5,7 @@ import {
     ensembleManager,
     dataValueMaterialProvider,
     colorRampMaterialProvider
-} from "./app.js";
+} from "../app.js";
 import {lerp} from "./math.js";
 import {appleCrayonColorRGB255} from './color.js'
 

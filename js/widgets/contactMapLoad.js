@@ -1,7 +1,7 @@
 import {GenericDataSource, ModalTable} from 'data-modal'
 import {FileUtils, GooglePicker} from 'igv-utils'
 import {aidenLabContactMapDatasourceConfigurator} from './aidenLabContactMapDatasourceConfig.js'
-import { createAndConfigureURLLoadModal } from './spacewalkFileLoad.js'
+import { createAndConfigureURLLoadModal } from '../spacewalkFileLoad.js'
 
 let mapType = undefined;
 let encodeHostedContactMapModal;

@@ -1,12 +1,12 @@
 import * as THREE from "three"
 import {FileUtils} from "igv-utils"
-import { includes } from "./math.js"
-import {hideGlobalSpinner, showGlobalSpinner} from "./utils.js"
-import Parser from './parser.js'
-import Datasource from './datasource.js'
-import SWBDatasource from "./SWBDatasource.js"
-import CNDBParser from "./CNDBParser.js"
-import CNDBDatasource from "./CNDBDatasource.js"
+import { includes } from "./utils/math.js"
+import {hideGlobalSpinner, showGlobalSpinner} from "./utils/utils.js"
+import Parser from './datasource/parser.js'
+import Datasource from './datasource/datasource.js'
+import SWBDatasource from "./datasource/SWBDatasource.js"
+import CNDBParser from "./datasource/CNDBParser.js"
+import CNDBDatasource from "./datasource/CNDBDatasource.js"
 
 class EnsembleManager {
 

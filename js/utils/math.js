@@ -1,4 +1,15 @@
+
+function distanceToSquared(a, b) {
+    const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z
+    return dx * dx + dy * dy + dz * dz
+}
+
+function distanceTo(a, b) {
+    return Math.sqrt( distanceToSquared(a, b) )
+}
+
 const includes = ({ a, b, value }) => {
+
     return value < a || value > b ? false : true;
 };
 
@@ -132,6 +143,8 @@ function cullDuplicateXYZ(numbers) {
 }
 
 export {
+    distanceTo,
+    distanceToSquared,
     includes,
     radians,
     degrees,

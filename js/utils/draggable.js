@@ -1,4 +1,4 @@
-import SpacewalkEventBus from './spacewalkEventBus.js'
+import SpacewalkEventBus from '../spacewalkEventBus.js'
 
 const namespace = '.spacewalk-drag';
 let dragData;

@@ -5,7 +5,7 @@ import Panel from './panel.js'
 import { igvPanel, juiceboxPanel, ensembleManager, sceneManager, contactFrequencyMapPanel, SpacewalkGlobals, guiManager } from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {defaultDistanceThreshold} from './contactFrequencyMapPanel.js'
-import { shortenURL } from "./shareHelper.js"
+import { shortenURL } from "./share/shareHelper.js"
 
 const loadSessionURL = async spacewalkSessionURL => {
 

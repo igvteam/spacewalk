@@ -6,7 +6,7 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
 import EnsembleManager from './ensembleManager.js'
 import {igvPanel, sceneManager, ensembleManager} from "./app.js"
-import {appleCrayonColorThreeJS} from "./color.js";
+import {appleCrayonColorThreeJS} from "./utils/color.js";
 
 const ribbonWidth = 4/*2*/
 const highlightBeadRadiusScalefactor = 1/(6e1)

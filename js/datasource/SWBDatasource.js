@@ -1,11 +1,11 @@
 import * as THREE from 'three'
 import {openH5File} from 'hdf5-indexed-reader'
 import {FileUtils} from 'igv-utils'
-import {igvPanel, SpacewalkGlobals} from './app.js'
+import {igvPanel, SpacewalkGlobals} from '../app.js'
 import DataSourceBase from './dataSourceBase.js'
-import {hideGlobalSpinner, showGlobalSpinner} from "./utils";
-import {createBoundingBoxWithFlatXYZList, cullDuplicateXYZ} from "./math.js"
-import SpacewalkEventBus from "./spacewalkEventBus.js"
+import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils";
+import {createBoundingBoxWithFlatXYZList, cullDuplicateXYZ} from "../utils/math.js"
+import SpacewalkEventBus from "../spacewalkEventBus.js"
 
 class SWBDatasource extends DataSourceBase {
 

@@ -20,9 +20,9 @@
  * THE SOFTWARE.
  *
  */
-import AlertSingleton from './widgets/alertSingleton.js'
+import AlertSingleton from '../widgets/alertSingleton.js'
 import {bitlyShortener, googleShortener, tinyURLShortener} from "./urlShortener.js";
-import {igvPanel} from './app.js'
+import {igvPanel} from '../app.js'
 
 let urlShortener;
 

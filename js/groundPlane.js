@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import {appleCrayonColorThreeJS, rgba255String, threeJSColorToRGB255} from "./color.js"
+import {appleCrayonColorThreeJS, rgba255String, threeJSColorToRGB255} from "./utils/color.js"
 import {
     configureColorPicker,
     doConfigureGroundplaneHidden,

@@ -1,13 +1,13 @@
 import hic from 'juicebox.js'
 import EnsembleManager from './ensembleManager.js'
 import {colorMapManager, ensembleManager, igvPanel, juiceboxPanel} from "./app.js"
-import { clamp } from "./math.js";
+import { clamp } from "./utils/math.js";
 import Panel from "./panel.js";
-import {appleCrayonColorThreeJS, threeJSColorToRGB255} from "./color.js"
-import {hideGlobalSpinner, renderArrayToCanvas, showGlobalSpinner} from "./utils.js"
+import {appleCrayonColorThreeJS, threeJSColorToRGB255} from "./utils/color.js"
+import {hideGlobalSpinner, renderArrayToCanvas, showGlobalSpinner} from "./utils/utils.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import ContactRecord from './contactRecord.js'
-import LiveContactMapDataSet from "./liveContactMapDataSet.js"
+import ContactRecord from './utils/contactRecord.js'
+import LiveContactMapDataSet from "./juicebox/liveContactMapDataSet.js"
 
 let ensembleContactFrequencyArray = undefined
 

@@ -5,7 +5,7 @@ import { dropboxDropdownItem, googleDriveDropdownItem } from "./widgets/markupFa
 import { createTrackWidgetsWithTrackRegistry } from './widgets/trackWidgets.js'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
-import ColorMapManager from "./colorMapManager.js";
+import ColorMapManager from "./utils/colorMapManager.js";
 import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
@@ -19,18 +19,18 @@ import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel
 import TraceSelect from './traceSelect.js'
 import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
-import JuiceboxPanel from "./juiceboxPanel.js";
-import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./color.js";
+import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
+import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/color.js";
 import {getUrlParams, loadSessionURL, toJSON, loadSession, uncompressSession} from "./spacewalkSession.js"
-import { initializeMaterialLibrary } from "./materialLibrary.js";
+import { initializeMaterialLibrary } from "./utils/materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
-import configureContactMapLoaders from './contactMapLoad.js'
-import {createShareWidgets, shareWidgetConfigurator} from './shareWidgets.js'
-import { showGlobalSpinner, hideGlobalSpinner } from './utils.js'
-import {showRelease} from "./release.js"
+import configureContactMapLoaders from './widgets/contactMapLoad.js'
+import {createShareWidgets, shareWidgetConfigurator} from './share/shareWidgets.js'
+import { showGlobalSpinner, hideGlobalSpinner } from './utils/utils.js'
+import {showRelease} from "./utils/release.js"
 import { spacewalkConfig } from "../spacewalk-config.js";
 import '../styles/app.scss'
 import '../styles/igv/dom.scss'

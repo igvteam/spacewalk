@@ -1,6 +1,6 @@
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 import {ensembleManager} from "./app.js"
-import {clamp} from "./math.js"
+import {clamp} from "./utils/math.js"
 import {StringUtils} from "igv-utils";
 
 let numberForDisplay = undefined
@@ -67,7 +67,7 @@ function getBroadcastValue(number, total, incrementOrDecrement) {
 
 }
 async function broadcastTraceSelection(input, number, total) {
-    
+
     if (numberForDisplay !== number) {
         console.log(`TraceSelect. Will change number from ${StringUtils.numberFormatter(numberForDisplay)} to ${StringUtils.numberFormatter(number)}`)
 
