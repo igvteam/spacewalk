@@ -1,4 +1,4 @@
-import KDBush from './kd3d/kd3d.js'
+import KDBush from '../kd3d/kd3d.js'
 
 self.addEventListener('message', ({ data }) => {
 

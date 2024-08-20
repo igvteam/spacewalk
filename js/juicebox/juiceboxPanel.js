@@ -2,7 +2,7 @@ import hic from 'juicebox.js'
 import AlertSingleton from '../widgets/alertSingleton.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
-import {ballAndStick, colorRampMaterialProvider, contactFrequencyMapPanel, ensembleManager, ribbon} from '../app.js'
+import {ballAndStick, colorRampMaterialProvider, liveContactMapService, ensembleManager, ribbon} from '../app.js'
 import SWBDatasource from "../datasource/SWBDatasource"
 import {makeDraggable} from "../utils/draggable"
 
@@ -93,7 +93,7 @@ class JuiceboxPanel extends Panel {
                 await ensembleManager.datasource.calculateLiveMapVertexLists()
             }
 
-            contactFrequencyMapPanel.calculateContactFrequencies()
+            liveContactMapService.updateEnsembleContactFrequencyCanvas()
             this.present()
 
         })

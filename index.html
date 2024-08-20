@@ -47,9 +47,6 @@
     <!-- Google Platform JS -->
     <script src="https://apis.google.com/js/platform.js"></script>
 
-    <!--  Spacewalk app entrypoint  -->
-    <script type="module" src="./js/app.js"></script>
-
     <!-- helpful shaders -->
     <script type="x-shader/x-vertex" id="diffuse_cube_vert">
 
@@ -110,6 +107,9 @@
         }
       }
     </script>
+
+    <!--  Spacewalk app entrypoint  -->
+    <script type="module" src="./js/app.js"></script>
 
   </head>
   <body>
@@ -687,42 +687,6 @@
 
             <canvas id="spacewalk_distance_map_canvas_trace" class="tab-pane active"></canvas>
             <canvas id="spacewalk_distance_map_canvas_ensemble" class="tab-pane"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- contact-frequency-map panel-->
-      <div id="spacewalk_contact_frequency_map_panel" class="card">
-        <div class="card-header">
-          <!-- drag handle -->
-          <div class="spacewalk_card_drag_container">
-            <i class="fas fa-square-full"></i>
-            <i class="fas fa-lg fa-grip-horizontal"></i>
-            <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_contact_frequency_map"></i>
-          </div>
-
-          <div class="text-center">
-            Contact Frequency Map
-          </div>
-
-          <ul class="nav nav-tabs card-header-tabs">
-            <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#spacewalk_contact_frequency_map_canvas_trace">Trace</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" data-bs-toggle="tab" href="#spacewalk_contact_frequency_map_canvas_ensemble">Ensemble</a>
-            </li>
-          </ul>
-        </div>
-
-        <div id="spacewalk_contact_frequency_map_panel_body" class="card-body p-0">
-          <div id="spacewalk_contact_frequency_map_panel_container" class="tab-content">
-            <div class="spacewalk-spinner-container d-flex align-items-center justify-content-center">
-              <div id="spacewalk-contact-frequency-map-spinner" class="spinner-border text-secondary" style="display:none; width: 5rem; height: 5rem;"></div>
-            </div>
-
-            <canvas id="spacewalk_contact_frequency_map_canvas_trace" class="tab-pane"></canvas>
-            <canvas id="spacewalk_contact_frequency_map_canvas_ensemble" class="tab-pane active"></canvas>
           </div>
         </div>
       </div>

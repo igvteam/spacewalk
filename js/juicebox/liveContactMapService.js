@@ -1,47 +1,23 @@
-import hic from 'juicebox.js'
-import EnsembleManager from './ensembleManager.js'
-import {colorMapManager, ensembleManager, igvPanel, juiceboxPanel} from "./app.js"
-import { clamp } from "./utils/math.js";
-import Panel from "./panel.js";
-import {appleCrayonColorThreeJS, threeJSColorToRGB255} from "./utils/color.js"
-import {hideGlobalSpinner, renderArrayToCanvas, showGlobalSpinner} from "./utils/utils.js"
-import SpacewalkEventBus from './spacewalkEventBus.js'
-import ContactRecord from './utils/contactRecord.js'
-import LiveContactMapDataSet from "./juicebox/liveContactMapDataSet.js"
+import hic from "juicebox.js"
+import {colorMapManager, ensembleManager, igvPanel, juiceboxPanel} from "../app.js"
+import EnsembleManager from "../ensembleManager.js"
+import LiveContactMapDataSet from "./liveContactMapDataSet.js"
+import SpacewalkEventBus from "../spacewalkEventBus.js"
+import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils.js"
+import {appleCrayonColorThreeJS, threeJSColorToRGB255} from "../utils/color.js"
+import ContactRecord from "../utils/contactRecord.js"
+import {clamp} from "../utils/math.js"
 
 let ensembleContactFrequencyArray = undefined
-
-let traceContactFrequencyArray = undefined
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
 
 const kContactFrequencyUndefined = -1
 
-class ContactFrequencyMapPanel extends Panel {
+class LiveContactMapService {
 
-    constructor ({ container, panel, isHidden, distanceThreshold }) {
-
-        const xFunction = (cw, w) => w * 0.1
-        const yFunction = (ch, h) => ch - (h * 1.1)
-        super({ container, panel, isHidden, xFunction, yFunction })
-
-        const canvasContainer = panel.querySelector('#spacewalk_contact_frequency_map_panel_container')
-        const { width, height } = canvasContainer.getBoundingClientRect()
-
-        let canvas
-
-        // ensemble canvas and context
-        canvas = canvasContainer.querySelector('#spacewalk_contact_frequency_map_canvas_ensemble')
-        canvas.width = width
-        canvas.height = height
-        this.ctx_ensemble = canvas.getContext('bitmaprenderer')
-
-        // trace canvas and context
-        canvas = canvasContainer.querySelector('#spacewalk_contact_frequency_map_canvas_trace')
-        canvas.width = width
-        canvas.height = height
-        this.ctx_trace = canvas.getContext('bitmaprenderer')
+    constructor (distanceThreshold) {
 
         this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
         this.input.value = distanceThreshold.toString()
@@ -52,63 +28,46 @@ class ContactFrequencyMapPanel extends Panel {
 
     }
 
-    initialize(panel) {
+    initialize() {
 
         document.querySelector('#spacewalk_contact_frequency_map__button').addEventListener('click', () => {
 
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
             window.setTimeout(() => {
-                this.calculateContactFrequencies()
+                this.updateEnsembleContactFrequencyCanvas()
             }, 0)
         })
 
-        this.worker = new Worker(new URL('./contactFrequencyMapWorker.js', import.meta.url), { type: 'module' })
+        this.worker = new Worker(new URL('./liveContactMapWorker.js', import.meta.url), { type: 'module' })
 
         this.worker.addEventListener('message', async ({ data }) => {
 
             console.log(`Contact Frequency ${ data.traceOrEnsemble } map received from worker`)
-
 
             allocateContactFrequencyArray(ensembleManager.getLiveMapTraceLength())
 
             if ('ensemble' === data.traceOrEnsemble) {
 
                 updateContactFrequencyArrayWithFrequencies(data.workerValuesBuffer, ensembleContactFrequencyArray)
-                await renderArrayToCanvas(this.ctx_ensemble, ensembleContactFrequencyArray)
 
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(juiceboxPanel.browser.contactMatrixView.getViewDimensions(), data.workerValuesBuffer, ensembleManager.getLiveMapTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
 
                 await juiceboxPanel.browser.contactMatrixView.renderWithLiveContactFrequencyData(juiceboxPanel.browser, hicState, liveContactMapDataSet, data, ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
 
-                document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
-                hideGlobalSpinner()
-
-            } else {
-                updateContactFrequencyArrayWithFrequencies(data.workerValuesBuffer, traceContactFrequencyArray)
-                await renderArrayToCanvas(this.ctx_trace, traceContactFrequencyArray)
-
-                document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'none'
                 hideGlobalSpinner()
 
             }
-
 
         }, false)
 
     }
 
     receiveEvent({ type, data }) {
-
         if ("DidLoadEnsembleFile" === type) {
-            ensembleContactFrequencyArray = traceContactFrequencyArray = undefined
-            this.ctx_trace.transferFromImageBitmap(null)
-            this.ctx_ensemble.transferFromImageBitmap(null)
+            ensembleContactFrequencyArray = undefined
         }
-
-        super.receiveEvent({ type, data });
-
     }
 
     setState(distanceThreshold) {
@@ -116,45 +75,11 @@ class ContactFrequencyMapPanel extends Panel {
         this.input.value = distanceThreshold.toString()
     }
 
-    present() {
-        super.present()
-    }
-
-    getClassName(){ return 'ContactFrequencyMapPanel' }
-
-    calculateContactFrequencies() {
-        this.updateEnsembleContactFrequencyCanvas()
-        this.updateTraceContactFrequencyCanvas()
-    }
-
-    updateTraceContactFrequencyCanvas() {
-
-        showGlobalSpinner()
-        document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
-
-        const vertices = ensembleManager.getLiveMapTraceVertices(ensembleManager.currentTrace)
-
-        this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
-        this.input.value = this.distanceThreshold.toString()
-
-        const data =
-            {
-                traceOrEnsemble: 'trace',
-                traceLength: ensembleManager.getLiveMapTraceLength(),
-                verticesString: JSON.stringify(vertices),
-                distanceThreshold: this.distanceThreshold
-            }
-
-        console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
-
-        this.worker.postMessage(data)
-
-    }
+    getClassName(){ return 'LiveContactMapService' }
 
     updateEnsembleContactFrequencyCanvas() {
 
         showGlobalSpinner()
-        document.querySelector('#spacewalk-contact-frequency-map-spinner').style.display = 'block'
 
         this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
         this.input.value = this.distanceThreshold.toString()
@@ -244,15 +169,9 @@ function createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly
 }
 
 function allocateContactFrequencyArray(traceLength) {
-
     if (undefined === ensembleContactFrequencyArray) {
         ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
     }
-
-    if (undefined === traceContactFrequencyArray) {
-        traceContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
-    }
-
 }
 
 function updateContactFrequencyArrayWithFrequencies(frequencies, array) {
@@ -285,4 +204,4 @@ function updateContactFrequencyArrayWithFrequencies(frequencies, array) {
 
 export { defaultDistanceThreshold }
 
-export default ContactFrequencyMapPanel
+export default LiveContactMapService

@@ -14,7 +14,7 @@ import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import GUIManager from "./guiManager.js";
-import ContactFrequencyMapPanel, {defaultDistanceThreshold} from "./contactFrequencyMapPanel.js";
+import LiveContactMapService, {defaultDistanceThreshold} from "./juicebox/liveContactMapService.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
 import TraceSelect from './traceSelect.js'
 import TraceNavigator from './traceNavigator.js'
@@ -46,7 +46,7 @@ let dataValueMaterialProvider;
 let colorRampMaterialProvider;
 let guiManager
 let distanceMapPanel
-let contactFrequencyMapPanel
+let liveContactMapService
 let juiceboxPanel
 let igvPanel
 let traceSelect
@@ -280,6 +280,9 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
 
+    liveContactMapService = new LiveContactMapService(distanceThreshold)
+    liveContactMapService.initialize()
+
     const $dropdownButton = $('#spacewalk-contact-map-dropdown')
     const $dropdowns = $dropdownButton.parent()
 
@@ -303,19 +306,10 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
     createShareWidgets(shareWidgetConfigurator({ provider: 'tinyURL' }))
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_distance_map_panel')}));
+    document.querySelector('#spacewalk_contact_frequency_map_panel')
+    doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel')
 
-    const contactFrequencyMapPanelConfiguration =
-        {
-            container,
-            panel: document.querySelector('#spacewalk_contact_frequency_map_panel'),
-            isHidden:doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel'),
-            distanceThreshold
-        }
-    contactFrequencyMapPanel = new ContactFrequencyMapPanel(contactFrequencyMapPanelConfiguration)
-
-    contactFrequencyMapPanel.initialize(contactFrequencyMapPanelConfiguration.panel)
-
-    Panel.setPanelDictionary([ igvPanel, juiceboxPanel, distanceMapPanel, contactFrequencyMapPanel ]);
+    Panel.setPanelDictionary([ igvPanel, juiceboxPanel, distanceMapPanel ]);
 
     $(window).on('resize.app', e => {
 
@@ -354,6 +348,6 @@ export {
     guiManager,
     juiceboxPanel,
     distanceMapPanel,
-    contactFrequencyMapPanel,
+    liveContactMapService,
     igvPanel,
     traceNavigator }
