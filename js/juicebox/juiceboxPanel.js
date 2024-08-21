@@ -93,7 +93,7 @@ class JuiceboxPanel extends Panel {
                 await ensembleManager.datasource.calculateLiveMapVertexLists()
             }
 
-            liveContactMapService.updateEnsembleContactFrequencyCanvas()
+            liveContactMapService.updateEnsembleContactFrequencyCanvas(undefined)
             this.present()
 
         })

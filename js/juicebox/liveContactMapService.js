@@ -19,10 +19,10 @@ class LiveContactMapService {
 
     constructor (distanceThreshold) {
 
+        this.distanceThreshold = distanceThreshold
+
         this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
         this.input.value = distanceThreshold.toString()
-
-        this.distanceThreshold = distanceThreshold;
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
@@ -35,7 +35,7 @@ class LiveContactMapService {
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
             window.setTimeout(() => {
-                this.updateEnsembleContactFrequencyCanvas()
+                this.updateEnsembleContactFrequencyCanvas(this.distanceThreshold)
             }, 0)
         })
 
@@ -66,6 +66,10 @@ class LiveContactMapService {
 
     receiveEvent({ type, data }) {
         if ("DidLoadEnsembleFile" === type) {
+
+            this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
+            this.input.value = this.distanceThreshold.toString()
+
             ensembleContactFrequencyArray = undefined
         }
     }
@@ -77,11 +81,11 @@ class LiveContactMapService {
 
     getClassName(){ return 'LiveContactMapService' }
 
-    updateEnsembleContactFrequencyCanvas() {
+    updateEnsembleContactFrequencyCanvas(distanceThresholdOrUndefined) {
 
         showGlobalSpinner()
 
-        this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
+        this.distanceThreshold = distanceThresholdOrUndefined || distanceThresholdEstimate(ensembleManager.currentTrace)
         this.input.value = this.distanceThreshold.toString()
 
         const data =
