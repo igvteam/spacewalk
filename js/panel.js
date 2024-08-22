@@ -24,7 +24,8 @@ class Panel {
         this.namespace = `panel.${ igv.DOMUtils.guid() }`
 
         const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
-        makeDraggable(panel, dragHandle.querySelector('.fa-grip-horizontal'))
+        // makeDraggable(panel, dragHandle.querySelector('.fa-grip-horizontal'))
+        makeDraggable(panel, dragHandle)
 
         $(dragHandle).on(`mousedown.${ this.namespace }`, event => {
             event.stopPropagation();
