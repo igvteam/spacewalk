@@ -318,7 +318,7 @@ div.navbar-brand {
   left: 32px;
   width: 300px;
   height: auto;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fa;
   border-color: #3a3a3a;
 }
 #spacewalk_ui_manager_panel.card .list-group {
@@ -333,6 +333,11 @@ div.navbar-brand {
 }
 #spacewalk_ui_manager_panel.card .list-group:last-child {
   margin-bottom: unset;
+}
+
+input#spacewalk_ui_manager_input_group_shim {
+  opacity: 0; /* Makes the input invisible */
+  pointer-events: none; /* Prevents interaction */
 }
 
 li.spacewalk-colorpicker-li {
