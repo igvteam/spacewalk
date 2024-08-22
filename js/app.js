@@ -32,9 +32,8 @@ import {createShareWidgets, shareWidgetConfigurator} from './share/shareWidgets.
 import { showGlobalSpinner, hideGlobalSpinner } from './utils/utils.js'
 import {showRelease} from "./utils/release.js"
 import { spacewalkConfig } from "../spacewalk-config.js";
+import 'juicebox.js/dist/css/juicebox.css'
 import '../styles/app.scss'
-import '../styles/igv/dom.scss'
-import '../styles/juicebox.scss'
 
 let pointCloud;
 let ribbon;
