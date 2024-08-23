@@ -54,7 +54,7 @@ class LiveContactMapService {
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(juiceboxPanel.browser.contactMatrixView.getViewDimensions(), data.workerValuesBuffer, ensembleManager.getLiveMapTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
 
-                await juiceboxPanel.browser.contactMatrixView.renderWithLiveContactFrequencyData(juiceboxPanel.browser, hicState, liveContactMapDataSet, data, ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+                await juiceboxPanel.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data.workerValuesBuffer, ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
 
                 hideGlobalSpinner()
 
