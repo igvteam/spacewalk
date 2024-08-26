@@ -197,7 +197,7 @@ class JuiceboxPanel extends Panel {
     }
 
     async colorPickerHandler(data) {
-        if (liveContactMapService.liveContactMapDataSet) {
+        if (liveContactMapService.liveContactMapDataSet && this.browser.contactMatrixView.doRenderLiveContactMap()) {
             console.log(`color picker picked ${ data }`)
             await this.renderWithLiveContactFrequencyData(liveContactMapService.hicState, liveContactMapService.liveContactMapDataSet, liveContactMapService.contactFrequencies, liveContactMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
         }
