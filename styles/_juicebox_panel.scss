@@ -7,30 +7,33 @@
 
   align-items: center;
 
-  .list-group {
+  .card-header {
     width: 100%;
+    .list-group {
+      width: 100%;
 
-    .spacewalk_card_drag_container {
+      .spacewalk_card_drag_container {
 
-      i.fa-grip-horizontal {
-        cursor: unset;
-        color: transparent;
-        background-color: transparent;
+        i.fa-grip-horizontal {
+          cursor: unset;
+          color: transparent;
+          background-color: transparent;
+        }
+
+        a.dropdown-toggle {
+          color: unset;
+        }
       }
 
-      a.dropdown-toggle {
-        color: unset;
+      .list-group-item {
+        padding: 0;
       }
-    }
 
-    .list-group-item {
-      padding: 0;
-    }
+      .list-group-item:last-child {
+        width: 256px;
+      }
 
-    .list-group-item:last-child {
-      width: 256px;
     }
-
   }
 
   .card-body {

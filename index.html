@@ -498,94 +498,109 @@
 
       <!-- juicebox panel -->
       <div id="spacewalk_juicebox_panel" class="card">
-        <ul class="list-group list-group-flush">
-          <!-- drag handle-->
-          <li class="list-group-item">
-            <div class="spacewalk_card_drag_container">
-              <i class="fas fa-square-full"></i>
-              <div class="dropdown">
-                <a id="hic-contact-map-dropdown" class="dropdown-toggle" data-bs-toggle="dropdown">
-                  Juicebox File
-                </a>
-                <ul class="dropdown-menu">
-                  <!-- Live Contact Frequency Map -->
-                  <li>
-                    <a id="hic-live-contact-frequency-map-button" class="dropdown-item" href="#" role="button">
-                      Load Live Contact Frequency Map ...
-                    </a>
-                  </li>
 
-                  <!-- Juicebox Archive Map -->
-                  <li>
-                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#hic-contact-map-modal">
-                      Load Juicebox Archive Maps ...
-                    </a>
-                  </li>
+        <div class="card-header">
 
-                  <!-- ENCODE Maps -->
-                  <li>
-                    <button class="dropdown-item" id="hic-encode-hosted-contact-map-presentation-button" type="button" data-bs-toggle="modal" data-bs-target="#hic-encode-hosted-contact-map-modal">
-                      Load ENCODE Maps ...
-                    </button>
-                  </li>
+          <ul class="list-group list-group-flush">
 
-                  <!-- Local Map File -->
-                  <li>
-                    <label class="dropdown-item btn btn-default btn-file">
-                      <div class="igv-app-dropdown-item-cloud-storage">
-                        <div>
-                          Load Local Map File ...
+            <!-- drag handle-->
+            <li class="list-group-item">
+              <div class="spacewalk_card_drag_container">
+                <i class="fas fa-square-full"></i>
+                <div class="dropdown">
+                  <a id="hic-contact-map-dropdown" class="dropdown-toggle" data-bs-toggle="dropdown">
+                    Juicebox File
+                  </a>
+                  <ul class="dropdown-menu">
+                    <!-- Live Contact Frequency Map -->
+                    <li>
+                      <a id="hic-live-contact-frequency-map-button" class="dropdown-item" href="#" role="button">
+                        Load Live Contact Frequency Map ...
+                      </a>
+                    </li>
+
+                    <!-- Juicebox Archive Map -->
+                    <li>
+                      <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#hic-contact-map-modal">
+                        Load Juicebox Archive Maps ...
+                      </a>
+                    </li>
+
+                    <!-- ENCODE Maps -->
+                    <li>
+                      <button class="dropdown-item" id="hic-encode-hosted-contact-map-presentation-button" type="button" data-bs-toggle="modal" data-bs-target="#hic-encode-hosted-contact-map-modal">
+                        Load ENCODE Maps ...
+                      </button>
+                    </li>
+
+                    <!-- Local Map File -->
+                    <li>
+                      <label class="dropdown-item btn btn-default btn-file">
+                        <div class="igv-app-dropdown-item-cloud-storage">
+                          <div>
+                            Load Local Map File ...
+                          </div>
+                          <div>
+                            <input name="contact-map" type="file" style="display: none;">
+                          </div>
                         </div>
-                        <div>
-                          <input name="contact-map" type="file" style="display: none;">
+                      </label>
+                    </li>
+
+                    <!-- Dropbox -->
+                    <li>
+                      <div class="dropdown-item">
+                        <div id="hic-contact-map-dropdown-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
+                          <div>Load Dropbox Map File ...</div>
+                          <div>
+                            <img src="img/dropbox-dropdown-menu-item.png" width="18" height="18">
+                          </div>
                         </div>
                       </div>
-                    </label>
-                  </li>
+                    </li>
 
-                  <!-- Dropbox -->
-                  <li>
-                    <div class="dropdown-item">
-                      <div id="hic-contact-map-dropdown-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
-                        <div>Load Dropbox Map File ...</div>
-                        <div>
-                          <img src="img/dropbox-dropdown-menu-item.png" width="18" height="18">
+                    <!-- Google Drive -->
+                    <li>
+                      <div class="dropdown-item">
+                        <div id="hic-contact-map-dropdown-google-drive-button" class="igv-app-dropdown-item-cloud-storage">
+                          <div>Load Google Drive Map File ...</div>
+                          <div><img src="img/googledrive-dropdown-menu-item.png" width="18" height="18"></div>
                         </div>
                       </div>
-                    </div>
-                  </li>
+                    </li>
 
-                  <!-- Google Drive -->
-                  <li>
-                    <div class="dropdown-item">
-                      <div id="hic-contact-map-dropdown-google-drive-button" class="igv-app-dropdown-item-cloud-storage">
-                        <div>Load Google Drive Map File ...</div>
-                        <div><img src="img/googledrive-dropdown-menu-item.png" width="18" height="18"></div>
-                      </div>
-                    </div>
-                  </li>
-
-                  <!-- URL -->
-                  <li>
-                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#hic-load-url-modal">
-                      Load Map URL ...
-                    </a>
-                  </li>
-                </ul>
+                    <!-- URL -->
+                    <li>
+                      <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#hic-load-url-modal">
+                        Load Map URL ...
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_juicebox"></i>
               </div>
-              <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_juicebox"></i>
-            </div>
-          </li>
+            </li>
 
-          <!-- live contact map threshold widget -->
-          <li id="hic-live-contact-frequency-map-threshold-widget" class="list-group-item py-1 ps-1">
-            <div class="input-group input-group-sm">
-              <div class="input-group-text">Threshold</div>
-              <input id="spacewalk_contact_frequency_map_adjustment_select_input" type="text" class="form-control text-center">
-              <button id="spacewalk_contact_frequency_map__button" class="btn btn-secondary" type="button">Enter</button>
-            </div>
-          </li>
-        </ul>
+            <ul class="nav nav-tabs card-header-tabs">
+              <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#spacewalk_undefined_0">Hi-C Map</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#spacewalk_undefined_1">Live Map</a>
+              </li>
+            </ul>
+
+            <!-- live contact map threshold widget -->
+            <li id="hic-live-contact-frequency-map-threshold-widget" class="list-group-item py-1 ps-1">
+              <div class="input-group input-group-sm">
+                <div class="input-group-text">Threshold</div>
+                <input id="spacewalk_contact_frequency_map_adjustment_select_input" type="text" class="form-control text-center">
+                <button id="spacewalk_contact_frequency_map__button" class="btn btn-secondary" type="button">Enter</button>
+              </div>
+            </li>
+          </ul>
+
+        </div>
 
         <div class="card-body p-0">
           <!-- juicebox browser container -->
@@ -658,7 +673,9 @@
 
       <!-- distance-map panel -->
       <div id="spacewalk_distance_map_panel" class="card">
+
         <div class="card-header">
+
           <!-- drag handle -->
           <div class="spacewalk_card_drag_container">
             <i class="fas fa-square-full"></i>
@@ -678,6 +695,7 @@
               <a class="nav-link" data-bs-toggle="tab" href="#spacewalk_distance_map_canvas_ensemble">Ensemble</a>
             </li>
           </ul>
+
         </div>
 
         <div id="spacewalk_distance_map_panel_body" class="card-body p-0">

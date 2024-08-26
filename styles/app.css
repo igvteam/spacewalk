@@ -202,21 +202,24 @@ div.navbar-brand {
   height: auto;
   align-items: center;
 }
-#spacewalk_juicebox_panel.card .list-group {
+#spacewalk_juicebox_panel.card .card-header {
   width: 100%;
 }
-#spacewalk_juicebox_panel.card .list-group .spacewalk_card_drag_container i.fa-grip-horizontal {
+#spacewalk_juicebox_panel.card .card-header .list-group {
+  width: 100%;
+}
+#spacewalk_juicebox_panel.card .card-header .list-group .spacewalk_card_drag_container i.fa-grip-horizontal {
   cursor: unset;
   color: transparent;
   background-color: transparent;
 }
-#spacewalk_juicebox_panel.card .list-group .spacewalk_card_drag_container a.dropdown-toggle {
+#spacewalk_juicebox_panel.card .card-header .list-group .spacewalk_card_drag_container a.dropdown-toggle {
   color: unset;
 }
-#spacewalk_juicebox_panel.card .list-group .list-group-item {
+#spacewalk_juicebox_panel.card .card-header .list-group .list-group-item {
   padding: 0;
 }
-#spacewalk_juicebox_panel.card .list-group .list-group-item:last-child {
+#spacewalk_juicebox_panel.card .card-header .list-group .list-group-item:last-child {
   width: 256px;
 }
 #spacewalk_juicebox_panel.card .card-body #spacewalk_hic_url_form_group {
