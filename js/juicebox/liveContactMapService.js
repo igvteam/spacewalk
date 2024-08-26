@@ -8,8 +8,6 @@ import {appleCrayonColorThreeJS, threeJSColorToRGB255} from "../utils/color.js"
 import ContactRecord from "../utils/contactRecord.js"
 import {clamp} from "../utils/math.js"
 
-let ensembleContactFrequencyArray = undefined
-
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
 
@@ -23,6 +21,11 @@ class LiveContactMapService {
 
         this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
         this.input.value = distanceThreshold.toString()
+
+        this.hicState = undefined
+        this.liveContactMapDataSet = undefined
+        this.contactList = undefined
+        this.ensembleContactFrequencyArray = undefined
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
@@ -45,16 +48,19 @@ class LiveContactMapService {
 
             console.log(`Contact Frequency ${ data.traceOrEnsemble } map received from worker`)
 
-            allocateContactFrequencyArray(ensembleManager.getLiveMapTraceLength())
+            this.allocateContactFrequencyArray(ensembleManager.getLiveMapTraceLength())
 
             if ('ensemble' === data.traceOrEnsemble) {
 
-                updateContactFrequencyArrayWithFrequencies(data.workerValuesBuffer, ensembleContactFrequencyArray)
+                updateContactFrequencyArrayWithFrequencies(data.workerValuesBuffer, this.ensembleContactFrequencyArray)
 
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
                 const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(juiceboxPanel.browser.contactMatrixView.getViewDimensions(), data.workerValuesBuffer, ensembleManager.getLiveMapTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
 
-                await juiceboxPanel.renderWithLiveContactFrequencyData(hicState, liveContactMapDataSet, data.workerValuesBuffer, ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+                this.hicState = hicState
+                this.liveContactMapDataSet = liveContactMapDataSet
+                this.contactFrequencies = data.workerValuesBuffer
+                await juiceboxPanel.renderWithLiveContactFrequencyData(this.hicState, this.liveContactMapDataSet, this.contactFrequencies, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
 
                 hideGlobalSpinner()
 
@@ -66,11 +72,9 @@ class LiveContactMapService {
 
     receiveEvent({ type, data }) {
         if ("DidLoadEnsembleFile" === type) {
-
             this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
             this.input.value = this.distanceThreshold.toString()
-
-            ensembleContactFrequencyArray = undefined
+            this.ensembleContactFrequencyArray = undefined
         }
     }
 
@@ -101,6 +105,13 @@ class LiveContactMapService {
         this.worker.postMessage(data)
 
     }
+
+    allocateContactFrequencyArray(traceLength) {
+        if (undefined === this.ensembleContactFrequencyArray) {
+            this.ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
+        }
+    }
+
 }
 
 function distanceThresholdEstimate(trace) {
@@ -170,12 +181,6 @@ function createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly
 
     return new hic.State(order, order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
 
-}
-
-function allocateContactFrequencyArray(traceLength) {
-    if (undefined === ensembleContactFrequencyArray) {
-        ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
-    }
 }
 
 function updateContactFrequencyArrayWithFrequencies(frequencies, array) {

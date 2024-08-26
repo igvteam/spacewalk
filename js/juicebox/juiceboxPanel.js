@@ -2,16 +2,9 @@ import hic from 'juicebox.js'
 import AlertSingleton from '../widgets/alertSingleton.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
-import {
-    ballAndStick,
-    colorRampMaterialProvider,
-    liveContactMapService,
-    ensembleManager,
-    ribbon,
-    juiceboxPanel
-} from '../app.js'
-import SWBDatasource from "../datasource/SWBDatasource"
-import {makeDraggable} from "../utils/draggable"
+import { ballAndStick, colorRampMaterialProvider, liveContactMapService, ensembleManager, ribbon } from '../app.js'
+import SWBDatasource from "../datasource/SWBDatasource.js"
+import {makeDraggable} from "../utils/draggable.js"
 
 class JuiceboxPanel extends Panel {
 
@@ -138,6 +131,10 @@ class JuiceboxPanel extends Panel {
         this.browser.eventBus.subscribe('DidHideCrosshairs', ballAndStick)
         this.browser.eventBus.subscribe('DidHideCrosshairs', colorRampMaterialProvider)
 
+        this.browser.eventBus.subscribe('DidUpdateColor', async ({ data }) => {
+            await this.colorPickerHandler(data)
+        })
+
         this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
             juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
         })
@@ -199,6 +196,12 @@ class JuiceboxPanel extends Panel {
         await this.browser.contactMatrixView.renderWithLiveContactFrequencyData(this.browser, state, liveContactMapDataSet, contactFrequencies, contactFrequencyArray, liveMapTraceLength)
     }
 
+    async colorPickerHandler(data) {
+        if (liveContactMapService.liveContactMapDataSet) {
+            console.log(`color picker picked ${ data }`)
+            await this.renderWithLiveContactFrequencyData(liveContactMapService.hicState, liveContactMapService.liveContactMapDataSet, liveContactMapService.contactFrequencies, liveContactMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+        }
+    }
 }
 
 function juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) {
