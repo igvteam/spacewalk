@@ -3,7 +3,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {ensembleManager, igvPanel, pointCloud, sceneManager} from "./app.js";
 import {StringUtils} from "igv-utils";
 import EnsembleManager from "./ensembleManager"
-import {clamp} from "./math"
+import {clamp} from "./utils/math"
 
 class PointCloud {
 

@@ -6,13 +6,13 @@ import {
     juiceboxPanel,
     sceneManager
 } from "./app.js";
-import { clamp } from "./math.js";
+import { clamp } from "./utils/math.js";
 import Panel from "./panel.js";
-import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./color.js";
-import {clearCanvasArray, renderArrayToCanvas} from "./utils.js"
+import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./utils/color.js";
+import {clearCanvasArray, renderArrayToCanvas} from "./utils/utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
-import SWBDatasource from "./SWBDatasource.js"
-import {HICEvent} from "./juiceboxHelpful.js"
+import SWBDatasource from "./datasource/SWBDatasource.js"
+import {HICEvent} from "./juicebox/juiceboxHelpful.js"
 import BallAndStick from "./ballAndStick.js"
 
 const kDistanceUndefined = -1

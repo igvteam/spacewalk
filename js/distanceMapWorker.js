@@ -1,4 +1,4 @@
-import { distanceTo } from './webWorkerUtils.js'
+import { distanceTo } from './utils/math.js'
 
 self.addEventListener('message', ({ data }) => {
 

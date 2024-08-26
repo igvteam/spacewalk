@@ -8,17 +8,11 @@
 
     <link rel="icon" href="./favicon.ico" />
 
-    <!-- Font Awesome CSS-->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
-
-    <!-- Bootstrap 4 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
-
-    <!-- Bootstrap-Select CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 
     <!-- jQuery UI CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css"/>
 
     <!-- Spectrum colorpicker CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2@2.0.0/dist/spectrum.min.css">
@@ -27,8 +21,31 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/v/dt/dt-1.10.20/sl-1.3.1/datatables.min.css"/>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="/styles/fontawesome/all.css">
+    <!-- Douglass Turner personal Font Awesome account -->
+    <script src="https://kit.fontawesome.com/534c6029c1.js" crossorigin="anonymous"></script>
 
+    <!-- jQuery JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+
+    <!-- jQuery UI JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+
+    <!-- Bootstrap 5.3.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Spectrum colorpicker JS -->
+    <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2@2.0.0/dist/spectrum.min.js"></script>
+
+    <!-- Dropbox Chooser API - supports aidenlab.org and netlify.app -->
+    <script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="dmf9qrwim29nbad"></script>
+
+    <!-- Datatables JS -->
+    <script src="https://cdn.datatables.net/v/dt/dt-1.10.20/sl-1.3.1/datatables.min.js"></script>
+
+    <!-- Google Platform JS -->
+    <script src="https://apis.google.com/js/platform.js"></script>
+
+    <!-- helpful shaders -->
     <script type="x-shader/x-vertex" id="diffuse_cube_vert">
 
       vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
@@ -89,34 +106,6 @@
       }
     </script>
 
-    <!-- jQuery JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    <!-- jQuery UI JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    <!-- jQuery and Bootstrap 4 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Bootstrap-Select JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
-
-    <!-- Spectrum colorpicker JS -->
-    <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2@2.0.0/dist/spectrum.min.js"></script>
-
-    <!-- Dropbox Chooser API -->
-    <!-- supports aidenlab.org and netlify.app -->
-    <script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="dmf9qrwim29nbad"></script>
-
-    <!-- Datatables JS -->
-    <script src="https://cdn.datatables.net/v/dt/dt-1.10.20/sl-1.3.1/datatables.min.js"></script>
-
-    <!-- Google Platform JS -->
-    <script src="https://apis.google.com/js/platform.js"></script>
-
-    <!-- Twitter -->
-    <script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
     <!--  Spacewalk app entrypoint  -->
     <script type="module" src="./js/app.js"></script>
 
@@ -129,7 +118,7 @@
       Spacewalk
     </div>
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#spacewalk-navbar-content">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#spacewalk-navbar-content">
       <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -139,7 +128,7 @@
 
         <!-- Fullscreen Button -->
         <li class="nav-item">
-          <div class="ml-2 mt-1">
+          <div class="ms-2 mt-1">
             <button id="spacewalk-fullscreen-button" title="Fullscreen" type="button" class="btn nav-link">
               Fullscreen
             </button>
@@ -148,32 +137,27 @@
 
         <!-- Spacewalk Files -->
         <li class="nav-item">
-
-          <div class="dropdown ml-2 mt-1">
-
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+          <div class="dropdown ms-2 mt-1">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
               File
             </a>
-
             <ul id="spacewalk-file-dropdown" class="dropdown-menu">
-
-              <!-- CNDB Replica List -->
+              <!-- Ensemble Group -->
               <li>
-                <button id="spacewalk-ensemble-group-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-ensemble-group-select-modal">
+                <button id="spacewalk-ensemble-group-select-button" class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#spacewalk-ensemble-group-select-modal">
                   Load Ensemble Group ...
                 </button>
               </li>
 
               <!-- Selection List -->
               <li>
-                <button id="spacewalk-sw-load-select-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-sw-load-select-modal">
+                <button id="spacewalk-sw-load-select-button" class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#spacewalk-sw-load-select-modal">
                   Load From List ...
                 </button>
               </li>
 
               <!-- Local Files -->
               <li>
-
                 <label class="dropdown-item btn btn-default btn-file">
                   <div>
                     <div>
@@ -184,22 +168,17 @@
                     </div>
                   </div>
                 </label>
-
               </li>
 
               <!-- Dropbox -->
               <li>
                 <div class="dropdown-item">
-
                   <div id="spacewalk-sw-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
-
                     <div>Load Dropbox File ...</div>
                     <div>
                       <img src="img/dropbox-dropdown-menu-item.png" width="18" height="18">
                     </div>
-
                   </div>
-
                 </div>
               </li>
 
@@ -215,30 +194,27 @@
 
               <!-- URL -->
               <li>
-                <button id="spacewalk-sw-load-url-button" class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-sw-load-url-modal">
+                <button id="spacewalk-sw-load-url-button" class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#spacewalk-sw-load-url-modal">
                   Load URL ...
                 </button>
               </li>
-
             </ul>
-
           </div>
-
         </li>
 
         <!-- trace-select widget -->
-        <div class="ml-2 input-group">
+        <div class="ms-2 input-group">
           <input type="text" class="form-control text-center" id="spacewalk_trace_select_input">
           <div class="input-group-append">
-            <button id="spacewalk_trace_select_button_minus" class="btn btn-light  btn-sm" type="button"><i class="fas fa-minus"></i></button>
-            <button id="spacewalk_trace_select_button_plus" class="btn btn-light  btn-sm" type="button"><i class="fas fa-plus"></i></button>
+            <button id="spacewalk_trace_select_button_minus" class="btn btn-light btn-sm" type="button"><i class="fas fa-minus"></i></button>
+            <button id="spacewalk_trace_select_button_plus" class="btn btn-light btn-sm" type="button"><i class="fas fa-plus"></i></button>
           </div>
         </div>
 
         <!-- Share (generate URL) -->
         <li class="nav-item">
-          <div class="ml-2 mt-1">
-            <a id="igv-app-share-button" href="#"  class="nav-link" data-toggle="modal" data-target="#igv-app-share-modal">
+          <div class="ms-2 mt-1">
+            <a id="igv-app-share-button" href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#igv-app-share-modal">
               Share
             </a>
           </div>
@@ -246,14 +222,11 @@
 
         <!-- Session -->
         <li class="nav-item">
-          <div class="dropdown ml-2 mt-1">
-
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+          <div class="dropdown ms-2 mt-1">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
               Session
             </a>
-
             <div id="spacewalk-session-dropdown-menu" class="dropdown-menu">
-
               <!-- Session Local file -->
               <label class="dropdown-item btn btn-default btn-file">
                 <div class="igv-app-dropdown-item-cloud-storage">
@@ -267,38 +240,32 @@
               </label>
 
               <!-- Session Dropbox -->
-
               <!-- Session Google Drive -->
 
               <!-- Session URL -->
-              <button class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-session-url-modal">
+              <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#spacewalk-session-url-modal">
                 Load URL ...
               </button>
 
               <div class="dropdown-divider"></div>
 
               <!-- Save Session Local file -->
-              <button class="dropdown-item" type="button" data-toggle="modal" data-target="#spacewalk-session-save-modal">
+              <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#spacewalk-session-save-modal">
                 Save ...
               </button>
-
             </div>
-
           </div>
         </li>
 
         <!-- View -->
         <li class="nav-item">
-          <div class="dropdown ml-2 mt-1">
-
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+          <div class="dropdown ms-2 mt-1">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
               View
             </a>
-
             <ul id="spacewalk-viewers-dropdown-menu" class="dropdown-menu checkbox-menu allow-focus">
-
               <!-- IGV Viewer -->
-              <li >
+              <li>
                 <label>
                   <input id="spacewalk_ui_manager_ui_controls_igv" data-target="spacewalk_igv_panel" type="checkbox">
                   Show IGV
@@ -306,38 +273,28 @@
               </li>
 
               <!-- Juicebox Viewer -->
-              <li >
+              <li>
                 <label>
                   <input id="spacewalk_ui_manager_ui_controls_juicebox" data-target="spacewalk_juicebox_panel" type="checkbox">
                   Show Juicebox
                 </label>
               </li>
 
-              <!-- Contact Frequency Map -->
-<!--              <li >-->
-<!--                <label>-->
-<!--                  <input id="spacewalk_ui_manager_ui_controls_contact_frequency_map" data-target="spacewalk_contact_frequency_map_panel" type="checkbox">-->
-<!--                  Show Contact Frequency Map-->
-<!--                </label>-->
-<!--              </li>-->
-
               <!-- Distance Map -->
-              <li >
+              <li>
                 <label>
                   <input id="spacewalk_ui_manager_ui_controls_distance_map" data-target="spacewalk_distance_map_panel" type="checkbox">
                   Show Distance Map
                 </label>
               </li>
-
             </ul>
-
           </div>
         </li>
 
         <!-- About -->
         <li class="nav-item">
-          <div class="ml-2 mt-1">
-            <button id="spacewalk-about-button" title="About" type="button" class="btn nav-link" data-toggle="popover" data-placement="bottom" data-html="true">
+          <div class="ms-2 mt-1">
+            <button id="spacewalk-about-button" title="About" type="button" class="btn nav-link" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-html="true">
               About
             </button>
           </div>
@@ -345,40 +302,32 @@
 
         <!-- Help -->
         <li class="nav-item">
-          <div class="ml-2 mt-1">
-            <button id="spacewalk-help-button" title="Help" type="button" class="btn nav-link" data-toggle="popover" data-placement="bottom" data-html="true">
+          <div class="ms-2 mt-1">
+            <button id="spacewalk-help-button" title="Help" type="button" class="btn nav-link" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-html="true">
               Help
             </button>
           </div>
         </li>
-
       </ul>
-
     </div>
-
   </nav>
 
   <main id="spacewalk-main" role="main">
-
     <div id="spacewalk-root-container">
 
       <!-- Render Settings Button -->
       <div id="spacewalk-threejs-settings-button-container">
-
         <button id="spacewalk-threejs-settings-button" type="button" class="btn btn-default">
           <i class="fas fa-cog fa-lg"></i>
         </button>
-
       </div>
 
       <!-- Render Settings Panel -->
       <div id="spacewalk_ui_manager_panel" class="card" style="display: none;">
-
         <ul class="list-group list-group-flush">
 
           <!-- PointCloud render style -->
           <li id="spacewalk_ui_manager_pointcloud_render_style" class="list-group-item">
-
             <!--  Point Size-->
             <div id="spacewalk_ui_manager_pointcloud_point_size">
               <div id="spacewalk_ui_manager_pointcloud_point_size_label">
@@ -404,13 +353,11 @@
                 <i class="fas fa-plus-circle"></i>
               </div>
             </div>
-
           </li>
 
           <!-- Ball & Stick and Ribbon render styles -->
           <li id="spacewalk_ui_manager_render_styles" class="list-group-item">
             <div>
-
               <div class="form-check">
                 <input name="spacewalk-render-style" id="spacewalk-render-style-ball-stick" class="form-check-input" type="radio" checked>
                 <label class="form-check-label" for="spacewalk-render-style-ball-stick">Ball & Stick</label>
@@ -440,74 +387,47 @@
                 <input name="spacewalk-render-style" id="spacewalk-render-style-ribbon" class="form-check-input" type="radio">
                 <label class="form-check-label" for="spacewalk-render-style-ribbon">Ribbon</label>
               </div>
-
             </div>
           </li>
 
           <!-- Ground Plane -->
           <li class="list-group-item spacewalk-colorpicker-li">
-
             <div class="input-group">
-
-              <div class="input-group-prepend">
-                <div class="input-group-text">
-                  <input id="spacewalk_ui_manager_groundplane" type="checkbox">
-                </div>
-                <div class="input-group-text">Ground Plane</div>
+              <div class="input-group-text">
+                <input id="spacewalk_ui_manager_groundplane" type="checkbox">
               </div>
-
-              <div class="input-group-append">
-                <div class="input-group-text" data-colorpicker="groundplane"></div>
-              </div>
-
+              <div class="input-group-text">Ground Plane</div>
+              <div class="input-group-text" data-colorpicker="groundplane"></div>
             </div>
-
           </li>
 
           <!-- Axes (Gnomon) -->
           <li class="list-group-item spacewalk-colorpicker-li">
-
             <div class="input-group">
-
-              <div class="input-group-prepend">
-                <div class="input-group-text">
-                  <input id="spacewalk_ui_manager_gnomon" type="checkbox">
-                </div>
-                <span class="input-group-text">Axes</span>
+              <div class="input-group-text">
+                <input id="spacewalk_ui_manager_gnomon" type="checkbox">
               </div>
-
-              <div class="input-group-append">
-                <div class="input-group-text" data-colorpicker="gnomon"></div>
-              </div>
-
+              <span class="input-group-text">Axes</span>
+              <div class="input-group-text" data-colorpicker="gnomon"></div>
             </div>
-
           </li>
 
           <!-- Background -->
           <li class="list-group-item spacewalk-colorpicker-li">
-
             <div class="input-group">
-
-              <div class="input-group-prepend">
-                <span class="input-group-text">Background</span>
+              <div class="input-group-text">
+                <input id="spacewalk_ui_manager_input_group_shim" type="checkbox">
               </div>
-
-              <div class="input-group-append">
-                <div class="input-group-text" data-colorpicker="background"></div>
-              </div>
-
+              <span class="input-group-text">Background</span>
+              <div class="input-group-text" data-colorpicker="background"></div>
             </div>
-
           </li>
 
         </ul>
-
       </div>
 
       <!-- Info Panel -->
       <div id="spacewalk_info_panel" style="display:none;">
-
         <!-- ensemble group -->
         <div>
           <div>
@@ -517,16 +437,6 @@
             -
           </div>
         </div>
-
-        <!-- Sample -->
-<!--        <div>-->
-<!--          <div style="display: none;">-->
-<!--            SAMPLE:-->
-<!--          </div>-->
-<!--          <div id="spacewalk_info_panel_ensemble" style="display: none;">-->
-<!--            - -->
-<!--          </div>-->
-<!--        </div>-->
 
         <!-- genome -->
         <div>
@@ -547,12 +457,10 @@
             -
           </div>
         </div>
-
       </div>
 
       <!-- three-js container -->
       <div id="spacewalk-threejs-container">
-
         <!-- drag handle -->
         <div id="spacewalk-threejs-drag-container">
           <i class="fas fa-lg fa-grip-horizontal"></i>
@@ -560,64 +468,46 @@
 
         <!-- three-js canvas | trace-navigator -->
         <div id="spacewalk-threejs-trace-navigator-container">
-
           <!-- three-js canvas container -->
           <div id="spacewalk-threejs-canvas-container">
-
-            <div id="spacewalk-threejs-canvas-center-dot" style="display: none;">
-
-            </div>
-
+            <div id="spacewalk-threejs-canvas-center-dot" style="display: none;"></div>
           </div>
 
           <!-- trace navigator -->
           <div id="spacewalk-trace-navigator-container">
-
             <!-- header -->
             <div id="spacewalk-trace-navigator-header"></div>
 
             <!-- widget -->
             <div id="spacewalk-trace-navigator-widget">
-
               <canvas id="spacewalk_color_ramp_canvas_highlight"></canvas>
-
               <canvas id="spacewalk_color_ramp_canvas_rgb"></canvas>
-
               <canvas id="spacewalk_color_ramp_canvas_alpha"></canvas>
             </div>
 
             <!-- footer -->
             <div id="spacewalk-trace-navigator-footer"></div>
-
           </div>
-
         </div>
-
       </div>
 
       <!-- general purpose spinner -->
       <div class="spacewalk-spinner-container d-flex justify-content-center align-items-center" style="background-color:transparent;">
-        <div id="spacewalk-spinner" class="spinner-border text-secondary" style="display:none; width: 8rem; height: 8rem;">
-        </div>
+        <div id="spacewalk-spinner" class="spinner-border text-secondary" style="display:none; width: 8rem; height: 8rem;"></div>
       </div>
 
       <!-- juicebox panel -->
       <div id="spacewalk_juicebox_panel" class="card">
-
         <ul class="list-group list-group-flush">
-
           <!-- drag handle-->
           <li class="list-group-item">
-
             <div class="spacewalk_card_drag_container">
               <i class="fas fa-square-full"></i>
-
               <div class="dropdown">
-                <a id="hic-contact-map-dropdown" class="dropdown-toggle" data-toggle="dropdown">
+                <a id="hic-contact-map-dropdown" class="dropdown-toggle" data-bs-toggle="dropdown">
                   Juicebox File
                 </a>
                 <ul class="dropdown-menu">
-
                   <!-- Live Contact Frequency Map -->
                   <li>
                     <a id="hic-live-contact-frequency-map-button" class="dropdown-item" href="#" role="button">
@@ -627,21 +517,20 @@
 
                   <!-- Juicebox Archive Map -->
                   <li>
-                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#hic-contact-map-modal">
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#hic-contact-map-modal">
                       Load Juicebox Archive Maps ...
                     </a>
                   </li>
 
                   <!-- ENCODE Maps -->
                   <li>
-                    <button class="dropdown-item" id="hic-encode-hosted-contact-map-presentation-button" type="button" data-toggle="modal" data-target="#hic-encode-hosted-contact-map-modal">
+                    <button class="dropdown-item" id="hic-encode-hosted-contact-map-presentation-button" type="button" data-bs-toggle="modal" data-bs-target="#hic-encode-hosted-contact-map-modal">
                       Load ENCODE Maps ...
                     </button>
                   </li>
 
                   <!-- Local Map File -->
                   <li>
-
                     <label class="dropdown-item btn btn-default btn-file">
                       <div class="igv-app-dropdown-item-cloud-storage">
                         <div>
@@ -652,22 +541,17 @@
                         </div>
                       </div>
                     </label>
-
-
                   </li>
 
                   <!-- Dropbox -->
                   <li>
                     <div class="dropdown-item">
-
                       <div id="hic-contact-map-dropdown-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
-
                         <div>Load Dropbox Map File ...</div>
                         <div>
                           <img src="img/dropbox-dropdown-menu-item.png" width="18" height="18">
                         </div>
                       </div>
-
                     </div>
                   </li>
 
@@ -683,63 +567,43 @@
 
                   <!-- URL -->
                   <li>
-                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#hic-load-url-modal">
+                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#hic-load-url-modal">
                       Load Map URL ...
                     </a>
                   </li>
-
                 </ul>
               </div>
-
               <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_juicebox"></i>
             </div>
-
           </li>
 
           <!-- live contact map threshold widget -->
-          <li id="hic-live-contact-frequency-map-threshold-widget"  class="list-group-item py-1 pl-1">
+          <li id="hic-live-contact-frequency-map-threshold-widget" class="list-group-item py-1 ps-1">
             <div class="input-group input-group-sm">
-
-              <div class="input-group-prepend">
-                <span class="input-group-text">Threshold</span>
-              </div>
-
+              <div class="input-group-text">Threshold</div>
               <input id="spacewalk_contact_frequency_map_adjustment_select_input" type="text" class="form-control text-center">
-
-              <div class="input-group-append">
-                <button id="spacewalk_contact_frequency_map__button" class="btn btn-secondary" type="button">Enter</button>
-              </div>
-
+              <button id="spacewalk_contact_frequency_map__button" class="btn btn-secondary" type="button">Enter</button>
             </div>
           </li>
         </ul>
 
         <div class="card-body p-0">
-
           <!-- juicebox browser container -->
           <div id="spacewalk_juicebox_root_container"></div>
-
         </div>
-
       </div>
 
       <!-- igvjs panel -->
       <div id="spacewalk_igv_panel" class="card">
-
         <div id="spacewalk_igv_container" class="card-body">
-
           <!-- drag handle -->
           <div class="spacewalk_card_drag_container">
-
-            <!--Used as an invisible shim -->
             <i class="fas fa-square-full"></i>
-
             <div class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown">
+              <a class="dropdown-toggle" data-bs-toggle="dropdown">
                 IGV File
               </a>
-              <ul id="spacewalk-track-dropdown-menu"  class="dropdown-menu">
-
+              <ul id="spacewalk-track-dropdown-menu" class="dropdown-menu">
                 <!-- Local File -->
                 <li>
                   <label class="dropdown-item btn btn-default btn-file">
@@ -758,7 +622,6 @@
                 <li>
                   <div class="dropdown-item">
                     <div id="spacewalk-track-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
-
                       <div>Load Dropbox File ...</div>
                       <div>
                         <img src="img/dropbox-dropdown-menu-item.png" width="18" height="18">
@@ -779,32 +642,23 @@
 
                 <!-- URL -->
                 <li>
-                  <a class="dropdown-item" href="#" data-toggle="modal" data-target="#spacewalk-track-load-url-modal">Load URL ...</a>
+                  <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#spacewalk-track-load-url-modal">Load URL ...</a>
                 </li>
 
-                <div id="hic-annotations-section" class="dropdown-divider">
-                </div>
-
+                <div id="hic-annotations-section" class="dropdown-divider"></div>
               </ul>
             </div>
-
             <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_igv"></i>
           </div>
 
           <!-- igv browser container -->
-          <div id="spacewalk_igv_root_container">
-
-          </div>
-
+          <div id="spacewalk_igv_root_container"></div>
         </div>
-
       </div>
 
       <!-- distance-map panel -->
       <div id="spacewalk_distance_map_panel" class="card">
-
         <div class="card-header">
-
           <!-- drag handle -->
           <div class="spacewalk_card_drag_container">
             <i class="fas fa-square-full"></i>
@@ -818,141 +672,55 @@
 
           <ul class="nav nav-tabs card-header-tabs">
             <li class="nav-item">
-              <a class="nav-link active" data-toggle="tab" href="#spacewalk_distance_map_canvas_trace">Trace</a>
+              <a class="nav-link active" data-bs-toggle="tab" href="#spacewalk_distance_map_canvas_trace">Trace</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-toggle="tab" href="#spacewalk_distance_map_canvas_ensemble">Ensemble</a>
+              <a class="nav-link" data-bs-toggle="tab" href="#spacewalk_distance_map_canvas_ensemble">Ensemble</a>
             </li>
           </ul>
-
         </div>
 
         <div id="spacewalk_distance_map_panel_body" class="card-body p-0">
-
           <div id="spacewalk_distance_map_panel_container" class="tab-content">
-
             <div class="spacewalk-spinner-container d-flex align-items-center justify-content-center">
-              <div id="spacewalk-distance-map-spinner" class="spinner-border text-secondary" style="display:none; width: 5rem; height: 5rem;">
-              </div>
+              <div id="spacewalk-distance-map-spinner" class="spinner-border text-secondary" style="display:none; width: 5rem; height: 5rem;"></div>
             </div>
 
-            <canvas id="spacewalk_distance_map_canvas_trace" class="tab-pane active">
-            </canvas>
-            <canvas id="spacewalk_distance_map_canvas_ensemble" class="tab-pane">
-            </canvas>
+            <canvas id="spacewalk_distance_map_canvas_trace" class="tab-pane active"></canvas>
+            <canvas id="spacewalk_distance_map_canvas_ensemble" class="tab-pane"></canvas>
           </div>
-
         </div>
-
       </div>
 
-      <!-- contact-frequency-map panel-->
-      <div id="spacewalk_contact_frequency_map_panel" class="card">
+    </div>
 
-        <div class="card-header">
-
-          <!-- drag handle -->
-          <div class="spacewalk_card_drag_container">
-            <i class="fas fa-square-full"></i>
-            <i class="fas fa-lg fa-grip-horizontal"></i>
-            <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_contact_frequency_map"></i>
+    <!-- Share URL Modal -->
+    <div id="igv-app-share-modal" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div id="igv-app-share-input-modal-close-button" class="modal-title">Share</div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-
-          <div class="text-center">
-            Contact Frequency Map
-          </div>
-
-          <!-- live contact map threshold widget -->
-          <!--
-          <div class="form-group">
-            <div class="input-group input-group-sm p-2">
-
-              <div class="input-group-prepend">
-                <span class="input-group-text">Threshold</span>
-              </div>
-
-              <input id="spacewalk_contact_frequency_map_adjustment_select_input" type="text" class="form-control text-center">
-
-              <div class="input-group-append">
-                <button id="spacewalk_contact_frequency_map__button" class="btn btn-secondary" type="button">Enter</button>
-              </div>
-
-            </div>
-          </div>
-          -->
-
-          <ul class="nav nav-tabs card-header-tabs">
-            <li class="nav-item">
-              <a class="nav-link" data-toggle="tab" href="#spacewalk_contact_frequency_map_canvas_trace">Trace</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" data-toggle="tab" href="#spacewalk_contact_frequency_map_canvas_ensemble">Ensemble</a>
-            </li>
-          </ul>
-
-        </div>
-
-        <div id="spacewalk_contact_frequency_map_panel_body" class="card-body p-0">
-
-          <div id="spacewalk_contact_frequency_map_panel_container" class="tab-content">
-
-            <div class="spacewalk-spinner-container d-flex align-items-center justify-content-center">
-              <div id="spacewalk-contact-frequency-map-spinner" class="spinner-border text-secondary" style="display:none; width: 5rem; height: 5rem;">
-              </div>
-            </div>
-
-            <canvas id="spacewalk_contact_frequency_map_canvas_trace" class="tab-pane">
-            </canvas>
-            <canvas id="spacewalk_contact_frequency_map_canvas_ensemble" class="tab-pane active">
-            </canvas>
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- Share URL Modal -->
-      <div id="igv-app-share-modal" class="modal fade">
-
-        <div class="modal-dialog">
-
-          <div class="modal-content">
-
-            <div class="modal-header">
-              <div id="igv-app-share-input-modal-close-button" class="modal-title">Share</div>
-
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-
-            </div>
-
-            <div class="modal-body">
-              <div class="container-fluid">
-
-                <!-- copy url -->
-                <div class="row">
-                  <div class="col-sm-8">
-                    <div class="form-group">
-                      <input id="igv-app-share-input" type="text" class="form-control" placeholder="">
-                    </div>
-                  </div>
-                  <div class="col-sm-2">
-                    <button id="igv-app-copy-link-button" type="button" class="btn btn-sm btn-default">
-                      COPY
-                    </button>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <!-- copy url -->
+              <div class="row">
+                <div class="col-sm-8">
+                  <div class="form-group">
+                    <input id="igv-app-share-input" type="text" class="form-control" placeholder="">
                   </div>
                 </div>
-
+                <div class="col-sm-2">
+                  <button id="igv-app-copy-link-button" type="button" class="btn btn-sm btn-default">
+                    COPY
+                  </button>
+                </div>
               </div>
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
 
   </main>

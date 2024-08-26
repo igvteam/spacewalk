@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import {EventBus} from 'igv-widgets'
 import EnsembleManager from "./ensembleManager.js"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import CameraLightingRig from './cameraLightingRig.js'
@@ -8,11 +7,11 @@ import BallAndStick from "./ballAndStick.js"
 import PointCloud from "./pointCloud.js"
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js'
 import Gnomon, { gnomonConfigurator } from './gnomon.js'
-import {getMouseXY, setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils.js"
-import { appleCrayonColorThreeJS } from "./color.js"
-import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./materialLibrary.js"
+import {getMouseXY, setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
+import { appleCrayonColorThreeJS } from "./utils/color.js"
+import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./utils/materialLibrary.js"
 import Ribbon from './ribbon.js'
-import {degrees} from "./math.js"
+import {degrees} from "./utils/math.js"
 import {configureColorPicker, updateColorPicker} from "./guiManager.js"
 import { pointCloud, ribbon, ballAndStick, ensembleManager, guiManager, juiceboxPanel, igvPanel, colorRampMaterialProvider } from "./app.js"
 
@@ -156,8 +155,6 @@ class SceneManager {
         await igvPanel.locusDidChange(ensembleManager.locus)
 
         await juiceboxPanel.locusDidChange(ensembleManager.locus)
-
-        EventBus.globalBus.post({ type: 'DidChangeGenome', data: { genomeID: igvPanel.browser.genome.id }})
 
     }
 

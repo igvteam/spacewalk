@@ -3,7 +3,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import { StringUtils } from 'igv-utils'
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
-import {rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor, rgba255String} from "./color.js"
+import {rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor, rgba255String} from "./utils/color.js"
 import {ballAndStick, sceneManager, juiceboxPanel, ensembleManager, pointCloud} from "./app.js";
 
 class GUIManager {

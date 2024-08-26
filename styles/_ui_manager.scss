@@ -47,7 +47,7 @@ $spacewalk-ball-stick-control-y-margin: 4px;
   width: $spacewalk_ui_manager_panel_width;
   height: auto;
 
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fa;
   border-color: $spacewalk_tungsten;
 
   .list-group {
@@ -66,6 +66,11 @@ $spacewalk-ball-stick-control-y-margin: 4px;
   .list-group:last-child {
     margin-bottom: unset;
   }
+}
+
+input#spacewalk_ui_manager_input_group_shim {
+  opacity: 0;      /* Makes the input invisible */
+  pointer-events: none; /* Prevents interaction */
 }
 
 li.spacewalk-colorpicker-li {

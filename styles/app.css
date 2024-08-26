@@ -152,7 +152,7 @@ div.navbar-brand {
 }
 
 #spacewalk_distance_map_panel.card {
-  width: 480px;
+  width: 418px;
   height: unset;
 }
 #spacewalk_distance_map_panel.card .card-header {
@@ -165,14 +165,14 @@ div.navbar-brand {
   justify-content: space-between;
   align-items: center;
   padding: 0.125rem;
-  width: 480px;
+  width: 418px;
   height: unset;
 }
 #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body #spacewalk_distance_map_panel_container {
   cursor: pointer;
   position: relative;
-  width: 480px;
-  height: 480px;
+  width: 418px;
+  height: 418px;
 }
 #spacewalk_distance_map_panel.card #spacewalk_distance_map_panel_body.card-body #spacewalk_distance_map_panel_container > div.spacewalk-spinner-container {
   pointer-events: none;
@@ -195,36 +195,6 @@ div.navbar-brand {
   top: 0;
   width: 2px;
   height: 100%;
-}
-
-#spacewalk_contact_frequency_map_panel.card {
-  width: 256px;
-  height: unset;
-}
-#spacewalk_contact_frequency_map_panel.card .card-header {
-  padding-top: 0;
-}
-#spacewalk_contact_frequency_map_panel.card .card-header .form-group {
-  /* margin-bottom: 1rem; */
-  margin-bottom: 0;
-}
-#spacewalk_contact_frequency_map_panel.card .card-header input#spacewalk_contact_frequency_map_adjustment_select_input {
-  font-size: 1.25rem;
-}
-#spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.125rem;
-  width: 256px;
-  height: unset;
-}
-#spacewalk_contact_frequency_map_panel.card #spacewalk_contact_frequency_map_panel_body.card-body #spacewalk_contact_frequency_map_panel_container {
-  position: relative;
-  width: 256px;
-  height: 256px;
 }
 
 #spacewalk_juicebox_panel.card {
@@ -348,7 +318,7 @@ div.navbar-brand {
   left: 32px;
   width: 300px;
   height: auto;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fa;
   border-color: #3a3a3a;
 }
 #spacewalk_ui_manager_panel.card .list-group {
@@ -363,6 +333,11 @@ div.navbar-brand {
 }
 #spacewalk_ui_manager_panel.card .list-group:last-child {
   margin-bottom: unset;
+}
+
+input#spacewalk_ui_manager_input_group_shim {
+  opacity: 0; /* Makes the input invisible */
+  pointer-events: none; /* Prevents interaction */
 }
 
 li.spacewalk-colorpicker-li {

@@ -1,5 +1,5 @@
 import {ensembleManager} from './app.js'
-import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255ToThreeJSColor, blendColorsLab} from './color.js'
+import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255ToThreeJSColor, blendColorsLab} from './utils/color.js'
 
 class DataValueMaterialProvider {
 
