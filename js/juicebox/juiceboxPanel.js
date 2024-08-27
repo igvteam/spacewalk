@@ -125,8 +125,13 @@ class JuiceboxPanel extends Panel {
     }
 
     configureTabs() {
-        this.container.querySelector('.nav-tabs .nav-item:nth-child(1) .nav-link').setAttribute('href', `${this.browser.id}-contact-map-canvas`);
-        this.container.querySelector('.nav-tabs .nav-item:nth-child(2) .nav-link').setAttribute('href', `${this.browser.id}-live-contact-map-canvas`);
+
+        const hicMapButton = document.getElementById("spacewalk-juicebox-panel-hic-map-tab");
+        const liveMapButton = document.getElementById("spacewalk-juicebox-panel-live-map-tab");
+
+        // Assign data-bs-target to point to the respective tab content elements
+        hicMapButton.setAttribute("data-bs-target", `#${this.browser.id}-contact-map-canvas-container`);
+        liveMapButton.setAttribute("data-bs-target", `#${this.browser.id}-live-contact-map-canvas-container`);
     }
 
     configureMouseHandlers() {
@@ -201,7 +206,7 @@ class JuiceboxPanel extends Panel {
     }
 
     async colorPickerHandler(data) {
-        if (liveContactMapService.liveContactMapDataSet && this.browser.contactMatrixView.doRenderLiveContactMap()) {
+        if (liveContactMapService.liveContactMapDataSet /*&& this.browser.contactMatrixView.doRenderLiveContactMap()*/) {
             console.log(`color picker picked ${ data }`)
             await this.renderWithLiveContactFrequencyData(liveContactMapService.hicState, liveContactMapService.liveContactMapDataSet, liveContactMapService.contactFrequencies, liveContactMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
         }
