@@ -40,8 +40,6 @@ class JuiceboxPanel extends Panel {
 
         let session
 
-        // juiceboxClassAdditions()
-
         if (config.browsers) {
             session = Object.assign({ queryParametersSupported: false }, config)
         } else {
@@ -67,6 +65,7 @@ class JuiceboxPanel extends Panel {
             AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
         }
 
+        this.configureTabs()
         this.configureMouseHandlers()
 
         hic.EventBus.globalBus.subscribe('MapLoad', event => {
@@ -123,6 +122,11 @@ class JuiceboxPanel extends Panel {
                 AlertSingleton.present(e.message)
             }
         }
+    }
+
+    configureTabs() {
+        this.container.querySelector('.nav-tabs .nav-item:nth-child(1) .nav-link').setAttribute('href', `${this.browser.id}-contact-map-canvas`);
+        this.container.querySelector('.nav-tabs .nav-item:nth-child(2) .nav-link').setAttribute('href', `${this.browser.id}-live-contact-map-canvas`);
     }
 
     configureMouseHandlers() {
