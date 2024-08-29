@@ -1,4 +1,4 @@
-import hic from 'juicebox.js'
+import hic from '../../node_modules/juicebox.js/js/index.js'
 import AlertSingleton from '../widgets/alertSingleton.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
@@ -68,20 +68,25 @@ class JuiceboxPanel extends Panel {
         this.configureTabs()
         this.configureMouseHandlers()
 
-        hic.EventBus.globalBus.subscribe('MapLoad', event => {
+        this.browser.eventBus.subscribe('MapLoad', async event => {
 
             // hic-live-contact-frequency-map-threshold-widget
-            const { dataset } = event.data
-            const thresholdWidget = document.querySelector('#hic-live-contact-frequency-map-threshold-widget')
-            thresholdWidget.style.display = undefined === dataset.isLiveContactMapDataSet ? 'none' : 'block'
+            // const { dataset } = event.data
+            // const thresholdWidget = document.querySelector('#hic-live-contact-frequency-map-threshold-widget')
+            // thresholdWidget.style.display = dataset === this.browser.liveContactMapDataSet ? 'block' : 'none'
+            //
+            // if (undefined === ensembleManager.locus) {
+            //     const [ ab, c ] = config.locus.split('-')
+            //     const [ a, b ] = ab.split(':')
+            //     await this.goto({ chr:a, start: parseInt(b), end: parseInt(c) })
+            // } else {
+            //     const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+            //     await this.goto({ chr, start: genomicStart, end: genomicEnd })
+            // }
 
-            if (undefined === ensembleManager.locus) {
-                const [ ab, c ] = config.locus.split('-')
-                const [ a, b ] = ab.split(':')
-                this.goto({ chr:a, start: parseInt(b), end: parseInt(c) })
-            } else {
-                const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-                this.goto({ chr, start: genomicStart, end: genomicEnd })
+            const activeTabButton = this.container.querySelector('button.nav-link.active')
+            if ('spacewalk-juicebox-panel-hic-map-tab' === activeTabButton.id) {
+                this.browser.contactMatrixView.panelTabSelectionHandler(false)
             }
 
         })
@@ -126,12 +131,28 @@ class JuiceboxPanel extends Panel {
 
     configureTabs() {
 
-        const hicMapButton = document.getElementById("spacewalk-juicebox-panel-hic-map-tab");
-        const liveMapButton = document.getElementById("spacewalk-juicebox-panel-live-map-tab");
+        this.browser.contactMatrixView.panelTabSelectionHandler(false)
+
+        const hicMapButton = document.getElementById('spacewalk-juicebox-panel-hic-map-tab');
+        const liveMapButton = document.getElementById('spacewalk-juicebox-panel-live-map-tab');
 
         // Assign data-bs-target to point to the respective tab content elements
         hicMapButton.setAttribute("data-bs-target", `#${this.browser.id}-contact-map-canvas-container`);
         liveMapButton.setAttribute("data-bs-target", `#${this.browser.id}-live-contact-map-canvas-container`);
+
+        const tabButtons = this.container.querySelectorAll('button[data-bs-toggle="tab"]')
+
+        for (const tab of tabButtons) {
+            tab.addEventListener('show.bs.tab', event => {
+                if (hicMapButton.id === event.target.id) {
+                    this.browser.contactMatrixView.panelTabSelectionHandler(false)
+                } else if (liveMapButton.id === event.target.id) {
+                    this.browser.contactMatrixView.panelTabSelectionHandler(true)
+                }
+                console.log(`Juicebox panel WILL show tab ${ event.target.id }`)
+            })
+        }
+
     }
 
     configureMouseHandlers() {
@@ -206,8 +227,8 @@ class JuiceboxPanel extends Panel {
     }
 
     async colorPickerHandler(data) {
-        if (liveContactMapService.liveContactMapDataSet /*&& this.browser.contactMatrixView.doRenderLiveContactMap()*/) {
-            console.log(`color picker picked ${ data }`)
+        if (liveContactMapService.liveContactMapDataSet) {
+            console.log(`JuiceboxPanel - colorPicker(${ data }). renderWithLiveContactFrequencyData()`)
             await this.renderWithLiveContactFrequencyData(liveContactMapService.hicState, liveContactMapService.liveContactMapDataSet, liveContactMapService.contactFrequencies, liveContactMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
         }
     }
