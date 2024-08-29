@@ -280,7 +280,6 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
     await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
 
     liveContactMapService = new LiveContactMapService(distanceThreshold)
-    liveContactMapService.initialize()
 
     const $dropdownButton = $('#spacewalk-contact-map-dropdown')
     const $dropdowns = $dropdownButton.parent()

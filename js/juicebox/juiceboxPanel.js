@@ -86,7 +86,9 @@ class JuiceboxPanel extends Panel {
 
             const activeTabButton = this.container.querySelector('button.nav-link.active')
             if ('spacewalk-juicebox-panel-hic-map-tab' === activeTabButton.id) {
-                this.browser.contactMatrixView.panelTabSelectionHandler(false)
+                this.browser.contactMatrixView.assessPanelTabSelection(false)
+            } else if ('spacewalk-juicebox-panel-live-map-tab' === activeTabButton.id) {
+                this.browser.contactMatrixView.assessPanelTabSelection(true)
             }
 
         })
@@ -131,25 +133,25 @@ class JuiceboxPanel extends Panel {
 
     configureTabs() {
 
-        this.browser.contactMatrixView.panelTabSelectionHandler(false)
+        this.browser.contactMatrixView.assessPanelTabSelection(false)
 
-        const hicMapButton = document.getElementById('spacewalk-juicebox-panel-hic-map-tab');
-        const liveMapButton = document.getElementById('spacewalk-juicebox-panel-live-map-tab');
+        const hicMapTab = document.getElementById('spacewalk-juicebox-panel-hic-map-tab');
+        const liveMapTab = document.getElementById('spacewalk-juicebox-panel-live-map-tab');
 
         // Assign data-bs-target to point to the respective tab content elements
-        hicMapButton.setAttribute("data-bs-target", `#${this.browser.id}-contact-map-canvas-container`);
-        liveMapButton.setAttribute("data-bs-target", `#${this.browser.id}-live-contact-map-canvas-container`);
+        hicMapTab.setAttribute("data-bs-target", `#${this.browser.id}-contact-map-canvas-container`);
+        liveMapTab.setAttribute("data-bs-target", `#${this.browser.id}-live-contact-map-canvas-container`);
 
-        const tabButtons = this.container.querySelectorAll('button[data-bs-toggle="tab"]')
+        const tabs = this.container.querySelectorAll('button[data-bs-toggle="tab"]')
 
-        for (const tab of tabButtons) {
+        for (const tab of tabs) {
             tab.addEventListener('show.bs.tab', event => {
-                if (hicMapButton.id === event.target.id) {
-                    this.browser.contactMatrixView.panelTabSelectionHandler(false)
-                } else if (liveMapButton.id === event.target.id) {
-                    this.browser.contactMatrixView.panelTabSelectionHandler(true)
+                if (hicMapTab.id === event.target.id) {
+                    this.browser.contactMatrixView.assessPanelTabSelection(false)
+                } else if (liveMapTab.id === event.target.id) {
+                    this.browser.contactMatrixView.assessPanelTabSelection(true)
                 }
-                console.log(`Juicebox panel WILL show tab ${ event.target.id }`)
+                console.log(`Juicebox panel: ${ event.target.id } tab selection`)
             })
         }
 
@@ -212,10 +214,6 @@ class JuiceboxPanel extends Panel {
             console.warn(error.message)
         }
 
-    }
-
-    blurb() {
-        return `${ this.browser.$contactMaplabel.text() }`
     }
 
     isContactMapLoaded() {
