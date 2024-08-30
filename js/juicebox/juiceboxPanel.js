@@ -1,4 +1,4 @@
-import hic from '../../node_modules/juicebox.js/js/index.js'
+import hic from 'juicebox.js'
 import AlertSingleton from '../widgets/alertSingleton.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
