@@ -160,11 +160,6 @@ function createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly
 
     const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
 
-    // chromosome length and index into chromosome array
-    let { order } = chromosome
-
-    // IGV Genome is off by 1 relative to Juicebox Genome
-    order++
 
     // bin count
     const binCount = traceLength
@@ -181,7 +176,11 @@ function createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly
     // x, y in Bin units
     const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
 
-    return new hic.State(order, order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
+    // chromosome index
+    let { order } = chromosome
+
+    // IGV chromosome indices are off by one relative to Juicebox chromosomes
+    return new hic.State(1 + order, 1 + order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
 
 }
 

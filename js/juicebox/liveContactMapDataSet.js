@@ -8,7 +8,7 @@ class LiveContactMapDataSet {
 
         this.genome = genome
 
-        this.chromosomes = getDatasetChromosomeList(genome.chromosomes)
+        this.chromosomes = genome.chromosomes
 
         this.averageCount = averageCount
 
@@ -33,14 +33,23 @@ class LiveContactMapDataSet {
 
     }
 
+    set chromosomes(genomeChromosomeMap) {
+        const hash = Object.fromEntries(genomeChromosomeMap)
+        this._chromosomes = Object.values(hash).map(({ index, bpLength, size, name }) => { return { index, name, size, bpLength }})
+
+        // reorganize array to be consistent with Juicebox layout
+        const all = this._chromosomes.pop()
+        this._chromosomes.unshift(all)
+
+    }
+
+    get chromosomes() {
+        return this._chromosomes.slice()
+    }
+
     isWholeGenome(ignore) {
         return false
     }
-}
-
-function getDatasetChromosomeList(genomeChromosomeMap) {
-    const hash = Object.fromEntries(genomeChromosomeMap)
-    return Object.values(hash).map(({ index, bpLength, size, name }) => { return { index, name, size, bpLength }})
 }
 
 export default LiveContactMapDataSet
