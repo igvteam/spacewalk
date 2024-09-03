@@ -200,7 +200,8 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     createSpacewalkFileLoaders(spacewalkFileLoadConfig)
 
-    const initializeDropbox = () => false
+    // const initializeDropbox = () => false
+    const initializeDropbox = () => true
 
     const trackMenuHandler = configList => {
 
