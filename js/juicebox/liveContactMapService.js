@@ -1,37 +1,27 @@
 import hic from 'juicebox.js'
-import {colorMapManager, ensembleManager, igvPanel, juiceboxPanel} from "../app.js"
+import {ensembleManager, igvPanel, juiceboxPanel} from "../app.js"
 import EnsembleManager from "../ensembleManager.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils.js"
-import {appleCrayonColorThreeJS, threeJSColorToRGB255} from "../utils/color.js"
 import ContactRecord from "../utils/contactRecord.js"
 import {clamp} from "../utils/math.js"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
 
-const kContactFrequencyUndefined = -1
-
 class LiveContactMapService {
 
     constructor (distanceThreshold) {
 
         this.distanceThreshold = distanceThreshold
+        this.hicState = undefined
+        this.liveContactMapDataSet = undefined
+        this.contactFrequencies = undefined
+        this.ensembleContactFrequencyArray = undefined
 
         this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
         this.input.value = distanceThreshold.toString()
-
-        this.hicState = undefined
-        this.liveContactMapDataSet = undefined
-        this.contactList = undefined
-        this.ensembleContactFrequencyArray = undefined
-
-        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
-
-    }
-
-    initialize() {
 
         document.querySelector('#spacewalk_contact_frequency_map__button').addEventListener('click', () => {
 
@@ -48,18 +38,20 @@ class LiveContactMapService {
 
             console.log(`Contact Frequency ${ data.traceOrEnsemble } map received from worker`)
 
-            this.allocateContactFrequencyArray(ensembleManager.getLiveMapTraceLength())
+            // this.allocateGlobalContactFrequencyBuffer(ensembleManager.getLiveMapTraceLength())
 
             if ('ensemble' === data.traceOrEnsemble) {
 
-                updateContactFrequencyArrayWithFrequencies(data.workerValuesBuffer, this.ensembleContactFrequencyArray)
-
+                const { genomeAssembly } = ensembleManager
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-                const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(juiceboxPanel.browser.contactMatrixView.getViewDimensions(), data.workerValuesBuffer, ensembleManager.getLiveMapTraceLength(), ensembleManager.genomeAssembly, chr, genomicStart, genomicEnd)
+                const traceLength = ensembleManager.getLiveMapTraceLength()
+
+                const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(igvPanel.browser.genome, juiceboxPanel.browser.contactMatrixView.getViewDimensions(), data.workerValuesBuffer, traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
 
                 this.hicState = hicState
                 this.liveContactMapDataSet = liveContactMapDataSet
                 this.contactFrequencies = data.workerValuesBuffer
+
                 await juiceboxPanel.renderWithLiveContactFrequencyData(this.hicState, this.liveContactMapDataSet, this.contactFrequencies, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
 
                 hideGlobalSpinner()
@@ -68,13 +60,23 @@ class LiveContactMapService {
 
         }, false)
 
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+
     }
 
     receiveEvent({ type, data }) {
+
         if ("DidLoadEnsembleFile" === type) {
+
+            this.hicState = undefined
+            this.liveContactMapDataSet = undefined
+            this.contactFrequencies = undefined
+            this.ensembleContactFrequencyArray = undefined
+
             this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
             this.input.value = this.distanceThreshold.toString()
-            this.ensembleContactFrequencyArray = undefined
+
+            this.allocateGlobalContactFrequencyBuffer(ensembleManager.getLiveMapTraceLength())
         }
     }
 
@@ -106,10 +108,8 @@ class LiveContactMapService {
 
     }
 
-    allocateContactFrequencyArray(traceLength) {
-        if (undefined === this.ensembleContactFrequencyArray) {
-            this.ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
-        }
+    allocateGlobalContactFrequencyBuffer(traceLength) {
+        this.ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
     }
 
 }
@@ -120,7 +120,7 @@ function distanceThresholdEstimate(trace) {
 }
 
 // Contact Matrix is m by m where m = traceLength
-function createLiveContactMapDataSet(contactMatrixViewDimensions, contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
+function createLiveContactMapDataSet(genome, contactMatrixViewDimensions, contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
     const hicState = createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
 
@@ -149,7 +149,6 @@ function createLiveContactMapDataSet(contactMatrixViewDimensions, contacts, trac
     } // for (wye)
 
     const binSize = (genomicEnd - genomicStart) / traceLength
-    const genome = igvPanel.browser.genome
 
     const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
 
@@ -161,8 +160,6 @@ function createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly
 
     const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
 
-    // chromosome length and index into chromosome array
-    const { bpLength, order } = chromosome
 
     // bin count
     const binCount = traceLength
@@ -179,35 +176,11 @@ function createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly
     // x, y in Bin units
     const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
 
-    return new hic.State(order, order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
+    // chromosome index
+    let { order } = chromosome
 
-}
-
-function updateContactFrequencyArrayWithFrequencies(frequencies, array) {
-
-    const maxFrequency = frequencies.reduce((max, current) => Math.max(max, current), Number.NEGATIVE_INFINITY )
-
-    const colorMap = colorMapManager.dictionary['juicebox_default']
-
-    let i = 0
-    for (let frequency of frequencies) {
-
-        let rgb
-        if (frequency > kContactFrequencyUndefined) {
-
-            let interpolant = frequency / maxFrequency
-            interpolant = Math.floor(interpolant * (colorMap.length - 1))
-
-            rgb = threeJSColorToRGB255(colorMap[ interpolant ][ 'threejs' ])
-        } else {
-            rgb = threeJSColorToRGB255(appleCrayonColorThreeJS('silver'))
-        }
-
-        array[i++] = rgb.r
-        array[i++] = rgb.g
-        array[i++] = rgb.b
-        array[i++] = 255
-    }
+    // IGV chromosome indices are off by one relative to Juicebox chromosomes
+    return new hic.State(1 + order, 1 + order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
 
 }
 
