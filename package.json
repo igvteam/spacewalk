@@ -21,7 +21,7 @@
     "hdf5-indexed-reader": "github:jrobinso/hdf5-indexed-reader#v0.5.4",
     "data-modal": "github:igvteam/data-modal#v1.6.0",
     "igv-utils": "github:igvteam/igv-utils#v1.5.8",
-    "juicebox.js": "github:igvteam/juicebox.js#spacewalk_juicebox_no_tabs",
+    "juicebox.js": "github:igvteam/juicebox.js#spacewalk",
     "igv": "github:igvteam/igv.js#spacewalk",
     "btoa": "^1.2.1",
     "chroma-js": "^2.4.2",
