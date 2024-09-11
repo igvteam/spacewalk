@@ -135,6 +135,9 @@ class JuiceboxPanel extends Panel {
 
         this.browser.contactMatrixView.assessPanelTabSelection(false)
 
+        document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
+        document.getElementById('hic-file-chooser-dropdown').style.display = 'block'
+
         const hicMapTab = document.getElementById('spacewalk-juicebox-panel-hic-map-tab');
         const liveMapTab = document.getElementById('spacewalk-juicebox-panel-live-map-tab');
 
@@ -147,8 +150,12 @@ class JuiceboxPanel extends Panel {
         for (const tab of tabs) {
             tab.addEventListener('show.bs.tab', event => {
                 if (hicMapTab.id === event.target.id) {
+                    document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
+                    document.getElementById('hic-file-chooser-dropdown').style.display = 'block'
                     this.browser.contactMatrixView.assessPanelTabSelection(false)
                 } else if (liveMapTab.id === event.target.id) {
+                    document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'block'
+                    document.getElementById('hic-file-chooser-dropdown').style.display = 'none'
                     this.browser.contactMatrixView.assessPanelTabSelection(true)
                 }
                 console.log(`Juicebox panel: ${ event.target.id } tab selection`)

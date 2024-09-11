@@ -204,6 +204,7 @@ div.navbar-brand {
 }
 #spacewalk_juicebox_panel.card .card-header {
   width: 100%;
+  padding-bottom: unset;
 }
 #spacewalk_juicebox_panel.card .card-header .list-group {
   width: 100%;
