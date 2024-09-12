@@ -9,43 +9,28 @@
 
   .card-header {
     width: 100%;
+    padding-bottom: unset;
+
+    .spacewalk_card_drag_container {
+      i.fa-grip-horizontal {
+        cursor: unset;
+        color: transparent;
+        background-color: transparent;
+      }
+    }
+
     .list-group {
       width: 100%;
-
-      .spacewalk_card_drag_container {
-
-        i.fa-grip-horizontal {
-          cursor: unset;
-          color: transparent;
-          background-color: transparent;
-        }
-
-        a.dropdown-toggle {
-          color: unset;
+      #hic-live-contact-frequency-map-threshold-widget.list-group-item {
+        div.input-group {
+          width: 200px;
         }
       }
-
-      .list-group-item {
-        padding: 0;
-      }
-
-      .list-group-item:last-child {
-        width: 256px;
-      }
-
     }
   }
 
   .card-body {
-
-    #spacewalk_hic_url_form_group {
-      width: 95%;
-      margin-top: 4px;
-      margin-bottom: 4px;
-    }
-
     #spacewalk_juicebox_root_container {
-
       .hic-root {
         margin: 0;
         border-color: transparent;
@@ -53,7 +38,6 @@
         border-radius: .25rem;
       }
     }
-
   }
 
 }

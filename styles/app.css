@@ -204,28 +204,18 @@ div.navbar-brand {
 }
 #spacewalk_juicebox_panel.card .card-header {
   width: 100%;
+  padding-bottom: unset;
 }
-#spacewalk_juicebox_panel.card .card-header .list-group {
-  width: 100%;
-}
-#spacewalk_juicebox_panel.card .card-header .list-group .spacewalk_card_drag_container i.fa-grip-horizontal {
+#spacewalk_juicebox_panel.card .card-header .spacewalk_card_drag_container i.fa-grip-horizontal {
   cursor: unset;
   color: transparent;
   background-color: transparent;
 }
-#spacewalk_juicebox_panel.card .card-header .list-group .spacewalk_card_drag_container a.dropdown-toggle {
-  color: unset;
+#spacewalk_juicebox_panel.card .card-header .list-group {
+  width: 100%;
 }
-#spacewalk_juicebox_panel.card .card-header .list-group .list-group-item {
-  padding: 0;
-}
-#spacewalk_juicebox_panel.card .card-header .list-group .list-group-item:last-child {
-  width: 256px;
-}
-#spacewalk_juicebox_panel.card .card-body #spacewalk_hic_url_form_group {
-  width: 95%;
-  margin-top: 4px;
-  margin-bottom: 4px;
+#spacewalk_juicebox_panel.card .card-header .list-group #hic-live-contact-frequency-map-threshold-widget.list-group-item div.input-group {
+  width: 200px;
 }
 #spacewalk_juicebox_panel.card .card-body #spacewalk_juicebox_root_container .hic-root {
   margin: 0;
