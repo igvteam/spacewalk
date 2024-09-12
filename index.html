@@ -500,26 +500,24 @@
       <div id="spacewalk_juicebox_panel" class="card">
 
         <div class="card-header">
-          
+
           <div class="spacewalk_card_drag_container">
             <i class="fas fa-square-full"></i>
             <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_juicebox"></i>
           </div>
 
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button id="spacewalk-juicebox-panel-hic-map-tab" class="nav-link active" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Hi-C Map</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button id="spacewalk-juicebox-panel-live-map-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Live Map</button>
+            </li>
+          </ul>
+          
           <ul class="list-group list-group-flush">
 
-            <!-- drag handle-->
-            <li class="list-group-item">
-            </li>
 
-            <ul class="nav nav-tabs" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button id="spacewalk-juicebox-panel-hic-map-tab" class="nav-link active" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Hi-C Map</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button id="spacewalk-juicebox-panel-live-map-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Live Map</button>
-              </li>
-            </ul>
 
             <!-- Hi-C map file chooser -->
             <div id="hic-file-chooser-dropdown" class="dropdown mx-auto py-2">
