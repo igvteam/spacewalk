@@ -23,7 +23,7 @@ class LiveContactMapService {
         this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
         this.input.value = distanceThreshold.toString()
 
-        document.querySelector('#spacewalk_contact_frequency_map__button').addEventListener('click', () => {
+        document.querySelector('#spacewalk_contact_frequency_map_button').addEventListener('click', () => {
 
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 

@@ -214,8 +214,8 @@ div.navbar-brand {
 #spacewalk_juicebox_panel.card .card-header .list-group {
   width: 100%;
 }
-#spacewalk_juicebox_panel.card .card-header .list-group #hic-live-contact-frequency-map-threshold-widget {
-  width: 256px;
+#spacewalk_juicebox_panel.card .card-header .list-group #hic-live-contact-frequency-map-threshold-widget.list-group-item div.input-group {
+  width: 200px;
 }
 #spacewalk_juicebox_panel.card .card-body #spacewalk_juicebox_root_container .hic-root {
   margin: 0;
