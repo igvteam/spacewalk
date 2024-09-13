@@ -1,6 +1,6 @@
 import * as THREE from "three"
 import {FileUtils} from "igv-utils"
-import { includes } from "./utils/math.js"
+import { includes } from "./utils/mathUtils.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "./utils/utils.js"
 import Parser from './datasource/parser.js'
 import Datasource from './datasource/datasource.js'

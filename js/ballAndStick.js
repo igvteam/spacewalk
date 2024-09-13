@@ -2,10 +2,10 @@ import * as THREE from 'three'
 import { StringUtils } from 'igv-utils'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
-import { clamp } from './utils/math.js'
+import { clamp } from './utils/mathUtils.js'
 import { generateRadiusTable } from "./utils/utils.js"
 import {ensembleManager, igvPanel, sceneManager} from './app.js'
-import { appleCrayonColorThreeJS } from "./utils/color.js"
+import { appleCrayonColorThreeJS } from "./utils/colorUtils.js"
 import EnsembleManager from './ensembleManager.js'
 import {BufferGeometry} from "three";
 

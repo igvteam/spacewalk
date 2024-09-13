@@ -6,8 +6,8 @@ import {
     dataValueMaterialProvider,
     colorRampMaterialProvider
 } from "../app.js";
-import {lerp} from "./math.js";
-import {appleCrayonColorRGB255} from './color.js'
+import {lerp} from "./mathUtils.js";
+import {appleCrayonColorRGB255} from './colorUtils.js'
 
 function showGlobalSpinner() {
     document.getElementById('spacewalk-spinner').style.display = 'block'

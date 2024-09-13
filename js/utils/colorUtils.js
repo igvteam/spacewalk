@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import chroma from "chroma-js";
-import { lerp, clamp, random } from './math.js';
+import { lerp, clamp, random } from './mathUtils.js';
 
 function colorString2Tokens(string) {
 

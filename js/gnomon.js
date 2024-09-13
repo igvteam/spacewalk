@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { StringUtils } from 'igv-utils'
-import { appleCrayonColorThreeJS, rgb255String, threeJSColorToRGB255, rgba255String } from "./utils/color.js"
+import { appleCrayonColorThreeJS, rgb255String, threeJSColorToRGB255, rgba255String } from "./utils/colorUtils.js"
 import {configureColorPicker, updateColorPicker, doConfigureGnomonHidden, setGnomonVisibilityCheckboxStatus} from "./guiManager.js"
 
 class Gnomon extends THREE.AxesHelper {

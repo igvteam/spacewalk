@@ -4,8 +4,8 @@ import EnsembleManager from "../ensembleManager.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils.js"
-import ContactRecord from "../utils/contactRecord.js"
-import {clamp} from "../utils/math.js"
+import ContactRecord from "./contactRecord.js"
+import {clamp} from "../utils/mathUtils.js"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
