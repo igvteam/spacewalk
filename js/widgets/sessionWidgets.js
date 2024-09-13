@@ -111,9 +111,14 @@ function configureSaveSessionModal(rootContainer, prefix, JSONProvider, sessionS
             const jsonString = JSON.stringify(json, null, '\t')
             const data = URL.createObjectURL(new Blob([jsonString], { type: "application/octet-stream" }))
             FileUtils.download(filename, data)
+            modal.hide()
+        } else {
+            modal.hide()
+            const str = `Warning! Unable to save session. Local files not supported.`
+            console.warn(str)
+            alert(str)
         }
 
-        modal.hide()
     }
 
     const okElement = modalElement.querySelector('.modal-footer button:nth-child(2)')

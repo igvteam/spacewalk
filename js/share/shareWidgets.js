@@ -31,9 +31,18 @@ function createShareWidgets({ modalElement, inputElement, button }) {
     shareModal = new bootstrap.Modal(modalElement)
 
     modalElement.addEventListener('shown.bs.modal', async () => {
-        inputElement.value = await getShareURL()
-        inputElement.focus()
-        inputElement.select()
+
+        const result = await getShareURL()
+        if (result) {
+            inputElement.value = await getShareURL()
+            inputElement.focus()
+            inputElement.select()
+        } else {
+            shareModal.hide()
+            const str = `Warning! Unable to create Share URL. Local files not supported.`
+            console.warn(str)
+            alert(str)
+        }
     });
 
     button.addEventListener('click', async () => {
