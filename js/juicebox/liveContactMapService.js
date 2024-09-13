@@ -89,22 +89,34 @@ class LiveContactMapService {
 
     updateEnsembleContactFrequencyCanvas(distanceThresholdOrUndefined) {
 
-        showGlobalSpinner()
+        const { chr } = ensembleManager.locus
+        const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
 
-        this.distanceThreshold = distanceThresholdOrUndefined || distanceThresholdEstimate(ensembleManager.currentTrace)
-        this.input.value = this.distanceThreshold.toString()
+        if (chromosome) {
+            showGlobalSpinner()
 
-        const data =
-            {
-                traceOrEnsemble: 'ensemble',
-                traceLength: ensembleManager.getLiveMapTraceLength(),
-                vertexListsString: JSON.stringify( ensembleManager.getLiveMapVertexLists()),
-                distanceThreshold: this.distanceThreshold
-            }
+            this.distanceThreshold = distanceThresholdOrUndefined || distanceThresholdEstimate(ensembleManager.currentTrace)
+            this.input.value = this.distanceThreshold.toString()
 
-        console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
+            const data =
+                {
+                    traceOrEnsemble: 'ensemble',
+                    traceLength: ensembleManager.getLiveMapTraceLength(),
+                    vertexListsString: JSON.stringify( ensembleManager.getLiveMapVertexLists()),
+                    distanceThreshold: this.distanceThreshold
+                }
 
-        this.worker.postMessage(data)
+            console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
+
+            this.worker.postMessage(data)
+
+        } else {
+            hideGlobalSpinner()
+            const str = `Warning! Can not create Live Contact Map. No valid genome for chromosome ${ chr }`
+            console.warn(str)
+            alert(str)
+        }
+
 
     }
 
