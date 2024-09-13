@@ -12,8 +12,8 @@
     padding-bottom: unset;
 
     .spacewalk_card_drag_container {
+      cursor: grab;
       i.fa-grip-horizontal {
-        cursor: unset;
         color: transparent;
         background-color: transparent;
       }

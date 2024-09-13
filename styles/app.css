@@ -206,8 +206,10 @@ div.navbar-brand {
   width: 100%;
   padding-bottom: unset;
 }
+#spacewalk_juicebox_panel.card .card-header .spacewalk_card_drag_container {
+  cursor: grab;
+}
 #spacewalk_juicebox_panel.card .card-header .spacewalk_card_drag_container i.fa-grip-horizontal {
-  cursor: unset;
   color: transparent;
   background-color: transparent;
 }
