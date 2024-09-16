@@ -1,5 +1,4 @@
 import hic from 'juicebox.js'
-import AlertSingleton from '../widgets/alertSingleton.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
 import { ballAndStick, colorRampMaterialProvider, liveContactMapService, ensembleManager, ribbon } from '../app.js'
@@ -60,9 +59,11 @@ class JuiceboxPanel extends Panel {
         try {
             this.browser = await hic.restoreSession(container, session)
             this.locus = config.locus
-        } catch (error) {
+        } catch (e) {
+            const error = new Error(`Error initializing Juicebox ${ e.message }`)
             console.error(error.message)
-            AlertSingleton.present(`Error initializing Juicebox ${ error.message }`)
+            alert(error.message)
+
         }
 
         this.configureTabs()
@@ -126,7 +127,8 @@ class JuiceboxPanel extends Panel {
             try {
                 await this.goto({ chr, start: genomicStart, end: genomicEnd })
             } catch (e) {
-                AlertSingleton.present(e.message)
+                console.error(e.message)
+                alert(e.message)
             }
         }
     }
@@ -209,8 +211,9 @@ class JuiceboxPanel extends Panel {
             }
 
         } catch (e) {
-            console.error(e.message)
-            AlertSingleton.present(`Error loading ${ url }: ${ e }`)
+            const error = new Error(`Error loading ${ url }: ${ e }`)
+            console.error(error.message)
+            alert(error.message)
         }
 
         const { chr, genomicStart, genomicEnd } = ensembleManager.locus

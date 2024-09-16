@@ -1,5 +1,4 @@
 import igv from 'igv'
-import AlertSingleton from './widgets/alertSingleton.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {getMaterialProvider, setMaterialProvider} from './utils/utils.js';
 import Panel from './panel.js';
@@ -68,7 +67,8 @@ class IGVPanel extends Panel {
             this.browser = browser
             this.knownGenomes = knownGenomes
         } catch (e) {
-            AlertSingleton.present(e.message)
+            console.error(e.message)
+            alert(e.message)
         }
 
         const config =
@@ -127,7 +127,8 @@ class IGVPanel extends Panel {
             }
 
         } catch (e) {
-            AlertSingleton.present(e.message)
+            console.error(e.message)
+            alert(e.message)
         }
 
     }
@@ -178,7 +179,7 @@ class IGVPanel extends Panel {
             tracks = await this.browser.loadTrackList( configurations );
         } catch (e) {
             console.error(e.message)
-            AlertSingleton.present(e.message);
+            alert(e.message)
         }
 
         for (let { trackView, config } of tracks) {
