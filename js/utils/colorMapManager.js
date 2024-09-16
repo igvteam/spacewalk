@@ -6,7 +6,7 @@ import peter_kovesi from '/src/resources/colormaps/peter_kovesi/peter_kovesi.jso
 import bintu_et_al from '/resources/colormaps/bintu_et_al/bintu_et_al.png'
 import juicebox_default from '/resources/colormaps/juicebox_default/juicebox_default.png'
 
-export const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
+const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
 
 class ColorMapManager {
 
@@ -107,12 +107,12 @@ class ColorMapManager {
 
 }
 
-const retrieveRGB = (rgbList, interpolant, key) => {
+function retrieveRGB(rgbList, interpolant, key) {
     const index = Math.floor(interpolant * (rgbList.length - 1));
     return rgbList[ index ][ key ]
-};
+}
 
-const rgbListWithImage = image => {
+function rgbListWithImage(image) {
 
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -136,46 +136,8 @@ const rgbListWithImage = image => {
 
     return rgbList;
 
-};
+}
 
-const rgbListWithString = string => {
-
-    const lines = string.split(/\r?\n/);
-
-    if (isKennethMorland(name)) {
-        lines.shift(); // discard preamble
-    }
-
-    return lines
-        .filter((line) => {
-            return "" !== line
-        })
-        .map((line) => {
-
-            // scalar | red | green | blue
-            let parts = line.split(',');
-
-            if (isKennethMorland(name)) {
-                parts.shift(); // discard scalar
-            }
-
-            let [ r, g, b ] = parts.map((f) => { return parseInt(f, 10)} );
-
-            return {
-                rgb255String: rgb255String({ r, g, b }),
-                threejs: rgb255ToThreeJSColor(r, g, b)
-            }
-
-        });
-
-};
-
-let isKennethMorland = (name) => {
-    return name.indexOf('kenneth_moreland') > 0;
-};
-
-let isPeterKovesi = (name) => {
-    return name.indexOf('peter_kovesi') > 0;
-};
+export { defaultColormapName }
 
 export default ColorMapManager;
