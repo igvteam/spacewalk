@@ -1,5 +1,4 @@
 import {BGZip, GoogleAuth, igvxhr} from 'igv-utils'
-import AlertSingleton from './widgets/alertSingleton.js'
 import {createSessionWidgets} from './widgets/sessionWidgets.js'
 import { dropboxDropdownItem, googleDriveDropdownItem } from "./widgets/markupFactory.js"
 import { createTrackWidgetsWithTrackRegistry } from './widgets/trackWidgets.js'
@@ -20,7 +19,7 @@ import TraceSelect from './traceSelect.js'
 import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
-import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/color.js";
+import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/colorUtils.js";
 import {getUrlParams, loadSessionURL, toJSON, loadSession, uncompressSession} from "./spacewalkSession.js"
 import { initializeMaterialLibrary } from "./utils/materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
@@ -64,8 +63,6 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     const container = document.getElementById('spacewalk-root-container');
 
-    AlertSingleton.init(container)
-
     const { clientId, apiKey } = spacewalkConfig
     const enableGoogle = clientId && 'CLIENT_ID' !== clientId && (window.location.protocol === "https:" || window.location.host === "localhost")
 
@@ -75,8 +72,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             await GoogleAuth.signOut()
             googleEnabled = true
         } catch (e) {
-            console.error(e)
-            AlertSingleton.present(e.message)
+            console.error(e.message)
+            alert(e.message)
         }
     }
 

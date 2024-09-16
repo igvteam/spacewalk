@@ -1,6 +1,6 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {clamp} from './utils/math.js'
-import {appleCrayonColorRGB255, rgb255String} from './utils/color.js'
+import {clamp} from './utils/mathUtils.js'
+import {appleCrayonColorRGB255, rgb255String} from './utils/colorUtils.js'
 
 const namespace = '.spacewalk-render-container-drag'
 

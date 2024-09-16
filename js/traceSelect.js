@@ -1,6 +1,6 @@
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 import {ensembleManager} from "./app.js"
-import {clamp} from "./utils/math.js"
+import {clamp} from "./utils/mathUtils.js"
 import {StringUtils} from "igv-utils";
 
 let numberForDisplay = undefined

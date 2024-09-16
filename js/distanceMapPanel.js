@@ -6,9 +6,9 @@ import {
     juiceboxPanel,
     sceneManager
 } from "./app.js";
-import { clamp } from "./utils/math.js";
+import { clamp } from "./utils/mathUtils.js";
 import Panel from "./panel.js";
-import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./utils/color.js";
+import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./utils/colorUtils.js";
 import {clearCanvasArray, renderArrayToCanvas} from "./utils/utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 import SWBDatasource from "./datasource/SWBDatasource.js"

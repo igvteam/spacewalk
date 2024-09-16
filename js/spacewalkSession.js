@@ -110,32 +110,43 @@ function getUrlParams(url) {
 async function getShareURL() {
 
     const spacewalkCompressedSession = getCompressedSession()
-    const igvCompressedSession = igvPanel.browser.compressedSession()
 
-    let juiceboxCompressedSession
-    if (juiceboxPanel.browser.dataset && undefined === juiceboxPanel.browser.dataset.isLiveContactMapDataSet) {
-        // Note format is: session=blob:${BGZip.compressString(jsonString)}
-        juiceboxCompressedSession = hic.compressedSession()
-    }
+    if (spacewalkCompressedSession) {
+        const igvCompressedSession = igvPanel.browser.compressedSession()
 
-    const path = window.location.href.slice()
-    const index = path.indexOf("?")
-    const prefix = index > 0 ? path.substring(0, index) : path
+        let juiceboxCompressedSession
+        if (juiceboxPanel.browser.dataset && undefined === juiceboxPanel.browser.dataset.isLiveContactMapDataSet) {
+            // Note format is: session=blob:${BGZip.compressString(jsonString)}
+            juiceboxCompressedSession = hic.compressedSession()
+        }
 
-    let url
-    if (juiceboxCompressedSession) {
-        url = `${ prefix }?spacewalkSessionURL=blob:${ spacewalkCompressedSession }&sessionURL=blob:${ igvCompressedSession }&${ juiceboxCompressedSession }`
+        const path = window.location.href.slice()
+        const index = path.indexOf("?")
+        const prefix = index > 0 ? path.substring(0, index) : path
+
+        let url
+        if (juiceboxCompressedSession) {
+            url = `${ prefix }?spacewalkSessionURL=blob:${ spacewalkCompressedSession }&sessionURL=blob:${ igvCompressedSession }&${ juiceboxCompressedSession }`
+        } else {
+            url = `${ prefix }?spacewalkSessionURL=blob:${ spacewalkCompressedSession }&sessionURL=blob:${ igvCompressedSession }`
+        }
+
+        return shortenURL(url)
+
     } else {
-        url = `${ prefix }?spacewalkSessionURL=blob:${ spacewalkCompressedSession }&sessionURL=blob:${ igvCompressedSession }`
+        return undefined
     }
-
-    return shortenURL(url)
 
 }
 
 function getCompressedSession() {
     const json = spacewalkToJSON()
-    return BGZip.compressString( JSON.stringify( json ) )
+    if (json) {
+        return BGZip.compressString( JSON.stringify( json ) )
+    } else {
+        return undefined
+    }
+
 }
 
 function spacewalkToJSON () {
@@ -178,7 +189,7 @@ function spacewalkToJSON () {
 
         return spacewalk
     } else {
-        throw new Error(`Unable to save session. Local files not supported.`)
+        return undefined
     }
 
 
@@ -188,15 +199,21 @@ function toJSON () {
 
     const spacewalk = spacewalkToJSON()
 
-    const igv = igvPanel.browser.toJSON()
+    if (spacewalk) {
+        const igv = igvPanel.browser.toJSON()
 
-    const json = { spacewalk, igv }
+        const json = { spacewalk, igv }
 
-    if (juiceboxPanel.browser.dataset && undefined === juiceboxPanel.browser.dataset.isLiveContactMapDataSet) {
-        json.juicebox = hic.toJSON()
+        if (juiceboxPanel.browser.dataset && undefined === juiceboxPanel.browser.dataset.isLiveContactMapDataSet) {
+            json.juicebox = hic.toJSON()
+        }
+
+        return json
+
+    } else {
+        return undefined
     }
 
-    return json
 
 }
 

@@ -206,13 +206,16 @@ div.navbar-brand {
   width: 100%;
   padding-bottom: unset;
 }
+#spacewalk_juicebox_panel.card .card-header .spacewalk_card_drag_container {
+  cursor: grab;
+}
 #spacewalk_juicebox_panel.card .card-header .spacewalk_card_drag_container i.fa-grip-horizontal {
-  cursor: unset;
   color: transparent;
   background-color: transparent;
 }
 #spacewalk_juicebox_panel.card .card-header .list-group {
   width: 100%;
+  background-color: white;
 }
 #spacewalk_juicebox_panel.card .card-header .list-group #hic-live-contact-frequency-map-threshold-widget.list-group-item div.input-group {
   width: 200px;

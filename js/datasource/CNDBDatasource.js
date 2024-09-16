@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import DataSourceBase from './dataSourceBase.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils";
-import {createBoundingBoxWithFlatXYZList} from "../utils/math.js"
+import {createBoundingBoxWithFlatXYZList} from "../utils/mathUtils.js"
 import {igvPanel} from '../app.js'
 
 class CNDBDatasource extends DataSourceBase {

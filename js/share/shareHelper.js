@@ -20,9 +20,7 @@
  * THE SOFTWARE.
  *
  */
-import AlertSingleton from '../widgets/alertSingleton.js'
 import {bitlyShortener, googleShortener, tinyURLShortener} from "./urlShortener.js";
-import {igvPanel} from '../app.js'
 
 let urlShortener;
 
@@ -40,10 +38,14 @@ function setURLShortener(obj) {
         } else if ("google" === obj.provider && obj.apiKey) {
             fn = googleShortener(obj.apiKey);
         } else {
-            AlertSingleton.present(new Error(`Unknown URL shortener provider: ${obj.provider}`));
+            const error = new Error(`Unknown URL shortener provider: ${obj.provider}`)
+            console.error(error.message)
+            alert(error.message)
         }
     } else {
-        AlertSingleton.present(new Error('URL shortener object must either be an object specifying a provider and apiKey, or a function'))
+        const error = new Error(`URL shortener object must either be an object specifying a provider and apiKey, or a function`)
+        console.error(error.message)
+        alert(error.message)
     }
 
     if (fn) {
