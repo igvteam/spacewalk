@@ -8,8 +8,6 @@ import SWBDatasource from "./datasource/SWBDatasource.js"
 
 const kDistanceUndefined = -1
 
-let rgbaMatrix = undefined
-
 class DistanceMapPanel extends Panel {
 
     constructor ({ container, panel, isHidden }) {
@@ -52,6 +50,7 @@ class DistanceMapPanel extends Panel {
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
+        this.rgbaMatrix = undefined
         this.willShowCrosshairs = undefined
         this.doUpdateTrace = undefined
         this.doUpdateEnsemble = undefined
@@ -140,7 +139,7 @@ class DistanceMapPanel extends Panel {
 
             this.dismiss()
 
-            rgbaMatrix = undefined
+            this.rgbaMatrix = undefined
             this.doUpdateTrace = this.doUpdateEnsemble = true
 
             this.ctx_trace.transferFromImageBitmap(null)
@@ -253,19 +252,18 @@ function processWebWorkerResults(data) {
 
     const traceLength = ensembleManager.getLiveMapTraceLength()
 
-    if (undefined === rgbaMatrix) {
-        rgbaMatrix = new Uint8ClampedArray(traceLength * traceLength * 4)
+    if (undefined === this.rgbaMatrix) {
+        this.rgbaMatrix = new Uint8ClampedArray(traceLength * traceLength * 4)
     }
 
     if ('trace' === data.traceOrEnsemble) {
-        setDistanceMapRGBAMatrix(rgbaMatrix, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-        transferRGBAMatrixToLiveDistanceMapCanvas(this.ctx_trace, rgbaMatrix, traceLength)
+        setDistanceMapRGBAMatrix(this.rgbaMatrix, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
+        transferRGBAMatrixToLiveDistanceMapCanvas(this.ctx_trace, this.rgbaMatrix, traceLength)
     } else {
-        setDistanceMapRGBAMatrix(rgbaMatrix, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-        transferRGBAMatrixToLiveDistanceMapCanvas(this.ctx_ensemble, rgbaMatrix, traceLength)
+        setDistanceMapRGBAMatrix(this.rgbaMatrix, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
+        transferRGBAMatrixToLiveDistanceMapCanvas(this.ctx_ensemble, this.rgbaMatrix, traceLength)
     }
 }
-
 
 function setDistanceMapRGBAMatrix(rgbaMatrix, distances, maximumDistance, colorMap) {
 

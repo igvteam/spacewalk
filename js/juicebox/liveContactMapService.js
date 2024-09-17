@@ -1,11 +1,11 @@
-import hic from '../../node_modules/juicebox.js/js/index.js'
+import hic from 'juicebox.js'
 import {ensembleManager, igvPanel, juiceboxPanel} from "../app.js"
 import EnsembleManager from "../ensembleManager.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils.js"
-import ContactRecord from "./contactRecord.js"
 import {clamp} from "../utils/mathUtils.js"
+import LiveState from "./liveState"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
@@ -134,35 +134,11 @@ function distanceThresholdEstimate(trace) {
 // Contact Matrix is m by m where m = traceLength
 function createLiveContactMapDataSet(genome, contactMatrixViewDimensions, contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
-    const hicState = createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
+    const liveContactMapDataSet = new LiveContactMapDataSet(genome, ensembleManager)
 
-    const contactRecordList = []
+    const hicState = new LiveState(ensembleManager, juiceboxPanel.browser.contactMatrixView)
 
-    // traverse the upper-triangle of a contact matrix. Each step is one "bin" unit
-    let n = 1
-    let averageCount = 0
-    for (let wye = 0; wye < traceLength; wye++) {
-
-        for (let exe = wye; exe < traceLength; exe++) {
-
-            const xy = exe * traceLength + wye
-            const count = contacts[ xy ]
-
-            contactRecordList.push(new ContactRecord(hicState.x + exe, hicState.y + wye, count))
-
-            // Incremental averaging: avg_k = avg_k-1 + (value_k - avg_k-1) / k
-            // see: https://math.stackexchange.com/questions/106700/incremental-averageing
-            averageCount = averageCount + (count - averageCount)/n
-
-            ++n
-
-        } // for (exe)
-
-    } // for (wye)
-
-    const binSize = (genomicEnd - genomicStart) / traceLength
-
-    const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
+    liveContactMapDataSet.createContactRecordList(hicState, contacts, ensembleManager.getLiveMapTraceLength())
 
     return { hicState, liveContactMapDataSet }
 
