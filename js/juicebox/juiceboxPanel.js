@@ -1,4 +1,4 @@
-import hic from 'juicebox.js'
+import hic from '../../node_modules/juicebox.js/js/index.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
 import { ballAndStick, colorRampMaterialProvider, liveContactMapService, ensembleManager, ribbon } from '../app.js'

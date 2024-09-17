@@ -1,23 +1,14 @@
-import {
-    ballAndStick,
-    colorMapManager,
-    colorRampMaterialProvider,
-    ensembleManager, igvPanel,
-    juiceboxPanel,
-    sceneManager
-} from "./app.js";
+import { colorMapManager, ensembleManager } from "./app.js";
 import { clamp } from "./utils/mathUtils.js";
 import Panel from "./panel.js";
 import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./utils/colorUtils.js";
-import {clearCanvasArray, renderArrayToCanvas} from "./utils/utils.js"
+import {fillRGBAMatrix, transferRGBAMatrixToLiveDistanceMapCanvas} from "./utils/utils.js"
 import SpacewalkEventBus from "./spacewalkEventBus.js"
 import SWBDatasource from "./datasource/SWBDatasource.js"
-import {HICEvent} from "./juicebox/juiceboxHelpful.js"
-import BallAndStick from "./ballAndStick.js"
 
 const kDistanceUndefined = -1
 
-let canvasArray = undefined
+let rgbaMatrix = undefined
 
 class DistanceMapPanel extends Panel {
 
@@ -37,14 +28,14 @@ class DistanceMapPanel extends Panel {
 
         let canvas;
 
-        // trace canvas and context
+        // trace
         canvas = $canvas_container.find('#spacewalk_distance_map_canvas_trace').get(0);
         canvas.width = $canvas_container.width();
         canvas.height = $canvas_container.height();
 
         this.ctx_trace = canvas.getContext('bitmaprenderer');
 
-        // ensemble canvas and context
+        // ensemble
         canvas = $canvas_container.find('#spacewalk_distance_map_canvas_ensemble').get(0);
         canvas.width = $canvas_container.width();
         canvas.height = $canvas_container.height();
@@ -53,6 +44,28 @@ class DistanceMapPanel extends Panel {
 
         const canvas_container = $canvas_container.get(0)
         this.canvas_container = canvas_container
+
+        this.configureMouseHandlers(canvas_container)
+
+        this.configureWebWorker(new Worker(new URL('./distanceMapWorker.js', import.meta.url), {type: 'module'}))
+
+        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+
+        this.willShowCrosshairs = undefined
+        this.doUpdateTrace = undefined
+        this.doUpdateEnsemble = undefined
+
+    }
+
+    configureWebWorker(worker) {
+        this.worker = worker
+        this.worker.addEventListener('message', ({data}) => {
+            processWebWorkerResults.call(this, data)
+        }, false)
+    }
+
+    configureMouseHandlers(canvas_container){
 
         const horizontalLine = document.createElement('div')
         horizontalLine.classList.add('crosshair', 'horizontal')
@@ -63,8 +76,6 @@ class DistanceMapPanel extends Panel {
         verticalLine.classList.add('crosshair', 'vertical')
         canvas_container.appendChild(verticalLine)
         this.verticalLine = verticalLine
-
-        this.willShowCrosshairs = undefined
 
         canvas_container.addEventListener('mousedown', event => {
             event.preventDefault()
@@ -82,8 +93,7 @@ class DistanceMapPanel extends Panel {
 
             this.hideCrosshairs()
             this.willShowCrosshairs = undefined
-            // juiceboxPanel.browser.eventBus.post(HICEvent('DidHideCrosshairs', 'DidHideCrosshairs', false))
-            SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+            SpacewalkEventBus.globalBus.post({type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator'});
         })
 
         canvas_container.addEventListener('mousemove', event => {
@@ -93,7 +103,7 @@ class DistanceMapPanel extends Panel {
 
             if (this.willShowCrosshairs) {
 
-                const { left, top, width, height} = canvas_container.getBoundingClientRect()
+                const {left, top, width, height} = canvas_container.getBoundingClientRect()
                 const x = event.clientX - left
                 const y = event.clientY - top
 
@@ -103,43 +113,15 @@ class DistanceMapPanel extends Panel {
                 const xNormalized = x / width
                 const yNormalized = y / height
 
-                const interpolantList = [ xNormalized, yNormalized ]
+                const interpolantList = [xNormalized, yNormalized]
 
-                SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } })
+                SpacewalkEventBus.globalBus.post({
+                    type: 'DidUpdateGenomicInterpolant',
+                    data: {poster: this, interpolantList}
+                })
             }
 
         });
-
-        this.doUpdateTrace = this.doUpdateEnsemble = undefined
-
-        this.worker = new Worker(new URL('./distanceMapWorker.js', import.meta.url), { type: 'module' })
-
-        this.worker.addEventListener('message', ({ data }) => {
-
-            document.querySelector('#spacewalk-distance-map-spinner').style.display = 'none'
-
-            const traceLength = ensembleManager.getLiveMapTraceLength()
-
-            if (undefined === canvasArray) {
-                canvasArray = new Uint8ClampedArray(traceLength * traceLength * 4)
-            }
-
-            clearCanvasArray(canvasArray, traceLength)
-
-            if ('trace' === data.traceOrEnsemble) {
-                populateCanvasArray(canvasArray, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-                renderArrayToCanvas(this.ctx_trace, canvasArray)
-            } else {
-                populateCanvasArray(canvasArray, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-                renderArrayToCanvas(this.ctx_ensemble, canvasArray)
-            }
-
-
-        }, false)
-
-        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
-        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
-
     }
 
     receiveEvent({ type, data }) {
@@ -158,7 +140,7 @@ class DistanceMapPanel extends Panel {
 
             this.dismiss()
 
-            canvasArray = undefined
+            rgbaMatrix = undefined
             this.doUpdateTrace = this.doUpdateEnsemble = true
 
             this.ctx_trace.transferFromImageBitmap(null)
@@ -265,47 +247,61 @@ class DistanceMapPanel extends Panel {
     }
 }
 
-function populateCanvasArray(array, distances, maximumDistance, colorMap) {
+function processWebWorkerResults(data) {
 
-    let i = 0;
-    const { r, g, b } = appleCrayonColorRGB255('magnesium');
-    for (let x = 0; x < distances.length; x++) {
-        array[i++] = r;
-        array[i++] = g;
-        array[i++] = b;
-        array[i++] = 255;
+    document.querySelector('#spacewalk-distance-map-spinner').style.display = 'none'
+
+    const traceLength = ensembleManager.getLiveMapTraceLength()
+
+    if (undefined === rgbaMatrix) {
+        rgbaMatrix = new Uint8ClampedArray(traceLength * traceLength * 4)
     }
 
+    if ('trace' === data.traceOrEnsemble) {
+        setDistanceMapRGBAMatrix(rgbaMatrix, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
+        transferRGBAMatrixToLiveDistanceMapCanvas(this.ctx_trace, rgbaMatrix, traceLength)
+    } else {
+        setDistanceMapRGBAMatrix(rgbaMatrix, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
+        transferRGBAMatrixToLiveDistanceMapCanvas(this.ctx_ensemble, rgbaMatrix, traceLength)
+    }
+}
+
+
+function setDistanceMapRGBAMatrix(rgbaMatrix, distances, maximumDistance, colorMap) {
+
+    fillRGBAMatrix(rgbaMatrix, distances.length, appleCrayonColorRGB255('tin'))
 
     const scale = colorMap.length - 1;
 
-    i = 0;
+    let i = 0;
     for (let distance of distances) {
 
         if (kDistanceUndefined !== distance) {
 
-            const interpolant = distance/maximumDistance
-            if (interpolant < 0 || 1 < interpolant) {
-                console.log(`${ Date.now() } populateDistanceCanvasArray - interpolant out of range ${ interpolant }`)
+            distance = clamp(distance, 0, maximumDistance)
+            const nearness = maximumDistance - distance
+
+            const rawInterpolant = nearness/maximumDistance
+            if (rawInterpolant < 0 || 1 < rawInterpolant) {
+                console.warn(`${ Date.now() } populateCanvasArray - interpolant out of range ${ rawInterpolant }`)
             }
 
-            const interpolantFlipped = 1.0 - clamp(interpolant, 0, 1)
-            const interpolantScaled = scale * interpolantFlipped
+            const interpolant = clamp(nearness, 0, maximumDistance) / maximumDistance
+            const colorIndex = Math.floor(scale * interpolant)
 
-            const floorInterpolantScaled = Math.floor(interpolantScaled)
-            const result = colorMap[ floorInterpolantScaled ][ 'threejs' ]
-            const { r, g, b } = threeJSColorToRGB255(result)
+            const { r, g, b } = threeJSColorToRGB255(colorMap[ colorIndex ][ 'threejs' ])
 
-            array[i] = r;
-            array[i + 1] = g;
-            array[i + 2] = b;
-            array[i + 3] = 255;
+            rgbaMatrix[i] = r;
+            rgbaMatrix[i + 1] = g;
+            rgbaMatrix[i + 2] = b;
+            rgbaMatrix[i + 3] = 255;
         }
 
         i += 4;
     }
 
 }
+
 export function distanceMapPanelConfigurator({ container, isHidden }) {
 
     return {
