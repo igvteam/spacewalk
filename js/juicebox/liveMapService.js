@@ -1,10 +1,8 @@
 import {ensembleManager, igvPanel, juiceboxPanel} from "../app.js"
 import EnsembleManager from "../ensembleManager.js"
-import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils.js"
 import {clamp} from "../utils/mathUtils.js"
-import LiveMapState from "./liveMapState.js"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
@@ -14,6 +12,9 @@ class LiveMapService {
     constructor (distanceThreshold) {
 
         this.distanceThreshold = distanceThreshold
+
+        this.contactFrequencies = undefined
+
         this.ensembleContactFrequencyArray = undefined
 
         this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
@@ -36,9 +37,10 @@ class LiveMapService {
 
             if ('ensemble' === data.traceOrEnsemble) {
 
-                juiceboxPanel.browser.liveContactMapDataSet.createContactRecordList(juiceboxPanel.browser.liveContactMapState, data.workerValuesBuffer, ensembleManager.getLiveMapTraceLength())
+                this.contactFrequencies = data.workerValuesBuffer
+                juiceboxPanel.createContactRecordList(this.contactFrequencies, ensembleManager.getLiveMapTraceLength())
 
-                await juiceboxPanel.renderWithLiveContactFrequencyData(juiceboxPanel.browser.liveContactMapState, juiceboxPanel.browser.liveContactMapDataSet, data.workerValuesBuffer, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+                await juiceboxPanel.renderWithLiveContactFrequencyData(this.contactFrequencies, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
 
                 hideGlobalSpinner()
 
@@ -54,18 +56,14 @@ class LiveMapService {
 
         if ("DidLoadEnsembleFile" === type) {
 
-            juiceboxPanel.browser.liveContactMapState = new LiveMapState(ensembleManager, juiceboxPanel.browser.contactMatrixView)
-            juiceboxPanel.browser.liveContactMapDataSet = new LiveContactMapDataSet(igvPanel.browser.genome, ensembleManager)
+            this.contactFrequencies = undefined
 
-            juiceboxPanel.browser.layoutController.xAxisRuler.presentLiveMapRuler(juiceboxPanel.browser.liveContactMapState, juiceboxPanel.browser.liveContactMapDataSet)
-            juiceboxPanel.browser.layoutController.yAxisRuler.presentLiveMapRuler(juiceboxPanel.browser.liveContactMapState, juiceboxPanel.browser.liveContactMapDataSet)
-
-            this.ensembleContactFrequencyArray = undefined
+            const traceLength = ensembleManager.getLiveMapTraceLength()
+            this.ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
 
             this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
             this.input.value = this.distanceThreshold.toString()
 
-            this.allocateGlobalContactFrequencyBuffer(ensembleManager.getLiveMapTraceLength())
         }
     }
 
@@ -108,11 +106,6 @@ class LiveMapService {
 
 
     }
-
-    allocateGlobalContactFrequencyBuffer(traceLength) {
-        this.ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
-    }
-
 }
 
 function distanceThresholdEstimate(trace) {

@@ -1,9 +1,18 @@
 import hic from '../../node_modules/juicebox.js/js/index.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
-import { ballAndStick, colorRampMaterialProvider, liveMapService, ensembleManager, ribbon } from '../app.js'
+import {
+    ballAndStick,
+    colorRampMaterialProvider,
+    liveMapService,
+    ensembleManager,
+    ribbon,
+    igvPanel
+} from '../app.js'
 import SWBDatasource from "../datasource/SWBDatasource.js"
 import {makeDraggable} from "../utils/draggable.js"
+import LiveMapState from "./liveMapState.js"
+import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 
 class JuiceboxPanel extends Panel {
 
@@ -89,6 +98,15 @@ class JuiceboxPanel extends Panel {
         if ('DidLoadEnsembleFile' === type) {
             const ctx = this.browser.contactMatrixView.ctx_live
             ctx.transferFromImageBitmap(null)
+
+            // Create state and dataset
+            this.browser.liveContactMapState = new LiveMapState(ensembleManager, this.browser.contactMatrixView)
+            this.browser.liveContactMapDataSet = new LiveContactMapDataSet(igvPanel.browser.genome, ensembleManager)
+
+            // Update Juicebox rulers
+            this.browser.layoutController.xAxisRuler.presentLiveMapRuler(this.browser.liveContactMapState, this.browser.liveContactMapDataSet)
+            this.browser.layoutController.yAxisRuler.presentLiveMapRuler(this.browser.liveContactMapState, this.browser.liveContactMapDataSet)
+
         }
 
         super.receiveEvent({ type, data });
@@ -237,14 +255,18 @@ class JuiceboxPanel extends Panel {
         }
     }
 
-    async renderWithLiveContactFrequencyData(state, liveContactMapDataSet, contactFrequencies, contactFrequencyArray, liveMapTraceLength) {
-        await this.browser.contactMatrixView.renderWithLiveContactFrequencyData(this.browser, state, liveContactMapDataSet, contactFrequencies, contactFrequencyArray, liveMapTraceLength)
+    createContactRecordList(contactFrequencies, liveMapTraceLength) {
+        this.browser.liveContactMapDataSet.createContactRecordList(contactFrequencies, liveMapTraceLength)
+    }
+
+    async renderWithLiveContactFrequencyData(contactFrequencies, contactFrequencyArray, liveMapTraceLength) {
+        await this.browser.contactMatrixView.renderWithLiveContactFrequencyData(this.browser.liveContactMapState, this.browser.liveContactMapDataSet, contactFrequencies, contactFrequencyArray, liveMapTraceLength)
     }
 
     async colorPickerHandler(data) {
         if (liveMapService.liveContactMapDataSet) {
             console.log(`JuiceboxPanel - colorPicker(${ data }). renderWithLiveContactFrequencyData()`)
-            await this.renderWithLiveContactFrequencyData(liveMapService.hicState, liveMapService.liveContactMapDataSet, liveMapService.contactFrequencies, liveMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+            await this.renderWithLiveContactFrequencyData(liveMapService.contactFrequencies, liveMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
         }
     }
 }
