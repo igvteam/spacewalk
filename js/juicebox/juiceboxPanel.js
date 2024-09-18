@@ -1,7 +1,7 @@
 import hic from 'juicebox.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
-import { ballAndStick, colorRampMaterialProvider, liveContactMapService, ensembleManager, ribbon } from '../app.js'
+import { ballAndStick, colorRampMaterialProvider, liveMapService, ensembleManager, ribbon } from '../app.js'
 import SWBDatasource from "../datasource/SWBDatasource.js"
 import {makeDraggable} from "../utils/draggable.js"
 
@@ -77,7 +77,7 @@ class JuiceboxPanel extends Panel {
                 await ensembleManager.datasource.calculateLiveMapVertexLists()
             }
 
-            liveContactMapService.updateEnsembleContactFrequencyCanvas(undefined)
+            liveMapService.updateEnsembleContactFrequencyCanvas(undefined)
             this.present()
 
         })
@@ -242,9 +242,9 @@ class JuiceboxPanel extends Panel {
     }
 
     async colorPickerHandler(data) {
-        if (liveContactMapService.liveContactMapDataSet) {
+        if (liveMapService.liveContactMapDataSet) {
             console.log(`JuiceboxPanel - colorPicker(${ data }). renderWithLiveContactFrequencyData()`)
-            await this.renderWithLiveContactFrequencyData(liveContactMapService.hicState, liveContactMapService.liveContactMapDataSet, liveContactMapService.contactFrequencies, liveContactMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+            await this.renderWithLiveContactFrequencyData(liveMapService.hicState, liveMapService.liveContactMapDataSet, liveMapService.contactFrequencies, liveMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
         }
     }
 }

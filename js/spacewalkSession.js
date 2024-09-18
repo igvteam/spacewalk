@@ -1,9 +1,9 @@
 import hic from 'juicebox.js'
 import {BGZip} from 'igv-utils'
 import Panel from './panel.js'
-import { igvPanel, juiceboxPanel, ensembleManager, sceneManager, liveContactMapService, SpacewalkGlobals, guiManager } from './app.js'
+import { igvPanel, juiceboxPanel, ensembleManager, sceneManager, liveMapService, SpacewalkGlobals, guiManager } from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {defaultDistanceThreshold} from './juicebox/liveContactMapService.js'
+import {defaultDistanceThreshold} from './juicebox/liveMapService.js'
 import { shortenURL } from "./share/shareHelper.js"
 
 const loadSessionURL = async spacewalkSessionURL => {
@@ -77,7 +77,7 @@ async function loadSpacewalkSession (session) {
 
     sceneManager.groundPlane.setState({ visibility: groundPlaneVisibility, ...groundplaneColor })
 
-    liveContactMapService.setState(contactFrequencyMapDistanceThreshold || defaultDistanceThreshold)
+    liveMapService.setState(contactFrequencyMapDistanceThreshold || defaultDistanceThreshold)
     Panel.setState(panelVisibility)
 
     // TODO: Decide whether to restore camera state
@@ -185,7 +185,7 @@ function spacewalkToJSON () {
 
         spacewalk.cameraLightingRig = sceneManager.cameraLightingRig.getState()
 
-        spacewalk.contactFrequencyMapDistanceThreshold = liveContactMapService.distanceThreshold
+        spacewalk.contactFrequencyMapDistanceThreshold = liveMapService.distanceThreshold
 
         return spacewalk
     } else {

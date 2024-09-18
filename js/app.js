@@ -13,7 +13,7 @@ import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import GUIManager from "./guiManager.js";
-import LiveContactMapService, {defaultDistanceThreshold} from "./juicebox/liveContactMapService.js";
+import LiveMapService, {defaultDistanceThreshold} from "./juicebox/liveMapService.js";
 import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
 import TraceSelect from './traceSelect.js'
 import TraceNavigator from './traceNavigator.js'
@@ -44,7 +44,7 @@ let dataValueMaterialProvider;
 let colorRampMaterialProvider;
 let guiManager
 let distanceMapPanel
-let liveContactMapService
+let liveMapService
 let juiceboxPanel
 let igvPanel
 let traceSelect
@@ -277,7 +277,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
 
-    liveContactMapService = new LiveContactMapService(distanceThreshold)
+    liveMapService = new LiveMapService(distanceThreshold)
 
     const $dropdownButton = $('#spacewalk-contact-map-dropdown')
     const $dropdowns = $dropdownButton.parent()
@@ -344,6 +344,6 @@ export {
     guiManager,
     juiceboxPanel,
     distanceMapPanel,
-    liveContactMapService,
+    liveMapService,
     igvPanel,
     traceNavigator }

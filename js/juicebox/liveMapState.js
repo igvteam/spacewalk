@@ -1,7 +1,7 @@
 import hic from 'juicebox.js'
 import {igvPanel} from "../app.js"
 
-class LiveState extends hic.State {
+class LiveMapState extends hic.State {
    constructor(ensembleManager, contactMatrixView) {
 
        const binCount = ensembleManager.getLiveMapTraceLength()
@@ -27,4 +27,4 @@ class LiveState extends hic.State {
    }
 }
 
-export default LiveState
+export default LiveMapState

@@ -4,12 +4,12 @@ import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils.js"
 import {clamp} from "../utils/mathUtils.js"
-import LiveState from "./liveState.js"
+import LiveMapState from "./liveMapState.js"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
 
-class LiveContactMapService {
+class LiveMapService {
 
     constructor (distanceThreshold) {
 
@@ -56,7 +56,7 @@ class LiveContactMapService {
 
         if ("DidLoadEnsembleFile" === type) {
 
-            this.hicState = new LiveState(ensembleManager, juiceboxPanel.browser.contactMatrixView)
+            this.hicState = new LiveMapState(ensembleManager, juiceboxPanel.browser.contactMatrixView)
             this.liveContactMapDataSet = new LiveContactMapDataSet(igvPanel.browser.genome, ensembleManager)
 
             this.ensembleContactFrequencyArray = undefined
@@ -73,7 +73,7 @@ class LiveContactMapService {
         this.input.value = distanceThreshold.toString()
     }
 
-    getClassName(){ return 'LiveContactMapService' }
+    getClassName(){ return 'LiveMapService' }
 
     updateEnsembleContactFrequencyCanvas(distanceThresholdOrUndefined) {
 
@@ -121,4 +121,4 @@ function distanceThresholdEstimate(trace) {
 
 export { defaultDistanceThreshold }
 
-export default LiveContactMapService
+export default LiveMapService
