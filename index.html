@@ -511,7 +511,10 @@
               <button id="spacewalk-juicebox-panel-hic-map-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Hi-C Map</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button id="spacewalk-juicebox-panel-live-map-tab" class="nav-link active" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Live Map</button>
+              <button id="spacewalk-juicebox-panel-live-map-tab" class="nav-link active" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Live Contact</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button id="spacewalk-juicebox-panel-live-distance-map-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Live Distance</button>
             </li>
           </ul>
 
@@ -578,6 +581,7 @@
               </div>
             </li>
 
+            <!-- Live Contact Map Threshold Widget -->
             <li id="hic-live-contact-frequency-map-threshold-widget" class="list-group-item py-1 ps-1">
               <div class="d-flex justify-content-between align-items-center">
                 <div class="input-group input-group-sm">
@@ -586,6 +590,14 @@
                   <button id="spacewalk_contact_frequency_map_button" class="btn btn-secondary" type="button">Enter</button>
                 </div>
                 <button id="hic-live-contact-frequency-map-button" class="btn btn-sm btn-outline-secondary" type="button">Calculate Live Map</button>
+              </div>
+            </li>
+
+            <!-- Live Distance Map Toggle Widget -->
+            <li id="hic-live-distance-map-toggle-widget" class="list-group-item mx-auto py-1 ps-1">
+              <div class="form-check form-switch d-flex justify-content-between align-items-center">
+                  <input id="hic-live-distance-map-toggle-input" class="form-check-input" type="checkbox" role="switch">
+                  <label id="hic-live-distance-map-toggle-label" class="form-check-label" for="hic-live-distance-map-toggle-input">Ensemble</label>
               </div>
             </li>
 

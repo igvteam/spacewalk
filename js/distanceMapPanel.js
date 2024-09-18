@@ -47,6 +47,18 @@ class DistanceMapPanel extends Panel {
 
         this.configureWebWorker(new Worker(new URL('./distanceMapWorker.js', import.meta.url), {type: 'module'}))
 
+        document.getElementById('hic-live-distance-map-toggle-input').addEventListener('click', event => {
+
+            const label = document.getElementById('hic-live-distance-map-toggle-label')
+
+            if (label.innerText === 'Ensemble') {
+                label.innerText = 'Trace';
+            } else {
+                label.innerText = 'Ensemble';
+            }
+
+        })
+
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 

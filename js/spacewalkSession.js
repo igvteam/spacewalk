@@ -1,4 +1,4 @@
-import hic from 'juicebox.js'
+import hic from '../node_modules/juicebox.js/js/index.js'
 import {BGZip} from 'igv-utils'
 import Panel from './panel.js'
 import { igvPanel, juiceboxPanel, ensembleManager, sceneManager, liveMapService, SpacewalkGlobals, guiManager } from './app.js'

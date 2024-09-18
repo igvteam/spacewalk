@@ -1,4 +1,4 @@
-import hic from 'juicebox.js'
+import hic from '../../node_modules/juicebox.js/js/index.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
 import {
@@ -135,30 +135,50 @@ class JuiceboxPanel extends Panel {
     configureTabs() {
 
         const tabAssessment = activeTabButton => {
-            if ('spacewalk-juicebox-panel-hic-map-tab' === activeTabButton.id) {
-                document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
-                document.getElementById('hic-file-chooser-dropdown').style.display = 'block'
-                this.browser.contactMatrixView.assessPanelTabSelection(false)
-            } else if ('spacewalk-juicebox-panel-live-map-tab' === activeTabButton.id) {
-                document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'block'
-                document.getElementById('hic-file-chooser-dropdown').style.display = 'none'
-                this.browser.contactMatrixView.assessPanelTabSelection(true)
+            switch (activeTabButton.id) {
+                case 'spacewalk-juicebox-panel-hic-map-tab':
+                    document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'none'
+                    document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
+                    document.getElementById('hic-file-chooser-dropdown').style.display = 'block'
+                    this.browser.contactMatrixView.assessPanelTabSelection(false)
+                    console.log('HIC Map Tab is active');
+                    break;
+
+                case 'spacewalk-juicebox-panel-live-map-tab':
+                    document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'none'
+                    document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'block'
+                    document.getElementById('hic-file-chooser-dropdown').style.display = 'none'
+                    this.browser.contactMatrixView.assessPanelTabSelection(true)
+                    console.log('Live Map Tab is active');
+                    break;
+
+                case 'spacewalk-juicebox-panel-live-distance-map-tab':
+                    document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'block'
+                    document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
+                    document.getElementById('hic-file-chooser-dropdown').style.display = 'none'
+                    this.browser.contactMatrixView.assessPanelTabSelection(true)
+                    console.log('Live Distance Map Tab is active');
+                    break;
+
+                default:
+                    console.log('Unknown tab is active');
+                    break;
             }
         }
 
         const hicMapTabElement = document.getElementById('spacewalk-juicebox-panel-hic-map-tab')
         const liveMapTabElement = document.getElementById('spacewalk-juicebox-panel-live-map-tab')
+        const liveDistanceMapTabElement = document.getElementById('spacewalk-juicebox-panel-live-distance-map-tab')
 
         // For each tab, assign data-bs-target to point to the corresponding map container (hi-c or live)
         hicMapTabElement.setAttribute("data-bs-target", `#${this.browser.id}-contact-map-canvas-container`)
         liveMapTabElement.setAttribute("data-bs-target", `#${this.browser.id}-live-contact-map-canvas-container`)
+        liveDistanceMapTabElement.setAttribute("data-bs-target", `#${this.browser.id}-live-distance-map-canvas-container`)
 
-        this.liveMapTab = new bootstrap.Tab(liveMapTabElement)
         this.hicMapTab = new bootstrap.Tab(hicMapTabElement)
+        this.liveMapTab = new bootstrap.Tab(liveMapTabElement)
+        this.liveDistnceMapTab = new bootstrap.Tab(liveDistanceMapTabElement)
 
-        // this.browser.contactMatrixView.assessPanelTabSelection(false)
-        // document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
-        // document.getElementById('hic-file-chooser-dropdown').style.display = 'block'
         const activeTabButton = this.container.querySelector('button.nav-link.active')
         tabAssessment(activeTabButton)
 
@@ -167,11 +187,8 @@ class JuiceboxPanel extends Panel {
             tabAssessment(activeTabButton)
         })
 
-        const tabs = this.container.querySelectorAll('button[data-bs-toggle="tab"]')
-
-        // show/hide associated buttons for corresponding map type (live or hi-c)
-        for (const tab of tabs) {
-            tab.addEventListener('show.bs.tab', event => {
+        for (const tabElement of this.container.querySelectorAll('button[data-bs-toggle="tab"]')) {
+            tabElement.addEventListener('show.bs.tab', event => {
                 tabAssessment(event.target)
                 console.log(`Juicebox panel: ${ event.target.id } tab selection`)
             })
