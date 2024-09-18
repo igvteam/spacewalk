@@ -107,6 +107,11 @@ class JuiceboxPanel extends Panel {
             this.browser.layoutController.xAxisRuler.presentLiveMapRuler(this.browser.liveContactMapState, this.browser.liveContactMapDataSet)
             this.browser.layoutController.yAxisRuler.presentLiveMapRuler(this.browser.liveContactMapState, this.browser.liveContactMapDataSet)
 
+            if (!this.browser.contactMatrixView.mouseHandlersEnabled) {
+                this.browser.contactMatrixView.addMouseHandlers(this.browser.contactMatrixView.$viewport);
+                this.browser.contactMatrixView.mouseHandlersEnabled = true;
+            }
+
         }
 
         super.receiveEvent({ type, data });
@@ -140,8 +145,6 @@ class JuiceboxPanel extends Panel {
                 this.browser.contactMatrixView.assessPanelTabSelection(true)
             }
         }
-
-        // var liveMapTab = new bootstrap.Tab(this);
 
         const hicMapTabElement = document.getElementById('spacewalk-juicebox-panel-hic-map-tab')
         const liveMapTabElement = document.getElementById('spacewalk-juicebox-panel-live-map-tab')
