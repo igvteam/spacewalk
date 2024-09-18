@@ -1,11 +1,10 @@
-import hic from 'juicebox.js'
 import {ensembleManager, igvPanel, juiceboxPanel} from "../app.js"
 import EnsembleManager from "../ensembleManager.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
 import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils.js"
 import {clamp} from "../utils/mathUtils.js"
-import LiveState from "./liveState"
+import LiveState from "./liveState.js"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
@@ -46,7 +45,7 @@ class LiveContactMapService {
                 const { chr, genomicStart, genomicEnd } = ensembleManager.locus
                 const traceLength = ensembleManager.getLiveMapTraceLength()
 
-                const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(igvPanel.browser.genome, juiceboxPanel.browser.contactMatrixView.getViewDimensions(), data.workerValuesBuffer, traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
+                const { hicState, liveContactMapDataSet } = updateContactRecords(igvPanel.browser.genome, juiceboxPanel.browser.contactMatrixView.getViewDimensions(), data.workerValuesBuffer, traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
 
                 this.hicState = hicState
                 this.liveContactMapDataSet = liveContactMapDataSet
@@ -131,8 +130,7 @@ function distanceThresholdEstimate(trace) {
     return Math.floor(2 * radius / 4)
 }
 
-// Contact Matrix is m by m where m = traceLength
-function createLiveContactMapDataSet(genome, contactMatrixViewDimensions, contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
+function updateContactRecords(genome, contactMatrixViewDimensions, contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
 
     const liveContactMapDataSet = new LiveContactMapDataSet(genome, ensembleManager)
 
@@ -141,34 +139,6 @@ function createLiveContactMapDataSet(genome, contactMatrixViewDimensions, contac
     liveContactMapDataSet.createContactRecordList(hicState, contacts, ensembleManager.getLiveMapTraceLength())
 
     return { hicState, liveContactMapDataSet }
-
-}
-
-function createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
-
-    const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
-
-
-    // bin count
-    const binCount = traceLength
-
-    // bp-per-bin. Bin Size is synonymous with resolution
-    const binSize = (genomicEnd - genomicStart) / binCount
-
-    // canvas - pixel x pixel
-    const { width, height } = contactMatrixViewDimensions
-
-    // pixels-per-bin
-    const pixelSize = width/binCount
-
-    // x, y in Bin units
-    const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
-
-    // chromosome index
-    let { order } = chromosome
-
-    // IGV chromosome indices are off by one relative to Juicebox chromosomes
-    return new hic.State(1 + order, 1 + order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
 
 }
 
