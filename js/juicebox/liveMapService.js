@@ -14,8 +14,6 @@ class LiveMapService {
     constructor (distanceThreshold) {
 
         this.distanceThreshold = distanceThreshold
-        this.hicState = undefined
-        this.liveContactMapDataSet = undefined
         this.ensembleContactFrequencyArray = undefined
 
         this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
@@ -38,9 +36,9 @@ class LiveMapService {
 
             if ('ensemble' === data.traceOrEnsemble) {
 
-                this.liveContactMapDataSet.createContactRecordList(this.hicState, data.workerValuesBuffer, ensembleManager.getLiveMapTraceLength())
+                juiceboxPanel.browser.liveContactMapDataSet.createContactRecordList(juiceboxPanel.browser.liveContactMapState, data.workerValuesBuffer, ensembleManager.getLiveMapTraceLength())
 
-                await juiceboxPanel.renderWithLiveContactFrequencyData(this.hicState, this.liveContactMapDataSet, data.workerValuesBuffer, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+                await juiceboxPanel.renderWithLiveContactFrequencyData(juiceboxPanel.browser.liveContactMapState, juiceboxPanel.browser.liveContactMapDataSet, data.workerValuesBuffer, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
 
                 hideGlobalSpinner()
 
@@ -56,8 +54,11 @@ class LiveMapService {
 
         if ("DidLoadEnsembleFile" === type) {
 
-            this.hicState = new LiveMapState(ensembleManager, juiceboxPanel.browser.contactMatrixView)
-            this.liveContactMapDataSet = new LiveContactMapDataSet(igvPanel.browser.genome, ensembleManager)
+            juiceboxPanel.browser.liveContactMapState = new LiveMapState(ensembleManager, juiceboxPanel.browser.contactMatrixView)
+            juiceboxPanel.browser.liveContactMapDataSet = new LiveContactMapDataSet(igvPanel.browser.genome, ensembleManager)
+
+            juiceboxPanel.browser.layoutController.xAxisRuler.presentLiveMapRuler(juiceboxPanel.browser.liveContactMapState, juiceboxPanel.browser.liveContactMapDataSet)
+            juiceboxPanel.browser.layoutController.yAxisRuler.presentLiveMapRuler(juiceboxPanel.browser.liveContactMapState, juiceboxPanel.browser.liveContactMapDataSet)
 
             this.ensembleContactFrequencyArray = undefined
 
