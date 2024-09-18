@@ -16,7 +16,6 @@ class LiveContactMapService {
         this.distanceThreshold = distanceThreshold
         this.hicState = undefined
         this.liveContactMapDataSet = undefined
-        this.contactFrequencies = undefined
         this.ensembleContactFrequencyArray = undefined
 
         this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
@@ -37,21 +36,11 @@ class LiveContactMapService {
 
             console.log(`Contact Frequency ${ data.traceOrEnsemble } map received from worker`)
 
-            // this.allocateGlobalContactFrequencyBuffer(ensembleManager.getLiveMapTraceLength())
-
             if ('ensemble' === data.traceOrEnsemble) {
 
-                const { genomeAssembly } = ensembleManager
-                const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-                const traceLength = ensembleManager.getLiveMapTraceLength()
+                this.liveContactMapDataSet.createContactRecordList(this.hicState, data.workerValuesBuffer, ensembleManager.getLiveMapTraceLength())
 
-                const { hicState, liveContactMapDataSet } = updateContactRecords(igvPanel.browser.genome, juiceboxPanel.browser.contactMatrixView.getViewDimensions(), data.workerValuesBuffer, traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
-
-                this.hicState = hicState
-                this.liveContactMapDataSet = liveContactMapDataSet
-                this.contactFrequencies = data.workerValuesBuffer
-
-                await juiceboxPanel.renderWithLiveContactFrequencyData(this.hicState, this.liveContactMapDataSet, this.contactFrequencies, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+                await juiceboxPanel.renderWithLiveContactFrequencyData(this.hicState, this.liveContactMapDataSet, data.workerValuesBuffer, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
 
                 hideGlobalSpinner()
 
@@ -67,9 +56,9 @@ class LiveContactMapService {
 
         if ("DidLoadEnsembleFile" === type) {
 
-            this.hicState = undefined
-            this.liveContactMapDataSet = undefined
-            this.contactFrequencies = undefined
+            this.hicState = new LiveState(ensembleManager, juiceboxPanel.browser.contactMatrixView)
+            this.liveContactMapDataSet = new LiveContactMapDataSet(igvPanel.browser.genome, ensembleManager)
+
             this.ensembleContactFrequencyArray = undefined
 
             this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
@@ -128,18 +117,6 @@ class LiveContactMapService {
 function distanceThresholdEstimate(trace) {
     const { radius } = EnsembleManager.getTraceBounds(trace)
     return Math.floor(2 * radius / 4)
-}
-
-function updateContactRecords(genome, contactMatrixViewDimensions, contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
-
-    const liveContactMapDataSet = new LiveContactMapDataSet(genome, ensembleManager)
-
-    const hicState = new LiveState(ensembleManager, juiceboxPanel.browser.contactMatrixView)
-
-    liveContactMapDataSet.createContactRecordList(hicState, contacts, ensembleManager.getLiveMapTraceLength())
-
-    return { hicState, liveContactMapDataSet }
-
 }
 
 export { defaultDistanceThreshold }
