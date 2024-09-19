@@ -45,19 +45,10 @@ class DistanceMapPanel extends Panel {
 
         this.configureMouseHandlers(canvas_container)
 
+        // Initialize Trace Toggle state
+        this.traceToggleElement.click()
+
         this.configureWebWorker(new Worker(new URL('./distanceMapWorker.js', import.meta.url), {type: 'module'}))
-
-        document.getElementById('hic-live-distance-map-toggle-input').addEventListener('click', event => {
-
-            const label = document.getElementById('hic-live-distance-map-toggle-label')
-
-            if (label.innerText === 'Ensemble') {
-                label.innerText = 'Trace';
-            } else {
-                label.innerText = 'Ensemble';
-            }
-
-        })
 
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
@@ -77,6 +68,16 @@ class DistanceMapPanel extends Panel {
     }
 
     configureMouseHandlers(canvas_container){
+
+        this.ensembleToggleElement = document.getElementById('spacewalk-live-distance-map-toggle-ensemble')
+        this.ensembleToggleElement.addEventListener('click', () => {
+            console.log('Ensemble selected')
+        });
+
+        this.traceToggleElement = document.getElementById('spacewalk-live-distance-map-toggle-trace')
+        this.traceToggleElement.addEventListener('click', () => {
+            console.log('Trace selected')
+        });
 
         const horizontalLine = document.createElement('div')
         horizontalLine.classList.add('crosshair', 'horizontal')
@@ -135,6 +136,21 @@ class DistanceMapPanel extends Panel {
         });
     }
 
+    isTraceToggleChecked() {
+        return true === this.traceToggleElement.checked
+    }
+
+    isEnsembleToggleChecked() {
+        return true === this.ensembleToggleElement.checked
+    }
+
+    checkToggleState () {
+        if (this.ensembleToggleElement.checked) {
+            console.log('Current state: Ensemble');
+        } else if (this.traceToggleElement.checked) {
+            console.log('Current state: Trace');
+        }
+    }
     receiveEvent({ type, data }) {
 
         if ("DidSelectTrace" === type) {
