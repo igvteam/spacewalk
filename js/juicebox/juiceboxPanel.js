@@ -41,6 +41,15 @@ class JuiceboxPanel extends Panel {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         })
 
+        panel.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', async e => {
+            if (ensembleManager.datasource instanceof SWBDatasource) {
+                await ensembleManager.datasource.calculateLiveMapVertexLists()
+            }
+            liveMapService.updateEnsembleContactFrequencyCanvas(undefined)
+            this.present()
+
+        })
+
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
 
     }
@@ -66,27 +75,7 @@ class JuiceboxPanel extends Panel {
                 }
         }
 
-        try {
-            this.browser = await hic.restoreSession(container, session)
-            this.locus = config.locus
-        } catch (e) {
-            const error = new Error(`Error initializing Juicebox ${ e.message }`)
-            console.error(error.message)
-            alert(error.message)
-
-        }
-
-
-        document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', async e => {
-            if (ensembleManager.datasource instanceof SWBDatasource) {
-                await ensembleManager.datasource.calculateLiveMapVertexLists()
-            }
-            liveMapService.updateEnsembleContactFrequencyCanvas(undefined)
-            this.present()
-
-        })
-
-        this.attachMouseHandlersAndEventSubscribers()
+        await this.loadSession(session)
 
     }
 
@@ -94,9 +83,17 @@ class JuiceboxPanel extends Panel {
 
         this.detachMouseHandlers()
 
-        this.browser = await hic.restoreSession(document.querySelector('#spacewalk_juicebox_root_container'), session)
+        try {
+            this.browser = await hic.restoreSession(document.querySelector('#spacewalk_juicebox_root_container'), session)
+        } catch (e) {
+            const error = new Error(`Error loading Juicebox Session ${ e.message }`)
+            console.error(error.message)
+            alert(error.message)
+        }
 
-        setJuiceboxLiveState(this.browser)
+        if (ensembleManager.datasource) {
+            setJuiceboxLiveState(this.browser)
+        }
 
         this.attachMouseHandlersAndEventSubscribers()
 
@@ -258,10 +255,9 @@ class JuiceboxPanel extends Panel {
     }
 
     async colorPickerHandler(data) {
-        // if (this.browser.liveContactMapDataSet) {
-            console.log(`JuiceboxPanel - colorPicker(${ data }). renderWithLiveContactFrequencyData()`)
+        if (liveMapService.contactFrequencies) {
             await this.renderWithLiveContactFrequencyData(liveMapService.contactFrequencies, liveMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
-        // }
+        }
     }
 }
 
