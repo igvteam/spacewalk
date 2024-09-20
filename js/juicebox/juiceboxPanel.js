@@ -42,11 +42,21 @@ class JuiceboxPanel extends Panel {
         })
 
         panel.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', async e => {
-            if (ensembleManager.datasource instanceof SWBDatasource) {
-                await ensembleManager.datasource.calculateLiveMapVertexLists()
+
+            const { chr } = ensembleManager.locus
+            const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+
+            if (chromosome) {
+                if (ensembleManager.datasource instanceof SWBDatasource) {
+                    await ensembleManager.datasource.calculateLiveMapVertexLists()
+                }
+                liveMapService.updateEnsembleContactFrequencyCanvas(undefined)
+                this.present()
+            } else {
+                const str = `Can not create Live Contact Map. No valid genome for chromosome ${ chr }`
+                console.warn(str)
+                alert(str)
             }
-            liveMapService.updateEnsembleContactFrequencyCanvas(undefined)
-            this.present()
 
         })
 
@@ -285,22 +295,36 @@ function juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
     SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList: [ interpolantX, interpolantY ] } })
 }
 
+function isLiveMapSupported() {
+
+    const { chr } = ensembleManager.locus
+    const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+    if (undefined === chromosome) {
+        console.warn(`Live Maps are not available for chromosome ${ chr }. No associated genome found`)
+        return false
+    } else {
+        return true
+    }
+}
+
 function setJuiceboxLiveState(browser) {
 
-    const ctx = browser.contactMatrixView.ctx_live
-    ctx.transferFromImageBitmap(null)
+    if (true === isLiveMapSupported()){
+        const ctx = browser.contactMatrixView.ctx_live
+        ctx.transferFromImageBitmap(null)
 
-    // Create state and dataset
-    browser.liveContactMapState = new LiveMapState(ensembleManager, browser.contactMatrixView)
-    browser.liveContactMapDataSet = new LiveContactMapDataSet(igvPanel.browser.genome, ensembleManager)
+        // Create state and dataset
+        browser.liveContactMapState = new LiveMapState(ensembleManager, browser.contactMatrixView)
+        browser.liveContactMapDataSet = new LiveContactMapDataSet(igvPanel.browser.genome, ensembleManager)
 
-    // Update Juicebox rulers
-    browser.layoutController.xAxisRuler.presentLiveMapRuler(browser.liveContactMapState, browser.liveContactMapDataSet)
-    browser.layoutController.yAxisRuler.presentLiveMapRuler(browser.liveContactMapState, browser.liveContactMapDataSet)
+        // Update Juicebox rulers
+        browser.layoutController.xAxisRuler.presentLiveMapRuler(browser.liveContactMapState, browser.liveContactMapDataSet)
+        browser.layoutController.yAxisRuler.presentLiveMapRuler(browser.liveContactMapState, browser.liveContactMapDataSet)
 
-    if (!browser.contactMatrixView.mouseHandlersEnabled) {
-        browser.contactMatrixView.addMouseHandlers(browser.contactMatrixView.$viewport);
-        browser.contactMatrixView.mouseHandlersEnabled = true;
+        if (!browser.contactMatrixView.mouseHandlersEnabled) {
+            browser.contactMatrixView.addMouseHandlers(browser.contactMatrixView.$viewport);
+            browser.contactMatrixView.mouseHandlersEnabled = true;
+        }
     }
 
 }
