@@ -1,13 +1,14 @@
 import {ensembleManager, igvPanel, juiceboxPanel} from "../app.js"
 import EnsembleManager from "../ensembleManager.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
-import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils.js"
+import {hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas} from "../utils/utils.js"
 import {clamp} from "../utils/mathUtils.js"
+import {HICEvent} from "./juiceboxHelpful.js"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
 
-class LiveMapService {
+class LiveContactMapService {
 
     constructor (distanceThreshold) {
 
@@ -40,7 +41,7 @@ class LiveMapService {
                 this.contactFrequencies = data.workerValuesBuffer
                 juiceboxPanel.createContactRecordList(this.contactFrequencies, ensembleManager.getLiveMapTraceLength())
 
-                await juiceboxPanel.renderWithLiveContactFrequencyData(this.contactFrequencies, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+                await juiceboxPanel.renderLiveMapWithContactData(this.contactFrequencies, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
 
                 hideGlobalSpinner()
 
@@ -72,7 +73,9 @@ class LiveMapService {
         this.input.value = distanceThreshold.toString()
     }
 
-    getClassName(){ return 'LiveMapService' }
+    getClassName(){
+        return 'LiveContactMapService'
+    }
 
     updateEnsembleContactFrequencyCanvas(distanceThresholdOrUndefined) {
 
@@ -108,11 +111,57 @@ class LiveMapService {
     }
 }
 
+async function renderLiveMapWithContactData(browser, state, liveContactMapDataSet, frequencies, frequencyRGBAList, liveMapTraceLength) {
+
+    browser.eventBus.post(HICEvent('MapLoad', { dataset: liveContactMapDataSet, state }))
+
+    browser.locusGoto.doChangeLocus({ dataset: liveContactMapDataSet, state })
+
+    const zoomIndexA = state.zoom
+    const { chr1, chr2 } = state
+    const zoomData = liveContactMapDataSet.getZoomDataByIndex(chr1, chr2, zoomIndexA)
+
+    browser.contactMatrixView.checkColorScale_sw(browser, state, 'LIVE', liveContactMapDataSet, zoomData)
+
+    paintContactFrequencyArrayWithColorScale(browser.contactMatrixView.colorScale, frequencies, frequencyRGBAList, browser.contactMatrixView.backgroundColor)
+
+    await transferRGBAMatrixToLiveMapCanvas(browser.contactMatrixView.ctx_live, frequencyRGBAList, liveMapTraceLength)
+
+}
+
+function paintContactFrequencyArrayWithColorScale(colorScale, frequencies, frequencyRGBAList, backgroundRGB) {
+
+    const compositeColors = (foreRGBA, backRGB) => {
+
+        const alpha = foreRGBA.a / 255;
+
+        const r = Math.round(alpha * foreRGBA.r + (1 - alpha) * backRGB.r);
+        const g = Math.round(alpha * foreRGBA.g + (1 - alpha) * backRGB.g);
+        const b = Math.round(alpha * foreRGBA.b + (1 - alpha) * backRGB.b);
+
+        return { r, g, b };
+    }
+
+
+    let i = 0
+    for (const frequency of frequencies) {
+
+        const { red, green, blue, alpha } = colorScale.getColor(frequency)
+        const foregroundRGBA = { r:red, g:green, b:blue, a:alpha }
+        const { r, g, b } = compositeColors(foregroundRGBA, backgroundRGB)
+
+        frequencyRGBAList[i++] = r
+        frequencyRGBAList[i++] = g
+        frequencyRGBAList[i++] = b
+        frequencyRGBAList[i++] = 255
+    }
+}
+
 function distanceThresholdEstimate(trace) {
     const { radius } = EnsembleManager.getTraceBounds(trace)
     return Math.floor(2 * radius / 4)
 }
 
-export { defaultDistanceThreshold }
+export { defaultDistanceThreshold, renderLiveMapWithContactData }
 
-export default LiveMapService
+export default LiveContactMapService

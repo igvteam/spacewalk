@@ -13,8 +13,9 @@ import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import GUIManager from "./guiManager.js";
-import LiveMapService, {defaultDistanceThreshold} from "./juicebox/liveMapService.js";
-import DistanceMapPanel, {distanceMapPanelConfigurator} from "./distanceMapPanel.js";
+import LiveContactMapService, {defaultDistanceThreshold} from "./juicebox/liveContactMapService.js";
+import LiveDistanceMapService from "./juicebox/liveDistanceMapService.js";
+import DistanceMapPanel, {distanceMapPanelConfigurator} from "./juicebox/distanceMapPanel.js";
 import TraceSelect from './traceSelect.js'
 import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
@@ -44,7 +45,8 @@ let dataValueMaterialProvider;
 let colorRampMaterialProvider;
 let guiManager
 let distanceMapPanel
-let liveMapService
+let liveContactMapService
+let liveDistanceMapService
 let juiceboxPanel
 let igvPanel
 let traceSelect
@@ -277,7 +279,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
 
-    liveMapService = new LiveMapService(distanceThreshold)
+    liveContactMapService = new LiveContactMapService(distanceThreshold)
 
     const $dropdownButton = $('#spacewalk-contact-map-dropdown')
     const $dropdowns = $dropdownButton.parent()
@@ -300,6 +302,8 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
     configureContactMapLoaders(contactMapLoadConfig)
 
     createShareWidgets(shareWidgetConfigurator({ provider: 'tinyURL' }))
+
+    liveDistanceMapService = new LiveDistanceMapService()
 
     distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_distance_map_panel')}));
     document.querySelector('#spacewalk_contact_frequency_map_panel')
@@ -344,6 +348,7 @@ export {
     guiManager,
     juiceboxPanel,
     distanceMapPanel,
-    liveMapService,
+    liveContactMapService,
+    liveDistanceMapService,
     igvPanel,
     traceNavigator }

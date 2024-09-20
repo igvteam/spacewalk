@@ -137,7 +137,7 @@ function fillRGBAMatrix(rgbaMatrix, matrixDimension, rgb255) {
 
 }
 
-async function transferRGBAMatrixToLiveDistanceMapCanvas(ctx, rgbaMatrix, matrixDimension) {
+async function transferRGBAMatrixToLiveMapCanvas(ctx, rgbaMatrix, matrixDimension) {
 
     const imageData = new ImageData(rgbaMatrix, matrixDimension, matrixDimension)
 
@@ -169,7 +169,7 @@ export {
     setMaterialProvider,
     fillRGBAMatrix,
     createImage,
-    transferRGBAMatrixToLiveDistanceMapCanvas,
+    transferRGBAMatrixToLiveMapCanvas,
     readFileAsDataURL,
     fitToContainer,
     getMouseXY,

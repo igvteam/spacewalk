@@ -1,10 +1,10 @@
-import hic from 'juicebox.js'
+import hic from '../../node_modules/juicebox.js/js/index.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
 import {
     ballAndStick,
     colorRampMaterialProvider,
-    liveMapService,
+    liveContactMapService,
     ensembleManager,
     ribbon,
     igvPanel, juiceboxPanel
@@ -13,6 +13,8 @@ import SWBDatasource from "../datasource/SWBDatasource.js"
 import {makeDraggable} from "../utils/draggable.js"
 import LiveMapState from "./liveMapState.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
+import { renderLiveMapWithContactData } from "./liveContactMapService.js"
+import { renderLiveMapWithDistanceData } from './liveDistanceMapService.js'
 
 class JuiceboxPanel extends Panel {
 
@@ -50,7 +52,7 @@ class JuiceboxPanel extends Panel {
                 if (ensembleManager.datasource instanceof SWBDatasource) {
                     await ensembleManager.datasource.calculateLiveMapVertexLists()
                 }
-                liveMapService.updateEnsembleContactFrequencyCanvas(undefined)
+                liveContactMapService.updateEnsembleContactFrequencyCanvas(undefined)
                 this.present()
             } else {
                 const str = `Can not create Live Contact Map. No valid genome for chromosome ${ chr }`
@@ -260,13 +262,17 @@ class JuiceboxPanel extends Panel {
         this.browser.liveContactMapDataSet.createContactRecordList(contactFrequencies, liveMapTraceLength)
     }
 
-    async renderWithLiveContactFrequencyData(contactFrequencies, contactFrequencyArray, liveMapTraceLength) {
-        await this.browser.contactMatrixView.renderWithLiveContactFrequencyData(this.browser.liveContactMapState, this.browser.liveContactMapDataSet, contactFrequencies, contactFrequencyArray, liveMapTraceLength)
+    async renderLiveMapWithContactData(contactFrequencies, contactFrequencyArray, liveMapTraceLength) {
+        await renderLiveMapWithContactData(this.browser, this.browser.liveContactMapState, this.browser.liveContactMapDataSet, contactFrequencies, contactFrequencyArray, liveMapTraceLength)
+    }
+
+    async renderLiveMapWithDistanceData(distances, maxDistance, rgbaMatrix, liveMapTraceLength) {
+        await renderLiveMapWithDistanceData(this.browser, distances, maxDistance, rgbaMatrix, liveMapTraceLength)
     }
 
     async colorPickerHandler(data) {
-        if (liveMapService.contactFrequencies) {
-            await this.renderWithLiveContactFrequencyData(liveMapService.contactFrequencies, liveMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+        if (liveContactMapService.contactFrequencies) {
+            await this.renderLiveMapWithContactData(liveContactMapService.contactFrequencies, liveContactMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
         }
     }
 }

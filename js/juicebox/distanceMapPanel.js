@@ -1,10 +1,10 @@
-import { colorMapManager, ensembleManager } from "./app.js";
-import { clamp } from "./utils/mathUtils.js";
-import Panel from "./panel.js";
-import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "./utils/colorUtils.js";
-import {fillRGBAMatrix, transferRGBAMatrixToLiveDistanceMapCanvas} from "./utils/utils.js"
-import SpacewalkEventBus from "./spacewalkEventBus.js"
-import SWBDatasource from "./datasource/SWBDatasource.js"
+import { colorMapManager, ensembleManager } from "../app.js";
+import { clamp } from "../utils/mathUtils.js";
+import Panel from "../panel.js";
+import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "../utils/colorUtils.js";
+import {fillRGBAMatrix, transferRGBAMatrixToLiveMapCanvas} from "../utils/utils.js"
+import SpacewalkEventBus from "../spacewalkEventBus.js"
+import SWBDatasource from "../datasource/SWBDatasource.js"
 
 const kDistanceUndefined = -1
 
@@ -151,6 +151,7 @@ class DistanceMapPanel extends Panel {
             console.log('Current state: Trace');
         }
     }
+
     receiveEvent({ type, data }) {
 
         if ("DidSelectTrace" === type) {
@@ -173,12 +174,12 @@ class DistanceMapPanel extends Panel {
             this.ctx_trace.transferFromImageBitmap(null)
             this.ctx_ensemble.transferFromImageBitmap(null)
 
-            // if (false === this.isHidden) {
-            //     this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
-            //     const { trace } = data
-            //     this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), trace)
-            //     this.doUpdateTrace = this.doUpdateEnsemble = undefined
-            // }
+            if (false === this.isHidden) {
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
+                const { trace } = data
+                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), trace)
+                this.doUpdateTrace = this.doUpdateEnsemble = undefined
+            }
 
         }
 
@@ -238,6 +239,7 @@ class DistanceMapPanel extends Panel {
                 verticesString: JSON.stringify(vertices),
             }
 
+
         this.worker.postMessage(data)
 
     }
@@ -279,17 +281,20 @@ function processWebWorkerResults(data) {
     document.querySelector('#spacewalk-distance-map-spinner').style.display = 'none'
 
     const traceLength = ensembleManager.getLiveMapTraceLength()
+    const arrayLength = traceLength * traceLength * 4
 
-    if (undefined === this.rgbaMatrix) {
-        this.rgbaMatrix = new Uint8ClampedArray(traceLength * traceLength * 4)
+    if (undefined === this.rgbaMatrix || this.rgbaMatrix.length !== arrayLength) {
+        this.rgbaMatrix = new Uint8ClampedArray(arrayLength)
+    } else {
+        this.rgbaMatrix.fill(0)
     }
 
     if ('trace' === data.traceOrEnsemble) {
         setDistanceMapRGBAMatrix(this.rgbaMatrix, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-        transferRGBAMatrixToLiveDistanceMapCanvas(this.ctx_trace, this.rgbaMatrix, traceLength)
+        transferRGBAMatrixToLiveMapCanvas(this.ctx_trace, this.rgbaMatrix, traceLength)
     } else {
         setDistanceMapRGBAMatrix(this.rgbaMatrix, data.workerDistanceBuffer, data.maxDistance, colorMapManager.dictionary['juicebox_default'])
-        transferRGBAMatrixToLiveDistanceMapCanvas(this.ctx_ensemble, this.rgbaMatrix, traceLength)
+        transferRGBAMatrixToLiveMapCanvas(this.ctx_ensemble, this.rgbaMatrix, traceLength)
     }
 }
 
