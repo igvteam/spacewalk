@@ -4,6 +4,7 @@ import { appleCrayonColorRGB255 } from "../utils/colorUtils.js";
 import { fillRGBAMatrix, hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas } from "../utils/utils.js"
 import {compositeColors} from "../utils/colorUtils.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
+import {distance} from "three/nodes"
 
 const kDistanceUndefined = -1
 
@@ -28,13 +29,23 @@ class LiveDistanceMapService {
 
         this.ensembleToggleElement = document.getElementById('spacewalk-live-distance-map-toggle-ensemble')
         this.ensembleToggleElement.addEventListener('click', () => {
-            console.log('Ensemble selected')
-        });
+            console.log('LiveDistanceMapService. Ensemble Mode Selected')
+        })
 
         this.traceToggleElement = document.getElementById('spacewalk-live-distance-map-toggle-trace')
         this.traceToggleElement.addEventListener('click', () => {
-            console.log('Trace selected')
-        });
+            console.log('LiveDistanceMapService. Trace Mode Selected')
+        })
+
+        this.calculateDistanceMapButton = document.getElementById('hic-calculation-live-distance-button')
+
+        this.calculateDistanceMapButton.addEventListener('click', event => {
+            if (this.isEnsembleToggleChecked()) {
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
+            } else if (this.isTraceToggleChecked()) {
+                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+            }
+        })
 
     }
 
@@ -46,23 +57,18 @@ class LiveDistanceMapService {
         return true === this.ensembleToggleElement.checked
     }
 
-    checkToggleState () {
-        if (this.ensembleToggleElement.checked) {
-            console.log('Current state: Ensemble');
-        } else if (this.traceToggleElement.checked) {
-            console.log('Current state: Trace');
-        }
-    }
-
     receiveEvent({ type, data }) {
 
         const { trace } = data
 
         if ("DidSelectTrace" === type) {
-            this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), trace)
+            if (this.isTraceToggleChecked()) {
+                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), trace)
+            }
         } else if ("DidLoadEnsembleFile" === type) {
-            this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
-            this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), trace)
+            if (this.isEnsembleToggleChecked()) {
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
+            }
         }
 
     }
@@ -116,7 +122,7 @@ async function processWebWorkerResults(data) {
         this.rgbaMatrix.fill(0)
     }
 
-    this.distances = data.workerValuesBuffer
+    this.distances = data.workerDistanceBuffer
     this.maxDistance = data.maxDistance
     await juiceboxPanel.renderLiveMapWithDistanceData(this.distances, this.maxDistance, this.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
 
@@ -133,6 +139,8 @@ function paintDistanceMapRGBAMatrix(distances, maxDistance, rgbaMatrix, colorSca
     fillRGBAMatrix(rgbaMatrix, distances.length, appleCrayonColorRGB255('tin'))
 
     let i = 0;
+    const { r, g, b } = colorScale.getColorComponents()
+
     for (let distance of distances) {
 
         if (kDistanceUndefined !== distance) {
@@ -145,15 +153,14 @@ function paintDistanceMapRGBAMatrix(distances, maxDistance, rgbaMatrix, colorSca
                 console.warn(`${ Date.now() } populateCanvasArray - interpolant out of range ${ rawInterpolant }`)
             }
 
-            const { red, green, blue } = colorScale.getColorComponents()
             const alpha = Math.floor(255 * clamp(nearness, 0, maxDistance) / maxDistance)
-            const foregroundRGBA = { r:red, g:green, b:blue, a:alpha }
+            const foregroundRGBA = { r, g, b, a:alpha }
 
-            const { r, g, b } = compositeColors(foregroundRGBA, backgroundRGB)
+            const { r:comp_r, g:comp_g, b:comp_b } = compositeColors(foregroundRGBA, backgroundRGB)
 
-            rgbaMatrix[i] = r;
-            rgbaMatrix[i + 1] = g;
-            rgbaMatrix[i + 2] = b;
+            rgbaMatrix[i    ] = comp_r;
+            rgbaMatrix[i + 1] = comp_g;
+            rgbaMatrix[i + 2] = comp_b;
             rgbaMatrix[i + 3] = 255;
         }
 

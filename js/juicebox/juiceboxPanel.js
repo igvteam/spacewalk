@@ -263,15 +263,19 @@ class JuiceboxPanel extends Panel {
     }
 
     async renderLiveMapWithContactData(contactFrequencies, contactFrequencyArray, liveMapTraceLength) {
+        console.log('JuiceboxPanel. Render Live Contact Map')
         await renderLiveMapWithContactData(this.browser, this.browser.liveContactMapState, this.browser.liveContactMapDataSet, contactFrequencies, contactFrequencyArray, liveMapTraceLength)
     }
 
     async renderLiveMapWithDistanceData(distances, maxDistance, rgbaMatrix, liveMapTraceLength) {
+        console.log('JuiceboxPanel. Render Live Distance Map')
         await renderLiveMapWithDistanceData(this.browser, distances, maxDistance, rgbaMatrix, liveMapTraceLength)
     }
 
     async colorPickerHandler(data) {
         if (liveContactMapService.contactFrequencies) {
+
+            console.log('JuiceboxPanel.colorPickerHandler(). Will render Live Contact Map')
             await this.renderLiveMapWithContactData(liveContactMapService.contactFrequencies, liveContactMapService.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
         }
     }
@@ -337,34 +341,32 @@ function setJuiceboxLiveState(browser) {
 
 function tabEventHandler(event) {
     tabAssessment(juiceboxPanel.browser, event.target);
-    console.log(`Juicebox panel: ${event.target.id} tab selection`);
 }
 
 function tabAssessment(browser, activeTabButton) {
+
+    console.log(`JuiceboxPanel. Tab ${ activeTabButton.id } is active`);
 
     switch (activeTabButton.id) {
         case 'spacewalk-juicebox-panel-hic-map-tab':
             document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'none'
             document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
             document.getElementById('hic-file-chooser-dropdown').style.display = 'block'
-            browser.contactMatrixView.assessPanelTabSelection(false)
-            console.log('HIC Map Tab is active');
+            browser.contactMatrixView.assessTabSelection(false)
             break;
 
         case 'spacewalk-juicebox-panel-live-map-tab':
             document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'none'
             document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'block'
             document.getElementById('hic-file-chooser-dropdown').style.display = 'none'
-            browser.contactMatrixView.assessPanelTabSelection(true)
-            console.log('Live Map Tab is active');
+            browser.contactMatrixView.assessTabSelection(true)
             break;
 
         case 'spacewalk-juicebox-panel-live-distance-map-tab':
             document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'block'
             document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
             document.getElementById('hic-file-chooser-dropdown').style.display = 'none'
-            browser.contactMatrixView.assessPanelTabSelection(true)
-            console.log('Live Distance Map Tab is active');
+            browser.contactMatrixView.assessTabSelection(true)
             break;
 
         default:

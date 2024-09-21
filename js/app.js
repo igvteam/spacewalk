@@ -15,7 +15,6 @@ import BallAndStick from "./ballAndStick.js";
 import GUIManager from "./guiManager.js";
 import LiveContactMapService, {defaultDistanceThreshold} from "./juicebox/liveContactMapService.js";
 import LiveDistanceMapService from "./juicebox/liveDistanceMapService.js";
-import DistanceMapPanel, {distanceMapPanelConfigurator} from "./juicebox/distanceMapPanel.js";
 import TraceSelect from './traceSelect.js'
 import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
@@ -44,7 +43,6 @@ let sceneManager;
 let dataValueMaterialProvider;
 let colorRampMaterialProvider;
 let guiManager
-let distanceMapPanel
 let liveContactMapService
 let liveDistanceMapService
 let juiceboxPanel
@@ -305,11 +303,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
 
     liveDistanceMapService = new LiveDistanceMapService()
 
-    distanceMapPanel = new DistanceMapPanel(distanceMapPanelConfigurator({ container, isHidden: doInspectPanelVisibilityCheckbox('spacewalk_distance_map_panel')}));
-    document.querySelector('#spacewalk_contact_frequency_map_panel')
-    doInspectPanelVisibilityCheckbox('spacewalk_contact_frequency_map_panel')
-
-    Panel.setPanelDictionary([ igvPanel, juiceboxPanel, distanceMapPanel ]);
+    Panel.setPanelDictionary([ igvPanel, juiceboxPanel ]);
 
     $(window).on('resize.app', e => {
 
@@ -347,7 +341,6 @@ export {
     dataValueMaterialProvider,
     guiManager,
     juiceboxPanel,
-    distanceMapPanel,
     liveContactMapService,
     liveDistanceMapService,
     igvPanel,

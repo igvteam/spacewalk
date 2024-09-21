@@ -279,13 +279,6 @@
                 </label>
               </li>
 
-              <!-- Distance Map -->
-              <li>
-                <label>
-                  <input id="spacewalk_ui_manager_ui_controls_distance_map" data-target="spacewalk_distance_map_panel" type="checkbox">
-                  Show Distance Map
-                </label>
-              </li>
             </ul>
           </div>
         </li>
@@ -604,7 +597,7 @@
                     <input type="radio" name="options" id="spacewalk-live-distance-map-toggle-trace" autocomplete="off"> Trace
                   </label>
                 </div>
-                <button id="hic-live-distance-map-button" type="button" class="btn btn-sm btn-outline-secondary ms-2">Calculate Live Map</button>
+                <button id="hic-calculation-live-distance-button" type="button" class="btn btn-sm btn-outline-secondary ms-2">Calculate Live Map</button>
               </div>
             </li>
 
@@ -678,47 +671,6 @@
 
           <!-- igv browser container -->
           <div id="spacewalk_igv_root_container"></div>
-        </div>
-      </div>
-
-      <!-- distance-map panel -->
-      <div id="spacewalk_distance_map_panel" class="card">
-
-        <div class="card-header">
-
-          <!-- drag handle -->
-          <div class="spacewalk_card_drag_container">
-            <i class="fas fa-square-full"></i>
-            <i class="fas fa-lg fa-grip-horizontal"></i>
-            <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_distance_map"></i>
-          </div>
-
-          <div class="text-center">
-            Distance Map
-          </div>
-
-          <ul class="nav nav-tabs card-header-tabs">
-            <li class="nav-item">
-              <a class="nav-link active" data-bs-toggle="tab" href="#spacewalk_distance_map_canvas_trace">Trace</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#spacewalk_distance_map_canvas_ensemble">Ensemble</a>
-            </li>
-          </ul>
-
-        </div>
-
-        <div id="spacewalk_distance_map_panel_body" class="card-body p-0">
-
-          <div id="spacewalk_distance_map_panel_container" class="tab-content">
-
-            <div class="spacewalk-spinner-container d-flex align-items-center justify-content-center">
-              <div id="spacewalk-distance-map-spinner" class="spinner-border text-secondary" style="display:none; width: 5rem; height: 5rem;"></div>
-            </div>
-
-            <canvas id="spacewalk_distance_map_canvas_trace" class="tab-pane active"></canvas>
-            <canvas id="spacewalk_distance_map_canvas_ensemble" class="tab-pane"></canvas>
-          </div>
         </div>
       </div>
 
