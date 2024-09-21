@@ -1,4 +1,4 @@
-import hic from '../../node_modules/juicebox.js/js/index.js'
+import hic from 'juicebox.js'
 import {igvPanel} from "../app.js"
 
 class LiveMapState extends hic.State {
