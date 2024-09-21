@@ -1,15 +1,9 @@
-import {colorMapManager, ensembleManager, juiceboxPanel} from "../app.js";
+import {ensembleManager, juiceboxPanel} from "../app.js";
 import { clamp } from "../utils/mathUtils.js";
-import { appleCrayonColorRGB255, threeJSColorToRGB255 } from "../utils/colorUtils.js";
-import {
-    fillRGBAMatrix,
-    hideGlobalSpinner,
-    showGlobalSpinner,
-    transferRGBAMatrixToLiveMapCanvas
-} from "../utils/utils.js"
+import { appleCrayonColorRGB255 } from "../utils/colorUtils.js";
+import { fillRGBAMatrix, hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas } from "../utils/utils.js"
+import {compositeColors} from "../utils/colorUtils.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
-import {HICEvent} from "./juiceboxHelpful"
-import {exp} from "three/nodes"
 
 const kDistanceUndefined = -1
 
@@ -25,8 +19,8 @@ class LiveDistanceMapService {
             await processWebWorkerResults.call(this, data)
         }, false)
 
-        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
-        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+        // SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
+        // SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 
@@ -130,14 +124,11 @@ async function processWebWorkerResults(data) {
 }
 
 async function renderLiveMapWithDistanceData(browser, distances, maxDistance, rgbaMatrix, liveMapTraceLength) {
-
-    setDistanceMapRGBAMatrix(distances, maxDistance, rgbaMatrix, browser.contactMatrixView.backgroundColor)
-
+    paintDistanceMapRGBAMatrix(distances, maxDistance, rgbaMatrix, browser.contactMatrixView.colorScale, browser.contactMatrixView.backgroundColor)
     await transferRGBAMatrixToLiveMapCanvas(browser.contactMatrixView.ctx_live_distance, rgbaMatrix, liveMapTraceLength)
-
 }
 
-function setDistanceMapRGBAMatrix(distances, maxDistance, rgbaMatrix, backgroundRGB) {
+function paintDistanceMapRGBAMatrix(distances, maxDistance, rgbaMatrix, colorScale, backgroundRGB) {
 
     fillRGBAMatrix(rgbaMatrix, distances.length, appleCrayonColorRGB255('tin'))
 
@@ -154,10 +145,11 @@ function setDistanceMapRGBAMatrix(distances, maxDistance, rgbaMatrix, background
                 console.warn(`${ Date.now() } populateCanvasArray - interpolant out of range ${ rawInterpolant }`)
             }
 
-            const alpha = clamp(nearness, 0, maxDistance) / maxDistance
-            const colorIndex = Math.floor(scale * interpolant)
+            const { red, green, blue } = colorScale.getColorComponents()
+            const alpha = Math.floor(255 * clamp(nearness, 0, maxDistance) / maxDistance)
+            const foregroundRGBA = { r:red, g:green, b:blue, a:alpha }
 
-            const { r, g, b } = threeJSColorToRGB255(colorMap[ colorIndex ][ 'threejs' ])
+            const { r, g, b } = compositeColors(foregroundRGBA, backgroundRGB)
 
             rgbaMatrix[i] = r;
             rgbaMatrix[i + 1] = g;

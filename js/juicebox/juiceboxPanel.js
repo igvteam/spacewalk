@@ -272,7 +272,7 @@ class JuiceboxPanel extends Panel {
 
     async colorPickerHandler(data) {
         if (liveContactMapService.contactFrequencies) {
-            await this.renderLiveMapWithContactData(liveContactMapService.contactFrequencies, liveContactMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+            await this.renderLiveMapWithContactData(liveContactMapService.contactFrequencies, liveContactMapService.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
         }
     }
 }

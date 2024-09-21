@@ -4,6 +4,7 @@ import SpacewalkEventBus from "../spacewalkEventBus.js"
 import {hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas} from "../utils/utils.js"
 import {clamp} from "../utils/mathUtils.js"
 import {HICEvent} from "./juiceboxHelpful.js"
+import {compositeColors} from "../utils/colorUtils.js"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
@@ -13,10 +14,6 @@ class LiveContactMapService {
     constructor (distanceThreshold) {
 
         this.distanceThreshold = distanceThreshold
-
-        this.contactFrequencies = undefined
-
-        this.ensembleContactFrequencyArray = undefined
 
         this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
         this.input.value = distanceThreshold.toString()
@@ -33,20 +30,7 @@ class LiveContactMapService {
         this.worker = new Worker(new URL('./liveContactMapWorker.js', import.meta.url), { type: 'module' })
 
         this.worker.addEventListener('message', async ({ data }) => {
-
-            console.log(`Contact Frequency ${ data.traceOrEnsemble } map received from worker`)
-
-            if ('ensemble' === data.traceOrEnsemble) {
-
-                this.contactFrequencies = data.workerValuesBuffer
-                juiceboxPanel.createContactRecordList(this.contactFrequencies, ensembleManager.getLiveMapTraceLength())
-
-                await juiceboxPanel.renderLiveMapWithContactData(this.contactFrequencies, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
-
-                hideGlobalSpinner()
-
-            }
-
+            await processWebWorkerResults.call(this, data)
         }, false)
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
@@ -56,15 +40,10 @@ class LiveContactMapService {
     receiveEvent({ type, data }) {
 
         if ("DidLoadEnsembleFile" === type) {
-
             this.contactFrequencies = undefined
-
-            const traceLength = ensembleManager.getLiveMapTraceLength()
-            this.ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
-
+            this.rgbaMatrix = undefined
             this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
             this.input.value = this.distanceThreshold.toString()
-
         }
     }
 
@@ -111,6 +90,25 @@ class LiveContactMapService {
     }
 }
 
+async function processWebWorkerResults(data){
+
+    const traceLength = ensembleManager.getLiveMapTraceLength()
+    const arrayLength = traceLength * traceLength * 4
+
+    if (undefined === this.rgbaMatrix || this.rgbaMatrix.length !== arrayLength) {
+        this.rgbaMatrix = new Uint8ClampedArray(arrayLength)
+    } else {
+        this.rgbaMatrix.fill(0)
+    }
+
+    this.contactFrequencies = data.workerValuesBuffer
+    juiceboxPanel.createContactRecordList(this.contactFrequencies, ensembleManager.getLiveMapTraceLength())
+
+    await juiceboxPanel.renderLiveMapWithContactData(this.contactFrequencies, this.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
+
+    hideGlobalSpinner()
+}
+
 async function renderLiveMapWithContactData(browser, state, liveContactMapDataSet, frequencies, frequencyRGBAList, liveMapTraceLength) {
 
     browser.eventBus.post(HICEvent('MapLoad', { dataset: liveContactMapDataSet, state }))
@@ -123,25 +121,13 @@ async function renderLiveMapWithContactData(browser, state, liveContactMapDataSe
 
     browser.contactMatrixView.checkColorScale_sw(browser, state, 'LIVE', liveContactMapDataSet, zoomData)
 
-    paintContactFrequencyArrayWithColorScale(browser.contactMatrixView.colorScale, frequencies, frequencyRGBAList, browser.contactMatrixView.backgroundColor)
+    paintContactMapGBAMatrix(frequencies, frequencyRGBAList, browser.contactMatrixView.colorScale, browser.contactMatrixView.backgroundColor)
 
     await transferRGBAMatrixToLiveMapCanvas(browser.contactMatrixView.ctx_live, frequencyRGBAList, liveMapTraceLength)
 
 }
 
-function paintContactFrequencyArrayWithColorScale(colorScale, frequencies, frequencyRGBAList, backgroundRGB) {
-
-    const compositeColors = (foreRGBA, backRGB) => {
-
-        const alpha = foreRGBA.a / 255;
-
-        const r = Math.round(alpha * foreRGBA.r + (1 - alpha) * backRGB.r);
-        const g = Math.round(alpha * foreRGBA.g + (1 - alpha) * backRGB.g);
-        const b = Math.round(alpha * foreRGBA.b + (1 - alpha) * backRGB.b);
-
-        return { r, g, b };
-    }
-
+function paintContactMapGBAMatrix(frequencies, rgbaMatrix, colorScale, backgroundRGB) {
 
     let i = 0
     for (const frequency of frequencies) {
@@ -150,10 +136,10 @@ function paintContactFrequencyArrayWithColorScale(colorScale, frequencies, frequ
         const foregroundRGBA = { r:red, g:green, b:blue, a:alpha }
         const { r, g, b } = compositeColors(foregroundRGBA, backgroundRGB)
 
-        frequencyRGBAList[i++] = r
-        frequencyRGBAList[i++] = g
-        frequencyRGBAList[i++] = b
-        frequencyRGBAList[i++] = 255
+        rgbaMatrix[i++] = r
+        rgbaMatrix[i++] = g
+        rgbaMatrix[i++] = b
+        rgbaMatrix[i++] = 255
     }
 }
 
