@@ -14,7 +14,7 @@ class LiveDistanceMapService {
 
         this.configureMouseHandlers()
 
-        this.worker = new Worker(new URL('./distanceMapWorker.js', import.meta.url), {type: 'module'})
+        this.worker = new Worker(new URL('./liveDistanceMapWorker.js', import.meta.url), {type: 'module'})
 
         this.worker.addEventListener('message', async ( { data }) => {
             await processWebWorkerResults.call(this, data)
