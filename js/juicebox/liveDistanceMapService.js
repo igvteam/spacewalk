@@ -4,7 +4,7 @@ import { appleCrayonColorRGB255 } from "../utils/colorUtils.js";
 import { fillRGBAMatrix, hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas } from "../utils/utils.js"
 import {compositeColors} from "../utils/colorUtils.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
-import {distance} from "three/nodes"
+import SWBDatasource from "../datasource/SWBDatasource.js"
 
 const kDistanceUndefined = -1
 
@@ -29,21 +29,33 @@ class LiveDistanceMapService {
 
         this.ensembleToggleElement = document.getElementById('spacewalk-live-distance-map-toggle-ensemble')
         this.ensembleToggleElement.addEventListener('click', () => {
-            console.log('LiveDistanceMapService. Ensemble Mode Selected')
+            if (ensembleManager.datasource instanceof SWBDatasource) {
+                ensembleManager.datasource.distanceMapPresentationHandler(() => {
+                    this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
+                })
+            }
         })
 
         this.traceToggleElement = document.getElementById('spacewalk-live-distance-map-toggle-trace')
         this.traceToggleElement.addEventListener('click', () => {
-            console.log('LiveDistanceMapService. Trace Mode Selected')
+            if (ensembleManager.datasource instanceof SWBDatasource) {
+                ensembleManager.datasource.distanceMapPresentationHandler(() => {
+                    this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+                })
+            }
         })
 
         this.calculateDistanceMapButton = document.getElementById('hic-calculation-live-distance-button')
 
         this.calculateDistanceMapButton.addEventListener('click', event => {
-            if (this.isEnsembleToggleChecked()) {
-                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
-            } else if (this.isTraceToggleChecked()) {
-                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+            if (ensembleManager.datasource instanceof SWBDatasource) {
+                ensembleManager.datasource.distanceMapPresentationHandler(() => {
+                    if (this.isEnsembleToggleChecked()) {
+                        this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
+                    } else if (this.isTraceToggleChecked()) {
+                        this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+                    }
+                })
             }
         })
 

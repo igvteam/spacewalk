@@ -5,6 +5,7 @@ import {
     ballAndStick,
     colorRampMaterialProvider,
     liveContactMapService,
+    liveDistanceMapService,
     ensembleManager,
     ribbon,
     igvPanel, juiceboxPanel
@@ -274,10 +275,14 @@ class JuiceboxPanel extends Panel {
 
     async colorPickerHandler(data) {
         if (liveContactMapService.contactFrequencies) {
-
             console.log('JuiceboxPanel.colorPickerHandler(). Will render Live Contact Map')
             await this.renderLiveMapWithContactData(liveContactMapService.contactFrequencies, liveContactMapService.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
         }
+        if (liveDistanceMapService.distances) {
+            console.log('JuiceboxPanel.colorPickerHandler(). Will render Live Distance Map')
+            await this.renderLiveMapWithDistanceData(liveDistanceMapService.distances, liveDistanceMapService.maxDistance, liveDistanceMapService.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
+        }
+
     }
 }
 
