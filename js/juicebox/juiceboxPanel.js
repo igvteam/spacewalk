@@ -1,4 +1,4 @@
-import hic from 'juicebox.js'
+import hic from '../../node_modules/juicebox.js/js/index.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
 import {
@@ -124,6 +124,13 @@ class JuiceboxPanel extends Panel {
 
         this.browser.eventBus.subscribe('DidUpdateColor', async ({ data }) => {
             await this.colorPickerHandler(data)
+        })
+
+        this.browser.eventBus.subscribe('DidUpdateColorScaleThreshold', async ({ data }) => {
+            const { threshold, r, g, b } = data
+            console.log('JuiceboxPanel. Render Live Contact Map')
+            await this.renderLiveMapWithContactData(liveContactMapService.contactFrequencies, liveContactMapService.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
+
         })
 
         this.browser.eventBus.subscribe('MapLoad', async event => {
