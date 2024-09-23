@@ -102,9 +102,9 @@ async function processWebWorkerResults(data){
     }
 
     this.contactFrequencies = data.workerValuesBuffer
-    juiceboxPanel.createContactRecordList(this.contactFrequencies, ensembleManager.getLiveMapTraceLength())
+    juiceboxPanel.createContactRecordList(this.contactFrequencies, traceLength)
 
-    await juiceboxPanel.renderLiveMapWithContactData(this.contactFrequencies, this.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
+    await juiceboxPanel.renderLiveMapWithContactData(this.contactFrequencies, this.rgbaMatrix, traceLength)
 
     hideGlobalSpinner()
 }

@@ -267,7 +267,7 @@ class JuiceboxPanel extends Panel {
     }
 
     createContactRecordList(contactFrequencies, liveMapTraceLength) {
-        this.browser.liveContactMapDataSet.createContactRecordList(contactFrequencies, liveMapTraceLength)
+        this.browser.liveContactMapDataSet.createContactRecordList(this.browser.liveContactMapState, contactFrequencies, liveMapTraceLength)
     }
 
     async renderLiveMapWithContactData(contactFrequencies, contactFrequencyArray, liveMapTraceLength) {
