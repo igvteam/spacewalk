@@ -1,7 +1,7 @@
 import {ensembleManager, juiceboxPanel} from "../app.js";
 import { clamp } from "../utils/mathUtils.js";
-import { appleCrayonColorRGB255 } from "../utils/colorUtils.js";
-import { fillRGBAMatrix, hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas } from "../utils/utils.js"
+import {appleCrayonColorRGB255, rgb255String} from "../utils/colorUtils.js";
+import { hideGlobalSpinner, showGlobalSpinner } from "../utils/utils.js"
 import {compositeColors} from "../utils/colorUtils.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
 import SWBDatasource from "../datasource/SWBDatasource.js"
@@ -140,13 +140,33 @@ async function processWebWorkerResults(data) {
 }
 
 async function renderLiveMapWithDistanceData(browser, distances, maxDistance, rgbaMatrix, liveMapTraceLength) {
+
+    const canvas = browser.contactMatrixView.viewport.querySelector(`#${browser.id}-live-distance-map-canvas`)
+
+    const offscreenCanvas = document.createElement('canvas')
+    offscreenCanvas.width = canvas.width
+    offscreenCanvas.height = canvas.height
+
+    const ctx2d = offscreenCanvas.getContext('2d')
+    ctx2d.fillStyle = rgb255String(appleCrayonColorRGB255('tin'))
+    ctx2d.fillRect(0, 0, canvas.width, canvas.height)
+
+    // Paint foreground
     paintDistanceMapRGBAMatrix(distances, maxDistance, rgbaMatrix, browser.contactMatrixView.colorScale, browser.contactMatrixView.backgroundColor)
-    await transferRGBAMatrixToLiveMapCanvas(browser.contactMatrixView.ctx_live_distance, rgbaMatrix, liveMapTraceLength)
+
+    // Composite foreground over background
+    const imageData = new ImageData(rgbaMatrix, liveMapTraceLength, liveMapTraceLength)
+    const imageBitmap = await createImageBitmap(imageData)
+    ctx2d.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height)
+
+    // Retrieve resultant image bitmap and transfer to live map context
+    const compositedImageBitmap = await createImageBitmap(offscreenCanvas)
+    const ctx = browser.contactMatrixView.ctx_live_distance
+    ctx.transferFromImageBitmap(compositedImageBitmap);
+
 }
 
 function paintDistanceMapRGBAMatrix(distances, maxDistance, rgbaMatrix, colorScale, backgroundRGB) {
-
-    fillRGBAMatrix(rgbaMatrix, distances.length, appleCrayonColorRGB255('tin'))
 
     let i = 0;
     const { r, g, b } = colorScale.getColorComponents()
@@ -172,6 +192,14 @@ function paintDistanceMapRGBAMatrix(distances, maxDistance, rgbaMatrix, colorSca
             rgbaMatrix[i + 1] = comp_g;
             rgbaMatrix[i + 2] = comp_b;
             rgbaMatrix[i + 3] = 255;
+
+        } else {
+
+            rgbaMatrix[i    ] = 0;
+            rgbaMatrix[i + 1] = 0;
+            rgbaMatrix[i + 2] = 0;
+            rgbaMatrix[i + 3] = 0;
+
         }
 
         i += 4;
