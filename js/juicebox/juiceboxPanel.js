@@ -267,12 +267,12 @@ class JuiceboxPanel extends Panel {
     }
 
     createContactRecordList(contactFrequencies, liveMapTraceLength) {
-        this.browser.liveContactMapDataSet.createContactRecordList(this.browser.liveContactMapState, contactFrequencies, liveMapTraceLength)
+        this.browser.liveMapDataset.createContactRecordList(this.browser.liveMapState, contactFrequencies, liveMapTraceLength)
     }
 
     async renderLiveMapWithContactData(contactFrequencies, contactFrequencyArray, liveMapTraceLength) {
         console.log('JuiceboxPanel. Render Live Contact Map')
-        await renderLiveMapWithContactData(this.browser, this.browser.liveContactMapState, this.browser.liveContactMapDataSet, contactFrequencies, contactFrequencyArray, liveMapTraceLength)
+        await renderLiveMapWithContactData(this.browser, this.browser.liveMapState, this.browser.liveMapDataset, contactFrequencies, contactFrequencyArray, liveMapTraceLength)
     }
 
     async renderLiveMapWithDistanceData(distances, maxDistance, rgbaMatrix, liveMapTraceLength) {
@@ -334,12 +334,12 @@ function setJuiceboxLiveState(browser) {
     if (true === isLiveMapSupported()){
 
         // Create state and dataset
-        browser.liveContactMapState = new LiveMapState(ensembleManager, browser.contactMatrixView)
-        browser.liveContactMapDataSet = new LiveContactMapDataSet(igvPanel.browser.genome, ensembleManager)
+        browser.liveMapState = new LiveMapState(ensembleManager, browser.contactMatrixView)
+        browser.liveMapDataset = new LiveContactMapDataSet(igvPanel.browser.genome, ensembleManager)
 
         // Update Juicebox rulers
-        browser.layoutController.xAxisRuler.presentLiveMapRuler(browser.liveContactMapState, browser.liveContactMapDataSet)
-        browser.layoutController.yAxisRuler.presentLiveMapRuler(browser.liveContactMapState, browser.liveContactMapDataSet)
+        browser.layoutController.xAxisRuler.presentLiveMapRuler(browser.liveMapState, browser.liveMapDataset)
+        browser.layoutController.yAxisRuler.presentLiveMapRuler(browser.liveMapState, browser.liveMapDataset)
 
         if (!browser.contactMatrixView.mouseHandlersEnabled) {
             browser.contactMatrixView.addMouseHandlers(browser.contactMatrixView.$viewport);

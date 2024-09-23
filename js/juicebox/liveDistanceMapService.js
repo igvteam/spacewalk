@@ -141,8 +141,10 @@ async function processWebWorkerResults(data) {
 
 async function renderLiveMapWithDistanceData(browser, distances, maxDistance, rgbaMatrix, liveMapTraceLength) {
 
-    const canvas = browser.contactMatrixView.viewport.querySelector(`#${browser.id}-live-distance-map-canvas`)
+    // Refer to destination canvas
+    const canvas = browser.contactMatrixView.ctx_live_distance.canvas
 
+    // Construct scratch offscreen canvas for compositing
     const offscreenCanvas = document.createElement('canvas')
     offscreenCanvas.width = canvas.width
     offscreenCanvas.height = canvas.height
