@@ -40,9 +40,15 @@ class LiveContactMapService {
     receiveEvent({ type, data }) {
 
         if ("DidLoadEnsembleFile" === type) {
+
+            const ctx = juiceboxPanel.browser.contactMatrixView.ctx_live
+            ctx.transferFromImageBitmap(null)
+
             this.contactFrequencies = undefined
             this.rgbaMatrix = undefined
+
             this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
+
             this.input.value = this.distanceThreshold.toString()
         }
     }

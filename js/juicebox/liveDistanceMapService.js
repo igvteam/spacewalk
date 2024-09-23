@@ -21,7 +21,7 @@ class LiveDistanceMapService {
         }, false)
 
         // SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
-        // SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
+        SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
 
@@ -71,16 +71,14 @@ class LiveDistanceMapService {
 
     receiveEvent({ type, data }) {
 
-        const { trace } = data
+        if ("DidLoadEnsembleFile" === type) {
 
-        if ("DidSelectTrace" === type) {
-            if (this.isTraceToggleChecked()) {
-                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), trace)
-            }
-        } else if ("DidLoadEnsembleFile" === type) {
-            if (this.isEnsembleToggleChecked()) {
-                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
-            }
+            const ctx = juiceboxPanel.browser.contactMatrixView.ctx_live_distance
+            ctx.transferFromImageBitmap(null)
+
+            this.rgbaMatrix = undefined
+            this.distances = undefined
+            this.maxDistance = undefined
         }
 
     }

@@ -332,8 +332,6 @@ function isLiveMapSupported() {
 function setJuiceboxLiveState(browser) {
 
     if (true === isLiveMapSupported()){
-        const ctx = browser.contactMatrixView.ctx_live
-        ctx.transferFromImageBitmap(null)
 
         // Create state and dataset
         browser.liveContactMapState = new LiveMapState(ensembleManager, browser.contactMatrixView)
