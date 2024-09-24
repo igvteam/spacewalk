@@ -5,8 +5,8 @@ import {hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas}
 import {clamp} from "../utils/mathUtils.js"
 import {HICEvent} from "./juiceboxHelpful.js"
 import {compositeColors} from "../utils/colorUtils.js"
-import SWBDatasource from "../datasource/SWBDatasource"
-import {postMessageToWorker} from "../utils/webWorkerUtils.js"
+import {enableLiveMaps} from "../utils/liveMapUtils"
+import {postMessageToWorker} from "../utils/webWorkerUtils"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
@@ -30,10 +30,6 @@ class LiveContactMapService {
         })
 
         this.worker = new Worker(new URL('./liveContactMapWorker.js', import.meta.url), { type: 'module' })
-
-        this.worker.addEventListener('message', async ({ data }) => {
-            await processWebWorkerResults.call(this, data)
-        }, false)
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
@@ -64,41 +60,52 @@ class LiveContactMapService {
         return 'LiveContactMapService'
     }
 
-    updateEnsembleContactFrequencyCanvas(distanceThresholdOrUndefined) {
+    async updateEnsembleContactFrequencyCanvas(distanceThresholdOrUndefined) {
 
-        const { chr } = ensembleManager.locus
-        const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+        const status = await enableLiveMaps()
 
-        if (chromosome) {
-            if (ensembleManager.datasource instanceof SWBDatasource) {
+        if (true === status) {
 
-                showGlobalSpinner()
+            showGlobalSpinner()
 
-                ensembleManager.datasource.liveMapPresentationHandler(() => {
+            this.distanceThreshold = distanceThresholdOrUndefined || distanceThresholdEstimate(ensembleManager.currentTrace)
+            this.input.value = this.distanceThreshold.toString()
 
-                    this.distanceThreshold = distanceThresholdOrUndefined || distanceThresholdEstimate(ensembleManager.currentTrace)
-                    this.input.value = this.distanceThreshold.toString()
+            const data =
+                {
+                    traceOrEnsemble: 'ensemble',
+                    traceLength: ensembleManager.getLiveMapTraceLength(),
+                    vertexListsString: JSON.stringify( ensembleManager.getLiveMapVertexLists()),
+                    distanceThreshold: this.distanceThreshold
+                }
 
-                    const data =
-                        {
-                            traceOrEnsemble: 'ensemble',
-                            traceLength: ensembleManager.getLiveMapTraceLength(),
-                            vertexListsString: JSON.stringify( ensembleManager.getLiveMapVertexLists()),
-                            distanceThreshold: this.distanceThreshold
-                        }
+            let result
+            try {
+                console.log(`Live Contact Map ${ data.traceOrEnsemble } payload sent to worker`)
+                result = await postMessageToWorker(this.worker, data)
+                hideGlobalSpinner()
+            } catch (err) {
+                hideGlobalSpinner()
+                console.error('Error: Live Contact Map', err)
 
-                    console.log(`Live Contact Map ${ data.traceOrEnsemble } payload sent to worker`)
-
-                    this.worker.postMessage(data)
-
-                })
             }
-        } else {
-            hideGlobalSpinner()
-            const str = `Warning! Can not create Live Contact Map. No valid genome for chromosome ${ chr }`
-            console.warn(str)
-            alert(str)
+
+            const traceLength = ensembleManager.getLiveMapTraceLength()
+            const arrayLength = traceLength * traceLength * 4
+
+            if (undefined === this.rgbaMatrix || this.rgbaMatrix.length !== arrayLength) {
+                this.rgbaMatrix = new Uint8ClampedArray(arrayLength)
+            } else {
+                this.rgbaMatrix.fill(0)
+            }
+
+            this.contactFrequencies = result.workerValuesBuffer
+            juiceboxPanel.createContactRecordList(this.contactFrequencies, traceLength)
+
+            await juiceboxPanel.renderLiveMapWithContactData(this.contactFrequencies, this.rgbaMatrix, traceLength)
+
         }
+
     }
 }
 
