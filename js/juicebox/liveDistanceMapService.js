@@ -73,7 +73,7 @@ class LiveDistanceMapService {
             this.ensembleToggleElement.checked = false
 
         } else if ("DidSelectTrace" === type) {
-            if (false === juiceboxPanel.isHidden && juiceboxPanel.isActiveTab(juiceboxPanel.liveDistnceMapTab)) {
+            if (false === juiceboxPanel.isHidden && juiceboxPanel.isActiveTab(juiceboxPanel.liveDistanceMapTab)) {
                 console.log('LiveDistanceMapService - receiveEvent(DidSelectTrace)')
                 this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
                 this.traceToggleElement.checked = true

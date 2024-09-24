@@ -160,7 +160,7 @@ class JuiceboxPanel extends Panel {
         // Create instance property for each tab
         this.hicMapTab = new bootstrap.Tab(hicMapTabElement)
         this.liveMapTab = new bootstrap.Tab(liveMapTabElement)
-        this.liveDistnceMapTab = new bootstrap.Tab(liveDistanceMapTabElement)
+        this.liveDistanceMapTab = new bootstrap.Tab(liveDistanceMapTabElement)
 
         // Default to show Live Map tab
         this.liveMapTab.show()
@@ -171,6 +171,12 @@ class JuiceboxPanel extends Panel {
         for (const tabElement of this.container.querySelectorAll('button[data-bs-toggle="tab"]')) {
             tabElement.addEventListener('show.bs.tab', tabEventHandler)
         }
+
+        this.liveDistanceMapTab._element.addEventListener('shown.bs.tab', event => {
+            if (liveDistanceMapService.isTraceToggleChecked()) {
+                liveDistanceMapService.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+            }
+        })
 
     }
 
