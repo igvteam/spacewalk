@@ -20,7 +20,7 @@ class LiveDistanceMapService {
             await processWebWorkerResults.call(this, data)
         }, false)
 
-        // SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
+        SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
@@ -72,6 +72,7 @@ class LiveDistanceMapService {
     receiveEvent({ type, data }) {
 
         if ("DidLoadEnsembleFile" === type) {
+            console.log('LiveDistanceMapService - receiveEvent(DidLoadEnsembleFile)')
 
             const ctx = juiceboxPanel.browser.contactMatrixView.ctx_live_distance
             ctx.transferFromImageBitmap(null)
@@ -79,6 +80,16 @@ class LiveDistanceMapService {
             this.rgbaMatrix = undefined
             this.distances = undefined
             this.maxDistance = undefined
+        } else if ("DidSelectTrace" === type) {
+            console.log('LiveDistanceMapService - receiveEvent(DidSelectTrace)')
+
+            if (false === juiceboxPanel.isHidden && juiceboxPanel.isActiveTab(juiceboxPanel.liveDistnceMapTab)) {
+                if (ensembleManager.datasource instanceof SWBDatasource) {
+                    ensembleManager.datasource.distanceMapPresentationHandler(() => {
+                        this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+                    })
+                }
+            }
         }
 
     }
@@ -139,29 +150,37 @@ async function processWebWorkerResults(data) {
     hideGlobalSpinner()
 }
 
+function setupOffScreenCanvas(width, height, rgb255){
+
+    const offscreenCanvas = document.createElement('canvas')
+    offscreenCanvas.width = width
+    offscreenCanvas.height = height
+
+    const ctx2d = offscreenCanvas.getContext('2d')
+    ctx2d.fillStyle = rgb255String(rgb255)
+    ctx2d.fillRect(0, 0, width, height)
+    return {offscreenCanvas, ctx2d}
+}
+
 async function renderLiveMapWithDistanceData(browser, distances, maxDistance, rgbaMatrix, liveMapTraceLength) {
 
     // Refer to destination canvas
-    const canvas = browser.contactMatrixView.ctx_live_distance.canvas
+    const distanceMapCanvas = browser.contactMatrixView.ctx_live_distance.canvas
 
-    // Construct scratch offscreen canvas for compositing
-    const offscreenCanvas = document.createElement('canvas')
-    offscreenCanvas.width = canvas.width
-    offscreenCanvas.height = canvas.height
+    // Set up offscreen canvas for compositing with initial background color
+    const {offscreenCanvas, ctx2d} = setupOffScreenCanvas(distanceMapCanvas.width, distanceMapCanvas.height, appleCrayonColorRGB255('tin'))
 
-    const ctx2d = offscreenCanvas.getContext('2d')
-    ctx2d.fillStyle = rgb255String(appleCrayonColorRGB255('tin'))
-    ctx2d.fillRect(0, 0, canvas.width, canvas.height)
-
-    // Paint foreground
+    // Paint foreground color - with alpha - into rgbaMatrix
     paintDistanceMapRGBAMatrix(distances, maxDistance, rgbaMatrix, browser.contactMatrixView.colorScale, browser.contactMatrixView.backgroundColor)
 
     // Composite foreground over background
-    const imageData = new ImageData(rgbaMatrix, liveMapTraceLength, liveMapTraceLength)
-    const imageBitmap = await createImageBitmap(imageData)
-    ctx2d.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height)
+    const imageBitmap = await createImageBitmap(new ImageData(rgbaMatrix, liveMapTraceLength, liveMapTraceLength))
 
-    // Retrieve resultant image bitmap and transfer to live map context
+    // draw imageBitmap into distanceMapCanvas context while simultaneously scaling up the imageBitmap
+    // to the resolution of the distanceMapCanvas
+    ctx2d.drawImage(imageBitmap, 0, 0, distanceMapCanvas.width, distanceMapCanvas.height)
+
+    // Retrieve compositedImageBitmap and transfer to distanceMapCanvas via it's context
     const compositedImageBitmap = await createImageBitmap(offscreenCanvas)
     const ctx = browser.contactMatrixView.ctx_live_distance
     ctx.transferFromImageBitmap(compositedImageBitmap);

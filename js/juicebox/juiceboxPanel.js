@@ -174,6 +174,10 @@ class JuiceboxPanel extends Panel {
 
     }
 
+    isActiveTab(tab) {
+        return tab._element.classList.contains('active')
+    }
+
     detachMouseHandlers() {
 
         for (const tabElement of this.container.querySelectorAll('button[data-bs-toggle="tab"]')) {
