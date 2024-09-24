@@ -5,6 +5,8 @@ import {hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas}
 import {clamp} from "../utils/mathUtils.js"
 import {HICEvent} from "./juiceboxHelpful.js"
 import {compositeColors} from "../utils/colorUtils.js"
+import SWBDatasource from "../datasource/SWBDatasource"
+import {postMessageToWorker} from "../utils/webWorkerUtils.js"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
@@ -18,7 +20,7 @@ class LiveContactMapService {
         this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
         this.input.value = distanceThreshold.toString()
 
-        document.querySelector('#spacewalk_contact_frequency_map_button').addEventListener('click', () => {
+        document.querySelector('#hic-live-contact-frequency-map-threshold-button').addEventListener('click', () => {
 
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
@@ -68,31 +70,35 @@ class LiveContactMapService {
         const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
 
         if (chromosome) {
-            showGlobalSpinner()
+            if (ensembleManager.datasource instanceof SWBDatasource) {
 
-            this.distanceThreshold = distanceThresholdOrUndefined || distanceThresholdEstimate(ensembleManager.currentTrace)
-            this.input.value = this.distanceThreshold.toString()
+                showGlobalSpinner()
 
-            const data =
-                {
-                    traceOrEnsemble: 'ensemble',
-                    traceLength: ensembleManager.getLiveMapTraceLength(),
-                    vertexListsString: JSON.stringify( ensembleManager.getLiveMapVertexLists()),
-                    distanceThreshold: this.distanceThreshold
-                }
+                ensembleManager.datasource.liveMapPresentationHandler(() => {
 
-            console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
+                    this.distanceThreshold = distanceThresholdOrUndefined || distanceThresholdEstimate(ensembleManager.currentTrace)
+                    this.input.value = this.distanceThreshold.toString()
 
-            this.worker.postMessage(data)
+                    const data =
+                        {
+                            traceOrEnsemble: 'ensemble',
+                            traceLength: ensembleManager.getLiveMapTraceLength(),
+                            vertexListsString: JSON.stringify( ensembleManager.getLiveMapVertexLists()),
+                            distanceThreshold: this.distanceThreshold
+                        }
 
+                    console.log(`Live Contact Map ${ data.traceOrEnsemble } payload sent to worker`)
+
+                    this.worker.postMessage(data)
+
+                })
+            }
         } else {
             hideGlobalSpinner()
             const str = `Warning! Can not create Live Contact Map. No valid genome for chromosome ${ chr }`
             console.warn(str)
             alert(str)
         }
-
-
     }
 }
 

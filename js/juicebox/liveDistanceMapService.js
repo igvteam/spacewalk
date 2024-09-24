@@ -1,4 +1,4 @@
-import {ensembleManager, juiceboxPanel} from "../app.js";
+import {ensembleManager, igvPanel, juiceboxPanel} from "../app.js";
 import { clamp } from "../utils/mathUtils.js";
 import {appleCrayonColorRGB255, rgb255String} from "../utils/colorUtils.js";
 import { hideGlobalSpinner, showGlobalSpinner } from "../utils/utils.js"
@@ -27,19 +27,17 @@ class LiveDistanceMapService {
 
     configureMouseHandlers(){
 
-        this.ensembleToggleElement = document.getElementById('spacewalk-live-distance-map-toggle-ensemble')
+        this.ensembleToggleElement = juiceboxPanel.panel.querySelector('#spacewalk-live-distance-map-toggle-ensemble')
         this.ensembleToggleElement.addEventListener('click', () => {
             this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
         })
 
-        this.traceToggleElement = document.getElementById('spacewalk-live-distance-map-toggle-trace')
+        this.traceToggleElement = juiceboxPanel.panel.querySelector('#spacewalk-live-distance-map-toggle-trace')
         this.traceToggleElement.addEventListener('click', () => {
             this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
         })
 
-        this.calculateDistanceMapButton = document.getElementById('hic-calculation-live-distance-button')
-
-        this.calculateDistanceMapButton.addEventListener('click', event => {
+        juiceboxPanel.panel.querySelector('#hic-calculation-live-distance-button').addEventListener('click', event => {
             if (this.isEnsembleToggleChecked()) {
                 this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
             } else if (this.isTraceToggleChecked()) {
@@ -73,12 +71,18 @@ class LiveDistanceMapService {
             this.ensembleToggleElement.checked = false
 
         } else if ("DidSelectTrace" === type) {
-            if (false === juiceboxPanel.isHidden && juiceboxPanel.isActiveTab(juiceboxPanel.liveDistanceMapTab)) {
-                console.log('LiveDistanceMapService - receiveEvent(DidSelectTrace)')
-                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
-                this.traceToggleElement.checked = true
-                this.ensembleToggleElement.checked = false
-            }
+
+            window.setTimeout(() => {
+
+                if (false === juiceboxPanel.isHidden && juiceboxPanel.isActiveTab(juiceboxPanel.liveDistanceMapTab)) {
+                    console.log('LiveDistanceMapService - receiveEvent(DidSelectTrace)')
+                    this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+                    this.traceToggleElement.checked = true
+                    this.ensembleToggleElement.checked = false
+                }
+
+            }, 0)
+
         }
 
     }
@@ -89,48 +93,71 @@ class LiveDistanceMapService {
 
     updateTraceDistanceCanvas(traceLength, trace) {
 
-        if (ensembleManager.datasource instanceof SWBDatasource) {
+        const { chr } = ensembleManager.locus
+        const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
 
-            ensembleManager.datasource.distanceMapPresentationHandler(() => {
+        if (chromosome) {
+            if (ensembleManager.datasource instanceof SWBDatasource) {
 
                 showGlobalSpinner()
 
-                const vertices = ensembleManager.getLiveMapTraceVertices(trace)
+                ensembleManager.datasource.liveMapPresentationHandler(() => {
 
-                const data =
-                    {
-                        traceOrEnsemble: 'trace',
-                        traceLength,
-                        verticesString: JSON.stringify(vertices),
-                    }
+                    const vertices = ensembleManager.getLiveMapTraceVertices(trace)
 
-                this.worker.postMessage(data)
+                    const data =
+                        {
+                            traceOrEnsemble: 'trace',
+                            traceLength,
+                            verticesString: JSON.stringify(vertices),
+                        }
 
-            })
+                    console.log(`Live Distance Map ${ data.traceOrEnsemble } payload sent to worker`)
+                    this.worker.postMessage(data)
+                })
+            }
+        } else {
+            hideGlobalSpinner()
+            const str = `Warning! Can not create Live Trace Distance Map. No valid genome for chromosome ${ chr }`
+            console.warn(str)
+            alert(str)
+            this.traceToggleElement.checked = false
+            this.ensembleToggleElement.checked = false
         }
-
     }
 
     updateEnsembleAverageDistanceCanvas(traceLength, vertexLists){
 
-        if (ensembleManager.datasource instanceof SWBDatasource) {
+        const { chr } = ensembleManager.locus
+        const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
 
-            ensembleManager.datasource.distanceMapPresentationHandler(() => {
+        if (chromosome) {
+            if (ensembleManager.datasource instanceof SWBDatasource) {
 
                 showGlobalSpinner()
 
-                const data =
-                    {
-                        traceOrEnsemble: 'ensemble',
-                        traceLength,
-                        vertexListsString: JSON.stringify(vertexLists)
-                    }
+                ensembleManager.datasource.liveMapPresentationHandler(() => {
 
-                this.worker.postMessage(data)
+                    const data =
+                        {
+                            traceOrEnsemble: 'ensemble',
+                            traceLength,
+                            vertexListsString: JSON.stringify(vertexLists)
+                        }
 
-            })
+                    console.log(`Live Distance Map ${ data.traceOrEnsemble } payload sent to worker`)
+                    this.worker.postMessage(data)
+                })
+
+            }
+        } else {
+            hideGlobalSpinner()
+            const str = `Warning! Can not create Live Ensemble Distance Map. No valid genome for chromosome ${ chr }`
+            console.warn(str)
+            alert(str)
+            this.traceToggleElement.checked = false
+            this.ensembleToggleElement.checked = false
         }
-
     }
 
 }

@@ -1,4 +1,4 @@
-import hic from 'juicebox.js'
+import hic from '../../node_modules/juicebox.js/js/index.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
 import {
@@ -44,23 +44,8 @@ class JuiceboxPanel extends Panel {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         })
 
-        panel.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', async e => {
-
-            const { chr } = ensembleManager.locus
-            const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
-
-            if (chromosome) {
-                if (ensembleManager.datasource instanceof SWBDatasource) {
-                    await ensembleManager.datasource.calculateLiveMapVertexLists()
-                }
-                liveContactMapService.updateEnsembleContactFrequencyCanvas(undefined)
-                this.present()
-            } else {
-                const str = `Can not create Live Contact Map. No valid genome for chromosome ${ chr }`
-                console.warn(str)
-                alert(str)
-            }
-
+        panel.querySelector('#hic-live-contact-frequency-map-calculation-button').addEventListener('click', async e => {
+            liveContactMapService.updateEnsembleContactFrequencyCanvas(undefined)
         })
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
@@ -372,21 +357,21 @@ function tabAssessment(browser, activeTabButton) {
             document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'none'
             document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
             document.getElementById('hic-file-chooser-dropdown').style.display = 'block'
-            browser.contactMatrixView.assessTabSelection(false)
+            browser.contactMatrixView.assessLiveMapStatus(false)
             break;
 
         case 'spacewalk-juicebox-panel-live-map-tab':
             document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'none'
             document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'block'
             document.getElementById('hic-file-chooser-dropdown').style.display = 'none'
-            browser.contactMatrixView.assessTabSelection(true)
+            browser.contactMatrixView.assessLiveMapStatus(true)
             break;
 
         case 'spacewalk-juicebox-panel-live-distance-map-tab':
             document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'block'
             document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
             document.getElementById('hic-file-chooser-dropdown').style.display = 'none'
-            browser.contactMatrixView.assessTabSelection(true)
+            browser.contactMatrixView.assessLiveMapStatus(true)
             break;
 
         default:

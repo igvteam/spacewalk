@@ -221,11 +221,11 @@ class SWBDatasource extends DataSourceBase {
         return this.liveContactFrequencyMapVertexLists[ this.currentTraceIndex ]
     }
 
-    async distanceMapPresentationHandler(distanceMapHandler) {
+    async liveMapPresentationHandler(liveMapHandler) {
         if (undefined === this.liveContactFrequencyMapVertexLists) {
             await this.calculateLiveMapVertexLists()
         }
-        distanceMapHandler()
+        liveMapHandler()
     }
 }
 
