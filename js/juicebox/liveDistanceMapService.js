@@ -29,33 +29,21 @@ class LiveDistanceMapService {
 
         this.ensembleToggleElement = document.getElementById('spacewalk-live-distance-map-toggle-ensemble')
         this.ensembleToggleElement.addEventListener('click', () => {
-            if (ensembleManager.datasource instanceof SWBDatasource) {
-                ensembleManager.datasource.distanceMapPresentationHandler(() => {
-                    this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
-                })
-            }
+            this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
         })
 
         this.traceToggleElement = document.getElementById('spacewalk-live-distance-map-toggle-trace')
         this.traceToggleElement.addEventListener('click', () => {
-            if (ensembleManager.datasource instanceof SWBDatasource) {
-                ensembleManager.datasource.distanceMapPresentationHandler(() => {
-                    this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
-                })
-            }
+            this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
         })
 
         this.calculateDistanceMapButton = document.getElementById('hic-calculation-live-distance-button')
 
         this.calculateDistanceMapButton.addEventListener('click', event => {
-            if (ensembleManager.datasource instanceof SWBDatasource) {
-                ensembleManager.datasource.distanceMapPresentationHandler(() => {
-                    if (this.isEnsembleToggleChecked()) {
-                        this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
-                    } else if (this.isTraceToggleChecked()) {
-                        this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
-                    }
-                })
+            if (this.isEnsembleToggleChecked()) {
+                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
+            } else if (this.isTraceToggleChecked()) {
+                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
             }
         })
 
@@ -80,15 +68,16 @@ class LiveDistanceMapService {
             this.rgbaMatrix = undefined
             this.distances = undefined
             this.maxDistance = undefined
-        } else if ("DidSelectTrace" === type) {
-            console.log('LiveDistanceMapService - receiveEvent(DidSelectTrace)')
 
+            this.traceToggleElement.checked = false
+            this.ensembleToggleElement.checked = false
+
+        } else if ("DidSelectTrace" === type) {
             if (false === juiceboxPanel.isHidden && juiceboxPanel.isActiveTab(juiceboxPanel.liveDistnceMapTab)) {
-                if (ensembleManager.datasource instanceof SWBDatasource) {
-                    ensembleManager.datasource.distanceMapPresentationHandler(() => {
-                        this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
-                    })
-                }
+                console.log('LiveDistanceMapService - receiveEvent(DidSelectTrace)')
+                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+                this.traceToggleElement.checked = true
+                this.ensembleToggleElement.checked = false
             }
         }
 
@@ -100,33 +89,47 @@ class LiveDistanceMapService {
 
     updateTraceDistanceCanvas(traceLength, trace) {
 
-        showGlobalSpinner()
+        if (ensembleManager.datasource instanceof SWBDatasource) {
 
-        const vertices = ensembleManager.getLiveMapTraceVertices(trace)
+            ensembleManager.datasource.distanceMapPresentationHandler(() => {
 
-        const data =
-            {
-                traceOrEnsemble: 'trace',
-                traceLength,
-                verticesString: JSON.stringify(vertices),
-            }
+                showGlobalSpinner()
 
-        this.worker.postMessage(data)
+                const vertices = ensembleManager.getLiveMapTraceVertices(trace)
+
+                const data =
+                    {
+                        traceOrEnsemble: 'trace',
+                        traceLength,
+                        verticesString: JSON.stringify(vertices),
+                    }
+
+                this.worker.postMessage(data)
+
+            })
+        }
 
     }
 
     updateEnsembleAverageDistanceCanvas(traceLength, vertexLists){
 
-        showGlobalSpinner()
+        if (ensembleManager.datasource instanceof SWBDatasource) {
 
-        const data =
-            {
-                traceOrEnsemble: 'ensemble',
-                traceLength,
-                vertexListsString: JSON.stringify(vertexLists)
-            }
+            ensembleManager.datasource.distanceMapPresentationHandler(() => {
 
-        this.worker.postMessage(data)
+                showGlobalSpinner()
+
+                const data =
+                    {
+                        traceOrEnsemble: 'ensemble',
+                        traceLength,
+                        vertexListsString: JSON.stringify(vertexLists)
+                    }
+
+                this.worker.postMessage(data)
+
+            })
+        }
 
     }
 
