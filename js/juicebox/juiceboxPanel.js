@@ -10,12 +10,12 @@ import {
     ribbon,
     igvPanel, juiceboxPanel
 } from '../app.js'
-import SWBDatasource from "../datasource/SWBDatasource.js"
 import {makeDraggable} from "../utils/draggable.js"
 import LiveMapState from "./liveMapState.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import { renderLiveMapWithContactData } from "./liveContactMapService.js"
 import { renderLiveMapWithDistanceData } from './liveDistanceMapService.js'
+import {HICEvent} from "./juiceboxHelpful.js"
 
 class JuiceboxPanel extends Panel {
 
@@ -197,24 +197,25 @@ class JuiceboxPanel extends Panel {
     async locusDidChange({ chr, genomicStart, genomicEnd }) {
 
         if (isLiveMapSupported()) {
+            await this.goto({ chr, start: genomicStart, end: genomicEnd })
 
-            if (this.isContactMapLoaded()) {
-                try {
-                    await this.goto({ chr, start: genomicStart, end: genomicEnd })
-                } catch (e) {
-                    console.error(e.message)
-                    alert(e.message)
-                }
+            const result= this.browser.contactMatrixView.selectStateAndDataset(this.browser.contactMatrixView.isliveMapTabSelection)
+
+            if (result) {
+                this.browser.eventBus.post(HICEvent("LocusChange", { state: result.state, resolutionChanged: true, chrChanged: true }))
             }
+
 
         } else {
             this.browser.reset()
+            this.browser.repaintMatrix()
+            this.dismiss()
         }
     }
 
     async goto({ chr, start, end }) {
 
-        if (this.isContactMapLoaded()) {
+        if (isLiveMapSupported()) {
             try {
                 const browser = this.browser
                 await browser.parseGotoInput(`${chr}:${start}-${end}`)
