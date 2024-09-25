@@ -16,6 +16,7 @@ import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import { renderLiveMapWithContactData } from "./liveContactMapService.js"
 import { renderLiveMapWithDistanceData } from './liveDistanceMapService.js'
 import {HICEvent} from "./juiceboxHelpful.js"
+import {appleCrayonColorRGB255, rgb255String} from "../utils/colorUtils"
 
 class JuiceboxPanel extends Panel {
 
@@ -180,6 +181,11 @@ class JuiceboxPanel extends Panel {
     receiveEvent({ type, data }) {
 
         if ('DidLoadEnsembleFile' === type) {
+
+            // Clear Hi-C map rendering
+            const ctx = juiceboxPanel.browser.contactMatrixView.ctx
+            ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') )
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
             setJuiceboxLiveState(this.browser)
 

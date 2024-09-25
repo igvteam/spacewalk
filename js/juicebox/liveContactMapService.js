@@ -109,25 +109,6 @@ class LiveContactMapService {
     }
 }
 
-async function processWebWorkerResults(data){
-
-    const traceLength = ensembleManager.getLiveMapTraceLength()
-    const arrayLength = traceLength * traceLength * 4
-
-    if (undefined === this.rgbaMatrix || this.rgbaMatrix.length !== arrayLength) {
-        this.rgbaMatrix = new Uint8ClampedArray(arrayLength)
-    } else {
-        this.rgbaMatrix.fill(0)
-    }
-
-    this.contactFrequencies = data.workerValuesBuffer
-    juiceboxPanel.createContactRecordList(this.contactFrequencies, traceLength)
-
-    await juiceboxPanel.renderLiveMapWithContactData(this.contactFrequencies, this.rgbaMatrix, traceLength)
-
-    hideGlobalSpinner()
-}
-
 async function renderLiveMapWithContactData(browser, state, liveContactMapDataSet, frequencies, frequencyRGBAList, liveMapTraceLength) {
 
     browser.eventBus.post(HICEvent('MapLoad', { dataset: liveContactMapDataSet, state }))
