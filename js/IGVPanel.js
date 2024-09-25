@@ -2,8 +2,8 @@ import igv from 'igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {getMaterialProvider, setMaterialProvider} from './utils/utils.js';
 import Panel from './panel.js';
-import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, igvPanel } from './app.js'
-import {makeDraggable} from "./utils/draggable"
+import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager } from './app.js'
+import {makeDraggable} from "./utils/draggable.js"
 import { getPathsWithTrackRegistry, updateTrackMenusWithTrackConfigurations } from './widgets/trackWidgets.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 

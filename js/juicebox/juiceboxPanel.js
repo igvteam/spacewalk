@@ -186,6 +186,20 @@ class JuiceboxPanel extends Panel {
             // Show Live Map tab to be consistent with Live State and Dataset
             this.liveMapTab.show()
 
+            const result= this.browser.contactMatrixView.selectStateAndDataset(this.browser.contactMatrixView.isliveMapTabSelection)
+
+            if (result) {
+                const eventPayload =
+                    {
+                        state: result.state,
+                        dataset: result.dataset,
+                        resolutionChanged: true,
+                        chrChanged: true
+                    }
+
+                this.browser.eventBus.post(HICEvent("LocusChange", eventPayload))
+            }
+
         }
 
         super.receiveEvent({ type, data });
