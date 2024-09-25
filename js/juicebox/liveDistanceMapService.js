@@ -5,6 +5,8 @@ import { hideGlobalSpinner, showGlobalSpinner } from "../utils/utils.js"
 import {compositeColors} from "../utils/colorUtils.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
 import SWBDatasource from "../datasource/SWBDatasource.js"
+import {enableLiveMaps} from "../utils/liveMapUtils"
+import {postMessageToWorker} from "../utils/webWorkerUtils"
 
 const kDistanceUndefined = -1
 
@@ -17,7 +19,7 @@ class LiveDistanceMapService {
         this.worker = new Worker(new URL('./liveDistanceMapWorker.js', import.meta.url), {type: 'module'})
 
         this.worker.addEventListener('message', async ( { data }) => {
-            await processWebWorkerResults.call(this, data)
+            await processWebWorkerResult.call(this, data)
         }, false)
 
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
@@ -91,78 +93,70 @@ class LiveDistanceMapService {
         return 'LiveDistanceMapService'
     }
 
-    updateTraceDistanceCanvas(traceLength, trace) {
+    async updateTraceDistanceCanvas(traceLength, trace) {
 
-        const { chr } = ensembleManager.locus
-        const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+        const status = await enableLiveMaps()
 
-        if (chromosome) {
-            if (ensembleManager.datasource instanceof SWBDatasource) {
+        if (true === status) {
 
-                showGlobalSpinner()
+            showGlobalSpinner()
 
-                ensembleManager.datasource.liveMapPresentationHandler(() => {
+            const vertices = ensembleManager.getLiveMapTraceVertices(trace)
 
-                    const vertices = ensembleManager.getLiveMapTraceVertices(trace)
+            const data =
+                {
+                    traceOrEnsemble: 'trace',
+                    traceLength,
+                    verticesString: JSON.stringify(vertices),
+                }
 
-                    const data =
-                        {
-                            traceOrEnsemble: 'trace',
-                            traceLength,
-                            verticesString: JSON.stringify(vertices),
-                        }
-
-                    console.log(`Live Distance Map ${ data.traceOrEnsemble } payload sent to worker`)
-                    this.worker.postMessage(data)
-                })
-            }
-        } else {
-            hideGlobalSpinner()
-            const str = `Warning! Can not create Live Trace Distance Map. No valid genome for chromosome ${ chr }`
-            console.warn(str)
-            alert(str)
-            this.traceToggleElement.checked = false
-            this.ensembleToggleElement.checked = false
+            await this.updateDistanceCanvas(data)
         }
+
     }
 
-    updateEnsembleAverageDistanceCanvas(traceLength, vertexLists){
+    async updateEnsembleAverageDistanceCanvas(traceLength, vertexLists) {
 
-        const { chr } = ensembleManager.locus
-        const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+        const status = await enableLiveMaps()
 
-        if (chromosome) {
-            if (ensembleManager.datasource instanceof SWBDatasource) {
+        if (true === status) {
 
-                showGlobalSpinner()
+            showGlobalSpinner()
 
-                ensembleManager.datasource.liveMapPresentationHandler(() => {
+            const data =
+                {
+                    traceOrEnsemble: 'ensemble',
+                    traceLength,
+                    vertexListsString: JSON.stringify(vertexLists)
+                }
 
-                    const data =
-                        {
-                            traceOrEnsemble: 'ensemble',
-                            traceLength,
-                            vertexListsString: JSON.stringify(vertexLists)
-                        }
-
-                    console.log(`Live Distance Map ${ data.traceOrEnsemble } payload sent to worker`)
-                    this.worker.postMessage(data)
-                })
-
-            }
-        } else {
-            hideGlobalSpinner()
-            const str = `Warning! Can not create Live Ensemble Distance Map. No valid genome for chromosome ${ chr }`
-            console.warn(str)
-            alert(str)
-            this.traceToggleElement.checked = false
-            this.ensembleToggleElement.checked = false
+                await this.updateDistanceCanvas(data)
         }
+
+    }
+
+    async updateDistanceCanvas(data) {
+
+        showGlobalSpinner()
+
+        let result
+        try {
+            console.log(`Live Distance Map ${ data.traceOrEnsemble } payload sent to worker`)
+            result = await postMessageToWorker(this.worker, data)
+            hideGlobalSpinner()
+        } catch (err) {
+            hideGlobalSpinner()
+            console.error('Error: Live Contact Map', err)
+
+        }
+
+        await processWebWorkerResult.call(this, result)
+
     }
 
 }
 
-async function processWebWorkerResults(data) {
+async function processWebWorkerResult(result) {
 
     const traceLength = ensembleManager.getLiveMapTraceLength()
     const arrayLength = traceLength * traceLength * 4
@@ -173,11 +167,10 @@ async function processWebWorkerResults(data) {
         this.rgbaMatrix.fill(0)
     }
 
-    this.distances = data.workerDistanceBuffer
-    this.maxDistance = data.maxDistance
+    this.distances = result.workerDistanceBuffer
+    this.maxDistance = result.maxDistance
     await juiceboxPanel.renderLiveMapWithDistanceData(this.distances, this.maxDistance, this.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
 
-    hideGlobalSpinner()
 }
 
 function setupOffScreenCanvas(width, height, rgb255){
