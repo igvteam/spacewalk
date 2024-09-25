@@ -196,13 +196,19 @@ class JuiceboxPanel extends Panel {
 
     async locusDidChange({ chr, genomicStart, genomicEnd }) {
 
-        if (this.isContactMapLoaded() && this.browser.dataset.isLiveContactMapDataSet !== true) {
-            try {
-                await this.goto({ chr, start: genomicStart, end: genomicEnd })
-            } catch (e) {
-                console.error(e.message)
-                alert(e.message)
+        if (isLiveMapSupported()) {
+
+            if (this.isContactMapLoaded()) {
+                try {
+                    await this.goto({ chr, start: genomicStart, end: genomicEnd })
+                } catch (e) {
+                    console.error(e.message)
+                    alert(e.message)
+                }
             }
+
+        } else {
+            this.browser.reset()
         }
     }
 
@@ -350,7 +356,7 @@ function tabEventHandler(event) {
 
 function tabAssessment(browser, activeTabButton) {
 
-    console.log(`JuiceboxPanel. Tab ${ activeTabButton.id } is active`);
+    // console.log(`JuiceboxPanel. Tab ${ activeTabButton.id } is active`);
 
     switch (activeTabButton.id) {
         case 'spacewalk-juicebox-panel-hic-map-tab':

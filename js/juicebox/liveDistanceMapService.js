@@ -58,7 +58,7 @@ class LiveDistanceMapService {
     receiveEvent({ type, data }) {
 
         if ("DidLoadEnsembleFile" === type) {
-            console.log('LiveDistanceMapService - receiveEvent(DidLoadEnsembleFile)')
+            // console.log('LiveDistanceMapService - receiveEvent(DidLoadEnsembleFile)')
 
             const ctx = juiceboxPanel.browser.contactMatrixView.ctx_live_distance
             ctx.transferFromImageBitmap(null)
