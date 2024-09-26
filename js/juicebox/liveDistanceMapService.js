@@ -1,12 +1,11 @@
-import {ensembleManager, igvPanel, juiceboxPanel} from "../app.js";
+import {ensembleManager, juiceboxPanel} from "../app.js";
 import { clamp } from "../utils/mathUtils.js";
 import {appleCrayonColorRGB255, rgb255String} from "../utils/colorUtils.js";
 import { hideGlobalSpinner, showGlobalSpinner } from "../utils/utils.js"
 import {compositeColors} from "../utils/colorUtils.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
-import SWBDatasource from "../datasource/SWBDatasource.js"
-import {enableLiveMaps} from "../utils/liveMapUtils"
-import {postMessageToWorker} from "../utils/webWorkerUtils"
+import {enableLiveMaps} from "../utils/liveMapUtils.js"
+import {postMessageToWorker} from "../utils/webWorkerUtils.js"
 
 const kDistanceUndefined = -1
 

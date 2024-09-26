@@ -177,8 +177,6 @@ class SceneManager {
 
         await igvPanel.locusDidChange(ensembleManager.locus)
 
-        await juiceboxPanel.locusDidChange(ensembleManager.locus)
-
     }
 
     receiveEvent({ type, data }) {

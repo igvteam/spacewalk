@@ -1,12 +1,12 @@
 import hic from '../../node_modules/juicebox.js/js/index.js'
-import {ensembleManager, igvPanel, juiceboxPanel} from "../app.js"
+import {ensembleManager, juiceboxPanel} from "../app.js"
 import EnsembleManager from "../ensembleManager.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
 import {hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas} from "../utils/utils.js"
 import {clamp} from "../utils/mathUtils.js"
 import {compositeColors} from "../utils/colorUtils.js"
-import {enableLiveMaps} from "../utils/liveMapUtils"
-import {postMessageToWorker} from "../utils/webWorkerUtils"
+import {enableLiveMaps} from "../utils/liveMapUtils.js"
+import {postMessageToWorker} from "../utils/webWorkerUtils.js"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256

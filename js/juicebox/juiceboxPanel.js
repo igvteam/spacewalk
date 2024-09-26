@@ -182,7 +182,7 @@ class JuiceboxPanel extends Panel {
         if ('DidLoadEnsembleFile' === type) {
 
             // Clear Hi-C map rendering
-            const ctx = juiceboxPanel.browser.contactMatrixView.ctx
+            const ctx = this.browser.contactMatrixView.ctx
             ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') )
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -213,38 +213,6 @@ class JuiceboxPanel extends Panel {
 
     getClassName(){ return 'JuiceboxPanel' }
 
-    async locusDidChange({ chr, genomicStart, genomicEnd }) {
-
-        if (isLiveMapSupported()) {
-            await this.goto({ chr, start: genomicStart, end: genomicEnd })
-
-            const result= this.browser.contactMatrixView.selectStateAndDataset(this.browser.contactMatrixView.isliveMapTabSelection)
-
-            if (result) {
-                this.browser.eventBus.post(hic.HICEvent("LocusChange", { state: result.state, resolutionChanged: true, chrChanged: true }))
-            }
-
-
-        } else {
-            this.browser.reset()
-            this.browser.repaintMatrix()
-            this.dismiss()
-        }
-    }
-
-    async goto({ chr, start, end }) {
-
-        if (isLiveMapSupported()) {
-            try {
-                const browser = this.browser
-                await browser.parseGotoInput(`${chr}:${start}-${end}`)
-            } catch (error) {
-                console.warn(error.message)
-            }
-        }
-
-    }
-
     async loadHicFile(url, name, mapType) {
 
         try {
@@ -274,17 +242,6 @@ class JuiceboxPanel extends Panel {
             console.warn(error.message)
         }
 
-    }
-
-    isContactMapLoaded() {
-
-        if (undefined === this.browser) {
-            return false
-        } else if (undefined === this.browser.dataset) {
-            return false
-        } else {
-            return true
-        }
     }
 
     createContactRecordList(contactFrequencies, liveMapTraceLength) {
