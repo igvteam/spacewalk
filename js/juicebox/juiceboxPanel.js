@@ -15,7 +15,6 @@ import LiveMapState from "./liveMapState.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import { renderLiveMapWithContactData } from "./liveContactMapService.js"
 import { renderLiveMapWithDistanceData } from './liveDistanceMapService.js'
-import {HICEvent} from "./juiceboxHelpful.js"
 import {appleCrayonColorRGB255, rgb255String} from "../utils/colorUtils"
 
 class JuiceboxPanel extends Panel {
@@ -203,7 +202,7 @@ class JuiceboxPanel extends Panel {
                         chrChanged: true
                     }
 
-                this.browser.eventBus.post(HICEvent("LocusChange", eventPayload))
+                this.browser.eventBus.post(hic.HICEvent("LocusChange", eventPayload))
             }
 
         }
@@ -222,7 +221,7 @@ class JuiceboxPanel extends Panel {
             const result= this.browser.contactMatrixView.selectStateAndDataset(this.browser.contactMatrixView.isliveMapTabSelection)
 
             if (result) {
-                this.browser.eventBus.post(HICEvent("LocusChange", { state: result.state, resolutionChanged: true, chrChanged: true }))
+                this.browser.eventBus.post(hic.HICEvent("LocusChange", { state: result.state, resolutionChanged: true, chrChanged: true }))
             }
 
 
