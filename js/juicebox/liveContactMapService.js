@@ -1,4 +1,4 @@
-import hic from '../../node_modules/juicebox.js/js/index.js'
+import hic from 'juicebox.js'
 import {ensembleManager, juiceboxPanel} from "../app.js"
 import EnsembleManager from "../ensembleManager.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
