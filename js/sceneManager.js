@@ -141,20 +141,11 @@ class SceneManager {
         setMaterialProvider(colorRampMaterialProvider)
 
         if (ensembleManager.genomeAssembly !== igvPanel.browser.genome.id) {
-
             console.log(`Genome swap from ${ igvPanel.browser.genome.id } to ${ ensembleManager.genomeAssembly }. Call igv_browser.loadGenome`)
-
-            const str = `igvPanel.browser.loadGenome(${ ensembleManager.genomeAssembly })`
-            console.time(str)
-
             await igvPanel.browser.loadGenome(ensembleManager.genomeAssembly)
-
-            console.timeEnd(str)
         }
 
         await igvPanel.locusDidChange(ensembleManager.locus)
-
-        await juiceboxPanel.locusDidChange(ensembleManager.locus)
 
     }
 
@@ -185,8 +176,6 @@ class SceneManager {
         setMaterialProvider(colorRampMaterialProvider)
 
         await igvPanel.locusDidChange(ensembleManager.locus)
-
-        await juiceboxPanel.locusDidChange(ensembleManager.locus)
 
     }
 

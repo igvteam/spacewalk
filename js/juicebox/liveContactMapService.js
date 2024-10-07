@@ -1,11 +1,12 @@
 import hic from 'juicebox.js'
-import {ensembleManager, igvPanel, juiceboxPanel} from "../app.js"
+import {ensembleManager, juiceboxPanel} from "../app.js"
 import EnsembleManager from "../ensembleManager.js"
-import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
-import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils.js"
-import ContactRecord from "./contactRecord.js"
+import {hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas} from "../utils/utils.js"
 import {clamp} from "../utils/mathUtils.js"
+import {compositeColors} from "../utils/colorUtils.js"
+import {enableLiveMaps} from "../utils/liveMapUtils.js"
+import {postMessageToWorker} from "../utils/webWorkerUtils.js"
 
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
@@ -15,15 +16,11 @@ class LiveContactMapService {
     constructor (distanceThreshold) {
 
         this.distanceThreshold = distanceThreshold
-        this.hicState = undefined
-        this.liveContactMapDataSet = undefined
-        this.contactFrequencies = undefined
-        this.ensembleContactFrequencyArray = undefined
 
         this.input = document.querySelector('#spacewalk_contact_frequency_map_adjustment_select_input')
         this.input.value = distanceThreshold.toString()
 
-        document.querySelector('#spacewalk_contact_frequency_map_button').addEventListener('click', () => {
+        document.querySelector('#hic-live-contact-frequency-map-threshold-button').addEventListener('click', () => {
 
             this.distanceThreshold = clamp(parseInt(this.input.value, 10), 0, maxDistanceThreshold)
 
@@ -34,32 +31,6 @@ class LiveContactMapService {
 
         this.worker = new Worker(new URL('./liveContactMapWorker.js', import.meta.url), { type: 'module' })
 
-        this.worker.addEventListener('message', async ({ data }) => {
-
-            console.log(`Contact Frequency ${ data.traceOrEnsemble } map received from worker`)
-
-            // this.allocateGlobalContactFrequencyBuffer(ensembleManager.getLiveMapTraceLength())
-
-            if ('ensemble' === data.traceOrEnsemble) {
-
-                const { genomeAssembly } = ensembleManager
-                const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-                const traceLength = ensembleManager.getLiveMapTraceLength()
-
-                const { hicState, liveContactMapDataSet } = createLiveContactMapDataSet(igvPanel.browser.genome, juiceboxPanel.browser.contactMatrixView.getViewDimensions(), data.workerValuesBuffer, traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
-
-                this.hicState = hicState
-                this.liveContactMapDataSet = liveContactMapDataSet
-                this.contactFrequencies = data.workerValuesBuffer
-
-                await juiceboxPanel.renderWithLiveContactFrequencyData(this.hicState, this.liveContactMapDataSet, this.contactFrequencies, this.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
-
-                hideGlobalSpinner()
-
-            }
-
-        }, false)
-
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
 
     }
@@ -68,15 +39,15 @@ class LiveContactMapService {
 
         if ("DidLoadEnsembleFile" === type) {
 
-            this.hicState = undefined
-            this.liveContactMapDataSet = undefined
+            const ctx = juiceboxPanel.browser.contactMatrixView.ctx_live
+            ctx.transferFromImageBitmap(null)
+
             this.contactFrequencies = undefined
-            this.ensembleContactFrequencyArray = undefined
+            this.rgbaMatrix = undefined
 
             this.distanceThreshold = distanceThresholdEstimate(ensembleManager.currentTrace)
-            this.input.value = this.distanceThreshold.toString()
 
-            this.allocateGlobalContactFrequencyBuffer(ensembleManager.getLiveMapTraceLength())
+            this.input.value = this.distanceThreshold.toString()
         }
     }
 
@@ -85,14 +56,16 @@ class LiveContactMapService {
         this.input.value = distanceThreshold.toString()
     }
 
-    getClassName(){ return 'LiveContactMapService' }
+    getClassName(){
+        return 'LiveContactMapService'
+    }
 
-    updateEnsembleContactFrequencyCanvas(distanceThresholdOrUndefined) {
+    async updateEnsembleContactFrequencyCanvas(distanceThresholdOrUndefined) {
 
-        const { chr } = ensembleManager.locus
-        const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+        const status = await enableLiveMaps()
 
-        if (chromosome) {
+        if (true === status) {
+
             showGlobalSpinner()
 
             this.distanceThreshold = distanceThresholdOrUndefined || distanceThresholdEstimate(ensembleManager.currentTrace)
@@ -106,24 +79,68 @@ class LiveContactMapService {
                     distanceThreshold: this.distanceThreshold
                 }
 
-            console.log(`Contact Frequency ${ data.traceOrEnsemble } payload sent to worker`)
+            let result
+            try {
+                console.log(`Live Contact Map ${ data.traceOrEnsemble } payload sent to worker`)
+                result = await postMessageToWorker(this.worker, data)
+                hideGlobalSpinner()
+            } catch (err) {
+                hideGlobalSpinner()
+                console.error('Error: Live Contact Map', err)
 
-            this.worker.postMessage(data)
+            }
 
-        } else {
-            hideGlobalSpinner()
-            const str = `Warning! Can not create Live Contact Map. No valid genome for chromosome ${ chr }`
-            console.warn(str)
-            alert(str)
+            const traceLength = ensembleManager.getLiveMapTraceLength()
+            const arrayLength = traceLength * traceLength * 4
+
+            if (undefined === this.rgbaMatrix || this.rgbaMatrix.length !== arrayLength) {
+                this.rgbaMatrix = new Uint8ClampedArray(arrayLength)
+            } else {
+                this.rgbaMatrix.fill(0)
+            }
+
+            this.contactFrequencies = result.workerValuesBuffer
+            juiceboxPanel.createContactRecordList(this.contactFrequencies, traceLength)
+
+            await juiceboxPanel.renderLiveMapWithContactData(this.contactFrequencies, this.rgbaMatrix, traceLength)
+
         }
 
-
     }
+}
 
-    allocateGlobalContactFrequencyBuffer(traceLength) {
-        this.ensembleContactFrequencyArray = new Uint8ClampedArray(traceLength * traceLength * 4)
+async function renderLiveMapWithContactData(browser, state, liveContactMapDataSet, frequencies, frequencyRGBAList, liveMapTraceLength) {
+
+    browser.eventBus.post(hic.HICEvent('MapLoad', { dataset: liveContactMapDataSet, state }))
+
+    browser.locusGoto.doChangeLocus({ dataset: liveContactMapDataSet, state })
+
+    const zoomIndexA = state.zoom
+    const { chr1, chr2 } = state
+    const zoomData = liveContactMapDataSet.getZoomDataByIndex(chr1, chr2, zoomIndexA)
+
+    browser.contactMatrixView.checkColorScale_sw(browser, state, 'LIVE', liveContactMapDataSet, zoomData)
+
+    paintContactMapGBAMatrix(frequencies, frequencyRGBAList, browser.contactMatrixView.colorScale, browser.contactMatrixView.backgroundColor)
+
+    await transferRGBAMatrixToLiveMapCanvas(browser.contactMatrixView.ctx_live, frequencyRGBAList, liveMapTraceLength)
+
+}
+
+function paintContactMapGBAMatrix(frequencies, rgbaMatrix, colorScale, backgroundRGB) {
+
+    let i = 0
+    for (const frequency of frequencies) {
+
+        const { red, green, blue, alpha } = colorScale.getColor(frequency)
+        const foregroundRGBA = { r:red, g:green, b:blue, a:alpha }
+        const { r, g, b } = compositeColors(foregroundRGBA, backgroundRGB)
+
+        rgbaMatrix[i++] = r
+        rgbaMatrix[i++] = g
+        rgbaMatrix[i++] = b
+        rgbaMatrix[i++] = 255
     }
-
 }
 
 function distanceThresholdEstimate(trace) {
@@ -131,71 +148,6 @@ function distanceThresholdEstimate(trace) {
     return Math.floor(2 * radius / 4)
 }
 
-// Contact Matrix is m by m where m = traceLength
-function createLiveContactMapDataSet(genome, contactMatrixViewDimensions, contacts, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
-
-    const hicState = createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly, chr, genomicStart, genomicEnd)
-
-    const contactRecordList = []
-
-    // traverse the upper-triangle of a contact matrix. Each step is one "bin" unit
-    let n = 1
-    let averageCount = 0
-    for (let wye = 0; wye < traceLength; wye++) {
-
-        for (let exe = wye; exe < traceLength; exe++) {
-
-            const xy = exe * traceLength + wye
-            const count = contacts[ xy ]
-
-            contactRecordList.push(new ContactRecord(hicState.x + exe, hicState.y + wye, count))
-
-            // Incremental averaging: avg_k = avg_k-1 + (value_k - avg_k-1) / k
-            // see: https://math.stackexchange.com/questions/106700/incremental-averageing
-            averageCount = averageCount + (count - averageCount)/n
-
-            ++n
-
-        } // for (exe)
-
-    } // for (wye)
-
-    const binSize = (genomicEnd - genomicStart) / traceLength
-
-    const liveContactMapDataSet = new LiveContactMapDataSet(binSize, genome, contactRecordList, averageCount)
-
-    return { hicState, liveContactMapDataSet }
-
-}
-
-function createHICState(contactMatrixViewDimensions, traceLength, genomeAssembly, chr, genomicStart, genomicEnd) {
-
-    const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
-
-
-    // bin count
-    const binCount = traceLength
-
-    // bp-per-bin. Bin Size is synonymous with resolution
-    const binSize = (genomicEnd - genomicStart) / binCount
-
-    // canvas - pixel x pixel
-    const { width, height } = contactMatrixViewDimensions
-
-    // pixels-per-bin
-    const pixelSize = width/binCount
-
-    // x, y in Bin units
-    const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
-
-    // chromosome index
-    let { order } = chromosome
-
-    // IGV chromosome indices are off by one relative to Juicebox chromosomes
-    return new hic.State(1 + order, 1 + order, 0, xBin, yBin, width, height, pixelSize, 'NONE')
-
-}
-
-export { defaultDistanceThreshold }
+export { defaultDistanceThreshold, renderLiveMapWithContactData }
 
 export default LiveContactMapService

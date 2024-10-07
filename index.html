@@ -279,13 +279,6 @@
                 </label>
               </li>
 
-              <!-- Distance Map -->
-              <li>
-                <label>
-                  <input id="spacewalk_ui_manager_ui_controls_distance_map" data-target="spacewalk_distance_map_panel" type="checkbox">
-                  Show Distance Map
-                </label>
-              </li>
             </ul>
           </div>
         </li>
@@ -508,10 +501,13 @@
 
           <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item" role="presentation">
-              <button id="spacewalk-juicebox-panel-hic-map-tab" class="nav-link active" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Hi-C Map</button>
+              <button id="spacewalk-juicebox-panel-hic-map-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Hi-C Map</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button id="spacewalk-juicebox-panel-live-map-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Live Map</button>
+              <button id="spacewalk-juicebox-panel-live-map-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Live Contact</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button id="spacewalk-juicebox-panel-live-distance-map-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="" type="button" role="tab">Live Distance</button>
             </li>
           </ul>
 
@@ -578,14 +574,30 @@
               </div>
             </li>
 
+            <!-- Live Contact Map Threshold Widget -->
             <li id="hic-live-contact-frequency-map-threshold-widget" class="list-group-item py-1 ps-1">
               <div class="d-flex justify-content-between align-items-center">
                 <div class="input-group input-group-sm">
                   <div class="input-group-text">Threshold</div>
                   <input id="spacewalk_contact_frequency_map_adjustment_select_input" type="text" class="form-control text-center">
-                  <button id="spacewalk_contact_frequency_map_button" class="btn btn-secondary" type="button">Enter</button>
+                  <button id="hic-live-contact-frequency-map-threshold-button" class="btn btn-secondary" type="button">Enter</button>
                 </div>
-                <button id="hic-live-contact-frequency-map-button" class="btn btn-sm btn-outline-secondary" type="button">Calculate Live Map</button>
+                <button id="hic-live-contact-frequency-map-calculation-button" class="btn btn-sm btn-outline-secondary" type="button">Calculate Live Map</button>
+              </div>
+            </li>
+
+            <!-- Live Distance Map Toggle Widget -->
+            <li id="hic-live-distance-map-toggle-widget" class="list-group-item py-1 px-1">
+              <div class="form-group d-flex justify-content-between align-items-center">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                  <label class="btn btn-sm btn-outline-secondary">
+                    <input type="radio" name="options" id="spacewalk-live-distance-map-toggle-ensemble" autocomplete="off"> Ensemble
+                  </label>
+                  <label class="btn btn-sm btn-outline-secondary">
+                    <input type="radio" name="options" id="spacewalk-live-distance-map-toggle-trace" autocomplete="off"> Trace
+                  </label>
+                </div>
+                <button id="hic-calculation-live-distance-button" type="button" class="btn btn-sm btn-outline-secondary ms-2">Calculate Live Map</button>
               </div>
             </li>
 
@@ -659,47 +671,6 @@
 
           <!-- igv browser container -->
           <div id="spacewalk_igv_root_container"></div>
-        </div>
-      </div>
-
-      <!-- distance-map panel -->
-      <div id="spacewalk_distance_map_panel" class="card">
-
-        <div class="card-header">
-
-          <!-- drag handle -->
-          <div class="spacewalk_card_drag_container">
-            <i class="fas fa-square-full"></i>
-            <i class="fas fa-lg fa-grip-horizontal"></i>
-            <i class="fas fa-times-circle" data-target="spacewalk_ui_manager_ui_controls_distance_map"></i>
-          </div>
-
-          <div class="text-center">
-            Distance Map
-          </div>
-
-          <ul class="nav nav-tabs card-header-tabs">
-            <li class="nav-item">
-              <a class="nav-link active" data-bs-toggle="tab" href="#spacewalk_distance_map_canvas_trace">Trace</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#spacewalk_distance_map_canvas_ensemble">Ensemble</a>
-            </li>
-          </ul>
-
-        </div>
-
-        <div id="spacewalk_distance_map_panel_body" class="card-body p-0">
-
-          <div id="spacewalk_distance_map_panel_container" class="tab-content">
-
-            <div class="spacewalk-spinner-container d-flex align-items-center justify-content-center">
-              <div id="spacewalk-distance-map-spinner" class="spinner-border text-secondary" style="display:none; width: 5rem; height: 5rem;"></div>
-            </div>
-
-            <canvas id="spacewalk_distance_map_canvas_trace" class="tab-pane active"></canvas>
-            <canvas id="spacewalk_distance_map_canvas_ensemble" class="tab-pane"></canvas>
-          </div>
         </div>
       </div>
 

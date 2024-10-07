@@ -123,33 +123,23 @@ function createImage(imageSource) {
 
 }
 
-function clearCanvasArray(canvasArray, traceLength) {
+function fillRGBAMatrix(rgbaMatrix, matrixDimension, rgb255) {
 
-    const { r, g, b } = appleCrayonColorRGB255('magnesium')
-    const length = traceLength * traceLength
+    const { r, g, b } = rgb255
+    const length = matrixDimension * matrixDimension
     let i = 0
     for (let x = 0; x < length; x++) {
-        canvasArray[i++] = r
-        canvasArray[i++] = g
-        canvasArray[i++] = b
-        canvasArray[i++] = 255
+        rgbaMatrix[i++] = r
+        rgbaMatrix[i++] = g
+        rgbaMatrix[i++] = b
+        rgbaMatrix[i++] = 255
     }
 
 }
 
-async function renderArrayToCanvas(ctx, array) {
+async function transferRGBAMatrixToLiveMapCanvas(ctx, rgbaMatrix, matrixDimension) {
 
-    const { width, height } = ctx.canvas;
-
-    const imageData = new ImageData(array, ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapTraceLength());
-
-    // const config =
-    //     {
-    //         resizeWidth: width,
-    //         resizeHeight: height
-    //     };
-    //
-    // const imageBitmap = await createImageBitmap(imageData, config);
+    const imageData = new ImageData(rgbaMatrix, matrixDimension, matrixDimension)
 
     const imageBitmap = await createImageBitmap(imageData)
 
@@ -177,9 +167,9 @@ export {
     unsetDataMaterialProviderCheckbox,
     getMaterialProvider,
     setMaterialProvider,
-    clearCanvasArray,
+    fillRGBAMatrix,
     createImage,
-    renderArrayToCanvas,
+    transferRGBAMatrixToLiveMapCanvas,
     readFileAsDataURL,
     fitToContainer,
     getMouseXY,

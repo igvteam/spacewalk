@@ -220,13 +220,6 @@ class SWBDatasource extends DataSourceBase {
     getLiveMapTraceVertices(trace) {
         return this.liveContactFrequencyMapVertexLists[ this.currentTraceIndex ]
     }
-
-    async distanceMapPresentationHandler(distanceMapHandler) {
-        if (undefined === this.liveContactFrequencyMapVertexLists) {
-            await this.calculateLiveMapVertexLists()
-        }
-        distanceMapHandler()
-    }
 }
 
 function createPointCloudPayload(key, genomicExtent, rawXYZ) {

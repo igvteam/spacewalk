@@ -200,5 +200,17 @@ function blendColorsLab(colorList) {
 
 const highlightColor = appleCrayonColorThreeJS('honeydew')
 
-export { highlightColor, hex2RGB255, colorString2Tokens, threeJSColorToRGB255, rgb255ToThreeJSColor, appleCrayonColorThreeJS, appleCrayonColorRGB255, blendColorsLab };
+// Live Map compositing method
+function compositeColors(foreRGBA, backRGB) {
+
+    const alpha = foreRGBA.a / 255;
+
+    const r = Math.round(alpha * foreRGBA.r + (1 - alpha) * backRGB.r);
+    const g = Math.round(alpha * foreRGBA.g + (1 - alpha) * backRGB.g);
+    const b = Math.round(alpha * foreRGBA.b + (1 - alpha) * backRGB.b);
+
+    return { r, g, b };
+}
+
+export { compositeColors, highlightColor, hex2RGB255, colorString2Tokens, threeJSColorToRGB255, rgb255ToThreeJSColor, appleCrayonColorThreeJS, appleCrayonColorRGB255, blendColorsLab };
 

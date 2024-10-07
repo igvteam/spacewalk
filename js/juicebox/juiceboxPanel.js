@@ -1,9 +1,21 @@
 import hic from 'juicebox.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
-import { ballAndStick, colorRampMaterialProvider, liveContactMapService, ensembleManager, ribbon } from '../app.js'
-import SWBDatasource from "../datasource/SWBDatasource.js"
+import {
+    ballAndStick,
+    colorRampMaterialProvider,
+    liveContactMapService,
+    liveDistanceMapService,
+    ensembleManager,
+    ribbon,
+    igvPanel, juiceboxPanel
+} from '../app.js'
 import {makeDraggable} from "../utils/draggable.js"
+import LiveMapState from "./liveMapState.js"
+import LiveContactMapDataSet from "./liveContactMapDataSet.js"
+import { renderLiveMapWithContactData } from "./liveContactMapService.js"
+import { renderLiveMapWithDistanceData } from './liveDistanceMapService.js'
+import {appleCrayonColorRGB255, rgb255String} from "../utils/colorUtils"
 
 class JuiceboxPanel extends Panel {
 
@@ -32,6 +44,10 @@ class JuiceboxPanel extends Panel {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         })
 
+        panel.querySelector('#hic-live-contact-frequency-map-calculation-button').addEventListener('click', async e => {
+            liveContactMapService.updateEnsembleContactFrequencyCanvas(undefined)
+        })
+
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this)
 
     }
@@ -57,38 +73,138 @@ class JuiceboxPanel extends Panel {
                 }
         }
 
+        await this.loadSession(session)
+
+    }
+
+    async loadSession(session) {
+
+        this.detachMouseHandlers()
+
         try {
-            this.browser = await hic.restoreSession(container, session)
-            this.locus = config.locus
+            this.browser = await hic.restoreSession(document.querySelector('#spacewalk_juicebox_root_container'), session)
         } catch (e) {
-            const error = new Error(`Error initializing Juicebox ${ e.message }`)
+            const error = new Error(`Error loading Juicebox Session ${ e.message }`)
             console.error(error.message)
             alert(error.message)
-
         }
 
-        this.configureTabs()
-        this.configureMouseHandlers()
+        if (ensembleManager.datasource) {
+            setJuiceboxLiveState(this.browser)
+        }
 
+        this.attachMouseHandlersAndEventSubscribers()
 
-        document.querySelector('#hic-live-contact-frequency-map-button').addEventListener('click', async e => {
+        this.hicMapTab.show()
 
-            if (ensembleManager.datasource instanceof SWBDatasource) {
-                await ensembleManager.datasource.calculateLiveMapVertexLists()
-            }
+    }
 
-            liveContactMapService.updateEnsembleContactFrequencyCanvas(undefined)
-            this.present()
+    attachMouseHandlersAndEventSubscribers() {
+
+        this.browser.eventBus.subscribe('DidHideCrosshairs', ribbon)
+
+        this.browser.eventBus.subscribe('DidHideCrosshairs', ballAndStick)
+
+        this.browser.eventBus.subscribe('DidHideCrosshairs', colorRampMaterialProvider)
+
+        this.browser.eventBus.subscribe('DidUpdateColor', async ({ data }) => {
+            await this.colorPickerHandler(data)
+        })
+
+        this.browser.eventBus.subscribe('DidUpdateColorScaleThreshold', async ({ data }) => {
+            const { threshold, r, g, b } = data
+            console.log('JuiceboxPanel. Render Live Contact Map')
+            await this.renderLiveMapWithContactData(liveContactMapService.contactFrequencies, liveContactMapService.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
 
         })
+
+        this.browser.eventBus.subscribe('MapLoad', async event => {
+            const activeTabButton = this.container.querySelector('button.nav-link.active')
+            tabAssessment(this.browser, activeTabButton)
+        })
+
+        this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
+            juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
+        })
+
+        this.configureTabs()
+    }
+
+    configureTabs() {
+
+        // Locate tab elements
+        const hicMapTabElement = document.getElementById('spacewalk-juicebox-panel-hic-map-tab')
+        const liveMapTabElement = document.getElementById('spacewalk-juicebox-panel-live-map-tab')
+        const liveDistanceMapTabElement = document.getElementById('spacewalk-juicebox-panel-live-distance-map-tab')
+
+        // Assign data-bs-target to refer to corresponding map canvas container (hi-c or live-contact or live-distance)
+        hicMapTabElement.setAttribute("data-bs-target", `#${this.browser.id}-contact-map-canvas-container`)
+        liveMapTabElement.setAttribute("data-bs-target", `#${this.browser.id}-live-contact-map-canvas-container`)
+        liveDistanceMapTabElement.setAttribute("data-bs-target", `#${this.browser.id}-live-distance-map-canvas-container`)
+
+        // Create instance property for each tab
+        this.hicMapTab = new bootstrap.Tab(hicMapTabElement)
+        this.liveMapTab = new bootstrap.Tab(liveMapTabElement)
+        this.liveDistanceMapTab = new bootstrap.Tab(liveDistanceMapTabElement)
+
+        // Default to show Live Map tab
+        this.liveMapTab.show()
+
+        const activeTabButton = this.container.querySelector('button.nav-link.active')
+        tabAssessment(this.browser, activeTabButton)
+
+        for (const tabElement of this.container.querySelectorAll('button[data-bs-toggle="tab"]')) {
+            tabElement.addEventListener('show.bs.tab', tabEventHandler)
+        }
+
+        this.liveDistanceMapTab._element.addEventListener('shown.bs.tab', event => {
+            if (liveDistanceMapService.isTraceToggleChecked()) {
+                liveDistanceMapService.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+            }
+        })
+
+    }
+
+    isActiveTab(tab) {
+        return tab._element.classList.contains('active')
+    }
+
+    detachMouseHandlers() {
+
+        for (const tabElement of this.container.querySelectorAll('button[data-bs-toggle="tab"]')) {
+            tabElement.removeEventListener('show.bs.tab', tabEventHandler);
+        }
 
     }
 
     receiveEvent({ type, data }) {
 
         if ('DidLoadEnsembleFile' === type) {
-            const ctx = this.browser.contactMatrixView.ctx_live
-            ctx.transferFromImageBitmap(null)
+
+            // Clear Hi-C map rendering
+            const ctx = this.browser.contactMatrixView.ctx
+            ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') )
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+            setJuiceboxLiveState(this.browser)
+
+            // Show Live Map tab to be consistent with Live State and Dataset
+            this.liveMapTab.show()
+
+            const result= this.browser.contactMatrixView.selectStateAndDataset(this.browser.contactMatrixView.isliveMapTabSelection)
+
+            if (result) {
+                const eventPayload =
+                    {
+                        state: result.state,
+                        dataset: result.dataset,
+                        resolutionChanged: true,
+                        chrChanged: true
+                    }
+
+                this.browser.eventBus.post(hic.HICEvent("LocusChange", eventPayload))
+            }
+
         }
 
         super.receiveEvent({ type, data });
@@ -96,104 +212,6 @@ class JuiceboxPanel extends Panel {
     }
 
     getClassName(){ return 'JuiceboxPanel' }
-
-    async locusDidChange({ chr, genomicStart, genomicEnd }) {
-
-        if (this.isContactMapLoaded() && this.browser.dataset.isLiveContactMapDataSet !== true) {
-            try {
-                await this.goto({ chr, start: genomicStart, end: genomicEnd })
-            } catch (e) {
-                console.error(e.message)
-                alert(e.message)
-            }
-        }
-    }
-
-    configureTabs() {
-
-        const tabAssessment = activeTabButton => {
-            if ('spacewalk-juicebox-panel-hic-map-tab' === activeTabButton.id) {
-                document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
-                document.getElementById('hic-file-chooser-dropdown').style.display = 'block'
-                this.browser.contactMatrixView.assessPanelTabSelection(false)
-            } else if ('spacewalk-juicebox-panel-live-map-tab' === activeTabButton.id) {
-                document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'block'
-                document.getElementById('hic-file-chooser-dropdown').style.display = 'none'
-                this.browser.contactMatrixView.assessPanelTabSelection(true)
-            }
-        }
-
-        // var liveMapTab = new bootstrap.Tab(this);
-
-        const hicMapTabElement = document.getElementById('spacewalk-juicebox-panel-hic-map-tab')
-        const liveMapTabElement = document.getElementById('spacewalk-juicebox-panel-live-map-tab')
-
-        // For each tab, assign data-bs-target to point to the corresponding map container (hi-c or live)
-        hicMapTabElement.setAttribute("data-bs-target", `#${this.browser.id}-contact-map-canvas-container`)
-        liveMapTabElement.setAttribute("data-bs-target", `#${this.browser.id}-live-contact-map-canvas-container`)
-
-        this.liveMapTab = new bootstrap.Tab(liveMapTabElement)
-        this.hicMapTab = new bootstrap.Tab(hicMapTabElement)
-
-        // this.browser.contactMatrixView.assessPanelTabSelection(false)
-        // document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
-        // document.getElementById('hic-file-chooser-dropdown').style.display = 'block'
-        const activeTabButton = this.container.querySelector('button.nav-link.active')
-        tabAssessment(activeTabButton)
-
-        this.browser.eventBus.subscribe('MapLoad', async event => {
-            const activeTabButton = this.container.querySelector('button.nav-link.active')
-            tabAssessment(activeTabButton)
-        })
-
-        const tabs = this.container.querySelectorAll('button[data-bs-toggle="tab"]')
-
-        // show/hide associated buttons for corresponding map type (live or hi-c)
-        for (const tab of tabs) {
-            tab.addEventListener('show.bs.tab', event => {
-                tabAssessment(event.target)
-                console.log(`Juicebox panel: ${ event.target.id } tab selection`)
-            })
-        }
-
-        if (true === this.isContactMapLoaded()) {
-            if (true === this.browser.dataset.isLiveContactMapDataSet) {
-                this.liveMapTab.show()
-            } else {
-                this.hicMapTab.show()
-            }
-        }
-
-    }
-
-    configureMouseHandlers() {
-
-        this.browser.eventBus.subscribe('DidHideCrosshairs', ribbon)
-        this.browser.eventBus.subscribe('DidHideCrosshairs', ballAndStick)
-        this.browser.eventBus.subscribe('DidHideCrosshairs', colorRampMaterialProvider)
-
-        this.browser.eventBus.subscribe('DidUpdateColor', async ({ data }) => {
-            await this.colorPickerHandler(data)
-        })
-
-        this.browser.setCustomCrosshairsHandler(({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY }) => {
-            juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, interpolantX, interpolantY });
-        })
-
-    }
-
-    async goto({ chr, start, end }) {
-
-        if (this.isContactMapLoaded()) {
-            try {
-                const browser = this.browser
-                await browser.parseGotoInput(`${chr}:${start}-${end}`)
-            } catch (error) {
-                console.warn(error.message)
-            }
-        }
-
-    }
 
     async loadHicFile(url, name, mapType) {
 
@@ -226,26 +244,30 @@ class JuiceboxPanel extends Panel {
 
     }
 
-    isContactMapLoaded() {
-
-        if (undefined === this.browser) {
-            return false
-        } else if (undefined === this.browser.dataset) {
-            return false
-        } else {
-            return true
-        }
+    createContactRecordList(contactFrequencies, liveMapTraceLength) {
+        this.browser.liveMapDataset.createContactRecordList(this.browser.liveMapState, contactFrequencies, liveMapTraceLength)
     }
 
-    async renderWithLiveContactFrequencyData(state, liveContactMapDataSet, contactFrequencies, contactFrequencyArray, liveMapTraceLength) {
-        await this.browser.contactMatrixView.renderWithLiveContactFrequencyData(this.browser, state, liveContactMapDataSet, contactFrequencies, contactFrequencyArray, liveMapTraceLength)
+    async renderLiveMapWithContactData(contactFrequencies, contactFrequencyArray, liveMapTraceLength) {
+        console.log('JuiceboxPanel. Render Live Contact Map')
+        await renderLiveMapWithContactData(this.browser, this.browser.liveMapState, this.browser.liveMapDataset, contactFrequencies, contactFrequencyArray, liveMapTraceLength)
+    }
+
+    async renderLiveMapWithDistanceData(distances, maxDistance, rgbaMatrix, liveMapTraceLength) {
+        console.log('JuiceboxPanel. Render Live Distance Map')
+        await renderLiveMapWithDistanceData(this.browser, distances, maxDistance, rgbaMatrix, liveMapTraceLength)
     }
 
     async colorPickerHandler(data) {
-        if (liveContactMapService.liveContactMapDataSet) {
-            console.log(`JuiceboxPanel - colorPicker(${ data }). renderWithLiveContactFrequencyData()`)
-            await this.renderWithLiveContactFrequencyData(liveContactMapService.hicState, liveContactMapService.liveContactMapDataSet, liveContactMapService.contactFrequencies, liveContactMapService.ensembleContactFrequencyArray, ensembleManager.getLiveMapTraceLength())
+        if (liveContactMapService.contactFrequencies) {
+            console.log('JuiceboxPanel.colorPickerHandler(). Will render Live Contact Map')
+            await this.renderLiveMapWithContactData(liveContactMapService.contactFrequencies, liveContactMapService.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
         }
+        if (liveDistanceMapService.distances) {
+            console.log('JuiceboxPanel.colorPickerHandler(). Will render Live Distance Map')
+            await this.renderLiveMapWithDistanceData(liveDistanceMapService.distances, liveDistanceMapService.maxDistance, liveDistanceMapService.rgbaMatrix, ensembleManager.getLiveMapTraceLength())
+        }
+
     }
 }
 
@@ -271,6 +293,74 @@ function juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
     }
 
     SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList: [ interpolantX, interpolantY ] } })
+}
+
+function isLiveMapSupported() {
+
+    const { chr } = ensembleManager.locus
+    const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+    if (undefined === chromosome) {
+        console.warn(`Live Maps are not available for chromosome ${ chr }. No associated genome found`)
+        return false
+    } else {
+        return true
+    }
+}
+
+function setJuiceboxLiveState(browser) {
+
+    if (true === isLiveMapSupported()){
+
+        // Create state and dataset
+        browser.liveMapState = new LiveMapState(ensembleManager, browser.contactMatrixView)
+        browser.liveMapDataset = new LiveContactMapDataSet(igvPanel.browser.genome, ensembleManager)
+
+        // Update Juicebox rulers
+        browser.layoutController.xAxisRuler.presentLiveMapRuler(browser.liveMapState, browser.liveMapDataset)
+        browser.layoutController.yAxisRuler.presentLiveMapRuler(browser.liveMapState, browser.liveMapDataset)
+
+        if (!browser.contactMatrixView.mouseHandlersEnabled) {
+            browser.contactMatrixView.addMouseHandlers(browser.contactMatrixView.$viewport);
+            browser.contactMatrixView.mouseHandlersEnabled = true;
+        }
+    }
+
+}
+
+function tabEventHandler(event) {
+    tabAssessment(juiceboxPanel.browser, event.target);
+}
+
+function tabAssessment(browser, activeTabButton) {
+
+    // console.log(`JuiceboxPanel. Tab ${ activeTabButton.id } is active`);
+
+    switch (activeTabButton.id) {
+        case 'spacewalk-juicebox-panel-hic-map-tab':
+            document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'none'
+            document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
+            document.getElementById('hic-file-chooser-dropdown').style.display = 'block'
+            browser.contactMatrixView.assessLiveMapStatus(false)
+            break;
+
+        case 'spacewalk-juicebox-panel-live-map-tab':
+            document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'none'
+            document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'block'
+            document.getElementById('hic-file-chooser-dropdown').style.display = 'none'
+            browser.contactMatrixView.assessLiveMapStatus(true)
+            break;
+
+        case 'spacewalk-juicebox-panel-live-distance-map-tab':
+            document.getElementById('hic-live-distance-map-toggle-widget').style.display = 'block'
+            document.getElementById('hic-live-contact-frequency-map-threshold-widget').style.display = 'none'
+            document.getElementById('hic-file-chooser-dropdown').style.display = 'none'
+            browser.contactMatrixView.assessLiveMapStatus(true)
+            break;
+
+        default:
+            console.log('Unknown tab is active');
+            break;
+    }
 }
 
 export default JuiceboxPanel;

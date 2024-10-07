@@ -47,9 +47,7 @@ async function loadIGVSession(spacewalk, igv) {
 }
 
 async function loadJuiceboxSession(session) {
-    juiceboxPanel.browser = await hic.restoreSession(document.querySelector('#spacewalk_juicebox_root_container'), session)
-    juiceboxPanel.configureTabs()
-    juiceboxPanel.configureMouseHandlers()
+    await juiceboxPanel.loadSession(session)
 }
 
 async function loadSpacewalkSession (session) {
