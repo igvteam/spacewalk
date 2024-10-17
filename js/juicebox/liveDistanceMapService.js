@@ -29,20 +29,27 @@ class LiveDistanceMapService {
     configureMouseHandlers(){
 
         this.ensembleToggleElement = juiceboxPanel.panel.querySelector('#spacewalk-live-distance-map-toggle-ensemble')
+
         this.ensembleToggleElement.addEventListener('click', () => {
-            this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
+            const liveMapTraceLength = ensembleManager.getLiveMapTraceLength()
+            const liveMapVertexLists = ensembleManager.getLiveMapVertexLists()
+            this.updateEnsembleAverageDistanceCanvas(liveMapTraceLength)
         })
 
         this.traceToggleElement = juiceboxPanel.panel.querySelector('#spacewalk-live-distance-map-toggle-trace')
         this.traceToggleElement.addEventListener('click', () => {
-            this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+            const liveMapTraceLength = ensembleManager.getLiveMapTraceLength()
+            this.updateTraceDistanceCanvas(liveMapTraceLength, ensembleManager.currentTrace)
         })
 
         juiceboxPanel.panel.querySelector('#hic-calculation-live-distance-button').addEventListener('click', event => {
             if (this.isEnsembleToggleChecked()) {
-                this.updateEnsembleAverageDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.getLiveMapVertexLists())
+                const liveMapTraceLength = ensembleManager.getLiveMapTraceLength()
+                const liveMapVertexLists = ensembleManager.getLiveMapVertexLists()
+                this.updateEnsembleAverageDistanceCanvas(liveMapTraceLength)
             } else if (this.isTraceToggleChecked()) {
-                this.updateTraceDistanceCanvas(ensembleManager.getLiveMapTraceLength(), ensembleManager.currentTrace)
+                const liveMapTraceLength = ensembleManager.getLiveMapTraceLength()
+                this.updateTraceDistanceCanvas(liveMapTraceLength, ensembleManager.currentTrace)
             }
         })
 
@@ -114,13 +121,15 @@ class LiveDistanceMapService {
 
     }
 
-    async updateEnsembleAverageDistanceCanvas(traceLength, vertexLists) {
+    async updateEnsembleAverageDistanceCanvas(traceLength) {
 
         const status = await enableLiveMaps()
 
         if (true === status) {
 
             showGlobalSpinner()
+
+            const vertexLists = ensembleManager.getLiveMapVertexLists()
 
             const data =
                 {
