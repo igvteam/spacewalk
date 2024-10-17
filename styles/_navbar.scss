@@ -1,3 +1,6 @@
+@use "color";
+
+$spacewalk_navbar_height: 42px;
 
 .navbar {
   padding-top:   0.25rem;
@@ -14,7 +17,7 @@
       font-size: 0.95rem;
       font-weight: 600;
       //color: rgba(255,255,255,.5);
-      color: $spacewalk_snow;
+      color: color.$spacewalk_snow;
     }
 
     .btn:focus, a:focus {
@@ -34,20 +37,20 @@
 
   .dropdown-header {
     color: white;
-    background-color: $spacewalk_steel;
+    background-color: color.$spacewalk_steel;
     //color: $spacewalk_tungsten;
     font-size: 1rem;
   }
 
   .dropdown-item {
-    color: $spacewalk_tungsten;
+    color: color.$spacewalk_tungsten;
     font-size: .875rem;
   }
 
 }
 
 div.navbar-brand {
-  color: $spacewalk_snow;
+  color: color.$spacewalk_snow;
   background-color: #4A90E2;
   height: $spacewalk_navbar_height;
   font-size: 1.5rem;
@@ -62,7 +65,7 @@ div.navbar-brand {
 #spacewalk-navbar-content {
 
   #spacewalk-file-name {
-    color: $spacewalk_snow;
+    color: color.$spacewalk_snow;
     font-size: 1rem;
   }
 }
