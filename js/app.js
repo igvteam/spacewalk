@@ -20,7 +20,7 @@ import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/colorUtils.js";
-import {getUrlParams, loadSessionURL, toJSON, loadSession, uncompressSession} from "./spacewalkSession.js"
+import {getUrlParams, loadSpacewalkSessionURL, toJSON, loadSession, uncompressSession} from "./spacewalkSession.js"
 import { initializeMaterialLibrary } from "./utils/materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
@@ -151,7 +151,13 @@ const initializationHelper = async container => {
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
     guiManager = new GUIManager({ settingsButton, $panel: $('#spacewalk_ui_manager_panel') });
 
-    await loadSessionURL(spacewalkSessionURL)
+    await loadSpacewalkSessionURL(spacewalkSessionURL)
+
+    // TODO: HACK HACK to ensure Hi-C map renders properly when loading a share URL
+    //       Fix by refactoring entire session URL loading scheme
+    if (juiceboxPanel.browser.dataset){
+        await juiceboxPanel.browser.contactMatrixView.repaint()
+    }
 
     document.querySelector('.navbar').style.display = 'flex'
 
@@ -162,11 +168,6 @@ const initializationHelper = async container => {
 }
 
 async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, distanceThreshold, locusString) {
-
-    // $('.checkbox-menu').on("change", "input[type='checkbox']", () => $(this).closest("li").toggleClass("active", this.checked))
-
-    // to support Viewers navbar item. Checkbox settings.
-    // $(document).on('click', '.allow-focus', e => e.stopPropagation())
 
     traceSelect = new TraceSelect()
 
