@@ -6,7 +6,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {defaultDistanceThreshold} from './juicebox/liveContactMapService.js'
 import { shortenURL } from "./share/shareHelper.js"
 
-const loadSessionURL = async spacewalkSessionURL => {
+async function loadSpacewalkSessionURL(spacewalkSessionURL){
 
     if (spacewalkSessionURL) {
         const spacewalk = JSON.parse( uncompressSession(spacewalkSessionURL) )
@@ -232,4 +232,4 @@ function uncompressSession(url) {
     }
 }
 
-export { getShareURL, getUrlParams, loadSessionURL, toJSON, loadSession, uncompressSession };
+export { getShareURL, getUrlParams, loadSpacewalkSessionURL, toJSON, loadSession, uncompressSession };
