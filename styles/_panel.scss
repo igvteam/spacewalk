@@ -4,6 +4,8 @@ $spacewalk_tool_panel_width: 512px;
 $spacewalk_tool_panel_height: 512px;
 $spacewalk_card_drag_container_height: 32px;
 
+@use "color";
+
 .card {
   position: absolute;
   top: -1000px;
@@ -14,9 +16,8 @@ $spacewalk_card_drag_container_height: 32px;
   width: $spacewalk_tool_panel_width;
   height: $spacewalk_tool_panel_height;
 
-  border-color: $spacewalk_aluminum;
-  //background-color: rgba(255, 255, 255, 0.65);
-  background-color: $spacewalk_snow;
+  border-color: color.$spacewalk_aluminum;
+  background-color: color.$spacewalk_snow;
 
   user-select: none;
 
@@ -49,7 +50,7 @@ $spacewalk_card_drag_container_height: 32px;
 
   i {
     cursor: grab;
-    color: $spacewalk_steel;
+    color: color.$spacewalk_steel;
     display: block;
   }
 

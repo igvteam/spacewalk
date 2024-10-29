@@ -27,9 +27,9 @@
     "igv-utils": "github:igvteam/igv-utils#v1.5.8",
     "juicebox.js": "github:igvteam/juicebox.js#spacewalk",
     "node-fetch": "^3.3.0",
-    "sass": "^1.78.0",
+    "sass": "^1.80.4",
     "three": "^0.161.0",
     "vanilla-picker": "^2.12.1",
-    "vite": "^5.4.5"
+    "vite": "^5.4.10"
   }
 }

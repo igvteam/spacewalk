@@ -3,6 +3,8 @@
 $spacewalk_igv_panel_width: 600px;
 $spacewalk_igv_panel_heigth: 256px;
 
+@use "color";
+
 .igv-left-hand-gutter {
 
   > div {
@@ -13,7 +15,7 @@ $spacewalk_igv_panel_heigth: 256px;
     flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
-    background-color: $spacewalk_snow;
+    background-color: color.$spacewalk_snow;
 
     > input {
       display: block;
@@ -22,7 +24,7 @@ $spacewalk_igv_panel_heigth: 256px;
   }
 
   >div:hover {
-    background-color: $spacewalk_mercury;
+    background-color: color.$spacewalk_mercury;
   }
 
 };
@@ -84,9 +86,9 @@ $spacewalk_igv_panel_heigth: 256px;
 
       border-style: solid;
       border-width: thin;
-      border-color: $spacewalk_aluminum;
+      border-color: color.$spacewalk_aluminum;
 
-      background-color: $spacewalk_snow;
+      background-color: color.$spacewalk_snow;
 
     }
   }

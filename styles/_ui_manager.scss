@@ -10,6 +10,8 @@ $spacewalk_ui_manager_margin: 6px;
 
 $spacewalk-ball-stick-control-y-margin: 4px;
 
+@use "color";
+
 #spacewalk-threejs-settings-button-container {
 
   //z-index: 2048;
@@ -25,13 +27,13 @@ $spacewalk-ball-stick-control-y-margin: 4px;
   align-items: center;
 
   i {
-    color: $spacewalk_aluminum;
+    color: color.$spacewalk_aluminum;
     display: block;
   }
 
   i:hover {
     cursor: pointer;
-    color: $spacewalk_iron;
+    color: color.$spacewalk_iron;
   }
 }
 
@@ -48,7 +50,7 @@ $spacewalk-ball-stick-control-y-margin: 4px;
   height: auto;
 
   background-color: #f8f9fa;
-  border-color: $spacewalk_tungsten;
+  border-color: color.$spacewalk_tungsten;
 
   .list-group {
     margin-top: $spacewalk_ui_manager_margin;
@@ -138,7 +140,7 @@ li#spacewalk_ui_manager_render_styles {
   }
 
   i.fas {
-    color: $spacewalk_tungsten;
+    color: color.$spacewalk_tungsten;
   }
 
   i.fas:first-child {
@@ -147,7 +149,7 @@ li#spacewalk_ui_manager_render_styles {
 
   i.fas:hover {
     cursor: pointer;
-    color: $spacewalk_tungsten;
+    color: color.$spacewalk_tungsten;
   }
 
 }
@@ -173,7 +175,7 @@ li.spacewalk-colorpicker-li {
 
     .input-group-prepend {
       .input-group-text {
-        color: $spacewalk_tungsten;
+        color: color.$spacewalk_tungsten;
         background-color: transparent;
         border: unset;
       }
@@ -181,7 +183,7 @@ li.spacewalk-colorpicker-li {
 
     .input-group-append {
       .input-group-text {
-        color: $spacewalk_tungsten;
+        color: color.$spacewalk_tungsten;
         border: unset;
         border-radius: unset;
         height: 100%;
