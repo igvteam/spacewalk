@@ -1,6 +1,10 @@
-$spacewalk_info_panel_top: 2px + $spacewalk_navbar_height;
+@use "navbar";
+@use "color";
+
+$spacewalk_info_panel_top: 2px + navbar.$spacewalk_navbar_height;
 $spacewalk_info_panel_right: 0;
 $spacewalk_info_panel_left: 4px;
+
 
 div#spacewalk_info_panel {
 
@@ -17,8 +21,8 @@ div#spacewalk_info_panel {
   font-size: 1rem;
   font-weight: 400;
 
-  color: $spacewalk_steel;
-  background-color: $spacewalk_snow;
+  color: color.$spacewalk_steel;
+  background-color: color.$spacewalk_snow;
 
   display: flex;
   flex-direction: row;
