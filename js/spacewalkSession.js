@@ -6,20 +6,6 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {defaultDistanceThreshold} from './juicebox/liveContactMapService.js'
 import { shortenURL } from "./share/shareHelper.js"
 
-async function loadSpacewalkSessionURL(spacewalkSessionURL){
-
-    if (spacewalkSessionURL) {
-        const spacewalk = JSON.parse( uncompressSession(spacewalkSessionURL) )
-        await loadSpacewalkSession(spacewalk)
-
-        if ('none' !== spacewalk.igvPanelState) {
-            await igvPanel.restoreSessionState(spacewalk.igvPanelState)
-        }
-
-    }
-
-}
-
 async function loadSession(json) {
 
     await loadSpacewalkSession(json.spacewalk)
@@ -215,11 +201,11 @@ function toJSON () {
 
 }
 
-function uncompressSession(url) {
+function uncompressSessionURL(sessionURL) {
 
-    if (url.indexOf('/gzip;base64') > 0) {
+    if (sessionURL.indexOf('/gzip;base64') > 0) {
 
-        const bytes = BGZip.decodeDataURI(url, undefined)
+        const bytes = BGZip.decodeDataURI(sessionURL, undefined)
         let json = '';
         for (let b of bytes) {
             json += String.fromCharCode(b)
@@ -227,9 +213,9 @@ function uncompressSession(url) {
         return json;
     } else {
 
-        let enc = url.substring(5);
+        const enc = sessionURL.slice(5);
         return BGZip.uncompressString(enc)
     }
 }
 
-export { getShareURL, getUrlParams, loadSpacewalkSessionURL, toJSON, loadSession, uncompressSession };
+export { getShareURL, getUrlParams, toJSON, loadSession, uncompressSessionURL };

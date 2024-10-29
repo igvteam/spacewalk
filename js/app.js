@@ -1,4 +1,4 @@
-import {BGZip, GoogleAuth, igvxhr} from 'igv-utils'
+import {GoogleAuth, igvxhr} from 'igv-utils'
 import {createSessionWidgets} from './widgets/sessionWidgets.js'
 import { dropboxDropdownItem, googleDriveDropdownItem } from "./widgets/markupFactory.js"
 import { createTrackWidgetsWithTrackRegistry } from './widgets/trackWidgets.js'
@@ -20,7 +20,7 @@ import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/colorUtils.js";
-import {getUrlParams, loadSpacewalkSessionURL, toJSON, loadSession, uncompressSession} from "./spacewalkSession.js"
+import {getUrlParams, toJSON, loadSession, uncompressSessionURL} from "./spacewalkSession.js"
 import { initializeMaterialLibrary } from "./utils/materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
@@ -83,6 +83,14 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     await initializationHelper(container)
 
+    const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = getUrlParams(window.location.href)
+
+    const result = ingestSessionURLs({ igvSessionURL, juiceboxSessionURL, spacewalkSessionURL })
+
+    if (result) {
+        await loadSession(result)
+    }
+
     hideGlobalSpinner()
 
 })
@@ -129,35 +137,16 @@ const initializationHelper = async container => {
     colorMapManager = new ColorMapManager();
     await colorMapManager.configure();
 
-    // dataValueMaterialProvider = new UnusedDataValueMaterialProvider({ width:8192, height:16, colorMinimum:appleCrayonColorRGB255('silver'), colorMaximum:appleCrayonColorRGB255('blueberry') })
     dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
 
     colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
     sceneManager = new SceneManager(sceneManagerConfigurator(document.querySelector('#spacewalk-threejs-canvas-container')));
 
-    const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = getUrlParams(window.location.href);
-
-    let locusString
-    let distanceThreshold = defaultDistanceThreshold
-    if (spacewalkSessionURL) {
-        const { locus, contactFrequencyMapDistanceThreshold } = JSON.parse( uncompressSession(spacewalkSessionURL) )
-        locusString = `${ locus.chr }:${ locus.genomicStart }-${ locus.genomicEnd }`
-        distanceThreshold = contactFrequencyMapDistanceThreshold
-    }
-
-    await createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, distanceThreshold, locusString);
+    await createButtonsPanelsModals(container, defaultDistanceThreshold);
 
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
     guiManager = new GUIManager({ settingsButton, $panel: $('#spacewalk_ui_manager_panel') });
-
-    await loadSpacewalkSessionURL(spacewalkSessionURL)
-
-    // TODO: HACK HACK to ensure Hi-C map renders properly when loading a share URL
-    //       Fix by refactoring entire session URL loading scheme
-    if (juiceboxPanel.browser.dataset){
-        await juiceboxPanel.browser.contactMatrixView.repaint()
-    }
 
     document.querySelector('.navbar').style.display = 'flex'
 
@@ -167,7 +156,7 @@ const initializationHelper = async container => {
 
 }
 
-async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessionURL, distanceThreshold, locusString) {
+async function createButtonsPanelsModals(container, distanceThreshold) {
 
     traceSelect = new TraceSelect()
 
@@ -234,17 +223,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
     igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
     igvPanel.materialProvider = colorRampMaterialProvider;
 
-    if (igvSessionURL) {
-        const str = BGZip.uncompressString(igvSessionURL.substr(5))
-        const sessionIGVConfig = JSON.parse(str)
-
-        const { showTrackLabels, showRuler, showControls, showCursorTrackingGuide, queryParametersSupported } = spacewalkConfig.igvConfig
-        const mergedConfig = { ...sessionIGVConfig, ...{ showTrackLabels, showRuler, showControls, showCursorTrackingGuide, queryParametersSupported } }
-
-        await igvPanel.initialize(mergedConfig)
-    } else {
-        await igvPanel.initialize(spacewalkConfig.igvConfig)
-    }
+    await igvPanel.initialize(spacewalkConfig.igvConfig)
 
     // Session - Dropbox and Google Drive buttons
     $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-app-dropdown-dropbox-session-file-button'));
@@ -266,16 +245,7 @@ async function createButtonsPanelsModals(container, igvSessionURL, juiceboxSessi
         },
         () => toJSON())
 
-
     juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
-
-    if (juiceboxSessionURL) {
-        const str = BGZip.uncompressString(juiceboxSessionURL.substr(5))
-        const json = JSON.parse(str)
-        json.locus = locusString
-        spacewalkConfig.juiceboxConfig = Object.assign(spacewalkConfig.juiceboxConfig, json)
-    }
-
     await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
 
     liveContactMapService = new LiveContactMapService(distanceThreshold)
@@ -328,6 +298,33 @@ function renderLoop() {
 function render () {
     sceneManager.renderLoopHelper()
 }
+
+function ingestSessionURLs({ igvSessionURL, juiceboxSessionURL, spacewalkSessionURL }) {
+
+    let acc = {}
+
+    // spacewalk
+    if (spacewalkSessionURL) {
+        const spacewalk = JSON.parse(uncompressSessionURL(spacewalkSessionURL))
+        acc = { ...acc, spacewalk }
+    }
+
+    // juicebox
+    if (juiceboxSessionURL) {
+        const juicebox = JSON.parse(uncompressSessionURL(juiceboxSessionURL))
+        acc = { ...acc, juicebox }
+    }
+
+    // igv
+    if (igvSessionURL) {
+        const igv = JSON.parse(uncompressSessionURL(igvSessionURL))
+        acc = { ...acc, igv }
+    }
+
+    return 0 === Object.keys(acc).length ? undefined : acc
+
+}
+
 
 export {
     SpacewalkGlobals,
