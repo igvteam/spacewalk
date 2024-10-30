@@ -8,7 +8,7 @@ and the Hi-C map viewer [juicebox.js](https://github.com/igvteam/juicebox.js)
 
 ## Getting Started
 
-# Requirements
+### Requirements
 - Node >= v20.8.0
 - NPM >= v10.1.0
 
@@ -77,7 +77,10 @@ color ramp.
 Spacewalk is organized around three visualization panels, each responsible for one aspect of genomic visualization:
 #### 3D Structure Viewer
 A 3D structure - SRM, simulation, etc. - is loaded by clicking on the **File** dropdown menu in the navbar
-![Load 3D File](readme_img/sw-load-3d-file.png)
+
+_Click the diagram for a larger view._
+
+<a href="readme_img/sw-load-3d-file.png" target="_blank"><img src="readme_img/sw-load-3d-file-thumb.jpg" alt="Loading a 3D file" style="width:auto;"/></a>
 
 #### Hi-C Map Viewer
 An embedded instance [juicebox.js](https://github.com/igvteam/juicebox.js)
