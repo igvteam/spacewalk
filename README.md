@@ -80,7 +80,13 @@ A 3D structure - SRM, simulation, etc. - is loaded by clicking on the **File** d
 
 _Click the diagram for a larger view._
 
-<a href="readme_img/sw-load-3d-file.png" target="_blank"><img src="readme_img/sw-load-3d-file-thumb.jpg" alt="Loading a 3D file" style="width:auto;"/></a>
+<table>
+  <tr>
+    <td><a href="readme_img/sw-load-3d-file.png" target="_blank"><img src="readme_img/sw-load-3d-file-thumb.jpg" alt="Loading a 3D file" style="width:auto;"/></a></td>
+    </tr>
+</table>
+
+
 
 #### Hi-C Map Viewer
 An embedded instance [juicebox.js](https://github.com/igvteam/juicebox.js)
