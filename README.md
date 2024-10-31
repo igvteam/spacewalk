@@ -77,17 +77,6 @@ color ramp.
 Spacewalk is organized around three visualization panels, each responsible for one aspect of genomic visualization:
 #### 3D Structure Viewer
 A 3D structure - SRM, simulation, etc. - is loaded by clicking on the **File** dropdown menu in the navbar
-
-_Click the diagram for a larger view._
-
-<table>
-  <tr>
-    <td><a href="readme_img/sw-load-3d-file.png" target="_blank"><img src="readme_img/sw-load-3d-file-thumb.jpg" alt="Loading a 3D file" style="width:auto;"/></a></td>
-    </tr>
-</table>
-
-
-
 #### Hi-C Map Viewer
 An embedded instance [juicebox.js](https://github.com/igvteam/juicebox.js)
 #### Genomic Track Viewer
