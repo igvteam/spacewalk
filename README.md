@@ -134,16 +134,28 @@ An embedded instance [juicebox.js](https://github.com/igvteam/juicebox.js) for v
 #### Genomic Track Viewer
 An embedded instance of the [igv.js](https://github.com/igvteam/igv.js) genome browser
 
+<table>
+  <tr>
+    <!-- Image on the left -->
+    <td style="width: 50%; vertical-align: top;">
+      <img src="readme_img/igv.jpg" alt="3D Structuer Viwer"  style="max-width: 100%; height: auto;"/>
+    </td>
+    <!-- Text on the right -->
+    <td style="width: 50%; padding-left: 15px; vertical-align: top;">
+      <p>
+        The IGV browser has a pair of tracks showing histone modifications from ChIP-seq data displayed 
+        as a bar chart of signal intensities. In the series of image below, as I move the cursor across 
+        the IGV track notice how the corresponding genomic location on the 3D structure is highlighted.
+    </p>
+    </td>
+  </tr>
+</table>
 
-- IGV. A fully functional IGV.js application. The app has been extended to enable interaction with the 3D model.
-On the left, mousing across a track behaves similar to the genomic navigator. On the right we have selected a track. The
-features are automatically mapped to the 3D model. Now mousing across the mapped track shows a sliding red ring on the 3D
-model indicating genomic location.
+![igv-interaction-0](readme_img/sw-igv-interaction-0.jpg)
 
-- Juicebox. A fully functional Juicebox.js application. The app has been extended to enable interaction with the 3D model.
-Mouse over the contact map to highlight the corresponding genomic locations on the 3D model.
+![igv-interaction-1](readme_img/sw-igv-interaction-1.jpg)
 
-- Distance Map. An ensemble level and trace level distance map created on the fly when an ensemble file is loaded.
+![igv-interaction-2](readme_img/sw-igv-interaction-2.jpg)
 
-- Contact Frequency Map. An ensemble level and trace level contact frequency map created on the fly when an ensemble file is loaded.
+![igv-interaction-3](readme_img/sw-igv-interaction-3.jpg)
 
