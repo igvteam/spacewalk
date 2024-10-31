@@ -106,6 +106,31 @@ Notice the highlighting of the 3D structure during the interaction
 #### Hi-C Map Viewer
 An embedded instance [juicebox.js](https://github.com/igvteam/juicebox.js) for viewing Hi-C maps
 
+<table>
+  <tr>
+    <!-- Image on the left -->
+    <td style="width: 50%; vertical-align: top;">
+      <img src="readme_img/hic.jpg" alt="3D Structuer Viwer"  style="max-width: 100%; height: auto;"/>
+    </td>
+    <!-- Text on the right -->
+    <td style="width: 50%; padding-left: 15px; vertical-align: top;">
+      <p>
+        The Hi-C map shows the frequency of contact between different parts of the chromosome. 
+        In the series of images that follow, the highlighted locations on the 3D structure show 
+        where those contacts occur on the 3D structure. This linked interaction establishes a 
+        powerful visual correspondence between these two aspects of the 3D structure: adjacency 
+        and spatial location.
+    </p>
+    </td>
+  </tr>
+</table>
+
+![hic-interaction-0](readme_img/sw-hic-interaction-0.jpg)
+
+![hic-interaction-1](readme_img/sw-hic-interaction-1.jpg)
+
+![hic-interaction-2](readme_img/sw-hic-interaction-2.jpg)
+
 #### Genomic Track Viewer
 An embedded instance of the [igv.js](https://github.com/igvteam/igv.js) genome browser
 
