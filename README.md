@@ -77,10 +77,37 @@ color ramp.
 Spacewalk is organized around three visualization panels, each responsible for one aspect of genomic visualization:
 #### 3D Structure Viewer
 A 3D structure - SRM, simulation, etc. - is loaded by clicking on the **File** dropdown menu in the navbar
+
+<table>
+  <tr>
+    <!-- Image on the left -->
+    <td style="width: 50%; vertical-align: top;">
+      <img src="readme_img/3d.jpg" alt="3D Structuer Viwer"  style="max-width: 100%; height: auto;"/>
+    </td>
+    <!-- Text on the right -->
+    <td style="width: 50%; padding-left: 15px; vertical-align: top;">
+      <p>
+        The 3D structure we visualize represents the spatial folding of a chromosome. 
+        3D interaction is inherently linked to the 1D genomic coordinate system of base pairs.
+        The vertical color bar at right is used to establish a visual and interactive link
+        between 3D space and genomic space. As the user moves the cursor over the color bar
+        a region of the 3D structure is highlighted based on it’s corresponding genomic location
+        in the color bar.
+    </p>
+    </td>
+  </tr>
+</table>
+
+
+This image series shows the cursor moving along the genomic extent of the 3D structure. 
+Notice the highlighting of the 3D structure during the interaction
+![3d-interaction-series](readme_img/sw-3d-interaction-series.jpg)
+
 #### Hi-C Map Viewer
-An embedded instance [juicebox.js](https://github.com/igvteam/juicebox.js)
+An embedded instance [juicebox.js](https://github.com/igvteam/juicebox.js) for viewing Hi-C maps
+
 #### Genomic Track Viewer
-An embedded instance of [igv.js](https://github.com/igvteam/igv.js)
+An embedded instance of the [igv.js](https://github.com/igvteam/igv.js) genome browser
 
 
 - IGV. A fully functional IGV.js application. The app has been extended to enable interaction with the 3D model.
@@ -88,12 +115,8 @@ On the left, mousing across a track behaves similar to the genomic navigator. On
 features are automatically mapped to the 3D model. Now mousing across the mapped track shows a sliding red ring on the 3D
 model indicating genomic location.
 
-![igv genomic navigator](readme_img/spacewalk-igv-genomic-navigation.png)
-
 - Juicebox. A fully functional Juicebox.js application. The app has been extended to enable interaction with the 3D model.
 Mouse over the contact map to highlight the corresponding genomic locations on the 3D model.
-
-![juicebox genomic navigator](readme_img/spacewalk-juicebox-genomic-navigation.png)
 
 - Distance Map. An ensemble level and trace level distance map created on the fly when an ensemble file is loaded.
 
