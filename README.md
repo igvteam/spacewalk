@@ -1,20 +1,22 @@
-# Spacewalk
+## Spacewalk Overview
 
 ![spacewalk](readme_img/spacewalk-screenshot.png)
 
-Spacewalk is an application for displaying and interacting with super-resolution chromatin tracing data in 3D. 
-Spacewalk includes [igv.js](https://github.com/igvteam/igv.js) and [juicebox.js](https://github.com/igvteam/juicebox.js) 
-instances for rapid and intuitive visual comparison and interaction between 3D data and 1D genomic data.
+Spacewalk provides interactive 3D visualization of super-resolution microscopy data, 
+with integrated genomic analysis via the genomics browser [igv.js](https://github.com/igvteam/igv.js) 
+and the Hi-C map viewer [juicebox.js](https://github.com/igvteam/juicebox.js)
 
-## Requirements
-- Node >= v10.13.0
-- NPM >= v6.9.0
+## Getting Started
 
-## Supported Browsers
+### Requirements
+- Node >= v20.8.0
+- NPM >= v10.1.0
+
+### Supported Browsers
 
 Spacewalk require a modern web browser with support for Javascript ECMAScript 2015.
 
-## Installation
+### Installation
 * Clone this repository.
 ````
 git clone git@github.com:igvteam/spacewalk.git
@@ -23,95 +25,136 @@ git clone git@github.com:igvteam/spacewalk.git
 ````
 npm install
 ````
-## Build the app
+### Build the app
 ````
 npm run build
 ````
-## Run the app
+### Launch the app
 ````
 npm run start
 ````
-* Open a browser and enter the follow url to run the app
+* Open a browser and enter the follow url to launch the app
 ````
 localhost:8080/index.html
 ````
 
-## Getting Started
-After launching the app. You will see a blank 3D space. Use one of the dropdown menus in the navbar to load either a point cloud or a segment list dataset.
+After launching the app, you will see a screen with a single empty 3D viewer. In the navbar use the **File** dropdown menu to load 3D structure into the 3D viewer.
 
 ![file load](readme_img/spacewalk-file-load.png)
 
-Spacewalk supports loading files of various types:
-- Point Cloud - Each file contains a list of point clusters. Each cluster corresponds to a genomic range.
-- Segment List - Each file contains a list of traces. Each trace contains a list of segments. Each segment is a genomic range.
-- IGV Tracks - Track files consumed by the IGV panel. Refer to the track section of the [igv.js wiki](https://github.com/igvteam/igv.js/wiki/Tracks-2.0)
-- Juicebox Contact Maps - Refer to the [Aiden Lab](http://www.aidenlab.org/index.html) website for details.
+Spacewalk supports the 3D visualization of
+- Super-resolution microscopy (SRM) data
+- Chromatin simulations
+- Other forms of genome microscopy and spatial genomics
 
-Three rendering styles are supported. All rely on the use of color to map genomic location to 3D.
-
-#### Noodle
-
-A tube is rendered that interpolates between a list of chromatin centroids. Color along the length of the tube corresponds to genomic location. 
-The genomic navigator - described above - is used to identify and highlight genomic regions.
-
-![noodle render style](readme_img/render-style-noodle.png)
-
-#### Ball & Stick
-
-A list of chromatin centroids are rendered as balls. Each ball is colored according to it's genomic location. Sticks (cylinders) connect balls in the order they appear in the genomic range.
-The genomic navigator - described above - is used to identify each ball and highlight genomic regions. 
-Alternatively, mouse over a ball to see it's genomic location in the genomic navigator's color ramp.
-
-![ball & stick render style](readme_img/render-style-ball-stick.png)
+Spacewalk supports 3D visualization of data that comes in two general forms:
+- Point Cloud - Typically derived from OlioSTORM data
+- Ball & Stick - Typically derived from Chromatin simulations
 
 #### Point Cloud
-Centroid point clouds are rendered as 3D points. Points associated with a particular genomic range are colored based on the genomic navigator color ramp.
-Mouse over the genomic navigator to isolate clusters of points for that genomic range. 
+The point cloud is rendered as a collection of 3D point clusters, each corresponding to a specific genomic extent.
+The color of each cluster is determined by the genomic navigator's color ramp bar, located on the right side of the 3D viewer.
+
+When you mouse over the genomic navigator the corresponding 3D point cluster is highlighted.
 
 ![point cloud render style](readme_img/render-style-point-cloud.png)
 
+#### Ball & Stick
+Chromatin centroids are rendered as balls, each colored according to its genomic location.
+Sticks (cylinders) connect the balls in the order they appear along the genomic range.
+As the user moves the cursor along the genomic navigator on the right side of the 3D viewer,
+the corresponding ball is highlighted based on its genomic location.
 
-Click the gear icon at upper left to show/hide a panel. Panels can be repositioned by dragging. 
+Alternatively, hovering over a ball will display its genomic location in the genomic navigator's
+color ramp.
 
-![spacewalk panels](readme_img/spacewalk-gear-icon-and-panel.png)
- 
- These task-specific interaction panels support analysis of the 3D data. 
- 
-![spacewalk panels](readme_img/spacewalk-panels-screenshot.png)
+![ball & stick render style](readme_img/render-style-ball-stick.png)
 
-The panels include:
-- Trace Select. A widget to navigate between the set of traces that comprise an ensemble.
+## Spacewalk in Detail
 
-- Genomic Navigator. The genomic range for a given trace is represented by a color ramp.
-Mouse over this color ramp to highlight the corresponding genomic location in the 3D trace structure.
+![spacewalk panel_description](readme_img/spacewalk-panel-description.png)
 
-    - Noodle highlighting. A sub-section of the noodle corresponding to the genomic region is isolated
+Spacewalk is organized around three visualization panels, each responsible for one aspect of genomic visualization:
+#### 3D Structure Viewer
+A 3D structure - SRM, simulation, etc. - is loaded by clicking on the **File** dropdown menu in the navbar
 
-    ![genomic navigator noodle](readme_img/spacewalk-genomic-navigator-noodle.png)
+<table>
+  <tr>
+    <!-- Image on the left -->
+    <td style="width: 50%; vertical-align: top;">
+      <img src="readme_img/3d.jpg" alt="3D Structuer Viwer"  style="max-width: 100%; height: auto;"/>
+    </td>
+    <!-- Text on the right -->
+    <td style="width: 50%; padding-left: 15px; vertical-align: top;">
+      <p>
+        The 3D structure we visualize represents the spatial folding of a chromosome. 
+        3D interaction is inherently linked to the 1D genomic coordinate system of base pairs.
+        The vertical color bar at right is used to establish a visual and interactive link
+        between 3D space and genomic space. As the user moves the cursor over the color bar
+        a region of the 3D structure is highlighted based on it’s corresponding genomic location
+        in the color bar.
+    </p>
+    </td>
+  </tr>
+</table>
 
-    - Ball & Stick highlighting. The ball corresponding to the genomic region is highlighted.
+This image series shows the cursor moving along the genomic extent of the 3D structure. 
+Notice the highlighting of the 3D structure during the interaction
+![3d-interaction-series](readme_img/sw-3d-interaction-series.jpg)
 
-    ![genomic navigator ball & stick](readme_img/spacewalk-genomic-navigator-ball-stick.png)
+#### Hi-C Map Viewer
+An embedded instance [juicebox.js](https://github.com/igvteam/juicebox.js) for viewing Hi-C maps
 
-    - Point Cloud highlighting. The point cloud cluster corresponding to the genomic region remains colored all other
-    clusters are deemphasized. The size of the highlight in the genomic navigator corresponds to the relative size of
-    the genomic region.
+<table>
+  <tr>
+    <!-- Image on the left -->
+    <td style="width: 50%; vertical-align: top;">
+      <img src="readme_img/hic.jpg" alt="3D Structuer Viwer"  style="max-width: 100%; height: auto;"/>
+    </td>
+    <!-- Text on the right -->
+    <td style="width: 50%; padding-left: 15px; vertical-align: top;">
+      <p>
+        The Hi-C map shows the frequency of contact between different parts of the chromosome. 
+        In the series of images that follow, the highlighted locations on the 3D structure show 
+        where those contacts occur on the 3D structure. This linked interaction establishes a 
+        powerful visual correspondence between these two aspects of the 3D structure: adjacency 
+        and spatial location.
+    </p>
+    </td>
+  </tr>
+</table>
 
-    ![genomic navigator point cloud](readme_img/spacewalk-genomic-navigator-point-cloud.png)
+![hic-interaction-0](readme_img/sw-hic-interaction-0.jpg)
 
-- IGV. A fully functional IGV.js application. The app has been extended to enable interaction with the 3D model.
-On the left, mousing across a track behaves similar to the genomic navigator. On the right we have selected a track. The
-features are automatically mapped to the 3D model. Now mousing across the mapped track shows a sliding red ring on the 3D
-model indicating genomic location.
+![hic-interaction-1](readme_img/sw-hic-interaction-1.jpg)
 
-![igv genomic navigator](readme_img/spacewalk-igv-genomic-navigation.png)
+![hic-interaction-2](readme_img/sw-hic-interaction-2.jpg)
 
-- Juicebox. A fully functional Juicebox.js application. The app has been extended to enable interaction with the 3D model.
-Mouse over the contact map to highlight the corresponding genomic locations on the 3D model.
+#### Genomic Track Viewer
+An embedded instance of the [igv.js](https://github.com/igvteam/igv.js) genome browser
 
-![juicebox genomic navigator](readme_img/spacewalk-juicebox-genomic-navigation.png)
+<table>
+  <tr>
+    <!-- Image on the left -->
+    <td style="width: 50%; vertical-align: top;">
+      <img src="readme_img/igv.jpg" alt="3D Structuer Viwer"  style="max-width: 100%; height: auto;"/>
+    </td>
+    <!-- Text on the right -->
+    <td style="width: 50%; padding-left: 15px; vertical-align: top;">
+      <p>
+        The IGV browser has a pair of tracks showing histone modifications from ChIP-seq data displayed 
+        as a bar chart of signal intensities. In the series of image below, as the cursor moves across 
+        the IGV track notice how the corresponding genomic location on the 3D structure is highlighted.
+    </p>
+    </td>
+  </tr>
+</table>
 
-- Distance Map. An ensemble level and trace level distance map created on the fly when an ensemble file is loaded.
+![igv-interaction-0](readme_img/sw-igv-interaction-0.jpg)
 
-- Contact Frequency Map. An ensemble level and trace level contact frequency map created on the fly when an ensemble file is loaded.
+![igv-interaction-1](readme_img/sw-igv-interaction-1.jpg)
+
+![igv-interaction-2](readme_img/sw-igv-interaction-2.jpg)
+
+![igv-interaction-3](readme_img/sw-igv-interaction-3.jpg)
 
