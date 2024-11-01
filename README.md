@@ -98,7 +98,6 @@ A 3D structure - SRM, simulation, etc. - is loaded by clicking on the **File** d
   </tr>
 </table>
 
-
 This image series shows the cursor moving along the genomic extent of the 3D structure. 
 Notice the highlighting of the 3D structure during the interaction
 ![3d-interaction-series](readme_img/sw-3d-interaction-series.jpg)
@@ -144,7 +143,7 @@ An embedded instance of the [igv.js](https://github.com/igvteam/igv.js) genome b
     <td style="width: 50%; padding-left: 15px; vertical-align: top;">
       <p>
         The IGV browser has a pair of tracks showing histone modifications from ChIP-seq data displayed 
-        as a bar chart of signal intensities. In the series of image below, as I move the cursor across 
+        as a bar chart of signal intensities. In the series of image below, as the cursor moves across 
         the IGV track notice how the corresponding genomic location on the 3D structure is highlighted.
     </p>
     </td>
