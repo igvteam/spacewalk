@@ -9,7 +9,6 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js'
 import Gnomon, { gnomonConfigurator } from './gnomon.js'
 import {getMouseXY, setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
 import { appleCrayonColorThreeJS } from "./utils/colorUtils.js"
-import { sceneBackgroundTexture, sceneBackgroundDiagnosticTexture } from "./utils/materialLibrary.js"
 import Ribbon from './ribbon.js'
 import {degrees} from "./utils/mathUtils.js"
 import {configureColorPicker, updateColorPicker} from "./guiManager.js"

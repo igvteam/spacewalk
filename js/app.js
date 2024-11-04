@@ -21,7 +21,6 @@ import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/colorUtils.js";
 import {getUrlParams, toJSON, loadSession, uncompressSessionURL} from "./spacewalkSession.js"
-import { initializeMaterialLibrary } from "./utils/materialLibrary.js";
 import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
@@ -123,8 +122,6 @@ const initializationHelper = async container => {
     // Dismiss on click away from popover
     $('.popover-dismiss').popover({ trigger: 'focus' })
 
-
-    await initializeMaterialLibrary()
 
     pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
