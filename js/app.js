@@ -24,17 +24,18 @@ import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/colorUtils.js";
 import {getUrlParams, toJSON, loadSession, uncompressSessionURL} from "./spacewalkSession.js"
-import RenderContainerController from "./renderContainerController.js";
 import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from './widgets/contactMapLoad.js'
 import {createShareWidgets, shareWidgetConfigurator} from './share/shareWidgets.js'
 import {showGlobalSpinner, hideGlobalSpinner, getMouseXY} from './utils/utils.js'
+import {configureRenderContainerDrag} from "./renderContainerDrag.js"
 import {showRelease} from "./utils/release.js"
 import { spacewalkConfig } from "../spacewalk-config.js";
 import 'juicebox.js/dist/css/juicebox.css'
 import '../styles/app.scss'
+
 
 let pointCloud;
 let ribbon;
@@ -162,7 +163,18 @@ const initializationHelper = async container => {
 
     document.querySelector('.navbar').style.display = 'flex'
 
-    renderContainerController = new RenderContainerController(container)
+    const navbar = document.querySelector('.navbar')
+    const { height } = navbar.getBoundingClientRect()
+
+    const config =
+        {
+            target: document.getElementById('spacewalk-threejs-container'),
+            handle: document.getElementById('spacewalk-threejs-drag-container'),
+            container: document.getElementById('spacewalk-root-container'),
+            topConstraint: height
+        }
+
+    configureRenderContainerDrag(config)
 
     const resizeableContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
 
@@ -391,27 +403,26 @@ function threeJSSetup(container) {
 
 function render () {
 
-    pointCloud.renderLoopHelper()
+    if (sceneManager.isGood2Go()) {
+        pointCloud.renderLoopHelper()
 
-    ballAndStick.renderLoopHelper()
+        ballAndStick.renderLoopHelper()
 
-    ribbon.renderLoopHelper()
+        ribbon.renderLoopHelper()
 
-    colorRampMaterialProvider.renderLoopHelper()
+        colorRampMaterialProvider.renderLoopHelper()
 
-    cameraLightingRig.renderLoopHelper();
+        cameraLightingRig.renderLoopHelper();
 
-    if (sceneManager.groundPlane) {
-        sceneManager.groundPlane.renderLoopHelper();
+        sceneManager.getGroundPlane().renderLoopHelper()
+
+        sceneManager.getGnomon().renderLoopHelper()
+
+        picker.intersect({ x:mouseX, y:mouseY, scene, camera:cameraLightingRig.object });
+
+        renderer.render(scene, cameraLightingRig.object)
+
     }
-
-    if (sceneManager.gnomon) {
-        sceneManager.gnomon.renderLoopHelper();
-    }
-
-    picker.intersect({ x:mouseX, y:mouseY, scene, camera:cameraLightingRig.object });
-
-    renderer.render(scene, cameraLightingRig.object)
 
 }
 

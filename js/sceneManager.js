@@ -9,18 +9,7 @@ import Gnomon, { gnomonConfigurator } from './gnomon.js'
 import {setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
 import Ribbon from './ribbon.js'
 import {configureColorPicker, updateColorPicker} from "./guiManager.js"
-import {
-    scene,
-    pointCloud,
-    ribbon,
-    ballAndStick,
-    ensembleManager,
-    guiManager,
-    igvPanel,
-    colorRampMaterialProvider,
-    cameraLightingRig,
-    getRenderContainerSize
-} from "./app.js"
+import { scene, pointCloud, ribbon, ballAndStick, ensembleManager, guiManager, igvPanel, colorRampMaterialProvider, cameraLightingRig, getRenderContainerSize } from "./app.js"
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -37,72 +26,6 @@ class SceneManager {
 
         SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', this);
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
-
-    }
-
-
-    async ingestEnsemblePath(url, traceKey, ensembleGroupKey) {
-
-        await ensembleManager.loadURL(url, traceKey, ensembleGroupKey)
-
-        this.setupWithTrace(ensembleManager.currentTrace)
-
-        this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle()
-
-        if (this.renderStyle === Ribbon.getRenderStyle()) {
-            pointCloud.hide()
-            ballAndStick.hide()
-            ribbon.show()
-        } else if (this.renderStyle === BallAndStick.getRenderStyle()) {
-            pointCloud.hide()
-            ribbon.hide()
-            ballAndStick.show()
-        } else if (this.renderStyle === PointCloud.getRenderStyle()) {
-            ballAndStick.hide()
-            ribbon.hide()
-            pointCloud.show()
-        }
-
-        unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
-
-        setMaterialProvider(colorRampMaterialProvider)
-
-        if (ensembleManager.genomeAssembly !== igvPanel.browser.genome.id) {
-            console.log(`Genome swap from ${ igvPanel.browser.genome.id } to ${ ensembleManager.genomeAssembly }. Call igv_browser.loadGenome`)
-            await igvPanel.browser.loadGenome(ensembleManager.genomeAssembly)
-        }
-
-        await igvPanel.locusDidChange(ensembleManager.locus)
-
-    }
-
-    async ingestEnsembleGroup(ensembleGroupKey) {
-
-        await ensembleManager.loadEnsembleGroup(ensembleGroupKey)
-
-        this.setupWithTrace(ensembleManager.currentTrace)
-
-        this.renderStyle = true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle()
-
-        if (this.renderStyle === Ribbon.getRenderStyle()) {
-            pointCloud.hide()
-            ballAndStick.hide()
-            ribbon.show()
-        } else if (this.renderStyle === BallAndStick.getRenderStyle()) {
-            pointCloud.hide()
-            ribbon.hide()
-            ballAndStick.show()
-        } else if (this.renderStyle === PointCloud.getRenderStyle()) {
-            ballAndStick.hide()
-            ribbon.hide()
-            pointCloud.show()
-        }
-
-        unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
-
-        setMaterialProvider(colorRampMaterialProvider)
-
-        await igvPanel.locusDidChange(ensembleManager.locus)
 
     }
 
@@ -127,15 +50,46 @@ class SceneManager {
 
     }
 
+    async ingestEnsemblePath(url, traceKey, ensembleGroupKey) {
+
+        await ensembleManager.loadURL(url, traceKey, ensembleGroupKey)
+
+        this.setupWithTrace(ensembleManager.currentTrace)
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle())
+
+        unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
+        setMaterialProvider(colorRampMaterialProvider)
+
+        if (ensembleManager.genomeAssembly !== igvPanel.browser.genome.id) {
+            console.log(`Genome swap from ${ igvPanel.browser.genome.id } to ${ ensembleManager.genomeAssembly }. Call igv_browser.loadGenome`)
+            await igvPanel.browser.loadGenome(ensembleManager.genomeAssembly)
+        }
+
+        await igvPanel.locusDidChange(ensembleManager.locus)
+
+    }
+
+    async ingestEnsembleGroup(ensembleGroupKey) {
+
+        await ensembleManager.loadEnsembleGroup(ensembleGroupKey)
+
+        this.setupWithTrace(ensembleManager.currentTrace)
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle())
+
+        unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
+        setMaterialProvider(colorRampMaterialProvider)
+
+        await igvPanel.locusDidChange(ensembleManager.locus)
+
+    }
+
     setupWithTrace(trace) {
 
         this.dispose()
 
         if (ensembleManager.isPointCloud) {
-
             pointCloud.configure(trace);
             pointCloud.addToScene(scene);
-
         } else {
             ribbon.configure(trace);
             ribbon.addToScene(scene);
@@ -149,6 +103,25 @@ class SceneManager {
 
     }
 
+    configureRenderStyle (renderStyle) {
+
+        this.renderStyle = renderStyle
+
+        if (this.renderStyle === Ribbon.getRenderStyle()) {
+            pointCloud.hide()
+            ballAndStick.hide()
+            ribbon.show()
+        } else if (this.renderStyle === BallAndStick.getRenderStyle()) {
+            pointCloud.hide()
+            ribbon.hide()
+            ballAndStick.show()
+        } else if (this.renderStyle === PointCloud.getRenderStyle()) {
+            ballAndStick.hide()
+            ribbon.hide()
+            pointCloud.show()
+        }
+    }
+
     configure({ min, max, boundingDiameter, cameraPosition, centroid, fov }) {
 
         scene.background = this.background;
@@ -158,59 +131,24 @@ class SceneManager {
 
         const { width, height } = getRenderContainerSize();
         cameraLightingRig.configure({fov, aspect: width/height, position: cameraPosition, centroid, boundingDiameter});
-
         cameraLightingRig.addToScene(scene);
 
-        // Groundplane
-        if (this.groundPlane) {
-            this.groundPlane.dispose();
-        }
-
-        this.groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(centroid.x, min.y, centroid.z), boundingDiameter));
-        scene.add( this.groundPlane );
+        // GroundPlane
+        const groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(centroid.x, min.y, centroid.z), boundingDiameter));
+        scene.add(groundPlane)
 
         // Gnomon
-        if (this.gnomon) {
-            this.gnomon.dispose();
-        }
-
-        this.gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter));
-        this.gnomon.addToScene(scene);
+        const gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter))
+        gnomon.addToScene(scene)
 
     }
 
-    dispose() {
+    getGnomon(){
+        return scene.getObjectByName('gnomon')
+    }
 
-        this.background = scene.background
-
-
-        if (scene) {
-            while (scene.children.length > 0) {
-                const child = scene.children[0];
-
-                if (child.geometry) child.geometry.dispose(); // Dispose of geometry
-                if (child.material) {
-                    if (Array.isArray(child.material)) {
-                        child.material.forEach(mat => mat.dispose()); // Dispose of each material if it's an array
-                    } else {
-                        child.material.dispose(); // Dispose of single material
-                    }
-                }
-
-                scene.remove(child);
-            }
-        }
-
-        // if (scene) {
-        //     const disposable = scene.children.filter(child => disposableSet.has(child.name))
-        //     for (const d of disposable) {
-        //         scene.remove(d)
-        //     }
-        // }
-
-        ballAndStick.dispose()
-        ribbon.dispose()
-        pointCloud.dispose()
+    getGroundPlane(){
+        return scene.getObjectByName('groundplane')
     }
 
     toJSON() {
@@ -218,10 +156,45 @@ class SceneManager {
         return  { r, g, b }
     }
 
+    dispose() {
+
+        this.background = scene.background
+
+        if (scene) {
+            while (scene.children.length > 0) {
+                const child = scene.children[0];
+
+                // Call custom dispose if available
+                if (typeof child.dispose === 'function') {
+                    child.dispose();
+                } else {
+                    // Fallback disposal for other objects with geometry or material
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(mat => mat.dispose());
+                        } else {
+                            child.material.dispose();
+                        }
+                    }
+                }
+
+                scene.remove(child);
+            }
+        }
+
+        ballAndStick.dispose()
+        ribbon.dispose()
+        pointCloud.dispose()
+    }
+
     setBackground({ r, g, b }) {
         scene.background = new THREE.Color(r, g, b)
      }
 
+    isGood2Go() {
+        return scene && this.getGnomon() && this.getGroundPlane()
+     }
 }
 
 export default SceneManager;

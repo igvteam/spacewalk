@@ -1,7 +1,7 @@
 import hic from 'juicebox.js'
 import {BGZip} from 'igv-utils'
 import Panel from './panel.js'
-import { igvPanel, juiceboxPanel, ensembleManager, sceneManager, liveContactMapService, SpacewalkGlobals, guiManager } from './app.js'
+import { scene, igvPanel, juiceboxPanel, ensembleManager, sceneManager, liveContactMapService, SpacewalkGlobals, guiManager } from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {defaultDistanceThreshold} from './juicebox/liveContactMapService.js'
 import { shortenURL } from "./share/shareHelper.js"
@@ -57,9 +57,11 @@ async function loadSpacewalkSession (session) {
 
     await sceneManager.ingestEnsemblePath(url, traceKey, ensembleGroupKey)
 
-    sceneManager.gnomon.setState({ visibility: gnomonVisibility, ...gnomonColor })
+    const gnomonInstance = sceneManager.getGnomon()
+    gnomonInstance.setState({ visibility: gnomonVisibility, ...gnomonColor })
 
-    sceneManager.groundPlane.setState({ visibility: groundPlaneVisibility, ...groundplaneColor })
+    const groundPlaneInstance = sceneManager.getGroundPlane()
+    groundPlaneInstance.setState({ visibility: groundPlaneVisibility, ...groundplaneColor })
 
     liveContactMapService.setState(contactFrequencyMapDistanceThreshold || defaultDistanceThreshold)
     Panel.setState(panelVisibility)
@@ -155,12 +157,12 @@ function spacewalkToJSON () {
         let json
 
         // gnomon
-        json = sceneManager.gnomon.toJSON()
+        json = sceneManager.getGnomon().toJSON()
         spacewalk.gnomonVisibility = json.visibility
         spacewalk.gnomonColor = { r:json.r, g:json.g, b:json.b }
 
         // groundplane
-        json = sceneManager.groundPlane.toJSON()
+        json = sceneManager.getGroundPlane().toJSON()
         spacewalk.groundPlaneVisibility = json.visibility
         spacewalk.groundplaneColor = { r:json.r, g:json.g, b:json.b }
 

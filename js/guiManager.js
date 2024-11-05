@@ -26,13 +26,13 @@ class GUIManager {
         // Configure Ground Plane Toggle
         document.querySelector(`#spacewalk_ui_manager_groundplane`).addEventListener('change', e => {
             e.stopPropagation()
-            sceneManager.groundPlane.toggle()
+            sceneManager.getGroundPlane().toggle()
         })
 
         // Configure Gnomon Toggle
         document.querySelector(`#spacewalk_ui_manager_gnomon`).addEventListener('change', e => {
             e.stopPropagation()
-            sceneManager.gnomon.toggle()
+            sceneManager.getGnomon().toggle()
         })
 
         const checkboxDropdown = document.querySelector('#spacewalk-viewers-dropdown-menu')
