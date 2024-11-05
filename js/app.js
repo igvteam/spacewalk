@@ -56,6 +56,7 @@ let googleEnabled = false
 let resizeObserver
 let renderer
 let cameraLightingRig
+let scene
 let picker
 let mouseX
 let mouseY
@@ -151,7 +152,8 @@ const initializationHelper = async container => {
 
     colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
-    sceneManager = new SceneManager(sceneManagerConfigurator(document.querySelector('#spacewalk-threejs-canvas-container')));
+    scene = threeJSSetup(document.querySelector('#spacewalk-threejs-canvas-container'))
+    sceneManager = new SceneManager()
 
     await createButtonsPanelsModals(container, defaultDistanceThreshold);
 
@@ -320,21 +322,9 @@ async function createButtonsPanelsModals(container, distanceThreshold) {
 
     Panel.setPanelDictionary([ igvPanel, juiceboxPanel ]);
 
-    // $(window).on('resize.app', e => {
-    //
-    //     // Prevent responding to resize event sent by jQuery resizable()
-    //     const status = $(e.target).hasClass('ui-resizable');
-    //
-    //     if (false === status) {
-    //         let { width, height } = container.getBoundingClientRect();
-    //         SpacewalkEventBus.globalBus.post({ type: 'AppWindowDidResize', data: { width, height } });
-    //     }
-    // });
-
-
 }
 
-function sceneManagerConfigurator(container)  {
+function threeJSSetup(container) {
 
     const str = `Scene Manager Configuration Builder Complete`;
     console.time(str);
@@ -395,13 +385,8 @@ function sceneManagerConfigurator(container)  {
 
     console.timeEnd(str);
 
-    return { scene, background };
+    return scene
 
-}
-
-function renderLoop() {
-    requestAnimationFrame( renderLoop )
-    render()
 }
 
 function render () {
@@ -424,10 +409,15 @@ function render () {
         sceneManager.gnomon.renderLoopHelper();
     }
 
-    picker.intersect({ x:mouseX, y:mouseY, scene:sceneManager.scene, camera:cameraLightingRig.object });
+    picker.intersect({ x:mouseX, y:mouseY, scene, camera:cameraLightingRig.object });
 
-    renderer.render(sceneManager.scene, cameraLightingRig.object)
+    renderer.render(scene, cameraLightingRig.object)
 
+}
+
+function renderLoop() {
+    requestAnimationFrame( renderLoop )
+    render()
 }
 
 function getRenderContainerSize() {
@@ -463,6 +453,7 @@ function ingestSessionURLs({ igvSessionURL, juiceboxSessionURL, spacewalkSession
 
 export {
     getRenderContainerSize,
+    scene,
     renderer,
     cameraLightingRig,
     SpacewalkGlobals,

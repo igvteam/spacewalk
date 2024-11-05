@@ -10,6 +10,7 @@ import {setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/ut
 import Ribbon from './ribbon.js'
 import {configureColorPicker, updateColorPicker} from "./guiManager.js"
 import {
+    scene,
     pointCloud,
     ribbon,
     ballAndStick,
@@ -25,20 +26,13 @@ const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'sti
 
 class SceneManager {
 
-    constructor({ scene, background }) {
+    constructor() {
 
-        this.background = background;
-
-        // stub configuration
-        this.scene = scene;
-
-        this.colorPicker = configureColorPicker(document.querySelector(`div[data-colorpicker='background']`), this.scene.background, color => {
-            this.background = color
-            this.scene.background = this.background
-
+        this.colorPicker = configureColorPicker(document.querySelector(`div[data-colorpicker='background']`), scene.background, color => {
+            scene.background = color
         })
 
-        const { r, g, b } = this.background
+        const { r, g, b } = scene.background
         updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='background']`), { r, g, b })
 
         SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', this);
@@ -137,8 +131,6 @@ class SceneManager {
 
         this.dispose()
 
-        let scene = new THREE.Scene();
-
         if (ensembleManager.isPointCloud) {
 
             pointCloud.configure(trace);
@@ -153,20 +145,21 @@ class SceneManager {
 
         const {min, max, center, radius} = EnsembleManager.getTraceBounds(trace);
         const {position, fov} = getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
-        this.configure({ scene, min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+        this.configure({ min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
 
     }
 
-    configure({ scene, min, max, boundingDiameter, cameraPosition, centroid, fov }) {
+    configure({ min, max, boundingDiameter, cameraPosition, centroid, fov }) {
 
-        // Scene
-        this.scene = scene;
-        this.scene.background = this.background;
+        scene.background = this.background;
+
+        const { r, g, b } = this.background
+        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='background']`), { r, g, b })
 
         const { width, height } = getRenderContainerSize();
         cameraLightingRig.configure({fov, aspect: width/height, position: cameraPosition, centroid, boundingDiameter});
 
-        cameraLightingRig.addToScene(this.scene);
+        cameraLightingRig.addToScene(scene);
 
         // Groundplane
         if (this.groundPlane) {
@@ -174,7 +167,7 @@ class SceneManager {
         }
 
         this.groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(centroid.x, min.y, centroid.z), boundingDiameter));
-        this.scene.add( this.groundPlane );
+        scene.add( this.groundPlane );
 
         // Gnomon
         if (this.gnomon) {
@@ -182,22 +175,38 @@ class SceneManager {
         }
 
         this.gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter));
-        this.gnomon.addToScene(this.scene);
+        this.gnomon.addToScene(scene);
 
     }
 
     dispose() {
 
-        if (this.scene) {
+        this.background = scene.background
 
-            const disposable = this.scene.children.filter(child => disposableSet.has(child.name))
 
-            for (const d of disposable) {
-                this.scene.remove(d)
+        if (scene) {
+            while (scene.children.length > 0) {
+                const child = scene.children[0];
+
+                if (child.geometry) child.geometry.dispose(); // Dispose of geometry
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(mat => mat.dispose()); // Dispose of each material if it's an array
+                    } else {
+                        child.material.dispose(); // Dispose of single material
+                    }
+                }
+
+                scene.remove(child);
             }
-
-            delete this.scene
         }
+
+        // if (scene) {
+        //     const disposable = scene.children.filter(child => disposableSet.has(child.name))
+        //     for (const d of disposable) {
+        //         scene.remove(d)
+        //     }
+        // }
 
         ballAndStick.dispose()
         ribbon.dispose()
@@ -205,13 +214,12 @@ class SceneManager {
     }
 
     toJSON() {
-        const { r, g, b } = this.scene.background
+        const { r, g, b } = scene.background
         return  { r, g, b }
     }
 
     setBackground({ r, g, b }) {
-        this.background = new THREE.Color(r, g, b)
-        this.scene.background = this.background
+        scene.background = new THREE.Color(r, g, b)
      }
 
 }
