@@ -1,3 +1,6 @@
+import * as THREE from "three"
+import CameraLightingRig from "./cameraLightingRig.js"
+import Picker from "./picker.js"
 import {GoogleAuth, igvxhr} from 'igv-utils'
 import {createSessionWidgets} from './widgets/sessionWidgets.js'
 import { dropboxDropdownItem, googleDriveDropdownItem } from "./widgets/markupFactory.js"
@@ -5,7 +8,7 @@ import { createTrackWidgetsWithTrackRegistry } from './widgets/trackWidgets.js'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./utils/colorMapManager.js";
-import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
+import SceneManager from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import Panel, { doInspectPanelVisibilityCheckbox }  from "./panel.js";
@@ -27,7 +30,7 @@ import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from './widgets/contactMapLoad.js'
 import {createShareWidgets, shareWidgetConfigurator} from './share/shareWidgets.js'
-import { showGlobalSpinner, hideGlobalSpinner } from './utils/utils.js'
+import {showGlobalSpinner, hideGlobalSpinner, getMouseXY} from './utils/utils.js'
 import {showRelease} from "./utils/release.js"
 import { spacewalkConfig } from "../spacewalk-config.js";
 import 'juicebox.js/dist/css/juicebox.css'
@@ -50,6 +53,12 @@ let traceSelect
 let traceNavigator
 let renderContainerController
 let googleEnabled = false
+let resizeObserver
+let renderer
+let cameraLightingRig
+let picker
+let mouseX
+let mouseY
 
 const SpacewalkGlobals =
     {
@@ -122,12 +131,16 @@ const initializationHelper = async container => {
     // Dismiss on click away from popover
     $('.popover-dismiss').popover({ trigger: 'focus' })
 
-
     pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
     ribbon = new Ribbon();
 
-    ballAndStick = new BallAndStick({ pickHighlighter: new BallHighlighter(highlightColor) });
+    // const stickMaterial = showSMaterial;
+    // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
+    const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
+    stickMaterial.side = THREE.DoubleSide;
+
+    ballAndStick = new BallAndStick({ pickHighlighter: new BallHighlighter(highlightColor), stickMaterial });
 
     ensembleManager = new EnsembleManager();
 
@@ -148,6 +161,40 @@ const initializationHelper = async container => {
     document.querySelector('.navbar').style.display = 'flex'
 
     renderContainerController = new RenderContainerController(container)
+
+    const resizeableContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
+
+    resizeObserver = new ResizeObserver(entries => {
+        const { width, height } = getRenderContainerSize()
+        renderer.setSize(width, height)
+        cameraLightingRig.object.aspect = width / height
+        cameraLightingRig.object.updateProjectionMatrix()
+        render()
+    });
+
+    resizeObserver.observe(resizeableContainer)
+
+    document.getElementById('spacewalk-fullscreen-button').addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            resizeableContainer.requestFullscreen().then(() => {
+                document.body.classList.add('fullscreen');
+            }).catch(err => {
+                alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            document.exitFullscreen().then(() => {
+                document.body.classList.remove('fullscreen');
+            }).catch(err => {
+                alert(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`);
+            });
+        }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            document.body.classList.remove('fullscreen');
+        }
+    });
 
     renderLoop()
 
@@ -273,17 +320,82 @@ async function createButtonsPanelsModals(container, distanceThreshold) {
 
     Panel.setPanelDictionary([ igvPanel, juiceboxPanel ]);
 
-    $(window).on('resize.app', e => {
+    // $(window).on('resize.app', e => {
+    //
+    //     // Prevent responding to resize event sent by jQuery resizable()
+    //     const status = $(e.target).hasClass('ui-resizable');
+    //
+    //     if (false === status) {
+    //         let { width, height } = container.getBoundingClientRect();
+    //         SpacewalkEventBus.globalBus.post({ type: 'AppWindowDidResize', data: { width, height } });
+    //     }
+    // });
 
-        // Prevent responding to resize event sent by jQuery resizable()
-        const status = $(e.target).hasClass('ui-resizable');
 
-        if (false === status) {
-            let { width, height } = container.getBoundingClientRect();
-            SpacewalkEventBus.globalBus.post({ type: 'AppWindowDidResize', data: { width, height } });
-        }
-    });
+}
 
+function sceneManagerConfigurator(container)  {
+
+    const str = `Scene Manager Configuration Builder Complete`;
+    console.time(str);
+
+    picker = new Picker( new THREE.Raycaster() );
+
+    // Opt out of linear color workflow for now
+    // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
+    // THREE.ColorManagement.enabled = false;
+
+    // Enable linear color workflow
+    THREE.ColorManagement.enabled = true;
+
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+    // Opt out of linear color workflow for now
+    // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
+    // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+
+    // Enable linear color workflow
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    // renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
+    // renderer.setClearColor (appleCrayonColorThreeJS('strawberry'));
+
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const { width, height } = container.getBoundingClientRect();
+    renderer.setSize(width, height);
+
+    container.appendChild(renderer.domElement);
+
+    container.addEventListener('mousemove', event => {
+        const { x, y } = getMouseXY(renderer.domElement, event);
+        mouseX =  ( x / renderer.domElement.clientWidth  ) * 2 - 1;
+        mouseY = -( y / renderer.domElement.clientHeight ) * 2 + 1;
+    })
+
+    const background = appleCrayonColorThreeJS('snow');
+    // const background = sceneBackgroundTexture;
+
+    const scene = new THREE.Scene();
+    scene.background = background;
+
+    // Update due to r155 changes to illumination: Multiply light intensities by PI to get same brightness as previous threejs release.
+    // See: https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733
+    const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('tin'), Math.PI );
+
+    const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (width/height) ];
+    cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspect, hemisphereLight });
+
+    // Nice numbers
+    const position = new THREE.Vector3(134820, 55968, 5715);
+    const centroid = new THREE.Vector3(133394, 54542, 4288);
+    cameraLightingRig.setPose(position, centroid);
+
+    cameraLightingRig.addToScene(scene);
+
+    console.timeEnd(str);
+
+    return { scene, background };
 
 }
 
@@ -293,7 +405,34 @@ function renderLoop() {
 }
 
 function render () {
-    sceneManager.renderLoopHelper()
+
+    pointCloud.renderLoopHelper()
+
+    ballAndStick.renderLoopHelper()
+
+    ribbon.renderLoopHelper()
+
+    colorRampMaterialProvider.renderLoopHelper()
+
+    cameraLightingRig.renderLoopHelper();
+
+    if (sceneManager.groundPlane) {
+        sceneManager.groundPlane.renderLoopHelper();
+    }
+
+    if (sceneManager.gnomon) {
+        sceneManager.gnomon.renderLoopHelper();
+    }
+
+    picker.intersect({ x:mouseX, y:mouseY, scene:sceneManager.scene, camera:cameraLightingRig.object });
+
+    renderer.render(sceneManager.scene, cameraLightingRig.object)
+
+}
+
+function getRenderContainerSize() {
+    const container = document.querySelector('#spacewalk-threejs-canvas-container')
+    return container.getBoundingClientRect()
 }
 
 function ingestSessionURLs({ igvSessionURL, juiceboxSessionURL, spacewalkSessionURL }) {
@@ -322,8 +461,10 @@ function ingestSessionURLs({ igvSessionURL, juiceboxSessionURL, spacewalkSession
 
 }
 
-
 export {
+    getRenderContainerSize,
+    renderer,
+    cameraLightingRig,
     SpacewalkGlobals,
     googleEnabled,
     pointCloud,

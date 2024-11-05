@@ -19,9 +19,11 @@ const stickTesselation = { length: 2, radial: 8 }
 
 class BallAndStick {
 
-    constructor ({ pickHighlighter }) {
+    constructor ({ pickHighlighter, stickMaterial }) {
 
         this.pickHighlighter = pickHighlighter;
+
+        this.stickMaterial = stickMaterial;
 
         SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
      }
@@ -161,7 +163,7 @@ class BallAndStick {
         }
 
         // Aggregate geometry list into single BufferGeometry
-        const material = sceneManager.stickMaterial.clone()
+        const material = this.stickMaterial.clone()
 
         const bufferGeometry = mergeGeometries(geometries)
         const mesh = new THREE.Mesh(bufferGeometry, material)
