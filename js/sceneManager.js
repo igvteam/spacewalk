@@ -85,7 +85,7 @@ class SceneManager {
 
     setupWithTrace(trace) {
 
-        this.dispose()
+        this.initializeScene()
 
         if (ensembleManager.isPointCloud) {
             pointCloud.configure(trace);
@@ -105,21 +105,21 @@ class SceneManager {
 
     configureRenderStyle (renderStyle) {
 
-        this.renderStyle = renderStyle
-
-        if (this.renderStyle === Ribbon.getRenderStyle()) {
+        if (Ribbon.getRenderStyle() === renderStyle) {
             pointCloud.hide()
             ballAndStick.hide()
             ribbon.show()
-        } else if (this.renderStyle === BallAndStick.getRenderStyle()) {
+        } else if (BallAndStick.getRenderStyle() === renderStyle) {
             pointCloud.hide()
             ribbon.hide()
             ballAndStick.show()
-        } else if (this.renderStyle === PointCloud.getRenderStyle()) {
+        } else if (PointCloud.getRenderStyle() === renderStyle) {
             ballAndStick.hide()
             ribbon.hide()
             pointCloud.show()
         }
+
+        this.renderStyle = renderStyle
     }
 
     configure({ min, max, boundingDiameter, cameraPosition, centroid, fov }) {
@@ -156,10 +156,11 @@ class SceneManager {
         return  { r, g, b }
     }
 
-    dispose() {
+    initializeScene() {
 
         this.background = scene.background
 
+        // discard all children
         if (scene) {
             while (scene.children.length > 0) {
                 const child = scene.children[0];
@@ -187,10 +188,6 @@ class SceneManager {
         ribbon.dispose()
         pointCloud.dispose()
     }
-
-    setBackground({ r, g, b }) {
-        scene.background = new THREE.Color(r, g, b)
-     }
 
     isGood2Go() {
         return scene && this.getGnomon() && this.getGroundPlane()

@@ -1,3 +1,4 @@
+import * as THREE from "three"
 import hic from 'juicebox.js'
 import {BGZip} from 'igv-utils'
 import Panel from './panel.js'
@@ -70,7 +71,8 @@ async function loadSpacewalkSession (session) {
     // sceneManager.cameraLightingRig.setState(cameraLightingRig);
 
     if (backgroundColor) {
-        sceneManager.setBackground(backgroundColor);
+        const { r, g, b } = backgroundColor
+        scene.background = new THREE.Color(r, g, b)
     }
 
     const data = ensembleManager.createEventBusPayload()
