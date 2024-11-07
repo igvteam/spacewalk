@@ -13,10 +13,6 @@ class BallHighlighter {
         }
     }
 
-    isActive() {
-        return !(undefined === this.instanceIdList)
-    }
-
     hasInstanceId(instanceId) {
         if (undefined === this.instanceIdList) {
             return false

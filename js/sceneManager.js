@@ -33,12 +33,12 @@ class SceneManager {
 
         if ('RenderStyleDidChange' === type) {
 
-            if (data === Ribbon.getRenderStyle()) {
-                this.renderStyle = Ribbon.getRenderStyle()
+            if (data === Ribbon.renderStyle) {
+                this.renderStyle = Ribbon.renderStyle
                 ballAndStick.hide()
                 ribbon.show()
-            } else if (data === BallAndStick.getRenderStyle()) {
-                this.renderStyle = BallAndStick.getRenderStyle()
+            } else if (data === BallAndStick.renderStyle) {
+                this.renderStyle = BallAndStick.renderStyle
                 ribbon.hide()
                 ballAndStick.show()
             }
@@ -55,7 +55,7 @@ class SceneManager {
         await ensembleManager.loadURL(url, traceKey, ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
-        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle())
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : guiManager.getRenderStyle())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
         setMaterialProvider(colorRampMaterialProvider)
@@ -74,7 +74,7 @@ class SceneManager {
         await ensembleManager.loadEnsembleGroup(ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
-        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.getRenderStyle() : guiManager.getRenderStyle())
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : guiManager.getRenderStyle())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
         setMaterialProvider(colorRampMaterialProvider)
@@ -105,15 +105,15 @@ class SceneManager {
 
     configureRenderStyle (renderStyle) {
 
-        if (Ribbon.getRenderStyle() === renderStyle) {
+        if (Ribbon.renderStyle === renderStyle) {
             pointCloud.hide()
             ballAndStick.hide()
             ribbon.show()
-        } else if (BallAndStick.getRenderStyle() === renderStyle) {
+        } else if (BallAndStick.renderStyle === renderStyle) {
             pointCloud.hide()
             ribbon.hide()
             ballAndStick.show()
-        } else if (PointCloud.getRenderStyle() === renderStyle) {
+        } else if (PointCloud.renderStyle === renderStyle) {
             ballAndStick.hide()
             ribbon.hide()
             pointCloud.show()

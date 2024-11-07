@@ -152,7 +152,7 @@ function spacewalkToJSON () {
 
         spacewalk.igvPanelState = igvPanel.getSessionState()
 
-        spacewalk.renderStyle = guiManager.getRenderStyle()
+        spacewalk.renderStyle = guiManager.renderStyle
 
         spacewalk.panelVisibility = Panel.toJSON()
 

@@ -57,7 +57,7 @@ class ColorRampMaterialProvider {
 
             const { poster, interpolantList } = data
 
-            if (this !== poster || sceneManager.renderStyle === Ribbon.getRenderStyle()) {
+            if (this !== poster || sceneManager.renderStyle === Ribbon.renderStyle) {
 
                 const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 

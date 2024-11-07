@@ -123,20 +123,6 @@ function createImage(imageSource) {
 
 }
 
-function fillRGBAMatrix(rgbaMatrix, matrixDimension, rgb255) {
-
-    const { r, g, b } = rgb255
-    const length = matrixDimension * matrixDimension
-    let i = 0
-    for (let x = 0; x < length; x++) {
-        rgbaMatrix[i++] = r
-        rgbaMatrix[i++] = g
-        rgbaMatrix[i++] = b
-        rgbaMatrix[i++] = 255
-    }
-
-}
-
 async function transferRGBAMatrixToLiveMapCanvas(ctx, rgbaMatrix, matrixDimension) {
 
     const imageData = new ImageData(rgbaMatrix, matrixDimension, matrixDimension)
@@ -147,32 +133,16 @@ async function transferRGBAMatrixToLiveMapCanvas(ctx, rgbaMatrix, matrixDimensio
 
 }
 
-function generateRadiusTable(defaultRadius) {
-
-    const radiusTableLength = 11;
-    const radiusTable = [];
-
-    for (let i = 0; i < radiusTableLength; i++) {
-        const interpolant = i / (radiusTableLength - 1);
-        const radius = lerp(0.5 * defaultRadius, 2.0 * defaultRadius, interpolant);
-        radiusTable.push(radius);
-    }
-
-    return radiusTable
-}
-
 export {
     showGlobalSpinner,
     hideGlobalSpinner,
     unsetDataMaterialProviderCheckbox,
     getMaterialProvider,
     setMaterialProvider,
-    fillRGBAMatrix,
     createImage,
     transferRGBAMatrixToLiveMapCanvas,
     readFileAsDataURL,
     fitToContainer,
     getMouseXY,
-    throttle,
-    generateRadiusTable
+    throttle
 };

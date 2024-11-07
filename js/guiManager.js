@@ -54,9 +54,9 @@ class GUIManager {
 
         }
 
-        configureRenderStyleControl($('#spacewalk-render-style-ball-stick'), BallAndStick.getRenderStyle());
+        configureRenderStyleControl($('#spacewalk-render-style-ball-stick'), BallAndStick.renderStyle);
 
-        configureRenderStyleControl($('#spacewalk-render-style-ribbon'), Ribbon.getRenderStyle());
+        configureRenderStyleControl($('#spacewalk-render-style-ribbon'), Ribbon.renderStyle);
 
         // Ball radius
         const $ball_radius_control = $('#spacewalk-ball-radius-control');
@@ -122,16 +122,16 @@ class GUIManager {
 
     setRenderStyle(renderStyle) {
         const $ui_manager_panel = $('#spacewalk_ui_manager_panel');
-        if (renderStyle === Ribbon.getRenderStyle()) {
+        if (renderStyle === Ribbon.renderStyle) {
             $ui_manager_panel.find('#spacewalk-render-style-ribbon').prop('checked', true);
-        } else if (renderStyle === BallAndStick.getRenderStyle()) {
+        } else if (renderStyle === BallAndStick.renderStyle) {
             $ui_manager_panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
         }
     }
 
     getRenderStyle() {
         const id = $('#spacewalk_ui_manager_panel').find("input:radio[name='spacewalk-render-style']:checked").attr('id');
-        return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.getRenderStyle() : Ribbon.getRenderStyle();
+        return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.renderStyle : Ribbon.renderStyle;
     }
 }
 
