@@ -23,8 +23,8 @@ import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/colorUtils.js";
-import {getUrlParams, toJSON, loadSession, uncompressSessionURL} from "./spacewalkSession.js"
-import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
+import {getUrlParams, toJSON, loadSession, uncompressSessionURL} from "./sessionServices.js"
+import {createSpacewalkFileLoaders} from './spacewalkFileLoadWidgetServices.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from './widgets/contactMapLoad.js'

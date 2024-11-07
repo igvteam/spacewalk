@@ -4,7 +4,7 @@ import { StringUtils } from 'igv-utils'
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import {rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor, rgba255String} from "./utils/colorUtils.js"
-import {ballAndStick, sceneManager, juiceboxPanel, ensembleManager, pointCloud} from "./app.js";
+import {ballAndStick, sceneManager, ensembleManager, pointCloud} from "./app.js";
 
 class GUIManager {
 

@@ -24,22 +24,20 @@ class Panel {
         this.namespace = `panel.${ igv.DOMUtils.guid() }`
 
         const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
-        // makeDraggable(panel, dragHandle.querySelector('.fa-grip-horizontal'))
         makeDraggable(panel, dragHandle)
 
-        $(dragHandle).on(`mousedown.${ this.namespace }`, event => {
+        dragHandle.addEventListener(`mousedown`, (event) => {
             event.stopPropagation();
             event.preventDefault();
-            SpacewalkEventBus.globalBus.post({ type: "DidSelectPanel", data: this.getClassName() })
-        })
+            SpacewalkEventBus.globalBus.post({ type: "DidSelectPanel", data: this.getClassName() });
+        });
 
-        // const closer = panel.querySelector('span:last-child')
-        const closer = dragHandle.querySelector('.fa-times-circle')
-        $(closer).on(`click.${ igv.DOMUtils.guid() }`, event => {
-            event.stopPropagation()
-            event.preventDefault()
-            this.dismiss()
-        })
+        const closer = dragHandle.querySelector('.fa-times-circle');
+        closer.addEventListener('click', (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            this.dismiss();
+        });
 
         SpacewalkEventBus.globalBus.subscribe('DidSelectPanel', this)
         SpacewalkEventBus.globalBus.subscribe('ToggleUIControl', this)
@@ -50,12 +48,14 @@ class Panel {
     receiveEvent({ type, data }) {
 
         if ('DidSelectPanel' === type) {
-            this.$panel.css('zIndex', this.getClassName() === data ? zIndexPanelSelected : zIndexPanelUnselected)
-        } else if ("ToggleUIControl" === type && data && data.payload === this.$panel.attr('id')) {
-            true === this.isHidden ? this.present() : this.dismiss()
-        } else if ('AppWindowDidResize' === type && false === this.isHidden) {
-            this.$panel.offset(this.getOffset())
-        } else if ('DidEndDrag' === type && data && data === this.$panel.attr('id')) {
+            this.panel.style.zIndex = this.getClassName() === data ? zIndexPanelSelected : zIndexPanelUnselected;
+        } else if ("ToggleUIControl" === type && data && data.payload === this.panel.getAttribute('id')) {
+            this.isHidden ? this.present() : this.dismiss();
+        } else if ('AppWindowDidResize' === type && !this.isHidden) {
+            const offset = this.getOffset();
+            this.panel.style.left = `${offset.left}px`;
+            this.panel.style.top = `${offset.top}px`;
+        } else if ('DidEndDrag' === type && data && data === this.panel.getAttribute('id')) {
             this.setTopLeftPercentages(true);
         }
     }
@@ -91,25 +91,30 @@ class Panel {
     dismiss() {
 
         this.isHidden = true;
-        this.$panel.offset( { left: -1000, top: -1000 } );
+        this.panel.style.left = '-1000px';
+        this.panel.style.top = '-1000px';
 
-        const id = this.$panel.attr('id')
-        const $selection = $(`input[data-target='${ id }']`)
-        $selection.prop('checked', false)
-
+        const id = this.panel.getAttribute('id');
+        const selection = document.querySelector(`input[data-target='${id}']`);
+        if (selection) {
+            selection.checked = false;
+        }
     }
 
     present() {
 
         if (this.isHidden) {
-            this.$panel.offset(this.getOffset());
+            const offset = this.getOffset();
+            this.panel.style.left = `${offset.left}px`;
+            this.panel.style.top = `${offset.top}px`;
             this.isHidden = false;
         }
 
-        const id = this.$panel.attr('id')
-        const $selection = $(`input[data-target='${ id }']`)
-        $selection.prop('checked', true)
-
+        const id = this.panel.getAttribute('id');
+        const selection = document.querySelector(`input[data-target='${id}']`);
+        if (selection) {
+            selection.checked = true;
+        }
     }
 
     static setPanelDictionary(panels) {
@@ -143,9 +148,10 @@ class Panel {
     }
 }
 
-export function doInspectPanelVisibilityCheckbox(panelID) {
-    const $selection = $(`input[data-target='${ panelID }']`)
-    return !($selection.prop('checked'))
+function doInspectPanelVisibilityCheckbox(panelID) {
+    const selection = document.querySelector(`input[data-target='${panelID}']`);
+    return !(selection && selection.checked);
 }
 
+export { doInspectPanelVisibilityCheckbox }
 export default Panel;
