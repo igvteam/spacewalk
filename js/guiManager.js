@@ -8,20 +8,22 @@ import {ballAndStick, sceneManager, ensembleManager, pointCloud} from "./app.js"
 
 class GUIManager {
 
-    constructor ({ settingsButton, $panel }) {
+    constructor ({ settingsButton, panel }) {
 
-        settingsButton.addEventListener('click', e => {
-            e.stopPropagation()
-            $panel.toggle()
-        })
+        const $panel = $(panel)
 
-        document.querySelector('#spacewalk-threejs-container').addEventListener('click', e => {
-            e.stopPropagation()
-            $panel.hide()
-        })
+        settingsButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
+        });
 
-        $panel.get(0).addEventListener(    'click', e => e.stopPropagation())
-        $panel.get(0).addEventListener('mousemove', e => e.stopPropagation())
+        document.querySelector('#spacewalk-threejs-container').addEventListener('click', (e) => {
+            e.stopPropagation();
+            panel.style.display = 'none';
+        });
+
+        panel.addEventListener('click', (e) => e.stopPropagation());
+        panel.addEventListener('mousemove', (e) => e.stopPropagation());
 
         // Configure Ground Plane Toggle
         document.querySelector(`#spacewalk_ui_manager_groundplane`).addEventListener('change', e => {
@@ -46,7 +48,13 @@ class GUIManager {
                 event.preventDefault()
                 event.stopPropagation()
 
-                $(input).parents('.dropdown').find('.dropdown-toggle').dropdown('toggle')
+                const dropdown = input.closest('.dropdown');
+                const toggleButton = dropdown ? dropdown.querySelector('.dropdown-toggle') : null;
+                if (toggleButton && typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+                    const dropdownInstance = bootstrap.Dropdown.getOrCreateInstance(toggleButton);
+                    dropdownInstance.toggle();
+                }
+
 
                 const payload = inputIDList[ i ].dataset.target
                 SpacewalkEventBus.globalBus.post({ type: 'ToggleUIControl', data: { payload } })
@@ -54,33 +62,33 @@ class GUIManager {
 
         }
 
-        configureRenderStyleControl($('#spacewalk-render-style-ball-stick'), BallAndStick.renderStyle);
+        configureRenderStyleControl(document.getElementById('spacewalk-render-style-ball-stick'), BallAndStick.renderStyle);
 
-        configureRenderStyleControl($('#spacewalk-render-style-ribbon'), Ribbon.renderStyle);
+        configureRenderStyleControl(document.getElementById('spacewalk-render-style-ribbon'), Ribbon.renderStyle);
 
         // Ball radius
-        const $ball_radius_control = $('#spacewalk-ball-radius-control');
-        $ball_radius_control.find('i.fa-minus-circle').on('click.spacewalk-ball-radius-minus', () => ballAndStick.updateBallRadius(-1))
-        $ball_radius_control.find('i.fa-plus-circle').on('click.spacewalk-ball-radius-plus',   () => ballAndStick.updateBallRadius(1))
+        const ballRadiusControl = document.getElementById('spacewalk-ball-radius-control');
+        ballRadiusControl.querySelector('i.fa-minus-circle').addEventListener('click', () => ballAndStick.updateBallRadius(-1));
+        ballRadiusControl.querySelector('i.fa-plus-circle').addEventListener('click', () => ballAndStick.updateBallRadius(1));
 
         // Stick radius
-        const $stick_radius_control = $('#spacewalk-stick-radius-control');
-        $stick_radius_control.find('i.fa-minus-circle').on('click.spacewalk-stick-radius-minus', () => {
+        const stickRadiusControl = document.getElementById('spacewalk-stick-radius-control');
+        stickRadiusControl.querySelector('i.fa-minus-circle').addEventListener('click', () => {
             ballAndStick.updateStickRadius(-1);
         });
-        $stick_radius_control.find('i.fa-plus-circle').on('click.spacewalk-stick-radius-plus', () => {
+        stickRadiusControl.querySelector('i.fa-plus-circle').addEventListener('click', () => {
             ballAndStick.updateStickRadius(1);
         });
 
         // PointCloud Point Size
-        const $point_size_control = $('#spacewalk_ui_manager_pointcloud_point_size');
-        $point_size_control.find('i.fa-minus-circle').on('click.spacewalk-point-size-minus', () => pointCloud.updatePointSize(-1))
-        $point_size_control.find('i.fa-plus-circle').on('click.spacewalk-point-size-plus', () => pointCloud.updatePointSize(1))
+        const pointSizeControl = document.getElementById('spacewalk_ui_manager_pointcloud_point_size');
+        pointSizeControl.querySelector('i.fa-minus-circle').addEventListener('click', () => pointCloud.updatePointSize(-1));
+        pointSizeControl.querySelector('i.fa-plus-circle').addEventListener('click', () => pointCloud.updatePointSize(1));
 
         // PointCloud Point Transparency
-        const $point_transparency_control = $('#spacewalk_ui_manager_pointcloud_point_transparency');
-        $point_transparency_control.find('i.fa-minus-circle').on('click.spacewalk-point-transparency-minus', () => pointCloud.updatePointTransparency(-1))
-        $point_transparency_control.find('i.fa-plus-circle').on('click.spacewalk-point-transparency-plus', () => pointCloud.updatePointTransparency(1))
+        const pointTransparencyControl = document.getElementById('spacewalk_ui_manager_pointcloud_point_transparency');
+        pointTransparencyControl.querySelector('i.fa-minus-circle').addEventListener('click', () => pointCloud.updatePointTransparency(-1));
+        pointTransparencyControl.querySelector('i.fa-plus-circle').addEventListener('click', () => pointCloud.updatePointTransparency(1));
 
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
         SpacewalkEventBus.globalBus.subscribe('DidSelectEnsembleGroup', this);
@@ -121,51 +129,63 @@ class GUIManager {
     }
 
     setRenderStyle(renderStyle) {
-        const $ui_manager_panel = $('#spacewalk_ui_manager_panel');
+        const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
         if (renderStyle === Ribbon.renderStyle) {
-            $ui_manager_panel.find('#spacewalk-render-style-ribbon').prop('checked', true);
+            const ribbonRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ribbon');
+            if (ribbonRadio) {
+                ribbonRadio.checked = true;
+            }
         } else if (renderStyle === BallAndStick.renderStyle) {
-            $ui_manager_panel.find('#spacewalk-render-style-ball-stick').prop('checked', true);
+            const ballStickRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ball-stick');
+            if (ballStickRadio) {
+                ballStickRadio.checked = true;
+            }
         }
     }
 
     getRenderStyle() {
-        const id = $('#spacewalk_ui_manager_panel').find("input:radio[name='spacewalk-render-style']:checked").attr('id');
-        return 'spacewalk-render-style-ball-stick' === id ? BallAndStick.renderStyle : Ribbon.renderStyle;
+        const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
+        const checkedInput = uiManagerPanel.querySelector("input[name='spacewalk-render-style']:checked");
+        const id = checkedInput ? checkedInput.id : null;
+        return id === 'spacewalk-render-style-ball-stick' ? BallAndStick.renderStyle : Ribbon.renderStyle;
     }
 }
 
-function configureRenderStyleControl($input, renderStyle) {
+function configureRenderStyleControl(input, renderStyle) {
 
-    $input.val( renderStyle );
+    input.value = renderStyle;
 
-    $input.on('change.gui_manager.render_style_ball_stick', (e) => {
+    input.addEventListener('change', (e) => {
         e.preventDefault();
-        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: $(e.target).val() });
+        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: e.target.value });
     });
 
 }
 
 // Ground Plane
 export function doConfigureGroundplaneHidden() {
-    const $input = $('#spacewalk_ui_manager_groundplane')
-    return !($input.prop('checked'))
+    const input = document.getElementById('spacewalk_ui_manager_groundplane');
+    return !(input && input.checked);
 }
 
 export function setGroundplaneVisibilityCheckboxStatus(status) {
-    const $input = $('#spacewalk_ui_manager_groundplane')
-    $input.prop('checked', status)
+    const input = document.getElementById('spacewalk_ui_manager_groundplane');
+    if (input) {
+        input.checked = status;
+    }
 }
 
 // Gnomon
 export function doConfigureGnomonHidden() {
-    const $input = $('#spacewalk_ui_manager_gnomon')
-    return !($input.prop('checked'))
+    const input = document.getElementById('spacewalk_ui_manager_gnomon');
+    return !(input && input.checked);
 }
 
 export function setGnomonVisibilityCheckboxStatus(status) {
-    const $input = $('#spacewalk_ui_manager_gnomon')
-    $input.prop('checked', status)
+    const input = document.getElementById('spacewalk_ui_manager_gnomon');
+    if (input) {
+        input.checked = status;
+    }
 }
 
 // Colorpicker

@@ -158,7 +158,7 @@ const initializationHelper = async container => {
     await createButtonsPanelsModals(container, defaultDistanceThreshold);
 
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
-    guiManager = new GUIManager({ settingsButton, $panel: $('#spacewalk_ui_manager_panel') });
+    guiManager = new GUIManager({ settingsButton, panel: document.querySelector('#spacewalk_ui_manager_panel') });
 
     document.querySelector('.navbar').style.display = 'flex'
 

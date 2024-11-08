@@ -14,14 +14,11 @@ class Panel {
         this.container = container
 
         this.panel = panel
-        this.$panel = $(panel)
 
         this.isHidden = isHidden
 
         this.xFunction = xFunction
         this.yFunction = yFunction
-
-        this.namespace = `panel.${ igv.DOMUtils.guid() }`
 
         const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
         makeDraggable(panel, dragHandle)
