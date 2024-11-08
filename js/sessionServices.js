@@ -2,7 +2,17 @@ import * as THREE from "three"
 import hic from 'juicebox.js'
 import {BGZip} from 'igv-utils'
 import Panel from './panel.js'
-import { scene, igvPanel, juiceboxPanel, ensembleManager, sceneManager, liveContactMapService, SpacewalkGlobals, guiManager } from './app.js'
+import {
+    scene,
+    igvPanel,
+    juiceboxPanel,
+    ensembleManager,
+    sceneManager,
+    liveContactMapService,
+    SpacewalkGlobals,
+    guiManager,
+    cameraLightingRig
+} from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {defaultDistanceThreshold} from './juicebox/liveContactMapService.js'
 import { shortenURL } from "./share/shareHelper.js"
@@ -171,7 +181,7 @@ function spacewalkToJSON () {
         // background
         spacewalk.backgroundColor = sceneManager.toJSON()
 
-        spacewalk.cameraLightingRig = sceneManager.cameraLightingRig.getState()
+        spacewalk.cameraLightingRig = cameraLightingRig.getState()
 
         spacewalk.contactFrequencyMapDistanceThreshold = liveContactMapService.distanceThreshold
 

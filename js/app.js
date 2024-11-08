@@ -52,9 +52,8 @@ let juiceboxPanel
 let igvPanel
 let traceSelect
 let traceNavigator
-let renderContainerController
 let googleEnabled = false
-let resizeObserver
+let _3DInteractionContainerResizeObserver
 let renderer
 let cameraLightingRig
 let scene
@@ -176,9 +175,9 @@ const initializationHelper = async container => {
 
     configureRenderContainerDrag(config)
 
-    const resizeableContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
+    const _3DInteractionContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
 
-    resizeObserver = new ResizeObserver(entries => {
+    _3DInteractionContainerResizeObserver = new ResizeObserver(entries => {
         const { width, height } = getRenderContainerSize()
         renderer.setSize(width, height)
         cameraLightingRig.object.aspect = width / height
@@ -186,11 +185,11 @@ const initializationHelper = async container => {
         render()
     });
 
-    resizeObserver.observe(resizeableContainer)
+    _3DInteractionContainerResizeObserver.observe(_3DInteractionContainer)
 
     document.getElementById('spacewalk-fullscreen-button').addEventListener('click', () => {
         if (!document.fullscreenElement) {
-            resizeableContainer.requestFullscreen().then(() => {
+            _3DInteractionContainer.requestFullscreen().then(() => {
                 document.body.classList.add('fullscreen');
             }).catch(err => {
                 alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
@@ -278,7 +277,7 @@ async function createButtonsPanelsModals(container, distanceThreshold) {
         (configurations) => igvPanel.loadTrackList(configurations),
         trackMenuHandler)
 
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
+    igvPanel = new IGVPanel({ container, panel: document.querySelector('#spacewalk_igv_panel'), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
     igvPanel.materialProvider = colorRampMaterialProvider;
 
     await igvPanel.initialize(spacewalkConfig.igvConfig)
