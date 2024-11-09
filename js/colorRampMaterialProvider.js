@@ -175,13 +175,13 @@ class ColorRampMaterialProvider {
     }
 
     show() {
-        $(this.highlight_ctx.canvas).show();
-        $(this.rgb_ctx.canvas).show();
+        this.highlight_ctx.canvas.style.display = 'block';
+        this.rgb_ctx.canvas.style.display = 'block';
     }
 
     hide() {
-        $(this.highlight_ctx.canvas).hide();
-        $(this.rgb_ctx.canvas).hide();
+        this.highlight_ctx.canvas.style.display = 'none';
+        this.rgb_ctx.canvas.style.display = 'none';
     }
 }
 

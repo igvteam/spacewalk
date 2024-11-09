@@ -10,8 +10,6 @@ class GUIManager {
 
     constructor ({ settingsButton, panel }) {
 
-        const $panel = $(panel)
-
         settingsButton.addEventListener('click', (e) => {
             e.stopPropagation();
             panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
@@ -103,28 +101,25 @@ class GUIManager {
 
             const { sample, genomeAssembly, chr, genomicStart, genomicEnd } = data;
 
-            $('#spacewalk_info_panel_genome').text( genomeAssembly );
+            document.getElementById('spacewalk_info_panel_genome').textContent = genomeAssembly;
 
-            str = `${ chr } : ${StringUtils.numberFormatter(genomicStart) } - ${ StringUtils.numberFormatter(genomicEnd) }`;
-            $('#spacewalk_info_panel_locus').text( str );
+            str = `${chr} : ${StringUtils.numberFormatter(genomicStart)} - ${StringUtils.numberFormatter(genomicEnd)}`;
+            document.getElementById('spacewalk_info_panel_locus').textContent = str;
 
-            // str = `${ sample }`;
-            // $('#spacewalk_info_panel_ensemble').text( str );
+            document.getElementById('spacewalk_info_panel').style.display = 'flex';
 
-            $('#spacewalk_info_panel').show();
-
-            if (true === ensembleManager.isPointCloud) {
-                $('#spacewalk_ui_manager_render_styles').hide();
-                $('#spacewalk_ui_manager_pointcloud_render_style').show();
+            if (ensembleManager.isPointCloud === true) {
+                document.getElementById('spacewalk_ui_manager_render_styles').style.display = 'none';
+                document.getElementById('spacewalk_ui_manager_pointcloud_render_style').style.display = 'block';
             } else {
-                $('#spacewalk_ui_manager_pointcloud_render_style').hide();
-                $('#spacewalk_ui_manager_render_styles').show();
+                document.getElementById('spacewalk_ui_manager_pointcloud_render_style').style.display = 'none';
+                document.getElementById('spacewalk_ui_manager_render_styles').style.display = 'block';
             }
 
         } else if ('DidSelectEnsembleGroup' === type) {
-            const el = document.querySelector('#spacewalk_info_panel_ensemble_group')
-            el.innerText = data
-            el.style.display = 'block'
+            const el = document.getElementById('spacewalk_info_panel_ensemble_group');
+            el.innerText = data;
+            el.style.display = 'block';
         }
     }
 

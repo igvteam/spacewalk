@@ -60,6 +60,8 @@ let scene
 let picker
 let mouseX
 let mouseY
+let aboutButtonPopover
+let helpButtonPopover
 
 const SpacewalkGlobals =
     {
@@ -107,30 +109,27 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 const initializationHelper = async container => {
 
     // About button
-    const aboutButtonContent = document.getElementById('spacewalk-about-button-content').innerHTML
-
     const aboutConfig =
         {
-            content: aboutButtonContent,
+            trigger: 'focus',
+            content: document.getElementById('spacewalk-about-button-content').innerHTML,
             html: true,
             template: '<div class="popover spacewalk-popover-about" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
         }
-    $('#spacewalk-about-button').popover(aboutConfig)
+
+    const aboutButton = document.getElementById('spacewalk-about-button')
+    aboutButtonPopover = new bootstrap.Popover(aboutButton, aboutConfig)
 
     // Help button
-    const helpButtonContent = document.getElementById('spacewalk-help-button-content').innerHTML
-
     const helpConfig =
         {
-            content: helpButtonContent,
+            trigger: 'focus',
+            content: document.getElementById('spacewalk-help-button-content').innerHTML,
             html: true,
             template: '<div class="popover spacewalk-popover-help" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
         }
-
-    $('#spacewalk-help-button').popover(helpConfig)
-
-    // Dismiss on click away from popover
-    $('.popover-dismiss').popover({ trigger: 'focus' })
+    const helpButton = document.getElementById('spacewalk-help-button')
+    helpButtonPopover = new bootstrap.Popover(helpButton, helpConfig)
 
     pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 

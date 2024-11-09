@@ -160,11 +160,11 @@ class IGVPanel extends Panel {
         })
 
         this.browser.on('trackremoved', track => {
-            if (track.trackView.materialProviderInput && $(track.trackView.materialProviderInput).prop('checked')) {
-                this.materialProvider = colorRampMaterialProvider
-                setMaterialProvider(colorRampMaterialProvider)
+            if (track.trackView.materialProviderInput && track.trackView.materialProviderInput.checked) {
+                this.materialProvider = colorRampMaterialProvider;
+                setMaterialProvider(colorRampMaterialProvider);
             }
-        })
+        });
 
         this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
 
@@ -206,7 +206,7 @@ class IGVPanel extends Panel {
     getSessionState() {
 
         for (let trackView of this.browser.trackViews) {
-            if (trackView.materialProviderInput && $(trackView.materialProviderInput).prop('checked')) {
+            if (trackView.materialProviderInput && trackView.materialProviderInput.checked) {
                 return trackView.track.name
             }
         }
