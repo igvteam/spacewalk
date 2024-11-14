@@ -34,15 +34,15 @@ class JuiceboxPanel extends Panel {
         const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
         makeDraggable(panel, dragHandle)
 
-        this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
+        this.panel.addEventListener('mouseenter', (event) => {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
         });
 
-        this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
+        this.panel.addEventListener('mouseleave', (event) => {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
-        })
+        });
 
         panel.querySelector('#hic-live-contact-frequency-map-calculation-button').addEventListener('click', async e => {
             liveContactMapService.updateEnsembleContactFrequencyCanvas(undefined)

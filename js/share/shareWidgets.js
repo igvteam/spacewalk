@@ -22,7 +22,7 @@
  */
 
 import {setURLShortener} from './shareHelper.js'
-import { getShareURL } from "../spacewalkSession.js"
+import { getShareURL } from "../sessionServices.js"
 
 let shareModal
 

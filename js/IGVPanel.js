@@ -7,6 +7,9 @@ import {makeDraggable} from "./utils/draggable.js"
 import { getPathsWithTrackRegistry, updateTrackMenusWithTrackConfigurations } from './widgets/trackWidgets.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 
+let resizeObserver
+let resizeTimeout
+const RESIZE_DEBOUNCE_DELAY = 200
 class IGVPanel extends Panel {
 
     constructor ({ container, panel, isHidden }) {
@@ -24,15 +27,17 @@ class IGVPanel extends Panel {
         const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
         makeDraggable(panel, dragHandle)
 
-        this.$panel.on(`mouseenter.${ this.namespace }`, (event) => {
+        this.panel.addEventListener('mouseenter', (event) => {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidEnterGenomicNavigator', data: 'DidEnterGenomicNavigator' });
         });
 
-        this.$panel.on(`mouseleave.${ this.namespace }`, (event) => {
+        this.panel.addEventListener('mouseleave', (event) => {
             event.stopPropagation();
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         });
+
+
 
         SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this)
     }
@@ -57,7 +62,7 @@ class IGVPanel extends Panel {
 
         this.browser = undefined
 
-        const root = this.$panel.find('#spacewalk_igv_root_container').get(0)
+        const root = this.panel.querySelector('#spacewalk_igv_root_container')
 
         if (undefined === igvConfig.genomeList) {
             igvConfig.genomeList = [ ...spacewalkConfig.igvConfig.genomeList ]
@@ -71,35 +76,45 @@ class IGVPanel extends Panel {
             alert(e.message)
         }
 
-        const config =
-            {
-                handles: "w, sw, s, se, e",
-                autoHide: true,
-                // aspectRatio: true,
-                helper: "spacewalk-threejs-container-resizable-helper",
-                stop: async () => {
-
-                    if (this.browser) {
-
-                        let str = `all`
-
-                        if (ensembleManager.locus) {
-                            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
-                            str = `${ chr }:${ genomicStart }-${ genomicEnd }`
-                        }
-
-                        // this.browser.resize()
-                        this.browser.search(str)
-
-                    }
-                }
-            };
-
-        this.$panel.resizable(config)
-
         if (this.browser) {
             this.configureMouseHandlers()
         }
+
+        resizeObserver = new ResizeObserver(entries => {
+
+            for (let entry of entries) {
+                const DOMElement = entry.target;
+
+                // Updated panel dimensions
+                const { width, height } = entry.contentRect;
+
+                if (resizeTimeout) {
+                    clearTimeout(resizeTimeout)
+                }
+
+                // Set a new timeout to execute code after resizing has "stopped"
+                resizeTimeout = setTimeout(() => {
+
+                    const container = DOMElement.querySelector('#spacewalk_igv_container')
+
+                    if (container) {
+                        container.style.width = `${width}px`;
+                        container.style.height = `${height}px`;
+
+                        if (ensembleManager.locus) {
+                            console.log(`Panel resized to width: ${width}, height: ${height}`)
+                            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                            this.browser.search(`${ chr }:${ genomicStart }-${ genomicEnd }`)
+                        }
+
+                    } // if (container)
+
+                }, RESIZE_DEBOUNCE_DELAY);
+
+            }
+        })
+
+        resizeObserver.observe(this.panel)
 
     }
 
@@ -145,11 +160,11 @@ class IGVPanel extends Panel {
         })
 
         this.browser.on('trackremoved', track => {
-            if (track.trackView.materialProviderInput && $(track.trackView.materialProviderInput).prop('checked')) {
-                this.materialProvider = colorRampMaterialProvider
-                setMaterialProvider(colorRampMaterialProvider)
+            if (track.trackView.materialProviderInput && track.trackView.materialProviderInput.checked) {
+                this.materialProvider = colorRampMaterialProvider;
+                setMaterialProvider(colorRampMaterialProvider);
             }
-        })
+        });
 
         this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
 
@@ -191,7 +206,7 @@ class IGVPanel extends Panel {
     getSessionState() {
 
         for (let trackView of this.browser.trackViews) {
-            if (trackView.materialProviderInput && $(trackView.materialProviderInput).prop('checked')) {
+            if (trackView.materialProviderInput && trackView.materialProviderInput.checked) {
                 return trackView.track.name
             }
         }

@@ -14,14 +14,17 @@ const RibbonScaleFactor = 32
 
 class Ribbon {
 
+    static renderStyle = 'render-style-ribbon'
+
     constructor() {
+
         SpacewalkEventBus.globalBus.subscribe('DidUpdateGenomicInterpolant', this)
         SpacewalkEventBus.globalBus.subscribe('DidLeaveGenomicNavigator', this)
     }
 
     receiveEvent({ type, data }) {
 
-        if (this.spline && Ribbon.getRenderStyle() === sceneManager.renderStyle) {
+        if (this.spline && Ribbon.renderStyle === sceneManager.renderStyle) {
 
             if ('DidLeaveGenomicNavigator' === type || 'DidHideCrosshairs' === type) {
                 this.highlightBeads[ 0 ].visible = this.highlightBeads[ 1 ].visible = false
@@ -77,7 +80,7 @@ class Ribbon {
 
         this.spline = { mesh, vertexCount: curvePoints.length }
 
-        if (sceneManager.renderStyle === Ribbon.getRenderStyle()) {
+        if (sceneManager.renderStyle === Ribbon.renderStyle) {
             this.show()
         } else {
             this.hide()
@@ -166,10 +169,8 @@ class Ribbon {
         }
     }
 
-    static getRenderStyle() {
-        return 'render-style-ribbon'
-    }
 }
+
 function getRGBListWithMaterialAndLength(materialProvider, length) {
 
     const rgbList = new Float32Array(length * 3)

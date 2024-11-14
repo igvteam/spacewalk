@@ -1,11 +1,13 @@
-import * as THREE from "three";
+import * as THREE from "three"
+import {StringUtils} from "igv-utils"
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {ensembleManager, igvPanel, pointCloud, sceneManager} from "./app.js";
-import {StringUtils} from "igv-utils";
-import EnsembleManager from "./ensembleManager"
-import {clamp} from "./utils/mathUtils"
+import EnsembleManager from "./ensembleManager.js"
+import {clamp} from "./utils/mathUtils.js"
 
 class PointCloud {
+
+    static renderStyle = 'render-style-point-cloud'
 
     constructor ({ pickHighlighter, deemphasizedColor }) {
 
@@ -118,7 +120,7 @@ class PointCloud {
                 return mesh
             })
 
-        sceneManager.renderStyle === PointCloud.getRenderStyle() ? this.show() : this.hide()
+        sceneManager.renderStyle === PointCloud.renderStyle ? this.show() : this.hide()
 
         console.timeEnd(str)
 
@@ -126,7 +128,7 @@ class PointCloud {
 
     receiveEvent({ type, data }) {
 
-        if (this.meshList && "DidUpdateGenomicInterpolant" === type && PointCloud.getRenderStyle() === sceneManager.renderStyle) {
+        if (this.meshList && "DidUpdateGenomicInterpolant" === type && PointCloud.renderStyle === sceneManager.renderStyle) {
 
             const { interpolantList } = data;
 
@@ -227,11 +229,6 @@ class PointCloud {
             }
         }
 
-    }
-
-
-    static getRenderStyle() {
-        return 'render-style-point-cloud';
     }
 }
 

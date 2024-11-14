@@ -1,3 +1,6 @@
+import * as THREE from "three"
+import CameraLightingRig from "./cameraLightingRig.js"
+import Picker from "./picker.js"
 import {GoogleAuth, igvxhr} from 'igv-utils'
 import {createSessionWidgets} from './widgets/sessionWidgets.js'
 import { dropboxDropdownItem, googleDriveDropdownItem } from "./widgets/markupFactory.js"
@@ -5,7 +8,7 @@ import { createTrackWidgetsWithTrackRegistry } from './widgets/trackWidgets.js'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./utils/colorMapManager.js";
-import SceneManager, { sceneManagerConfigurator } from "./sceneManager.js";
+import SceneManager from "./sceneManager.js";
 import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import Panel, { doInspectPanelVisibilityCheckbox }  from "./panel.js";
@@ -20,18 +23,19 @@ import TraceNavigator from './traceNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/colorUtils.js";
-import {getUrlParams, toJSON, loadSession, uncompressSessionURL} from "./spacewalkSession.js"
-import RenderContainerController from "./renderContainerController.js";
-import {createSpacewalkFileLoaders} from './spacewalkFileLoad.js'
+import {getUrlParams, toJSON, loadSession, uncompressSessionURL} from "./sessionServices.js"
+import {createSpacewalkFileLoaders} from './spacewalkFileLoadWidgetServices.js'
 import BallHighlighter from "./ballHighlighter.js";
 import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from './widgets/contactMapLoad.js'
 import {createShareWidgets, shareWidgetConfigurator} from './share/shareWidgets.js'
-import { showGlobalSpinner, hideGlobalSpinner } from './utils/utils.js'
+import {showGlobalSpinner, hideGlobalSpinner, getMouseXY} from './utils/utils.js'
+import {configureRenderContainerDrag} from "./renderContainerDrag.js"
 import {showRelease} from "./utils/release.js"
 import { spacewalkConfig } from "../spacewalk-config.js";
 import 'juicebox.js/dist/css/juicebox.css'
 import '../styles/app.scss'
+
 
 let pointCloud;
 let ribbon;
@@ -48,8 +52,16 @@ let juiceboxPanel
 let igvPanel
 let traceSelect
 let traceNavigator
-let renderContainerController
 let googleEnabled = false
+let _3DInteractionContainerResizeObserver
+let renderer
+let cameraLightingRig
+let scene
+let picker
+let mouseX
+let mouseY
+let aboutButtonPopover
+let helpButtonPopover
 
 const SpacewalkGlobals =
     {
@@ -97,37 +109,38 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 const initializationHelper = async container => {
 
     // About button
-    const aboutButtonContent = document.getElementById('spacewalk-about-button-content').innerHTML
-
     const aboutConfig =
         {
-            content: aboutButtonContent,
+            trigger: 'focus',
+            content: document.getElementById('spacewalk-about-button-content').innerHTML,
             html: true,
             template: '<div class="popover spacewalk-popover-about" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
         }
-    $('#spacewalk-about-button').popover(aboutConfig)
+
+    const aboutButton = document.getElementById('spacewalk-about-button')
+    aboutButtonPopover = new bootstrap.Popover(aboutButton, aboutConfig)
 
     // Help button
-    const helpButtonContent = document.getElementById('spacewalk-help-button-content').innerHTML
-
     const helpConfig =
         {
-            content: helpButtonContent,
+            trigger: 'focus',
+            content: document.getElementById('spacewalk-help-button-content').innerHTML,
             html: true,
             template: '<div class="popover spacewalk-popover-help" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
         }
-
-    $('#spacewalk-help-button').popover(helpConfig)
-
-    // Dismiss on click away from popover
-    $('.popover-dismiss').popover({ trigger: 'focus' })
-
+    const helpButton = document.getElementById('spacewalk-help-button')
+    helpButtonPopover = new bootstrap.Popover(helpButton, helpConfig)
 
     pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
     ribbon = new Ribbon();
 
-    ballAndStick = new BallAndStick({ pickHighlighter: new BallHighlighter(highlightColor) });
+    // const stickMaterial = showSMaterial;
+    // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
+    const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
+    stickMaterial.side = THREE.DoubleSide;
+
+    ballAndStick = new BallAndStick({ pickHighlighter: new BallHighlighter(highlightColor), stickMaterial });
 
     ensembleManager = new EnsembleManager();
 
@@ -138,16 +151,62 @@ const initializationHelper = async container => {
 
     colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
-    sceneManager = new SceneManager(sceneManagerConfigurator(document.querySelector('#spacewalk-threejs-canvas-container')));
+    scene = threeJSSetup(document.querySelector('#spacewalk-threejs-canvas-container'))
+    sceneManager = new SceneManager()
 
     await createButtonsPanelsModals(container, defaultDistanceThreshold);
 
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
-    guiManager = new GUIManager({ settingsButton, $panel: $('#spacewalk_ui_manager_panel') });
+    guiManager = new GUIManager({ settingsButton, panel: document.querySelector('#spacewalk_ui_manager_panel') });
 
     document.querySelector('.navbar').style.display = 'flex'
 
-    renderContainerController = new RenderContainerController(container)
+    const navbar = document.querySelector('.navbar')
+    const { height } = navbar.getBoundingClientRect()
+
+    const config =
+        {
+            target: document.getElementById('spacewalk-threejs-container'),
+            handle: document.getElementById('spacewalk-threejs-drag-container'),
+            container: document.getElementById('spacewalk-root-container'),
+            topConstraint: height
+        }
+
+    configureRenderContainerDrag(config)
+
+    const _3DInteractionContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
+
+    _3DInteractionContainerResizeObserver = new ResizeObserver(entries => {
+        const { width, height } = getRenderContainerSize()
+        renderer.setSize(width, height)
+        cameraLightingRig.object.aspect = width / height
+        cameraLightingRig.object.updateProjectionMatrix()
+        render()
+    });
+
+    _3DInteractionContainerResizeObserver.observe(_3DInteractionContainer)
+
+    document.getElementById('spacewalk-fullscreen-button').addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            _3DInteractionContainer.requestFullscreen().then(() => {
+                document.body.classList.add('fullscreen');
+            }).catch(err => {
+                alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            document.exitFullscreen().then(() => {
+                document.body.classList.remove('fullscreen');
+            }).catch(err => {
+                alert(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`);
+            });
+        }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            document.body.classList.remove('fullscreen');
+        }
+    });
 
     renderLoop()
 
@@ -217,7 +276,7 @@ async function createButtonsPanelsModals(container, distanceThreshold) {
         (configurations) => igvPanel.loadTrackList(configurations),
         trackMenuHandler)
 
-    igvPanel = new IGVPanel({ container, panel: $('#spacewalk_igv_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
+    igvPanel = new IGVPanel({ container, panel: document.querySelector('#spacewalk_igv_panel'), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')})
     igvPanel.materialProvider = colorRampMaterialProvider;
 
     await igvPanel.initialize(spacewalkConfig.igvConfig)
@@ -242,7 +301,7 @@ async function createButtonsPanelsModals(container, distanceThreshold) {
         },
         () => toJSON())
 
-    juiceboxPanel = new JuiceboxPanel({ container, panel: $('#spacewalk_juicebox_panel').get(0), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
+    juiceboxPanel = new JuiceboxPanel({ container, panel: document.getElementById('spacewalk_juicebox_panel'), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
     await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
 
     liveContactMapService = new LiveContactMapService(distanceThreshold)
@@ -273,17 +332,95 @@ async function createButtonsPanelsModals(container, distanceThreshold) {
 
     Panel.setPanelDictionary([ igvPanel, juiceboxPanel ]);
 
-    $(window).on('resize.app', e => {
+}
 
-        // Prevent responding to resize event sent by jQuery resizable()
-        const status = $(e.target).hasClass('ui-resizable');
+function threeJSSetup(container) {
 
-        if (false === status) {
-            let { width, height } = container.getBoundingClientRect();
-            SpacewalkEventBus.globalBus.post({ type: 'AppWindowDidResize', data: { width, height } });
-        }
-    });
+    const str = `Scene Manager Configuration Builder Complete`;
+    console.time(str);
 
+    picker = new Picker( new THREE.Raycaster() );
+
+    // Opt out of linear color workflow for now
+    // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
+    // THREE.ColorManagement.enabled = false;
+
+    // Enable linear color workflow
+    THREE.ColorManagement.enabled = true;
+
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+    // Opt out of linear color workflow for now
+    // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
+    // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+
+    // Enable linear color workflow
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    // renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
+    // renderer.setClearColor (appleCrayonColorThreeJS('strawberry'));
+
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const { width, height } = container.getBoundingClientRect();
+    renderer.setSize(width, height);
+
+    container.appendChild(renderer.domElement);
+
+    container.addEventListener('mousemove', event => {
+        const { x, y } = getMouseXY(renderer.domElement, event);
+        mouseX =  ( x / renderer.domElement.clientWidth  ) * 2 - 1;
+        mouseY = -( y / renderer.domElement.clientHeight ) * 2 + 1;
+    })
+
+    const background = appleCrayonColorThreeJS('snow');
+    // const background = sceneBackgroundTexture;
+
+    const scene = new THREE.Scene();
+    scene.background = background;
+
+    // Update due to r155 changes to illumination: Multiply light intensities by PI to get same brightness as previous threejs release.
+    // See: https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733
+    const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('tin'), Math.PI );
+
+    const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (width/height) ];
+    cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspect, hemisphereLight });
+
+    // Nice numbers
+    const position = new THREE.Vector3(134820, 55968, 5715);
+    const centroid = new THREE.Vector3(133394, 54542, 4288);
+    cameraLightingRig.setPose(position, centroid);
+
+    cameraLightingRig.addToScene(scene);
+
+    console.timeEnd(str);
+
+    return scene
+
+}
+
+function render () {
+
+    if (sceneManager.isGood2Go()) {
+        pointCloud.renderLoopHelper()
+
+        ballAndStick.renderLoopHelper()
+
+        ribbon.renderLoopHelper()
+
+        colorRampMaterialProvider.renderLoopHelper()
+
+        cameraLightingRig.renderLoopHelper();
+
+        sceneManager.getGroundPlane().renderLoopHelper()
+
+        sceneManager.getGnomon().renderLoopHelper()
+
+        picker.intersect({ x:mouseX, y:mouseY, scene, camera:cameraLightingRig.object });
+
+        renderer.render(scene, cameraLightingRig.object)
+
+    }
 
 }
 
@@ -292,8 +429,9 @@ function renderLoop() {
     render()
 }
 
-function render () {
-    sceneManager.renderLoopHelper()
+function getRenderContainerSize() {
+    const container = document.querySelector('#spacewalk-threejs-canvas-container')
+    return container.getBoundingClientRect()
 }
 
 function ingestSessionURLs({ igvSessionURL, juiceboxSessionURL, spacewalkSessionURL }) {
@@ -322,8 +460,11 @@ function ingestSessionURLs({ igvSessionURL, juiceboxSessionURL, spacewalkSession
 
 }
 
-
 export {
+    getRenderContainerSize,
+    scene,
+    renderer,
+    cameraLightingRig,
     SpacewalkGlobals,
     googleEnabled,
     pointCloud,

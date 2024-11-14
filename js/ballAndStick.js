@@ -2,12 +2,10 @@ import * as THREE from 'three'
 import { StringUtils } from 'igv-utils'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
-import { clamp } from './utils/mathUtils.js'
-import { generateRadiusTable } from "./utils/utils.js"
+import {clamp, lerp} from './utils/mathUtils.js'
 import {ensembleManager, igvPanel, sceneManager} from './app.js'
 import { appleCrayonColorThreeJS } from "./utils/colorUtils.js"
 import EnsembleManager from './ensembleManager.js'
-import {BufferGeometry} from "three";
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
@@ -19,16 +17,20 @@ const stickTesselation = { length: 2, radial: 8 }
 
 class BallAndStick {
 
-    constructor ({ pickHighlighter }) {
+    static renderStyle = 'render-style-ball-stick'
+
+    constructor ({ pickHighlighter, stickMaterial }) {
 
         this.pickHighlighter = pickHighlighter;
+
+        this.stickMaterial = stickMaterial;
 
         SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
      }
 
     receiveEvent({ type, data }) {
 
-        if (this.balls && BallAndStick.getRenderStyle() === sceneManager.renderStyle) {
+        if (this.balls && BallAndStick.renderStyle === sceneManager.renderStyle) {
 
             if ("DidUpdateGenomicInterpolant" === type) {
 
@@ -62,7 +64,7 @@ class BallAndStick {
         ballRadiusIndex = Math.floor( ballRadiusTable.length/2 );
         this.balls = this.createBalls(trace, igvPanel.materialProvider, ballRadiusTable[ ballRadiusIndex ]);
 
-        if (sceneManager.renderStyle === BallAndStick.getRenderStyle()) {
+        if (sceneManager.renderStyle === BallAndStick.renderStyle) {
             this.show();
         } else {
             this.hide();
@@ -161,7 +163,7 @@ class BallAndStick {
         }
 
         // Aggregate geometry list into single BufferGeometry
-        const material = sceneManager.stickMaterial.clone()
+        const material = this.stickMaterial.clone()
 
         const bufferGeometry = mergeGeometries(geometries)
         const mesh = new THREE.Mesh(bufferGeometry, material)
@@ -257,9 +259,20 @@ class BallAndStick {
         }
     }
 
-    static getRenderStyle() {
-        return 'render-style-ball-stick';
+}
+
+function generateRadiusTable(defaultRadius) {
+
+    const radiusTableLength = 11;
+    const radiusTable = [];
+
+    for (let i = 0; i < radiusTableLength; i++) {
+        const interpolant = i / (radiusTableLength - 1);
+        const radius = lerp(0.5 * defaultRadius, 2.0 * defaultRadius, interpolant);
+        radiusTable.push(radius);
     }
+
+    return radiusTable
 }
 
 function computeAverageCurveDistance (curves) {
@@ -327,9 +340,5 @@ function getColorRampMaterial(instanceColor){
 
     return material;
 }
-
-let setVisibility = (objects, isVisible) => {
-    objects.forEach(object => object.visible = isVisible);
-};
 
 export default BallAndStick;

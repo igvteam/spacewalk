@@ -57,7 +57,7 @@ class ColorRampMaterialProvider {
 
             const { poster, interpolantList } = data
 
-            if (this !== poster || sceneManager.renderStyle === Ribbon.getRenderStyle()) {
+            if (this !== poster || sceneManager.renderStyle === Ribbon.renderStyle) {
 
                 const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
@@ -175,13 +175,13 @@ class ColorRampMaterialProvider {
     }
 
     show() {
-        $(this.highlight_ctx.canvas).show();
-        $(this.rgb_ctx.canvas).show();
+        this.highlight_ctx.canvas.style.display = 'block';
+        this.rgb_ctx.canvas.style.display = 'block';
     }
 
     hide() {
-        $(this.highlight_ctx.canvas).hide();
-        $(this.rgb_ctx.canvas).hide();
+        this.highlight_ctx.canvas.style.display = 'none';
+        this.rgb_ctx.canvas.style.display = 'none';
     }
 }
 

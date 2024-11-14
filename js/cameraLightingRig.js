@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import {sceneManager} from "./app.js"
+import {getRenderContainerSize} from "./app.js"
+import {degrees} from "./utils/mathUtils.js"
 
 let cameraWorldDirection = new THREE.Vector3()
 let crossed = new THREE.Vector3()
@@ -102,7 +103,7 @@ class CameraLightingRig extends OrbitControls {
         // The aspect ratio of the json CameraLightingRig can differ from the app
         // it is being imported into. We recalculate it here.
 
-        const { width, height } = sceneManager.getRenderContainerSize();
+        const { width, height } = getRenderContainerSize();
         this.setProjection({ fov, near, far, aspect: (width/height) });
 
         // const jsonLoader = new THREE.ObjectLoader();
@@ -166,4 +167,43 @@ class CameraLightingRig extends OrbitControls {
     }
 
 }
+
+function getCameraPoseAlongAxis ({ center, radius, axis, scaleFactor }) {
+
+    const dimen = scaleFactor * radius;
+
+    const theta = Math.atan(radius/dimen);
+    const fov = degrees( 2 * theta);
+
+    const axes =
+        {
+            '-x': () => {
+                return new THREE.Vector3(-dimen, 0, 0);
+            },
+            '+x': () => {
+                return new THREE.Vector3(dimen, 0, 0);
+            },
+            '-y': () => {
+                return new THREE.Vector3(0, -dimen, 0);
+            },
+            '+y': () => {
+                return new THREE.Vector3(0, dimen, 0);
+            },
+            '-z': () => {
+                return new THREE.Vector3(0, 0, -dimen);
+            },
+            '+z': () => {
+                return new THREE.Vector3(0, 0, dimen);
+            },
+        };
+
+    const vector = axes[ axis ]();
+    let position = new THREE.Vector3();
+
+    position.addVectors(center, vector);
+
+    return { target:center, position, fov }
+}
+
+export { getCameraPoseAlongAxis }
 export default CameraLightingRig

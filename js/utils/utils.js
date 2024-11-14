@@ -19,33 +19,35 @@ function hideGlobalSpinner() {
 
 function unsetDataMaterialProviderCheckbox(trackViews) {
     for (const trackView of trackViews) {
-        $(trackView.materialProviderInput).prop('checked', false)
+        if (trackView.materialProviderInput) {
+            trackView.materialProviderInput.checked = false;
+        }
     }
-
 }
 
 async function getMaterialProvider(track) {
 
-    // unselect other track's checkboxes
+    // Unselect other track's checkboxes
     for (let trackView of track.browser.trackViews) {
         if (trackView.track !== track && trackView.materialProviderInput) {
-            $(trackView.materialProviderInput).prop('checked', false)
+            trackView.materialProviderInput.checked = false;
         }
     }
 
-    if ($(track.trackView.materialProviderInput).is(':checked')) {
+    if (track.trackView.materialProviderInput && track.trackView.materialProviderInput.checked) {
 
         // If "zoom in" notice is displayed do not paint features on trace
-        if (track.trackView.viewports[ 0 ].$zoomInNotice.is(":visible")) {
-            console.warn(`Track ${ track.name } is showing Zoom In message. Can not render track features on trace`)
-            return colorRampMaterialProvider
+        const zoomInNotice = track.trackView.viewports[0].$zoomInNotice.get(0);
+        if (zoomInNotice && zoomInNotice.style.display !== 'none') {
+            console.warn(`Track ${track.name} is showing Zoom In message. Cannot render track features on trace`);
+            return colorRampMaterialProvider;
         } else {
-            await dataValueMaterialProvider.configure(track)
-            return dataValueMaterialProvider
+            await dataValueMaterialProvider.configure(track);
+            return dataValueMaterialProvider;
         }
 
     } else {
-        return colorRampMaterialProvider
+        return colorRampMaterialProvider;
     }
 
 }
@@ -123,20 +125,6 @@ function createImage(imageSource) {
 
 }
 
-function fillRGBAMatrix(rgbaMatrix, matrixDimension, rgb255) {
-
-    const { r, g, b } = rgb255
-    const length = matrixDimension * matrixDimension
-    let i = 0
-    for (let x = 0; x < length; x++) {
-        rgbaMatrix[i++] = r
-        rgbaMatrix[i++] = g
-        rgbaMatrix[i++] = b
-        rgbaMatrix[i++] = 255
-    }
-
-}
-
 async function transferRGBAMatrixToLiveMapCanvas(ctx, rgbaMatrix, matrixDimension) {
 
     const imageData = new ImageData(rgbaMatrix, matrixDimension, matrixDimension)
@@ -147,32 +135,16 @@ async function transferRGBAMatrixToLiveMapCanvas(ctx, rgbaMatrix, matrixDimensio
 
 }
 
-function generateRadiusTable(defaultRadius) {
-
-    const radiusTableLength = 11;
-    const radiusTable = [];
-
-    for (let i = 0; i < radiusTableLength; i++) {
-        const interpolant = i / (radiusTableLength - 1);
-        const radius = lerp(0.5 * defaultRadius, 2.0 * defaultRadius, interpolant);
-        radiusTable.push(radius);
-    }
-
-    return radiusTable
-}
-
 export {
     showGlobalSpinner,
     hideGlobalSpinner,
     unsetDataMaterialProviderCheckbox,
     getMaterialProvider,
     setMaterialProvider,
-    fillRGBAMatrix,
     createImage,
     transferRGBAMatrixToLiveMapCanvas,
     readFileAsDataURL,
     fitToContainer,
     getMouseXY,
-    throttle,
-    generateRadiusTable
+    throttle
 };
