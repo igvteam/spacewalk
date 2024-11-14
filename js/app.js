@@ -72,27 +72,13 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     showGlobalSpinner()
 
-    const container = document.getElementById('spacewalk-root-container');
-
-    const { clientId, apiKey } = spacewalkConfig
-    const enableGoogle = clientId && 'CLIENT_ID' !== clientId && (window.location.protocol === "https:" || window.location.host === "localhost")
-
-    if (enableGoogle) {
-        try {
-            await GoogleAuth.init({ clientId, apiKey, scope: 'https://www.googleapis.com/auth/userinfo.profile' })
-            await GoogleAuth.signOut()
-            googleEnabled = true
-        } catch (e) {
-            console.error(e.message)
-            alert(e.message)
-        }
-    }
+    googleEnabled = await setupGoogleAuthentication(spacewalkConfig)
 
     const { tag_name } = await showRelease()
     document.getElementById('spacewalk-help-menu-release').innerHTML = `Spacewalk release ${ tag_name }`
     console.log(`Spacewalk release ${ tag_name }`)
 
-    await initializationHelper(container)
+    await initializationHelper(document.getElementById('spacewalk-root-container'))
 
     const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = getUrlParams(window.location.href)
 
@@ -106,7 +92,48 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
 })
 
-const initializationHelper = async container => {
+async function initializationHelper(container) {
+
+    ribbon = new Ribbon();
+
+    // const stickMaterial = showSMaterial;
+    // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
+    const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
+    stickMaterial.side = THREE.DoubleSide;
+
+    ballAndStick = new BallAndStick({ pickHighlighter: new BallHighlighter(highlightColor), stickMaterial });
+
+    pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
+
+    ensembleManager = new EnsembleManager();
+
+    colorMapManager = new ColorMapManager();
+    await colorMapManager.configure();
+
+    dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
+
+    colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
+
+    scene = threeJSSetup(document.querySelector('#spacewalk-threejs-canvas-container'))
+    sceneManager = new SceneManager()
+
+    await createButtonsPanelsModals(container, defaultDistanceThreshold);
+
+    document.querySelector('.navbar').style.display = 'flex'
+
+    configureRenderContainerDrag(document.querySelector('.navbar'), document.getElementById('spacewalk-root-container'))
+
+    const _3DInteractionContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
+
+    configure3DInteractionContainerResize(_3DInteractionContainer, renderer, cameraLightingRig)
+
+    configureFullscreenMode(_3DInteractionContainer)
+
+    renderLoop()
+
+}
+
+async function createButtonsPanelsModals(container, distanceThreshold) {
 
     // About button
     const aboutConfig =
@@ -131,88 +158,8 @@ const initializationHelper = async container => {
     const helpButton = document.getElementById('spacewalk-help-button')
     helpButtonPopover = new bootstrap.Popover(helpButton, helpConfig)
 
-    pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
-
-    ribbon = new Ribbon();
-
-    // const stickMaterial = showSMaterial;
-    // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
-    const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
-    stickMaterial.side = THREE.DoubleSide;
-
-    ballAndStick = new BallAndStick({ pickHighlighter: new BallHighlighter(highlightColor), stickMaterial });
-
-    ensembleManager = new EnsembleManager();
-
-    colorMapManager = new ColorMapManager();
-    await colorMapManager.configure();
-
-    dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
-
-    colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
-
-    scene = threeJSSetup(document.querySelector('#spacewalk-threejs-canvas-container'))
-    sceneManager = new SceneManager()
-
-    await createButtonsPanelsModals(container, defaultDistanceThreshold);
-
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
     guiManager = new GUIManager({ settingsButton, panel: document.querySelector('#spacewalk_ui_manager_panel') });
-
-    document.querySelector('.navbar').style.display = 'flex'
-
-    const navbar = document.querySelector('.navbar')
-    const { height } = navbar.getBoundingClientRect()
-
-    const config =
-        {
-            target: document.getElementById('spacewalk-threejs-container'),
-            handle: document.getElementById('spacewalk-threejs-drag-container'),
-            container: document.getElementById('spacewalk-root-container'),
-            topConstraint: height
-        }
-
-    configureRenderContainerDrag(config)
-
-    const _3DInteractionContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
-
-    _3DInteractionContainerResizeObserver = new ResizeObserver(entries => {
-        const { width, height } = getRenderContainerSize()
-        renderer.setSize(width, height)
-        cameraLightingRig.object.aspect = width / height
-        cameraLightingRig.object.updateProjectionMatrix()
-        render()
-    });
-
-    _3DInteractionContainerResizeObserver.observe(_3DInteractionContainer)
-
-    document.getElementById('spacewalk-fullscreen-button').addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-            _3DInteractionContainer.requestFullscreen().then(() => {
-                document.body.classList.add('fullscreen');
-            }).catch(err => {
-                alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-            });
-        } else {
-            document.exitFullscreen().then(() => {
-                document.body.classList.remove('fullscreen');
-            }).catch(err => {
-                alert(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`);
-            });
-        }
-    });
-
-    document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement) {
-            document.body.classList.remove('fullscreen');
-        }
-    });
-
-    renderLoop()
-
-}
-
-async function createButtonsPanelsModals(container, distanceThreshold) {
 
     traceSelect = new TraceSelect()
 
@@ -331,6 +278,68 @@ async function createButtonsPanelsModals(container, distanceThreshold) {
     liveDistanceMapService = new LiveDistanceMapService()
 
     Panel.setPanelDictionary([ igvPanel, juiceboxPanel ]);
+
+}
+
+async function setupGoogleAuthentication(spacewalkConfig){
+
+    const { clientId, apiKey } = spacewalkConfig
+    const status = clientId && 'CLIENT_ID' !== clientId && (window.location.protocol === "https:" || window.location.host === "localhost")
+
+    let isEnabled
+    if (true === status) {
+        try {
+            await GoogleAuth.init({ clientId, apiKey, scope: 'https://www.googleapis.com/auth/userinfo.profile' })
+            await GoogleAuth.signOut()
+            isEnabled = true
+        } catch (e) {
+            console.error(e.message)
+            alert(e.message)
+            return isEnabled
+        }
+    }
+
+    return isEnabled
+
+}
+
+function configure3DInteractionContainerResize(_3DInteractionContainer, renderer, cameraLightingRig){
+
+    _3DInteractionContainerResizeObserver = new ResizeObserver(entries => {
+        const { width, height } = getRenderContainerSize()
+        renderer.setSize(width, height)
+        cameraLightingRig.object.aspect = width / height
+        cameraLightingRig.object.updateProjectionMatrix()
+        render()
+    })
+
+    _3DInteractionContainerResizeObserver.observe(_3DInteractionContainer)
+
+}
+
+function configureFullscreenMode(_3DInteractionContainer){
+
+    document.getElementById('spacewalk-fullscreen-button').addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            _3DInteractionContainer.requestFullscreen().then(() => {
+                document.body.classList.add('fullscreen');
+            }).catch(err => {
+                alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            document.exitFullscreen().then(() => {
+                document.body.classList.remove('fullscreen');
+            }).catch(err => {
+                alert(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`);
+            });
+        }
+    })
+
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            document.body.classList.remove('fullscreen');
+        }
+    });
 
 }
 
