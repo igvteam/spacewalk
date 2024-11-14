@@ -74,41 +74,35 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     googleEnabled = await setupGoogleAuthentication(spacewalkConfig)
 
-    const { tag_name } = await showRelease()
-    document.getElementById('spacewalk-help-menu-release').innerHTML = `Spacewalk release ${ tag_name }`
-    console.log(`Spacewalk release ${ tag_name }`)
+    await initializationHelper()
 
-    await initializationHelper(document.getElementById('spacewalk-root-container'))
+    await createButtonsPanelsModals(document.getElementById('spacewalk-root-container'))
 
-    const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = getUrlParams(window.location.href)
-
-    const result = ingestSessionURLs({ igvSessionURL, juiceboxSessionURL, spacewalkSessionURL })
-
-    if (result) {
-        await loadSession(result)
-    }
+    await consumeURLParams(getUrlParams(window.location.href))
 
     hideGlobalSpinner()
 
+    renderLoop()
+
 })
 
-async function initializationHelper(container) {
-
-    ribbon = new Ribbon();
+async function initializationHelper() {
 
     // const stickMaterial = showSMaterial;
     // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
-    const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') });
-    stickMaterial.side = THREE.DoubleSide;
+    const stickMaterial = new THREE.MeshPhongMaterial({ color: appleCrayonColorThreeJS('aluminum') })
+    stickMaterial.side = THREE.DoubleSide
 
-    ballAndStick = new BallAndStick({ pickHighlighter: new BallHighlighter(highlightColor), stickMaterial });
+    ribbon = new Ribbon()
+
+    ballAndStick = new BallAndStick({ pickHighlighter: new BallHighlighter(highlightColor), stickMaterial })
 
     pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
-    ensembleManager = new EnsembleManager();
+    ensembleManager = new EnsembleManager()
 
-    colorMapManager = new ColorMapManager();
-    await colorMapManager.configure();
+    colorMapManager = new ColorMapManager()
+    await colorMapManager.configure()
 
     dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
 
@@ -117,23 +111,13 @@ async function initializationHelper(container) {
     scene = threeJSSetup(document.querySelector('#spacewalk-threejs-canvas-container'))
     sceneManager = new SceneManager()
 
-    await createButtonsPanelsModals(container, defaultDistanceThreshold);
-
-    document.querySelector('.navbar').style.display = 'flex'
-
-    configureRenderContainerDrag(document.querySelector('.navbar'), document.getElementById('spacewalk-root-container'))
-
-    const _3DInteractionContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
-
-    configure3DInteractionContainerResize(_3DInteractionContainer, renderer, cameraLightingRig)
-
-    configureFullscreenMode(_3DInteractionContainer)
-
-    renderLoop()
-
 }
 
-async function createButtonsPanelsModals(container, distanceThreshold) {
+async function createButtonsPanelsModals(container) {
+
+    const { tag_name } = await showRelease()
+    document.getElementById('spacewalk-help-menu-release').innerHTML = `Spacewalk release ${ tag_name }`
+    console.log(`Spacewalk release ${ tag_name }`)
 
     // About button
     const aboutConfig =
@@ -251,7 +235,7 @@ async function createButtonsPanelsModals(container, distanceThreshold) {
     juiceboxPanel = new JuiceboxPanel({ container, panel: document.getElementById('spacewalk_juicebox_panel'), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
     await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
 
-    liveContactMapService = new LiveContactMapService(distanceThreshold)
+    Panel.setPanelDictionary([ igvPanel, juiceboxPanel ])
 
     const $dropdownButton = $('#spacewalk-contact-map-dropdown')
     const $dropdowns = $dropdownButton.parent()
@@ -275,9 +259,32 @@ async function createButtonsPanelsModals(container, distanceThreshold) {
 
     createShareWidgets(shareWidgetConfigurator({ provider: 'tinyURL' }))
 
+    liveContactMapService = new LiveContactMapService(defaultDistanceThreshold)
+
     liveDistanceMapService = new LiveDistanceMapService()
 
-    Panel.setPanelDictionary([ igvPanel, juiceboxPanel ]);
+    // navbar is initially hidden for a less jarring appearance at app launch
+    document.querySelector('.navbar').style.display = 'flex'
+
+    configureRenderContainerDrag(document.querySelector('.navbar'), document.getElementById('spacewalk-root-container'))
+
+    const _3DInteractionContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
+
+    configure3DInteractionContainerResize(_3DInteractionContainer, renderer, cameraLightingRig)
+
+    configureFullscreenMode(_3DInteractionContainer)
+
+}
+
+async function consumeURLParams(params){
+
+    const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = params
+
+    const result = ingestSessionURLs({ igvSessionURL, juiceboxSessionURL, spacewalkSessionURL })
+
+    if (result) {
+        await loadSession(result)
+    }
 
 }
 
