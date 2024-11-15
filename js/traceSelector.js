@@ -5,11 +5,11 @@ import {StringUtils} from "igv-utils";
 
 let numberForDisplay = undefined
 
-class TraceSelect {
+class TraceSelector {
 
-  constructor() {
+  constructor(inputElement) {
 
-      this.input = document.querySelector('#spacewalk_trace_select_input')
+      this.input = inputElement
       this.input.addEventListener('keyup', async e => {
 
           // enter (return) key pressed
@@ -84,4 +84,4 @@ async function broadcastTraceSelection(input, number, total) {
     }
 }
 
-export default TraceSelect
+export default TraceSelector

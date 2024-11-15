@@ -3,7 +3,6 @@ import CameraLightingRig from "./cameraLightingRig.js"
 import Picker from "./picker.js"
 import {GoogleAuth, igvxhr} from 'igv-utils'
 import {createSessionWidgets} from './widgets/sessionWidgets.js'
-import { dropboxDropdownItem, googleDriveDropdownItem } from "./widgets/markupFactory.js"
 import { createTrackWidgetsWithTrackRegistry } from './widgets/trackWidgets.js'
 import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
@@ -18,8 +17,8 @@ import BallAndStick from "./ballAndStick.js";
 import GUIManager from "./guiManager.js";
 import LiveContactMapService, {defaultDistanceThreshold} from "./juicebox/liveContactMapService.js";
 import LiveDistanceMapService from "./juicebox/liveDistanceMapService.js";
-import TraceSelect from './traceSelect.js'
-import TraceNavigator from './traceNavigator.js'
+import TraceSelector from './traceSelector.js'
+import GenomicNavigator from './genomicNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
 import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/colorUtils.js";
@@ -50,8 +49,8 @@ let liveContactMapService
 let liveDistanceMapService
 let juiceboxPanel
 let igvPanel
-let traceSelect
-let traceNavigator
+let traceSelector
+let genomicNavigator
 let googleEnabled = false
 let _3DInteractionContainerResizeObserver
 let renderer
@@ -145,9 +144,9 @@ async function createButtonsPanelsModals(container) {
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
     guiManager = new GUIManager({ settingsButton, panel: document.querySelector('#spacewalk_ui_manager_panel') });
 
-    traceSelect = new TraceSelect()
+    traceSelector = new TraceSelector(document.querySelector('#spacewalk_trace_select_input'))
 
-    traceNavigator = new TraceNavigator(document.querySelector('#spacewalk-trace-navigator-container'))
+    genomicNavigator = new GenomicNavigator(document.querySelector('#spacewalk-trace-navigator-container'))
 
     const fileLoader =
         {
@@ -174,8 +173,23 @@ async function createButtonsPanelsModals(container) {
 
     createSpacewalkFileLoaders(spacewalkFileLoadConfig)
 
-    // const initializeDropbox = () => false
     const initializeDropbox = () => true
+
+    createSessionWidgets(document.getElementById('spacewalk-main'),
+        'spacewalk',
+        'igv-app-dropdown-local-session-file-input',
+        initializeDropbox,
+        'igv-app-dropdown-dropbox-session-file-button',
+        'igv-app-dropdown-google-drive-session-file-button',
+        'spacewalk-session-url-modal',
+        'spacewalk-session-save-modal',
+        googleEnabled,
+        async config => {
+            const urlOrFile = config.url || config.file
+            const json = await igvxhr.loadJson(urlOrFile)
+            await loadSession(json)
+        },
+        () => toJSON())
 
     const trackMenuHandler = configList => {
 
@@ -212,44 +226,24 @@ async function createButtonsPanelsModals(container) {
 
     await igvPanel.initialize(spacewalkConfig.igvConfig)
 
-    // Session - Dropbox and Google Drive buttons
-    $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-app-dropdown-dropbox-session-file-button'));
-    $('div#spacewalk-session-dropdown-menu > :nth-child(2)').after(googleDriveDropdownItem('igv-app-dropdown-google-drive-session-file-button'));
-
-    createSessionWidgets(document.getElementById('spacewalk-main'),
-        'spacewalk',
-        'igv-app-dropdown-local-session-file-input',
-        initializeDropbox,
-        'igv-app-dropdown-dropbox-session-file-button',
-        'igv-app-dropdown-google-drive-session-file-button',
-        'spacewalk-session-url-modal',
-        'spacewalk-session-save-modal',
-        googleEnabled,
-        async config => {
-            const urlOrFile = config.url || config.file
-            const json = await igvxhr.loadJson(urlOrFile)
-            await loadSession(json)
-        },
-        () => toJSON())
-
     juiceboxPanel = new JuiceboxPanel({ container, panel: document.getElementById('spacewalk_juicebox_panel'), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
     await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
 
-    Panel.setPanelDictionary([ igvPanel, juiceboxPanel ])
+    liveContactMapService = new LiveContactMapService(defaultDistanceThreshold)
 
-    const $dropdownButton = $('#spacewalk-contact-map-dropdown')
-    const $dropdowns = $dropdownButton.parent()
+    liveDistanceMapService = new LiveDistanceMapService()
+
+    Panel.setPanelDictionary([ igvPanel, juiceboxPanel ])
 
     const contactMapLoadConfig =
         {
-            rootContainer: document.querySelector('#spacewalk-main'),
-            $dropdowns,
-            $localFileInputs: $dropdowns.find('input'),
+            rootContainer: document.getElementById('spacewalk-main'),
+            localFileInput: document.querySelector('input[name="contact-map"]'),
             urlLoadModalId: 'hic-load-url-modal',
             dataModalId: 'hic-contact-map-modal',
             encodeHostedModalId: 'hic-encode-hosted-contact-map-modal',
-            $dropboxButtons: $dropdowns.find('div[id$="-map-dropdown-dropbox-button"]'),
-            $googleDriveButtons: $dropdowns.find('div[id$="-map-dropdown-google-drive-button"]'),
+            dropboxButton: document.getElementById('hic-contact-map-dropdown-dropbox-button'),
+            googleDriveButton: document.getElementById('hic-contact-map-dropdown-google-drive-button'),
             googleEnabled,
             mapMenu: spacewalkConfig.juiceboxConfig.contactMapMenu,
             loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path)
@@ -258,10 +252,6 @@ async function createButtonsPanelsModals(container) {
     configureContactMapLoaders(contactMapLoadConfig)
 
     createShareWidgets(shareWidgetConfigurator({ provider: 'tinyURL' }))
-
-    liveContactMapService = new LiveContactMapService(defaultDistanceThreshold)
-
-    liveDistanceMapService = new LiveDistanceMapService()
 
     // navbar is initially hidden for a less jarring appearance at app launch
     document.querySelector('.navbar').style.display = 'flex'
@@ -496,4 +486,4 @@ export {
     liveContactMapService,
     liveDistanceMapService,
     igvPanel,
-    traceNavigator }
+    genomicNavigator }
