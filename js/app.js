@@ -35,7 +35,6 @@ import { spacewalkConfig } from "../spacewalk-config.js";
 import 'juicebox.js/dist/css/juicebox.css'
 import '../styles/app.scss'
 
-
 let pointCloud;
 let ribbon;
 let ballAndStick;
@@ -71,11 +70,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     showGlobalSpinner()
 
-    googleEnabled = await setupGoogleAuthentication(spacewalkConfig)
+    googleEnabled = await configureGoogleAuthentication(spacewalkConfig)
 
-    await initializationHelper()
+    await createDomainObjects()
 
-    await createButtonsPanelsModals(document.getElementById('spacewalk-root-container'))
+    await createDOM(document.getElementById('spacewalk-root-container'))
 
     await consumeURLParams(getUrlParams(window.location.href))
 
@@ -85,7 +84,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
 })
 
-async function initializationHelper() {
+async function createDomainObjects() {
 
     // const stickMaterial = showSMaterial;
     // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
@@ -107,12 +106,12 @@ async function initializationHelper() {
 
     colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
-    scene = threeJSSetup(document.querySelector('#spacewalk-threejs-canvas-container'))
+    scene = configureThreeJS(document.querySelector('#spacewalk-threejs-canvas-container'))
     sceneManager = new SceneManager()
 
 }
 
-async function createButtonsPanelsModals(container) {
+async function createDOM(container) {
 
     const { tag_name } = await showRelease()
     document.getElementById('spacewalk-help-menu-release').innerHTML = `Spacewalk release ${ tag_name }`
@@ -229,12 +228,6 @@ async function createButtonsPanelsModals(container) {
     juiceboxPanel = new JuiceboxPanel({ container, panel: document.getElementById('spacewalk_juicebox_panel'), isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')});
     await juiceboxPanel.initialize(document.querySelector('#spacewalk_juicebox_root_container'), spacewalkConfig.juiceboxConfig)
 
-    liveContactMapService = new LiveContactMapService(defaultDistanceThreshold)
-
-    liveDistanceMapService = new LiveDistanceMapService()
-
-    Panel.setPanelDictionary([ igvPanel, juiceboxPanel ])
-
     const contactMapLoadConfig =
         {
             rootContainer: document.getElementById('spacewalk-main'),
@@ -250,6 +243,12 @@ async function createButtonsPanelsModals(container) {
         }
 
     configureContactMapLoaders(contactMapLoadConfig)
+
+    liveContactMapService = new LiveContactMapService(defaultDistanceThreshold)
+
+    liveDistanceMapService = new LiveDistanceMapService()
+
+    Panel.setPanelDictionary([ igvPanel, juiceboxPanel ])
 
     createShareWidgets(shareWidgetConfigurator({ provider: 'tinyURL' }))
 
@@ -270,7 +269,27 @@ async function consumeURLParams(params){
 
     const { sessionURL:igvSessionURL, session:juiceboxSessionURL, spacewalkSessionURL } = params
 
-    const result = ingestSessionURLs({ igvSessionURL, juiceboxSessionURL, spacewalkSessionURL })
+    let acc = {}
+
+    // spacewalk
+    if (spacewalkSessionURL) {
+        const spacewalk = JSON.parse(uncompressSessionURL(spacewalkSessionURL))
+        acc = { ...acc, spacewalk }
+    }
+
+    // juicebox
+    if (juiceboxSessionURL) {
+        const juicebox = JSON.parse(uncompressSessionURL(juiceboxSessionURL))
+        acc = { ...acc, juicebox }
+    }
+
+    // igv
+    if (igvSessionURL) {
+        const igv = JSON.parse(uncompressSessionURL(igvSessionURL))
+        acc = { ...acc, igv }
+    }
+
+    const result = 0 === Object.keys(acc).length ? undefined : acc
 
     if (result) {
         await loadSession(result)
@@ -278,7 +297,7 @@ async function consumeURLParams(params){
 
 }
 
-async function setupGoogleAuthentication(spacewalkConfig){
+async function configureGoogleAuthentication(spacewalkConfig){
 
     const { clientId, apiKey } = spacewalkConfig
     const status = clientId && 'CLIENT_ID' !== clientId && (window.location.protocol === "https:" || window.location.host === "localhost")
@@ -340,7 +359,7 @@ function configureFullscreenMode(_3DInteractionContainer){
 
 }
 
-function threeJSSetup(container) {
+function configureThreeJS(container) {
 
     const str = `Scene Manager Configuration Builder Complete`;
     console.time(str);
@@ -438,32 +457,6 @@ function renderLoop() {
 function getRenderContainerSize() {
     const container = document.querySelector('#spacewalk-threejs-canvas-container')
     return container.getBoundingClientRect()
-}
-
-function ingestSessionURLs({ igvSessionURL, juiceboxSessionURL, spacewalkSessionURL }) {
-
-    let acc = {}
-
-    // spacewalk
-    if (spacewalkSessionURL) {
-        const spacewalk = JSON.parse(uncompressSessionURL(spacewalkSessionURL))
-        acc = { ...acc, spacewalk }
-    }
-
-    // juicebox
-    if (juiceboxSessionURL) {
-        const juicebox = JSON.parse(uncompressSessionURL(juiceboxSessionURL))
-        acc = { ...acc, juicebox }
-    }
-
-    // igv
-    if (igvSessionURL) {
-        const igv = JSON.parse(uncompressSessionURL(igvSessionURL))
-        acc = { ...acc, igv }
-    }
-
-    return 0 === Object.keys(acc).length ? undefined : acc
-
 }
 
 export {
