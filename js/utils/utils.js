@@ -2,12 +2,9 @@ import {
     ribbon,
     ballAndStick,
     pointCloud,
-    ensembleManager,
     dataValueMaterialProvider,
     colorRampMaterialProvider
 } from "../app.js";
-import {lerp} from "./mathUtils.js";
-import {appleCrayonColorRGB255} from './colorUtils.js'
 
 function showGlobalSpinner() {
     document.getElementById('spacewalk-spinner').style.display = 'block'
@@ -135,6 +132,41 @@ async function transferRGBAMatrixToLiveMapCanvas(ctx, rgbaMatrix, matrixDimensio
 
 }
 
+function disposeThreeJSGroup(group, scene) {
+
+    // Traverse all children of the group
+    group.traverse((child) => {
+        if (child.isMesh) {
+            // Dispose geometry
+            if (child.geometry) {
+                child.geometry.dispose();
+            }
+
+            // Dispose materials
+            if (child.material) {
+                if (Array.isArray(child.material)) {
+                    // Handle case for array of materials
+                    child.material.forEach((material) => {
+                        if (material.map) material.map.dispose(); // Dispose textures
+                        material.dispose(); // Dispose material itself
+                    });
+                } else {
+                    if (child.material.map) child.material.map.dispose(); // Dispose textures
+                    child.material.dispose(); // Dispose material itself
+                }
+            }
+        }
+    });
+
+    // Remove the group from the scene
+    if (scene && scene instanceof THREE.Scene) {
+        scene.remove(group)
+    }
+
+    // Set group and children to null to break references (optional)
+    group.children = []
+}
+
 export {
     showGlobalSpinner,
     hideGlobalSpinner,
@@ -146,5 +178,6 @@ export {
     readFileAsDataURL,
     fitToContainer,
     getMouseXY,
-    throttle
+    throttle,
+    disposeThreeJSGroup
 };

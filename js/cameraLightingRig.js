@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import {getRenderContainerSize} from "./app.js"
+import {getRenderContainerSize, scene} from "./app.js"
 import {degrees} from "./utils/mathUtils.js"
 
 let cameraWorldDirection = new THREE.Vector3()
@@ -146,8 +146,18 @@ class CameraLightingRig extends OrbitControls {
     }
 
     addToScene (scene) {
-        scene.add( this.object );
-        scene.add( this.hemisphereLight );
+        scene.add( this.object )
+        scene.add( this.hemisphereLight )
+    }
+
+    dispose() {
+        this.removeMouseHandlers()
+
+        scene.remove( this.object )
+        scene.remove( this.hemisphereLight )
+
+        this.object = undefined
+        this.hemisphereLight = undefined
     }
 
     renderLoopHelper() {
@@ -159,11 +169,6 @@ class CameraLightingRig extends OrbitControls {
         crossed.crossVectors(cameraWorldDirection, this.object.up);
         this.hemisphereLight.position.crossVectors(crossed, cameraWorldDirection);
 
-    }
-
-    dispose() {
-        this.removeMouseHandlers()
-        delete this.object;
     }
 
 }

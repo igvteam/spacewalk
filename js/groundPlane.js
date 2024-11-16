@@ -76,11 +76,6 @@ class GroundPlane extends THREE.GridHelper {
         this.geometry.attributes.color.needsUpdate = true;
     }
 
-    dispose () {
-        this.geometry.dispose();
-        this.material.dispose();
-    }
-
     toggle() {
         this.visible = !this.visible;
         setGroundplaneVisibilityCheckboxStatus(this.visible);

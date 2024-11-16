@@ -180,7 +180,7 @@ class SceneManager {
                     }
                 }
 
-                scene.remove(child);
+                scene.remove(child)
             }
         }
 
