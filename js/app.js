@@ -54,6 +54,7 @@ let googleEnabled = false
 let _3DInteractionContainerResizeObserver
 let renderer
 let cameraLightingRig
+let camera
 let scene
 let picker
 let mouseX
@@ -106,7 +107,7 @@ async function createDomainObjects() {
 
     colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
-    scene = configureThreeJS(document.querySelector('#spacewalk-threejs-canvas-container'))
+    configureThreeJS(document.querySelector('#spacewalk-threejs-canvas-container'))
     sceneManager = new SceneManager()
 
 }
@@ -259,7 +260,7 @@ async function createDOM(container) {
 
     const _3DInteractionContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
 
-    configure3DInteractionContainerResize(_3DInteractionContainer, renderer, cameraLightingRig)
+    configure3DInteractionContainerResize(_3DInteractionContainer, renderer)
 
     configureFullscreenMode(_3DInteractionContainer)
 
@@ -319,13 +320,13 @@ async function configureGoogleAuthentication(spacewalkConfig){
 
 }
 
-function configure3DInteractionContainerResize(_3DInteractionContainer, renderer, cameraLightingRig){
+function configure3DInteractionContainerResize(_3DInteractionContainer, renderer){
 
     _3DInteractionContainerResizeObserver = new ResizeObserver(entries => {
         const { width, height } = getRenderContainerSize()
         renderer.setSize(width, height)
-        cameraLightingRig.object.aspect = width / height
-        cameraLightingRig.object.updateProjectionMatrix()
+        camera.aspect = width / height
+        camera.updateProjectionMatrix()
         render()
     })
 
@@ -401,27 +402,28 @@ function configureThreeJS(container) {
     const background = appleCrayonColorThreeJS('snow');
     // const background = sceneBackgroundTexture;
 
-    const scene = new THREE.Scene();
+    scene = new THREE.Scene();
     scene.background = background;
 
-    // Update due to r155 changes to illumination: Multiply light intensities by PI to get same brightness as previous threejs release.
-    // See: https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733
-    const hemisphereLight = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('tin'), Math.PI );
-
-    const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (width/height) ];
-    cameraLightingRig = new CameraLightingRig({ fov, near, far, domElement, aspect, hemisphereLight });
+    const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (width/height) ]
+    camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+    cameraLightingRig = new CameraLightingRig(renderer.domElement, camera)
 
     // Nice numbers
     const position = new THREE.Vector3(134820, 55968, 5715);
     const centroid = new THREE.Vector3(133394, 54542, 4288);
     cameraLightingRig.setPose(position, centroid);
 
-    cameraLightingRig.addToScene(scene);
-
     console.timeEnd(str);
 
-    return scene
+}
 
+function createHemisphereLight() {
+    // Update due to r155 changes to illumination: Multiply light intensities by PI to get same brightness as previous threejs release.
+    // See: https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733
+    const light = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('tin'), Math.PI )
+    light.name = 'hemisphereLight'
+    return light
 }
 
 function render () {
@@ -441,9 +443,9 @@ function render () {
 
         sceneManager.getGnomon().renderLoopHelper()
 
-        picker.intersect({ x:mouseX, y:mouseY, scene, camera:cameraLightingRig.object });
+        picker.intersect({ x:mouseX, y:mouseY, scene, camera });
 
-        renderer.render(scene, cameraLightingRig.object)
+        renderer.render(scene, camera)
 
     }
 
@@ -461,6 +463,7 @@ function getRenderContainerSize() {
 
 export {
     getRenderContainerSize,
+    createHemisphereLight,
     scene,
     renderer,
     cameraLightingRig,

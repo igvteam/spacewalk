@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import {getRenderContainerSize, scene} from "./app.js"
+import {getRenderContainerSize, sceneManager} from "./app.js"
 import {degrees} from "./utils/mathUtils.js"
 
 let cameraWorldDirection = new THREE.Vector3()
@@ -8,16 +8,12 @@ let crossed = new THREE.Vector3()
 
 class CameraLightingRig extends OrbitControls {
 
-    constructor ({ fov, near, far, domElement, aspect, hemisphereLight }) {
+    constructor (domElement, camera) {
 
-        super (new THREE.PerspectiveCamera(fov, aspect, near, far), domElement)
-
-        this.attachMouseHandlers()
+        super (camera, domElement)
 
         // OrbitControls refers to the camera as "object"
         this.object.name = 'orbital_camera';
-
-        this.hemisphereLight = hemisphereLight;
 
         this.enableDamping = true;
         this.dampingFactor = 0.05;
@@ -27,14 +23,8 @@ class CameraLightingRig extends OrbitControls {
 
         this.resetCamera = undefined
 
-        // These were used with OrbitControl
-        // this.enableKeys = false;
-        // this.enablePan = false;
+        this.attachMouseHandlers()
 
-    }
-
-    addToScene (scene) {
-        scene.add( this.hemisphereLight )
     }
 
     attachMouseHandlers() {
@@ -53,13 +43,6 @@ class CameraLightingRig extends OrbitControls {
             document.querySelector('#spacewalk-threejs-canvas-center-dot').style.display = 'block'
         }
 
-    }
-
-    dispose() {
-        // super.dispose()
-        // this.removeMouseHandlers()
-        scene.remove( this.hemisphereLight )
-        this.hemisphereLight = undefined
     }
 
     removeMouseHandlers() {
@@ -117,9 +100,6 @@ class CameraLightingRig extends OrbitControls {
         const { width, height } = getRenderContainerSize();
         this.setProjection({ fov, near, far, aspect: (width/height) });
 
-        // const jsonLoader = new THREE.ObjectLoader();
-        // this.object = jsonLoader.parse(json);
-        // this.reset();
     }
 
     get name () {
@@ -161,10 +141,12 @@ class CameraLightingRig extends OrbitControls {
         this.update();
 
         // Keep hemisphere light directly above trace model by transforming with camera transform
-        this.object.getWorldDirection(cameraWorldDirection);
-        crossed.crossVectors(cameraWorldDirection, this.object.up);
-        this.hemisphereLight.position.crossVectors(crossed, cameraWorldDirection);
+        this.object.getWorldDirection(cameraWorldDirection)
 
+        crossed.crossVectors(cameraWorldDirection, this.object.up)
+
+        const hemisphereLight = sceneManager.getHemisphereLight()
+        hemisphereLight.position.crossVectors(crossed, cameraWorldDirection);
     }
 
 }

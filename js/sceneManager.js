@@ -19,9 +19,8 @@ import {
     igvPanel,
     colorRampMaterialProvider,
     cameraLightingRig,
-    getRenderContainerSize
+    getRenderContainerSize, createHemisphereLight
 } from "./app.js"
-import gnomon from "./gnomon.js"
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -120,10 +119,10 @@ class SceneManager {
 
         const boundingDiameter = (2 * radius)
 
-        // Camera Lighting Rig
         const { width, height } = getRenderContainerSize();
         cameraLightingRig.configure(fov, width/height, position, center, boundingDiameter)
-        cameraLightingRig.addToScene(scene);
+
+        scene.add(createHemisphereLight())
 
         // GroundPlane
         const groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(center.x, min.y, center.z), boundingDiameter))
@@ -135,42 +134,10 @@ class SceneManager {
 
     }
 
-    configureRenderStyle (renderStyle) {
-
-        if (Ribbon.renderStyle === renderStyle) {
-            pointCloud.hide()
-            ballAndStick.hide()
-            ribbon.show()
-        } else if (BallAndStick.renderStyle === renderStyle) {
-            pointCloud.hide()
-            ribbon.hide()
-            ballAndStick.show()
-        } else if (PointCloud.renderStyle === renderStyle) {
-            ballAndStick.hide()
-            ribbon.hide()
-            pointCloud.show()
-        }
-
-        this.renderStyle = renderStyle
-    }
-
-    getGnomon(){
-        return scene.getObjectByName('gnomon')
-    }
-
-    getGroundPlane(){
-        return scene.getObjectByName('groundplane')
-    }
-
-    toJSON() {
-        const { r, g, b } = scene.background
-        return  { r, g, b }
-    }
-
     purgeScene() {
 
-        // discard all children
         while (scene.children.length > 0) {
+
             const child = scene.children[0];
 
             // Call custom dispose if available
@@ -206,6 +173,42 @@ class SceneManager {
         ribbon.dispose()
         pointCloud.dispose()
 
+    }
+
+    configureRenderStyle (renderStyle) {
+
+        if (Ribbon.renderStyle === renderStyle) {
+            pointCloud.hide()
+            ballAndStick.hide()
+            ribbon.show()
+        } else if (BallAndStick.renderStyle === renderStyle) {
+            pointCloud.hide()
+            ribbon.hide()
+            ballAndStick.show()
+        } else if (PointCloud.renderStyle === renderStyle) {
+            ballAndStick.hide()
+            ribbon.hide()
+            pointCloud.show()
+        }
+
+        this.renderStyle = renderStyle
+    }
+
+    getHemisphereLight(){
+        return scene.getObjectByName('hemisphereLight')
+    }
+
+    getGnomon(){
+        return scene.getObjectByName('gnomon')
+    }
+
+    getGroundPlane(){
+        return scene.getObjectByName('groundplane')
+    }
+
+    toJSON() {
+        const { r, g, b } = scene.background
+        return  { r, g, b }
     }
 
     isGood2Go() {
