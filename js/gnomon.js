@@ -98,6 +98,7 @@ class Gnomon extends THREE.AxesHelper {
     }
 
     dispose () {
+        super.dispose()
         disposeThreeJSGroup(this.group, scene)
         this.group = undefined
     }

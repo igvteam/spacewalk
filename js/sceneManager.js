@@ -9,7 +9,19 @@ import Gnomon, { gnomonConfigurator } from './gnomon.js'
 import {setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
 import Ribbon from './ribbon.js'
 import {configureColorPicker, updateColorPicker} from "./guiManager.js"
-import { scene, pointCloud, ribbon, ballAndStick, ensembleManager, guiManager, igvPanel, colorRampMaterialProvider, cameraLightingRig, getRenderContainerSize } from "./app.js"
+import {
+    scene,
+    pointCloud,
+    ribbon,
+    ballAndStick,
+    ensembleManager,
+    guiManager,
+    igvPanel,
+    colorRampMaterialProvider,
+    cameraLightingRig,
+    getRenderContainerSize
+} from "./app.js"
+import gnomon from "./gnomon.js"
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -85,7 +97,8 @@ class SceneManager {
 
     setupWithTrace(trace) {
 
-        this.initializeScene()
+        this.background = scene.background
+        this.purgeScene()
 
         if (ensembleManager.isPointCloud) {
             pointCloud.configure(trace);
@@ -97,9 +110,28 @@ class SceneManager {
             ballAndStick.addToScene(scene);
         }
 
+        scene.background = this.background;
+
+        const { r, g, b } = this.background
+        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='background']`), { r, g, b })
+
         const {min, max, center, radius} = EnsembleManager.getTraceBounds(trace);
-        const {position, fov} = getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 });
-        this.configure({ min, max, boundingDiameter: (2 * radius), cameraPosition: position, centroid: center, fov });
+        const {position, fov} = getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 })
+
+        const boundingDiameter = (2 * radius)
+
+        // Camera Lighting Rig
+        const { width, height } = getRenderContainerSize();
+        cameraLightingRig.configure(fov, width/height, position, center, boundingDiameter)
+        cameraLightingRig.addToScene(scene);
+
+        // GroundPlane
+        const groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(center.x, min.y, center.z), boundingDiameter))
+        scene.add(groundPlane)
+
+        // Gnomon
+        const gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter))
+        gnomon.addToScene(scene)
 
     }
 
@@ -122,27 +154,6 @@ class SceneManager {
         this.renderStyle = renderStyle
     }
 
-    configure({ min, max, boundingDiameter, cameraPosition, centroid, fov }) {
-
-        scene.background = this.background;
-
-        const { r, g, b } = this.background
-        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='background']`), { r, g, b })
-
-        const { width, height } = getRenderContainerSize();
-        cameraLightingRig.configure({fov, aspect: width/height, position: cameraPosition, centroid, boundingDiameter});
-        cameraLightingRig.addToScene(scene);
-
-        // GroundPlane
-        const groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(centroid.x, min.y, centroid.z), boundingDiameter));
-        scene.add(groundPlane)
-
-        // Gnomon
-        const gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter))
-        gnomon.addToScene(scene)
-
-    }
-
     getGnomon(){
         return scene.getObjectByName('gnomon')
     }
@@ -156,37 +167,45 @@ class SceneManager {
         return  { r, g, b }
     }
 
-    initializeScene() {
-
-        this.background = scene.background
+    purgeScene() {
 
         // discard all children
-        if (scene) {
-            while (scene.children.length > 0) {
-                const child = scene.children[0];
+        while (scene.children.length > 0) {
+            const child = scene.children[0];
 
-                // Call custom dispose if available
-                if (typeof child.dispose === 'function') {
-                    child.dispose();
-                } else {
-                    // Fallback disposal for other objects with geometry or material
-                    if (child.geometry) child.geometry.dispose();
-                    if (child.material) {
-                        if (Array.isArray(child.material)) {
-                            child.material.forEach(mat => mat.dispose());
-                        } else {
-                            child.material.dispose();
-                        }
+            // Call custom dispose if available
+            if (typeof child.dispose === 'function') {
+                child.dispose();
+            } else {
+                // Fallback disposal for other objects with geometry or material
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(mat => mat.dispose());
+                    } else {
+                        child.material.dispose();
                     }
                 }
-
-                scene.remove(child)
             }
+
+            scene.remove(child)
+        } // while(...)
+
+        const gnomonInstance = this.getGnomon()
+        if (gnomonInstance){
+            gnomonInstance.dispose()
         }
 
+        const groundPlaneInstance = this.getGroundPlane()
+        if(groundPlaneInstance){
+            groundPlaneInstance.dispose()
+        }
+
+        // cameraLightingRig.dispose()
         ballAndStick.dispose()
         ribbon.dispose()
         pointCloud.dispose()
+
     }
 
     isGood2Go() {

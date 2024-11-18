@@ -33,6 +33,10 @@ class CameraLightingRig extends OrbitControls {
 
     }
 
+    addToScene (scene) {
+        scene.add( this.hemisphereLight )
+    }
+
     attachMouseHandlers() {
 
         this.boundPointerUpHandler = pointerUpHandler
@@ -51,12 +55,19 @@ class CameraLightingRig extends OrbitControls {
 
     }
 
+    dispose() {
+        // super.dispose()
+        // this.removeMouseHandlers()
+        scene.remove( this.hemisphereLight )
+        this.hemisphereLight = undefined
+    }
+
     removeMouseHandlers() {
         this.domElement.removeEventListener('pointerup', this.boundPointerUpHandler)
         this.domElement.removeEventListener('pointerdown', this.boundPointerDownHandler)
     }
 
-    configure ({ fov, aspect, position, centroid, boundingDiameter }) {
+    configure (fov, aspect, position, centroid, boundingDiameter) {
 
         this.setPose(position, centroid)
 
@@ -143,21 +154,6 @@ class CameraLightingRig extends OrbitControls {
         this.object.far = far;
 
         this.object.updateProjectionMatrix();
-    }
-
-    addToScene (scene) {
-        scene.add( this.object )
-        scene.add( this.hemisphereLight )
-    }
-
-    dispose() {
-        this.removeMouseHandlers()
-
-        scene.remove( this.object )
-        scene.remove( this.hemisphereLight )
-
-        this.object = undefined
-        this.hemisphereLight = undefined
     }
 
     renderLoopHelper() {
