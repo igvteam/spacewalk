@@ -5,6 +5,7 @@ import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import {rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor, rgba255String} from "./utils/colorUtils.js"
 import {ballAndStick, sceneManager, ensembleManager, pointCloud} from "./app.js";
+import pipeline from "three/addons/renderers/common/Pipeline"
 
 class GUIManager {
 
@@ -184,36 +185,40 @@ export function setGnomonVisibilityCheckboxStatus(status) {
 }
 
 // Colorpicker
-export function configureColorPicker(element, initialColor, callback) {
+export function createColorPicker(container, initialColor, callback) {
+
+    const color = rgb255String(threeJSColorToRGB255(initialColor));
 
     const config =
         {
-            parent: element,
+            parent: container,
             popup: 'right',
             editor: false,
             editorFormat: 'rgb',
             alpha: false,
-            color: rgb255String(threeJSColorToRGB255(initialColor)),
-            onChange: ({rgbString}) => {
+            color
+        };
 
-                element.style.backgroundColor = rgbString
+    const picker = new Picker(config);
 
-                const [ head, g, tail ] = rgbString.split(',')
-                const [ unused, r ] = head.split('(')
-                const [ b, dev_null ] = tail.split(')')
+    picker.onChange = ({rgbString}) => {
 
-                callback(rgb255ToThreeJSColor(parseInt(r), parseInt(g), parseInt(b)))
-            }
-        }
+        container.style.backgroundColor = rgbString
 
-        return new Picker(config)
+        const [ head, g, tail ] = rgbString.split(',')
+        const [ unused, r ] = head.split('(')
+        const [ b, dev_null ] = tail.split(')')
 
+        callback(rgb255ToThreeJSColor(parseInt(r), parseInt(g), parseInt(b)))
+    }
+
+    return picker
 }
 
-export function updateColorPicker(picker, element, rgb) {
+export function updateColorPicker(picker, container, rgb) {
     const rgb255 = threeJSColorToRGB255(rgb)
 
-    element.style.backgroundColor = rgb255String(rgb255)
+    container.style.backgroundColor = rgb255String(rgb255)
 
     const { r, g, b } = rgb255
     picker.setColor([ r, g, b, 1 ], true)

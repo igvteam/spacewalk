@@ -8,7 +8,6 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js'
 import Gnomon, { gnomonConfigurator } from './gnomon.js'
 import {setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
 import Ribbon from './ribbon.js'
-import {configureColorPicker, updateColorPicker} from "./guiManager.js"
 import {
     scene,
     pointCloud,
@@ -19,7 +18,9 @@ import {
     igvPanel,
     colorRampMaterialProvider,
     cameraLightingRig,
-    getRenderContainerSize, createHemisphereLight
+    getRenderContainerSize,
+    createHemisphereLight,
+    updateSceneBackgroundColorpicker
 } from "./app.js"
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
@@ -27,17 +28,8 @@ const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'sti
 class SceneManager {
 
     constructor() {
-
-        this.colorPicker = configureColorPicker(document.querySelector(`div[data-colorpicker='background']`), scene.background, color => {
-            scene.background = color
-        })
-
-        const { r, g, b } = scene.background
-        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='background']`), { r, g, b })
-
         SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', this);
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
-
     }
 
     receiveEvent({ type, data }) {
@@ -111,8 +103,7 @@ class SceneManager {
 
         scene.background = this.background;
 
-        const { r, g, b } = this.background
-        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='background']`), { r, g, b })
+        updateSceneBackgroundColorpicker(document.querySelector(`div[data-colorpicker='background']`), this.background)
 
         const {min, max, center, radius} = EnsembleManager.getTraceBounds(trace);
         const {position, fov} = getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 })

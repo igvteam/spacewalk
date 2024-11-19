@@ -14,7 +14,7 @@ import Panel, { doInspectPanelVisibilityCheckbox }  from "./panel.js";
 import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
-import GUIManager from "./guiManager.js";
+import GUIManager, {createColorPicker, updateColorPicker} from "./guiManager.js";
 import LiveContactMapService, {defaultDistanceThreshold} from "./juicebox/liveContactMapService.js";
 import LiveDistanceMapService from "./juicebox/liveDistanceMapService.js";
 import TraceSelector from './traceSelector.js'
@@ -61,6 +61,7 @@ let mouseX
 let mouseY
 let aboutButtonPopover
 let helpButtonPopover
+let sceneBackgroundColorPicker
 
 const SpacewalkGlobals =
     {
@@ -108,7 +109,7 @@ async function createDomainObjects() {
     colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
     configureThreeJS(document.querySelector('#spacewalk-threejs-canvas-container'))
-    sceneManager = new SceneManager()
+
 
 }
 
@@ -362,8 +363,7 @@ function configureFullscreenMode(_3DInteractionContainer){
 
 function configureThreeJS(container) {
 
-    const str = `Scene Manager Configuration Builder Complete`;
-    console.time(str);
+    sceneManager = new SceneManager()
 
     picker = new Picker( new THREE.Raycaster() );
 
@@ -399,11 +399,8 @@ function configureThreeJS(container) {
         mouseY = -( y / renderer.domElement.clientHeight ) * 2 + 1;
     })
 
-    const background = appleCrayonColorThreeJS('snow');
-    // const background = sceneBackgroundTexture;
-
-    scene = new THREE.Scene();
-    scene.background = background;
+    scene = new THREE.Scene()
+    scene.background = appleCrayonColorThreeJS('snow')
 
     const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (width/height) ]
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
@@ -414,8 +411,19 @@ function configureThreeJS(container) {
     const centroid = new THREE.Vector3(133394, 54542, 4288);
     cameraLightingRig.setPose(position, centroid);
 
-    console.timeEnd(str);
+    const pickerParent = document.querySelector(`div[data-colorpicker='background']`)
+    sceneBackgroundColorPicker = createColorPicker(pickerParent, scene.background, color => {
+        scene.background = new THREE.Color(color)
+        renderer.render(scene, camera)
+    })
 
+    updateSceneBackgroundColorpicker(container, scene.background)
+
+}
+
+function updateSceneBackgroundColorpicker(container, backgroundColor){
+    const { r, g, b } = backgroundColor
+    updateColorPicker(sceneBackgroundColorPicker, container, {r, g, b})
 }
 
 function createHemisphereLight() {
@@ -465,7 +473,9 @@ export {
     getRenderContainerSize,
     createHemisphereLight,
     scene,
-    renderer,
+    camera,
+    sceneBackgroundColorPicker,
+    updateSceneBackgroundColorpicker,
     cameraLightingRig,
     SpacewalkGlobals,
     googleEnabled,
