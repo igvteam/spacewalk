@@ -51,7 +51,7 @@ let igvPanel
 let traceSelector
 let genomicNavigator
 let googleEnabled = false
-let _3DInteractionContainerResizeObserver
+let renderContainerResizeObserver
 let renderer
 let cameraLightingRig
 let camera
@@ -261,7 +261,7 @@ async function createDOM(container) {
 
     const _3DInteractionContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
 
-    configure3DInteractionContainerResize(_3DInteractionContainer, renderer)
+    configureRenderContainerResizeObserver(_3DInteractionContainer, renderer)
 
     configureFullscreenMode(_3DInteractionContainer)
 
@@ -321,9 +321,9 @@ async function configureGoogleAuthentication(spacewalkConfig){
 
 }
 
-function configure3DInteractionContainerResize(_3DInteractionContainer, renderer){
+function configureRenderContainerResizeObserver(_3DInteractionContainer, renderer){
 
-    _3DInteractionContainerResizeObserver = new ResizeObserver(entries => {
+    renderContainerResizeObserver = new ResizeObserver(entries => {
         const { width, height } = getRenderContainerSize()
         renderer.setSize(width, height)
         camera.aspect = width / height
@@ -331,7 +331,7 @@ function configure3DInteractionContainerResize(_3DInteractionContainer, renderer
         render()
     })
 
-    _3DInteractionContainerResizeObserver.observe(_3DInteractionContainer)
+    renderContainerResizeObserver.observe(_3DInteractionContainer)
 
 }
 
