@@ -1,9 +1,10 @@
 import { FileUtils } from 'igv-utils'
+import * as Utils from './utils.js'
 import FileLoadManager from './fileLoadManager.js'
 import FileLoadWidget from './fileLoadWidget.js'
 import SessionFileLoad from "./sessionFileLoad.js"
 import { createURLModalElement } from './urlModal.js'
-import * as Utils from './utils.js'
+import {dropboxDropdownItem, googleDriveDropdownItem} from "./markupFactory.js"
 
 let fileLoadWidget
 let sessionWidgetModal
@@ -20,6 +21,10 @@ function createSessionWidgets(rootContainer,
                               googleEnabled,
                               loadHandler,
                               JSONProvider) {
+
+    // Session - Dropbox and Google Drive buttons
+    $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-app-dropdown-dropbox-session-file-button'));
+    $('div#spacewalk-session-dropdown-menu > :nth-child(2)').after(googleDriveDropdownItem('igv-app-dropdown-google-drive-session-file-button'));
 
     const urlModalElement = createURLModalElement(urlModalId, 'Session URL')
     rootContainer.appendChild(urlModalElement)

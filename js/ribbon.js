@@ -5,7 +5,7 @@ import { Line2 } from "three/examples/jsm/lines/Line2.js"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
 import EnsembleManager from './ensembleManager.js'
-import {igvPanel, sceneManager, ensembleManager} from "./app.js"
+import {igvPanel, sceneManager, ensembleManager, scene} from "./app.js"
 import {appleCrayonColorThreeJS} from "./utils/colorUtils.js";
 
 const ribbonWidth = 4/*2*/
@@ -124,6 +124,31 @@ class Ribbon {
 
     }
 
+    dispose () {
+
+        if (this.spline) {
+            scene.remove(this.spline)
+            this.spline.mesh.material.dispose()
+            this.spline.mesh.geometry.dispose()
+            this.spline = undefined
+        }
+
+        if (this.highlightBeads) {
+
+            scene.remove( this.highlightBeads[ 0 ] )
+            scene.remove( this.highlightBeads[ 1 ] )
+
+            for (let { geometry, material } of this.highlightBeads) {
+                material.dispose()
+                geometry.dispose()
+            }
+
+            this.highlightBeads[ 0 ] = undefined
+            this.highlightBeads[ 1 ] = undefined
+            this.highlightBeads = undefined
+        }
+    }
+
     renderLoopHelper () {
 
         if (this.spline) {
@@ -152,21 +177,6 @@ class Ribbon {
             return
         }
         this.spline.mesh.visible = true
-    }
-
-    dispose () {
-
-        if (this.spline) {
-            this.spline.mesh.material.dispose()
-            this.spline.mesh.geometry.dispose()
-        }
-
-        if (this.highlightBeads) {
-            for (let { geometry, material } of this.highlightBeads) {
-                material.dispose()
-                geometry.dispose()
-            }
-        }
     }
 
 }

@@ -3,7 +3,7 @@ import { StringUtils } from 'igv-utils'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import {clamp, lerp} from './utils/mathUtils.js'
-import {ensembleManager, igvPanel, sceneManager} from './app.js'
+import {ensembleManager, igvPanel, scene, sceneManager} from './app.js'
 import { appleCrayonColorThreeJS } from "./utils/colorUtils.js"
 import EnsembleManager from './ensembleManager.js'
 
@@ -177,6 +177,23 @@ class BallAndStick {
         scene.add(this.sticks)
     }
 
+    dispose () {
+
+        if (this.balls) {
+            scene.remove(this.balls)
+            this.balls.geometry.dispose()
+            this.balls.material.dispose()
+            this.balls = undefined
+        }
+
+        if (this.sticks) {
+            scene.remove(this.sticks)
+            this.sticks.geometry.dispose()
+            this.sticks.material.dispose()
+            this.sticks = undefined
+        }
+    }
+
     hide () {
         if (undefined === this.balls) {
             return
@@ -239,23 +256,11 @@ class BallAndStick {
         }
 
     }
+
     renderLoopHelper () {
 
         if (this.balls) {
             this.balls.geometry.attributes.instanceColor.needsUpdate = true
-        }
-    }
-
-    dispose () {
-
-        if (this.balls) {
-            this.balls.geometry.dispose();
-            this.balls.material.dispose();
-        }
-
-        if (this.sticks) {
-            this.sticks.geometry.dispose();
-            this.sticks.material.dispose();
         }
     }
 

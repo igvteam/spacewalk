@@ -1,7 +1,7 @@
 import * as THREE from "three"
 import {StringUtils} from "igv-utils"
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {ensembleManager, igvPanel, pointCloud, sceneManager} from "./app.js";
+import {ensembleManager, igvPanel, pointCloud, scene, sceneManager} from "./app.js";
 import EnsembleManager from "./ensembleManager.js"
 import {clamp} from "./utils/mathUtils.js"
 
@@ -169,6 +169,19 @@ class PointCloud {
         }
     }
 
+    dispose () {
+
+        if (this.meshList) {
+            for (let mesh of this.meshList) {
+                scene.remove(mesh)
+                mesh.geometry.dispose()
+                mesh = undefined
+            }
+            this.meshList = undefined
+        }
+
+    }
+
     renderLoopHelper () {
 
         if (this.meshList) {
@@ -220,16 +233,6 @@ class PointCloud {
         this.material.needsUpdate = true
     }
 
-    dispose () {
-
-        if (this.meshList) {
-            for (let mesh of this.meshList) {
-                // mesh.material.dispose();
-                mesh.geometry.dispose();
-            }
-        }
-
-    }
 }
 
 function setGeometryColorAttribute(geometryColorAttributeArray, threeJSColor) {

@@ -1,7 +1,7 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {colorRampMaterialProvider} from './app.js'
 
-class TraceNavigator {
+class GenomicNavigator {
     constructor(container) {
 
         this.container = container
@@ -47,4 +47,4 @@ class TraceNavigator {
     }
 }
 
-export default TraceNavigator
+export default GenomicNavigator

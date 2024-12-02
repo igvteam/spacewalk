@@ -1,13 +1,17 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {clamp} from './utils/mathUtils.js'
-import {appleCrayonColorRGB255, rgb255String} from './utils/colorUtils.js'
 
 const namespace = '.spacewalk-render-container-drag'
 
 let dragData = undefined
 
-function configureRenderContainerDrag({ target, handle, container, topConstraint }) {
+// navbar
+function configureRenderContainerDrag(navbar, container) {
 
+    const { height } = navbar.getBoundingClientRect()
+    const topConstraint = height
+
+    const target = document.getElementById('spacewalk-threejs-container')
     const doDrag = event => {
 
         if(undefined === dragData) {
@@ -37,6 +41,7 @@ function configureRenderContainerDrag({ target, handle, container, topConstraint
 
     };
 
+    const handle = document.getElementById('spacewalk-threejs-drag-container')
     $(handle).on(`mousedown.${ namespace }`, event => {
 
         event.stopPropagation()

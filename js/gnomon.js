@@ -1,7 +1,9 @@
 import * as THREE from "three";
 import { StringUtils } from 'igv-utils'
 import { appleCrayonColorThreeJS, rgb255String, threeJSColorToRGB255, rgba255String } from "./utils/colorUtils.js"
-import {configureColorPicker, updateColorPicker, doConfigureGnomonHidden, setGnomonVisibilityCheckboxStatus} from "./guiManager.js"
+import {createColorPicker, updateColorPicker, doConfigureGnomonHidden, setGnomonVisibilityCheckboxStatus} from "./guiManager.js"
+import {scene} from "./app.js"
+import {disposeThreeJSGroup} from "./utils/utils.js"
 
 class Gnomon extends THREE.AxesHelper {
 
@@ -37,7 +39,7 @@ class Gnomon extends THREE.AxesHelper {
 
         this.group.visible = !(isHidden);
 
-        this.colorPicker = configureColorPicker(document.querySelector(`div[data-colorpicker='gnomon']`), this.color, color => this.setColor(color));
+        this.colorPicker = createColorPicker(document.querySelector(`div[data-colorpicker='gnomon']`), this.color, color => this.setColor(color));
 
     }
 
@@ -79,7 +81,7 @@ class Gnomon extends THREE.AxesHelper {
     setState({ r, g, b, visibility}) {
         this.setVisibility(visibility);
         this.setColor(new THREE.Color(r, g, b))
-        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='gnomon']`), { r, g, b })
+        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='gnomon']`), {r, g, b})
     }
 
     toJSON() {
@@ -91,16 +93,15 @@ class Gnomon extends THREE.AxesHelper {
         this.geometry.attributes.color.needsUpdate = true;
     }
 
-    dispose () {
-        for (let child of this.group.children) {
-            child.geometry.dispose();
-            child.material.dispose();
-        }
+    addToScene (scene) {
+        scene.add( this.group )
     }
 
-    addToScene (scene) {
-        scene.add( this.group );
-    };
+    dispose () {
+        super.dispose()
+        disposeThreeJSGroup(this.group, scene)
+        this.group = undefined
+    }
 
     toggle() {
         this.group.visible = !this.group.visible;

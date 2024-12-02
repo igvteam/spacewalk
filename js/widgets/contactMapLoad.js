@@ -26,13 +26,12 @@ const encodeContactMapDatasourceConfiguration =
 
 function configureContactMapLoaders({
                                         rootContainer,
-                                        $dropdowns,
-                                        $localFileInputs,
+                                        localFileInput,
                                         urlLoadModalId,
                                         dataModalId,
                                         encodeHostedModalId,
-                                        $dropboxButtons,
-                                        $googleDriveButtons,
+                                        dropboxButton,
+                                        googleDriveButton,
                                         googleEnabled,
                                         mapMenu,
                                         loadHandler
@@ -40,53 +39,48 @@ function configureContactMapLoaders({
 
     mapType = 'contact-map'
 
-    $localFileInputs.on('change', async function (e) {
-        const file = ($(this).get(0).files)[0];
+    localFileInput.addEventListener('change', async e => {
 
-        // NOTE:  this in the callback is a DOM element, jquery weirdness
-        $(this).val("");
+        const file = this.files[0]
 
-        const {name} = file;
-        await loadHandler(file, name, mapType);
+        this.value = ""
+
+        const { name } = file
+        await loadHandler(file, name, mapType)
     });
 
-    $dropboxButtons.on('click', function () {
+    dropboxButton.addEventListener('click', function () {
 
         const config =
             {
-                success: async dbFiles => {
+                success: async (dbFiles) => {
                     const paths = dbFiles.map(dbFile => dbFile.link);
                     const path = paths[0];
                     const name = FileUtils.getFilename(path);
                     await loadHandler(path, name, mapType);
                 },
-                cancel: () => {
-                },
+                cancel: () => {},
                 linkType: 'preview',
                 multiselect: false,
                 folderselect: false,
             };
 
         Dropbox.choose(config);
-
     });
 
     if (googleEnabled) {
-        $googleDriveButtons.on('click', () => {
-
-            GooglePicker.createDropdownButtonPicker(true, async responses => {
-
-                const paths = responses.map(({name, url: google_url}) => {
-                    return {filename: name, name, google_url};
+        googleDriveButtons.addEventListener('click', () => {
+            GooglePicker.createDropdownButtonPicker(true, async (responses) => {
+                const paths = responses.map(({ name, url: google_url }) => {
+                    return { filename: name, name, google_url };
                 });
 
-                let {name, google_url: path} = paths[0];
+                let { name, google_url: path } = paths[0];
                 await loadHandler(path, name, mapType);
-
-            })
-        })
+            });
+        });
     } else {
-        $googleDriveButtons.parent().hide();
+        googleDriveButton.parentNode.style.display = 'none';
     }
 
     urlModal = createAndConfigureURLLoadModal(rootContainer, urlLoadModalId, path => {
