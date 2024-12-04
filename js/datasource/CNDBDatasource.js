@@ -24,7 +24,7 @@ class CNDBDatasource extends DataSourceBase {
 
         this.isPointCloud = await isPointCloud(hdf5, this.replicaKeys)
 
-        await this.updateWithReplicaKey(this.replicaKeys[ 0 ])
+        await this.updateWithEnsembleGroupKey(this.replicaKeys[ 0 ])
 
         hideGlobalSpinner()
 
@@ -43,7 +43,7 @@ class CNDBDatasource extends DataSourceBase {
         return { sample: 'Unspecified Sample', genomeAssembly }
     }
 
-    async updateWithReplicaKey(replicaKey) {
+    async updateWithEnsembleGroupKey(replicaKey) {
 
         this.currentReplicaKey = replicaKey
 
