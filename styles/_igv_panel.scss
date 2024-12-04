@@ -84,6 +84,16 @@ $spacewalk_igv_panel_heigth: 256px;
 
       a.dropdown-toggle {
         color: unset;
+        text-decoration-line: unset;
+        cursor: pointer;
+      }
+
+      a.dropdown-toggle:hover {
+        border-color: rgba(0, 0, 0, 0.3);
+        border-style: solid;
+        border-width: thin;
+        border-radius: 2px;
+        padding: 4px;
       }
     }
 

@@ -173,7 +173,21 @@ function createAndConfigureEnsembleGroupSelectModal(parentElement, ensembleGroup
 
         selectElement.appendChild(createPlaceholderOptionElement())
 
-        for (const key of data ) {
+        // sort
+        const sorted = data.sort((a, b) => {
+            // Extract the first number after the initial string
+            const firstNumberA = parseInt(a.match(/^\D+(\d+)/)?.[1] || 0, 10);
+            const firstNumberB = parseInt(b.match(/^\D+(\d+)/)?.[1] || 0, 10);
+
+            // Extract the second number, whether it's foo23, foo_23, or foo_03
+            const secondNumberA = parseInt(a.match(/\D(\d+)$/)?.[1] || 0, 10);
+            const secondNumberB = parseInt(b.match(/\D(\d+)$/)?.[1] || 0, 10);
+
+            // Sort by the first number, then by the second number
+            return firstNumberA - firstNumberB || secondNumberA - secondNumberB;
+        });
+
+        for (const key of sorted ) {
             const html = `<option value=\"${ key }\">${ key }</option>`
             const fragment = document.createRange().createContextualFragment(html)
             selectElement.appendChild(fragment.firstChild)

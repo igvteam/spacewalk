@@ -298,7 +298,8 @@ function juiceboxMouseHandler({ xBP, yBP, startXBP, startYBP, endXBP, endYBP, in
 function isLiveMapSupported() {
 
     const { chr } = ensembleManager.locus
-    const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+    // const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+    const chromosome = igvPanel.browser.genome.getChromosome(chr)
     if (undefined === chromosome) {
         console.warn(`Live Maps are not available for chromosome ${ chr }. No associated genome found`)
         return false

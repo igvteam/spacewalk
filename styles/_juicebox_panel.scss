@@ -22,6 +22,22 @@
     .list-group {
       width: 100%;
       background-color: white;
+
+      #hic-contact-map-dropdown.dropdown-toggle {
+        color: unset;
+        text-decoration-line: unset;
+        cursor: pointer;
+      }
+
+      #hic-contact-map-dropdown.dropdown-toggle:hover {
+        border-color: rgba(0, 0, 0, 0.3);
+        border-style: solid;
+        border-width: thin;
+        border-radius: 2px;
+        padding: 4px;
+      }
+
+
       #hic-live-contact-frequency-map-threshold-widget.list-group-item {
         div.input-group {
           width: 200px;
