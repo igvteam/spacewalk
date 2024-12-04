@@ -1,4 +1,3 @@
-import igv from 'igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { makeDraggable } from "./utils/draggable.js"
 

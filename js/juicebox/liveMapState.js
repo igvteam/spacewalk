@@ -20,7 +20,8 @@ class LiveMapState extends hic.State {
        const [ xBin, yBin] = [ genomicStart / binSize, genomicStart / binSize ]
 
        // chromosome index
-       const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+       // const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+       const chromosome = igvPanel.browser.genome.getChromosome(chr)
        let { order } = chromosome
 
        super(1 + order, 1 + order, 0, xBin, yBin, width, height, pixelSize, 'NONE')

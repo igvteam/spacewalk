@@ -4,7 +4,9 @@ import SWBDatasource from "../datasource/SWBDatasource.js"
 async function enableLiveMaps() {
 
     const { chr } = ensembleManager.locus
-    const chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+
+    // let chromosome = igvPanel.browser.genome.getChromosome(chr.toLowerCase())
+    const chromosome = igvPanel.browser.genome.getChromosome(chr)
 
     if (chromosome) {
         if (ensembleManager.datasource instanceof SWBDatasource) {
