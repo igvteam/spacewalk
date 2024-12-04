@@ -217,6 +217,10 @@ div.navbar-brand {
   width: 100%;
   background-color: white;
 }
+#spacewalk_juicebox_panel.card .card-header .list-group #hic-contact-map-dropdown.dropdown-toggle {
+  color: unset;
+  text-decoration-line: unset;
+}
 #spacewalk_juicebox_panel.card .card-header .list-group #hic-live-contact-frequency-map-threshold-widget.list-group-item div.input-group {
   width: 200px;
 }
@@ -284,6 +288,7 @@ div.navbar-brand {
 }
 #spacewalk_igv_panel.card #spacewalk_igv_container.card-body .spacewalk_card_drag_container a.dropdown-toggle {
   color: unset;
+  text-decoration-line: unset;
 }
 #spacewalk_igv_panel.card #spacewalk_igv_container.card-body #spacewalk_igv_root_container {
   overflow: scroll;
