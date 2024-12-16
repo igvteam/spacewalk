@@ -324,7 +324,7 @@ async function configureGoogleAuthentication(spacewalkConfig){
 function configureRenderContainerResizeObserver(_3DInteractionContainer, renderer){
 
     renderContainerResizeObserver = new ResizeObserver(entries => {
-        const { width, height } = getRenderContainerSize()
+        const { width, height } = getRenderCanvasContainerRect()
         renderer.setSize(width, height)
         camera.aspect = width / height
         camera.updateProjectionMatrix()
@@ -464,13 +464,13 @@ function renderLoop() {
     render()
 }
 
-function getRenderContainerSize() {
+function getRenderCanvasContainerRect() {
     const container = document.querySelector('#spacewalk-threejs-canvas-container')
     return container.getBoundingClientRect()
 }
 
 export {
-    getRenderContainerSize,
+    getRenderCanvasContainerRect,
     createHemisphereLight,
     scene,
     camera,

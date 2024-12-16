@@ -73,24 +73,25 @@ function getMouseXY(domElement, { clientX, clientY }) {
 
 }
 
-function throttle(fn, threshhold, scope) {
+function debounce(func, delay) {
 
-    threshhold || (threshhold = 200);
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), delay);
+    };
 
-    let last;
-    let deferTimer;
-    return function () {
+}
 
-        let [ context, now, args ] = [ scope || this, +new Date, arguments ];
+function prettyPrint(number) {
 
-        if (last && now < last + threshhold) {
-            clearTimeout(deferTimer);
-            deferTimer = setTimeout(() => { last = now; fn.apply(context, args); }, threshhold);
-        } else {
-            last = now;
-            fn.apply(context, args);
-        }
+    if (typeof number !== "number") {
+        console.error(`${ number } must be a number`)
+        return
     }
+
+    const integerPart = Math.trunc(number)
+    return integerPart.toLocaleString()
 }
 
 async function readFileAsDataURL(blob) {
@@ -178,6 +179,7 @@ export {
     readFileAsDataURL,
     fitToContainer,
     getMouseXY,
-    throttle,
+    debounce,
+    prettyPrint,
     disposeThreeJSGroup
 };
