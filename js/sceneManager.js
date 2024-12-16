@@ -18,7 +18,7 @@ import {
     igvPanel,
     colorRampMaterialProvider,
     cameraLightingRig,
-    getRenderContainerSize,
+    getRenderCanvasContainerRect,
     createHemisphereLight,
     updateSceneBackgroundColorpicker
 } from "./app.js"
@@ -110,7 +110,7 @@ class SceneManager {
 
         const boundingDiameter = (2 * radius)
 
-        const { width, height } = getRenderContainerSize();
+        const { width, height } = getRenderCanvasContainerRect();
         cameraLightingRig.configure(fov, width/height, position, center, boundingDiameter)
 
         scene.add(createHemisphereLight())

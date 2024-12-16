@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import {getRenderContainerSize, sceneManager} from "./app.js"
+import {getRenderCanvasContainerRect, sceneManager} from "./app.js"
 import {degrees} from "./utils/mathUtils.js"
 
 let cameraWorldDirection = new THREE.Vector3()
@@ -97,7 +97,7 @@ class CameraLightingRig extends OrbitControls {
         // The aspect ratio of the json CameraLightingRig can differ from the app
         // it is being imported into. We recalculate it here.
 
-        const { width, height } = getRenderContainerSize();
+        const { width, height } = getRenderCanvasContainerRect();
         this.setProjection({ fov, near, far, aspect: (width/height) });
 
     }

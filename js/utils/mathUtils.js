@@ -1,3 +1,20 @@
+import * as THREE from 'three';
+
+function vectorMin(v1, v2) {
+    return new THREE.Vector3(
+        Math.min(v1.x, v2.x),
+        Math.min(v1.y, v2.y),
+        Math.min(v1.z, v2.z)
+    );
+}
+
+function vectorMax(v1, v2) {
+    return new THREE.Vector3(
+        Math.max(v1.x, v2.x),
+        Math.max(v1.y, v2.y),
+        Math.max(v1.z, v2.z)
+    );
+}
 
 function distanceToSquared(a, b) {
     const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z

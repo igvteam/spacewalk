@@ -6,6 +6,7 @@ import {clamp, lerp} from './utils/mathUtils.js'
 import {ensembleManager, igvPanel, scene, sceneManager} from './app.js'
 import { appleCrayonColorThreeJS } from "./utils/colorUtils.js"
 import EnsembleManager from './ensembleManager.js'
+import ConvexHull from "./utils/convexHull.js"
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
@@ -63,6 +64,10 @@ class BallAndStick {
         ballRadiusTable = generateRadiusTable(2e-1 * averageCurveDistance);
         ballRadiusIndex = Math.floor( ballRadiusTable.length/2 );
         this.balls = this.createBalls(trace, igvPanel.materialProvider, ballRadiusTable[ ballRadiusIndex ]);
+
+        const positionArray = getPositionArray(this.balls)
+        this.hull = new ConvexHull(positionArray)
+        this.hull.mesh.name = 'ball_and_stick_convex_hull'
 
         if (sceneManager.renderStyle === BallAndStick.renderStyle) {
             this.show();
@@ -175,6 +180,7 @@ class BallAndStick {
     addToScene (scene) {
         scene.add(this.balls)
         scene.add(this.sticks)
+        scene.add(this.hull.mesh)
     }
 
     dispose () {
@@ -192,6 +198,13 @@ class BallAndStick {
             this.sticks.material.dispose()
             this.sticks = undefined
         }
+
+        if (this.hull) {
+            scene.remove(this.hull.mesh)
+            this.hull.mesh.geometry.dispose()
+            this.hull.mesh.material.dispose()
+            this.hull.mesh = undefined
+        }
     }
 
     hide () {
@@ -200,6 +213,7 @@ class BallAndStick {
         }
         this.balls.visible = false
         this.sticks.visible = false
+        this.hull.mesh.visible = false
     }
 
     show () {
@@ -208,6 +222,7 @@ class BallAndStick {
         }
         this.balls.visible = true
         this.sticks.visible = true
+        this.hull.mesh.visible = true
     }
 
     updateBallRadius(increment) {
@@ -264,6 +279,33 @@ class BallAndStick {
         }
     }
 
+}
+
+function getPositionArray(mesh) {
+
+    const geometry = mesh.geometry; // Canonical sphere geometry
+    const baseVertices = geometry.attributes.position.array; // Base sphere vertices
+
+    const matrix = new THREE.Matrix4();
+    const vertex = new THREE.Vector3();
+
+    const aggregateVertices = []; // Store all transformed vertices
+    for (let i = 0; i < mesh.count; i++) {
+
+        // Get the transformation matrix for the current instance
+        mesh.getMatrixAt(i, matrix);
+
+        // Transform canonical sphere vertices
+        for (let j = 0; j < baseVertices.length; j += 3) {
+
+            vertex.set(baseVertices[j], baseVertices[j + 1], baseVertices[j + 2]);
+            vertex.applyMatrix4(matrix);
+
+            aggregateVertices.push(vertex.x, vertex.y, vertex.z);
+        }
+    }
+
+    return aggregateVertices;
 }
 
 function generateRadiusTable(defaultRadius) {
