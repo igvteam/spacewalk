@@ -65,7 +65,7 @@ class BallAndStick {
         ballRadiusIndex = Math.floor( ballRadiusTable.length/2 );
         this.balls = this.createBalls(trace, igvPanel.materialProvider, ballRadiusTable[ ballRadiusIndex ]);
 
-        const positionArray = getPositionArray(this.balls)
+        const positionArray = getPositionArrayWithTrace(trace)
         this.hull = new ConvexHull(positionArray)
         this.hull.mesh.name = 'ball_and_stick_convex_hull'
 
@@ -281,7 +281,15 @@ class BallAndStick {
 
 }
 
-function getPositionArray(mesh) {
+function getPositionArrayWithTrace(trace){
+    const aggregateVertices = []
+    for (const { x, y, z } of trace.map(({ xyz }) => xyz)) {
+        aggregateVertices.push(x, y, z)
+    }
+    return aggregateVertices
+}
+
+function getPositionArrayWithInstancedMesh(mesh) {
 
     const geometry = mesh.geometry; // Canonical sphere geometry
     const baseVertices = geometry.attributes.position.array; // Base sphere vertices
