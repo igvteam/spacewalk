@@ -168,6 +168,14 @@ function disposeThreeJSGroup(group, scene) {
     group.children = []
 }
 
+function getPositionArrayWithTrace(trace){
+    const aggregateVertices = []
+    for (const { x, y, z } of trace.map(({ xyz }) => xyz)) {
+        aggregateVertices.push(x, y, z)
+    }
+    return aggregateVertices
+}
+
 export {
     showGlobalSpinner,
     hideGlobalSpinner,
@@ -181,5 +189,6 @@ export {
     getMouseXY,
     debounce,
     prettyPrint,
-    disposeThreeJSGroup
+    disposeThreeJSGroup,
+    getPositionArrayWithTrace
 };

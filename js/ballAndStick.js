@@ -7,6 +7,7 @@ import {ensembleManager, igvPanel, scene, sceneManager} from './app.js'
 import { appleCrayonColorThreeJS } from "./utils/colorUtils.js"
 import EnsembleManager from './ensembleManager.js'
 import ConvexHull from "./utils/convexHull.js"
+import {getPositionArrayWithTrace} from "./utils/utils.js"
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
@@ -281,15 +282,7 @@ class BallAndStick {
 
 }
 
-function getPositionArrayWithTrace(trace){
-    const aggregateVertices = []
-    for (const { x, y, z } of trace.map(({ xyz }) => xyz)) {
-        aggregateVertices.push(x, y, z)
-    }
-    return aggregateVertices
-}
-
-function getPositionArrayWithInstancedMesh(mesh) {
+function getPositionArrayWithBallsInstancedMesh(mesh) {
 
     const geometry = mesh.geometry; // Canonical sphere geometry
     const baseVertices = geometry.attributes.position.array; // Base sphere vertices
