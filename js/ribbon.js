@@ -7,6 +7,8 @@ import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
 import EnsembleManager from './ensembleManager.js'
 import {igvPanel, sceneManager, ensembleManager, scene} from "./app.js"
 import {appleCrayonColorThreeJS} from "./utils/colorUtils.js";
+import {getPositionArrayWithTrace} from "./utils/utils.js"
+import ConvexHull from "./utils/convexHull"
 
 const ribbonWidth = 4/*2*/
 const highlightBeadRadiusScalefactor = 1/(6e1)
@@ -80,6 +82,11 @@ class Ribbon {
 
         this.spline = { mesh, vertexCount: curvePoints.length }
 
+        const positionArray = getPositionArrayWithTrace(trace)
+        this.hull = new ConvexHull(positionArray)
+        this.hull.mesh.name = 'ribbon_convex_hull'
+
+
         if (sceneManager.renderStyle === Ribbon.renderStyle) {
             this.show()
         } else {
@@ -122,6 +129,8 @@ class Ribbon {
         this.highlightBeads[ 0 ].visible = false
         this.highlightBeads[ 1 ].visible = false
 
+        scene.add(this.hull.mesh)
+
     }
 
     dispose () {
@@ -147,17 +156,14 @@ class Ribbon {
             this.highlightBeads[ 1 ] = undefined
             this.highlightBeads = undefined
         }
-    }
 
-    renderLoopHelper () {
-
-        if (this.spline) {
-            this.spline.mesh.material.resolution.set(window.innerWidth, window.innerHeight)
-
-            this.spline.mesh.geometry.attributes.instanceStart.needsUpdate = true
-            this.spline.mesh.geometry.attributes.instanceEnd.needsUpdate = true
-
+        if (this.hull) {
+            scene.remove(this.hull.mesh)
+            this.hull.mesh.geometry.dispose()
+            this.hull.mesh.material.dispose()
+            this.hull.mesh = undefined
         }
+
     }
 
     hide () {
@@ -170,6 +176,8 @@ class Ribbon {
             this.highlightBeads[ 0 ].visible = false
             this.highlightBeads[ 1 ].visible = false
         }
+
+        this.hull.mesh.visible = false
     }
 
     show () {
@@ -177,6 +185,20 @@ class Ribbon {
             return
         }
         this.spline.mesh.visible = true
+
+        this.hull.mesh.visible = true
+
+    }
+
+    renderLoopHelper () {
+
+        if (this.spline) {
+            this.spline.mesh.material.resolution.set(window.innerWidth, window.innerHeight)
+
+            this.spline.mesh.geometry.attributes.instanceStart.needsUpdate = true
+            this.spline.mesh.geometry.attributes.instanceEnd.needsUpdate = true
+
+        }
     }
 
 }
