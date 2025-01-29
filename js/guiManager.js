@@ -36,6 +36,25 @@ class GUIManager {
             sceneManager.getGnomon().toggle()
         })
 
+        // Configure Ruler Toggle
+        document.querySelector(`#spacewalk_ui_manager_scale_bars`).addEventListener('change', e => {
+            e.stopPropagation()
+
+            const h = document.getElementById('spacewalk-horizontal-scale-bar-container')
+            if ('none' === h.style.display) {
+                h.style.display = 'block'
+            }  else {
+                h.style.display = 'none'
+            }
+
+            const v = document.getElementById('spacewalk-vertical-scale-bar-container')
+            if ('none' === v.style.display) {
+                v.style.display = 'block'
+            }  else {
+                v.style.display = 'none'
+            }
+        })
+
         const checkboxDropdown = document.querySelector('#spacewalk-viewers-dropdown-menu')
         const inputIDList = checkboxDropdown.querySelectorAll('input')
 
