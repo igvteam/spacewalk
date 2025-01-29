@@ -176,7 +176,7 @@ class PointCloud {
             }
         }
 
-        scene.add(this.hull.mesh)
+        // scene.add(this.hull.mesh)
     }
 
     dispose () {

@@ -129,7 +129,7 @@ class Ribbon {
         this.highlightBeads[ 0 ].visible = false
         this.highlightBeads[ 1 ].visible = false
 
-        scene.add(this.hull.mesh)
+        // scene.add(this.hull.mesh)
 
     }
 
