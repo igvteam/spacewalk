@@ -181,7 +181,7 @@ class BallAndStick {
     addToScene (scene) {
         scene.add(this.balls)
         scene.add(this.sticks)
-        scene.add(this.hull.mesh)
+        // scene.add(this.hull.mesh)
     }
 
     dispose () {
