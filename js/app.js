@@ -30,6 +30,7 @@ import configureContactMapLoaders from './widgets/contactMapLoad.js'
 import {createShareWidgets, shareWidgetConfigurator} from './share/shareWidgets.js'
 import {showGlobalSpinner, hideGlobalSpinner, getMouseXY} from './utils/utils.js'
 import {configureRenderContainerDrag} from "./renderContainerDrag.js"
+import ScaleBarService from "./scaleBarService.js"
 import {showRelease} from "./utils/release.js"
 import { spacewalkConfig } from "../spacewalk-config.js";
 import 'juicebox.js/dist/css/juicebox.css'
@@ -62,6 +63,7 @@ let mouseY
 let aboutButtonPopover
 let helpButtonPopover
 let sceneBackgroundColorPicker
+let scaleBarService
 
 const SpacewalkGlobals =
     {
@@ -108,7 +110,12 @@ async function createDomainObjects() {
 
     colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
-    configureThreeJS(document.querySelector('#spacewalk-threejs-canvas-container'))
+    const renderContainer = document.querySelector('#spacewalk-threejs-canvas-container')
+    configureThreeJS(renderContainer)
+
+    const horizontalContainer = document.getElementById('spacewalk-horizontal-scale-bar-container')
+    const verticalContainer = document.getElementById('spacewalk-vertical-scale-bar-container')
+    scaleBarService = new ScaleBarService(renderContainer, horizontalContainer, verticalContainer)
 
 
 }
@@ -437,6 +444,7 @@ function createHemisphereLight() {
 function render () {
 
     if (sceneManager.isGood2Go()) {
+
         pointCloud.renderLoopHelper()
 
         ballAndStick.renderLoopHelper()
@@ -454,6 +462,12 @@ function render () {
         picker.intersect({ x:mouseX, y:mouseY, scene, camera });
 
         renderer.render(scene, camera)
+
+        const convexHull = SceneManager.getConvexHull(sceneManager.renderStyle)
+
+        if (convexHull) {
+            scaleBarService.scaleBarAnimationLoopHelper(convexHull.mesh, camera)
+        }
 
     }
 

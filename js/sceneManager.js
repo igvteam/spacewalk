@@ -205,6 +205,21 @@ class SceneManager {
     isGood2Go() {
         return scene && this.getGnomon() && this.getGroundPlane()
      }
+
+    static getConvexHull(renderStyle) {
+        switch (renderStyle) {
+            case Ribbon.renderStyle:
+                return ribbon.hull
+            case PointCloud.renderStyle:
+                return pointCloud.hull
+            case BallAndStick.renderStyle:
+                return ballAndStick.hull
+            default:
+                console.warn("Unknown render style");
+                return undefined
+        }
+    }
+
 }
 
 export default SceneManager;
