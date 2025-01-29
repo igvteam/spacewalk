@@ -29,7 +29,8 @@ class ScaleBarService {
         horizontalBar.setAttribute('height', `5`); // Fixed bar height
 
         // Update label text
-        horizontalLabel.textContent = `${scaleBarBounds.widthNM.toFixed(2)} nm`;
+        // horizontalLabel.textContent = `${scaleBarBounds.widthNM.toFixed(2)} nm`;
+        horizontalLabel.textContent = `${Math.round(scaleBarBounds.widthNM)} nm`;
 
         // Position the vertical scale bar container
         this.verticalContainer.style.left = `${scaleBarBounds.west - 38}px`; // Position to the left of the data
@@ -54,7 +55,8 @@ class ScaleBarService {
         // Update label positioning
         verticalLabel.setAttribute('y', `${labelY}`);
         verticalLabel.setAttribute('transform', `rotate(-90, 18, ${labelY})`);
-        verticalLabel.textContent = `${scaleBarBounds.heightNM.toFixed(2)} nm`;
+        // verticalLabel.textContent = `${scaleBarBounds.heightNM.toFixed(2)} nm`;
+        verticalLabel.textContent = `${Math.round(scaleBarBounds.heightNM)} nm`;
     }
 
     scaleBarAnimationLoopHelper(convexHullMesh, camera){
