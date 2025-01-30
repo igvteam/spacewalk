@@ -113,10 +113,7 @@ async function createDomainObjects() {
     const renderContainer = document.querySelector('#spacewalk-threejs-canvas-container')
     configureThreeJS(renderContainer)
 
-    const horizontalContainer = document.getElementById('spacewalk-horizontal-scale-bar-container')
-    const verticalContainer = document.getElementById('spacewalk-vertical-scale-bar-container')
-    scaleBarService = new ScaleBarService(renderContainer, horizontalContainer, verticalContainer)
-
+    scaleBarService = new ScaleBarService(renderContainer)
 
 }
 
@@ -148,6 +145,8 @@ async function createDOM(container) {
         }
     const helpButton = document.getElementById('spacewalk-help-button')
     helpButtonPopover = new bootstrap.Popover(helpButton, helpConfig)
+
+    scaleBarService.insertScaleBarDOM()
 
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
     guiManager = new GUIManager({ settingsButton, panel: document.querySelector('#spacewalk_ui_manager_panel') });
@@ -506,4 +505,5 @@ export {
     liveContactMapService,
     liveDistanceMapService,
     igvPanel,
-    genomicNavigator }
+    genomicNavigator,
+    scaleBarService}
