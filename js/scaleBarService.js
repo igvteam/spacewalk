@@ -3,10 +3,8 @@ import {vectorMax, vectorMin} from "./utils/mathUtils.js"
 
 class ScaleBarService {
 
-    constructor(renderContainer, horizontalContainer, verticalContainer) {
+    constructor(renderContainer) {
         this.renderContainer = renderContainer
-        this.horizontalContainer = horizontalContainer
-        this.verticalContainer = verticalContainer
     }
 
     updateScaleBars(scaleBarBounds) {
@@ -64,6 +62,61 @@ class ScaleBarService {
         const scaleBarBounds = ScaleBarService.calculateScaleBarBounds(convexHullMesh, camera, this.renderContainer)
 
         this.updateScaleBars(scaleBarBounds)
+
+    }
+
+    insertScaleBarDOM() {
+
+        let fragment
+
+        const horizontalHTML =
+            `<div id="spacewalk-horizontal-scale-bar-container" style="position: absolute;user-select: none;; display: none">
+              <svg id="horizontal-scale-bar-svg" xmlns="http://www.w3.org/2000/svg" height="38px" viewBox="0 0 372 38" preserveAspectRatio="none">
+                <rect id="horizontal-scale-bar" x="0" y="4" width="100%" height="5" fill="grey"></rect>
+                <text id="horizontal-scale-bar-label" x="50%" y="30" font-family="HelveticaNeue-Light, Helvetica Neue" font-size="18" font-weight="300" letter-spacing="0.75" fill="black" text-anchor="middle">
+                  25nm
+                </text>
+              </svg>
+            </div>`
+
+        fragment = document.createRange().createContextualFragment(horizontalHTML)
+        this.horizontalContainer =  fragment.firstChild
+        this.renderContainer.appendChild(this.horizontalContainer)
+
+        const verticalHTML =
+            `<div id="spacewalk-vertical-scale-bar-container" style="position: absolute;user-select: none; display: none">
+              <svg id="vertical-scale-bar-svg" xmlns="http://www.w3.org/2000/svg" width="38px" viewBox="0 0 38 266" preserveAspectRatio="none">
+                <rect id="vertical-scale-bar" x="24" y="0" width="5" height="100%" fill="grey"></rect>
+                <text id="vertical-scale-bar-label" x="18" y="133" font-family="HelveticaNeue-Light, Helvetica Neue" font-size="18" font-weight="300" letter-spacing="0.75" fill="black" text-anchor="middle" transform="rotate(-90, 18, 133)">
+                  25nm
+                </text>
+              </svg>
+            </div>`
+
+        fragment = document.createRange().createContextualFragment(verticalHTML)
+        this.verticalContainer =  fragment.firstChild
+        this.renderContainer.appendChild(this.verticalContainer)
+
+    }
+
+    configureGUI(scaleBarWidgetElement){
+
+        scaleBarWidgetElement.addEventListener('change', e => {
+
+            e.stopPropagation()
+
+            if ('none' === this.horizontalContainer.style.display) {
+                this.horizontalContainer.style.display = 'block'
+            }  else {
+                this.horizontalContainer.style.display = 'none'
+            }
+
+            if ('none' === this.verticalContainer.style.display) {
+                this.verticalContainer.style.display = 'block'
+            }  else {
+                this.verticalContainer.style.display = 'none'
+            }
+        })
 
     }
 
