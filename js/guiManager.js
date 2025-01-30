@@ -4,8 +4,7 @@ import { StringUtils } from 'igv-utils'
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
 import {rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor, rgba255String} from "./utils/colorUtils.js"
-import {ballAndStick, sceneManager, ensembleManager, pointCloud} from "./app.js";
-import pipeline from "three/addons/renderers/common/Pipeline"
+import { scaleBarService, ballAndStick, sceneManager, ensembleManager, pointCloud } from "./app.js";
 
 class GUIManager {
 
@@ -37,23 +36,7 @@ class GUIManager {
         })
 
         // Configure Ruler Toggle
-        document.querySelector(`#spacewalk_ui_manager_scale_bars`).addEventListener('change', e => {
-            e.stopPropagation()
-
-            const h = document.getElementById('spacewalk-horizontal-scale-bar-container')
-            if ('none' === h.style.display) {
-                h.style.display = 'block'
-            }  else {
-                h.style.display = 'none'
-            }
-
-            const v = document.getElementById('spacewalk-vertical-scale-bar-container')
-            if ('none' === v.style.display) {
-                v.style.display = 'block'
-            }  else {
-                v.style.display = 'none'
-            }
-        })
+        scaleBarService.configureGUI(document.querySelector(`#spacewalk_ui_manager_scale_bars`))
 
         const checkboxDropdown = document.querySelector('#spacewalk-viewers-dropdown-menu')
         const inputIDList = checkboxDropdown.querySelectorAll('input')
