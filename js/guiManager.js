@@ -160,32 +160,6 @@ function configureRenderStyleControl(input, renderStyle) {
 
 }
 
-// Ground Plane
-function doConfigureGroundplaneHidden() {
-    const input = document.getElementById('spacewalk_ui_manager_groundplane');
-    return !(input && input.checked);
-}
-
-function setGroundplaneVisibilityCheckboxStatus(status) {
-    const input = document.getElementById('spacewalk_ui_manager_groundplane');
-    if (input) {
-        input.checked = status;
-    }
-}
-
-// Gnomon
-function doConfigureGnomonHidden() {
-    const input = document.getElementById('spacewalk_ui_manager_gnomon');
-    return !(input && input.checked);
-}
-
-function setGnomonVisibilityCheckboxStatus(status) {
-    const input = document.getElementById('spacewalk_ui_manager_gnomon');
-    if (input) {
-        input.checked = status;
-    }
-}
-
 // Colorpicker
 function createColorPicker(container, initialColor, callback) {
 
@@ -227,6 +201,6 @@ function updateColorPicker(picker, container, rgb) {
 
 }
 
-export { doConfigureGroundplaneHidden, setGroundplaneVisibilityCheckboxStatus, doConfigureGnomonHidden, setGnomonVisibilityCheckboxStatus, createColorPicker, updateColorPicker }
+export { createColorPicker, updateColorPicker }
 
 export default GUIManager;

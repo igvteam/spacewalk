@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { StringUtils } from 'igv-utils'
 import { appleCrayonColorThreeJS, rgb255String, threeJSColorToRGB255, rgba255String } from "./utils/colorUtils.js"
-import {createColorPicker, updateColorPicker, doConfigureGnomonHidden, setGnomonVisibilityCheckboxStatus} from "./guiManager.js"
+import {createColorPicker, updateColorPicker} from "./guiManager.js"
 import {scene} from "./app.js"
 import {disposeThreeJSGroup} from "./utils/utils.js"
 
@@ -119,50 +119,42 @@ class Gnomon extends THREE.AxesHelper {
     }
 }
 
-export default Gnomon;
-
-const getXAxisSprite = (min, max, boundingDiameter, color) => {
-
-    const { x:ax, y:ay, z:az } = min;
-    const { x:bx } = max;
+function getXAxisSprite(min, max, boundingDiameter, color) {
+    const { x: ax, y: ay, z: az } = min;
+    const { x: bx } = max;
 
     return getAxisSprite(bx, ay, az, bx - ax, boundingDiameter, color);
-};
+}
 
-const getYAxisSprite = (min, max, boundingDiameter, color) => {
-
-    const { x:ax, y:ay, z:az } = min;
-    const { y:by } = max;
+function getYAxisSprite(min, max, boundingDiameter, color) {
+    const { x: ax, y: ay, z: az } = min;
+    const { y: by } = max;
 
     return getAxisSprite(ax, by, az, by - ay, boundingDiameter, color);
-};
+}
 
-const getZAxisSprite = (min, max, boundingDiameter, color) => {
-
-    const { x:ax, y:ay, z:az } = min;
-    const { z:bz } = max;
+function getZAxisSprite(min, max, boundingDiameter, color) {
+    const { x: ax, y: ay, z: az } = min;
+    const { z: bz } = max;
 
     return getAxisSprite(ax, ay, bz, bz - az, boundingDiameter, color);
-};
+}
 
-const getAxisSprite = (x, y, z, length, boundingDiameter, color) => {
-
-    const sprite = new THREE.Sprite( getAxisSpriteMaterial(color, length) );
+function getAxisSprite(x, y, z, length, boundingDiameter, color) {
+    const sprite = new THREE.Sprite(getAxisSpriteMaterial(color, length));
     sprite.position.set(x, y, z);
 
     // console.log(`gnomon. scale ratio ${ 512/boundingDiameter }`);
 
     const scaleFactor = 0.25 * boundingDiameter;
-    sprite.scale.set( scaleFactor, scaleFactor, 1 );
+    sprite.scale.set(scaleFactor, scaleFactor, 1);
 
     return sprite;
+}
 
-};
-
-const getAxisSpriteMaterial = (color, length) => {
-
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
+function getAxisSpriteMaterial(color, length) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
     ctx.canvas.width = ctx.canvas.height = 1024;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -170,45 +162,56 @@ const getAxisSpriteMaterial = (color, length) => {
     ctx.fillStyle = color;
     ctx.font = 'bold 128px sans-serif';
 
-    length = StringUtils.numberFormatter( Math.round(length) );
-    const string = `${ length }nm`;
-    ctx.fillText(string, ctx.canvas.width/2, ctx.canvas.height/2);
+    length = StringUtils.numberFormatter(Math.round(length));
+    const string = `${length}nm`;
+    ctx.fillText(string, ctx.canvas.width / 2, ctx.canvas.height / 2);
 
-    const material = new THREE.SpriteMaterial( { map: new THREE.CanvasTexture(ctx.canvas) } );
+    const material = new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(ctx.canvas) });
     material.alphaTest = 0.5;
     material.side = THREE.DoubleSide;
     material.transparent = true;
 
     return material;
-};
+}
 
-const getVertexListWithSharedOriginAndLengths = (min, max) => {
-
-    const { x:ax, y:ay, z:az } = min;
-    const { x:bx, y:by, z:bz } = max;
+function getVertexListWithSharedOriginAndLengths(min, max) {
+    const { x: ax, y: ay, z: az } = min;
+    const { x: bx, y: by, z: bz } = max;
 
     const vertices = [
-        ax, ay, az,     bx, ay, az, // x-axis
-        ax, ay, az,     ax, by, az, // y-axis
-        ax, ay, az,     ax, ay, bz  // z-axis
+        ax, ay, az, bx, ay, az, // x-axis
+        ax, ay, az, ax, by, az, // y-axis
+        ax, ay, az, ax, ay, bz  // z-axis
     ];
 
-    return new THREE.Float32BufferAttribute( vertices, 3 );
-};
+    return new THREE.Float32BufferAttribute(vertices, 3);
+}
 
-const getColors = (color) => {
-
+function getColors(color) {
     const { r, g, b } = color;
 
     const colors = [
-        r, g, b,        r, g, b, // x-axis vertex colors
-        r, g, b,        r, g, b, // y-axis vertex colors
-        r, g, b,        r, g, b  // z-axis vertex colors
+        r, g, b, r, g, b, // x-axis vertex colors
+        r, g, b, r, g, b, // y-axis vertex colors
+        r, g, b, r, g, b  // z-axis vertex colors
     ];
 
-    return new THREE.Float32BufferAttribute( colors, 3 )
+    return new THREE.Float32BufferAttribute(colors, 3);
+}
 
-};
+function doConfigureGnomonHidden() {
+    const input = document.getElementById('spacewalk_ui_manager_gnomon');
+    return !(input && input.checked);
+}
+
+function setGnomonVisibilityCheckboxStatus(status) {
+    const input = document.getElementById('spacewalk_ui_manager_gnomon');
+    if (input) {
+        input.checked = status;
+    }
+}
+
+export default Gnomon;
 
 export const gnomonConfigurator = (min, max, boundingDiameter) => {
 
@@ -220,4 +223,4 @@ export const gnomonConfigurator = (min, max, boundingDiameter) => {
         isHidden: doConfigureGnomonHidden()
     }
 
-};
+}
