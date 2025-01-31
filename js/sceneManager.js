@@ -6,16 +6,15 @@ import BallAndStick from "./ballAndStick.js"
 import PointCloud from "./pointCloud.js"
 import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js'
 import Gnomon, { gnomonConfigurator } from './gnomon.js'
+import GUIManager from "./guiManager.js"
 import {setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
 import Ribbon from './ribbon.js'
-import {getRenderStyle} from "./guiManager.js"
 import {
     scene,
     pointCloud,
     ribbon,
     ballAndStick,
     ensembleManager,
-    guiManager,
     igvPanel,
     colorRampMaterialProvider,
     cameraLightingRig,
@@ -60,7 +59,7 @@ class SceneManager {
         await ensembleManager.loadURL(url, traceKey, ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
-        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : getRenderStyle())
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyle())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
         setMaterialProvider(colorRampMaterialProvider)
@@ -79,7 +78,7 @@ class SceneManager {
         await ensembleManager.loadEnsembleGroup(ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
-        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : getRenderStyle())
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyle())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
         setMaterialProvider(colorRampMaterialProvider)
