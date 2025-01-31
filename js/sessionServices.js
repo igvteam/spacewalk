@@ -5,8 +5,8 @@ import Panel from './panel.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {defaultDistanceThreshold} from './juicebox/liveContactMapService.js'
 import { shortenURL } from "./share/shareHelper.js"
-import {setRenderStyle} from "./guiManager.js"
-import { scene, igvPanel, juiceboxPanel, ensembleManager, sceneManager, liveContactMapService, SpacewalkGlobals, guiManager, cameraLightingRig } from './app.js'
+import { scene, igvPanel, juiceboxPanel, ensembleManager, sceneManager, liveContactMapService, SpacewalkGlobals, cameraLightingRig } from './app.js'
+import GUIManager from "./guiManager.js"
 
 async function loadSession(json) {
 
@@ -55,7 +55,7 @@ async function loadSpacewalkSession (session) {
         backgroundColor
     } = session
 
-    setRenderStyle(renderStyle)
+    GUIManager.setRenderStyle(renderStyle)
 
     await sceneManager.ingestEnsemblePath(url, traceKey, ensembleGroupKey)
 
