@@ -161,12 +161,12 @@ function configureRenderStyleControl(input, renderStyle) {
 }
 
 // Ground Plane
-export function doConfigureGroundplaneHidden() {
+function doConfigureGroundplaneHidden() {
     const input = document.getElementById('spacewalk_ui_manager_groundplane');
     return !(input && input.checked);
 }
 
-export function setGroundplaneVisibilityCheckboxStatus(status) {
+function setGroundplaneVisibilityCheckboxStatus(status) {
     const input = document.getElementById('spacewalk_ui_manager_groundplane');
     if (input) {
         input.checked = status;
@@ -174,12 +174,12 @@ export function setGroundplaneVisibilityCheckboxStatus(status) {
 }
 
 // Gnomon
-export function doConfigureGnomonHidden() {
+function doConfigureGnomonHidden() {
     const input = document.getElementById('spacewalk_ui_manager_gnomon');
     return !(input && input.checked);
 }
 
-export function setGnomonVisibilityCheckboxStatus(status) {
+function setGnomonVisibilityCheckboxStatus(status) {
     const input = document.getElementById('spacewalk_ui_manager_gnomon');
     if (input) {
         input.checked = status;
@@ -187,7 +187,7 @@ export function setGnomonVisibilityCheckboxStatus(status) {
 }
 
 // Colorpicker
-export function createColorPicker(container, initialColor, callback) {
+function createColorPicker(container, initialColor, callback) {
 
     const color = rgb255String(threeJSColorToRGB255(initialColor));
 
@@ -217,7 +217,7 @@ export function createColorPicker(container, initialColor, callback) {
     return picker
 }
 
-export function updateColorPicker(picker, container, rgb) {
+function updateColorPicker(picker, container, rgb) {
     const rgb255 = threeJSColorToRGB255(rgb)
 
     container.style.backgroundColor = rgb255String(rgb255)
@@ -226,5 +226,7 @@ export function updateColorPicker(picker, container, rgb) {
     picker.setColor([ r, g, b, 1 ], true)
 
 }
+
+export { doConfigureGroundplaneHidden, setGroundplaneVisibilityCheckboxStatus, doConfigureGnomonHidden, setGnomonVisibilityCheckboxStatus, createColorPicker, updateColorPicker }
 
 export default GUIManager;
