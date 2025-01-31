@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import Picker from "vanilla-picker"
 import chroma from "chroma-js";
 import { lerp, clamp, random } from './mathUtils.js';
 
@@ -212,5 +213,56 @@ function compositeColors(foreRGBA, backRGB) {
     return { r, g, b };
 }
 
-export { compositeColors, highlightColor, hex2RGB255, colorString2Tokens, threeJSColorToRGB255, rgb255ToThreeJSColor, appleCrayonColorThreeJS, appleCrayonColorRGB255, blendColorsLab };
+function createColorPicker(container, initialColor, callback) {
+
+    const color = rgb255String(threeJSColorToRGB255(initialColor));
+
+    const config =
+        {
+            parent: container,
+            popup: 'right',
+            editor: false,
+            editorFormat: 'rgb',
+            alpha: false,
+            color
+        };
+
+    const picker = new Picker(config);
+
+    picker.onChange = ({rgbString}) => {
+
+        container.style.backgroundColor = rgbString
+
+        const [ head, g, tail ] = rgbString.split(',')
+        const [ unused, r ] = head.split('(')
+        const [ b, dev_null ] = tail.split(')')
+
+        callback(rgb255ToThreeJSColor(parseInt(r), parseInt(g), parseInt(b)))
+    }
+
+    return picker
+}
+
+function updateColorPicker(picker, container, rgb) {
+    const rgb255 = threeJSColorToRGB255(rgb)
+
+    container.style.backgroundColor = rgb255String(rgb255)
+
+    const { r, g, b } = rgb255
+    picker.setColor([ r, g, b, 1 ], true)
+
+}
+
+export {
+    createColorPicker,
+    updateColorPicker,
+    compositeColors,
+    highlightColor,
+    hex2RGB255,
+    colorString2Tokens,
+    threeJSColorToRGB255,
+    rgb255ToThreeJSColor,
+    appleCrayonColorThreeJS,
+    appleCrayonColorRGB255,
+    blendColorsLab };
 

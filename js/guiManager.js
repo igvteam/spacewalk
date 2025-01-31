@@ -1,9 +1,7 @@
-import Picker from 'vanilla-picker'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { StringUtils } from 'igv-utils'
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
-import {rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor, rgba255String} from "./utils/colorUtils.js"
 import { scaleBarService, ballAndStick, sceneManager, ensembleManager, pointCloud } from "./app.js";
 
 class GUIManager {
@@ -125,28 +123,6 @@ class GUIManager {
             el.style.display = 'block';
         }
     }
-
-    setRenderStyle(renderStyle) {
-        const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
-        if (renderStyle === Ribbon.renderStyle) {
-            const ribbonRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ribbon');
-            if (ribbonRadio) {
-                ribbonRadio.checked = true;
-            }
-        } else if (renderStyle === BallAndStick.renderStyle) {
-            const ballStickRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ball-stick');
-            if (ballStickRadio) {
-                ballStickRadio.checked = true;
-            }
-        }
-    }
-
-    getRenderStyle() {
-        const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
-        const checkedInput = uiManagerPanel.querySelector("input[name='spacewalk-render-style']:checked");
-        const id = checkedInput ? checkedInput.id : null;
-        return id === 'spacewalk-render-style-ball-stick' ? BallAndStick.renderStyle : Ribbon.renderStyle;
-    }
 }
 
 function configureRenderStyleControl(input, renderStyle) {
@@ -155,52 +131,33 @@ function configureRenderStyleControl(input, renderStyle) {
 
     input.addEventListener('change', (e) => {
         e.preventDefault();
-        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: e.target.value });
+        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: e.target.value })
     });
 
 }
 
-// Colorpicker
-function createColorPicker(container, initialColor, callback) {
-
-    const color = rgb255String(threeJSColorToRGB255(initialColor));
-
-    const config =
-        {
-            parent: container,
-            popup: 'right',
-            editor: false,
-            editorFormat: 'rgb',
-            alpha: false,
-            color
-        };
-
-    const picker = new Picker(config);
-
-    picker.onChange = ({rgbString}) => {
-
-        container.style.backgroundColor = rgbString
-
-        const [ head, g, tail ] = rgbString.split(',')
-        const [ unused, r ] = head.split('(')
-        const [ b, dev_null ] = tail.split(')')
-
-        callback(rgb255ToThreeJSColor(parseInt(r), parseInt(g), parseInt(b)))
+function setRenderStyle(renderStyle) {
+    const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
+    if (renderStyle === Ribbon.renderStyle) {
+        const ribbonRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ribbon');
+        if (ribbonRadio) {
+            ribbonRadio.checked = true;
+        }
+    } else if (renderStyle === BallAndStick.renderStyle) {
+        const ballStickRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ball-stick');
+        if (ballStickRadio) {
+            ballStickRadio.checked = true;
+        }
     }
-
-    return picker
 }
 
-function updateColorPicker(picker, container, rgb) {
-    const rgb255 = threeJSColorToRGB255(rgb)
-
-    container.style.backgroundColor = rgb255String(rgb255)
-
-    const { r, g, b } = rgb255
-    picker.setColor([ r, g, b, 1 ], true)
-
+function getRenderStyle() {
+    const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
+    const checkedInput = uiManagerPanel.querySelector("input[name='spacewalk-render-style']:checked");
+    const id = checkedInput ? checkedInput.id : null;
+    return id === 'spacewalk-render-style-ball-stick' ? BallAndStick.renderStyle : Ribbon.renderStyle;
 }
 
-export { createColorPicker, updateColorPicker }
+export { setRenderStyle, getRenderStyle }
 
 export default GUIManager;
