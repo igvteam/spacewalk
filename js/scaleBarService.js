@@ -1,10 +1,32 @@
 import * as THREE from "three"
 import {vectorMax, vectorMin} from "./utils/mathUtils.js"
+import {createColorPicker} from "./guiManager"
+import {appleCrayonColorThreeJS, rgb255String, threeJSColorToRGB255} from "./utils/colorUtils"
 
 class ScaleBarService {
 
     constructor(renderContainer) {
         this.renderContainer = renderContainer
+
+        // this.color = appleCrayonColorThreeJS('iron')
+        this.color = appleCrayonColorThreeJS('salmon')
+
+        this.colorPicker = createColorPicker(document.querySelector(`div[data-colorpicker='scale-bars']`), this.color, color => this.setColor(color));
+    }
+
+    setColor(color){
+
+        const { r, g, b } = color
+        this.color.setRGB(r, g, b)
+        ScaleBarService.setSVGElementColor('horizontal-scale-bar', this.color)
+        ScaleBarService.setSVGElementColor('horizontal-scale-bar-label', this.color)
+        ScaleBarService.setSVGElementColor('vertical-scale-bar', this.color)
+        ScaleBarService.setSVGElementColor('vertical-scale-bar-label', this.color)
+    }
+
+    static setSVGElementColor(elementID, color){
+        const element = document.getElementById(`${ elementID }`)
+        element.setAttribute("fill", `${ rgb255String(threeJSColorToRGB255(color)) }`)
     }
 
     updateScaleBars(scaleBarBounds) {
@@ -68,6 +90,8 @@ class ScaleBarService {
     insertScaleBarDOM() {
 
         let fragment
+        let bar
+        let label
 
         const horizontalHTML =
             `<div id="spacewalk-horizontal-scale-bar-container" style="position: absolute;user-select: none;; display: none">
@@ -96,6 +120,11 @@ class ScaleBarService {
         fragment = document.createRange().createContextualFragment(verticalHTML)
         this.verticalContainer =  fragment.firstChild
         this.renderContainer.appendChild(this.verticalContainer)
+
+        ScaleBarService.setSVGElementColor('horizontal-scale-bar', this.color)
+        ScaleBarService.setSVGElementColor('horizontal-scale-bar-label', this.color)
+        ScaleBarService.setSVGElementColor('vertical-scale-bar', this.color)
+        ScaleBarService.setSVGElementColor('vertical-scale-bar-label', this.color)
 
     }
 
