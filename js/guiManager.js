@@ -123,6 +123,29 @@ class GUIManager {
             el.style.display = 'block';
         }
     }
+
+    static setRenderStyle(renderStyle) {
+        const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
+        if (renderStyle === Ribbon.renderStyle) {
+            const ribbonRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ribbon');
+            if (ribbonRadio) {
+                ribbonRadio.checked = true;
+            }
+        } else if (renderStyle === BallAndStick.renderStyle) {
+            const ballStickRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ball-stick');
+            if (ballStickRadio) {
+                ballStickRadio.checked = true;
+            }
+        }
+    }
+
+    static getRenderStyle() {
+        const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
+        const checkedInput = uiManagerPanel.querySelector("input[name='spacewalk-render-style']:checked");
+        const id = checkedInput ? checkedInput.id : null;
+        return id === 'spacewalk-render-style-ball-stick' ? BallAndStick.renderStyle : Ribbon.renderStyle;
+    }
+
 }
 
 function configureRenderStyleControl(input, renderStyle) {
@@ -135,29 +158,5 @@ function configureRenderStyleControl(input, renderStyle) {
     });
 
 }
-
-function setRenderStyle(renderStyle) {
-    const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
-    if (renderStyle === Ribbon.renderStyle) {
-        const ribbonRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ribbon');
-        if (ribbonRadio) {
-            ribbonRadio.checked = true;
-        }
-    } else if (renderStyle === BallAndStick.renderStyle) {
-        const ballStickRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ball-stick');
-        if (ballStickRadio) {
-            ballStickRadio.checked = true;
-        }
-    }
-}
-
-function getRenderStyle() {
-    const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
-    const checkedInput = uiManagerPanel.querySelector("input[name='spacewalk-render-style']:checked");
-    const id = checkedInput ? checkedInput.id : null;
-    return id === 'spacewalk-render-style-ball-stick' ? BallAndStick.renderStyle : Ribbon.renderStyle;
-}
-
-export { setRenderStyle, getRenderStyle }
 
 export default GUIManager;
