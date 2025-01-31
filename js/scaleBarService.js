@@ -8,8 +8,8 @@ class ScaleBarService {
     constructor(renderContainer) {
         this.renderContainer = renderContainer
 
-        // this.color = appleCrayonColorThreeJS('iron')
-        this.color = appleCrayonColorThreeJS('salmon')
+        this.color = appleCrayonColorThreeJS('iron')
+        // this.color = appleCrayonColorThreeJS('salmon')
 
         this.colorPicker = createColorPicker(document.querySelector(`div[data-colorpicker='scale-bars']`), this.color, color => this.setColor(color));
     }
