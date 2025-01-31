@@ -14,14 +14,13 @@ import Panel, { doInspectPanelVisibilityCheckbox }  from "./panel.js";
 import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
-import GUIManager, {createColorPicker, updateColorPicker} from "./guiManager.js";
 import LiveContactMapService, {defaultDistanceThreshold} from "./juicebox/liveContactMapService.js";
 import LiveDistanceMapService from "./juicebox/liveDistanceMapService.js";
 import TraceSelector from './traceSelector.js'
 import GenomicNavigator from './genomicNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
-import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/colorUtils.js";
+import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor, createColorPicker, updateColorPicker } from "./utils/colorUtils.js";
 import {getUrlParams, toJSON, loadSession, uncompressSessionURL} from "./sessionServices.js"
 import {createSpacewalkFileLoaders} from './spacewalkFileLoadWidgetServices.js'
 import BallHighlighter from "./ballHighlighter.js";
@@ -31,10 +30,12 @@ import {createShareWidgets, shareWidgetConfigurator} from './share/shareWidgets.
 import {showGlobalSpinner, hideGlobalSpinner, getMouseXY} from './utils/utils.js'
 import {configureRenderContainerDrag} from "./renderContainerDrag.js"
 import ScaleBarService from "./scaleBarService.js"
+import GUIManager from "./guiManager.js"
 import {showRelease} from "./utils/release.js"
 import { spacewalkConfig } from "../spacewalk-config.js";
 import 'juicebox.js/dist/css/juicebox.css'
 import '../styles/app.scss'
+
 
 let pointCloud;
 let ribbon;

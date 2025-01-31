@@ -8,6 +8,7 @@ import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js'
 import Gnomon, { gnomonConfigurator } from './gnomon.js'
 import {setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
 import Ribbon from './ribbon.js'
+import {getRenderStyle} from "./guiManager.js"
 import {
     scene,
     pointCloud,
@@ -22,6 +23,7 @@ import {
     createHemisphereLight,
     updateSceneBackgroundColorpicker
 } from "./app.js"
+
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -58,7 +60,7 @@ class SceneManager {
         await ensembleManager.loadURL(url, traceKey, ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
-        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : guiManager.getRenderStyle())
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : getRenderStyle())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
         setMaterialProvider(colorRampMaterialProvider)
@@ -77,7 +79,7 @@ class SceneManager {
         await ensembleManager.loadEnsembleGroup(ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
-        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : guiManager.getRenderStyle())
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : getRenderStyle())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
         setMaterialProvider(colorRampMaterialProvider)
