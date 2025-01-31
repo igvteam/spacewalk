@@ -1,11 +1,6 @@
 import * as THREE from "three";
 import {appleCrayonColorThreeJS, rgba255String, threeJSColorToRGB255} from "./utils/colorUtils.js"
-import {
-    createColorPicker,
-    doConfigureGroundplaneHidden,
-    setGroundplaneVisibilityCheckboxStatus,
-    updateColorPicker
-} from "./guiManager.js"
+import { createColorPicker, updateColorPicker } from "./guiManager.js"
 
 class GroundPlane extends THREE.GridHelper {
 
@@ -93,9 +88,21 @@ class GroundPlane extends THREE.GridHelper {
 
 }
 
+function doConfigureGroundplaneHidden() {
+    const input = document.getElementById('spacewalk_ui_manager_groundplane');
+    return !(input && input.checked);
+}
+
+function setGroundplaneVisibilityCheckboxStatus(status) {
+    const input = document.getElementById('spacewalk_ui_manager_groundplane');
+    if (input) {
+        input.checked = status;
+    }
+}
+
 export default GroundPlane;
 
-export const groundPlaneConfigurator = (position, size) => {
+export function groundPlaneConfigurator  (position, size)  {
 
     return {
         size,
@@ -105,4 +112,4 @@ export const groundPlaneConfigurator = (position, size) => {
         opacity: 0.25,
         isHidden: doConfigureGroundplaneHidden()
     }
-};
+}
