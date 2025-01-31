@@ -1,6 +1,5 @@
 import * as THREE from "three";
-import {appleCrayonColorThreeJS, rgba255String, threeJSColorToRGB255} from "./utils/colorUtils.js"
-import { createColorPicker, updateColorPicker } from "./guiManager.js"
+import {appleCrayonColorThreeJS, createColorPicker, updateColorPicker } from "./utils/colorUtils.js"
 
 class GroundPlane extends THREE.GridHelper {
 

@@ -2,20 +2,11 @@ import * as THREE from "three"
 import hic from 'juicebox.js'
 import {BGZip} from 'igv-utils'
 import Panel from './panel.js'
-import {
-    scene,
-    igvPanel,
-    juiceboxPanel,
-    ensembleManager,
-    sceneManager,
-    liveContactMapService,
-    SpacewalkGlobals,
-    guiManager,
-    cameraLightingRig
-} from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {defaultDistanceThreshold} from './juicebox/liveContactMapService.js'
 import { shortenURL } from "./share/shareHelper.js"
+import {setRenderStyle} from "./guiManager.js"
+import { scene, igvPanel, juiceboxPanel, ensembleManager, sceneManager, liveContactMapService, SpacewalkGlobals, guiManager, cameraLightingRig } from './app.js'
 
 async function loadSession(json) {
 
@@ -64,7 +55,7 @@ async function loadSpacewalkSession (session) {
         backgroundColor
     } = session
 
-    guiManager.setRenderStyle(renderStyle)
+    setRenderStyle(renderStyle)
 
     await sceneManager.ingestEnsemblePath(url, traceKey, ensembleGroupKey)
 

@@ -1,6 +1,6 @@
 import * as THREE from "three"
 import {vectorMax, vectorMin} from "./utils/mathUtils.js"
-import {createColorPicker} from "./guiManager"
+import {createColorPicker} from "./utils/colorUtils.js"
 import {appleCrayonColorThreeJS, rgb255String, threeJSColorToRGB255} from "./utils/colorUtils"
 
 class ScaleBarService {
