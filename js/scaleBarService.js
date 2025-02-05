@@ -5,11 +5,13 @@ import {appleCrayonColorThreeJS, rgb255String, threeJSColorToRGB255} from "./uti
 
 class ScaleBarService {
 
-    constructor(renderContainer) {
+    constructor(renderContainer, isHidden) {
         this.renderContainer = renderContainer
 
         this.color = appleCrayonColorThreeJS('iron')
         // this.color = appleCrayonColorThreeJS('salmon')
+
+        this.visible = !(isHidden);
 
         this.colorPicker = createColorPicker(document.querySelector(`div[data-colorpicker='scale-bars']`), this.color, color => this.setColor(color));
     }
@@ -22,11 +24,6 @@ class ScaleBarService {
         ScaleBarService.setSVGElementColor('horizontal-scale-bar-label', this.color)
         ScaleBarService.setSVGElementColor('vertical-scale-bar', this.color)
         ScaleBarService.setSVGElementColor('vertical-scale-bar-label', this.color)
-    }
-
-    static setSVGElementColor(elementID, color){
-        const element = document.getElementById(`${ elementID }`)
-        element.setAttribute("fill", `${ rgb255String(threeJSColorToRGB255(color)) }`)
     }
 
     updateScaleBars(scaleBarBounds) {
@@ -128,25 +125,32 @@ class ScaleBarService {
 
     }
 
-    configureGUI(scaleBarWidgetElement){
+    toggle() {
+        const status = !this.visible
+        this.setVisibility(status)
+    }
 
-        scaleBarWidgetElement.addEventListener('change', e => {
+    setVisibility(status) {
+        true === status ? this.present() : this.dismiss()
+    }
 
-            e.stopPropagation()
+    present() {
+        this.visible = true;
+        this.horizontalContainer.style.display = 'block'
+        this.verticalContainer.style.display = 'block'
+        ScaleBarService.setRulerWidgetVisibilityStatus(this.visible);
+    }
 
-            if ('none' === this.horizontalContainer.style.display) {
-                this.horizontalContainer.style.display = 'block'
-            }  else {
-                this.horizontalContainer.style.display = 'none'
-            }
+    dismiss() {
+        this.visible = false;
+        this.horizontalContainer.style.display = 'none'
+        this.verticalContainer.style.display = 'none'
+        ScaleBarService.setRulerWidgetVisibilityStatus(this.visible);
+    }
 
-            if ('none' === this.verticalContainer.style.display) {
-                this.verticalContainer.style.display = 'block'
-            }  else {
-                this.verticalContainer.style.display = 'none'
-            }
-        })
-
+    static setSVGElementColor(elementID, color){
+        const element = document.getElementById(`${ elementID }`)
+        element.setAttribute("fill", `${ rgb255String(threeJSColorToRGB255(color)) }`)
     }
 
     static calculateScaleBarBounds(convexHullMesh, camera, container) {
@@ -203,6 +207,19 @@ class ScaleBarService {
 
         return { north, south, east, west, width, height, widthNM, heightNM }
 
+    }
+
+    static setRulerWidgetVisibilityStatus(status) {
+        const input = document.getElementById('spacewalk_ui_manager_scale_bars');
+        if (input) {
+            input.checked = status;
+        }
+    }
+
+    static setScaleBarsHidden() {
+        const input = document.getElementById('spacewalk_ui_manager_scale_bars')
+        const status = input.checked
+        return !status
     }
 
 }
