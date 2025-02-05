@@ -33,8 +33,11 @@ class GUIManager {
             sceneManager.getGnomon().toggle()
         })
 
-        // Configure Ruler Toggle
-        scaleBarService.configureGUI(document.querySelector(`#spacewalk_ui_manager_scale_bars`))
+        // Configure  Ruler Toggle
+        document.querySelector(`#spacewalk_ui_manager_scale_bars`).addEventListener('change', e => {
+            e.stopPropagation()
+            scaleBarService.toggle()
+        })
 
         const checkboxDropdown = document.querySelector('#spacewalk-viewers-dropdown-menu')
         const inputIDList = checkboxDropdown.querySelectorAll('input')
