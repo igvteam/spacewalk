@@ -55,7 +55,7 @@ async function loadSpacewalkSession (session) {
         backgroundColor
     } = session
 
-    GUIManager.setRenderStyle(renderStyle)
+    GUIManager.updateRenderStyleWidgetState(renderStyle)
 
     await sceneManager.ingestEnsemblePath(url, traceKey, ensembleGroupKey)
 
