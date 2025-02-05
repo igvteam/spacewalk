@@ -37,7 +37,6 @@ class EnsembleManager {
 
         this.datasource.currentEnsembleGroupKey = ensembleGroupKey
         await this.datasource.updateWithEnsembleGroupKey(ensembleGroupKey)
-        this.locus = this.datasource.locus
         this.currentIndex = 0
         this.currentTrace = await this.createTrace(this.currentIndex)
 
@@ -57,12 +56,6 @@ class EnsembleManager {
 
         this.datasource = datasource
 
-        const { locus, isPointCloud } = datasource
-
-        this.locus = locus
-
-        this.isPointCloud = isPointCloud
-
         const initialIndex = index || 0
         this.currentTrace = await this.createTrace(initialIndex)
         this.currentIndex = initialIndex
@@ -80,12 +73,6 @@ class EnsembleManager {
         this.genomeAssembly = genomeAssembly
 
         this.datasource = datasource
-
-        const { locus, isPointCloud } = datasource
-
-        this.locus = locus
-
-        this.isPointCloud = isPointCloud
 
         const initialIndex = index || 0
         this.currentTrace = await this.createTrace(initialIndex)
@@ -166,6 +153,18 @@ class EnsembleManager {
                     const { x, y, z, isMissingData } = true === this.isPointCloud ? record.centroid : record.xyz
                     return true === isMissingData ? { isMissingData } : { x, y, z }
                 })
+        }
+    }
+
+    get isPointCloud(){
+        return this.datasource.isPointCloud
+    }
+
+    get locus(){
+        if (this.datasource) {
+            return this.datasource.locus
+        } else {
+            return undefined
         }
     }
 
