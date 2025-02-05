@@ -59,7 +59,7 @@ class SceneManager {
         await ensembleManager.loadURL(url, traceKey, ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
-        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyle())
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyleWidgetState())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
         setMaterialProvider(colorRampMaterialProvider)
@@ -78,7 +78,7 @@ class SceneManager {
         await ensembleManager.loadEnsembleGroup(ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
-        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyle())
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyleWidgetState())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
         setMaterialProvider(colorRampMaterialProvider)

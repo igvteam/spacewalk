@@ -124,25 +124,31 @@ class GUIManager {
         }
     }
 
-    static setRenderStyle(renderStyle) {
-        const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
+    static updateRenderStyleWidgetState(renderStyle) {
+
         if (renderStyle === Ribbon.renderStyle) {
-            const ribbonRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ribbon');
+            const ribbonRadio = document.getElementById('spacewalk-render-style-ribbon');
             if (ribbonRadio) {
                 ribbonRadio.checked = true;
             }
         } else if (renderStyle === BallAndStick.renderStyle) {
-            const ballStickRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ball-stick');
+            const ballStickRadio = document.getElementById('spacewalk-render-style-ball-stick');
             if (ballStickRadio) {
                 ballStickRadio.checked = true;
             }
         }
     }
 
-    static getRenderStyle() {
+    static getRenderStyleWidgetState() {
         const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
         const checkedInput = uiManagerPanel.querySelector("input[name='spacewalk-render-style']:checked");
         const id = checkedInput ? checkedInput.id : null;
+
+        if (null === id) {
+            console.warn(`Spacewalk Render Style Widget - No render style is selected. Will default to ${ BallAndStick.renderStyle }`)
+            return BallAndStick.renderStyle
+        }
+
         return id === 'spacewalk-render-style-ball-stick' ? BallAndStick.renderStyle : Ribbon.renderStyle;
     }
 
