@@ -114,7 +114,7 @@ async function createDomainObjects() {
     const renderContainer = document.querySelector('#spacewalk-threejs-canvas-container')
     configureThreeJS(renderContainer)
 
-    scaleBarService = new ScaleBarService(renderContainer)
+    scaleBarService = new ScaleBarService(renderContainer, ScaleBarService.setScaleBarsHidden())
 
 }
 

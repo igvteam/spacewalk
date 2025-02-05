@@ -4,8 +4,8 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {getCameraPoseAlongAxis} from './cameraLightingRig.js'
 import BallAndStick from "./ballAndStick.js"
 import PointCloud from "./pointCloud.js"
-import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js'
-import Gnomon, { gnomonConfigurator } from './gnomon.js'
+import GroundPlane from './groundPlane.js'
+import Gnomon from './gnomon.js'
 import GUIManager from "./guiManager.js"
 import {setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
 import Ribbon from './ribbon.js'
@@ -22,7 +22,7 @@ import {
     createHemisphereLight,
     updateSceneBackgroundColorpicker
 } from "./app.js"
-
+import {appleCrayonColorThreeJS} from "./utils/colorUtils"
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -117,11 +117,29 @@ class SceneManager {
         scene.add(createHemisphereLight())
 
         // GroundPlane
-        const groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(center.x, min.y, center.z), boundingDiameter))
+        const groundPlaneConfig =
+            {
+            size: boundingDiameter,
+            divisions: 16,
+            position: new THREE.Vector3(center.x, min.y, center.z),
+            color: appleCrayonColorThreeJS( 'iron'),
+            opacity: 0.25,
+            isHidden: GroundPlane.setGroundPlaneHidden()
+            };
+
+        const groundPlane = new GroundPlane(groundPlaneConfig)
         scene.add(groundPlane)
 
         // Gnomon
-        const gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter))
+        const gnomonConfig =
+            {
+                min,
+                max,
+                boundingDiameter,
+                color: appleCrayonColorThreeJS('iron'),
+                isHidden: Gnomon.setGnomonHidden()
+            };
+        const gnomon = new Gnomon(gnomonConfig)
         gnomon.addToScene(scene)
 
     }

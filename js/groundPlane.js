@@ -58,7 +58,7 @@ class GroundPlane extends THREE.GridHelper {
     setState({ r, g, b, visibility}) {
         this.setVisibility(visibility);
         this.setColor(new THREE.Color(r, g, b))
-        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='gnomon']`), {r, g, b})
+        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='groundplane']`), {r, g, b})
     }
 
     toJSON() {
@@ -72,43 +72,31 @@ class GroundPlane extends THREE.GridHelper {
 
     toggle() {
         this.visible = !this.visible;
-        setGroundplaneVisibilityCheckboxStatus(this.visible);
+        GroundPlane.setGroundPlaneWidgetVisibilityStatus(this.visible);
     }
 
     present() {
         this.visible = true;
-        setGroundplaneVisibilityCheckboxStatus(this.visible);
+        GroundPlane.setGroundPlaneWidgetVisibilityStatus(this.visible);
     }
 
     dismiss() {
         this.visible = false;
-        setGroundplaneVisibilityCheckboxStatus(this.visible);
+        GroundPlane.setGroundPlaneWidgetVisibilityStatus(this.visible);
     }
 
-}
-
-function doConfigureGroundplaneHidden() {
-    const input = document.getElementById('spacewalk_ui_manager_groundplane');
-    return !(input && input.checked);
-}
-
-function setGroundplaneVisibilityCheckboxStatus(status) {
-    const input = document.getElementById('spacewalk_ui_manager_groundplane');
-    if (input) {
-        input.checked = status;
+    static setGroundPlaneHidden() {
+        const input = document.getElementById('spacewalk_ui_manager_groundplane');
+        return !(input && input.checked);
     }
+
+    static setGroundPlaneWidgetVisibilityStatus(status) {
+        const input = document.getElementById('spacewalk_ui_manager_groundplane');
+        if (input) {
+            input.checked = status;
+        }
+    }
+
 }
 
 export default GroundPlane;
-
-export function groundPlaneConfigurator  (position, size)  {
-
-    return {
-        size,
-        divisions: 16,
-        position,
-        color: appleCrayonColorThreeJS( 'iron'),
-        opacity: 0.25,
-        isHidden: doConfigureGroundplaneHidden()
-    }
-}
