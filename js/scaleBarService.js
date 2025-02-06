@@ -1,6 +1,6 @@
 import * as THREE from "three"
 import {vectorMax, vectorMin} from "./utils/mathUtils.js"
-import {createColorPicker} from "./utils/colorUtils.js"
+import {createColorPicker, updateColorPicker} from "./utils/colorUtils.js"
 import {appleCrayonColorThreeJS, rgb255String, threeJSColorToRGB255} from "./utils/colorUtils"
 
 class ScaleBarService {
@@ -146,6 +146,18 @@ class ScaleBarService {
         this.horizontalContainer.style.display = 'none'
         this.verticalContainer.style.display = 'none'
         ScaleBarService.setRulerWidgetVisibilityStatus(this.visible);
+    }
+
+    setState({ r, g, b, visibility}) {
+
+        this.setColor(new THREE.Color(r, g, b))
+        this.setVisibility(visibility)
+        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='scale-bars']`), {r, g, b})
+    }
+
+    toJSON(){
+        const { r, g, b } = this.color
+        return { r, g, b, visibility: this.visible ? 'visible' : 'hidden' }
     }
 
     static setSVGElementColor(elementID, color){
