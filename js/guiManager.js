@@ -8,15 +8,20 @@ class GUIManager {
 
     constructor ({ settingsButton, panel }) {
 
+        // Present/Dismiss Settings Panel
         settingsButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
-        });
+            panel.style.display = 'none' === panel.style.display ? 'block' : 'none'
+        })
 
-        document.querySelector('#spacewalk-threejs-container').addEventListener('click', (e) => {
-            e.stopPropagation();
-            panel.style.display = 'none';
-        });
+        document.getElementById('spacewalk-root-container').addEventListener('click', (e) => {
+            e.stopPropagation()
+
+            if (e.target === e.currentTarget){
+                panel.style.display = 'none'
+            }
+
+        })
 
         panel.addEventListener('click', (e) => e.stopPropagation());
         panel.addEventListener('mousemove', (e) => e.stopPropagation());
