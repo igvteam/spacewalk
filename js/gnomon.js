@@ -60,13 +60,13 @@ class Gnomon extends THREE.AxesHelper {
 
         const colorString = rgb255String( threeJSColorToRGB255(color) );
         this.xAxisSprite.material.dispose();
-        this.xAxisSprite.material = getAxisSpriteMaterial( colorString, this.max.x - this.min.x);
+        this.xAxisSprite.material = Gnomon.getAxisSpriteMaterial( colorString, this.max.x - this.min.x);
 
         this.yAxisSprite.material.dispose();
-        this.yAxisSprite.material = getAxisSpriteMaterial( colorString, this.max.y - this.min.y);
+        this.yAxisSprite.material = Gnomon.getAxisSpriteMaterial( colorString, this.max.y - this.min.y);
 
         this.zAxisSprite.material.dispose();
-        this.zAxisSprite.material = getAxisSpriteMaterial( colorString, this.max.z - this.min.z);
+        this.zAxisSprite.material = Gnomon.getAxisSpriteMaterial( colorString, this.max.z - this.min.z);
 
     }
 
@@ -153,7 +153,7 @@ class Gnomon extends THREE.AxesHelper {
     }
 
     static getAxisSprite(x, y, z, length, boundingDiameter, color) {
-        const sprite = new THREE.Sprite(this.getAxisSpriteMaterial(color, length));
+        const sprite = new THREE.Sprite(Gnomon.getAxisSpriteMaterial(color, length));
         sprite.position.set(x, y, z);
 
         // console.log(`gnomon. scale ratio ${ 512/boundingDiameter }`);
