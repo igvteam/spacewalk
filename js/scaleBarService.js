@@ -126,12 +126,13 @@ class ScaleBarService {
     }
 
     toggle() {
-        const status = !this.visible
-        this.setVisibility(status)
+        const isVisible = !this.visible
+        const visibilityString = true === isVisible ? 'visible' : 'hidden'
+        this.setVisibility(visibilityString)
     }
 
-    setVisibility(status) {
-        true === status ? this.present() : this.dismiss()
+    setVisibility(visibilityString) {
+        'visible' === visibilityString ? this.present() : this.dismiss()
     }
 
     present() {
