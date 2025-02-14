@@ -8,12 +8,13 @@ class GUIManager {
 
     constructor ({ settingsButton, panel }) {
 
-        // Present/Dismiss Settings Panel
+        // Present/Dismiss Settings Panel via Settings Button
         settingsButton.addEventListener('click', (e) => {
             e.stopPropagation();
             panel.style.display = 'none' === panel.style.display ? 'block' : 'none'
         })
 
+        // Dismiss Settings Panel by "clicking away"
         document.getElementById('spacewalk-root-container').addEventListener('click', (e) => {
             e.stopPropagation()
 
@@ -44,26 +45,23 @@ class GUIManager {
             scaleBarService.toggle()
         })
 
-        const checkboxDropdown = document.querySelector('#spacewalk-viewers-dropdown-menu')
-        const inputIDList = checkboxDropdown.querySelectorAll('input')
+        const checkboxDropdownMenu = document.querySelector('#spacewalk-viewers-dropdown-menu')
 
-        for (let i = 0; i < inputIDList.length; i++) {
+        for (const inputElement of checkboxDropdownMenu.querySelectorAll('input')) {
 
-            const input = inputIDList[ i ]
-            input.addEventListener('change', event => {
+            inputElement.addEventListener('change', event => {
 
                 event.preventDefault()
                 event.stopPropagation()
 
-                const dropdown = input.closest('.dropdown');
+                const dropdown = inputElement.closest('.dropdown');
                 const toggleButton = dropdown ? dropdown.querySelector('.dropdown-toggle') : null;
                 if (toggleButton && typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
                     const dropdownInstance = bootstrap.Dropdown.getOrCreateInstance(toggleButton);
                     dropdownInstance.toggle();
                 }
 
-
-                const payload = inputIDList[ i ].dataset.target
+                const payload = inputElement.dataset.target
                 SpacewalkEventBus.globalBus.post({ type: 'ToggleUIControl', data: { payload } })
             })
 
