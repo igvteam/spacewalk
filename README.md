@@ -19,7 +19,7 @@ Spacewalk require a modern web browser with support for Javascript ECMAScript 20
 ### Installation
 * Clone this repository.
 ````
-git clone git@github.com:igvteam/spacewalk.git
+git clone https://github.com/igvteam/spacewalk.git
 ````
 * Install
 ````
