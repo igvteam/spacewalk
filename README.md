@@ -21,6 +21,10 @@ Spacewalk require a modern web browser with support for Javascript ECMAScript 20
 ````
 git clone https://github.com/igvteam/spacewalk.git
 ````
+* Change directory to spacewalk
+````
+cd spacewalk
+````
 * Install
 ````
 npm install
