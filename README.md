@@ -1,6 +1,4 @@
-## Spacewalk Overview
-
-![spacewalk](readme_img/spacewalk-screenshot.png)
+## Spacewalk
 
 Spacewalk provides interactive 3D visualization of super-resolution microscopy data, 
 with integrated genomic analysis via the genomics browser [igv.js](https://github.com/igvteam/igv.js) 
