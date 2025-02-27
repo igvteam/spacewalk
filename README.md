@@ -2,7 +2,7 @@
 
 An interactive 3D visualization application for super-resolution microscopy data, featuring seamless integration with IGV genomics browser ([igv.js](https://github.com/igvteam/igv.js)) and Juicebox Hi-C map viewer ([juicebox.js](https://github.com/igvteam/juicebox.js)).
 
-🚀 **Try Spacewalk**: [Access the application on Aiden Lab](https://aidenlab.org/spacewalk/)
+🚀 **Spacewalk is hosted at Aiden Lab**: [Spacewalk](https://aidenlab.org/spacewalk/)
 
 ## Features
 
@@ -118,7 +118,7 @@ Current version: 7.0.0
 
 ## Developer Installation
 
-This section is for developers who want to run their own instance of Spacewalk. Most users should use the hosted version at [aidenlab.org/spacewalk](https://aidenlab.org/spacewalk/).
+This section is for developers who want to run their own instance of Spacewalk.
 
 ### Prerequisites
 - Node.js >= v20.8.0
