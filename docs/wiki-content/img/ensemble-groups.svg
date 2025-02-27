@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="172px" height="22px" viewBox="0 0 172 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>ensembles</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Letter" transform="translate(-306, -41)">
+            <g id="Group" transform="translate(74, 27)">
+                <g id="ensembles" transform="translate(232, 14)">
+                    <g id="enemble_N" transform="translate(150, 0)">
+                        <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" x="0.5" y="0.5" width="21" height="21"></rect>
+                        <text id="N" fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="9" font-weight="normal">
+                            <tspan x="3.0845" y="14">e_N</tspan>
+                        </text>
+                    </g>
+                    <text id=".-.-." fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal" letter-spacing="-0.572">
+                        <tspan x="122.09" y="12">. . .</tspan>
+                    </text>
+                    <g id="ensemble_2" transform="translate(80, 0)">
+                        <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" x="0.5" y="0.5" width="21" height="21"></rect>
+                        <text id="2" fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="9" font-weight="normal">
+                            <tspan x="3.8315" y="14">e_2</tspan>
+                        </text>
+                    </g>
+                    <g id="ensemble_1" transform="translate(40, 0)">
+                        <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" x="0.5" y="0.5" width="21" height="21"></rect>
+                        <text id="1" fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="9" font-weight="normal">
+                            <tspan x="3.8315" y="14">e_1</tspan>
+                        </text>
+                    </g>
+                    <g id="ensemble_0">
+                        <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" x="0.5" y="0.5" width="21" height="21"></rect>
+                        <text id="0" fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="9" font-weight="normal">
+                            <tspan x="3.8315" y="14">e_0</tspan>
+                        </text>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

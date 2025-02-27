@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="449px" height="480px" viewBox="0 0 449 480" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>multi-point detail</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Letter" transform="translate(-85, -175)">
+            <g id="multi-point-detail" transform="translate(85, 175)">
+                <g id="spatial_position_pointcloud" transform="translate(173, 0)">
+                    <g id="trace-1" transform="translate(71, 58)">
+                        <g id="r-6" transform="translate(0, 344)">
+                            <rect id="xyz" fill="#6D7278" x="0" y="0" width="41" height="78"></rect>
+                            <text id=".-.-.-copy" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal" letter-spacing="-0.572">
+                                <tspan x="13.09" y="68.8">. . .</tspan>
+                            </text>
+                            <text id="xyz" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="55.6">xyz</tspan>
+                            </text>
+                            <text id="xyz-copy-4" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="44.8">xyz</tspan>
+                            </text>
+                            <text id="xyz-copy-5" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="32.8">xyz</tspan>
+                            </text>
+                            <line x1="0.5" y1="18.6" x2="40.5" y2="18.6" id="Line-4" stroke-opacity="0.25" stroke="#FFFFFF" stroke-linecap="square"></line>
+                            <text id="r_6" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="12.15" y="12.4">r_6</tspan>
+                            </text>
+                        </g>
+                        <g id="r-4" transform="translate(0, 261)">
+                            <rect id="xyz" fill="#6D7278" x="0" y="0" width="41" height="78"></rect>
+                            <text id=".-.-.-copy" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal" letter-spacing="-0.572">
+                                <tspan x="13.09" y="68.8">. . .</tspan>
+                            </text>
+                            <text id="xyz" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="55.6">xyz</tspan>
+                            </text>
+                            <text id="xyz-copy-4" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="44.8">xyz</tspan>
+                            </text>
+                            <text id="xyz-copy-5" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="32.8">xyz</tspan>
+                            </text>
+                            <line x1="0.5" y1="18.6" x2="40.5" y2="18.6" id="Line-4" stroke-opacity="0.25" stroke="#FFFFFF" stroke-linecap="square"></line>
+                            <text id="r_4" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="12.15" y="12.4">r_4</tspan>
+                            </text>
+                        </g>
+                        <g id="r-3" transform="translate(0, 178)">
+                            <rect id="xyz" fill="#6D7278" x="0" y="0" width="41" height="78"></rect>
+                            <text id=".-.-.-copy" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal" letter-spacing="-0.572">
+                                <tspan x="13.09" y="68.8">. . .</tspan>
+                            </text>
+                            <text id="xyz" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="55.6">xyz</tspan>
+                            </text>
+                            <text id="xyz-copy-4" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="44.8">xyz</tspan>
+                            </text>
+                            <text id="xyz-copy-5" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="32.8">xyz</tspan>
+                            </text>
+                            <line x1="0.5" y1="18.6" x2="40.5" y2="18.6" id="Line-4" stroke="#FFFFFF" stroke-linecap="square"></line>
+                            <text id="r_3" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667" fill="#FFFFFF">
+                                <tspan x="12.15" y="12.4">r_3</tspan>
+                            </text>
+                        </g>
+                        <g id="r-1" transform="translate(0, 95)">
+                            <rect id="xyz" fill="#6D7278" x="0" y="0" width="41" height="78"></rect>
+                            <text id=".-.-.-copy" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal" letter-spacing="-0.572">
+                                <tspan x="13.09" y="68.8">. . .</tspan>
+                            </text>
+                            <text id="xyz" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="55.6">xyz</tspan>
+                            </text>
+                            <text id="xyz-copy-4" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="44.8">xyz</tspan>
+                            </text>
+                            <text id="xyz-copy-5" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="32.8">xyz</tspan>
+                            </text>
+                            <line x1="0.5" y1="18.6" x2="40.5" y2="18.6" id="Line-4" stroke-opacity="0.25" stroke="#FFFFFF" stroke-linecap="square"></line>
+                            <text id="r_1" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="12.15" y="12.4">r_1</tspan>
+                            </text>
+                        </g>
+                        <g id="r-0" transform="translate(0, 25)">
+                            <rect id="xyz" fill="#6D7278" x="0" y="0" width="41" height="65"></rect>
+                            <text id=".-.-.-copy" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal" letter-spacing="-0.572">
+                                <tspan x="13.09" y="58">. . .</tspan>
+                            </text>
+                            <text id="xyz" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="47">xyz</tspan>
+                            </text>
+                            <text id="xyz-copy-4" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="38">xyz</tspan>
+                            </text>
+                            <text id="xyz-copy-5" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="11.5" y="28">xyz</tspan>
+                            </text>
+                            <line x1="0.5" y1="15.5" x2="40.5" y2="15.5" id="Line-4" stroke-opacity="0.25" stroke="#FFFFFF" fill-opacity="0.25" fill="#D8D8D8" stroke-linecap="square"></line>
+                            <text id="r_0" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold" letter-spacing="0.416666667">
+                                <tspan x="12.15" y="11">r_0</tspan>
+                            </text>
+                        </g>
+                        <rect stroke="#000000" x="0.5" y="0.5" width="40" height="19"></rect>
+                        <text id="1" fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal" letter-spacing="-0.572">
+                            <tspan x="12.632" y="14">t_1</tspan>
+                        </text>
+                    </g>
+                    <line x1="140.5" y1="20.5" x2="90.5" y2="58.5" id="Line-3-Copy-4" stroke="#000000" stroke-linecap="square"></line>
+                    <rect id="Rectangle" stroke="#000000" x="0.5" y="0.5" width="275" height="19"></rect>
+                    <text id="spatial_position" fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal">
+                        <tspan x="96.108" y="14">spatial_position</tspan>
+                    </text>
+                </g>
+                <g id="genomic_position">
+                    <g id="regions" transform="translate(0, 26)">
+                        <rect fill="#6D7278" x="0" y="0" width="139" height="154"></rect>
+                        <text id="…" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="15" font-weight="normal">
+                            <tspan x="62.5" y="145">…</tspan>
+                        </text>
+                        <text id="chr21-18180000-18210" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="132">chr21  18180000 18210000</tspan>
+                        </text>
+                        <text id="chr21-18150000-18180" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="115">chr21  18150000 18180000</tspan>
+                        </text>
+                        <text id="chr21-18120000-18150" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="98">chr21  18120000 18150000</tspan>
+                        </text>
+                        <text id="chr21-18090000-18120" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="81">chr21  18090000 18120000</tspan>
+                        </text>
+                        <text id="chr21-18060000-18090" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="64">chr21  18060000 18090000</tspan>
+                        </text>
+                        <text id="chr21-18030000-18060" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="47">chr21  18030000 18060000</tspan>
+                        </text>
+                        <text id="chr21-18000000-18030" fill-opacity="0.25" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="30">chr21  18000000 18030000</tspan>
+                        </text>
+                        <line x1="0.5" y1="15" x2="138.5" y2="15" id="Line" stroke="#FFFFFF" stroke-linecap="square"></line>
+                        <text fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="52.135" y="10">regions</tspan>
+                        </text>
+                    </g>
+                    <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" x="0.5" y="0.5" width="138" height="19"></rect>
+                    <text fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal">
+                        <tspan x="21.546" y="14">genomic_position</tspan>
+                    </text>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

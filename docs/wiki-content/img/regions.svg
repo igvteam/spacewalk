@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="465px" height="640px" viewBox="0 0 465 640" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Letter" transform="translate(-74, -27)">
+            <g id="Group" transform="translate(74, 27)">
+                <g id="genomic_position" transform="translate(11, 148)">
+                    <g id="regions" transform="translate(0, 26)">
+                        <rect fill="#6D7278" x="0" y="0" width="139" height="154"></rect>
+                        <text id="…" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="15" font-weight="normal">
+                            <tspan x="62.5" y="145">…</tspan>
+                        </text>
+                        <text id="chr21-18180000-18210" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="132">chr21  18180000 18210000</tspan>
+                        </text>
+                        <text id="chr21-18150000-18180" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="115">chr21  18150000 18180000</tspan>
+                        </text>
+                        <text id="chr21-18120000-18150" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="98">chr21  18120000 18150000</tspan>
+                        </text>
+                        <text id="chr21-18090000-18120" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="81">chr21  18090000 18120000</tspan>
+                        </text>
+                        <text id="chr21-18060000-18090" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="64">chr21  18060000 18090000</tspan>
+                        </text>
+                        <text id="chr21-18030000-18060" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="47">chr21  18030000 18060000</tspan>
+                        </text>
+                        <text id="chr21-18000000-18030" fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="8.01" y="30">chr21  18000000 18030000</tspan>
+                        </text>
+                        <line x1="0.5" y1="15" x2="138.5" y2="15" id="Line" stroke="#FFFFFF" stroke-linecap="square"></line>
+                        <text fill="#FFFFFF" fill-rule="nonzero" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="10" font-weight="bold">
+                            <tspan x="52.135" y="10">regions</tspan>
+                        </text>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

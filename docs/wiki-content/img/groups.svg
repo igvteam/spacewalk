@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="465px" height="640px" viewBox="0 0 465 640" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Letter" transform="translate(-74, -27)">
+            <g id="Group" transform="translate(74, 27)">
+                <g id="spatial_position_ball_&amp;_stick">
+                    <rect id="frame-copy-2" fill="#FFFFFF" x="0" y="0" width="465" height="339"></rect>
+                    <rect id="Rectangle" stroke="#000000" x="184.5" y="148.5" width="275" height="19"></rect>
+                    <text id="spatial_position" fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal">
+                        <tspan x="280.108" y="162">spatial_position</tspan>
+                    </text>
+                    <line x1="244.5" y1="34.5" x2="322.5" y2="148.5" id="Line-3-Copy-6" stroke="#000000" stroke-linecap="square"></line>
+                </g>
+                <g id="genomic_position" transform="translate(11, 36.5)">
+                    <rect id="Rectangle" stroke="#000000" x="0.5" y="112" width="138" height="19"></rect>
+                    <text fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal">
+                        <tspan x="21.546" y="125.5">genomic_position</tspan>
+                    </text>
+                    <line x1="233.5" y1="9.13158438e-15" x2="67" y2="111.5" id="Line-3" stroke="#000000" stroke-linecap="square"></line>
+                </g>
+                <g id="ensembles" transform="translate(232, 14)">
+                    <g id="enemble_N" transform="translate(150, 0)">
+                        <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" x="0.5" y="0.5" width="21" height="21"></rect>
+                        <text id="N" fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="9" font-weight="normal">
+                            <tspan x="3.0845" y="14">e_N</tspan>
+                        </text>
+                    </g>
+                    <text id=".-.-." fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal" letter-spacing="-0.572">
+                        <tspan x="122.09" y="12">. . .</tspan>
+                    </text>
+                    <g id="ensemble_2" transform="translate(80, 0)">
+                        <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" x="0.5" y="0.5" width="21" height="21"></rect>
+                        <text id="2" fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="9" font-weight="normal">
+                            <tspan x="3.8315" y="14">e_2</tspan>
+                        </text>
+                    </g>
+                    <g id="ensemble_1" transform="translate(40, 0)">
+                        <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" x="0.5" y="0.5" width="21" height="21"></rect>
+                        <text id="1" fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="9" font-weight="normal">
+                            <tspan x="3.8315" y="14">e_1</tspan>
+                        </text>
+                    </g>
+                    <g id="ensemble_0">
+                        <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" x="0.5" y="0.5" width="21" height="21"></rect>
+                        <text id="0" fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="9" font-weight="normal">
+                            <tspan x="3.8315" y="14">e_0</tspan>
+                        </text>
+                    </g>
+                </g>
+                <g id="header" transform="translate(39, 11)">
+                    <rect id="Rectangle" stroke="#000000" fill="#FFFFFF" x="0.5" y="0.5" width="47" height="19"></rect>
+                    <text fill="#000000" fill-rule="nonzero" font-family="HelveticaNeue, Helvetica Neue" font-size="12" font-weight="normal">
+                        <tspan x="5.442" y="14">header</tspan>
+                    </text>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
