@@ -15,12 +15,6 @@ color_scheme: light
 search_enabled: true
 heading_anchors: true
 
-# Enable navigation
-nav_external_links:
-  - title: Launch Spacewalk
-    url: https://aidenlab.org/spacewalk/
-    hide_icon: true
-
 # Back to top link
 back_to_top: true
 back_to_top_text: "Back to top"
