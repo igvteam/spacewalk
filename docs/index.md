@@ -44,3 +44,33 @@ This mode displays chromatin centroids as balls connected by cylindrical sticks.
 - Check out our [User Guide](user-guide.md) for detailed instructions
 - Visit our [FAQ](faq.md) for common questions
 - For technical issues, please [report them on GitHub](https://github.com/igvteam/spacewalk/issues)
+
+## Developer Installation
+
+This section is for developers who want to run their own instance of Spacewalk.
+
+### Prerequisites
+- Node.js >= v20.8.0
+- npm >= v10.1.0
+- Modern web browser with ECMAScript 2015 support
+
+### Installation Steps
+
+```bash
+# Clone the repository
+git clone https://github.com/igvteam/spacewalk.git
+
+# Navigate to project directory
+cd spacewalk
+
+# Install dependencies
+npm install
+
+# Build the application
+npm run build
+
+# Start the server
+npm run start
+```
+
+Visit `localhost:8080/index.html` in your browser to launch your local instance of the application.
