@@ -1,0 +1,7 @@
+title: Spacewalk Documentation
+description: Documentation for the Spacewalk 3D visualization application for super-resolution microscopy data
+theme: jekyll-theme-cayman
+show_downloads: true
+github:
+  repository_url: https://github.com/igvteam/spacewalk
+  is_project_page: true
