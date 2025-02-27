@@ -39,12 +39,6 @@ This mode displays chromatin centroids as balls connected by cylindrical sticks.
 
 ![ball & stick render style](img/render-style-ball-stick.png)
 
-## Need Help?
-
-- Check out our [User Guide](user-guide.md) for detailed instructions
-- Visit our [FAQ](faq.md) for common questions
-- For technical issues, please [report them on GitHub](https://github.com/igvteam/spacewalk/issues)
-
 ## Developer Installation
 
 This section is for developers who want to run their own instance of Spacewalk.
