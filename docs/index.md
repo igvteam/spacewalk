@@ -2,6 +2,7 @@
 layout: default
 title: Home
 nav_order: 1
+description: "Documentation for the Spacewalk 3D Genomic Data Visualization Tool"
 permalink: /
 ---
 
@@ -10,6 +11,16 @@ permalink: /
 Spacewalk is an interactive 3D visualization application for super-resolution microscopy data, featuring seamless integration with IGV genomics browser and Juicebox Hi-C map viewer.
 
 **[Launch Spacewalk Application](https://aidenlab.org/spacewalk/)**
+
+## Try It Now
+
+Experience Spacewalk with these pre-loaded examples:
+
+- **[Ball & Stick Demo](https://tinyurl.com/25audeaa)**  
+  Explore chromosome conformation data with a clear visualization of genomic regions connected by 3D structures.
+
+- **[Point Cloud Demo](https://tinyurl.com/23lwr5u6)**  
+  See how Spacewalk handles super-resolution microscopy data by displaying multiple spatial points per genomic region.
 
 ## Overview
 

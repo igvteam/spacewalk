@@ -1,28 +1,53 @@
 # Spacewalk
 
-An interactive 3D visualization application for super-resolution microscopy data, featuring seamless integration with IGV genomics browser ([igv.js](https://github.com/igvteam/igv.js)) and Juicebox Hi-C map viewer ([juicebox.js](https://github.com/igvteam/juicebox.js)).
+A web application for visualizing 3D genomic data.
 
-🚀 **[Launch Spacewalk](https://aidenlab.org/spacewalk/)**
+## Try It Now
 
-📚 **[View Documentation](https://igvteam.github.io/spacewalk/)**
+Experience Spacewalk with these pre-loaded examples:
 
-## Overview
+- **[Ball & Stick Demo](https://tinyurl.com/25audeaa)**  
+  Explore chromosome conformation data with a clear visualization of genomic regions connected by 3D structures.
 
-Spacewalk enables scientists to:
-- Visualize and explore 3D genomic structures
-- Interact with super-resolution microscopy data
-- Connect genomic coordinates with spatial organization
-- Analyze chromatin folding patterns
+- **[Point Cloud Demo](https://tinyurl.com/23lwr5u6)**  
+  See how Spacewalk handles super-resolution microscopy data by displaying multiple spatial points per genomic region.
 
-![point cloud render style](readme_img/render-style-point-cloud.png)
+## Documentation
 
-*Example of Spacewalk's Point Cloud visualization mode*
+Visit our [Documentation Site](https://igvteam.github.io/spacewalk/) for:
+- User Guide
+- Developer Guide
+- File Format Specifications
+- Example Data
 
-## Quick Links
+## Features
 
-- [User Guide](https://igvteam.github.io/spacewalk/user-guide)
-- [Developer Guide](https://igvteam.github.io/spacewalk/developer-guide)
-- [Report Issues](https://github.com/igvteam/spacewalk/issues)
+- Interactive 3D visualization of genomic data
+- Multiple visualization modes:
+  - Ball & Stick for structural connections
+  - Point Cloud for dense spatial data
+- Integrated genomic views
+- Shareable visualization states
+- Support for various data formats
+
+## Development
+
+### Requirements
+- Node.js
+- npm
+
+### Setup
+```bash
+git clone https://github.com/igvteam/spacewalk.git
+cd spacewalk
+npm install
+npm start
+```
+
+### Build
+```bash
+npm run build
+```
 
 ## License
 
