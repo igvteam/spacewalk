@@ -39,33 +39,3 @@ The point cloud renders 3D point clusters, each corresponding to a specific geno
 This mode displays chromatin centroids as balls connected by cylindrical sticks. Each ball is colored according to its genomic location. Moving your cursor along the genomic navigator highlights the corresponding structures in the 3D view.
 
 ![ball & stick render style](img/render-style-ball-stick.png)
-
-## Developer Installation
-
-This section is for developers who want to run their own instance of Spacewalk.
-
-### Prerequisites
-- Node.js >= v20.8.0
-- npm >= v10.1.0
-- Modern web browser with ECMAScript 2015 support
-
-### Installation Steps
-
-```bash
-# Clone the repository
-git clone https://github.com/igvteam/spacewalk.git
-
-# Navigate to project directory
-cd spacewalk
-
-# Install dependencies
-npm install
-
-# Build the application
-npm run build
-
-# Start the server
-npm run start
-```
-
-Visit `localhost:8080/index.html` in your browser to launch your local instance of the application.
