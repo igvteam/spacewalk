@@ -1,7 +1,26 @@
 title: Spacewalk Documentation
 description: Documentation for the Spacewalk 3D visualization application for super-resolution microscopy data
-theme: jekyll-theme-cayman
+remote_theme: just-the-docs/just-the-docs
 show_downloads: true
 github:
   repository_url: https://github.com/igvteam/spacewalk
   is_project_page: true
+
+# Enable plugins
+plugins:
+  - jekyll-remote-theme
+
+# Just the Docs specific settings
+color_scheme: light
+search_enabled: true
+heading_anchors: true
+
+# Enable navigation
+nav_external_links:
+  - title: Launch Spacewalk
+    url: https://aidenlab.org/spacewalk/
+    hide_icon: true
+
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
