@@ -1,6 +1,6 @@
 ---
 layout: default
-title: File Format
+title: Spacewalk File Format
 nav_order: 4
 has_children: true
 has_toc: true

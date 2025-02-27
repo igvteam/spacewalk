@@ -40,7 +40,7 @@ The `spatial_position` group contains XYZ data in two possible formats:
 - Datasets named `t_0`, `t_1`, etc. for each trace
 - Direct 1:1 mapping between regions and points
 
-![Single Point Association](../wiki-content/img/region-xyz-single-point.jpg)
+![Single Point Association](../assets/images/file-format/region-xyz-single-point.jpg)
 
 #### Multi Point Format
 - Multiple XYZ points per genomic region

@@ -20,7 +20,7 @@ Since the .sw format is a valid HDF5 file, the contents can be examined by any g
 
 ## File Organization
 
-![All Groups](../wiki-content/img/groups.jpg)
+![All Groups](../assets/images/file-format/groups.jpg)
 
 The file contains:
 
@@ -48,11 +48,11 @@ Each ensemble group contains data for a single experiment with:
 - Used for centroid-based visualization
 - Supports ball-and-stick rendering
 
-![Single Point Example](../wiki-content/img/hdf5-structure-ball-stick-thumbnail.jpg)
+![Single Point Example](../assets/images/file-format/hdf5-structure-ball-stick-thumbnail.jpg)
 
 ### Multi Point Data
 - Multiple XYZ points per genomic region
 - Used for point cloud visualization
 - Supports density-based rendering
 
-![Multi Point Example](../wiki-content/img/hdf5-structure-pointcloud-thumbnail.jpg)
+![Multi Point Example](../assets/images/file-format/hdf5-structure-pointcloud-thumbnail.jpg)

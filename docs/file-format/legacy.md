@@ -30,12 +30,12 @@ The legacy text-based format (`.swt`) is now deprecated. Use the [swt2sw](https:
 ### Ball & Stick Data (ORCA)
 Each record links a geometric location with a genomic range:
 
-![Legacy Format - Ball & Stick](../wiki-content/img/legacy-sw-format-bs.png)
+![Legacy Format - Ball & Stick](../assets/images/file-format/legacy-sw-format-bs.png)
 
 ### Point Cloud Data (OligoSTORM)
 Multiple geometric locations can share the same genomic range:
 
-![Legacy Format - Point Cloud](../wiki-content/img/legacy-sw-format-pc.png)
+![Legacy Format - Point Cloud](../assets/images/file-format/legacy-sw-format-pc.png)
 
 ## Migration
 
