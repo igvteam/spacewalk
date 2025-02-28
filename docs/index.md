@@ -14,13 +14,16 @@ Spacewalk is an interactive 3D visualization application for super-resolution mi
 
 ## Try It Now
 
-Experience Spacewalk with these pre-loaded examples:
+Spacewalk is hosted at [Aiden  Lab](https://aidenlab.org). Launch the app by clicking [here](https://aidenlab.org/spacewalk).
+
+Experience Spacewalk immediately with these demos:
 
 - **[Ball & Stick Demo](https://tinyurl.com/25audeaa)**  
-  Explore chromosome conformation data with a clear visualization of genomic regions connected by 3D structures.
+  Chromatin centroids are rendered as balls, each colored according to its genomic location. 
+  Sticks (cylinders) connect the balls in the order they appear along the genomic range.
 
 - **[Point Cloud Demo](https://tinyurl.com/23lwr5u6)**  
-  See how Spacewalk handles super-resolution microscopy data by displaying multiple spatial points per genomic region.
+The point cloud is rendered as a collection of 3D point clusters, each point cluster corresponds to a specific genomic extent and is colored according to the genomic location of that extent.
 
 ## Overview
 
