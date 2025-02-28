@@ -22,11 +22,11 @@ The Spacewalk Binary File Format (.sw) is designed to provide:
 
 ## Quick Links
 
-- [Creating Data Files](creating-data-files.md): Step-by-step guide to creating Spacewalk files
-- [Format Specification](file-format/specification): Detailed technical specification of the file format
-- [Data Structure](file-format/data-structure): Information about file organization and data types
-- [Tools & Utilities](file-format/tools): Tools for working with Spacewalk files
-- [Legacy Format](file-format/legacy): Documentation for the deprecated text-based format
+- [Creating Data Files]({{ site.baseurl }}/file-format/creating-data-files): Step-by-step guide to creating Spacewalk files
+- [Format Specification]({{ site.baseurl }}/file-format/specification): Technical details of the format
+- [Data Structure]({{ site.baseurl }}/file-format/data-structure): File organization and types
+- [Tools & Utilities]({{ site.baseurl }}/file-format/tools): Working with the format
+- [Legacy Format]({{ site.baseurl }}/file-format/legacy): Documentation for the old text-based format
 
 ## Convert Your Data
 

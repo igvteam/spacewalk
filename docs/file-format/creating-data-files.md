@@ -99,6 +99,6 @@ After creating your `.sw` file:
 
 ## Need Help?
 
-- Check the [File Format Specification](specification.md)
-- See [Data Structure](data-structure.md) for detailed format information
+- Check the [File Format Specification]({{ site.baseurl }}/file-format/specification)
+- See [Data Structure]({{ site.baseurl }}/file-format/data-structure) for detailed format information
 - [Open an issue](https://github.com/igvteam/spacewalk/issues) if you encounter problems
