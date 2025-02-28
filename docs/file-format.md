@@ -22,6 +22,7 @@ The Spacewalk Binary File Format (.sw) is designed to provide:
 
 ## Quick Links
 
+- [Creating Data Files](creating-data-files.md): Step-by-step guide to creating Spacewalk files
 - [Format Specification](file-format/specification): Detailed technical specification of the file format
 - [Data Structure](file-format/data-structure): Information about file organization and data types
 - [Tools & Utilities](file-format/tools): Tools for working with Spacewalk files
