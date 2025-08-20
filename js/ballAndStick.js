@@ -27,6 +27,8 @@ class BallAndStick {
 
         this.stickMaterial = stickMaterial;
 
+        this.isStickVisible = true;
+
         SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
      }
 
@@ -226,6 +228,10 @@ class BallAndStick {
         this.hull.mesh.visible = true
     }
 
+    setStickVisibility(visible) {
+        this.isStickVisible = visible
+    }
+
     updateBallRadius(increment) {
 
         ballRadiusIndex = clamp(ballRadiusIndex + increment, 0, ballRadiusTable.length - 1)
@@ -277,6 +283,10 @@ class BallAndStick {
 
         if (this.balls) {
             this.balls.geometry.attributes.instanceColor.needsUpdate = true
+        }
+
+        if (this.sticks) {
+            this.sticks.visible = this.isStickVisible
         }
     }
 

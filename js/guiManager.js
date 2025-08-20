@@ -76,14 +76,15 @@ class GUIManager {
         ballRadiusControl.querySelector('i.fa-minus-circle').addEventListener('click', () => ballAndStick.updateBallRadius(-1));
         ballRadiusControl.querySelector('i.fa-plus-circle').addEventListener('click', () => ballAndStick.updateBallRadius(1));
 
-        // Stick radius
-        const stickRadiusControl = document.getElementById('spacewalk-stick-radius-control');
-        stickRadiusControl.querySelector('i.fa-minus-circle').addEventListener('click', () => {
-            ballAndStick.updateStickRadius(-1);
-        });
-        stickRadiusControl.querySelector('i.fa-plus-circle').addEventListener('click', () => {
-            ballAndStick.updateStickRadius(1);
-        });
+        // Stick visibility switch
+        const stickVisibilitySwitch = document.getElementById('spacewalk-stick-visibility-switch');
+        if (stickVisibilitySwitch) {
+            stickVisibilitySwitch.addEventListener('change', (e) => {
+                e.stopPropagation();
+                console.log('Stick visibility toggled:', e.target.checked);
+                ballAndStick.setStickVisibility(e.target.checked);
+            });
+        }
 
         // PointCloud Point Size
         const pointSizeControl = document.getElementById('spacewalk_ui_manager_pointcloud_point_size');
