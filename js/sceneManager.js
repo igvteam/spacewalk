@@ -4,8 +4,9 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {getCameraPoseAlongAxis} from './cameraLightingRig.js'
 import BallAndStick from "./ballAndStick.js"
 import PointCloud from "./pointCloud.js"
-import GroundPlane, { groundPlaneConfigurator } from './groundPlane.js'
-import Gnomon, { gnomonConfigurator } from './gnomon.js'
+import GroundPlane from './groundPlane.js'
+import Gnomon from './gnomon.js'
+import GUIManager from "./guiManager.js"
 import {setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
 import Ribbon from './ribbon.js'
 import {
@@ -14,14 +15,14 @@ import {
     ribbon,
     ballAndStick,
     ensembleManager,
-    guiManager,
     igvPanel,
     colorRampMaterialProvider,
     cameraLightingRig,
-    getRenderContainerSize,
+    getRenderCanvasContainerRect,
     createHemisphereLight,
     updateSceneBackgroundColorpicker
 } from "./app.js"
+import {appleCrayonColorThreeJS} from "./utils/colorUtils"
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
 
@@ -58,7 +59,7 @@ class SceneManager {
         await ensembleManager.loadURL(url, traceKey, ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
-        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : guiManager.getRenderStyle())
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyleWidgetState())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
         setMaterialProvider(colorRampMaterialProvider)
@@ -77,7 +78,7 @@ class SceneManager {
         await ensembleManager.loadEnsembleGroup(ensembleGroupKey)
 
         this.setupWithTrace(ensembleManager.currentTrace)
-        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : guiManager.getRenderStyle())
+        this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyleWidgetState())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
         setMaterialProvider(colorRampMaterialProvider)
@@ -110,17 +111,35 @@ class SceneManager {
 
         const boundingDiameter = (2 * radius)
 
-        const { width, height } = getRenderContainerSize();
+        const { width, height } = getRenderCanvasContainerRect();
         cameraLightingRig.configure(fov, width/height, position, center, boundingDiameter)
 
         scene.add(createHemisphereLight())
 
         // GroundPlane
-        const groundPlane = new GroundPlane(groundPlaneConfigurator(new THREE.Vector3(center.x, min.y, center.z), boundingDiameter))
+        const groundPlaneConfig =
+            {
+            size: boundingDiameter,
+            divisions: 16,
+            position: new THREE.Vector3(center.x, min.y, center.z),
+            color: appleCrayonColorThreeJS( 'iron'),
+            opacity: 0.25,
+            isHidden: GroundPlane.setGroundPlaneHidden()
+            };
+
+        const groundPlane = new GroundPlane(groundPlaneConfig)
         scene.add(groundPlane)
 
         // Gnomon
-        const gnomon = new Gnomon(gnomonConfigurator(min, max, boundingDiameter))
+        const gnomonConfig =
+            {
+                min,
+                max,
+                boundingDiameter,
+                color: appleCrayonColorThreeJS('iron'),
+                isHidden: Gnomon.setGnomonHidden()
+            };
+        const gnomon = new Gnomon(gnomonConfig)
         gnomon.addToScene(scene)
 
     }
@@ -205,6 +224,21 @@ class SceneManager {
     isGood2Go() {
         return scene && this.getGnomon() && this.getGroundPlane()
      }
+
+    static getConvexHull(renderStyle) {
+        switch (renderStyle) {
+            case Ribbon.renderStyle:
+                return ribbon.hull
+            case PointCloud.renderStyle:
+                return pointCloud.hull
+            case BallAndStick.renderStyle:
+                return ballAndStick.hull
+            default:
+                console.warn("Unknown render style");
+                return undefined
+        }
+    }
+
 }
 
 export default SceneManager;

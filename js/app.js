@@ -14,14 +14,13 @@ import Panel, { doInspectPanelVisibilityCheckbox }  from "./panel.js";
 import PointCloud from "./pointCloud.js";
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
-import GUIManager, {createColorPicker, updateColorPicker} from "./guiManager.js";
 import LiveContactMapService, {defaultDistanceThreshold} from "./juicebox/liveContactMapService.js";
 import LiveDistanceMapService from "./juicebox/liveDistanceMapService.js";
 import TraceSelector from './traceSelector.js'
 import GenomicNavigator from './genomicNavigator.js'
 import IGVPanel from "./IGVPanel.js";
 import JuiceboxPanel from "./juicebox/juiceboxPanel.js";
-import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor } from "./utils/colorUtils.js";
+import { appleCrayonColorRGB255, appleCrayonColorThreeJS, highlightColor, createColorPicker, updateColorPicker } from "./utils/colorUtils.js";
 import {getUrlParams, toJSON, loadSession, uncompressSessionURL} from "./sessionServices.js"
 import {createSpacewalkFileLoaders} from './spacewalkFileLoadWidgetServices.js'
 import BallHighlighter from "./ballHighlighter.js";
@@ -30,10 +29,13 @@ import configureContactMapLoaders from './widgets/contactMapLoad.js'
 import {createShareWidgets, shareWidgetConfigurator} from './share/shareWidgets.js'
 import {showGlobalSpinner, hideGlobalSpinner, getMouseXY} from './utils/utils.js'
 import {configureRenderContainerDrag} from "./renderContainerDrag.js"
+import ScaleBarService from "./scaleBarService.js"
+import GUIManager from "./guiManager.js"
 import {showRelease} from "./utils/release.js"
 import { spacewalkConfig } from "../spacewalk-config.js";
 import 'juicebox.js/dist/css/juicebox.css'
 import '../styles/app.scss'
+
 
 let pointCloud;
 let ribbon;
@@ -62,6 +64,7 @@ let mouseY
 let aboutButtonPopover
 let helpButtonPopover
 let sceneBackgroundColorPicker
+let scaleBarService
 
 const SpacewalkGlobals =
     {
@@ -108,8 +111,10 @@ async function createDomainObjects() {
 
     colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
 
-    configureThreeJS(document.querySelector('#spacewalk-threejs-canvas-container'))
+    const renderContainer = document.querySelector('#spacewalk-threejs-canvas-container')
+    configureThreeJS(renderContainer)
 
+    scaleBarService = new ScaleBarService(renderContainer, ScaleBarService.setScaleBarsHidden())
 
 }
 
@@ -141,6 +146,8 @@ async function createDOM(container) {
         }
     const helpButton = document.getElementById('spacewalk-help-button')
     helpButtonPopover = new bootstrap.Popover(helpButton, helpConfig)
+
+    scaleBarService.insertScaleBarDOM()
 
     const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container')
     guiManager = new GUIManager({ settingsButton, panel: document.querySelector('#spacewalk_ui_manager_panel') });
@@ -324,7 +331,7 @@ async function configureGoogleAuthentication(spacewalkConfig){
 function configureRenderContainerResizeObserver(_3DInteractionContainer, renderer){
 
     renderContainerResizeObserver = new ResizeObserver(entries => {
-        const { width, height } = getRenderContainerSize()
+        const { width, height } = getRenderCanvasContainerRect()
         renderer.setSize(width, height)
         camera.aspect = width / height
         camera.updateProjectionMatrix()
@@ -437,6 +444,7 @@ function createHemisphereLight() {
 function render () {
 
     if (sceneManager.isGood2Go()) {
+
         pointCloud.renderLoopHelper()
 
         ballAndStick.renderLoopHelper()
@@ -455,6 +463,12 @@ function render () {
 
         renderer.render(scene, camera)
 
+        const convexHull = SceneManager.getConvexHull(sceneManager.renderStyle)
+
+        if (convexHull) {
+            scaleBarService.scaleBarAnimationLoopHelper(convexHull.mesh, camera)
+        }
+
     }
 
 }
@@ -464,13 +478,13 @@ function renderLoop() {
     render()
 }
 
-function getRenderContainerSize() {
+function getRenderCanvasContainerRect() {
     const container = document.querySelector('#spacewalk-threejs-canvas-container')
     return container.getBoundingClientRect()
 }
 
 export {
-    getRenderContainerSize,
+    getRenderCanvasContainerRect,
     createHemisphereLight,
     scene,
     camera,
@@ -492,4 +506,5 @@ export {
     liveContactMapService,
     liveDistanceMapService,
     igvPanel,
-    genomicNavigator }
+    genomicNavigator,
+    scaleBarService}

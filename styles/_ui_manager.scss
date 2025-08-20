@@ -154,6 +154,14 @@ li#spacewalk_ui_manager_render_styles {
 
 }
 
+#spacewalk-stick-visibility-control {
+  .form-check-input {
+    width: 2.5em;
+    height: 1.25em;
+    margin-top: 0;
+  }
+}
+
 .spacewalk-threejs-settings-feature {
   display: flex;
   flex-direction: row;

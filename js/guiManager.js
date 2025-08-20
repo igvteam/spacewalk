@@ -1,25 +1,28 @@
-import Picker from 'vanilla-picker'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { StringUtils } from 'igv-utils'
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
-import {rgb255String, threeJSColorToRGB255, rgb255ToThreeJSColor, rgba255String} from "./utils/colorUtils.js"
-import {ballAndStick, sceneManager, ensembleManager, pointCloud} from "./app.js";
-import pipeline from "three/addons/renderers/common/Pipeline"
+import { scaleBarService, ballAndStick, sceneManager, ensembleManager, pointCloud } from "./app.js";
 
 class GUIManager {
 
     constructor ({ settingsButton, panel }) {
 
+        // Present/Dismiss Settings Panel via Settings Button
         settingsButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
-        });
+            panel.style.display = 'none' === panel.style.display ? 'block' : 'none'
+        })
 
-        document.querySelector('#spacewalk-threejs-container').addEventListener('click', (e) => {
-            e.stopPropagation();
-            panel.style.display = 'none';
-        });
+        // Dismiss Settings Panel by "clicking away"
+        document.getElementById('spacewalk-root-container').addEventListener('click', (e) => {
+            e.stopPropagation()
+
+            if (e.target === e.currentTarget){
+                panel.style.display = 'none'
+            }
+
+        })
 
         panel.addEventListener('click', (e) => e.stopPropagation());
         panel.addEventListener('mousemove', (e) => e.stopPropagation());
@@ -36,26 +39,29 @@ class GUIManager {
             sceneManager.getGnomon().toggle()
         })
 
-        const checkboxDropdown = document.querySelector('#spacewalk-viewers-dropdown-menu')
-        const inputIDList = checkboxDropdown.querySelectorAll('input')
+        // Configure  Ruler Toggle
+        document.querySelector(`#spacewalk_ui_manager_scale_bars`).addEventListener('change', e => {
+            e.stopPropagation()
+            scaleBarService.toggle()
+        })
 
-        for (let i = 0; i < inputIDList.length; i++) {
+        const checkboxDropdownMenu = document.querySelector('#spacewalk-viewers-dropdown-menu')
 
-            const input = inputIDList[ i ]
-            input.addEventListener('change', event => {
+        for (const inputElement of checkboxDropdownMenu.querySelectorAll('input')) {
+
+            inputElement.addEventListener('change', event => {
 
                 event.preventDefault()
                 event.stopPropagation()
 
-                const dropdown = input.closest('.dropdown');
+                const dropdown = inputElement.closest('.dropdown');
                 const toggleButton = dropdown ? dropdown.querySelector('.dropdown-toggle') : null;
                 if (toggleButton && typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
                     const dropdownInstance = bootstrap.Dropdown.getOrCreateInstance(toggleButton);
                     dropdownInstance.toggle();
                 }
 
-
-                const payload = inputIDList[ i ].dataset.target
+                const payload = inputElement.dataset.target
                 SpacewalkEventBus.globalBus.post({ type: 'ToggleUIControl', data: { payload } })
             })
 
@@ -70,14 +76,15 @@ class GUIManager {
         ballRadiusControl.querySelector('i.fa-minus-circle').addEventListener('click', () => ballAndStick.updateBallRadius(-1));
         ballRadiusControl.querySelector('i.fa-plus-circle').addEventListener('click', () => ballAndStick.updateBallRadius(1));
 
-        // Stick radius
-        const stickRadiusControl = document.getElementById('spacewalk-stick-radius-control');
-        stickRadiusControl.querySelector('i.fa-minus-circle').addEventListener('click', () => {
-            ballAndStick.updateStickRadius(-1);
-        });
-        stickRadiusControl.querySelector('i.fa-plus-circle').addEventListener('click', () => {
-            ballAndStick.updateStickRadius(1);
-        });
+        // Stick visibility switch
+        const stickVisibilitySwitch = document.getElementById('spacewalk-stick-visibility-switch');
+        if (stickVisibilitySwitch) {
+            stickVisibilitySwitch.addEventListener('change', (e) => {
+                e.stopPropagation();
+                console.log('Stick visibility toggled:', e.target.checked);
+                ballAndStick.setStickVisibility(e.target.checked);
+            });
+        }
 
         // PointCloud Point Size
         const pointSizeControl = document.getElementById('spacewalk_ui_manager_pointcloud_point_size');
@@ -124,27 +131,34 @@ class GUIManager {
         }
     }
 
-    setRenderStyle(renderStyle) {
-        const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
+    static updateRenderStyleWidgetState(renderStyle) {
+
         if (renderStyle === Ribbon.renderStyle) {
-            const ribbonRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ribbon');
+            const ribbonRadio = document.getElementById('spacewalk-render-style-ribbon');
             if (ribbonRadio) {
                 ribbonRadio.checked = true;
             }
         } else if (renderStyle === BallAndStick.renderStyle) {
-            const ballStickRadio = uiManagerPanel.querySelector('#spacewalk-render-style-ball-stick');
+            const ballStickRadio = document.getElementById('spacewalk-render-style-ball-stick');
             if (ballStickRadio) {
                 ballStickRadio.checked = true;
             }
         }
     }
 
-    getRenderStyle() {
+    static getRenderStyleWidgetState() {
         const uiManagerPanel = document.getElementById('spacewalk_ui_manager_panel');
         const checkedInput = uiManagerPanel.querySelector("input[name='spacewalk-render-style']:checked");
         const id = checkedInput ? checkedInput.id : null;
+
+        if (null === id) {
+            console.warn(`Spacewalk Render Style Widget - No render style is selected. Will default to ${ BallAndStick.renderStyle }`)
+            return BallAndStick.renderStyle
+        }
+
         return id === 'spacewalk-render-style-ball-stick' ? BallAndStick.renderStyle : Ribbon.renderStyle;
     }
+
 }
 
 function configureRenderStyleControl(input, renderStyle) {
@@ -153,75 +167,8 @@ function configureRenderStyleControl(input, renderStyle) {
 
     input.addEventListener('change', (e) => {
         e.preventDefault();
-        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: e.target.value });
+        SpacewalkEventBus.globalBus.post({ type: "RenderStyleDidChange", data: e.target.value })
     });
-
-}
-
-// Ground Plane
-export function doConfigureGroundplaneHidden() {
-    const input = document.getElementById('spacewalk_ui_manager_groundplane');
-    return !(input && input.checked);
-}
-
-export function setGroundplaneVisibilityCheckboxStatus(status) {
-    const input = document.getElementById('spacewalk_ui_manager_groundplane');
-    if (input) {
-        input.checked = status;
-    }
-}
-
-// Gnomon
-export function doConfigureGnomonHidden() {
-    const input = document.getElementById('spacewalk_ui_manager_gnomon');
-    return !(input && input.checked);
-}
-
-export function setGnomonVisibilityCheckboxStatus(status) {
-    const input = document.getElementById('spacewalk_ui_manager_gnomon');
-    if (input) {
-        input.checked = status;
-    }
-}
-
-// Colorpicker
-export function createColorPicker(container, initialColor, callback) {
-
-    const color = rgb255String(threeJSColorToRGB255(initialColor));
-
-    const config =
-        {
-            parent: container,
-            popup: 'right',
-            editor: false,
-            editorFormat: 'rgb',
-            alpha: false,
-            color
-        };
-
-    const picker = new Picker(config);
-
-    picker.onChange = ({rgbString}) => {
-
-        container.style.backgroundColor = rgbString
-
-        const [ head, g, tail ] = rgbString.split(',')
-        const [ unused, r ] = head.split('(')
-        const [ b, dev_null ] = tail.split(')')
-
-        callback(rgb255ToThreeJSColor(parseInt(r), parseInt(g), parseInt(b)))
-    }
-
-    return picker
-}
-
-export function updateColorPicker(picker, container, rgb) {
-    const rgb255 = threeJSColorToRGB255(rgb)
-
-    container.style.backgroundColor = rgb255String(rgb255)
-
-    const { r, g, b } = rgb255
-    picker.setColor([ r, g, b, 1 ], true)
 
 }
 

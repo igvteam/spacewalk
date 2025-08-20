@@ -2,6 +2,9 @@ import * as THREE from "three"
 import hic from 'juicebox.js'
 import {BGZip} from 'igv-utils'
 import Panel from './panel.js'
+import SpacewalkEventBus from './spacewalkEventBus.js'
+import {defaultDistanceThreshold} from './juicebox/liveContactMapService.js'
+import { shortenURL } from "./share/shareHelper.js"
 import {
     scene,
     igvPanel,
@@ -10,12 +13,10 @@ import {
     sceneManager,
     liveContactMapService,
     SpacewalkGlobals,
-    guiManager,
-    cameraLightingRig
+    cameraLightingRig,
+    scaleBarService
 } from './app.js'
-import SpacewalkEventBus from './spacewalkEventBus.js'
-import {defaultDistanceThreshold} from './juicebox/liveContactMapService.js'
-import { shortenURL } from "./share/shareHelper.js"
+import GUIManager from "./guiManager.js"
 
 async function loadSession(json) {
 
@@ -54,17 +55,19 @@ async function loadSpacewalkSession (session) {
         traceKey,
         ensembleGroupKey,
         renderStyle,
-        gnomonVisibility,
-        groundPlaneVisibility,
         gnomonColor,
+        gnomonVisibility,
         groundplaneColor,
+        groundPlaneVisibility,
+        rulerColor,
+        rulerVisibility,
         contactFrequencyMapDistanceThreshold,
         panelVisibility,
         cameraLightingRig,
         backgroundColor
     } = session
 
-    guiManager.setRenderStyle(renderStyle)
+    GUIManager.updateRenderStyleWidgetState(renderStyle)
 
     await sceneManager.ingestEnsemblePath(url, traceKey, ensembleGroupKey)
 
@@ -73,6 +76,10 @@ async function loadSpacewalkSession (session) {
 
     const groundPlaneInstance = sceneManager.getGroundPlane()
     groundPlaneInstance.setState({ visibility: groundPlaneVisibility, ...groundplaneColor })
+
+    if (rulerColor && rulerVisibility) {
+        scaleBarService.setState({ visibility: rulerVisibility, ...rulerColor })
+    }
 
     liveContactMapService.setState(contactFrequencyMapDistanceThreshold || defaultDistanceThreshold)
     Panel.setState(panelVisibility)
@@ -162,7 +169,7 @@ function spacewalkToJSON () {
 
         spacewalk.igvPanelState = igvPanel.getSessionState()
 
-        spacewalk.renderStyle = guiManager.renderStyle
+        spacewalk.renderStyle = sceneManager.renderStyle
 
         spacewalk.panelVisibility = Panel.toJSON()
 
@@ -177,6 +184,11 @@ function spacewalkToJSON () {
         json = sceneManager.getGroundPlane().toJSON()
         spacewalk.groundPlaneVisibility = json.visibility
         spacewalk.groundplaneColor = { r:json.r, g:json.g, b:json.b }
+
+        // ruler
+        json = scaleBarService.toJSON()
+        spacewalk.rulerVisibility = json.visibility
+        spacewalk.rulerColor = { r:json.r, g:json.g, b:json.b }
 
         // background
         spacewalk.backgroundColor = sceneManager.toJSON()

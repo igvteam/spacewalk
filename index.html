@@ -302,13 +302,14 @@
                 </div>
               </div>
 
-              <div id="spacewalk-stick-radius-control" class="spacewalk-ball-stick-control">
+              <div id="spacewalk-stick-visibility-control" class="spacewalk-ball-stick-control">
                 <div>
-                  Stick Radius
+                  Show Sticks
                 </div>
                 <div>
-                  <i class="fas fa-minus-circle"></i>
-                  <i class="fas fa-plus-circle"></i>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="spacewalk-stick-visibility-switch" checked>
+                  </div>
                 </div>
               </div>
 
@@ -338,6 +339,17 @@
               </div>
               <span class="input-group-text">Axes</span>
               <div class="input-group-text" data-colorpicker="gnomon"></div>
+            </div>
+          </li>
+
+          <!-- Scale Bars -->
+          <li class="list-group-item spacewalk-colorpicker-li">
+            <div class="input-group">
+              <div class="input-group-text">
+                <input id="spacewalk_ui_manager_scale_bars" type="checkbox">
+              </div>
+              <span class="input-group-text">Scale Bars</span>
+              <div class="input-group-text" data-colorpicker="scale-bars"></div>
             </div>
           </li>
 
@@ -395,11 +407,15 @@
           <i class="fas fa-lg fa-grip-horizontal"></i>
         </div>
 
+
+
         <!-- three-js canvas | trace-navigator -->
         <div id="spacewalk-threejs-trace-navigator-container">
           <!-- three-js canvas container -->
           <div id="spacewalk-threejs-canvas-container">
+
             <div id="spacewalk-threejs-canvas-center-dot" style="display: none;"></div>
+
           </div>
 
           <!-- trace navigator -->

@@ -4,6 +4,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {ensembleManager, igvPanel, pointCloud, scene, sceneManager} from "./app.js";
 import EnsembleManager from "./ensembleManager.js"
 import {clamp} from "./utils/mathUtils.js"
+import ConvexHull from "./utils/convexHull.js"
 
 class PointCloud {
 
@@ -120,6 +121,10 @@ class PointCloud {
                 return mesh
             })
 
+        const positionArray = getPositionArray(this.meshList)
+        this.hull = new ConvexHull(positionArray)
+        this.hull.mesh.name = 'point_cloud_convex_hull'
+
         sceneManager.renderStyle === PointCloud.renderStyle ? this.show() : this.hide()
 
         console.timeEnd(str)
@@ -164,9 +169,14 @@ class PointCloud {
     }
 
     addToScene (scene) {
-        for (let mesh of this.meshList) {
-            scene.add( mesh );
+
+        if (this.meshList) {
+            for (let mesh of this.meshList) {
+                scene.add( mesh );
+            }
         }
+
+        // scene.add(this.hull.mesh)
     }
 
     dispose () {
@@ -178,6 +188,11 @@ class PointCloud {
                 mesh = undefined
             }
             this.meshList = undefined
+
+            scene.remove(this.hull.mesh)
+            this.hull.mesh.geometry.dispose()
+            this.hull.mesh = undefined
+
         }
 
     }
@@ -196,6 +211,7 @@ class PointCloud {
         if (this.meshList) {
             for (let mesh of this.meshList) {
                 mesh.visible = false;
+                this.hull.mesh.visible = false;
             }
         }
     }
@@ -205,6 +221,7 @@ class PointCloud {
             for (let mesh of this.meshList) {
                 mesh.visible = true;
             }
+            this.hull.mesh.visible = true;
         }
     }
 
@@ -233,6 +250,22 @@ class PointCloud {
         this.material.needsUpdate = true
     }
 
+}
+
+function getPositionArray(meshes){
+
+    const positionArrays = meshes.map(mesh => mesh.geometry.attributes.position.array);
+
+    const length = positionArrays.reduce((sum, array) => sum + array.length, 0);
+    const aggregatePositionArray = new Float32Array(length);
+
+    let offset = 0;
+    for (const array of positionArrays) {
+        aggregatePositionArray.set(array, offset)
+        offset += array.length;
+    }
+
+    return aggregatePositionArray
 }
 
 function setGeometryColorAttribute(geometryColorAttributeArray, threeJSColor) {
