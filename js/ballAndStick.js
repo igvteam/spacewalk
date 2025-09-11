@@ -286,7 +286,7 @@ class BallAndStick {
         }
 
         if (this.sticks) {
-            this.sticks.visible = this.isStickVisible
+            this.sticks.visible = (this.isStickVisible && sceneManager.renderStyle === BallAndStick.renderStyle)
         }
     }
 

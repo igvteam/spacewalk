@@ -1,8 +1,8 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { fitToContainer, getMouseXY } from "./utils/utils.js";
-import { rgb255, rgb255String, appleCrayonColorRGB255 } from "./utils/colorUtils.js";
+import {rgb255, rgb255String, appleCrayonColorRGB255, threeJSColorToRGB255} from "./utils/colorUtils.js";
 import { defaultColormapName } from "./utils/colorMapManager.js";
-import {colorMapManager, ensembleManager, sceneManager} from "./app.js";
+import {colorMapManager, ensembleManager, sceneManager, igvPanel, colorRampMaterialProvider} from "./app.js";
 import Ribbon from './ribbon.js';
 
 const alpha_visible = `rgb(${255},${255},${255})`;
@@ -60,7 +60,6 @@ class ColorRampMaterialProvider {
             if (this !== poster || sceneManager.renderStyle === Ribbon.renderStyle) {
 
                 const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
-
                 if (interpolantWindowList) {
                     this.highlightWithInterpolantWindowList(interpolantWindowList.map(({genomicExtent}) => genomicExtent));
                 }
@@ -68,6 +67,7 @@ class ColorRampMaterialProvider {
             }
 
         } else if ('DidLoadEnsembleFile' === type) {
+            igvPanel.materialProvider = colorRampMaterialProvider;
             this.repaint()
         } else if ('DidHideCrosshairs' === type || 'DidLeaveGenomicNavigator' === type) {
             this.repaint()
@@ -144,7 +144,9 @@ class ColorRampMaterialProvider {
         const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
         for (let { interpolant, start, end } of genomicExtentList) {
 
-            this.rgb_ctx.fillStyle = colorMapManager.retrieveRGB255String(defaultColormapName, interpolant);
+            const rgb = igvPanel.materialProvider.colorForInterpolant(interpolant)
+            const rgb255 = threeJSColorToRGB255(rgb)
+            this.rgb_ctx.fillStyle = rgb255String(rgb255)
 
             const h = Math.ceil((end - start) * this.rgb_ctx.canvas.height);
             const y = Math.round(start * (this.rgb_ctx.canvas.height));
