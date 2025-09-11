@@ -53,6 +53,8 @@ function setMaterialProvider(materialProvider) {
     ribbon.updateMaterialProvider(materialProvider)
     ballAndStick.updateMaterialProvider(materialProvider)
     pointCloud.updateMaterialProvider(materialProvider)
+
+    colorRampMaterialProvider.repaint()
 }
 
 function fitToContainer(canvas, devicePixelRatio) {
