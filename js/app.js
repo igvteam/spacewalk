@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     await createDomainObjects()
 
-    await createDOM(document.getElementById('spacewalk-root-container'))
+    await createDOMElements(document.getElementById('spacewalk-root-container'))
 
     await consumeURLParams(getUrlParams(window.location.href))
 
@@ -109,7 +109,7 @@ async function createDomainObjects() {
 
     dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
 
-    colorRampMaterialProvider = new ColorRampMaterialProvider( { canvasContainer: document.querySelector('#spacewalk-trace-navigator-widget'), highlightColor } )
+    colorRampMaterialProvider = new ColorRampMaterialProvider()
 
     const renderContainer = document.querySelector('#spacewalk-threejs-canvas-container')
     configureThreeJS(renderContainer)
@@ -118,7 +118,7 @@ async function createDomainObjects() {
 
 }
 
-async function createDOM(container) {
+async function createDOMElements(container) {
 
     const { tag_name } = await showRelease()
     document.getElementById('spacewalk-help-menu-release').innerHTML = `Spacewalk release ${ tag_name }`
@@ -154,7 +154,7 @@ async function createDOM(container) {
 
     traceSelector = new TraceSelector(document.querySelector('#spacewalk_trace_select_input'))
 
-    genomicNavigator = new GenomicNavigator(document.querySelector('#spacewalk-trace-navigator-container'))
+    genomicNavigator = new GenomicNavigator(document.querySelector('#spacewalk-trace-navigator-container'), highlightColor)
 
     const fileLoader =
         {
@@ -453,7 +453,7 @@ function render () {
 
         ribbon.renderLoopHelper()
 
-        colorRampMaterialProvider.renderLoopHelper()
+        genomicNavigator.renderLoopHelper()
 
         cameraLightingRig.renderLoopHelper();
 
