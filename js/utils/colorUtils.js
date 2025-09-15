@@ -18,7 +18,7 @@ function colorString2Tokens(string) {
     }
 }
 
-function hexOrRGB255StringRGB255(color) {
+function hexOrRGB255StringtoRGB255(color) {
 
     if (color.startsWith('#')) {
         const { r, g, b } = hex2RGB255(color)
@@ -266,7 +266,7 @@ function updateColorPicker(picker, container, rgb) {
 }
 
 export {
-    hexOrRGB255StringRGB255,
+    hexOrRGB255StringtoRGB255,
     createColorPicker,
     updateColorPicker,
     compositeColors,

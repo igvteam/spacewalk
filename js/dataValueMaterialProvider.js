@@ -1,5 +1,5 @@
 import {ensembleManager} from './app.js'
-import { rgb255, rgb255Lerp, rgb255ToThreeJSColor, blendColorsLab, hexOrRGB255StringRGB255 } from './utils/colorUtils.js'
+import { rgb255, rgb255Lerp, rgb255ToThreeJSColor, blendColorsLab, hexOrRGB255StringtoRGB255 } from './utils/colorUtils.js'
 
 class DataValueMaterialProvider {
 
@@ -82,15 +82,15 @@ class DataValueMaterialProvider {
                 let color
                 if (feature.color) {
 
-                    const [ r, g, b ] = hexOrRGB255StringRGB255(feature.color)
+                    const [ r, g, b ] = hexOrRGB255StringtoRGB255(feature.color)
                     color = rgb255(r, g, b)
                 } else if ('function' === typeof track.getColorForFeature) {
-                    color = hexOrRGB255StringRGB255(track.getColorForFeature(feature))
+                    color = hexOrRGB255StringtoRGB255(track.getColorForFeature(feature))
                 } else {
 
                     color = track.color || track.defaultColor
                     if (color) {
-                        color = hexOrRGB255StringRGB255(color)
+                        color = hexOrRGB255StringtoRGB255(color)
                     }
                 }
 
