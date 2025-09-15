@@ -52,6 +52,14 @@ $spacewalk-ball-stick-control-y-margin: 4px;
   background-color: #f8f9fa;
   border-color: color.$spacewalk_tungsten;
 
+  i.fa-minus-circle {
+    cursor: pointer;
+  }
+
+  i.fa-plus-circle {
+    cursor: pointer;
+  }
+
   .list-group {
     margin-top: $spacewalk_ui_manager_margin;
     margin-bottom: $spacewalk_ui_manager_margin;
@@ -95,6 +103,14 @@ li#spacewalk_ui_manager_pointcloud_render_style {
   justify-content: flex-start;
   align-items: center;
 
+  i.fa-minus-circle {
+    cursor: pointer;
+  }
+
+  i.fa-plus-circle {
+    cursor: pointer;
+  }
+
   >div {
     width: 100%;
     display: flex;
@@ -112,6 +128,11 @@ li#spacewalk_ui_manager_pointcloud_render_style {
 }
 
 li#spacewalk_ui_manager_render_styles {
+
+  .form-check-input {
+    cursor: pointer;
+  }
+
   >div {
     width: -webkit-fill-available;
   }
@@ -126,6 +147,14 @@ li#spacewalk_ui_manager_render_styles {
   flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
+
+  i.fa-minus-circle {
+    cursor: pointer;
+  }
+
+  i.fa-plus-circle {
+    cursor: pointer;
+  }
 
   >div {
     margin-top: $spacewalk-ball-stick-control-y-margin;
@@ -155,6 +184,11 @@ li#spacewalk_ui_manager_render_styles {
 }
 
 #spacewalk-stick-visibility-control {
+
+  .form-check-input {
+    cursor: pointer;
+  }
+
   .form-check-input {
     width: 2.5em;
     height: 1.25em;

@@ -28,7 +28,7 @@ import PointCloudHighlighter from "./pointCloudHighlighter.js";
 import configureContactMapLoaders from './widgets/contactMapLoad.js'
 import {createShareWidgets, shareWidgetConfigurator} from './share/shareWidgets.js'
 import {showGlobalSpinner, hideGlobalSpinner, getMouseXY} from './utils/utils.js'
-import {configureRenderContainerDrag} from "./renderContainerDrag.js"
+import {configureDrag, configureRenderContainerDrag} from "./renderContainerDrag.js"
 import ScaleBarService from "./scaleBarService.js"
 import GUIManager from "./guiManager.js"
 import {showRelease} from "./utils/release.js"
@@ -264,7 +264,9 @@ async function createDOM(container) {
     // navbar is initially hidden for a less jarring appearance at app launch
     document.querySelector('.navbar').style.display = 'flex'
 
-    configureRenderContainerDrag(document.querySelector('.navbar'), document.getElementById('spacewalk-root-container'))
+    configureDrag('spacewalk-threejs-container', 'spacewalk-threejs-drag-container', container, { topConstraint: document.querySelector('.navbar') })
+
+    configureDrag('spacewalk_ui_manager_panel', 'spacewalk_ui_manager_panel', container, { topConstraint: document.querySelector('.navbar') })
 
     const _3DInteractionContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
 

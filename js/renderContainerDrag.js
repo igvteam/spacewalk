@@ -115,12 +115,7 @@ function getConstrainedDragValue(target, container, topConstraint, { screenX, sc
 
 // Backward-compatible wrapper for existing usage
 function configureRenderContainerDrag(navbar, container) {
-    return configureDrag(
-        'spacewalk-threejs-container',
-        'spacewalk-threejs-drag-container',
-        container,
-        { topConstraint: navbar }
-    )
+    return configureDrag('spacewalk-threejs-container', 'spacewalk-threejs-drag-container', container, { topConstraint: navbar })
 }
 
 export { configureDrag, configureRenderContainerDrag }
