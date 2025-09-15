@@ -1,5 +1,5 @@
 
-import { rgb255String, rgb255ToThreeJSColor } from "./colorUtils.js";
+import { rgb255ToThreeJSColor } from "./colorUtils.js";
 import { createImage, readFileAsDataURL } from './utils.js';
 
 import peter_kovesi from '/src/resources/colormaps/peter_kovesi/peter_kovesi.json'
@@ -11,7 +11,7 @@ const defaultColormapName = 'peter_kovesi_rainbow_bgyr_35_85_c72_n256';
 class ColorMapManager {
 
     constructor () {
-        this.dictionary = {};
+        this.dictionary = {}
     }
 
     async configure () {
@@ -38,14 +38,8 @@ class ColorMapManager {
 
     async addMap({name, path}) {
 
-        this.dictionary[ name ] = { path, rgb: undefined };
-
         if (Array.isArray(path)) {
-
-            this.dictionary[ name ] = path.map(([ r, g, b ]) => {
-                return { rgb255String: rgb255String({ r, g, b }), threejs: rgb255ToThreeJSColor(r, g, b) }
-            })
-
+            this.dictionary[ name ] = path.map(([ r, g, b ]) => rgb255ToThreeJSColor(r, g, b))
         } else {
             let response;
 
@@ -97,19 +91,24 @@ class ColorMapManager {
 
     }
 
-    retrieveRGB255String(colorMapName, interpolant) {
-        return retrieveRGB(this.dictionary[colorMapName], interpolant, 'rgb255String');
-    }
-
     retrieveRGBThreeJS(colorMapName, interpolant) {
-        return retrieveRGB(this.dictionary[colorMapName], interpolant, 'threejs');
+        return retrieveRGB(this.dictionary[colorMapName], interpolant);
     }
 
 }
 
-function retrieveRGB(rgbList, interpolant, key) {
-    const index = Math.floor(interpolant * (rgbList.length - 1));
-    return rgbList[ index ][ key ]
+function retrieveRGB(rgbList, interpolant) {
+
+    const a =  Math.floor(interpolant * (rgbList.length - 1))
+    const colorA = rgbList[ a ]
+
+    const b =  Math.ceil(interpolant * (rgbList.length - 1))
+    const colorB = rgbList[ b ]
+
+    return colorA.clone().lerp(colorB, interpolant)
+
+    // const index = Math.floor(interpolant * (rgbList.length - 1));
+    // return rgbList[ index ][ key ]
 }
 
 function rgbListWithImage(image) {
@@ -124,14 +123,12 @@ function rgbListWithImage(image) {
 
     const imageDataAsRGBAList = ctx.getImageData(0,0, ctx.canvas.width, ctx.canvas.height).data;
 
-    let rgbList = [];
+    const rgbList = []
 
     for (let i = 0; i < imageDataAsRGBAList.length; i += 4) {
-
         // grab r g b channels. ignore alpha channel.
         const [ r, g, b ] = [ imageDataAsRGBAList[ i ], imageDataAsRGBAList[ i+1 ], imageDataAsRGBAList[ i+2 ] ];
-
-        rgbList.push( { rgb255String: rgb255String({ r, g, b }), threejs: rgb255ToThreeJSColor(r, g, b) } );
+        rgbList.push( rgb255ToThreeJSColor(r, g, b) );
     }
 
     return rgbList;

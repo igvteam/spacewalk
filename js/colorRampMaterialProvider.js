@@ -5,8 +5,6 @@ import { defaultColormapName } from "./utils/colorMapManager.js";
 import {colorMapManager, ensembleManager, sceneManager, igvPanel, colorRampMaterialProvider} from "./app.js";
 import Ribbon from './ribbon.js';
 
-const alpha_visible = `rgb(${255},${255},${255})`;
-
 let rgbTexture;
 let alphaTexture;
 class ColorRampMaterialProvider {
