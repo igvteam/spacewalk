@@ -1,10 +1,10 @@
-import SpacewalkEventBus from './spacewalkEventBus.js'
-import {clamp} from './utils/mathUtils.js'
+import SpacewalkEventBus from '../spacewalkEventBus.js'
+import {clamp} from './mathUtils.js'
 
 let dragData = undefined
 
 // Generalized drag configuration function
-function configureDrag(targetElementId, dragHandleId, container, options = {}) {
+function configureDrag(targetElement, dragHandleElement, container, options = {}) {
     // Default options
     const {
         topConstraint: providedTopConstraint,
@@ -21,9 +21,10 @@ function configureDrag(targetElementId, dragHandleId, container, options = {}) {
     }
 
     // Use custom namespace or generate one based on target element
-    const namespace = customNamespace || `.spacewalk-drag-${targetElementId.replace(/[^a-zA-Z0-9]/g, '-')}`
+    const targetId = targetElement.id || 'unknown'
+    const namespace = customNamespace || `.spacewalk-drag-${targetId.replace(/[^a-zA-Z0-9]/g, '-')}`
 
-    const target = document.getElementById(targetElementId)
+    const target = targetElement
     const doDrag = event => {
 
         if(undefined === dragData) {
@@ -58,7 +59,7 @@ function configureDrag(targetElementId, dragHandleId, container, options = {}) {
 
     };
 
-    const handle = document.getElementById(dragHandleId)
+    const handle = dragHandleElement
     $(handle).on(`mousedown.${ namespace }`, event => {
 
         event.stopPropagation()
@@ -113,9 +114,4 @@ function getConstrainedDragValue(target, container, topConstraint, { screenX, sc
     return { left: `${ left }px`, top: `${ top }px` }
 }
 
-// Backward-compatible wrapper for existing usage
-function configureRenderContainerDrag(navbar, container) {
-    return configureDrag('spacewalk-threejs-container', 'spacewalk-threejs-drag-container', container, { topConstraint: navbar })
-}
-
-export { configureDrag, configureRenderContainerDrag }
+export { configureDrag }

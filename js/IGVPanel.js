@@ -3,7 +3,6 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {getMaterialProvider, setMaterialProvider} from './utils/utils.js';
 import Panel from './panel.js';
 import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager } from './app.js'
-import {makeDraggable} from "./utils/draggable.js"
 import { getPathsWithTrackRegistry, updateTrackMenusWithTrackConfigurations } from './widgets/trackWidgets.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 
@@ -24,8 +23,8 @@ class IGVPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction })
 
-        const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
-        makeDraggable(panel, dragHandle)
+        // const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
+        // makeDraggable(panel, dragHandle)
 
         this.panel.addEventListener('mouseenter', (event) => {
             event.stopPropagation();

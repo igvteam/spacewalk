@@ -1,16 +1,7 @@
 import hic from 'juicebox.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
-import {
-    ballAndStick,
-    colorRampMaterialProvider,
-    liveContactMapService,
-    liveDistanceMapService,
-    ensembleManager,
-    ribbon,
-    igvPanel, juiceboxPanel
-} from '../app.js'
-import {makeDraggable} from "../utils/draggable.js"
+import { ballAndStick, colorRampMaterialProvider, liveContactMapService, liveDistanceMapService, ensembleManager, ribbon, igvPanel, juiceboxPanel } from '../app.js'
 import LiveMapState from "./liveMapState.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import { renderLiveMapWithContactData } from "./liveContactMapService.js"
@@ -31,8 +22,8 @@ class JuiceboxPanel extends Panel {
 
         super({ container, panel, isHidden, xFunction, yFunction });
 
-        const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
-        makeDraggable(panel, dragHandle)
+        // const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
+        // makeDraggable(panel, dragHandle)
 
         this.panel.addEventListener('mouseenter', (event) => {
             event.stopPropagation();
