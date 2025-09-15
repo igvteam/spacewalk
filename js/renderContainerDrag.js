@@ -1,17 +1,29 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {clamp} from './utils/mathUtils.js'
 
-const namespace = '.spacewalk-render-container-drag'
-
 let dragData = undefined
 
-// navbar
-function configureRenderContainerDrag(navbar, container) {
+// Generalized drag configuration function
+function configureDrag(targetElementId, dragHandleId, container, options = {}) {
+    // Default options
+    const {
+        topConstraint: providedTopConstraint,
+        namespace: customNamespace,
+        onDragStart,
+        onDragEnd
+    } = options
 
-    const { height } = navbar.getBoundingClientRect()
-    const topConstraint = height
+    // Calculate top constraint - can be from navbar element, number, or undefined
+    let topConstraint = providedTopConstraint
+    if (typeof providedTopConstraint === 'object' && providedTopConstraint !== null) {
+        const { height } = providedTopConstraint.getBoundingClientRect()
+        topConstraint = height
+    }
 
-    const target = document.getElementById('spacewalk-threejs-container')
+    // Use custom namespace or generate one based on target element
+    const namespace = customNamespace || `.spacewalk-drag-${targetElementId.replace(/[^a-zA-Z0-9]/g, '-')}`
+
+    const target = document.getElementById(targetElementId)
     const doDrag = event => {
 
         if(undefined === dragData) {
@@ -37,11 +49,16 @@ function configureRenderContainerDrag(navbar, container) {
         $(document).off(namespace)
         dragData = undefined
 
+        // Call custom onDragEnd callback if provided
+        if (onDragEnd) {
+            onDragEnd(event, { left, top })
+        }
+
         SpacewalkEventBus.globalBus.post({ type: "DidEndRenderContainerDrag" })
 
     };
 
-    const handle = document.getElementById('spacewalk-threejs-drag-container')
+    const handle = document.getElementById(dragHandleId)
     $(handle).on(`mousedown.${ namespace }`, event => {
 
         event.stopPropagation()
@@ -53,6 +70,11 @@ function configureRenderContainerDrag(navbar, container) {
                 dx: x - event.screenX,
                 dy: y - event.screenY
             };
+
+        // Call custom onDragStart callback if provided
+        if (onDragStart) {
+            onDragStart(event, { x, y })
+        }
 
         $(document).on(`mousemove.${  namespace }`, event => {
             event.stopPropagation()
@@ -91,4 +113,14 @@ function getConstrainedDragValue(target, container, topConstraint, { screenX, sc
     return { left: `${ left }px`, top: `${ top }px` }
 }
 
-export { configureRenderContainerDrag }
+// Backward-compatible wrapper for existing usage
+function configureRenderContainerDrag(navbar, container) {
+    return configureDrag(
+        'spacewalk-threejs-container',
+        'spacewalk-threejs-drag-container',
+        container,
+        { topConstraint: navbar }
+    )
+}
+
+export { configureDrag, configureRenderContainerDrag }
