@@ -8,6 +8,7 @@ import { appleCrayonColorThreeJS } from "./utils/colorUtils.js"
 import EnsembleManager from './ensembleManager.js'
 import ConvexHull from "./utils/convexHull.js"
 import {getPositionArrayWithTrace} from "./utils/utils.js"
+import { disposeMaterial, removeAndDisposeFromScene } from './utils/disposalUtils.js'
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;
@@ -180,54 +181,6 @@ class BallAndStick {
 
     }
 
-    addToScene (scene) {
-        scene.add(this.balls)
-        scene.add(this.sticks)
-        // scene.add(this.hull.mesh)
-    }
-
-    dispose () {
-
-        if (this.balls) {
-            scene.remove(this.balls)
-            this.balls.geometry.dispose()
-            this.balls.material.dispose()
-            this.balls = undefined
-        }
-
-        if (this.sticks) {
-            scene.remove(this.sticks)
-            this.sticks.geometry.dispose()
-            this.sticks.material.dispose()
-            this.sticks = undefined
-        }
-
-        if (this.hull) {
-            scene.remove(this.hull.mesh)
-            this.hull.mesh.geometry.dispose()
-            this.hull.mesh.material.dispose()
-            this.hull.mesh = undefined
-        }
-    }
-
-    hide () {
-        if (undefined === this.balls) {
-            return
-        }
-        this.balls.visible = false
-        this.sticks.visible = false
-        this.hull.mesh.visible = false
-    }
-
-    show () {
-        if (undefined === this.balls) {
-            return
-        }
-        this.balls.visible = true
-        this.sticks.visible = true
-        this.hull.mesh.visible = true
-    }
-
     setStickVisibility(visible) {
         this.isStickVisible = visible
     }
@@ -288,6 +241,49 @@ class BallAndStick {
         if (this.sticks) {
             this.sticks.visible = (this.isStickVisible && sceneManager.renderStyle === BallAndStick.renderStyle)
         }
+    }
+
+    addToScene (scene) {
+        scene.add(this.balls)
+        scene.add(this.sticks)
+        // scene.add(this.hull.mesh)
+    }
+
+    dispose () {
+
+        if (this.balls) {
+            removeAndDisposeFromScene(scene, this.balls)
+            this.balls = undefined
+        }
+
+        if (this.sticks) {
+            removeAndDisposeFromScene(scene, this.sticks)
+            this.sticks = undefined
+        }
+
+        if (this.hull && this.hull.mesh) {
+            removeAndDisposeFromScene(scene, this.hull.mesh)
+            this.hull.mesh = undefined
+            this.hull = undefined
+        }
+    }
+
+    hide () {
+        if (undefined === this.balls) {
+            return
+        }
+        this.balls.visible = false
+        this.sticks.visible = false
+        this.hull.mesh.visible = false
+    }
+
+    show () {
+        if (undefined === this.balls) {
+            return
+        }
+        this.balls.visible = true
+        this.sticks.visible = true
+        this.hull.mesh.visible = true
     }
 
 }

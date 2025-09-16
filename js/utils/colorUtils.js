@@ -18,6 +18,18 @@ function colorString2Tokens(string) {
     }
 }
 
+function hexOrRGB255StringtoRGB255(color) {
+
+    if (color.startsWith('#')) {
+        const { r, g, b } = hex2RGB255(color)
+        return rgb255(r, g, b)
+    } else {
+        const [ r, g, b ] = colorString2Tokens(color)
+        return rgb255(r, g, b)
+    }
+
+}
+
 export const rgb255String = ({r, g, b}) => {
     return `rgb(${r},${g},${b})`;
 }
@@ -254,6 +266,7 @@ function updateColorPicker(picker, container, rgb) {
 }
 
 export {
+    hexOrRGB255StringtoRGB255,
     createColorPicker,
     updateColorPicker,
     compositeColors,

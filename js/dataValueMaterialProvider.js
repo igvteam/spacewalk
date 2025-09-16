@@ -1,5 +1,5 @@
 import {ensembleManager} from './app.js'
-import {colorString2Tokens, hex2RGB255, rgb255, rgb255Lerp, rgb255ToThreeJSColor, blendColorsLab} from './utils/colorUtils.js'
+import { rgb255, rgb255Lerp, rgb255ToThreeJSColor, blendColorsLab, hexOrRGB255StringtoRGB255 } from './utils/colorUtils.js'
 
 class DataValueMaterialProvider {
 
@@ -82,15 +82,15 @@ class DataValueMaterialProvider {
                 let color
                 if (feature.color) {
 
-                    const [ r, g, b ] = colorString2Tokens(feature.color)
+                    const [ r, g, b ] = hexOrRGB255StringtoRGB255(feature.color)
                     color = rgb255(r, g, b)
                 } else if ('function' === typeof track.getColorForFeature) {
-                    color = getRGB255(track.getColorForFeature(feature))
+                    color = hexOrRGB255StringtoRGB255(track.getColorForFeature(feature))
                 } else {
 
                     color = track.color || track.defaultColor
                     if (color) {
-                        color = getRGB255(color)
+                        color = hexOrRGB255StringtoRGB255(color)
                     }
                 }
 
@@ -111,21 +111,19 @@ class DataValueMaterialProvider {
         }
 
     }
+
     colorForInterpolant(interpolant) {
-        const index = Math.floor(interpolant * (this.colorList.length - 1))
-        return this.colorList[ index ]
-    }
 
-}
+        const a =  Math.floor(interpolant * (this.colorList.length - 1))
+        const colorA = this.colorList[ a ]
 
-function getRGB255(color) {
+        const b =  Math.ceil(interpolant * (this.colorList.length - 1))
+        const colorB = this.colorList[ b ]
 
-    if (color.startsWith('#')) {
-        const { r, g, b } = hex2RGB255(color)
-        return rgb255(r, g, b)
-    } else {
-        const [ r, g, b ] = colorString2Tokens(color)
-        return rgb255(r, g, b)
+        return colorA.clone().lerp(colorB, interpolant)
+
+        // const index = Math.floor(interpolant * (this.colorList.length - 1))
+        // return this.colorList[ index ]
     }
 
 }

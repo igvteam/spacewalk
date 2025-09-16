@@ -3,7 +3,7 @@ import {
     ballAndStick,
     pointCloud,
     dataValueMaterialProvider,
-    colorRampMaterialProvider
+    colorRampMaterialProvider, genomicNavigator
 } from "../app.js";
 
 function showGlobalSpinner() {
@@ -53,8 +53,7 @@ function setMaterialProvider(materialProvider) {
     ribbon.updateMaterialProvider(materialProvider)
     ballAndStick.updateMaterialProvider(materialProvider)
     pointCloud.updateMaterialProvider(materialProvider)
-
-    colorRampMaterialProvider.repaint()
+    genomicNavigator.repaint()
 }
 
 function fitToContainer(canvas, devicePixelRatio) {

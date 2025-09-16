@@ -1,5 +1,5 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {ballAndStick, colorRampMaterialProvider} from './app.js';
+import {ballAndStick, genomicNavigator} from './app.js';
 
 const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud', 'ribbon', 'stick' ]);
 
@@ -49,7 +49,7 @@ class Picker {
                     // console.log(`UN HIGHLIGHT ${ currentInstanceId }`)
                     currentInstanceId = undefined
                     ballAndStick.pickHighlighter.unhighlight()
-                    colorRampMaterialProvider.repaint()
+                    genomicNavigator.repaint()
                 }
             }
 

@@ -24,8 +24,8 @@ class GUIManager {
 
         })
 
-        panel.addEventListener('click', (e) => e.stopPropagation());
-        panel.addEventListener('mousemove', (e) => e.stopPropagation());
+        // panel.addEventListener('click', (e) => e.stopPropagation());
+        // panel.addEventListener('mousemove', (e) => e.stopPropagation());
 
         // Configure Ground Plane Toggle
         document.querySelector(`#spacewalk_ui_manager_groundplane`).addEventListener('change', e => {

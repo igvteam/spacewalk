@@ -1,5 +1,5 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import { makeDraggable } from "./utils/draggable.js"
+import {configureDrag} from "./utils/drag"
 
 const zIndexPanelSelected = 1124;
 const zIndexPanelUnselected = 1024;
@@ -20,7 +20,9 @@ class Panel {
         this.yFunction = yFunction
 
         const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
-        makeDraggable(panel, dragHandle)
+        // makeDraggable(panel, dragHandle)
+
+        configureDrag(panel, dragHandle, container, { topConstraint: document.querySelector('.navbar') })
 
         dragHandle.addEventListener(`mousedown`, (event) => {
             event.stopPropagation();

@@ -5,6 +5,7 @@ import {ensembleManager, igvPanel, pointCloud, scene, sceneManager} from "./app.
 import EnsembleManager from "./ensembleManager.js"
 import {clamp} from "./utils/mathUtils.js"
 import ConvexHull from "./utils/convexHull.js"
+import { disposeMaterial, removeAndDisposeArrayFromScene } from './utils/disposalUtils.js'
 
 class PointCloud {
 
@@ -21,6 +22,13 @@ class PointCloud {
         this.pointOpacity = 0.375
         this.deemphasizedPointOpacity = 0.125/4
 
+        this.createMaterials();
+
+        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
+        SpacewalkEventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
+    }
+
+    createMaterials() {
         const materialConfig =
             {
                 size: 4,
@@ -30,9 +38,6 @@ class PointCloud {
 
                 depthTest: true,
                 depthWrite: true,
-
-                // depthTest: false,
-                // depthWrite: false,
 
                 transparent: true,
 
@@ -57,10 +62,6 @@ class PointCloud {
                 depthTest: false,
                 depthWrite: false,
 
-                // depthTest: true,
-                // depthWrite: true,
-
-
                 transparent: true,
 
                 opacity: this.deemphasizedPointOpacity,
@@ -72,12 +73,14 @@ class PointCloud {
 
         this.deemphasizedMaterial = new THREE.PointsMaterial( deemphasizedConfig );
         this.deemphasizedMaterial.side = THREE.DoubleSide;
-
-        SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
-        SpacewalkEventBus.globalBus.subscribe("DidLeaveGenomicNavigator", this);
     }
 
     configure(trace) {
+
+        // Ensure materials exist (recreate if disposed)
+        if (!this.material || !this.deemphasizedMaterial) {
+            this.createMaterials();
+        }
 
         // Scale point size to pointcloud bbox for reasonable starting point size
         const { radius } = EnsembleManager.getTraceBounds(trace)
@@ -182,19 +185,24 @@ class PointCloud {
     dispose () {
 
         if (this.meshList) {
-            for (let mesh of this.meshList) {
-                scene.remove(mesh)
-                mesh.geometry.dispose()
-                mesh = undefined
-            }
+            removeAndDisposeArrayFromScene(scene, this.meshList)
             this.meshList = undefined
-
-            scene.remove(this.hull.mesh)
-            this.hull.mesh.geometry.dispose()
-            this.hull.mesh = undefined
-
         }
 
+        if (this.hull && this.hull.mesh) {
+            scene.remove(this.hull.mesh)
+            this.hull.mesh.geometry.dispose()
+            disposeMaterial(this.hull.mesh.material)
+            this.hull.mesh = undefined
+            this.hull = undefined
+        }
+
+        // Dispose materials
+        disposeMaterial(this.material)
+        disposeMaterial(this.deemphasizedMaterial)
+        
+        this.material = undefined
+        this.deemphasizedMaterial = undefined
     }
 
     renderLoopHelper () {
