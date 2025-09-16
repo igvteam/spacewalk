@@ -9,6 +9,7 @@ import {igvPanel, sceneManager, ensembleManager, scene} from "./app.js"
 import {appleCrayonColorThreeJS} from "./utils/colorUtils.js";
 import {getPositionArrayWithTrace} from "./utils/utils.js"
 import ConvexHull from "./utils/convexHull"
+import { disposeMaterial, removeAndDisposeArrayFromScene } from './utils/disposalUtils.js'
 
 const ribbonWidth = 4/*2*/
 const highlightBeadRadiusScalefactor = 1/(6e1)
@@ -135,33 +136,29 @@ class Ribbon {
 
     dispose () {
 
-        if (this.spline) {
-            scene.remove(this.spline)
-            this.spline.mesh.material.dispose()
+        if (this.spline && this.spline.mesh) {
+            scene.remove(this.spline.mesh)
+            disposeMaterial(this.spline.mesh.material)
             this.spline.mesh.geometry.dispose()
             this.spline = undefined
         }
 
         if (this.highlightBeads) {
-
-            scene.remove( this.highlightBeads[ 0 ] )
-            scene.remove( this.highlightBeads[ 1 ] )
-
-            for (let { geometry, material } of this.highlightBeads) {
-                material.dispose()
-                geometry.dispose()
-            }
-
-            this.highlightBeads[ 0 ] = undefined
-            this.highlightBeads[ 1 ] = undefined
+            removeAndDisposeArrayFromScene(scene, this.highlightBeads)
             this.highlightBeads = undefined
         }
 
-        if (this.hull) {
+        if (this.hull && this.hull.mesh) {
             scene.remove(this.hull.mesh)
             this.hull.mesh.geometry.dispose()
-            this.hull.mesh.material.dispose()
+            disposeMaterial(this.hull.mesh.material)
             this.hull.mesh = undefined
+            this.hull = undefined
+        }
+
+        // Dispose curve if it exists
+        if (this.curve) {
+            this.curve = undefined
         }
 
     }

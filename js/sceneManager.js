@@ -9,6 +9,7 @@ import Gnomon from './gnomon.js'
 import GUIManager from "./guiManager.js"
 import {setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
 import Ribbon from './ribbon.js'
+import { disposeObject, disposeMaterial, clearScene } from './utils/disposalUtils.js'
 import {
     scene,
     pointCloud,
@@ -144,47 +145,6 @@ class SceneManager {
 
     }
 
-    purgeScene() {
-
-        while (scene.children.length > 0) {
-
-            const child = scene.children[0];
-
-            // Call custom dispose if available
-            if (typeof child.dispose === 'function') {
-                child.dispose();
-            } else {
-                // Fallback disposal for other objects with geometry or material
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) {
-                    if (Array.isArray(child.material)) {
-                        child.material.forEach(mat => mat.dispose());
-                    } else {
-                        child.material.dispose();
-                    }
-                }
-            }
-
-            scene.remove(child)
-        } // while(...)
-
-        const gnomonInstance = this.getGnomon()
-        if (gnomonInstance){
-            gnomonInstance.dispose()
-        }
-
-        const groundPlaneInstance = this.getGroundPlane()
-        if(groundPlaneInstance){
-            groundPlaneInstance.dispose()
-        }
-
-        // cameraLightingRig.dispose()
-        ballAndStick.dispose()
-        ribbon.dispose()
-        pointCloud.dispose()
-
-    }
-
     configureRenderStyle (renderStyle) {
 
         if (Ribbon.renderStyle === renderStyle) {
@@ -224,6 +184,29 @@ class SceneManager {
     isGood2Go() {
         return scene && this.getGnomon() && this.getGroundPlane()
      }
+
+    purgeScene() {
+
+        // First dispose render objects (they may reference scene objects)
+        ballAndStick.dispose()
+        ribbon.dispose()
+        pointCloud.dispose()
+
+        // Then clear all scene objects
+        clearScene(scene)
+
+        // Dispose any remaining scene objects that might be referenced by name
+        const gnomonInstance = this.getGnomon()
+        if (gnomonInstance) {
+            gnomonInstance.dispose()
+        }
+
+        const groundPlaneInstance = this.getGroundPlane()
+        if (groundPlaneInstance) {
+            groundPlaneInstance.dispose()
+        }
+
+    }
 
     static getConvexHull(renderStyle) {
         switch (renderStyle) {
