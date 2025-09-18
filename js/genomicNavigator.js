@@ -93,7 +93,7 @@ class GenomicNavigator {
 
         if (ensembleManager.currentTrace) {
 
-            let { yNormalized } = getMouseXY(canvas, event);
+            let { yNormalized } = getMouseXY(canvas, event)
             const interpolantList = [ 1.0 - yNormalized ];
 
             const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)

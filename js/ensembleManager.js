@@ -113,6 +113,10 @@ class EnsembleManager {
 
     getGenomicInterpolantWindowList(interpolantList) {
 
+        if (undefined === interpolantList) {
+            console.error('Error: no interpolant list')
+        }
+
         const interpolantWindowList = [];
 
         const genomicExtentList = this.getCurrentGenomicExtentList()

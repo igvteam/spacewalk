@@ -5,6 +5,7 @@ import {
     dataValueMaterialProvider,
     colorRampMaterialProvider, genomicNavigator
 } from "../app.js";
+import {clamp} from "./mathUtils"
 
 function showGlobalSpinner() {
     document.getElementById('spacewalk-spinner').style.display = 'block'
@@ -70,7 +71,9 @@ function getMouseXY(domElement, { clientX, clientY }) {
     // a DOMRect object with eight properties: left, top, right, bottom, x, y, width, height
     const { left, top, width, height } = domElement.getBoundingClientRect();
 
-    return { x: clientX - left,  y: clientY - top, xNormalized: (clientX - left)/width, yNormalized: (clientY - top)/height };
+    const xNormalized = clamp((clientX - left)/width, 0, 1)
+    const yNormalized = clamp((clientY - top)/height, 0, 1)
+    return { x: clientX - left,  y: clientY - top, xNormalized, yNormalized };
 
 }
 
