@@ -93,14 +93,16 @@ class GenomicNavigator {
 
         if (ensembleManager.currentTrace) {
 
-            let { yNormalized } = getMouseXY(canvas, event);
+            let { yNormalized } = getMouseXY(canvas, event)
             const interpolantList = [ 1.0 - yNormalized ];
 
             const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
             if (interpolantWindowList) {
-
                 SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } });
+            } else {
+                // When there is no interpolant, publish interpolantList as undefined. Subscribers will handle this case.
+                SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this } });
             }
 
         }

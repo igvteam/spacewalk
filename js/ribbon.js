@@ -35,12 +35,14 @@ class Ribbon {
 
                 const { interpolantList } = data
 
-                for (let interpolant of interpolantList) {
+                if (interpolantList){
+                    for (let interpolant of interpolantList) {
 
-                    const { x, y, z } = this.curve.getPointAt(interpolant)
-                    const index = interpolantList.indexOf(interpolant)
-                    this.highlightBeads[ index ].position.set(x, y, z)
-                    this.highlightBeads[ index ].visible = true
+                        const { x, y, z } = this.curve.getPointAt(interpolant)
+                        const index = interpolantList.indexOf(interpolant)
+                        this.highlightBeads[ index ].position.set(x, y, z)
+                        this.highlightBeads[ index ].visible = true
+                    }
                 }
 
             }

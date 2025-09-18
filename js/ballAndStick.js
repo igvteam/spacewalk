@@ -31,6 +31,7 @@ class BallAndStick {
         this.isStickVisible = true;
 
         SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this);
+        SpacewalkEventBus.globalBus.subscribe("DidHideCrosshairs", this);
      }
 
     receiveEvent({ type, data }) {
@@ -41,11 +42,16 @@ class BallAndStick {
 
                 const { interpolantList } = data
 
-                const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
+                if (interpolantList){
+                    const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
-                if (interpolantWindowList) {
-                    const instanceIdList = interpolantWindowList.map(({ index }) => index)
-                    this.pickHighlighter.configureWithInstanceIdList(instanceIdList);
+                    if (interpolantWindowList) {
+                        const instanceIdList = interpolantWindowList.map(({ index }) => index)
+                        this.pickHighlighter.configureWithInstanceIdList(instanceIdList);
+                    }
+
+                } else {
+                    this.pickHighlighter.unhighlight()
                 }
 
             } else if ('DidHideCrosshairs' === type) {
