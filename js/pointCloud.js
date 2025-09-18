@@ -136,16 +136,22 @@ class PointCloud {
 
     receiveEvent({ type, data }) {
 
-        if (this.meshList && "DidUpdateGenomicInterpolant" === type && PointCloud.renderStyle === sceneManager.renderStyle) {
+        if ("DidUpdateGenomicInterpolant" === type && this.meshList && PointCloud.renderStyle === sceneManager.renderStyle) {
 
             const { interpolantList } = data;
 
-            const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
+            if (interpolantList) {
+                const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
-            if (interpolantWindowList) {
-                const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ])
-                this.pickHighlighter.highlightWithObjectList(objectList)
+                if (interpolantWindowList) {
+                    const objectList = interpolantWindowList.map(({ index }) => this.meshList[ index ])
+                    this.pickHighlighter.highlightWithObjectList(objectList)
+                }
+
+            } else {
+                this.pickHighlighter.unhighlight()
             }
+
 
         } else if ("DidLeaveGenomicNavigator" === type) {
             this.pickHighlighter.unhighlight()
@@ -200,7 +206,7 @@ class PointCloud {
         // Dispose materials
         disposeMaterial(this.material)
         disposeMaterial(this.deemphasizedMaterial)
-        
+
         this.material = undefined
         this.deemphasizedMaterial = undefined
     }

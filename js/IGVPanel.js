@@ -36,8 +36,6 @@ class IGVPanel extends Panel {
             SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
         });
 
-
-
         SpacewalkEventBus.globalBus.subscribe("DidUpdateGenomicInterpolant", this)
     }
 
@@ -125,7 +123,7 @@ class IGVPanel extends Panel {
 
         if ("DidUpdateGenomicInterpolant" === type) {
             const { poster, interpolantList } = data
-            if (genomicNavigator === poster) {
+            if (poster === genomicNavigator && interpolantList) {
                 this.browser.cursorGuide.updateWithInterpolant(interpolantList[ 0 ])
             }
         }

@@ -99,8 +99,10 @@ class GenomicNavigator {
             const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
             if (interpolantWindowList) {
-
                 SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } });
+            } else {
+                // When there is no interpolant, publish interpolantList as undefined. Subscribers will handle this case.
+                SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this } });
             }
 
         }
