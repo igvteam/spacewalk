@@ -9,102 +9,108 @@ class DataValueMaterialProvider {
     }
 
     async configure(track) {
+        const [viewport] = track.trackView.viewports;
+        const { chr, bpPerPixel } = track.browser.referenceFrameList[0];
+        const genomicExtentList = ensembleManager.getCurrentGenomicExtentList();
 
-        let min = undefined
-        let max = undefined
+        // Collect features for all genomic extents
+        const allFeaturesPerExtent = await this.collectFeaturesForExtents(
+            viewport, track, chr, bpPerPixel, genomicExtentList
+        );
 
-        if (track.dataRange) {
-            min = track.dataRange.min
-            max = track.dataRange.max
-        }
+        // Create color list based on feature type (value-based or color-only)
+        this.finalColorList = this.createColorList(allFeaturesPerExtent, track);
+    }
 
-        const [ viewport ] = track.trackView.viewports
-        const { chr, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
-
-        const maxFeatureList = []
-        let colorList = []
-        const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
+    async collectFeaturesForExtents(viewport, track, chr, bpPerPixel, genomicExtentList) {
+        const result = [];
 
         for (const { startBP, endBP } of genomicExtentList) {
-            const raw = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
-            const featuresForGenomicExtent = raw.filter(({ start, end }) => {
+            const raw = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel);
+            const features = raw.filter(({ start, end }) => {
+                return (start < startBP && startBP < end) ||
+                       (start < endBP && endBP < end) ||
+                       (start > startBP && end < endBP);
+            });
 
-                const a = start < startBP && startBP < end
-                const b = start < endBP && endBP < end
-                const c = start > startBP && end < endBP
+            if (features && features.length > 0) {
+                result.push(features);
+            }
+        }
 
-                return a || b || c
-            })
+        return result;
+    }
 
-            if (featuresForGenomicExtent && featuresForGenomicExtent.length > 0) {
+    createColorList(allFeaturesPerExtent, track) {
+        if (allFeaturesPerExtent.length === 0) return [];
 
-                const list = featuresForGenomicExtent.filter(feature => undefined === feature.value)
+        // Check if features have values (if ANY lacks value, assume ALL lack it)
+        const firstFeatureSet = allFeaturesPerExtent[0];
+        const hasValues = firstFeatureSet.every(feature => feature.value !== undefined);
 
-                if (list.length > 0) {
+        if (!hasValues) {
+            // Color-only features: blend colors from each extent
+            return allFeaturesPerExtent.map(features => 
+                this.blendFeatureColors(features, track)
+            );
+        }
 
-                    const rgb255List = featuresForGenomicExtent.map((feature) => {
-                        const rgb255String = feature.color || track.constructor.getDefaultColor()
-                        let [ a, green, b ] = rgb255String.split(',')
-                        let [ lp, red ] = a.split('(')
-                        let [ blue, rp ] = b.split(')')
-                        return [ parseInt(red, 10), parseInt(green, 10), parseInt(blue, 10) ]
-                    })
-                    const [ r255, g255, b255 ] = blendColorsLab(rgb255List)
+        // Value-based features: use data values to create color ramp
+        return this.createValueBasedColors(allFeaturesPerExtent, track);
+    }
 
-                    colorList.push(rgb255ToThreeJSColor(r255, g255, b255))
-                } else {
-                    const result = featuresForGenomicExtent.reduce((acc, feature, currentIndex) => {
+    blendFeatureColors(features, track) {
+        const rgb255List = features.map(feature => {
+            const rgb255String = feature.color || track.constructor.getDefaultColor();
+            const [a, green, b] = rgb255String.split(',');
+            const [lp, red] = a.split('(');
+            const [blue, rp] = b.split(')');
+            return [parseInt(red, 10), parseInt(green, 10), parseInt(blue, 10)];
+        });
+        
+        const [r255, g255, b255] = blendColorsLab(rgb255List);
+        return rgb255ToThreeJSColor(r255, g255, b255);
+    }
 
-                        if (feature.value > acc.max) {
-                            acc.max = feature.value
-                            acc.index = currentIndex
-                        }
+    createValueBasedColors(allFeaturesPerExtent, track) {
+        // Get max feature from each extent
+        const maxFeatures = allFeaturesPerExtent.map(features => 
+            features.reduce((acc, feature) => 
+                feature.value > acc.value ? feature : acc
+            )
+        );
 
-                        return acc
+        // Calculate min/max across all features
+        const min = track.dataRange?.min ?? Math.min(...maxFeatures.map(f => f.value));
+        const max = track.dataRange?.max ?? Math.max(...maxFeatures.map(f => f.value));
 
-                    }, { max: Number.NEGATIVE_INFINITY, index: 0 })
-                    maxFeatureList.push(featuresForGenomicExtent[ result.index ])
+        // Create interpolated colors
+        return maxFeatures.map(feature => {
+            const color = this.getFeatureColor(feature, track);
+            const interpolant = (feature.value - min) / (max - min);
 
-                    const featureValues = maxFeatureList.map(({ value }) => value)
-                    min = Math.min(...featureValues)
-                    max = Math.max(...featureValues)
+            if (color) {
+                const { r, g, b } = rgb255Lerp(this.colorMinimum, color, interpolant);
+                return rgb255ToThreeJSColor(r, g, b);
+            } else {
+                const { r, g, b } = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolant);
+                return rgb255ToThreeJSColor(r, g, b);
+            }
+        });
+    }
 
-                    colorList = maxFeatureList.map(feature => {
-
-                        let color
-                        if (feature.color) {
-
-                            const [ r, g, b ] = hexOrRGB255StringtoRGB255(feature.color)
-                            color = rgb255(r, g, b)
-                        } else if ('function' === typeof track.getColorForFeature) {
-                            color = hexOrRGB255StringtoRGB255(track.getColorForFeature(feature))
-                        } else {
-
-                            color = track.color || track.defaultColor
-                            if (color) {
-                                color = hexOrRGB255StringtoRGB255(color)
-                            }
-                        }
-
-                        const interpolant = (feature.value - min) / (max - min)
-
-                        if (color) {
-                            const { r, g, b } = rgb255Lerp(this.colorMinimum, color, interpolant)
-                            return rgb255ToThreeJSColor(r, g, b)
-                        } else {
-                            const { r, g, b } = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolant)
-                            return rgb255ToThreeJSColor(r, g, b)
-                        }
-
-                    })
-                }
-
-            } // if (...)
-
-        } // for (genomic extent list)
-
-        this.finalColorList = [...colorList]
-
+    getFeatureColor(feature, track) {
+        if (feature.color) {
+            const [r, g, b] = hexOrRGB255StringtoRGB255(feature.color);
+            return rgb255(r, g, b);
+        }
+        
+        if (typeof track.getColorForFeature === 'function') {
+            return hexOrRGB255StringtoRGB255(track.getColorForFeature(feature));
+        }
+        
+        const trackColor = track.color || track.defaultColor;
+        return trackColor ? hexOrRGB255StringtoRGB255(trackColor) : null;
     }
 
     colorForInterpolant(interpolant) {
