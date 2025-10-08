@@ -1,6 +1,6 @@
 import igv from 'igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {getMaterialProvider, setMaterialProvider} from './utils/utils.js';
+import {setMaterialProvider} from './utils/utils.js';
 import Panel from './panel.js';
 import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, genomicNavigator} from './app.js'
 import { getPathsWithTrackRegistry, updateTrackMenusWithTrackConfigurations } from './widgets/trackWidgets.js'
@@ -148,18 +148,18 @@ class IGVPanel extends Panel {
     configureMouseHandlers () {
 
         this.browser.on('dataValueMaterialCheckbox', async track => {
-
-            console.log(`${track.name} did set data value material provider input ${ true === track.trackView.materialProviderInput.checked ? 'true' : 'false' }`)
-
-            this.materialProvider = await getMaterialProvider(track)
-            setMaterialProvider(this.materialProvider)
-
-        })
+            console.log(`${track.name} checkbox changed to ${track.trackView.materialProviderInput.checked}`);
+            
+            if (track.trackView.materialProviderInput.checked) {
+                await this.activateTrackMaterialProvider(track);
+            } else {
+                this.deactivateTrackMaterialProvider();
+            }
+        });
 
         this.browser.on('trackremoved', track => {
-            if (track.trackView.materialProviderInput && track.trackView.materialProviderInput.checked) {
-                this.materialProvider = colorRampMaterialProvider;
-                setMaterialProvider(colorRampMaterialProvider);
+            if (track.trackView.materialProviderInput?.checked) {
+                this.deactivateTrackMaterialProvider();
             }
         });
 
@@ -181,6 +181,42 @@ class IGVPanel extends Panel {
 
         })
 
+    }
+
+    async activateTrackMaterialProvider(track) {
+        // Uncheck all other tracks
+        this.uncheckOtherTracks(track);
+        
+        // Check if track can be used (zoom level check)
+        if (!this.canUseTrackForMaterial(track)) {
+            console.warn(`Track ${track.name} zoom level too low. Using default color ramp.`);
+            track.trackView.materialProviderInput.checked = false;
+            this.deactivateTrackMaterialProvider();
+            return;
+        }
+        
+        // Configure and apply
+        await dataValueMaterialProvider.configure(track);
+        this.materialProvider = dataValueMaterialProvider;
+        setMaterialProvider(dataValueMaterialProvider);
+    }
+
+    deactivateTrackMaterialProvider() {
+        this.materialProvider = colorRampMaterialProvider;
+        setMaterialProvider(colorRampMaterialProvider);
+    }
+
+    uncheckOtherTracks(selectedTrack) {
+        for (let trackView of this.browser.trackViews) {
+            if (trackView.track !== selectedTrack && trackView.materialProviderInput) {
+                trackView.materialProviderInput.checked = false;
+            }
+        }
+    }
+
+    canUseTrackForMaterial(track) {
+        const zoomInNotice = track.trackView.viewports[0].$zoomInNotice.get(0);
+        return !(zoomInNotice && zoomInNotice.style.display !== 'none');
     }
 
     async loadTrackList(configurations) {
@@ -218,12 +254,9 @@ class IGVPanel extends Panel {
         if (false === track.trackView.loading) {
             console.warn(`Danger. track(${ track.name }) is NOT loaded. Can not use for feature mapping`)
         }
-        await dataValueMaterialProvider.configure(track)
-
-        this.materialProvider = dataValueMaterialProvider
-        setMaterialProvider(dataValueMaterialProvider)
 
         track.trackView.materialProviderInput.checked = true
+        await this.activateTrackMaterialProvider(track)
 
     }
 }
