@@ -8,7 +8,7 @@ import SpacewalkEventBus from "./spacewalkEventBus.js";
 import EnsembleManager from "./ensembleManager.js";
 import ColorMapManager from "./utils/colorMapManager.js";
 import SceneManager from "./sceneManager.js";
-import DataValueMaterialProvider from "./dataValueMaterialProvider.js";
+import TrackMaterialProvider from "./trackMaterialProvider.js";
 import ColorRampMaterialProvider from "./colorRampMaterialProvider.js";
 import Panel, { doInspectPanelVisibilityCheckbox }  from "./panel.js";
 import PointCloud from "./pointCloud.js";
@@ -43,7 +43,7 @@ let ballAndStick;
 let ensembleManager;
 let colorMapManager;
 let sceneManager;
-let dataValueMaterialProvider;
+let trackMaterialProvider;
 let colorRampMaterialProvider;
 let guiManager
 let liveContactMapService
@@ -107,7 +107,7 @@ async function createDomainObjects() {
     colorMapManager = new ColorMapManager()
     await colorMapManager.configure()
 
-    dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('snow'), appleCrayonColorRGB255('blueberry'))
+    trackMaterialProvider = new TrackMaterialProvider(appleCrayonColorRGB255('snow'), appleCrayonColorRGB255('blueberry'))
 
     colorRampMaterialProvider = new ColorRampMaterialProvider()
 
@@ -502,7 +502,7 @@ export {
     colorMapManager,
     sceneManager,
     colorRampMaterialProvider,
-    dataValueMaterialProvider,
+    trackMaterialProvider,
     guiManager,
     juiceboxPanel,
     liveContactMapService,

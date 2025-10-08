@@ -2,7 +2,7 @@ import {
     ribbon,
     ballAndStick,
     pointCloud,
-    dataValueMaterialProvider,
+    trackMaterialProvider,
     colorRampMaterialProvider, genomicNavigator
 } from "../app.js";
 import {clamp} from "./mathUtils"

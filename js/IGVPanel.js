@@ -2,7 +2,7 @@ import igv from 'igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {setMaterialProvider} from './utils/utils.js';
 import Panel from './panel.js';
-import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, genomicNavigator} from './app.js'
+import {colorRampMaterialProvider, trackMaterialProvider, ensembleManager, genomicNavigator} from './app.js'
 import { getPathsWithTrackRegistry, updateTrackMenusWithTrackConfigurations } from './widgets/trackWidgets.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 
@@ -196,9 +196,9 @@ class IGVPanel extends Panel {
         }
         
         // Configure and apply
-        await dataValueMaterialProvider.configure(track);
-        this.materialProvider = dataValueMaterialProvider;
-        setMaterialProvider(dataValueMaterialProvider);
+        await trackMaterialProvider.configure(track);
+        this.materialProvider = trackMaterialProvider;
+        setMaterialProvider(trackMaterialProvider);
     }
 
     deactivateTrackMaterialProvider() {

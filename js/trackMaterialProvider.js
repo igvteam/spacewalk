@@ -1,7 +1,7 @@
 import {ensembleManager} from './app.js'
 import { rgb255, rgb255Lerp, rgb255ToThreeJSColor, blendColorsLab, hexOrRGB255StringtoRGB255 } from './utils/colorUtils.js'
 
-class DataValueMaterialProvider {
+class TrackMaterialProvider {
 
     constructor (colorMinimum, colorMaximum) {
         this.colorMinimum = colorMinimum;
@@ -127,4 +127,5 @@ class DataValueMaterialProvider {
 
 }
 
-export default DataValueMaterialProvider;
+export default TrackMaterialProvider;
+
