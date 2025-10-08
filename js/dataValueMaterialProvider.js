@@ -22,8 +22,9 @@ class DataValueMaterialProvider {
         const { chr, bpPerPixel } = track.browser.referenceFrameList[ 0 ]
 
         const maxFeatureList = []
-        const blendedColorList = []
+        let colorList = []
         const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
+
         for (const { startBP, endBP } of genomicExtentList) {
             const raw = await viewport.getFeatures(track, chr, startBP, endBP, bpPerPixel)
             const featuresForGenomicExtent = raw.filter(({ start, end }) => {
@@ -40,17 +41,17 @@ class DataValueMaterialProvider {
                 const list = featuresForGenomicExtent.filter(feature => undefined === feature.value)
 
                 if (list.length > 0) {
-                    const featureColors = featuresForGenomicExtent.map((feature) => {
-                        const color = feature.color || track.constructor.getDefaultColor()
-                        let [ a, green, b ] = color.split(',')
-                        let [ c, red ] = a.split('(')
-                        let [ blue, d ] = b.split(')')
+
+                    const rgb255List = featuresForGenomicExtent.map((feature) => {
+                        const rgb255String = feature.color || track.constructor.getDefaultColor()
+                        let [ a, green, b ] = rgb255String.split(',')
+                        let [ lp, red ] = a.split('(')
+                        let [ blue, rp ] = b.split(')')
                         return [ parseInt(red, 10), parseInt(green, 10), parseInt(blue, 10) ]
                     })
+                    const [ r255, g255, b255 ] = blendColorsLab(rgb255List)
 
-                    const [ r, g, b ] = blendColorsLab(featureColors)
-                    const blendedThreeJSColor = rgb255ToThreeJSColor(r, g, b)
-                    blendedColorList.push(blendedThreeJSColor)
+                    colorList.push(rgb255ToThreeJSColor(r255, g255, b255))
                 } else {
                     const result = featuresForGenomicExtent.reduce((acc, feature, currentIndex) => {
 
@@ -62,68 +63,60 @@ class DataValueMaterialProvider {
                         return acc
 
                     }, { max: Number.NEGATIVE_INFINITY, index: 0 })
-
                     maxFeatureList.push(featuresForGenomicExtent[ result.index ])
 
+                    const featureValues = maxFeatureList.map(({ value }) => value)
+                    min = Math.min(...featureValues)
+                    max = Math.max(...featureValues)
+
+                    colorList = maxFeatureList.map(feature => {
+
+                        let color
+                        if (feature.color) {
+
+                            const [ r, g, b ] = hexOrRGB255StringtoRGB255(feature.color)
+                            color = rgb255(r, g, b)
+                        } else if ('function' === typeof track.getColorForFeature) {
+                            color = hexOrRGB255StringtoRGB255(track.getColorForFeature(feature))
+                        } else {
+
+                            color = track.color || track.defaultColor
+                            if (color) {
+                                color = hexOrRGB255StringtoRGB255(color)
+                            }
+                        }
+
+                        const interpolant = (feature.value - min) / (max - min)
+
+                        if (color) {
+                            const { r, g, b } = rgb255Lerp(this.colorMinimum, color, interpolant)
+                            return rgb255ToThreeJSColor(r, g, b)
+                        } else {
+                            const { r, g, b } = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolant)
+                            return rgb255ToThreeJSColor(r, g, b)
+                        }
+
+                    })
                 }
 
             } // if (...)
 
-        }
+        } // for (genomic extent list)
 
-        // find global min/max
-        if (maxFeatureList.length > 0) {
-            const featureValues = maxFeatureList.map(({ value }) => value)
-            min = Math.min(...featureValues)
-            max = Math.max(...featureValues)
-
-            this.colorList = maxFeatureList.map(feature => {
-
-                let color
-                if (feature.color) {
-
-                    const [ r, g, b ] = hexOrRGB255StringtoRGB255(feature.color)
-                    color = rgb255(r, g, b)
-                } else if ('function' === typeof track.getColorForFeature) {
-                    color = hexOrRGB255StringtoRGB255(track.getColorForFeature(feature))
-                } else {
-
-                    color = track.color || track.defaultColor
-                    if (color) {
-                        color = hexOrRGB255StringtoRGB255(color)
-                    }
-                }
-
-                const interpolant = (feature.value - min) / (max - min)
-
-                if (color) {
-                    const { r, g, b } = rgb255Lerp(this.colorMinimum, color, interpolant)
-                    return rgb255ToThreeJSColor(r, g, b)
-                } else {
-                    const { r, g, b } = rgb255Lerp(this.colorMinimum, this.colorMaximum, interpolant)
-                    return rgb255ToThreeJSColor(r, g, b)
-                }
-
-
-            })
-        } else {
-            this.colorList = [...blendedColorList]
-        }
+        this.finalColorList = [...colorList]
 
     }
 
     colorForInterpolant(interpolant) {
 
-        const a =  Math.floor(interpolant * (this.colorList.length - 1))
-        const colorA = this.colorList[ a ]
+        const a =  Math.floor(interpolant * (this.finalColorList.length - 1))
+        const colorA = this.finalColorList[ a ]
 
-        const b =  Math.ceil(interpolant * (this.colorList.length - 1))
-        const colorB = this.colorList[ b ]
+        const b =  Math.ceil(interpolant * (this.finalColorList.length - 1))
+        const colorB = this.finalColorList[ b ]
 
         return colorA.clone().lerp(colorB, interpolant)
 
-        // const index = Math.floor(interpolant * (this.colorList.length - 1))
-        // return this.colorList[ index ]
     }
 
 }

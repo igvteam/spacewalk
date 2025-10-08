@@ -107,7 +107,7 @@ async function createDomainObjects() {
     colorMapManager = new ColorMapManager()
     await colorMapManager.configure()
 
-    dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('silver'), appleCrayonColorRGB255('blueberry'))
+    dataValueMaterialProvider = new DataValueMaterialProvider(appleCrayonColorRGB255('snow'), appleCrayonColorRGB255('blueberry'))
 
     colorRampMaterialProvider = new ColorRampMaterialProvider()
 
