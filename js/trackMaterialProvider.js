@@ -8,6 +8,8 @@ class TrackMaterialProvider {
         this.colorMaximum = colorMaximum;
         // Map to store color lists per track: key = track.name, value = colorList
         this.trackColorLists = new Map();
+        // Map to store data ranges per track: key = trackId, value = {min, max}
+        this.trackDataRanges = new Map();
     }
 
     async configure(track) {
@@ -16,9 +18,7 @@ class TrackMaterialProvider {
         const genomicExtentList = ensembleManager.getCurrentGenomicExtentList();
 
         // Collect features for all genomic extents
-        const allFeaturesPerExtent = await this.collectFeaturesForExtents(
-            viewport, track, chr, bpPerPixel, genomicExtentList
-        );
+        const allFeaturesPerExtent = await this.collectFeaturesForExtents(viewport, track, chr, bpPerPixel, genomicExtentList);
 
         // Create color list based on feature type (value-based or color-only)
         const colorList = this.createColorList(allFeaturesPerExtent, track);
@@ -41,7 +41,10 @@ class TrackMaterialProvider {
             }
         }
         
-        keysToDelete.forEach(key => this.trackColorLists.delete(key));
+        keysToDelete.forEach(key => {
+            this.trackColorLists.delete(key);
+            this.trackDataRanges.delete(key);
+        });
         
         // Update the aggregated color list after removing tracks
         this.updateAggregatedColorList();
@@ -51,6 +54,7 @@ class TrackMaterialProvider {
         // Remove a specific track instance using its unique ID
         const trackId = this.getUniqueTrackId(track);
         this.trackColorLists.delete(trackId);
+        this.trackDataRanges.delete(trackId);
         
         // Update the aggregated color list after removing the track
         this.updateAggregatedColorList();
@@ -94,23 +98,32 @@ class TrackMaterialProvider {
 
         this.finalColorList = [];
 
+        // Calculate weights for each track based on their data range
+        const trackWeights = this.calculateTrackWeights();
+
         // For each position in the color lists, blend colors from all tracks
         for (let i = 0; i < minLength; i++) {
             const rgb255List = [];
+            const weights = [];
 
-            // Collect color from each track at this position
-            for (const colorList of allColorLists) {
+            // Collect color and weight from each track at this position
+            let trackIndex = 0;
+            for (const [trackId, colorList] of this.trackColorLists.entries()) {
                 const threeColor = colorList[i];
+                const weight = trackWeights.get(trackId) || 1.0;
+                
                 // Convert Three.js color (0-1 range) to RGB255 (0-255 range)
                 rgb255List.push([
                     Math.round(threeColor.r * 255),
                     Math.round(threeColor.g * 255),
                     Math.round(threeColor.b * 255)
                 ]);
+                weights.push(weight);
+                trackIndex++;
             }
 
-            // Blend colors in LAB space and convert back to Three.js color
-            const [r, g, b] = blendColorsLab(rgb255List);
+            // Blend colors in LAB space with weights and convert back to Three.js color
+            const [r, g, b] = blendColorsLab(rgb255List, weights);
             this.finalColorList.push(rgb255ToThreeJSColor(r, g, b));
         }
 
@@ -140,8 +153,46 @@ class TrackMaterialProvider {
     clearAllTracks() {
         // Clear all tracks and reset to empty state
         this.trackColorLists.clear();
+        this.trackDataRanges.clear();
         this.finalColorList = [];
         console.log('TrackMaterialProvider: Cleared all tracks');
+    }
+
+    calculateTrackWeights() {
+        const weights = new Map();
+        
+        if (this.trackDataRanges.size === 0) {
+            // No data ranges available, use equal weights
+            for (const trackId of this.trackColorLists.keys()) {
+                weights.set(trackId, 1.0);
+            }
+            return weights;
+        }
+
+        // Calculate the total range across all tracks
+        const allRanges = Array.from(this.trackDataRanges.values());
+        const globalMin = Math.min(...allRanges.map(r => r.min));
+        const globalMax = Math.max(...allRanges.map(r => r.max));
+        const globalRange = globalMax - globalMin;
+
+        if (globalRange === 0) {
+            // All tracks have the same range, use equal weights
+            for (const trackId of this.trackColorLists.keys()) {
+                weights.set(trackId, 1.0);
+            }
+            return weights;
+        }
+
+        // Calculate weights based on relative data range
+        // Tracks with larger ranges get higher weights
+        for (const [trackId, range] of this.trackDataRanges.entries()) {
+            const trackRange = range.max - range.min;
+            const relativeRange = trackRange / globalRange;
+            weights.set(trackId, relativeRange);
+        }
+
+        console.log('TrackMaterialProvider: Calculated weights:', Object.fromEntries(weights));
+        return weights;
     }
 
     async collectFeaturesForExtents(viewport, track, chr, bpPerPixel, genomicExtentList) {
@@ -202,9 +253,15 @@ class TrackMaterialProvider {
             )
         );
 
-        // Calculate min/max across all features
-        const min = track.dataRange?.min ?? Math.min(...maxFeatures.map(f => f.value));
-        const max = track.dataRange?.max ?? Math.max(...maxFeatures.map(f => f.value));
+        // Calculate min/max for THIS specific genomic extent (not entire track)
+        const allFeatureValues = maxFeatures.map(f => f.value);
+        const min = Math.min(...allFeatureValues);
+        const max = Math.max(...allFeatureValues);
+        
+        // Store the data range for this track's genomic extent
+        this.trackDataRanges = this.trackDataRanges || new Map();
+        const trackId = this.getUniqueTrackId(track);
+        this.trackDataRanges.set(trackId, { min, max });
 
         // Create interpolated colors
         return maxFeatures.map(feature => {
