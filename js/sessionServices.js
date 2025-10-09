@@ -7,6 +7,7 @@ import {defaultDistanceThreshold} from './juicebox/liveContactMapService.js'
 import { shortenURL } from "./share/shareHelper.js"
 import {
     scene,
+    trackMaterialProvider,
     igvPanel,
     juiceboxPanel,
     ensembleManager,
@@ -35,6 +36,11 @@ async function loadSession(json) {
 async function loadIGVSession(spacewalk, igv) {
 
     igvPanel.browser.removeAllTracks()
+    
+    // Clear any existing track colors from previous session
+    
+    trackMaterialProvider.clearAllTracks();
+    
     await igvPanel.browser.loadSession(igv)
     igvPanel.configureMouseHandlers()
 

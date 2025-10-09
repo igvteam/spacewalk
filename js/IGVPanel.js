@@ -1,8 +1,8 @@
 import igv from 'igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {getMaterialProvider, setMaterialProvider} from './utils/utils.js';
+import {setMaterialProvider} from './utils/utils.js';
 import Panel from './panel.js';
-import {colorRampMaterialProvider, dataValueMaterialProvider, ensembleManager, genomicNavigator} from './app.js'
+import {colorRampMaterialProvider, trackMaterialProvider, ensembleManager, genomicNavigator} from './app.js'
 import { getPathsWithTrackRegistry, updateTrackMenusWithTrackConfigurations } from './widgets/trackWidgets.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 
@@ -148,18 +148,18 @@ class IGVPanel extends Panel {
     configureMouseHandlers () {
 
         this.browser.on('dataValueMaterialCheckbox', async track => {
-
-            console.log(`${track.name} did set data value material provider input ${ true === track.trackView.materialProviderInput.checked ? 'true' : 'false' }`)
-
-            this.materialProvider = await getMaterialProvider(track)
-            setMaterialProvider(this.materialProvider)
-
-        })
+            console.log(`${track.name} checkbox changed to ${track.trackView.materialProviderInput.checked}`);
+            
+            if (track.trackView.materialProviderInput.checked) {
+                await this.activateTrackMaterialProvider(track);
+            } else {
+                await this.deactivateTrackMaterialProvider(track);
+            }
+        });
 
         this.browser.on('trackremoved', track => {
-            if (track.trackView.materialProviderInput && track.trackView.materialProviderInput.checked) {
-                this.materialProvider = colorRampMaterialProvider;
-                setMaterialProvider(colorRampMaterialProvider);
+            if (track.trackView.materialProviderInput?.checked) {
+                this.removeTrackFromMaterialProvider(track);
             }
         });
 
@@ -183,6 +183,53 @@ class IGVPanel extends Panel {
 
     }
 
+    async activateTrackMaterialProvider(track) {
+        // Check if track can be used (zoom level check)
+        if (!this.canUseTrackForMaterial(track)) {
+            console.warn(`Track ${track.name} zoom level too low. Cannot add to material provider.`);
+            track.trackView.materialProviderInput.checked = false;
+            return;
+        }
+        
+        // Add this track to the material provider
+        await trackMaterialProvider.configure(track);
+        
+        // Switch to track material provider if not already using it
+        if (this.materialProvider !== trackMaterialProvider) {
+            this.materialProvider = trackMaterialProvider;
+        }
+        
+        // Always call setMaterialProvider to trigger repaint with updated colors
+        setMaterialProvider(trackMaterialProvider);
+        console.log(`Active tracks: ${trackMaterialProvider.getTrackNames().join(', ')}`);
+    }
+
+    async deactivateTrackMaterialProvider(track) {
+        // Remove this track from the material provider
+        this.removeTrackFromMaterialProvider(track);
+    }
+
+    removeTrackFromMaterialProvider(track) {
+        trackMaterialProvider.removeTrackInstance(track);
+        
+        // If no tracks remain, switch back to color ramp provider
+        if (trackMaterialProvider.getTrackNames().length === 0) {
+            this.materialProvider = colorRampMaterialProvider;
+            setMaterialProvider(colorRampMaterialProvider);
+            console.log('No active tracks. Switched to color ramp provider.');
+        } else {
+            // Tracks remain - ensure we're using trackMaterialProvider and trigger repaint
+            this.materialProvider = trackMaterialProvider;
+            setMaterialProvider(trackMaterialProvider);
+            console.log(`Active tracks: ${trackMaterialProvider.getTrackNames().join(', ')}`);
+        }
+    }
+
+    canUseTrackForMaterial(track) {
+        const zoomInNotice = track.trackView.viewports[0].$zoomInNotice.get(0);
+        return !(zoomInNotice && zoomInNotice.style.display !== 'none');
+    }
+
     async loadTrackList(configurations) {
 
         let tracks = [];
@@ -201,30 +248,57 @@ class IGVPanel extends Panel {
     }
 
     getSessionState() {
-
+        const checkedTracks = [];
+        
         for (let trackView of this.browser.trackViews) {
             if (trackView.materialProviderInput && trackView.materialProviderInput.checked) {
-                return trackView.track.name
+                checkedTracks.push(trackView.track.name);
             }
         }
 
-        return 'none'
+        // Return array of checked track names, or 'none' if none checked
+        return checkedTracks.length > 0 ? checkedTracks : 'none';
     }
 
     async restoreSessionState(state) {
-
-        const [ track ] = this.browser.trackViews.map(({ track }) => track).filter(track => state === track.name)
-
-        if (false === track.trackView.loading) {
-            console.warn(`Danger. track(${ track.name }) is NOT loaded. Can not use for feature mapping`)
+        // Handle backward compatibility: if state is a string (old format), convert to array
+        const trackNames = Array.isArray(state) ? state : (state === 'none' ? [] : [state]);
+        
+        if (trackNames.length === 0) {
+            console.log('No tracks to restore for material provider');
+            return;
         }
-        await dataValueMaterialProvider.configure(track)
 
-        this.materialProvider = dataValueMaterialProvider
-        setMaterialProvider(dataValueMaterialProvider)
+        console.log(`Restoring ${trackNames.length} tracks: ${trackNames.join(', ')}`);
 
-        track.trackView.materialProviderInput.checked = true
+        // Find and activate all tracks
+        const tracksToRestore = this.browser.trackViews
+            .map(({ track }) => track)
+            .filter(track => trackNames.includes(track.name));
 
+        if (tracksToRestore.length === 0) {
+            console.warn('No matching tracks found for restoration');
+            return;
+        }
+
+        // Check all tracks and add them to material provider
+        for (const track of tracksToRestore) {
+            if (track.trackView.loading === false) {
+                console.warn(`Track ${track.name} is NOT loaded. Skipping.`);
+                continue;
+            }
+
+            track.trackView.materialProviderInput.checked = true;
+            await this.activateTrackMaterialProvider(track);
+        }
+
+        // Ensure final blended colors are applied
+        if (tracksToRestore.length > 0) {
+            this.materialProvider = trackMaterialProvider;
+            setMaterialProvider(trackMaterialProvider);
+        }
+
+        console.log(`Successfully restored ${tracksToRestore.length} tracks`);
     }
 }
 

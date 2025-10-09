@@ -180,26 +180,34 @@ function rgb255ToThreeJSColor  (r, g, b) {
     return new THREE.Color(r/255, g/255, b/255).convertSRGBToLinear()
 }
 
-function blendColorsLab(colorList) {
+function blendColorsLab(colorList, weights = null) {
     let L_sum = 0;
     let a_sum = 0;
     let b_sum = 0;
+    let weight_sum = 0;
 
     // Number of colors
     const num_colors = colorList.length;
 
-    // Sum up each component in Lab space
-    colorList.forEach(color => {
+    // If no weights provided, use equal weights
+    if (!weights || weights.length !== num_colors) {
+        weights = new Array(num_colors).fill(1.0);
+    }
+
+    // Sum up each component in Lab space with weights
+    colorList.forEach((color, index) => {
+        const weight = weights[index] || 1.0;
         const lab = chroma(color).lab();
-        L_sum += lab[0];
-        a_sum += lab[1];
-        b_sum += lab[2];
+        L_sum += lab[0] * weight;
+        a_sum += lab[1] * weight;
+        b_sum += lab[2] * weight;
+        weight_sum += weight;
     });
 
-    // Calculate averages
-    const avg_L = L_sum / num_colors;
-    const avg_a = a_sum / num_colors;
-    const avg_b = b_sum / num_colors;
+    // Calculate weighted averages
+    const avg_L = L_sum / weight_sum;
+    const avg_a = a_sum / weight_sum;
+    const avg_b = b_sum / weight_sum;
 
     // Form the blended Lab color
     const blended_lab = [avg_L, avg_a, avg_b];

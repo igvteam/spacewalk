@@ -2,7 +2,7 @@ import {
     ribbon,
     ballAndStick,
     pointCloud,
-    dataValueMaterialProvider,
+    trackMaterialProvider,
     colorRampMaterialProvider, genomicNavigator
 } from "../app.js";
 import {clamp} from "./mathUtils"
@@ -21,33 +21,6 @@ function unsetDataMaterialProviderCheckbox(trackViews) {
             trackView.materialProviderInput.checked = false;
         }
     }
-}
-
-async function getMaterialProvider(track) {
-
-    // Unselect other track's checkboxes
-    for (let trackView of track.browser.trackViews) {
-        if (trackView.track !== track && trackView.materialProviderInput) {
-            trackView.materialProviderInput.checked = false;
-        }
-    }
-
-    if (track.trackView.materialProviderInput && track.trackView.materialProviderInput.checked) {
-
-        // If "zoom in" notice is displayed do not paint features on trace
-        const zoomInNotice = track.trackView.viewports[0].$zoomInNotice.get(0);
-        if (zoomInNotice && zoomInNotice.style.display !== 'none') {
-            console.warn(`Track ${track.name} is showing Zoom In message. Cannot render track features on trace`);
-            return colorRampMaterialProvider;
-        } else {
-            await dataValueMaterialProvider.configure(track);
-            return dataValueMaterialProvider;
-        }
-
-    } else {
-        return colorRampMaterialProvider;
-    }
-
 }
 
 function setMaterialProvider(materialProvider) {
@@ -184,7 +157,6 @@ export {
     showGlobalSpinner,
     hideGlobalSpinner,
     unsetDataMaterialProviderCheckbox,
-    getMaterialProvider,
     setMaterialProvider,
     createImage,
     transferRGBAMatrixToLiveMapCanvas,
