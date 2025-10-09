@@ -153,13 +153,13 @@ class IGVPanel extends Panel {
             if (track.trackView.materialProviderInput.checked) {
                 await this.activateTrackMaterialProvider(track);
             } else {
-                this.deactivateTrackMaterialProvider();
+                await this.deactivateTrackMaterialProvider(track);
             }
         });
 
         this.browser.on('trackremoved', track => {
             if (track.trackView.materialProviderInput?.checked) {
-                this.deactivateTrackMaterialProvider();
+                this.removeTrackFromMaterialProvider(track);
             }
         });
 
@@ -184,33 +184,40 @@ class IGVPanel extends Panel {
     }
 
     async activateTrackMaterialProvider(track) {
-        // Uncheck all other tracks
-        this.uncheckOtherTracks(track);
-        
         // Check if track can be used (zoom level check)
         if (!this.canUseTrackForMaterial(track)) {
-            console.warn(`Track ${track.name} zoom level too low. Using default color ramp.`);
+            console.warn(`Track ${track.name} zoom level too low. Cannot add to material provider.`);
             track.trackView.materialProviderInput.checked = false;
-            this.deactivateTrackMaterialProvider();
             return;
         }
         
-        // Configure and apply
+        // Add this track to the material provider
         await trackMaterialProvider.configure(track);
-        this.materialProvider = trackMaterialProvider;
-        setMaterialProvider(trackMaterialProvider);
+        
+        // Switch to track material provider if not already using it
+        if (this.materialProvider !== trackMaterialProvider) {
+            this.materialProvider = trackMaterialProvider;
+            setMaterialProvider(trackMaterialProvider);
+        }
+        
+        console.log(`Active tracks: ${trackMaterialProvider.getTrackNames().join(', ')}`);
     }
 
-    deactivateTrackMaterialProvider() {
-        this.materialProvider = colorRampMaterialProvider;
-        setMaterialProvider(colorRampMaterialProvider);
+    async deactivateTrackMaterialProvider(track) {
+        // Remove this track from the material provider
+        this.removeTrackFromMaterialProvider(track);
     }
 
-    uncheckOtherTracks(selectedTrack) {
-        for (let trackView of this.browser.trackViews) {
-            if (trackView.track !== selectedTrack && trackView.materialProviderInput) {
-                trackView.materialProviderInput.checked = false;
-            }
+    removeTrackFromMaterialProvider(track) {
+        trackMaterialProvider.removeTrack(track.name);
+        
+        // If no tracks remain, switch back to color ramp provider
+        if (trackMaterialProvider.getTrackNames().length === 0) {
+            this.materialProvider = colorRampMaterialProvider;
+            setMaterialProvider(colorRampMaterialProvider);
+            console.log('No active tracks. Switched to color ramp provider.');
+        } else {
+            console.log(`Active tracks: ${trackMaterialProvider.getTrackNames().join(', ')}`);
         }
     }
 

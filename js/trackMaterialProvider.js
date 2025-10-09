@@ -6,6 +6,8 @@ class TrackMaterialProvider {
     constructor (colorMinimum, colorMaximum) {
         this.colorMinimum = colorMinimum;
         this.colorMaximum = colorMaximum;
+        // Map to store color lists per track: key = track.name, value = colorList
+        this.trackColorLists = new Map();
     }
 
     async configure(track) {
@@ -19,7 +21,83 @@ class TrackMaterialProvider {
         );
 
         // Create color list based on feature type (value-based or color-only)
-        this.finalColorList = this.createColorList(allFeaturesPerExtent, track);
+        const colorList = this.createColorList(allFeaturesPerExtent, track);
+        
+        // Store color list in the map using track name as key
+        this.trackColorLists.set(track.name, colorList);
+        
+        // Update the aggregated color list by blending all track color lists
+        this.updateAggregatedColorList();
+    }
+
+    removeTrack(trackName) {
+        this.trackColorLists.delete(trackName);
+        
+        // Update the aggregated color list after removing a track
+        this.updateAggregatedColorList();
+    }
+
+    updateAggregatedColorList() {
+        if (this.trackColorLists.size === 0) {
+            this.finalColorList = [];
+            return;
+        }
+
+        if (this.trackColorLists.size === 1) {
+            // Only one track - use it directly (no blending needed)
+            this.finalColorList = this.trackColorLists.values().next().value;
+            return;
+        }
+
+        // Multiple tracks - blend them together using LAB color space
+        const allColorLists = Array.from(this.trackColorLists.values());
+        
+        // Determine the minimum length among all color lists
+        const minLength = Math.min(...allColorLists.map(list => list.length));
+        
+        if (minLength === 0) {
+            console.warn('TrackMaterialProvider: One or more tracks have empty color lists');
+            this.finalColorList = [];
+            return;
+        }
+
+        // Check if all lists have the same length
+        const allSameLength = allColorLists.every(list => list.length === minLength);
+        if (!allSameLength) {
+            console.warn(`TrackMaterialProvider: Color lists have different lengths. Using shortest length: ${minLength}`);
+        }
+
+        this.finalColorList = [];
+
+        // For each position in the color lists, blend colors from all tracks
+        for (let i = 0; i < minLength; i++) {
+            const rgb255List = [];
+
+            // Collect color from each track at this position
+            for (const colorList of allColorLists) {
+                const threeColor = colorList[i];
+                // Convert Three.js color (0-1 range) to RGB255 (0-255 range)
+                rgb255List.push([
+                    Math.round(threeColor.r * 255),
+                    Math.round(threeColor.g * 255),
+                    Math.round(threeColor.b * 255)
+                ]);
+            }
+
+            // Blend colors in LAB space and convert back to Three.js color
+            const [r, g, b] = blendColorsLab(rgb255List);
+            this.finalColorList.push(rgb255ToThreeJSColor(r, g, b));
+        }
+
+        console.log(`TrackMaterialProvider: Blended ${this.trackColorLists.size} tracks into ${this.finalColorList.length} colors`);
+    }
+
+    hasTrack(trackName) {
+        return this.trackColorLists.has(trackName);
+    }
+
+    getTrackNames() {
+        return Array.from(this.trackColorLists.keys());
     }
 
     async collectFeaturesForExtents(viewport, track, chr, bpPerPixel, genomicExtentList) {
