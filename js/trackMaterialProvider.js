@@ -23,18 +23,43 @@ class TrackMaterialProvider {
         // Create color list based on feature type (value-based or color-only)
         const colorList = this.createColorList(allFeaturesPerExtent, track);
         
-        // Store color list in the map using track name as key
-        this.trackColorLists.set(track.name, colorList);
+        // Store color list in the map using a unique track identifier
+        // Use track name + index to ensure uniqueness for tracks with same name
+        const trackId = this.getUniqueTrackId(track);
+        this.trackColorLists.set(trackId, colorList);
         
         // Update the aggregated color list by blending all track color lists
         this.updateAggregatedColorList();
     }
 
     removeTrack(trackName) {
-        this.trackColorLists.delete(trackName);
+        // Find and remove all tracks with this name
+        const keysToDelete = [];
+        for (const [trackId, colorList] of this.trackColorLists.entries()) {
+            if (trackId.startsWith(trackName + '|')) {
+                keysToDelete.push(trackId);
+            }
+        }
         
-        // Update the aggregated color list after removing a track
+        keysToDelete.forEach(key => this.trackColorLists.delete(key));
+        
+        // Update the aggregated color list after removing tracks
         this.updateAggregatedColorList();
+    }
+
+    removeTrackInstance(track) {
+        // Remove a specific track instance using its unique ID
+        const trackId = this.getUniqueTrackId(track);
+        this.trackColorLists.delete(trackId);
+        
+        // Update the aggregated color list after removing the track
+        this.updateAggregatedColorList();
+    }
+
+    getUniqueTrackId(track) {
+        // Create a unique identifier: trackName + index in browser
+        const trackIndex = track.browser.trackViews.findIndex(tv => tv.track === track);
+        return `${track.name}|${trackIndex}`;
     }
 
     updateAggregatedColorList() {
@@ -93,11 +118,30 @@ class TrackMaterialProvider {
     }
 
     hasTrack(trackName) {
-        return this.trackColorLists.has(trackName);
+        // Check if any track with this name exists
+        for (const trackId of this.trackColorLists.keys()) {
+            if (trackId.startsWith(trackName + '|')) {
+                return true;
+            }
+        }
+        return false;
     }
 
     getTrackNames() {
-        return Array.from(this.trackColorLists.keys());
+        // Extract unique track names from the keys (remove the index part)
+        const trackNames = new Set();
+        for (const trackId of this.trackColorLists.keys()) {
+            const trackName = trackId.split('|')[0];
+            trackNames.add(trackName);
+        }
+        return Array.from(trackNames);
+    }
+
+    clearAllTracks() {
+        // Clear all tracks and reset to empty state
+        this.trackColorLists.clear();
+        this.finalColorList = [];
+        console.log('TrackMaterialProvider: Cleared all tracks');
     }
 
     async collectFeaturesForExtents(viewport, track, chr, bpPerPixel, genomicExtentList) {

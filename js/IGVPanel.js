@@ -197,9 +197,10 @@ class IGVPanel extends Panel {
         // Switch to track material provider if not already using it
         if (this.materialProvider !== trackMaterialProvider) {
             this.materialProvider = trackMaterialProvider;
-            setMaterialProvider(trackMaterialProvider);
         }
         
+        // Always call setMaterialProvider to trigger repaint with updated colors
+        setMaterialProvider(trackMaterialProvider);
         console.log(`Active tracks: ${trackMaterialProvider.getTrackNames().join(', ')}`);
     }
 
@@ -209,7 +210,7 @@ class IGVPanel extends Panel {
     }
 
     removeTrackFromMaterialProvider(track) {
-        trackMaterialProvider.removeTrack(track.name);
+        trackMaterialProvider.removeTrackInstance(track);
         
         // If no tracks remain, switch back to color ramp provider
         if (trackMaterialProvider.getTrackNames().length === 0) {
@@ -217,6 +218,9 @@ class IGVPanel extends Panel {
             setMaterialProvider(colorRampMaterialProvider);
             console.log('No active tracks. Switched to color ramp provider.');
         } else {
+            // Tracks remain - ensure we're using trackMaterialProvider and trigger repaint
+            this.materialProvider = trackMaterialProvider;
+            setMaterialProvider(trackMaterialProvider);
             console.log(`Active tracks: ${trackMaterialProvider.getTrackNames().join(', ')}`);
         }
     }
@@ -244,27 +248,57 @@ class IGVPanel extends Panel {
     }
 
     getSessionState() {
-
+        const checkedTracks = [];
+        
         for (let trackView of this.browser.trackViews) {
             if (trackView.materialProviderInput && trackView.materialProviderInput.checked) {
-                return trackView.track.name
+                checkedTracks.push(trackView.track.name);
             }
         }
 
-        return 'none'
+        // Return array of checked track names, or 'none' if none checked
+        return checkedTracks.length > 0 ? checkedTracks : 'none';
     }
 
     async restoreSessionState(state) {
-
-        const [ track ] = this.browser.trackViews.map(({ track }) => track).filter(track => state === track.name)
-
-        if (false === track.trackView.loading) {
-            console.warn(`Danger. track(${ track.name }) is NOT loaded. Can not use for feature mapping`)
+        // Handle backward compatibility: if state is a string (old format), convert to array
+        const trackNames = Array.isArray(state) ? state : (state === 'none' ? [] : [state]);
+        
+        if (trackNames.length === 0) {
+            console.log('No tracks to restore for material provider');
+            return;
         }
 
-        track.trackView.materialProviderInput.checked = true
-        await this.activateTrackMaterialProvider(track)
+        console.log(`Restoring ${trackNames.length} tracks: ${trackNames.join(', ')}`);
 
+        // Find and activate all tracks
+        const tracksToRestore = this.browser.trackViews
+            .map(({ track }) => track)
+            .filter(track => trackNames.includes(track.name));
+
+        if (tracksToRestore.length === 0) {
+            console.warn('No matching tracks found for restoration');
+            return;
+        }
+
+        // Check all tracks and add them to material provider
+        for (const track of tracksToRestore) {
+            if (track.trackView.loading === false) {
+                console.warn(`Track ${track.name} is NOT loaded. Skipping.`);
+                continue;
+            }
+
+            track.trackView.materialProviderInput.checked = true;
+            await this.activateTrackMaterialProvider(track);
+        }
+
+        // Ensure final blended colors are applied
+        if (tracksToRestore.length > 0) {
+            this.materialProvider = trackMaterialProvider;
+            setMaterialProvider(trackMaterialProvider);
+        }
+
+        console.log(`Successfully restored ${tracksToRestore.length} tracks`);
     }
 }
 
