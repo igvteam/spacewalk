@@ -31,11 +31,11 @@ import {showGlobalSpinner, hideGlobalSpinner, getMouseXY} from './utils/utils.js
 import {configureDrag} from "./utils/drag.js"
 import ScaleBarService from "./scaleBarService.js"
 import GUIManager from "./guiManager.js"
+import { defaultColormapName } from "./utils/colorMapManager.js";
 import {showRelease} from "./utils/release.js"
 import { spacewalkConfig } from "../spacewalk-config.js";
 import 'juicebox.js/dist/css/juicebox.css'
 import '../styles/app.scss'
-
 
 let pointCloud;
 let ribbon;
@@ -77,7 +77,15 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     googleEnabled = await configureGoogleAuthentication(spacewalkConfig)
 
-    await createDomainObjects()
+    ensembleManager = new EnsembleManager()
+
+    trackMaterialProvider = new TrackMaterialProvider(appleCrayonColorRGB255('snow'), appleCrayonColorRGB255('blueberry'))
+
+    colorMapManager = new ColorMapManager()
+    await colorMapManager.configure()
+    colorRampMaterialProvider = new ColorRampMaterialProvider(defaultColormapName)
+
+    createThreeJSObjects(document.getElementById('spacewalk-threejs-canvas-container'))
 
     await createDOMElements(document.getElementById('spacewalk-root-container'))
 
@@ -89,7 +97,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
 })
 
-async function createDomainObjects() {
+function createThreeJSObjects(threeJSContainer) {
 
     // const stickMaterial = showSMaterial;
     // const stickMaterial = new THREE.MeshBasicMaterial({ color: appleCrayonColorThreeJS('aluminum') });
@@ -102,19 +110,61 @@ async function createDomainObjects() {
 
     pointCloud = new PointCloud({ pickHighlighter: new PointCloudHighlighter(), deemphasizedColor: appleCrayonColorThreeJS('magnesium') })
 
-    ensembleManager = new EnsembleManager()
+    sceneManager = new SceneManager()
 
-    colorMapManager = new ColorMapManager()
-    await colorMapManager.configure()
+    picker = new Picker( new THREE.Raycaster() );
 
-    trackMaterialProvider = new TrackMaterialProvider(appleCrayonColorRGB255('snow'), appleCrayonColorRGB255('blueberry'))
+    // Opt out of linear color workflow for now
+    // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
+    // THREE.ColorManagement.enabled = false;
 
-    colorRampMaterialProvider = new ColorRampMaterialProvider()
+    // Enable linear color workflow
+    THREE.ColorManagement.enabled = true;
 
-    const renderContainer = document.querySelector('#spacewalk-threejs-canvas-container')
-    configureThreeJS(renderContainer)
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
-    scaleBarService = new ScaleBarService(renderContainer, ScaleBarService.setScaleBarsHidden())
+    // Opt out of linear color workflow for now
+    // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
+    // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+
+    // Enable linear color workflow
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    // renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
+    // renderer.setClearColor (appleCrayonColorThreeJS('strawberry'));
+
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const { width, height } = threeJSContainer.getBoundingClientRect();
+    renderer.setSize(width, height);
+
+    threeJSContainer.appendChild(renderer.domElement);
+
+    threeJSContainer.addEventListener('mousemove', event => {
+        const { x, y } = getMouseXY(renderer.domElement, event);
+        mouseX =  ( x / renderer.domElement.clientWidth  ) * 2 - 1;
+        mouseY = -( y / renderer.domElement.clientHeight ) * 2 + 1;
+    })
+
+    scene = new THREE.Scene()
+    scene.background = appleCrayonColorThreeJS('snow')
+
+    const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (width/height) ]
+    camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+    cameraLightingRig = new CameraLightingRig(renderer.domElement, camera)
+
+    // Nice numbers
+    const position = new THREE.Vector3(134820, 55968, 5715);
+    const centroid = new THREE.Vector3(133394, 54542, 4288);
+    cameraLightingRig.setPose(position, centroid);
+
+    const pickerParent = document.querySelector(`div[data-colorpicker='background']`)
+    sceneBackgroundColorPicker = createColorPicker(pickerParent, scene.background, color => {
+        scene.background = new THREE.Color(color)
+        renderer.render(scene, camera)
+    })
+
+    updateSceneBackgroundColorpicker(threeJSContainer, scene.background)
 
 }
 
@@ -146,6 +196,8 @@ async function createDOMElements(container) {
         }
     const helpButton = document.getElementById('spacewalk-help-button')
     helpButtonPopover = new bootstrap.Popover(helpButton, helpConfig)
+
+    scaleBarService = new ScaleBarService(document.querySelector('#spacewalk-threejs-canvas-container'), ScaleBarService.setScaleBarsHidden())
 
     scaleBarService.insertScaleBarDOM()
 
@@ -268,11 +320,11 @@ async function createDOMElements(container) {
 
     configureDrag(document.getElementById('spacewalk_ui_manager_panel'), document.getElementById('spacewalk_ui_manager_panel'), container, { topConstraint: document.querySelector('.navbar') })
 
-    const _3DInteractionContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
+    const traceContainer = document.getElementById('spacewalk-threejs-trace-navigator-container')
 
-    configureRenderContainerResizeObserver(_3DInteractionContainer, renderer)
+    configureRenderContainerResizeObserver(traceContainer, renderer)
 
-    configureFullscreenMode(_3DInteractionContainer)
+    configureFullscreenMode(traceContainer)
 
 }
 
@@ -330,25 +382,25 @@ async function configureGoogleAuthentication(spacewalkConfig){
 
 }
 
-function configureRenderContainerResizeObserver(_3DInteractionContainer, renderer){
+function configureRenderContainerResizeObserver(traceContainer, renderer){
 
     renderContainerResizeObserver = new ResizeObserver(entries => {
-        const { width, height } = getRenderCanvasContainerRect()
+        const { width, height } = getThreeJSContainerRect()
         renderer.setSize(width, height)
         camera.aspect = width / height
         camera.updateProjectionMatrix()
         render()
     })
 
-    renderContainerResizeObserver.observe(_3DInteractionContainer)
+    renderContainerResizeObserver.observe(traceContainer)
 
 }
 
-function configureFullscreenMode(_3DInteractionContainer){
+function configureFullscreenMode(traceContainer){
 
     document.getElementById('spacewalk-fullscreen-button').addEventListener('click', () => {
         if (!document.fullscreenElement) {
-            _3DInteractionContainer.requestFullscreen().then(() => {
+            traceContainer.requestFullscreen().then(() => {
                 document.body.classList.add('fullscreen');
             }).catch(err => {
                 alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
@@ -370,77 +422,9 @@ function configureFullscreenMode(_3DInteractionContainer){
 
 }
 
-function configureThreeJS(container) {
-
-    sceneManager = new SceneManager()
-
-    picker = new Picker( new THREE.Raycaster() );
-
-    // Opt out of linear color workflow for now
-    // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
-    // THREE.ColorManagement.enabled = false;
-
-    // Enable linear color workflow
-    THREE.ColorManagement.enabled = true;
-
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-
-    // Opt out of linear color workflow for now
-    // https://discourse.threejs.org/t/updates-to-color-management-in-three-js-r152/50791
-    // renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
-
-    // Enable linear color workflow
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-
-    // renderer.setClearColor (appleCrayonColorThreeJS('nickel'));
-    // renderer.setClearColor (appleCrayonColorThreeJS('strawberry'));
-
-    renderer.setPixelRatio(window.devicePixelRatio);
-
-    const { width, height } = container.getBoundingClientRect();
-    renderer.setSize(width, height);
-
-    container.appendChild(renderer.domElement);
-
-    container.addEventListener('mousemove', event => {
-        const { x, y } = getMouseXY(renderer.domElement, event);
-        mouseX =  ( x / renderer.domElement.clientWidth  ) * 2 - 1;
-        mouseY = -( y / renderer.domElement.clientHeight ) * 2 + 1;
-    })
-
-    scene = new THREE.Scene()
-    scene.background = appleCrayonColorThreeJS('snow')
-
-    const [ fov, near, far, domElement, aspect ] = [ 35, 1e2, 3e3, renderer.domElement, (width/height) ]
-    camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-    cameraLightingRig = new CameraLightingRig(renderer.domElement, camera)
-
-    // Nice numbers
-    const position = new THREE.Vector3(134820, 55968, 5715);
-    const centroid = new THREE.Vector3(133394, 54542, 4288);
-    cameraLightingRig.setPose(position, centroid);
-
-    const pickerParent = document.querySelector(`div[data-colorpicker='background']`)
-    sceneBackgroundColorPicker = createColorPicker(pickerParent, scene.background, color => {
-        scene.background = new THREE.Color(color)
-        renderer.render(scene, camera)
-    })
-
-    updateSceneBackgroundColorpicker(container, scene.background)
-
-}
-
 function updateSceneBackgroundColorpicker(container, backgroundColor){
     const { r, g, b } = backgroundColor
     updateColorPicker(sceneBackgroundColorPicker, container, {r, g, b})
-}
-
-function createHemisphereLight() {
-    // Update due to r155 changes to illumination: Multiply light intensities by PI to get same brightness as previous threejs release.
-    // See: https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733
-    const light = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('tin'), Math.PI )
-    light.name = 'hemisphereLight'
-    return light
 }
 
 function render () {
@@ -480,14 +464,13 @@ function renderLoop() {
     render()
 }
 
-function getRenderCanvasContainerRect() {
+function getThreeJSContainerRect() {
     const container = document.querySelector('#spacewalk-threejs-canvas-container')
     return container.getBoundingClientRect()
 }
 
 export {
-    getRenderCanvasContainerRect,
-    createHemisphereLight,
+    getThreeJSContainerRect,
     scene,
     camera,
     sceneBackgroundColorPicker,

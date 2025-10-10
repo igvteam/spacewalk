@@ -1,13 +1,14 @@
-import { defaultColormapName } from "./utils/colorMapManager.js";
+
 import { colorMapManager } from "./app.js";
 
 class ColorRampMaterialProvider {
 
-    constructor() {
+    constructor(colorMapName) {
+        this.colorMapName = colorMapName
     }
 
     colorForInterpolant(interpolant) {
-        return colorMapManager.retrieveRGBThreeJS(defaultColormapName, interpolant)
+        return colorMapManager.retrieveRGBThreeJS(this.colorMapName, interpolant)
     }
 }
 

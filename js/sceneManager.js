@@ -19,8 +19,7 @@ import {
     igvPanel,
     colorRampMaterialProvider,
     cameraLightingRig,
-    getRenderCanvasContainerRect,
-    createHemisphereLight,
+    getThreeJSContainerRect,
     updateSceneBackgroundColorpicker
 } from "./app.js"
 import {appleCrayonColorThreeJS} from "./utils/colorUtils"
@@ -112,7 +111,7 @@ class SceneManager {
 
         const boundingDiameter = (2 * radius)
 
-        const { width, height } = getRenderCanvasContainerRect();
+        const { width, height } = getThreeJSContainerRect();
         cameraLightingRig.configure(fov, width/height, position, center, boundingDiameter)
 
         scene.add(createHemisphereLight())
@@ -223,5 +222,14 @@ class SceneManager {
     }
 
 }
+
+function createHemisphereLight() {
+    // Update due to r155 changes to illumination: Multiply light intensities by PI to get same brightness as previous threejs release.
+    // See: https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733
+    const light = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('tin'), Math.PI )
+    light.name = 'hemisphereLight'
+    return light
+}
+
 
 export default SceneManager;
