@@ -1,12 +1,15 @@
 import hic from 'juicebox.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
-import { ballAndStick, liveContactMapService, liveDistanceMapService, ensembleManager, ribbon, igvPanel, juiceboxPanel, genomicNavigator } from '../app.js'
+import { ballAndStick, liveContactMapService, liveDistanceMapService, ensembleManager, ribbon, igvPanel, genomicNavigator } from '../app.js'
 import LiveMapState from "./liveMapState.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import { renderLiveMapWithContactData } from "./liveContactMapService.js"
 import { renderLiveMapWithDistanceData } from './liveDistanceMapService.js'
 import {appleCrayonColorRGB255, rgb255String} from "../utils/colorUtils"
+
+// Store reference to the singleton JuiceboxPanel instance for event handlers
+let juiceboxPanelInstance = null;
 
 class JuiceboxPanel extends Panel {
 
@@ -21,6 +24,9 @@ class JuiceboxPanel extends Panel {
         };
 
         super({ container, panel, isHidden, xFunction, yFunction });
+
+        // Store singleton instance for event handlers to access
+        juiceboxPanelInstance = this;
 
         // const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
         // makeDraggable(panel, dragHandle)
@@ -320,7 +326,7 @@ function setJuiceboxLiveState(browser) {
 }
 
 function tabEventHandler(event) {
-    tabAssessment(juiceboxPanel.browser, event.target);
+    tabAssessment(juiceboxPanelInstance.browser, event.target);
 }
 
 function tabAssessment(browser, activeTabButton) {
