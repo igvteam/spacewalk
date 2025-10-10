@@ -6,9 +6,7 @@ class TrackMaterialProvider {
     constructor (colorMinimum, colorMaximum) {
         this.colorMinimum = colorMinimum;
         this.colorMaximum = colorMaximum;
-        // Map to store color lists per track: key = track.name, value = colorList
         this.trackColorLists = new Map();
-        // Map to store data ranges per track: key = trackId, value = {min, max}
         this.trackDataRanges = new Map();
     }
 
@@ -79,21 +77,13 @@ class TrackMaterialProvider {
         }
 
         // Multiple tracks - blend them together using LAB color space
-        const allColorLists = Array.from(this.trackColorLists.values());
+        const firstColorList = this.trackColorLists.values().next().value;
+        const colorListLength = firstColorList.length;
         
-        // Determine the minimum length among all color lists
-        const minLength = Math.min(...allColorLists.map(list => list.length));
-        
-        if (minLength === 0) {
-            console.warn('TrackMaterialProvider: One or more tracks have empty color lists');
+        if (colorListLength === 0) {
+            console.warn('TrackMaterialProvider: Color lists are empty');
             this.finalColorList = [];
             return;
-        }
-
-        // Check if all lists have the same length
-        const allSameLength = allColorLists.every(list => list.length === minLength);
-        if (!allSameLength) {
-            console.warn(`TrackMaterialProvider: Color lists have different lengths. Using shortest length: ${minLength}`);
         }
 
         this.finalColorList = [];
@@ -102,24 +92,18 @@ class TrackMaterialProvider {
         const trackWeights = this.calculateTrackWeights();
 
         // For each position in the color lists, blend colors from all tracks
-        for (let i = 0; i < minLength; i++) {
+        for (let i = 0; i < colorListLength; i++) {
             const rgb255List = [];
             const weights = [];
 
             // Collect color and weight from each track at this position
-            let trackIndex = 0;
             for (const [trackId, colorList] of this.trackColorLists.entries()) {
-                const threeColor = colorList[i];
-                const weight = trackWeights.get(trackId) || 1.0;
                 
-                // Convert Three.js color (0-1 range) to RGB255 (0-255 range)
-                rgb255List.push([
-                    Math.round(threeColor.r * 255),
-                    Math.round(threeColor.g * 255),
-                    Math.round(threeColor.b * 255)
-                ]);
+                const { r, g, b } = colorList[i];
+                rgb255List.push([ Math.round(r * 255),Math.round(g * 255),Math.round(b * 255) ]);  
+
+                const weight = trackWeights.get(trackId) || 1.0;
                 weights.push(weight);
-                trackIndex++;
             }
 
             // Blend colors in LAB space with weights and convert back to Three.js color
