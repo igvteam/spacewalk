@@ -1,4 +1,3 @@
-import * as THREE from "three";
 import {ensembleManager, igvPanel, pointCloud} from "./main.js";
 import {setGeometryColorAttribute} from "./pointCloud.js";
 

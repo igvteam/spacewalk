@@ -1,5 +1,4 @@
 import App from "./app.js"
-import { SpacewalkGlobals } from "./spacewalkGlobals.js"
 import 'juicebox.js/dist/css/juicebox.css'
 import '../styles/app.scss'
 

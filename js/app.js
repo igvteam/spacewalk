@@ -12,7 +12,6 @@ import SceneManager from "./sceneManager.js"
 import ThreeJSInitializer from "./initializers/threeJSInitializer.js"
 import UIBootstrapper from "./initializers/uiBootstrapper.js"
 import PanelInitializer from "./initializers/panelInitializer.js"
-import { SpacewalkGlobals } from "./spacewalkGlobals.js"
 
 /**
  * Main application class that encapsulates all Spacewalk application state.
@@ -88,9 +87,7 @@ class App {
 
         // Initialize UI components
         this.uiBootstrapper = new UIBootstrapper(this);
-        const uiComponents = await this.uiBootstrapper.initialize(
-            document.getElementById('spacewalk-root-container')
-        );
+        const uiComponents = await this.uiBootstrapper.initialize(document.getElementById('spacewalk-root-container'));
         this.assignUIComponents(uiComponents);
 
         // Initialize track widgets (needs to be done after UI but before panels)
@@ -98,17 +95,13 @@ class App {
 
         // Initialize panels and their services
         this.panelInitializer = new PanelInitializer(this);
-        const panelObjects = await this.panelInitializer.initialize(
-            document.getElementById('spacewalk-root-container')
-        );
+        const panelObjects = await this.panelInitializer.initialize(document.getElementById('spacewalk-root-container'));
         this.assignPanelObjects(panelObjects);
 
         // Configure resize observer and fullscreen mode
         const traceContainer = document.getElementById('spacewalk-threejs-trace-navigator-container');
-        this.renderContainerResizeObserver = this.uiBootstrapper.initializeResizeObserver(
-            traceContainer,
-            threeJSObjects
-        );
+        this.renderContainerResizeObserver = this.uiBootstrapper.initializeResizeObserver(traceContainer, threeJSObjects);
+
         this.appVariables.renderContainerResizeObserver = this.renderContainerResizeObserver;
         this.uiBootstrapper.initializeFullscreenMode(traceContainer);
 
@@ -125,11 +118,7 @@ class App {
         this.ensembleManager = new EnsembleManager();
         this.appVariables.ensembleManager = this.ensembleManager;
 
-        this.trackMaterialProvider = new TrackMaterialProvider(
-            appleCrayonColorRGB255('snow'),
-            appleCrayonColorRGB255('blueberry'),
-            this.ensembleManager
-        );
+        this.trackMaterialProvider = new TrackMaterialProvider(appleCrayonColorRGB255('snow'), appleCrayonColorRGB255('blueberry'), this.ensembleManager);
         this.appVariables.trackMaterialProvider = this.trackMaterialProvider;
 
         this.colorMapManager = new ColorMapManager();
