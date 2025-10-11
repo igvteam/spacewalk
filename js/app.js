@@ -127,7 +127,8 @@ class App {
 
         this.trackMaterialProvider = new TrackMaterialProvider(
             appleCrayonColorRGB255('snow'),
-            appleCrayonColorRGB255('blueberry')
+            appleCrayonColorRGB255('blueberry'),
+            this.ensembleManager
         );
         this.appVariables.trackMaterialProvider = this.trackMaterialProvider;
 
@@ -194,27 +195,27 @@ class App {
 
         let acc = {};
 
-        // spacewalk
-        if (spacewalkSessionURL) {
+    // spacewalk
+    if (spacewalkSessionURL) {
             const spacewalk = JSON.parse(uncompressSessionURL(spacewalkSessionURL));
             acc = { ...acc, spacewalk };
-        }
+    }
 
-        // juicebox
-        if (juiceboxSessionURL) {
+    // juicebox
+    if (juiceboxSessionURL) {
             const juicebox = JSON.parse(uncompressSessionURL(juiceboxSessionURL));
             acc = { ...acc, juicebox };
-        }
+    }
 
-        // igv
-        if (igvSessionURL) {
+    // igv
+    if (igvSessionURL) {
             const igv = JSON.parse(uncompressSessionURL(igvSessionURL));
             acc = { ...acc, igv };
-        }
+    }
 
         const result = 0 === Object.keys(acc).length ? undefined : acc;
 
-        if (result) {
+    if (result) {
             await loadSession(result);
         }
     }
@@ -262,7 +263,7 @@ class App {
 
             const convexHull = SceneManager.getConvexHull(this.sceneManager.renderStyle);
 
-            if (convexHull) {
+        if (convexHull) {
                 this.scaleBarService.scaleBarAnimationLoopHelper(convexHull.mesh, this.camera);
             }
         }

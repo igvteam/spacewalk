@@ -52,10 +52,14 @@ class UIBootstrapper {
         uiComponents.scaleBarService.insertScaleBarDOM();
 
         // Initialize trace selector and navigator
-        uiComponents.traceSelector = new TraceSelector(document.querySelector('#spacewalk_trace_select_input'));
+        uiComponents.traceSelector = new TraceSelector(
+            document.querySelector('#spacewalk_trace_select_input'),
+            this.appContext.ensembleManager
+        );
         uiComponents.genomicNavigator = new GenomicNavigator(
             document.querySelector('#spacewalk-trace-navigator-container'),
-            highlightColor
+            highlightColor,
+            this.appContext.ensembleManager
         );
 
         // Initialize file loaders

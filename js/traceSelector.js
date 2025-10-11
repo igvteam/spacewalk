@@ -1,5 +1,4 @@
 import SpacewalkEventBus from "./spacewalkEventBus.js"
-import {ensembleManager} from "./main.js"
 import {clamp} from "./utils/mathUtils.js"
 import {StringUtils} from "igv-utils";
 
@@ -7,30 +6,31 @@ let numberForDisplay = undefined
 
 class TraceSelector {
 
-  constructor(inputElement) {
+  constructor(inputElement, ensembleManager) {
 
+      this.ensembleManager = ensembleManager;
       this.input = inputElement
       this.input.addEventListener('keyup', async e => {
 
           // enter (return) key pressed
           if (13 === e.keyCode) {
-              const total = await ensembleManager.getTraceCount()
+              const total = await this.ensembleManager.getTraceCount()
               const number = parseInt(this.input.value, 10)
-              await broadcastTraceSelection(this.input, getBroadcastValue(number, total, undefined), total)
+              await broadcastTraceSelection(this.input, getBroadcastValue(number, total, undefined), total, this.ensembleManager)
           }
 
       })
 
       const button_minus = document.querySelector('#spacewalk_trace_select_button_minus')
       button_minus.addEventListener('click', async () => {
-          const total = await ensembleManager.getTraceCount()
-          await broadcastTraceSelection(this.input, getBroadcastValue(numberForDisplay, total, '-'), total)
+          const total = await this.ensembleManager.getTraceCount()
+          await broadcastTraceSelection(this.input, getBroadcastValue(numberForDisplay, total, '-'), total, this.ensembleManager)
       })
 
       const button_plus = document.querySelector('#spacewalk_trace_select_button_plus')
       button_plus.addEventListener('click', async () => {
-          const total = await ensembleManager.getTraceCount()
-          await broadcastTraceSelection(this.input, getBroadcastValue(numberForDisplay, total, '+'), total)
+          const total = await this.ensembleManager.getTraceCount()
+          await broadcastTraceSelection(this.input, getBroadcastValue(numberForDisplay, total, '+'), total, this.ensembleManager)
       });
 
 
@@ -42,7 +42,7 @@ class TraceSelector {
         if ("DidLoadEnsembleFile" === type) {
 
             (async () => {
-                const total = await ensembleManager.getTraceCount()
+                const total = await this.ensembleManager.getTraceCount()
                 numberForDisplay = 1 + data.initialIndex
                 this.input.value = getDisplayString(numberForDisplay, total)
             })()
@@ -66,7 +66,7 @@ function getBroadcastValue(number, total, incrementOrDecrement) {
     }
 
 }
-async function broadcastTraceSelection(input, number, total) {
+async function broadcastTraceSelection(input, number, total, ensembleManager) {
 
     if (numberForDisplay !== number) {
         console.log(`TraceSelect. Will change number from ${StringUtils.numberFormatter(numberForDisplay)} to ${StringUtils.numberFormatter(number)}`)

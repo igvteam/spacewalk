@@ -12,7 +12,6 @@ class PointCloud {
     static renderStyle = 'render-style-point-cloud'
 
     constructor ({ pickHighlighter, deemphasizedColor }) {
-
         this.pickHighlighter = pickHighlighter;
         this.deemphasizedColor = deemphasizedColor;
 

@@ -1,5 +1,5 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {colorRampMaterialProvider, ensembleManager, igvPanel, sceneManager} from './main.js'
+import {colorRampMaterialProvider, igvPanel, sceneManager} from './main.js'
 import {fitToContainer, getMouseXY} from "./utils/utils"
 import {appleCrayonColorRGB255, rgb255, rgb255String, threeJSColorToRGB255} from "./utils/colorUtils"
 import Ribbon from "./ribbon"
@@ -9,8 +9,9 @@ let alphaTexture;
 
 class GenomicNavigator {
 
-    constructor(canvasContainer, highlightColor) {
+    constructor(canvasContainer, highlightColor, ensembleManager) {
 
+        this.ensembleManager = ensembleManager;
         this.canvasContainer = canvasContainer
 
         let canvas
@@ -76,7 +77,7 @@ class GenomicNavigator {
 
             if (this !== poster || sceneManager.renderStyle === Ribbon.renderStyle) {
 
-                const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
+                const interpolantWindowList = this.ensembleManager.getGenomicInterpolantWindowList(interpolantList)
                 if (interpolantWindowList) {
                     this.highlightWithInterpolantWindowList(interpolantWindowList.map(({genomicExtent}) => genomicExtent));
                 }
@@ -91,12 +92,12 @@ class GenomicNavigator {
 
     onCanvasMouseMove(canvas, event) {
 
-        if (ensembleManager.currentTrace) {
+        if (this.ensembleManager.currentTrace) {
 
             let { yNormalized } = getMouseXY(canvas, event)
             const interpolantList = [ 1.0 - yNormalized ];
 
-            const interpolantWindowList = ensembleManager.getGenomicInterpolantWindowList(interpolantList)
+            const interpolantWindowList = this.ensembleManager.getGenomicInterpolantWindowList(interpolantList)
 
             if (interpolantWindowList) {
                 SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } });
@@ -155,7 +156,7 @@ class GenomicNavigator {
 
     repaint() {
 
-        if (undefined === ensembleManager.currentTrace) {
+        if (undefined === this.ensembleManager.currentTrace) {
             return;
         }
 
@@ -163,7 +164,7 @@ class GenomicNavigator {
         this.rgb_ctx.fillStyle = rgb255String( appleCrayonColorRGB255('snow') );
         this.rgb_ctx.fillRect(0, 0, this.rgb_ctx.canvas.width, this.rgb_ctx.canvas.height);
 
-        const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
+        const genomicExtentList = this.ensembleManager.getCurrentGenomicExtentList()
         for (let { interpolant, start, end } of genomicExtentList) {
 
             const rgb = igvPanel.materialProvider.colorForInterpolant(interpolant)

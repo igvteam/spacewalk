@@ -1,11 +1,11 @@
-import {ensembleManager} from './main.js'
 import { rgb255, rgb255Lerp, rgb255ToThreeJSColor, blendColorsLab, hexOrRGB255StringtoRGB255 } from './utils/colorUtils.js'
 
 class TrackMaterialProvider {
 
-    constructor (colorMinimum, colorMaximum) {
+    constructor (colorMinimum, colorMaximum, ensembleManager) {
         this.colorMinimum = colorMinimum;
         this.colorMaximum = colorMaximum;
+        this.ensembleManager = ensembleManager;
         this.trackColorLists = new Map();
         this.trackDataRanges = new Map();
     }
@@ -13,7 +13,7 @@ class TrackMaterialProvider {
     async configure(track) {
         const [viewport] = track.trackView.viewports;
         const { chr, bpPerPixel } = track.browser.referenceFrameList[0];
-        const genomicExtentList = ensembleManager.getCurrentGenomicExtentList();
+        const genomicExtentList = this.ensembleManager.getCurrentGenomicExtentList();
 
         // Collect features for all genomic extents
         const allFeaturesPerExtent = await this.collectFeaturesForExtents(viewport, track, chr, bpPerPixel, genomicExtentList);
