@@ -1,6 +1,6 @@
 import {openH5File} from 'hdf5-indexed-reader'
 import {FileUtils} from 'igv-utils'
-import {SpacewalkGlobals} from '../main.js'
+import { SpacewalkGlobals } from '../spacewalkGlobals.js'
 
 class CNDBParser {
 

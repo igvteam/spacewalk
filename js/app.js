@@ -12,11 +12,7 @@ import SceneManager from "./sceneManager.js"
 import ThreeJSInitializer from "./initializers/threeJSInitializer.js"
 import UIBootstrapper from "./initializers/uiBootstrapper.js"
 import PanelInitializer from "./initializers/panelInitializer.js"
-
-const SpacewalkGlobals =
-    {
-        defaultGenomeAssembly:'hg38'
-    }
+import { SpacewalkGlobals } from "./spacewalkGlobals.js"
 
 /**
  * Main application class that encapsulates all Spacewalk application state.
@@ -281,5 +277,4 @@ class App {
     }
 }
 
-export { SpacewalkGlobals }
 export default App

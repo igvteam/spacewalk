@@ -13,10 +13,10 @@ import {
     ensembleManager,
     sceneManager,
     liveContactMapService,
-    SpacewalkGlobals,
     cameraLightingRig,
     scaleBarService
 } from './main.js'
+import { SpacewalkGlobals } from './spacewalkGlobals.js'
 import GUIManager from "./guiManager.js"
 
 async function loadSession(json) {

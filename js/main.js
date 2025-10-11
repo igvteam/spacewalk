@@ -1,5 +1,5 @@
 import App from "./app.js"
-import { SpacewalkGlobals } from "./app.js";
+import { SpacewalkGlobals } from "./spacewalkGlobals.js"
 import 'juicebox.js/dist/css/juicebox.css'
 import '../styles/app.scss'
 
@@ -74,7 +74,6 @@ export {
     camera,
     sceneBackgroundColorPicker,
     cameraLightingRig,
-    SpacewalkGlobals,
     googleEnabled,
     pointCloud,
     ribbon,
@@ -90,4 +89,5 @@ export {
     liveDistanceMapService,
     igvPanel,
     genomicNavigator,
-    scaleBarService}
+    scaleBarService
+}
