@@ -110,10 +110,10 @@ function getRecentGenomes() {
 }
 
 function updateGenomeList() {
-    const dropdownMenu = document.getElementById('igv-app-genome-dropdown-menu');
+    const dropdownMenu = document.getElementById('igv-main-genome-dropdown-menu');
 
     // NOTE:  MUST USE ID HERE, THERE CAN BE MULTIPLE DIVIDERS.  JQUERY DOES WEIRD THINGS IN THE CODE THAT FOLLOWS IF divider IS A COLLECTION
-    const divider = dropdownMenu.querySelector('#igv-app-genome-dropdown-divider');
+    const divider = dropdownMenu.querySelector('#igv-main-genome-dropdown-divider');
 
     // discard all buttons following the divider div
     let nextElement = divider.nextElementSibling;

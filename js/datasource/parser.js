@@ -1,6 +1,6 @@
 import { FileUtils, igvxhr } from 'igv-utils'
 import { hideGlobalSpinner, showGlobalSpinner } from "../utils/utils.js";
-import { SpacewalkGlobals } from "../app.js";
+import { SpacewalkGlobals } from "../main.js";
 
 class Parser {
 

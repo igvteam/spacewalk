@@ -37,19 +37,19 @@ class UIBootstrapper {
         // Initialize popovers
         this.initializePopovers();
 
-        // Initialize scale bar service
-        uiComponents.scaleBarService = new ScaleBarService(
-            document.querySelector('#spacewalk-threejs-canvas-container'),
-            ScaleBarService.setScaleBarsHidden()
-        );
-        uiComponents.scaleBarService.insertScaleBarDOM();
-
-        // Initialize GUI manager
+        // Initialize GUI manager first (creates the checkbox that ScaleBarService needs)
         const settingsButton = document.querySelector('#spacewalk-threejs-settings-button-container');
         uiComponents.guiManager = new GUIManager({
             settingsButton,
             panel: document.querySelector('#spacewalk_ui_manager_panel')
         });
+
+        // Initialize scale bar service (after GUI manager, so checkbox exists)
+        uiComponents.scaleBarService = new ScaleBarService(
+            document.querySelector('#spacewalk-threejs-canvas-container'),
+            ScaleBarService.setScaleBarsHidden()
+        );
+        uiComponents.scaleBarService.insertScaleBarDOM();
 
         // Initialize trace selector and navigator
         uiComponents.traceSelector = new TraceSelector(document.querySelector('#spacewalk_trace_select_input'));
@@ -134,10 +134,10 @@ class UIBootstrapper {
         createSessionWidgets(
             document.getElementById('spacewalk-main'),
             'spacewalk',
-            'igv-app-dropdown-local-session-file-input',
+            'igv-main-dropdown-local-session-file-input',
             initializeDropbox,
-            'igv-app-dropdown-dropbox-session-file-button',
-            'igv-app-dropdown-google-drive-session-file-button',
+            'igv-main-dropdown-dropbox-session-file-button',
+            'igv-main-dropdown-google-drive-session-file-button',
             'spacewalk-session-url-modal',
             'spacewalk-session-save-modal',
             this.appContext.googleEnabled,

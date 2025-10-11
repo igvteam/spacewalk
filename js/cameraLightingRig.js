@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import {getThreeJSContainerRect, sceneManager} from "./app.js"
+import {getThreeJSContainerRect, sceneManager} from "./main.js"
 import {degrees} from "./utils/mathUtils.js"
 
 let cameraWorldDirection = new THREE.Vector3()

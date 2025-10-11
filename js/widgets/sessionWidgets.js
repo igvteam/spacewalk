@@ -23,8 +23,8 @@ function createSessionWidgets(rootContainer,
                               JSONProvider) {
 
     // Session - Dropbox and Google Drive buttons
-    $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-app-dropdown-dropbox-session-file-button'));
-    $('div#spacewalk-session-dropdown-menu > :nth-child(2)').after(googleDriveDropdownItem('igv-app-dropdown-google-drive-session-file-button'));
+    $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-main-dropdown-dropbox-session-file-button'));
+    $('div#spacewalk-session-dropdown-menu > :nth-child(2)').after(googleDriveDropdownItem('igv-main-dropdown-google-drive-session-file-button'));
 
     const urlModalElement = createURLModalElement(urlModalId, 'Session URL')
     rootContainer.appendChild(urlModalElement)
@@ -76,7 +76,7 @@ function configureSaveSessionModal(rootContainer, prefix, JSONProvider, sessionS
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <input class="form-control" type="text" placeholder="igv-app-session.json" aria-label="Session filename">
+                <input class="form-control" type="text" placeholder="igv-main-session.json" aria-label="Session filename">
                 <div>Enter session filename with .json suffix</div>
             </div>
             <div class="modal-footer">

@@ -62,9 +62,9 @@ function shareWidgetConfigurator(shortenerConfig) {
     setURLShortener(shortenerConfig)
 
     return {
-        modalElement: document.getElementById('igv-app-share-modal'),
-        inputElement: document.getElementById('igv-app-share-input'),
-        button: document.getElementById('igv-app-copy-link-button'),
+        modalElement: document.getElementById('igv-main-share-modal'),
+        inputElement: document.getElementById('igv-main-share-input'),
+        button: document.getElementById('igv-main-copy-link-button'),
     };
 
 }

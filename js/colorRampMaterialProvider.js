@@ -1,5 +1,5 @@
 
-import { colorMapManager } from "./app.js";
+import { colorMapManager } from "./main.js";
 
 class ColorRampMaterialProvider {
 

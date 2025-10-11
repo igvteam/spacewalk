@@ -1,4 +1,4 @@
-import {ensembleManager} from './app.js'
+import {ensembleManager} from './main.js'
 import { rgb255, rgb255Lerp, rgb255ToThreeJSColor, blendColorsLab, hexOrRGB255StringtoRGB255 } from './utils/colorUtils.js'
 
 class TrackMaterialProvider {
@@ -20,12 +20,12 @@ class TrackMaterialProvider {
 
         // Create color list based on feature type (value-based or color-only)
         const colorList = this.createColorList(allFeaturesPerExtent, track);
-        
+
         // Store color list in the map using a unique track identifier
         // Use track name + index to ensure uniqueness for tracks with same name
         const trackId = this.getUniqueTrackId(track);
         this.trackColorLists.set(trackId, colorList);
-        
+
         // Update the aggregated color list by blending all track color lists
         this.updateAggregatedColorList();
     }
@@ -38,12 +38,12 @@ class TrackMaterialProvider {
                 keysToDelete.push(trackId);
             }
         }
-        
+
         keysToDelete.forEach(key => {
             this.trackColorLists.delete(key);
             this.trackDataRanges.delete(key);
         });
-        
+
         // Update the aggregated color list after removing tracks
         this.updateAggregatedColorList();
     }
@@ -53,7 +53,7 @@ class TrackMaterialProvider {
         const trackId = this.getUniqueTrackId(track);
         this.trackColorLists.delete(trackId);
         this.trackDataRanges.delete(trackId);
-        
+
         // Update the aggregated color list after removing the track
         this.updateAggregatedColorList();
     }
@@ -79,7 +79,7 @@ class TrackMaterialProvider {
         // Multiple tracks - blend them together using LAB color space
         const firstColorList = this.trackColorLists.values().next().value;
         const colorListLength = firstColorList.length;
-        
+
         if (colorListLength === 0) {
             console.warn('TrackMaterialProvider: Color lists are empty');
             this.finalColorList = [];
@@ -98,9 +98,9 @@ class TrackMaterialProvider {
 
             // Collect color and weight from each track at this position
             for (const [trackId, colorList] of this.trackColorLists.entries()) {
-                
+
                 const { r, g, b } = colorList[i];
-                rgb255List.push([ Math.round(r * 255),Math.round(g * 255),Math.round(b * 255) ]);  
+                rgb255List.push([ Math.round(r * 255),Math.round(g * 255),Math.round(b * 255) ]);
 
                 const weight = trackWeights.get(trackId) || 1.0;
                 weights.push(weight);
@@ -144,7 +144,7 @@ class TrackMaterialProvider {
 
     calculateTrackWeights() {
         const weights = new Map();
-        
+
         if (this.trackDataRanges.size === 0) {
             // No data ranges available, use equal weights
             for (const trackId of this.trackColorLists.keys()) {
@@ -207,7 +207,7 @@ class TrackMaterialProvider {
 
         if (!hasValues) {
             // Color-only features: blend colors from each extent
-            return allFeaturesPerExtent.map(features => 
+            return allFeaturesPerExtent.map(features =>
                 this.blendFeatureColors(features, track)
             );
         }
@@ -224,15 +224,15 @@ class TrackMaterialProvider {
             const [blue, rp] = b.split(')');
             return [parseInt(red, 10), parseInt(green, 10), parseInt(blue, 10)];
         });
-        
+
         const [r255, g255, b255] = blendColorsLab(rgb255List);
         return rgb255ToThreeJSColor(r255, g255, b255);
     }
 
     createValueBasedColors(allFeaturesPerExtent, track) {
         // Get max feature from each extent
-        const maxFeatures = allFeaturesPerExtent.map(features => 
-            features.reduce((acc, feature) => 
+        const maxFeatures = allFeaturesPerExtent.map(features =>
+            features.reduce((acc, feature) =>
                 feature.value > acc.value ? feature : acc
             )
         );
@@ -241,7 +241,7 @@ class TrackMaterialProvider {
         const allFeatureValues = maxFeatures.map(f => f.value);
         const min = Math.min(...allFeatureValues);
         const max = Math.max(...allFeatureValues);
-        
+
         // Store the data range for this track's genomic extent
         this.trackDataRanges = this.trackDataRanges || new Map();
         const trackId = this.getUniqueTrackId(track);
@@ -267,11 +267,11 @@ class TrackMaterialProvider {
             const [r, g, b] = hexOrRGB255StringtoRGB255(feature.color);
             return rgb255(r, g, b);
         }
-        
+
         if (typeof track.getColorForFeature === 'function') {
             return hexOrRGB255StringtoRGB255(track.getColorForFeature(feature));
         }
-        
+
         const trackColor = track.color || track.defaultColor;
         return trackColor ? hexOrRGB255StringtoRGB255(trackColor) : null;
     }

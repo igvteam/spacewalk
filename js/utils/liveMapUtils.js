@@ -1,4 +1,4 @@
-import {ensembleManager, igvPanel} from "../app.js"
+import {ensembleManager, igvPanel} from "../main.js"
 import SWBDatasource from "../datasource/SWBDatasource.js"
 
 async function enableLiveMaps() {

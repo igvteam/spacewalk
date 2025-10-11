@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import {openH5File} from 'hdf5-indexed-reader'
 import {FileUtils} from 'igv-utils'
-import {igvPanel, SpacewalkGlobals} from '../app.js'
+import {igvPanel, SpacewalkGlobals} from '../main.js'
 import DataSourceBase from './dataSourceBase.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils";
 import {createBoundingBoxWithFlatXYZList, cullDuplicateXYZ} from "../utils/mathUtils.js"

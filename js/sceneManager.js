@@ -9,7 +9,7 @@ import Gnomon from './gnomon.js'
 import GUIManager from "./guiManager.js"
 import {setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
 import Ribbon from './ribbon.js'
-import { disposeObject, disposeMaterial, clearScene } from './utils/disposalUtils.js'
+import { clearScene } from './utils/disposalUtils.js'
 import {
     scene,
     pointCloud,
@@ -20,8 +20,7 @@ import {
     colorRampMaterialProvider,
     cameraLightingRig,
     getThreeJSContainerRect,
-    updateSceneBackgroundColorpicker
-} from "./app.js"
+} from "./main.js"
 import {appleCrayonColorThreeJS} from "./utils/colorUtils"
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);
@@ -103,8 +102,6 @@ class SceneManager {
         }
 
         scene.background = this.background;
-
-        updateSceneBackgroundColorpicker(document.querySelector(`div[data-colorpicker='background']`), this.background)
 
         const {min, max, center, radius} = EnsembleManager.getTraceBounds(trace);
         const {position, fov} = getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 })

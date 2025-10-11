@@ -4,7 +4,7 @@ import {
     pointCloud,
     trackMaterialProvider,
     colorRampMaterialProvider, genomicNavigator
-} from "../app.js";
+} from "../main.js";
 import {clamp} from "./mathUtils"
 
 function showGlobalSpinner() {

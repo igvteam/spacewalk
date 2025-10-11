@@ -1,5 +1,5 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {colorRampMaterialProvider, ensembleManager, igvPanel, sceneManager} from './app.js'
+import {colorRampMaterialProvider, ensembleManager, igvPanel, sceneManager} from './main.js'
 import {fitToContainer, getMouseXY} from "./utils/utils"
 import {appleCrayonColorRGB255, rgb255, rgb255String, threeJSColorToRGB255} from "./utils/colorUtils"
 import Ribbon from "./ribbon"

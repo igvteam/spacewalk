@@ -2,7 +2,7 @@ import igv from 'igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {setMaterialProvider} from './utils/utils.js';
 import Panel from './panel.js';
-import {colorRampMaterialProvider, trackMaterialProvider, ensembleManager, genomicNavigator} from './app.js'
+import {colorRampMaterialProvider, trackMaterialProvider, ensembleManager, genomicNavigator} from './main.js'
 import { getPathsWithTrackRegistry, updateTrackMenusWithTrackConfigurations } from './widgets/trackWidgets.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 
@@ -149,7 +149,7 @@ class IGVPanel extends Panel {
 
         this.browser.on('dataValueMaterialCheckbox', async track => {
             console.log(`${track.name} checkbox changed to ${track.trackView.materialProviderInput.checked}`);
-            
+
             if (track.trackView.materialProviderInput.checked) {
                 await this.activateTrackMaterialProvider(track);
             } else {
@@ -190,15 +190,15 @@ class IGVPanel extends Panel {
             track.trackView.materialProviderInput.checked = false;
             return;
         }
-        
+
         // Add this track to the material provider
         await trackMaterialProvider.configure(track);
-        
+
         // Switch to track material provider if not already using it
         if (this.materialProvider !== trackMaterialProvider) {
             this.materialProvider = trackMaterialProvider;
         }
-        
+
         // Always call setMaterialProvider to trigger repaint with updated colors
         setMaterialProvider(trackMaterialProvider);
         console.log(`Active tracks: ${trackMaterialProvider.getTrackNames().join(', ')}`);
@@ -211,7 +211,7 @@ class IGVPanel extends Panel {
 
     removeTrackFromMaterialProvider(track) {
         trackMaterialProvider.removeTrackInstance(track);
-        
+
         // If no tracks remain, switch back to color ramp provider
         if (trackMaterialProvider.getTrackNames().length === 0) {
             this.materialProvider = colorRampMaterialProvider;
@@ -249,7 +249,7 @@ class IGVPanel extends Panel {
 
     getSessionState() {
         const checkedTracks = [];
-        
+
         for (let trackView of this.browser.trackViews) {
             if (trackView.materialProviderInput && trackView.materialProviderInput.checked) {
                 checkedTracks.push(trackView.track.name);
@@ -263,7 +263,7 @@ class IGVPanel extends Panel {
     async restoreSessionState(state) {
         // Handle backward compatibility: if state is a string (old format), convert to array
         const trackNames = Array.isArray(state) ? state : (state === 'none' ? [] : [state]);
-        
+
         if (trackNames.length === 0) {
             console.log('No tracks to restore for material provider');
             return;

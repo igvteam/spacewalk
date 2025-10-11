@@ -20,7 +20,7 @@ const googleDriveButtonImageBase64 = () => window.btoa(googleDriveImageLiteral)
 const dropboxDropdownItem = id => {
 
     return `<div class="dropdown-item">
-                <div id="${ id }" class="igv-app-dropdown-item-cloud-storage">
+                <div id="${ id }" class="igv-main-dropdown-item-cloud-storage">
                     <div>Dropbox File</div>
                     <div>
                         <img src="data:image/svg+xml;base64,${ dropboxButtonImageBase64() }" width="18" height="18">
@@ -32,7 +32,7 @@ const dropboxDropdownItem = id => {
 const googleDriveDropdownItem = id => {
 
     return `<div class="dropdown-item">
-                <div id="${ id }" class="igv-app-dropdown-item-cloud-storage">
+                <div id="${ id }" class="igv-main-dropdown-item-cloud-storage">
                     <div>Google Drive File</div>
                     <div>
                         <img src="data:image/svg+xml;base64,${ googleDriveButtonImageBase64() }" width="18" height="18">

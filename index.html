@@ -33,8 +33,8 @@
     <!-- Bootstrap 5.3.3 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Dropbox Chooser API - sw_aiden_lab - supports aidenlab.org and netlify.app -->
-    <script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="dmf9qrwim29nbad"></script>
+    <!-- Dropbox Chooser API - sw_aiden_lab - supports aidenlab.org and netlify.main -->
+    <script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-main-key="dmf9qrwim29nbad"></script>
 
     <!-- Datatables JS -->
     <script src="https://cdn.datatables.net/v/dt/dt-1.10.20/sl-1.3.1/datatables.min.js"></script>
@@ -42,8 +42,8 @@
     <!-- Google Platform JS -->
     <script src="https://apis.google.com/js/platform.js"></script>
 
-    <!--  Spacewalk app entrypoint  -->
-    <script type="module" src="./js/app.js"></script>
+    <!--  Spacewalk main entrypoint  -->
+    <script type="module" src="js/main.js"></script>
   </head>
   <body>
 
@@ -108,7 +108,7 @@
               <!-- Dropbox -->
               <li>
                 <div class="dropdown-item">
-                  <div id="spacewalk-sw-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
+                  <div id="spacewalk-sw-dropbox-button" class="igv-main-dropdown-item-cloud-storage">
                     <div>Load Dropbox File ...</div>
                     <div>
                       <img src="img/dropbox-dropdown-menu-item.png" width="18" height="18">
@@ -120,7 +120,7 @@
               <!-- Google Drive -->
               <li>
                 <div class="dropdown-item">
-                  <div id="spacewalk-sw-google-drive-button" class="igv-app-dropdown-item-cloud-storage">
+                  <div id="spacewalk-sw-google-drive-button" class="igv-main-dropdown-item-cloud-storage">
                     <div>Load Google Drive File ...</div>
                     <div><img src="img/googledrive-dropdown-menu-item.png" width="18" height="18"></div>
                   </div>
@@ -149,7 +149,7 @@
         <!-- Share (generate URL) -->
         <li class="nav-item">
           <div class="ms-2 mt-1">
-            <a id="igv-app-share-button" href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#igv-app-share-modal">
+            <a id="igv-main-share-button" href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#igv-main-share-modal">
               Share
             </a>
           </div>
@@ -164,12 +164,12 @@
             <div id="spacewalk-session-dropdown-menu" class="dropdown-menu">
               <!-- Session Local file -->
               <label class="dropdown-item btn btn-default btn-file">
-                <div class="igv-app-dropdown-item-cloud-storage">
+                <div class="igv-main-dropdown-item-cloud-storage">
                   <div>
                     Local File ...
                   </div>
                   <div>
-                    <input id="igv-app-dropdown-local-session-file-input" type="file" name="file" style="display: none;">
+                    <input id="igv-main-dropdown-local-session-file-input" type="file" name="file" style="display: none;">
                   </div>
                 </div>
               </label>
@@ -489,7 +489,7 @@
                   <!-- Local Map File -->
                   <li>
                     <label class="dropdown-item btn btn-default btn-file">
-                      <div class="igv-app-dropdown-item-cloud-storage">
+                      <div class="igv-main-dropdown-item-cloud-storage">
                         <div>
                           Load Local Map File ...
                         </div>
@@ -503,7 +503,7 @@
                   <!-- Dropbox -->
                   <li>
                     <div class="dropdown-item">
-                      <div id="hic-contact-map-dropdown-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
+                      <div id="hic-contact-map-dropdown-dropbox-button" class="igv-main-dropdown-item-cloud-storage">
                         <div>Load Dropbox Map File ...</div>
                         <div>
                           <img src="img/dropbox-dropdown-menu-item.png" width="18" height="18">
@@ -515,7 +515,7 @@
                   <!-- Google Drive -->
                   <li>
                     <div class="dropdown-item">
-                      <div id="hic-contact-map-dropdown-google-drive-button" class="igv-app-dropdown-item-cloud-storage">
+                      <div id="hic-contact-map-dropdown-google-drive-button" class="igv-main-dropdown-item-cloud-storage">
                         <div>Load Google Drive Map File ...</div>
                         <div><img src="img/googledrive-dropdown-menu-item.png" width="18" height="18"></div>
                       </div>
@@ -583,7 +583,7 @@
                 <!-- Local File -->
                 <li>
                   <label class="dropdown-item btn btn-default btn-file">
-                    <div class="igv-app-dropdown-item-cloud-storage">
+                    <div class="igv-main-dropdown-item-cloud-storage">
                       <div>
                         Load Local File ...
                       </div>
@@ -597,7 +597,7 @@
                 <!-- Dropbox -->
                 <li>
                   <div class="dropdown-item">
-                    <div id="spacewalk-track-dropbox-button" class="igv-app-dropdown-item-cloud-storage">
+                    <div id="spacewalk-track-dropbox-button" class="igv-main-dropdown-item-cloud-storage">
                       <div>Load Dropbox File ...</div>
                       <div>
                         <img src="img/dropbox-dropdown-menu-item.png" width="18" height="18">
@@ -609,7 +609,7 @@
                 <!-- Google Drive -->
                 <li>
                   <div class="dropdown-item">
-                    <div id="spacewalk-track-dropdown-google-drive-button" class="igv-app-dropdown-item-cloud-storage">
+                    <div id="spacewalk-track-dropdown-google-drive-button" class="igv-main-dropdown-item-cloud-storage">
                       <div>Load Google Drive File ...</div>
                       <img src="img/googledrive-dropdown-menu-item.png" width="18" height="18">
                     </div>
@@ -635,11 +635,11 @@
     </div>
 
     <!-- Share URL Modal -->
-    <div id="igv-app-share-modal" class="modal fade">
+    <div id="igv-main-share-modal" class="modal fade">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <div id="igv-app-share-input-modal-close-button" class="modal-title">Share</div>
+            <div id="igv-main-share-input-modal-close-button" class="modal-title">Share</div>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -648,11 +648,11 @@
               <div class="row">
                 <div class="col-sm-8">
                   <div class="form-group">
-                    <input id="igv-app-share-input" type="text" class="form-control" placeholder="">
+                    <input id="igv-main-share-input" type="text" class="form-control" placeholder="">
                   </div>
                 </div>
                 <div class="col-sm-2">
-                  <button id="igv-app-copy-link-button" type="button" class="btn btn-sm btn-default">
+                  <button id="igv-main-copy-link-button" type="button" class="btn btn-sm btn-default">
                     COPY
                   </button>
                 </div>

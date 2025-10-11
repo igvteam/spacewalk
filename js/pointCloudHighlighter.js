@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import {ensembleManager, igvPanel, pointCloud} from "./app.js";
+import {ensembleManager, igvPanel, pointCloud} from "./main.js";
 import {setGeometryColorAttribute} from "./pointCloud.js";
 
 class PointCloudHighlighter {

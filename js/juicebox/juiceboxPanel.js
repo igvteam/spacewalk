@@ -1,7 +1,7 @@
 import hic from 'juicebox.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
-import { ballAndStick, liveContactMapService, liveDistanceMapService, ensembleManager, ribbon, igvPanel, genomicNavigator } from '../app.js'
+import { ballAndStick, liveContactMapService, liveDistanceMapService, ensembleManager, ribbon, igvPanel, genomicNavigator } from '../main.js'
 import LiveMapState from "./liveMapState.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
 import { renderLiveMapWithContactData } from "./liveContactMapService.js"

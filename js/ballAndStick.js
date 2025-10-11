@@ -3,7 +3,7 @@ import { StringUtils } from 'igv-utils'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import {clamp, lerp} from './utils/mathUtils.js'
-import {ensembleManager, igvPanel, scene, sceneManager} from './app.js'
+import {ensembleManager, igvPanel, scene, sceneManager} from './main.js'
 import { appleCrayonColorThreeJS } from "./utils/colorUtils.js"
 import EnsembleManager from './ensembleManager.js'
 import ConvexHull from "./utils/convexHull.js"

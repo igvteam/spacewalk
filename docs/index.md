@@ -14,7 +14,7 @@ Spacewalk is an interactive 3D visualization application for super-resolution mi
 
 ## Try It Now
 
-Spacewalk is hosted at [Aiden  Lab](https://aidenlab.org). Launch the app by clicking [here](https://aidenlab.org/spacewalk).
+Spacewalk is hosted at [Aiden  Lab](https://aidenlab.org). Launch the main by clicking [here](https://aidenlab.org/spacewalk).
 
 Experience Spacewalk immediately with these demos:
 

@@ -1,5 +1,5 @@
 import SpacewalkEventBus from "./spacewalkEventBus.js"
-import {ensembleManager} from "./app.js"
+import {ensembleManager} from "./main.js"
 import {clamp} from "./utils/mathUtils.js"
 import {StringUtils} from "igv-utils";
 

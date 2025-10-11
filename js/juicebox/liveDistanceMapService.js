@@ -1,4 +1,4 @@
-import {ensembleManager, juiceboxPanel} from "../app.js";
+import {ensembleManager, juiceboxPanel} from "../main.js";
 import { clamp } from "../utils/mathUtils.js";
 import {appleCrayonColorRGB255, rgb255String} from "../utils/colorUtils.js";
 import { hideGlobalSpinner, showGlobalSpinner } from "../utils/utils.js"

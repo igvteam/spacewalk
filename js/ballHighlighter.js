@@ -1,4 +1,4 @@
-import {ensembleManager, ballAndStick, igvPanel, genomicNavigator} from "./app.js";
+import {ensembleManager, ballAndStick, igvPanel, genomicNavigator} from "./main.js";
 
 class BallHighlighter {
 
