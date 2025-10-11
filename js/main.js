@@ -18,15 +18,11 @@ let liveContactMapService;
 let liveDistanceMapService;
 let juiceboxPanel;
 let igvPanel;
-let traceSelector;
 let genomicNavigator;
 let googleEnabled = false;
-let renderContainerResizeObserver;
-let renderer;
 let cameraLightingRig;
 let camera;
 let scene;
-let picker;
 let sceneBackgroundColorPicker;
 let scaleBarService;
 
@@ -48,24 +44,21 @@ const appVariables = {
     set liveDistanceMapService(val) { liveDistanceMapService = val; },
     set juiceboxPanel(val) { juiceboxPanel = val; },
     set igvPanel(val) { igvPanel = val; },
-    set traceSelector(val) { traceSelector = val; },
     set genomicNavigator(val) { genomicNavigator = val; },
     set googleEnabled(val) { googleEnabled = val; },
-    set renderContainerResizeObserver(val) { renderContainerResizeObserver = val; },
-    set renderer(val) { renderer = val; },
     set cameraLightingRig(val) { cameraLightingRig = val; },
     set camera(val) { camera = val; },
     set scene(val) { scene = val; },
-    set picker(val) { picker = val; },
     set sceneBackgroundColorPicker(val) { sceneBackgroundColorPicker = val; },
     set scaleBarService(val) { scaleBarService = val; },
 };
 
-// Create singleton instance of the application with access to variable setters
-const main = new App(appVariables);
+// Main application instance - created after DOM is ready
+let main;
 
 document.addEventListener("DOMContentLoaded", async (event) => {
-    // Initialize the application
+    // Create and initialize the application
+    main = new App(appVariables);
     // Module-level variables are populated inline during initialization via appVariables setters
     await main.initialize();
 });
