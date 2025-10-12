@@ -34,46 +34,17 @@ let scene;
 let sceneBackgroundColorPicker;
 let scaleBarService;
 
-/**
- * Helper object for App to populate module-level variables during initialization.
- * This maintains backward compatibility while allowing proper timing for dependent modules.
- */
-const appVariables = {
-    set pointCloud(val) { pointCloud = val; },
-    set ribbon(val) { ribbon = val; },
-    set ballAndStick(val) { ballAndStick = val; },
-    set ensembleManager(val) { ensembleManager = val; },
-    set sceneManager(val) { sceneManager = val; },
-    set trackMaterialProvider(val) { trackMaterialProvider = val; },
-    set colorRampMaterialProvider(val) { colorRampMaterialProvider = val; },
-    set liveContactMapService(val) { liveContactMapService = val; },
-    set liveDistanceMapService(val) { liveDistanceMapService = val; },
-    set juiceboxPanel(val) { juiceboxPanel = val; },
-    set igvPanel(val) { igvPanel = val; },
-    set genomicNavigator(val) { genomicNavigator = val; },
-    set googleEnabled(val) { googleEnabled = val; },
-    set cameraLightingRig(val) { cameraLightingRig = val; },
-    set camera(val) { camera = val; },
-    set scene(val) { scene = val; },
-    set sceneBackgroundColorPicker(val) { sceneBackgroundColorPicker = val; },
-    set scaleBarService(val) { scaleBarService = val; },
-};
-
 function getThreeJSContainerRect() {
     const container = document.querySelector('#spacewalk-threejs-canvas-container');
     return container.getBoundingClientRect();
 }
 
 /**
- * Main application class that encapsulates all Spacewalk application state.
- * This centralizes what were previously module-level variables into a cohesive object.
- *
- * @param {Object} appVariables - Optional object with setters to populate module-level variables for backward compatibility
+ * Main application class that orchestrates Spacewalk initialization and manages application state.
+ * Populates module-level variables for backward compatibility with existing code.
  */
 class App {
-    constructor(appVariables) {
-        // Store reference to variable setters for backward compatibility
-        this.appVariables = appVariables;
+    constructor() {
 
         // Visualization objects
         this.pointCloud = null;
@@ -126,7 +97,7 @@ class App {
 
         // Configure Google authentication
         this.googleEnabled = await this.configureGoogleAuthentication(spacewalkConfig);
-        this.appVariables.googleEnabled = this.googleEnabled;
+        googleEnabled = this.googleEnabled;
 
         // Initialize core managers
         await this.initializeCoreManagers();
@@ -152,8 +123,6 @@ class App {
         // Configure resize observer and fullscreen mode
         const traceContainer = document.getElementById('spacewalk-threejs-trace-navigator-container');
         this.renderContainerResizeObserver = this.uiBootstrapper.initializeResizeObserver(traceContainer, threeJSObjects);
-
-        this.appVariables.renderContainerResizeObserver = this.renderContainerResizeObserver;
         this.uiBootstrapper.initializeFullscreenMode(traceContainer);
 
         // Load session from URL parameters if present
@@ -167,20 +136,16 @@ class App {
 
     async initializeCoreManagers() {
         this.ensembleManager = new EnsembleManager();
-        this.appVariables.ensembleManager = this.ensembleManager;
+        ensembleManager = this.ensembleManager;
 
         this.trackMaterialProvider = new TrackMaterialProvider(appleCrayonColorRGB255('snow'), appleCrayonColorRGB255('blueberry'), this.ensembleManager);
-        this.appVariables.trackMaterialProvider = this.trackMaterialProvider;
+        trackMaterialProvider = this.trackMaterialProvider;
 
         this.colorMapManager = new ColorMapManager();
         await this.colorMapManager.configure();
-        // colorMapManager not exported - no need to populate
 
-        this.colorRampMaterialProvider = new ColorRampMaterialProvider(
-            defaultColormapName,
-            this.colorMapManager
-        );
-        this.appVariables.colorRampMaterialProvider = this.colorRampMaterialProvider;
+        this.colorRampMaterialProvider = new ColorRampMaterialProvider(defaultColormapName, this.colorMapManager);
+        colorRampMaterialProvider = this.colorRampMaterialProvider;
     }
 
     assignThreeJSObjects(threeJSObjects) {
@@ -196,16 +161,14 @@ class App {
         this.sceneBackgroundColorPicker = threeJSObjects.sceneBackgroundColorPicker;
 
         // Populate module-level variables
-        this.appVariables.pointCloud = this.pointCloud;
-        this.appVariables.ribbon = this.ribbon;
-        this.appVariables.ballAndStick = this.ballAndStick;
-        this.appVariables.sceneManager = this.sceneManager;
-        this.appVariables.picker = this.picker;
-        this.appVariables.renderer = this.renderer;
-        this.appVariables.cameraLightingRig = this.cameraLightingRig;
-        this.appVariables.camera = this.camera;
-        this.appVariables.scene = this.scene;
-        this.appVariables.sceneBackgroundColorPicker = this.sceneBackgroundColorPicker;
+        pointCloud = this.pointCloud;
+        ribbon = this.ribbon;
+        ballAndStick = this.ballAndStick;
+        sceneManager = this.sceneManager;
+        cameraLightingRig = this.cameraLightingRig;
+        camera = this.camera;
+        scene = this.scene;
+        sceneBackgroundColorPicker = this.sceneBackgroundColorPicker;
     }
 
     assignUIComponents(uiComponents) {
@@ -215,22 +178,31 @@ class App {
         this.genomicNavigator = uiComponents.genomicNavigator;
 
         // Populate module-level variables
-        this.appVariables.scaleBarService = this.scaleBarService;
-        // guiManager not exported - no need to populate
-        // traceSelector not exported - no need to populate
-        this.appVariables.genomicNavigator = this.genomicNavigator;
+        scaleBarService = this.scaleBarService;
+        genomicNavigator = this.genomicNavigator;
+    }
+
+    /**
+     * Early population of panel variables (called during panel initialization for timing)
+     */
+    populatePanelVariable(name, value) {
+        this[name] = value;
+        // Populate module-level variable immediately
+        if (name === 'igvPanel') {
+            igvPanel = value;
+        } else if (name === 'juiceboxPanel') {
+            juiceboxPanel = value;
+        }
     }
 
     assignPanelObjects(panelObjects) {
-        this.igvPanel = panelObjects.igvPanel;
-        this.juiceboxPanel = panelObjects.juiceboxPanel;
+        // Panels were already assigned via populatePanelVariable
         this.liveContactMapService = panelObjects.liveContactMapService;
         this.liveDistanceMapService = panelObjects.liveDistanceMapService;
 
-        // Note: Panel variables were already populated in PanelInitializer for proper timing
-        // But we still populate service variables here
-        this.appVariables.liveContactMapService = this.liveContactMapService;
-        this.appVariables.liveDistanceMapService = this.liveDistanceMapService;
+        // Populate module-level variables
+        liveContactMapService = this.liveContactMapService;
+        liveDistanceMapService = this.liveDistanceMapService;
     }
 
     async consumeURLParams(params) {
@@ -324,7 +296,6 @@ class App {
 export default App
 
 export {
-    appVariables,
     getThreeJSContainerRect,
     scene,
     camera,

@@ -35,9 +35,7 @@ class PanelInitializer {
         });
         panelObjects.igvPanel.materialProvider = this.appContext.colorRampMaterialProvider;
         // Populate module-level variable BEFORE initialization (event handlers may need it)
-        if (this.appContext.appVariables) {
-            this.appContext.appVariables.igvPanel = panelObjects.igvPanel;
-        }
+        this.appContext.populatePanelVariable('igvPanel', panelObjects.igvPanel);
         await panelObjects.igvPanel.initialize(spacewalkConfig.igvConfig);
 
         // Initialize Juicebox Panel (mini-app)
@@ -47,9 +45,7 @@ class PanelInitializer {
             isHidden: doInspectPanelVisibilityCheckbox('spacewalk_juicebox_panel')
         });
         // Populate module-level variable BEFORE initialization (event handlers need it)
-        if (this.appContext.appVariables) {
-            this.appContext.appVariables.juiceboxPanel = panelObjects.juiceboxPanel;
-        }
+        this.appContext.populatePanelVariable('juiceboxPanel', panelObjects.juiceboxPanel);
         await panelObjects.juiceboxPanel.initialize(
             document.querySelector('#spacewalk_juicebox_root_container'),
             spacewalkConfig.juiceboxConfig
