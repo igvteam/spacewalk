@@ -5,7 +5,7 @@ import { Line2 } from "three/examples/jsm/lines/Line2.js"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
 import EnsembleManager from './ensembleManager.js'
-import {igvPanel, sceneManager, ensembleManager, scene} from "./main.js"
+import {igvPanel, sceneManager, ensembleManager, scene} from "./app.js"
 import {appleCrayonColorThreeJS} from "./utils/colorUtils.js";
 import {getPositionArrayWithTrace} from "./utils/utils.js"
 import ConvexHull from "./utils/convexHull"

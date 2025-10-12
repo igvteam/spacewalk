@@ -1,5 +1,5 @@
 import hic from 'juicebox.js'
-import {ensembleManager, juiceboxPanel} from "../main.js"
+import {ensembleManager, juiceboxPanel} from "../app.js"
 import EnsembleManager from "../ensembleManager.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
 import {hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas} from "../utils/utils.js"

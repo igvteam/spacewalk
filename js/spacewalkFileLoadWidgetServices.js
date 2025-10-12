@@ -1,5 +1,5 @@
 import {FileUtils, URIUtils, GooglePicker, GoogleUtils, GoogleDrive} from 'igv-utils'
-import {ensembleManager, sceneManager} from './main.js'
+import {ensembleManager, sceneManager} from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 
 let traceURLlModal

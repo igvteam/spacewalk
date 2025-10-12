@@ -1,4 +1,4 @@
-import {ensembleManager, igvPanel, pointCloud} from "./main.js";
+import {ensembleManager, igvPanel, pointCloud} from "./app.js";
 import {setGeometryColorAttribute} from "./pointCloud.js";
 
 class PointCloudHighlighter {

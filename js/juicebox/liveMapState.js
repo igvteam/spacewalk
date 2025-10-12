@@ -1,5 +1,5 @@
 import hic from 'juicebox.js'
-import {igvPanel} from "../main.js"
+import {igvPanel} from "../app.js"
 
 class LiveMapState extends hic.State {
    constructor(ensembleManager, contactMatrixView) {

@@ -1,7 +1,7 @@
 import * as THREE from "three"
 import {StringUtils} from "igv-utils"
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {ensembleManager, igvPanel, pointCloud, scene, sceneManager} from "./main.js";
+import {ensembleManager, igvPanel, pointCloud, scene, sceneManager} from "./app.js";
 import EnsembleManager from "./ensembleManager.js"
 import {clamp} from "./utils/mathUtils.js"
 import ConvexHull from "./utils/convexHull.js"

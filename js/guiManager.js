@@ -2,7 +2,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import { StringUtils } from 'igv-utils'
 import Ribbon from "./ribbon.js";
 import BallAndStick from "./ballAndStick.js";
-import { scaleBarService, ballAndStick, sceneManager, ensembleManager, pointCloud } from "./main.js";
+import { scaleBarService, ballAndStick, sceneManager, ensembleManager, pointCloud } from "./app.js";
 
 class GUIManager {
 

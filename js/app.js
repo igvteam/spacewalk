@@ -13,6 +13,57 @@ import ThreeJSInitializer from "./initializers/threeJSInitializer.js"
 import UIBootstrapper from "./initializers/uiBootstrapper.js"
 import PanelInitializer from "./initializers/panelInitializer.js"
 
+// Module-level variables - the single source of truth for shared application state
+// These are populated by the App class during initialization
+let pointCloud;
+let ribbon;
+let ballAndStick;
+let ensembleManager;
+let sceneManager;
+let trackMaterialProvider;
+let colorRampMaterialProvider;
+let liveContactMapService;
+let liveDistanceMapService;
+let juiceboxPanel;
+let igvPanel;
+let genomicNavigator;
+let googleEnabled = false;
+let cameraLightingRig;
+let camera;
+let scene;
+let sceneBackgroundColorPicker;
+let scaleBarService;
+
+/**
+ * Helper object for App to populate module-level variables during initialization.
+ * This maintains backward compatibility while allowing proper timing for dependent modules.
+ */
+const appVariables = {
+    set pointCloud(val) { pointCloud = val; },
+    set ribbon(val) { ribbon = val; },
+    set ballAndStick(val) { ballAndStick = val; },
+    set ensembleManager(val) { ensembleManager = val; },
+    set sceneManager(val) { sceneManager = val; },
+    set trackMaterialProvider(val) { trackMaterialProvider = val; },
+    set colorRampMaterialProvider(val) { colorRampMaterialProvider = val; },
+    set liveContactMapService(val) { liveContactMapService = val; },
+    set liveDistanceMapService(val) { liveDistanceMapService = val; },
+    set juiceboxPanel(val) { juiceboxPanel = val; },
+    set igvPanel(val) { igvPanel = val; },
+    set genomicNavigator(val) { genomicNavigator = val; },
+    set googleEnabled(val) { googleEnabled = val; },
+    set cameraLightingRig(val) { cameraLightingRig = val; },
+    set camera(val) { camera = val; },
+    set scene(val) { scene = val; },
+    set sceneBackgroundColorPicker(val) { sceneBackgroundColorPicker = val; },
+    set scaleBarService(val) { scaleBarService = val; },
+};
+
+function getThreeJSContainerRect() {
+    const container = document.querySelector('#spacewalk-threejs-canvas-container');
+    return container.getBoundingClientRect();
+}
+
 /**
  * Main application class that encapsulates all Spacewalk application state.
  * This centralizes what were previously module-level variables into a cohesive object.
@@ -271,3 +322,26 @@ class App {
 }
 
 export default App
+
+export {
+    appVariables,
+    getThreeJSContainerRect,
+    scene,
+    camera,
+    sceneBackgroundColorPicker,
+    cameraLightingRig,
+    googleEnabled,
+    pointCloud,
+    ribbon,
+    ballAndStick,
+    ensembleManager,
+    sceneManager,
+    colorRampMaterialProvider,
+    trackMaterialProvider,
+    juiceboxPanel,
+    liveContactMapService,
+    liveDistanceMapService,
+    igvPanel,
+    genomicNavigator,
+    scaleBarService
+}
