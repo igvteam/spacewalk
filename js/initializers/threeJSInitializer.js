@@ -23,9 +23,10 @@ class ThreeJSInitializer {
 
     /**
      * Initialize all Three.js objects and return them
+     * @param {Object} colorRampMaterialProvider - The color ramp material provider
      * @returns {Object} Object containing all initialized Three.js objects
      */
-    initialize() {
+    initialize(colorRampMaterialProvider) {
         const threeJSObjects = {};
 
         // Create visualization objects
@@ -44,7 +45,7 @@ class ThreeJSInitializer {
             deemphasizedColor: appleCrayonColorThreeJS('magnesium')
         });
 
-        threeJSObjects.sceneManager = new SceneManager();
+        threeJSObjects.sceneManager = new SceneManager(colorRampMaterialProvider);
 
         threeJSObjects.picker = new Picker(new THREE.Raycaster());
 

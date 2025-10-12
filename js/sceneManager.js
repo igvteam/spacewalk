@@ -17,7 +17,6 @@ import {
     ballAndStick,
     ensembleManager,
     igvPanel,
-    colorRampMaterialProvider,
     cameraLightingRig,
     getThreeJSContainerRect,
 } from "./main.js"
@@ -27,7 +26,8 @@ const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'sti
 
 class SceneManager {
 
-    constructor() {
+    constructor(colorRampMaterialProvider) {
+        this.colorRampMaterialProvider = colorRampMaterialProvider;
         SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', this);
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
     }
@@ -61,7 +61,7 @@ class SceneManager {
         this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyleWidgetState())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
-        setMaterialProvider(colorRampMaterialProvider)
+        setMaterialProvider(this.colorRampMaterialProvider)
 
         if (ensembleManager.genomeAssembly !== igvPanel.browser.genome.id) {
             console.log(`Genome swap from ${ igvPanel.browser.genome.id } to ${ ensembleManager.genomeAssembly }. Call igv_browser.loadGenome`)
@@ -80,7 +80,7 @@ class SceneManager {
         this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyleWidgetState())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
-        setMaterialProvider(colorRampMaterialProvider)
+        setMaterialProvider(this.colorRampMaterialProvider)
 
         await igvPanel.locusDidChange(ensembleManager.locus)
 

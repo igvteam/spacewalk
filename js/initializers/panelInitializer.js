@@ -27,7 +27,11 @@ class PanelInitializer {
         panelObjects.igvPanel = new IGVPanel({
             container,
             panel: document.querySelector('#spacewalk_igv_panel'),
-            isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel')
+            isHidden: doInspectPanelVisibilityCheckbox('spacewalk_igv_panel'),
+            colorRampMaterialProvider: this.appContext.colorRampMaterialProvider,
+            trackMaterialProvider: this.appContext.trackMaterialProvider,
+            ensembleManager: this.appContext.ensembleManager,
+            genomicNavigator: this.appContext.genomicNavigator
         });
         panelObjects.igvPanel.materialProvider = this.appContext.colorRampMaterialProvider;
         // Populate module-level variable BEFORE initialization (event handlers may need it)

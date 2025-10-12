@@ -82,7 +82,7 @@ class App {
 
         // Initialize Three.js scene, camera, and renderer
         this.threeJSInitializer = new ThreeJSInitializer(document.getElementById('spacewalk-threejs-canvas-container'));
-        const threeJSObjects = this.threeJSInitializer.initialize();
+        const threeJSObjects = this.threeJSInitializer.initialize(this.colorRampMaterialProvider);
         this.assignThreeJSObjects(threeJSObjects);
 
         // Initialize UI components
@@ -123,9 +123,12 @@ class App {
 
         this.colorMapManager = new ColorMapManager();
         await this.colorMapManager.configure();
-        this.appVariables.colorMapManager = this.colorMapManager;
+        // colorMapManager not exported - no need to populate
 
-        this.colorRampMaterialProvider = new ColorRampMaterialProvider(defaultColormapName);
+        this.colorRampMaterialProvider = new ColorRampMaterialProvider(
+            defaultColormapName,
+            this.colorMapManager
+        );
         this.appVariables.colorRampMaterialProvider = this.colorRampMaterialProvider;
     }
 
@@ -162,8 +165,8 @@ class App {
 
         // Populate module-level variables
         this.appVariables.scaleBarService = this.scaleBarService;
-        this.appVariables.guiManager = this.guiManager;
-        this.appVariables.traceSelector = this.traceSelector;
+        // guiManager not exported - no need to populate
+        // traceSelector not exported - no need to populate
         this.appVariables.genomicNavigator = this.genomicNavigator;
     }
 

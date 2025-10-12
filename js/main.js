@@ -8,11 +8,9 @@ let pointCloud;
 let ribbon;
 let ballAndStick;
 let ensembleManager;
-let colorMapManager;
 let sceneManager;
 let trackMaterialProvider;
 let colorRampMaterialProvider;
-let guiManager;
 let liveContactMapService;
 let liveDistanceMapService;
 let juiceboxPanel;
@@ -34,11 +32,9 @@ const appVariables = {
     set ribbon(val) { ribbon = val; },
     set ballAndStick(val) { ballAndStick = val; },
     set ensembleManager(val) { ensembleManager = val; },
-    set colorMapManager(val) { colorMapManager = val; },
     set sceneManager(val) { sceneManager = val; },
     set trackMaterialProvider(val) { trackMaterialProvider = val; },
     set colorRampMaterialProvider(val) { colorRampMaterialProvider = val; },
-    set guiManager(val) { guiManager = val; },
     set liveContactMapService(val) { liveContactMapService = val; },
     set liveDistanceMapService(val) { liveDistanceMapService = val; },
     set juiceboxPanel(val) { juiceboxPanel = val; },
@@ -78,11 +74,9 @@ export {
     ribbon,
     ballAndStick,
     ensembleManager,
-    colorMapManager,
     sceneManager,
     colorRampMaterialProvider,
     trackMaterialProvider,
-    guiManager,
     juiceboxPanel,
     liveContactMapService,
     liveDistanceMapService,
