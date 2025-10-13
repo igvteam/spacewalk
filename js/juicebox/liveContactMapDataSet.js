@@ -33,13 +33,13 @@ class LiveContactMapDataSet {
     }
 
     set chromosomes(genomeChromosomeMap) {
-        const hash = Object.fromEntries(genomeChromosomeMap)
-        this._chromosomes = Object.values(hash).map(({ index, bpLength, size, name }) => { return { index, name, size, bpLength }})
+        // Convert genome chromosomes Map to array
+        this._chromosomes = Array.from(genomeChromosomeMap.values())
 
-        // reorganize array to be consistent with Juicebox layout
-        const all = this._chromosomes.pop()
-        this._chromosomes.unshift(all)
-
+        // Juicebox requires "All" chromosome to be first in the array
+        // IGV genome has it last, so we move it to the front
+        const allChromosome = this._chromosomes.pop()
+        this._chromosomes.unshift(allChromosome)
     }
 
     get chromosomes() {

@@ -4,9 +4,9 @@ import Panel from '../panel.js'
 import { ballAndStick, liveContactMapService, liveDistanceMapService, ensembleManager, ribbon, igvPanel, genomicNavigator } from '../app.js'
 import LiveMapState from "./liveMapState.js"
 import LiveContactMapDataSet from "./liveContactMapDataSet.js"
-import { renderLiveMapWithContactData } from "./liveContactMapService.js"
 import { renderLiveMapWithDistanceData } from './liveDistanceMapService.js'
-import {appleCrayonColorRGB255, rgb255String} from "../utils/colorUtils"
+import {appleCrayonColorRGB255, rgb255String, compositeColors} from "../utils/colorUtils"
+import {transferRGBAMatrixToLiveMapCanvas} from "../utils/utils.js"
 
 // Store reference to the singleton JuiceboxPanel instance for event handlers
 let juiceboxPanelInstance = null;
@@ -247,7 +247,38 @@ class JuiceboxPanel extends Panel {
 
     async renderLiveMapWithContactData(contactFrequencies, contactFrequencyArray, liveMapTraceLength) {
         console.log('JuiceboxPanel. Render Live Contact Map')
-        await renderLiveMapWithContactData(this.browser, this.browser.liveMapState, this.browser.liveMapDataset, contactFrequencies, contactFrequencyArray, liveMapTraceLength)
+        
+        const browser = this.browser
+        const state = this.browser.liveMapState
+        const liveContactMapDataSet = this.browser.liveMapDataset
+
+        browser.eventBus.post(hic.HICEvent('MapLoad', { dataset: liveContactMapDataSet, state }))
+
+        browser.locusGoto.doChangeLocus({ dataset: liveContactMapDataSet, state })
+
+        const zoomIndexA = state.zoom
+        const { chr1, chr2 } = state
+        const zoomData = liveContactMapDataSet.getZoomDataByIndex(chr1, chr2, zoomIndexA)
+
+        browser.contactMatrixView.checkColorScale_sw(browser, state, 'LIVE', liveContactMapDataSet, zoomData)
+
+        this.paintContactMapRGBAMatrix(contactFrequencies, contactFrequencyArray, browser.contactMatrixView.colorScale, browser.contactMatrixView.backgroundColor)
+
+        await transferRGBAMatrixToLiveMapCanvas(browser.contactMatrixView.ctx_live, contactFrequencyArray, liveMapTraceLength)
+    }
+
+    paintContactMapRGBAMatrix(frequencies, rgbaMatrix, colorScale, backgroundRGB) {
+        let i = 0
+        for (const frequency of frequencies) {
+            const { red, green, blue, alpha } = colorScale.getColor(frequency)
+            const foregroundRGBA = { r:red, g:green, b:blue, a:alpha }
+            const { r, g, b } = compositeColors(foregroundRGBA, backgroundRGB)
+
+            rgbaMatrix[i++] = r
+            rgbaMatrix[i++] = g
+            rgbaMatrix[i++] = b
+            rgbaMatrix[i++] = 255
+        }
     }
 
     async renderLiveMapWithDistanceData(distances, maxDistance, rgbaMatrix, liveMapTraceLength) {
