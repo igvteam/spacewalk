@@ -6,13 +6,6 @@ class ColorRampMaterialProvider {
     constructor(colorMapName, colorMapManager) {
         this.colorMapName = colorMapName
         this.colorMapManager = colorMapManager
-        
-        console.log('ColorRampMaterialProvider constructor:', {
-            colorMapName,
-            hasColorMapManager: !!colorMapManager,
-            hasDictionary: !!(colorMapManager && colorMapManager.dictionary),
-            dictionaryKeys: colorMapManager && colorMapManager.dictionary ? Object.keys(colorMapManager.dictionary) : []
-        });
     }
 
     colorForInterpolant(interpolant) {

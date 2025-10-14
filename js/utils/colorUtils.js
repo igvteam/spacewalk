@@ -235,7 +235,10 @@ function compositeColors(foreRGBA, backRGB) {
 
 function createColorPicker(container, initialColor, callback) {
 
-    const color = rgb255String(threeJSColorToRGB255(initialColor));
+    const rgb255 = threeJSColorToRGB255(initialColor);
+    
+    // Set initial background color of container
+    container.style.backgroundColor = rgb255String(rgb255);
 
     const config =
         {
@@ -244,7 +247,7 @@ function createColorPicker(container, initialColor, callback) {
             editor: false,
             editorFormat: 'rgb',
             alpha: false,
-            color
+            color: [ rgb255.r, rgb255.g, rgb255.b, 1 ]
         };
 
     const picker = new Picker(config);
