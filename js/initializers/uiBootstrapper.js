@@ -45,22 +45,12 @@ class UIBootstrapper {
         });
 
         // Initialize scale bar service (after GUI manager, so checkbox exists)
-        uiComponents.scaleBarService = new ScaleBarService(
-            document.querySelector('#spacewalk-threejs-canvas-container'),
-            ScaleBarService.setScaleBarsHidden()
-        );
+        uiComponents.scaleBarService = new ScaleBarService(document.querySelector('#spacewalk-threejs-canvas-container'), ScaleBarService.setScaleBarsHidden());
         uiComponents.scaleBarService.insertScaleBarDOM();
 
         // Initialize trace selector and navigator
-        uiComponents.traceSelector = new TraceSelector(
-            document.querySelector('#spacewalk_trace_select_input'),
-            this.appContext.ensembleManager
-        );
-        uiComponents.genomicNavigator = new GenomicNavigator(
-            document.querySelector('#spacewalk-trace-navigator-container'),
-            highlightColor,
-            this.appContext.ensembleManager
-        );
+        uiComponents.traceSelector = new TraceSelector(document.querySelector('#spacewalk_trace_select_input'), this.appContext.ensembleManager);
+        uiComponents.genomicNavigator = new GenomicNavigator(document.querySelector('#spacewalk-trace-navigator-container'), highlightColor, this.appContext.ensembleManager);
 
         // Initialize file loaders
         this.initializeFileLoaders();
@@ -75,7 +65,7 @@ class UIBootstrapper {
         createShareWidgets(shareWidgetConfigurator({ provider: 'tinyURL' }));
 
         // Show navbar
-        document.querySelector('.navbar').style.display = 'flex';
+        document.querySelector('.navbar').style.display = '';
 
         return uiComponents;
     }

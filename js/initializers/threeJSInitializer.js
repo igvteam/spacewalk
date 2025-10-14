@@ -15,8 +15,9 @@ import { getMouseXY } from '../utils/utils.js'
  * and all 3D visualization objects.
  */
 class ThreeJSInitializer {
-    constructor(container) {
+    constructor(container, colorPickerContainer) {
         this.container = container;
+        this.colorPickerContainer = colorPickerContainer
         this.mouseX = null;
         this.mouseY = null;
     }
@@ -92,15 +93,12 @@ class ThreeJSInitializer {
         threeJSObjects.cameraLightingRig.setPose(position, centroid);
 
         // Set up background color picker
-        const pickerParent = document.querySelector(`div[data-colorpicker='background']`);
-        threeJSObjects.sceneBackgroundColorPicker = createColorPicker(
-            pickerParent,
-            threeJSObjects.scene.background,
-            color => {
-                threeJSObjects.scene.background = new THREE.Color(color);
-                threeJSObjects.renderer.render(threeJSObjects.scene, threeJSObjects.camera);
-            }
-        );
+        const colorHandler = color => {
+            threeJSObjects.scene.background = new THREE.Color(color);
+            threeJSObjects.renderer.render(threeJSObjects.scene, threeJSObjects.camera);
+        }
+
+        threeJSObjects.sceneBackgroundColorPicker = createColorPicker(this.colorPickerContainer, threeJSObjects.scene.background, colorHandler);
 
         this.updateSceneBackgroundColorpicker(
             this.container,

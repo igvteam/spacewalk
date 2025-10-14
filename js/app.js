@@ -103,7 +103,9 @@ class App {
         await this.initializeCoreManagers();
 
         // Initialize Three.js scene, camera, and renderer
-        this.threeJSInitializer = new ThreeJSInitializer(document.getElementById('spacewalk-threejs-canvas-container'));
+        const container = document.getElementById('spacewalk-threejs-canvas-container')
+        const colorPickerContainer = document.querySelector(`div[data-colorpicker='background']`)
+        this.threeJSInitializer = new ThreeJSInitializer(container, colorPickerContainer);
         const threeJSObjects = this.threeJSInitializer.initialize(this.colorRampMaterialProvider);
         this.assignThreeJSObjects(threeJSObjects);
 
