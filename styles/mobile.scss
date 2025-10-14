@@ -1,0 +1,241 @@
+// Mobile-specific styles for Spacewalk
+// Minimal imports - only what's needed for mobile
+
+@use "color";
+@use "mobile-layout";
+
+// Variables specific to mobile
+$mobile-header-height: 60px;
+$spacewalk-trace-navigator-width: 48px;
+$spacewalk-trace-navigator-label-height: 32px;
+$spacewalk-trace-navigator-canvas-width: 46px;
+$spacewalk-threejs-canvas-center-dot-radius: 6px;
+
+// Global resets for mobile
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: color.$spacewalk_silver;
+}
+
+// Mobile header - retractable overlay on top of 3D viewer
+#mobile-header {
+  position: fixed;
+  top: -#{$mobile-header-height}; // Hidden by default
+  left: 0;
+  right: 0;
+  height: $mobile-header-height;
+  background-color: rgba(52, 58, 64, 0.95);
+  color: white;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  backdrop-filter: blur(10px);
+  transition: top 0.3s ease-in-out;
+  
+  // Show when has 'visible' class
+  &.visible {
+    top: 0;
+  }
+
+  .mobile-header-content {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h1 {
+      font-size: 1.2rem;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .mobile-url-input-container {
+      display: flex;
+      flex: 1;
+      margin-left: 15px;
+      gap: 8px;
+
+      #mobile-url-input {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.9rem;
+        padding: 6px 10px;
+      }
+
+      #mobile-load-button {
+        white-space: nowrap;
+        padding: 6px 16px;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Mobile main content - fills entire body
+#mobile-main {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#spacewalk-root-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: color.$spacewalk_silver;
+}
+
+// Three.js container - mobile optimized (fills entire screen)
+#spacewalk-threejs-trace-navigator-container {
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: none;
+  
+  // Allow touch-based resizing
+  touch-action: none;
+
+  #spacewalk-threejs-canvas-container {
+    position: relative;
+    height: 100%;
+    width: calc(100% - #{$spacewalk-trace-navigator-width});
+    background-color: #ffffff;
+
+    canvas {
+      touch-action: none;
+    }
+
+    #spacewalk-threejs-canvas-center-dot {
+      z-index: 512;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
+      width: 2 * $spacewalk-threejs-canvas-center-dot-radius;
+      height: 2 * $spacewalk-threejs-canvas-center-dot-radius;
+
+      border-radius: $spacewalk-threejs-canvas-center-dot-radius;
+      border-style: solid;
+      border-width: thin;
+      border-color: black;
+    }
+  }
+
+  #spacewalk-trace-navigator-container {
+    display: flex;
+    flex-direction: column;
+
+    width: $spacewalk-trace-navigator-width;
+    align-self: stretch;
+
+    background-color: white;
+
+    border-left-style: solid;
+    border-left-width: thin;
+    border-left-color: black;
+
+    #spacewalk-trace-navigator-header {
+      align-self: stretch;
+      height: $spacewalk-trace-navigator-label-height;
+
+      font-size: 0.75rem;
+      line-height: $spacewalk-trace-navigator-label-height;
+      vertical-align: middle;
+      text-align: center;
+      background-color: white;
+    }
+
+    #spacewalk-trace-navigator-widget {
+      position: relative;
+      cursor: pointer;
+      touch-action: pan-y;
+
+      width: $spacewalk-trace-navigator-canvas-width;
+      height: 100%;
+
+      canvas {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      canvas#spacewalk_color_ramp_canvas_highlight {
+        z-index: 128;
+      }
+
+      canvas#spacewalk_color_ramp_canvas_rgb {
+        z-index: inherit;
+      }
+
+      canvas#spacewalk_color_ramp_canvas_alpha {
+        z-index: -128;
+      }
+    }
+
+    #spacewalk-trace-navigator-footer {
+      align-self: stretch;
+      height: $spacewalk-trace-navigator-label-height;
+
+      font-size: 0.75rem;
+      line-height: $spacewalk-trace-navigator-label-height;
+      vertical-align: middle;
+      text-align: center;
+
+      background-color: white;
+    }
+  }
+}
+
+// Spinner
+.spacewalk-spinner-container {
+  z-index: 8000;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+}
+
+// Prevent text selection on mobile
+::selection {
+  color: none;
+  background: none;
+}
+
+// Hide Bootstrap elements we don't need
+.modal-backdrop {
+  display: none !important;
+}
+

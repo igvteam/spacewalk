@@ -1,0 +1,60 @@
+// Mobile-specific layout utilities
+// Additional layout helpers for mobile Spacewalk
+
+// Touch-optimized button sizing
+.mobile-touch-button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px 20px;
+}
+
+// Full viewport container
+.mobile-fullscreen {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+// Safe area support for notched devices
+@supports (padding: max(0px)) {
+  #mobile-header {
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+  }
+}
+
+// Landscape orientation adjustments
+@media (orientation: landscape) {
+  #mobile-header {
+    .mobile-header-content {
+      h1 {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+// Small screen optimizations
+@media (max-width: 375px) {
+  #mobile-header {
+    .mobile-header-content {
+      h1 {
+        font-size: 1rem;
+      }
+
+      .mobile-url-input-container {
+        #mobile-url-input {
+          font-size: 0.85rem;
+        }
+
+        #mobile-load-button {
+          font-size: 0.85rem;
+          padding: 6px 12px;
+        }
+      }
+    }
+  }
+}
+

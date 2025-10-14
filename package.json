@@ -14,8 +14,15 @@
   "scripts": {
     "dev": "vite --force",
     "build": "vite build",
+    "dev:desktop": "vite --config vite.config.desktop.mjs --force",
+    "dev:mobile": "vite --config vite.config.mobile.mjs --force",
+    "build:desktop": "vite build --config vite.config.desktop.mjs",
+    "build:mobile": "vite build --config vite.config.mobile.mjs",
     "preview": "vite preview",
-    "start": "http-server -a localhost dist"
+    "preview:desktop": "vite preview --config vite.config.desktop.mjs",
+    "preview:mobile": "vite preview --config vite.config.mobile.mjs",
+    "start": "http-server -a localhost dist",
+    "start:mobile": "http-server -a localhost dist-mobile"
   },
   "devDependencies": {
     "btoa": "^1.2.1",

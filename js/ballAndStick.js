@@ -3,7 +3,7 @@ import { StringUtils } from 'igv-utils'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import {clamp, lerp} from './utils/mathUtils.js'
-import {ensembleManager, igvPanel, scene, sceneManager} from './app.js'
+import {ensembleManager, igvPanel, scene, sceneManager, getMaterialProvider} from './appGlobals.js'
 import { appleCrayonColorThreeJS } from "./utils/colorUtils.js"
 import EnsembleManager from './ensembleManager.js'
 import ConvexHull from "./utils/convexHull.js"
@@ -73,7 +73,7 @@ class BallAndStick {
 
         ballRadiusTable = generateRadiusTable(2e-1 * averageCurveDistance);
         ballRadiusIndex = Math.floor( ballRadiusTable.length/2 );
-        this.balls = this.createBalls(trace, igvPanel.materialProvider, ballRadiusTable[ ballRadiusIndex ]);
+        this.balls = this.createBalls(trace, getMaterialProvider(), ballRadiusTable[ ballRadiusIndex ]);
 
         const positionArray = getPositionArrayWithTrace(trace)
         this.hull = new ConvexHull(positionArray)

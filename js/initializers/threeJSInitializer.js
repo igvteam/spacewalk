@@ -92,19 +92,23 @@ class ThreeJSInitializer {
         const centroid = new THREE.Vector3(133394, 54542, 4288);
         threeJSObjects.cameraLightingRig.setPose(position, centroid);
 
-        // Set up background color picker
-        const colorHandler = color => {
-            threeJSObjects.scene.background = new THREE.Color(color);
-            threeJSObjects.renderer.render(threeJSObjects.scene, threeJSObjects.camera);
+        // Set up background color picker (only if container provided)
+        if (this.colorPickerContainer) {
+            const colorHandler = color => {
+                threeJSObjects.scene.background = new THREE.Color(color);
+                threeJSObjects.renderer.render(threeJSObjects.scene, threeJSObjects.camera);
+            }
+
+            threeJSObjects.sceneBackgroundColorPicker = createColorPicker(this.colorPickerContainer, threeJSObjects.scene.background, colorHandler);
+
+            this.updateSceneBackgroundColorpicker(
+                this.container,
+                threeJSObjects.scene.background,
+                threeJSObjects.sceneBackgroundColorPicker
+            );
+        } else {
+            threeJSObjects.sceneBackgroundColorPicker = null;
         }
-
-        threeJSObjects.sceneBackgroundColorPicker = createColorPicker(this.colorPickerContainer, threeJSObjects.scene.background, colorHandler);
-
-        this.updateSceneBackgroundColorpicker(
-            this.container,
-            threeJSObjects.scene.background,
-            threeJSObjects.sceneBackgroundColorPicker
-        );
 
         return threeJSObjects;
     }

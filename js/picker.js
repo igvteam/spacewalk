@@ -1,5 +1,5 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {ballAndStick, genomicNavigator} from './app.js';
+import {ballAndStick, genomicNavigator} from './appGlobals.js';
 
 const exclusionSet = new Set([ 'gnomon', 'groundplane', 'point_cloud', 'ribbon', 'stick' ]);
 

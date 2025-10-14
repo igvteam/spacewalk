@@ -3,7 +3,7 @@ import DataSourceBase from './dataSourceBase.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils";
 import {createBoundingBoxWithFlatXYZList} from "../utils/mathUtils.js"
-import {igvPanel} from '../app.js'
+import {igvPanel} from '../appGlobals.js'
 
 class CNDBDatasource extends DataSourceBase {
 
@@ -34,11 +34,24 @@ class CNDBDatasource extends DataSourceBase {
         }
 
         let genomeAssembly
-        if (undefined === this.header.genome || undefined === igvPanel.knownGenomes[ this.header.genome ]) {
-            console.warn(`Warning: Unrecognized genome ${ this.header.genome || 'undefined' }`)
-            genomeAssembly = 'hg19'
+        
+        // Check if genome is known (desktop has IGV panel, mobile doesn't)
+        if (igvPanel && igvPanel.knownGenomes) {
+            // Desktop: validate against IGV's known genomes
+            if (undefined === this.header.genome || undefined === igvPanel.knownGenomes[ this.header.genome ]) {
+                console.warn(`Warning: Unrecognized genome ${ this.header.genome || 'undefined' }`)
+                genomeAssembly = 'hg19'
+            } else {
+                genomeAssembly = this.header.genome
+            }
         } else {
-            genomeAssembly = this.header.genome
+            // Mobile: use genome from file or default to hg19
+            if (this.header.genome) {
+                genomeAssembly = this.header.genome
+            } else {
+                console.warn(`Warning: Unrecognized genome ${ this.header.genome || 'undefined' }`)
+                genomeAssembly = 'hg19'
+            }
         }
         return { sample: 'Unspecified Sample', genomeAssembly }
     }

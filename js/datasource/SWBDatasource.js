@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import {openH5File} from 'hdf5-indexed-reader'
 import {FileUtils} from 'igv-utils'
-import { igvPanel } from '../app.js'
+import { igvPanel } from '../appGlobals.js'
 import { SpacewalkGlobals } from '../spacewalkGlobals.js'
 import DataSourceBase from './dataSourceBase.js'
 import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils";
@@ -46,13 +46,26 @@ class SWBDatasource extends DataSourceBase {
         let genomeAssembly
 
         const hackedGenomeID = woollyMammothGenomeIDHack(this.header.genome)
-        const a = undefined === hackedGenomeID
-        const b = undefined === igvPanel.knownGenomes[ hackedGenomeID ]
-        if (a || b) {
-            console.warn(`Warning: Unrecognized genome ${ this.header.genome || 'undefined' }`)
-            genomeAssembly = 'hg19'
+        
+        // Check if genome is known (desktop has IGV panel, mobile doesn't)
+        if (igvPanel && igvPanel.knownGenomes) {
+            // Desktop: validate against IGV's known genomes
+            const a = undefined === hackedGenomeID
+            const b = undefined === igvPanel.knownGenomes[ hackedGenomeID ]
+            if (a || b) {
+                console.warn(`Warning: Unrecognized genome ${ this.header.genome || 'undefined' }`)
+                genomeAssembly = 'hg19'
+            } else {
+                genomeAssembly = hackedGenomeID
+            }
         } else {
-            genomeAssembly = hackedGenomeID
+            // Mobile: use genome from file or default to hg19
+            if (hackedGenomeID) {
+                genomeAssembly = hackedGenomeID
+            } else {
+                console.warn(`Warning: Unrecognized genome ${ this.header.genome || 'undefined' }`)
+                genomeAssembly = 'hg19'
+            }
         }
 
 

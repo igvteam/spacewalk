@@ -1,5 +1,5 @@
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {colorRampMaterialProvider, igvPanel, sceneManager} from './app.js'
+import {colorRampMaterialProvider, igvPanel, sceneManager, getMaterialProvider, ensembleManager} from './appGlobals.js'
 import {fitToContainer, getMouseXY} from "./utils/utils"
 import {appleCrayonColorRGB255, rgb255, rgb255String, threeJSColorToRGB255} from "./utils/colorUtils"
 import Ribbon from "./ribbon"
@@ -69,7 +69,10 @@ class GenomicNavigator {
             this.footer.innerText = `${ Math.round(genomicStart / 1e6) }Mb`
             this.header.innerText = `${ Math.round(genomicEnd / 1e6) }Mb`
 
-            igvPanel.materialProvider = colorRampMaterialProvider;
+            // Set material provider (desktop only - mobile uses getMaterialProvider())
+            if (igvPanel) {
+                igvPanel.materialProvider = colorRampMaterialProvider;
+            }
             this.repaint()
         } else if ("DidUpdateGenomicInterpolant" === type) {
 
@@ -167,7 +170,7 @@ class GenomicNavigator {
         const genomicExtentList = this.ensembleManager.getCurrentGenomicExtentList()
         for (let { interpolant, start, end } of genomicExtentList) {
 
-            const rgb = igvPanel.materialProvider.colorForInterpolant(interpolant)
+            const rgb = getMaterialProvider().colorForInterpolant(interpolant)
             const rgb255 = threeJSColorToRGB255(rgb)
             this.rgb_ctx.fillStyle = rgb255String(rgb255)
 

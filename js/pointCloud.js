@@ -1,7 +1,7 @@
 import * as THREE from "three"
 import {StringUtils} from "igv-utils"
 import SpacewalkEventBus from './spacewalkEventBus.js'
-import {ensembleManager, igvPanel, pointCloud, scene, sceneManager} from "./app.js";
+import {ensembleManager, igvPanel, pointCloud, scene, sceneManager, getMaterialProvider} from "./appGlobals.js";
 import EnsembleManager from "./ensembleManager.js"
 import {clamp} from "./utils/mathUtils.js"
 import ConvexHull from "./utils/convexHull.js"
@@ -110,7 +110,7 @@ class PointCloud {
                 geometry.userData.colorAttribute = new THREE.Float32BufferAttribute(new Float32Array(xyz.length * 3), 3)
                 geometry.userData.colorAttribute.setUsage(drawUsage)
 
-                const rgb = igvPanel.materialProvider.colorForInterpolant(interpolant)
+                const rgb = getMaterialProvider().colorForInterpolant(interpolant)
                 setGeometryColorAttribute(geometry.userData.colorAttribute.array, rgb)
                 geometry.setAttribute('color', geometry.userData.colorAttribute)
 

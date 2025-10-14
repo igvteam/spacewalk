@@ -19,7 +19,7 @@ import {
     igvPanel,
     cameraLightingRig,
     getThreeJSContainerRect,
-} from "./app.js"
+} from "./appGlobals.js"
 import {appleCrayonColorThreeJS} from "./utils/colorUtils"
 
 const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'stick' ]);

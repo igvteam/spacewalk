@@ -1,4 +1,4 @@
-import {ensembleManager, ballAndStick, igvPanel, genomicNavigator} from "./app.js";
+import {ensembleManager, ballAndStick, igvPanel, genomicNavigator, getMaterialProvider} from "./appGlobals.js";
 
 class BallHighlighter {
 
@@ -58,7 +58,7 @@ class BallHighlighter {
 
             const genomicExtentList = ensembleManager.getCurrentGenomicExtentList()
             for (const instanceId of this.instanceIdList) {
-                const color = igvPanel.materialProvider.colorForInterpolant(genomicExtentList[ instanceId ].interpolant)
+                const color = getMaterialProvider().colorForInterpolant(genomicExtentList[ instanceId ].interpolant)
                 color.toArray(bufferAttribute.array, instanceId * 3)
             }
 

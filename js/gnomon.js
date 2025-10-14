@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { StringUtils } from 'igv-utils'
 import { rgb255String, threeJSColorToRGB255, createColorPicker, updateColorPicker } from "./utils/colorUtils.js"
 import {disposeThreeJSGroup} from "./utils/utils.js"
-import {scene} from "./app.js"
+import {scene} from "./appGlobals.js"
 
 class Gnomon extends THREE.AxesHelper {
 
@@ -37,11 +37,17 @@ class Gnomon extends THREE.AxesHelper {
 
         this.group.visible = !isHidden;
 
-        this.colorPicker = createColorPicker(
-            document.querySelector(`div[data-colorpicker='gnomon']`),
-            this.color,
-            (color) => this.setColor(color)
-        );
+        // Color picker UI (desktop only)
+        const colorPickerContainer = document.querySelector(`div[data-colorpicker='gnomon']`);
+        if (colorPickerContainer) {
+            this.colorPicker = createColorPicker(
+                colorPickerContainer,
+                this.color,
+                (color) => this.setColor(color)
+            );
+        } else {
+            this.colorPicker = null;
+        }
     }
 
     setColor(color){
@@ -82,7 +88,14 @@ class Gnomon extends THREE.AxesHelper {
     setState({ r, g, b, visibility}) {
         this.setVisibility(visibility);
         this.setColor(new THREE.Color(r, g, b))
-        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='gnomon']`), {r, g, b})
+        
+        // Update color picker UI (desktop only)
+        if (this.colorPicker) {
+            const container = document.querySelector(`div[data-colorpicker='gnomon']`);
+            if (container) {
+                updateColorPicker(this.colorPicker, container, {r, g, b});
+            }
+        }
     }
 
     toJSON() {

@@ -13,7 +13,13 @@ class ScaleBarService {
 
         this.visible = !(isHidden);
 
-        this.colorPicker = createColorPicker(document.querySelector(`div[data-colorpicker='scale-bars']`), this.color, color => this.setColor(color));
+        // Color picker UI (desktop only)
+        const colorPickerContainer = document.querySelector(`div[data-colorpicker='scale-bars']`);
+        if (colorPickerContainer) {
+            this.colorPicker = createColorPicker(colorPickerContainer, this.color, color => this.setColor(color));
+        } else {
+            this.colorPicker = null;
+        }
     }
 
     setColor(color){
@@ -158,7 +164,14 @@ class ScaleBarService {
 
         this.setColor(new THREE.Color(r, g, b))
         this.setVisibility(visibility)
-        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='scale-bars']`), {r, g, b})
+        
+        // Update color picker UI (desktop only)
+        if (this.colorPicker) {
+            const container = document.querySelector(`div[data-colorpicker='scale-bars']`);
+            if (container) {
+                updateColorPicker(this.colorPicker, container, {r, g, b});
+            }
+        }
     }
 
     toJSON(){

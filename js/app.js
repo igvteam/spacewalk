@@ -11,32 +11,7 @@ import SceneManager from "./sceneManager.js"
 import ThreeJSInitializer from "./initializers/threeJSInitializer.js"
 import UIBootstrapper from "./initializers/uiBootstrapper.js"
 import PanelInitializer from "./initializers/panelInitializer.js"
-
-// Module-level variables - the single source of truth for shared application state
-// These are populated by the App class during initialization
-let pointCloud;
-let ribbon;
-let ballAndStick;
-let ensembleManager;
-let sceneManager;
-let trackMaterialProvider;
-let colorRampMaterialProvider;
-let liveContactMapService;
-let liveDistanceMapService;
-let juiceboxPanel;
-let igvPanel;
-let genomicNavigator;
-let googleEnabled = false;
-let cameraLightingRig;
-let camera;
-let scene;
-let sceneBackgroundColorPicker;
-let scaleBarService;
-
-function getThreeJSContainerRect() {
-    const container = document.querySelector('#spacewalk-threejs-canvas-container');
-    return container.getBoundingClientRect();
-}
+import { updateGlobals } from "./appGlobals.js"
 
 /**
  * Main application class that orchestrates Spacewalk initialization and manages application state.
@@ -133,16 +108,17 @@ class App {
 
     async initializeCoreManagers() {
         this.ensembleManager = new EnsembleManager();
-        ensembleManager = this.ensembleManager;
-
         this.trackMaterialProvider = new TrackMaterialProvider(appleCrayonColorRGB255('snow'), appleCrayonColorRGB255('blueberry'), this.ensembleManager);
-        trackMaterialProvider = this.trackMaterialProvider;
-
         this.colorMapManager = new ColorMapManager();
         await this.colorMapManager.configure();
-
         this.colorRampMaterialProvider = new ColorRampMaterialProvider(defaultColormapName, this.colorMapManager);
-        colorRampMaterialProvider = this.colorRampMaterialProvider;
+        
+        // Update globals
+        updateGlobals({
+            ensembleManager: this.ensembleManager,
+            trackMaterialProvider: this.trackMaterialProvider,
+            colorRampMaterialProvider: this.colorRampMaterialProvider
+        });
     }
 
     assignThreeJSObjects(threeJSObjects) {
@@ -157,15 +133,17 @@ class App {
         this.scene = threeJSObjects.scene;
         this.sceneBackgroundColorPicker = threeJSObjects.sceneBackgroundColorPicker;
 
-        // Populate module-level variables
-        pointCloud = this.pointCloud;
-        ribbon = this.ribbon;
-        ballAndStick = this.ballAndStick;
-        sceneManager = this.sceneManager;
-        cameraLightingRig = this.cameraLightingRig;
-        camera = this.camera;
-        scene = this.scene;
-        sceneBackgroundColorPicker = this.sceneBackgroundColorPicker;
+        // Update globals
+        updateGlobals({
+            pointCloud: this.pointCloud,
+            ribbon: this.ribbon,
+            ballAndStick: this.ballAndStick,
+            sceneManager: this.sceneManager,
+            cameraLightingRig: this.cameraLightingRig,
+            camera: this.camera,
+            scene: this.scene,
+            sceneBackgroundColorPicker: this.sceneBackgroundColorPicker
+        });
     }
 
     assignUIComponents(uiComponents) {
@@ -174,9 +152,11 @@ class App {
         this.traceSelector = uiComponents.traceSelector;
         this.genomicNavigator = uiComponents.genomicNavigator;
 
-        // Populate module-level variables
-        scaleBarService = this.scaleBarService;
-        genomicNavigator = this.genomicNavigator;
+        // Update globals
+        updateGlobals({
+            scaleBarService: this.scaleBarService,
+            genomicNavigator: this.genomicNavigator
+        });
     }
 
     /**
@@ -184,11 +164,11 @@ class App {
      */
     populatePanelVariable(name, value) {
         this[name] = value;
-        // Populate module-level variable immediately
+        // Update globals immediately
         if (name === 'igvPanel') {
-            igvPanel = value;
+            updateGlobals({ igvPanel: value });
         } else if (name === 'juiceboxPanel') {
-            juiceboxPanel = value;
+            updateGlobals({ juiceboxPanel: value });
         }
     }
 
@@ -197,9 +177,11 @@ class App {
         this.liveContactMapService = panelObjects.liveContactMapService;
         this.liveDistanceMapService = panelObjects.liveDistanceMapService;
 
-        // Populate module-level variables
-        liveContactMapService = this.liveContactMapService;
-        liveDistanceMapService = this.liveDistanceMapService;
+        // Update globals
+        updateGlobals({
+            liveContactMapService: this.liveContactMapService,
+            liveDistanceMapService: this.liveDistanceMapService
+        });
     }
 
     async consumeURLParams(params) {
@@ -267,6 +249,7 @@ class App {
 
 export default App
 
+// Re-export from appGlobals for backward compatibility
 export {
     getThreeJSContainerRect,
     scene,
@@ -287,4 +270,4 @@ export {
     igvPanel,
     genomicNavigator,
     scaleBarService
-}
+} from "./appGlobals.js"

@@ -17,7 +17,13 @@ class GroundPlane extends THREE.GridHelper {
         this.visible = !(isHidden);
         this.material.transparent = true;
 
-        this.colorPicker = createColorPicker(document.querySelector(`div[data-colorpicker='groundplane']`), this.color, color => this.setColor(color))
+        // Color picker UI (desktop only)
+        const colorPickerContainer = document.querySelector(`div[data-colorpicker='groundplane']`);
+        if (colorPickerContainer) {
+            this.colorPicker = createColorPicker(colorPickerContainer, this.color, color => this.setColor(color));
+        } else {
+            this.colorPicker = null;
+        }
 
     }
 
@@ -58,7 +64,14 @@ class GroundPlane extends THREE.GridHelper {
     setState({ r, g, b, visibility}) {
         this.setVisibility(visibility);
         this.setColor(new THREE.Color(r, g, b))
-        updateColorPicker(this.colorPicker, document.querySelector(`div[data-colorpicker='groundplane']`), {r, g, b})
+        
+        // Update color picker UI (desktop only)
+        if (this.colorPicker) {
+            const container = document.querySelector(`div[data-colorpicker='groundplane']`);
+            if (container) {
+                updateColorPicker(this.colorPicker, container, {r, g, b});
+            }
+        }
     }
 
     toJSON() {
