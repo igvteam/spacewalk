@@ -114,8 +114,6 @@ class UIBootstrapper {
             traceModalId: 'spacewalk-sw-load-select-modal',
             ensembleGroupModalId: 'spacewalk-ensemble-group-select-modal',
             dropboxButton: document.getElementById('spacewalk-sw-dropbox-button'),
-            googleDriveButton: document.getElementById('spacewalk-sw-google-drive-button'),
-            googleEnabled: this.appContext.googleEnabled,
             fileLoader
         };
 
@@ -131,10 +129,8 @@ class UIBootstrapper {
             'igv-main-dropdown-local-session-file-input',
             initializeDropbox,
             'igv-main-dropdown-dropbox-session-file-button',
-            'igv-main-dropdown-google-drive-session-file-button',
             'spacewalk-session-url-modal',
             'spacewalk-session-save-modal',
-            this.appContext.googleEnabled,
             async config => {
                 const urlOrFile = config.url || config.file;
                 const json = await igvxhr.loadJson(urlOrFile);
@@ -212,8 +208,6 @@ class UIBootstrapper {
             document.getElementById('hic-local-track-file-input'),
             initializeDropbox,
             document.getElementById('spacewalk-track-dropbox-button'),
-            this.appContext.googleEnabled,
-            document.getElementById('spacewalk-track-dropdown-google-drive-button'),
             ['spacewalk-encode-signals-chip-modal', 'spacewalk-encode-signals-other-modal', 'spacewalk-encode-others-modal'],
             'spacewalk-track-load-url-modal',
             undefined,

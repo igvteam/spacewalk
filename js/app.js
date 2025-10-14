@@ -1,4 +1,3 @@
-import { GoogleAuth } from 'igv-utils'
 import EnsembleManager from "./ensembleManager.js"
 import ColorMapManager from "./utils/colorMapManager.js"
 import TrackMaterialProvider from "./trackMaterialProvider.js"
@@ -94,10 +93,6 @@ class App {
 
     async initialize() {
         showGlobalSpinner();
-
-        // Configure Google authentication
-        this.googleEnabled = await this.configureGoogleAuthentication(spacewalkConfig);
-        googleEnabled = this.googleEnabled;
 
         // Initialize core managers
         await this.initializeCoreManagers();
@@ -235,31 +230,6 @@ class App {
     if (result) {
             await loadSession(result);
         }
-    }
-
-    async configureGoogleAuthentication(spacewalkConfig) {
-        const { clientId, apiKey } = spacewalkConfig;
-        const status = clientId && 'CLIENT_ID' !== clientId &&
-            (window.location.protocol === "https:" || window.location.host === "localhost");
-
-        let isEnabled;
-        if (true === status) {
-            try {
-                await GoogleAuth.init({
-                    clientId,
-                    apiKey,
-                    scope: 'https://www.googleapis.com/auth/userinfo.profile'
-                });
-                await GoogleAuth.signOut();
-                isEnabled = true;
-            } catch (e) {
-                console.error(e.message);
-                alert(e.message);
-                return isEnabled;
-            }
-        }
-
-        return isEnabled;
     }
 
     render() {

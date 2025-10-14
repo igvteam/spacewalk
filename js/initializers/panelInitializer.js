@@ -72,8 +72,6 @@ class PanelInitializer {
             dataModalId: 'hic-contact-map-modal',
             encodeHostedModalId: 'hic-encode-hosted-contact-map-modal',
             dropboxButton: document.getElementById('hic-contact-map-dropdown-dropbox-button'),
-            googleDriveButton: document.getElementById('hic-contact-map-dropdown-google-drive-button'),
-            googleEnabled: this.appContext.googleEnabled,
             mapMenu: spacewalkConfig.juiceboxConfig.contactMapMenu,
             loadHandler: (path, name, mapType) => juiceboxPanel.loadHicFile(path)
         };
