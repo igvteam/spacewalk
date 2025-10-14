@@ -4,7 +4,7 @@ import FileLoadManager from './fileLoadManager.js'
 import FileLoadWidget from './fileLoadWidget.js'
 import SessionFileLoad from "./sessionFileLoad.js"
 import { createURLModalElement } from './urlModal.js'
-import {dropboxDropdownItem, googleDriveDropdownItem} from "./markupFactory.js"
+import {dropboxDropdownItem} from "./markupFactory.js"
 
 let fileLoadWidget
 let sessionWidgetModal
@@ -15,23 +15,16 @@ function createSessionWidgets(rootContainer,
                               localFileInputId,
                               initializeDropbox,
                               dropboxButtonId,
-                              googleDriveButtonId,
                               urlModalId,
                               sessionSaveModalId,
-                              googleEnabled,
                               loadHandler,
                               JSONProvider) {
 
-    // Session - Dropbox and Google Drive buttons
-    $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-app-dropdown-dropbox-session-file-button'));
-    $('div#spacewalk-session-dropdown-menu > :nth-child(2)').after(googleDriveDropdownItem('igv-app-dropdown-google-drive-session-file-button'));
+    // Session - Dropbox button
+    $('div#spacewalk-session-dropdown-menu > :nth-child(1)').after(dropboxDropdownItem('igv-main-dropdown-dropbox-session-file-button'));
 
     const urlModalElement = createURLModalElement(urlModalId, 'Session URL')
     rootContainer.appendChild(urlModalElement)
-
-    if (!googleEnabled) {
-        document.querySelector(`#${googleDriveButtonId}`).parentElement.style.display = 'none'
-    }
 
     const fileLoadWidgetConfig = {
         widgetParent: urlModalElement.querySelector('.modal-body'),
@@ -49,8 +42,6 @@ function createSessionWidgets(rootContainer,
         localFileInput: document.querySelector(`#${localFileInputId}`),
         initializeDropbox,
         dropboxButton: dropboxButtonId ? document.querySelector(`#${dropboxButtonId}`) : undefined,
-        googleEnabled,
-        googleDriveButton: document.querySelector(`#${googleDriveButtonId}`),
         loadHandler
     }
 
@@ -76,7 +67,7 @@ function configureSaveSessionModal(rootContainer, prefix, JSONProvider, sessionS
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <input class="form-control" type="text" placeholder="igv-app-session.json" aria-label="Session filename">
+                <input class="form-control" type="text" placeholder="igv-main-session.json" aria-label="Session filename">
                 <div>Enter session filename with .json suffix</div>
             </div>
             <div class="modal-footer">

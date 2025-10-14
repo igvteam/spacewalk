@@ -9,7 +9,7 @@ import Gnomon from './gnomon.js'
 import GUIManager from "./guiManager.js"
 import {setMaterialProvider, unsetDataMaterialProviderCheckbox} from "./utils/utils.js"
 import Ribbon from './ribbon.js'
-import { disposeObject, disposeMaterial, clearScene } from './utils/disposalUtils.js'
+import { clearScene } from './utils/disposalUtils.js'
 import {
     scene,
     pointCloud,
@@ -17,11 +17,8 @@ import {
     ballAndStick,
     ensembleManager,
     igvPanel,
-    colorRampMaterialProvider,
     cameraLightingRig,
-    getRenderCanvasContainerRect,
-    createHemisphereLight,
-    updateSceneBackgroundColorpicker
+    getThreeJSContainerRect,
 } from "./app.js"
 import {appleCrayonColorThreeJS} from "./utils/colorUtils"
 
@@ -29,7 +26,8 @@ const disposableSet = new Set([ 'gnomon', 'groundplane', 'ribbon', 'ball' , 'sti
 
 class SceneManager {
 
-    constructor() {
+    constructor(colorRampMaterialProvider) {
+        this.colorRampMaterialProvider = colorRampMaterialProvider;
         SpacewalkEventBus.globalBus.subscribe('RenderStyleDidChange', this);
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
     }
@@ -63,7 +61,7 @@ class SceneManager {
         this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyleWidgetState())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
-        setMaterialProvider(colorRampMaterialProvider)
+        setMaterialProvider(this.colorRampMaterialProvider)
 
         if (ensembleManager.genomeAssembly !== igvPanel.browser.genome.id) {
             console.log(`Genome swap from ${ igvPanel.browser.genome.id } to ${ ensembleManager.genomeAssembly }. Call igv_browser.loadGenome`)
@@ -82,7 +80,7 @@ class SceneManager {
         this.configureRenderStyle(true === ensembleManager.isPointCloud ? PointCloud.renderStyle : GUIManager.getRenderStyleWidgetState())
 
         unsetDataMaterialProviderCheckbox(igvPanel.browser.trackViews)
-        setMaterialProvider(colorRampMaterialProvider)
+        setMaterialProvider(this.colorRampMaterialProvider)
 
         await igvPanel.locusDidChange(ensembleManager.locus)
 
@@ -105,14 +103,12 @@ class SceneManager {
 
         scene.background = this.background;
 
-        updateSceneBackgroundColorpicker(document.querySelector(`div[data-colorpicker='background']`), this.background)
-
         const {min, max, center, radius} = EnsembleManager.getTraceBounds(trace);
         const {position, fov} = getCameraPoseAlongAxis({ center, radius, axis: '+z', scaleFactor: 1e1 })
 
         const boundingDiameter = (2 * radius)
 
-        const { width, height } = getRenderCanvasContainerRect();
+        const { width, height } = getThreeJSContainerRect();
         cameraLightingRig.configure(fov, width/height, position, center, boundingDiameter)
 
         scene.add(createHemisphereLight())
@@ -223,5 +219,14 @@ class SceneManager {
     }
 
 }
+
+function createHemisphereLight() {
+    // Update due to r155 changes to illumination: Multiply light intensities by PI to get same brightness as previous threejs release.
+    // See: https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733
+    const light = new THREE.HemisphereLight( appleCrayonColorThreeJS('snow'), appleCrayonColorThreeJS('tin'), Math.PI )
+    light.name = 'hemisphereLight'
+    return light
+}
+
 
 export default SceneManager;

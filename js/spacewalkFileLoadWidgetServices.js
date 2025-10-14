@@ -1,4 +1,4 @@
-import {FileUtils, URIUtils, GooglePicker, GoogleUtils, GoogleDrive} from 'igv-utils'
+import {FileUtils, URIUtils} from 'igv-utils'
 import {ensembleManager, sceneManager} from './app.js'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 
@@ -6,7 +6,7 @@ let traceURLlModal
 let traceSelectModal
 let ensembleGroupModal
 
-function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadModalId, traceModalId, ensembleGroupModalId, dropboxButton, googleDriveButton, googleEnabled, fileLoader }) {
+function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadModalId, traceModalId, ensembleGroupModalId, dropboxButton, fileLoader }) {
 
     // local file
     localFileInput.addEventListener('change', async () => {
@@ -45,39 +45,12 @@ function createSpacewalkFileLoaders ({ rootContainer, localFileInput, urlLoadMod
 
     });
 
-    // Google Drive
-    if (false === googleEnabled) {
-        googleDriveButton.parentNode.style.display = 'none';
-    }
-
-    if (true === googleEnabled) {
-
-        googleDriveButton.addEventListener('click', () => {
-
-            GooglePicker.createDropdownButtonPicker(false, async responses => {
-
-                const paths = responses.map(({ name, url }) => url)
-                const [ path ] = paths
-
-                const name = await SpacewalkGetFilename(path)
-                const extension = FileUtils.getExtension(name)
-
-                await fileLoader.load(path)
-
-            });
-
-        });
-    }
-
 }
 
 async function SpacewalkGetFilename(path){
 
     if (path instanceof File) {
         return path.name
-    } else if (GoogleUtils.isGoogleDriveURL(path)) {
-        const info = await GoogleDrive.getDriveFileInfo(path)
-        return info.name || info.originalFileName
     } else {
         const result = URIUtils.parseUri(path)
         return result.file;

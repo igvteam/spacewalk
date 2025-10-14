@@ -13,10 +13,10 @@ import {
     ensembleManager,
     sceneManager,
     liveContactMapService,
-    SpacewalkGlobals,
     cameraLightingRig,
     scaleBarService
 } from './app.js'
+import { SpacewalkGlobals } from './spacewalkGlobals.js'
 import GUIManager from "./guiManager.js"
 
 async function loadSession(json) {
@@ -36,11 +36,11 @@ async function loadSession(json) {
 async function loadIGVSession(spacewalk, igv) {
 
     igvPanel.browser.removeAllTracks()
-    
+
     // Clear any existing track colors from previous session
-    
+
     trackMaterialProvider.clearAllTracks();
-    
+
     await igvPanel.browser.loadSession(igv)
     igvPanel.configureMouseHandlers()
 

@@ -44,22 +44,6 @@ function bitlyShortener(accessToken) {
 
 }
 
-function googleShortener(apiKey) {
-    if (!apiKey || apiKey === "API_KEY") {
-        return undefined;
-    } else {
-        return async function (url) {
-            const api = "https://www.googleapis.com/urlshortener/v1/url";
-            const endpoint = api + "?key=" + apiKey;
-            return igvxhr
-                .loadJson(endpoint, {sendData: JSON.stringify({"longUrl": url}), contentType: "application/json"})
-                .then(function (json) {
-                    return json.id;
-                })
-        }
-    }
-}
-
 function tinyURLShortener({endpoint}) {
     endpoint = endpoint || "https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/"
     return async function (url) {
@@ -73,4 +57,4 @@ function tinyURLShortener({endpoint}) {
     }
 }
 
-export {bitlyShortener, googleShortener, tinyURLShortener}
+export {bitlyShortener, tinyURLShortener}

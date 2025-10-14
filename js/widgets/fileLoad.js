@@ -1,10 +1,9 @@
 import AlertSingleton from './alertSingleton.js'
 import * as DOMUtils from "./utils/dom-utils.js"
-import {GooglePicker} from 'igv-utils'
 
 class FileLoad {
 
-    constructor({localFileInput, initializeDropbox, dropboxButton, googleEnabled, googleDriveButton}) {
+    constructor({localFileInput, initializeDropbox, dropboxButton}) {
 
         localFileInput.addEventListener('change', async () => {
 
@@ -51,27 +50,6 @@ class FileLoad {
             }
 
         })
-
-
-        if (false === googleEnabled) {
-            DOMUtils.hide(googleDriveButton.parentElement)
-        }
-
-        if (true === googleEnabled && googleDriveButton) {
-
-            googleDriveButton.addEventListener('click', () => {
-                GooglePicker.createDropdownButtonPicker(true, async responses => {
-
-                    try {
-                        await this.loadPaths(responses.map(({url}) => url))
-                    } catch (e) {
-                        console.error(e)
-                        AlertSingleton.present(e)
-                    }
-                })
-            })
-
-        }
 
     }
 

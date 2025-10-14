@@ -2,7 +2,6 @@ import igv from 'igv'
 import SpacewalkEventBus from './spacewalkEventBus.js'
 import {setMaterialProvider} from './utils/utils.js';
 import Panel from './panel.js';
-import {colorRampMaterialProvider, trackMaterialProvider, ensembleManager, genomicNavigator} from './app.js'
 import { getPathsWithTrackRegistry, updateTrackMenusWithTrackConfigurations } from './widgets/trackWidgets.js'
 import { spacewalkConfig } from "../spacewalk-config.js";
 
@@ -11,7 +10,7 @@ let resizeTimeout
 const RESIZE_DEBOUNCE_DELAY = 200
 class IGVPanel extends Panel {
 
-    constructor ({ container, panel, isHidden }) {
+    constructor ({ container, panel, isHidden, colorRampMaterialProvider, trackMaterialProvider, ensembleManager, genomicNavigator }) {
 
         const xFunction = (wc, wp) => {
             return (wc - wp)/2;
@@ -22,6 +21,11 @@ class IGVPanel extends Panel {
         };
 
         super({ container, panel, isHidden, xFunction, yFunction })
+
+        this.colorRampMaterialProvider = colorRampMaterialProvider;
+        this.trackMaterialProvider = trackMaterialProvider;
+        this.ensembleManager = ensembleManager;
+        this.genomicNavigator = genomicNavigator;
 
         // const dragHandle = panel.querySelector('.spacewalk_card_drag_container')
         // makeDraggable(panel, dragHandle)
@@ -98,9 +102,9 @@ class IGVPanel extends Panel {
                         container.style.width = `${width}px`;
                         container.style.height = `${height}px`;
 
-                        if (ensembleManager.locus) {
+                        if (this.ensembleManager.locus) {
                             console.log(`Panel resized to width: ${width}, height: ${height}`)
-                            const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                            const { chr, genomicStart, genomicEnd } = this.ensembleManager.locus
                             this.browser.search(`${ chr }:${ genomicStart }-${ genomicEnd }`)
                         }
 
@@ -123,7 +127,7 @@ class IGVPanel extends Panel {
 
         if ("DidUpdateGenomicInterpolant" === type) {
             const { poster, interpolantList } = data
-            if (poster === genomicNavigator && interpolantList) {
+            if (poster === this.genomicNavigator && interpolantList) {
                 this.browser.cursorGuide.updateWithInterpolant(interpolantList[ 0 ])
             }
         }
@@ -149,7 +153,7 @@ class IGVPanel extends Panel {
 
         this.browser.on('dataValueMaterialCheckbox', async track => {
             console.log(`${track.name} checkbox changed to ${track.trackView.materialProviderInput.checked}`);
-            
+
             if (track.trackView.materialProviderInput.checked) {
                 await this.activateTrackMaterialProvider(track);
             } else {
@@ -165,11 +169,11 @@ class IGVPanel extends Panel {
 
         this.browser.setCustomCursorGuideMouseHandler(({ bp, start, end, interpolant }) => {
 
-            if (undefined === ensembleManager || undefined === ensembleManager.locus) {
+            if (undefined === this.ensembleManager || undefined === this.ensembleManager.locus) {
                 return
             }
 
-            const { genomicStart, genomicEnd } = ensembleManager.locus
+            const { genomicStart, genomicEnd } = this.ensembleManager.locus
 
             const xRejection = start > genomicEnd || end < genomicStart || bp < genomicStart || bp > genomicEnd;
 
@@ -190,18 +194,18 @@ class IGVPanel extends Panel {
             track.trackView.materialProviderInput.checked = false;
             return;
         }
-        
+
         // Add this track to the material provider
-        await trackMaterialProvider.configure(track);
-        
+        await this.trackMaterialProvider.configure(track);
+
         // Switch to track material provider if not already using it
-        if (this.materialProvider !== trackMaterialProvider) {
-            this.materialProvider = trackMaterialProvider;
+        if (this.materialProvider !== this.trackMaterialProvider) {
+            this.materialProvider = this.trackMaterialProvider;
         }
-        
+
         // Always call setMaterialProvider to trigger repaint with updated colors
-        setMaterialProvider(trackMaterialProvider);
-        console.log(`Active tracks: ${trackMaterialProvider.getTrackNames().join(', ')}`);
+        setMaterialProvider(this.trackMaterialProvider);
+        console.log(`Active tracks: ${this.trackMaterialProvider.getTrackNames().join(', ')}`);
     }
 
     async deactivateTrackMaterialProvider(track) {
@@ -210,18 +214,18 @@ class IGVPanel extends Panel {
     }
 
     removeTrackFromMaterialProvider(track) {
-        trackMaterialProvider.removeTrackInstance(track);
-        
+        this.trackMaterialProvider.removeTrackInstance(track);
+
         // If no tracks remain, switch back to color ramp provider
-        if (trackMaterialProvider.getTrackNames().length === 0) {
-            this.materialProvider = colorRampMaterialProvider;
-            setMaterialProvider(colorRampMaterialProvider);
+        if (this.trackMaterialProvider.getTrackNames().length === 0) {
+            this.materialProvider = this.colorRampMaterialProvider;
+            setMaterialProvider(this.colorRampMaterialProvider);
             console.log('No active tracks. Switched to color ramp provider.');
         } else {
             // Tracks remain - ensure we're using trackMaterialProvider and trigger repaint
-            this.materialProvider = trackMaterialProvider;
-            setMaterialProvider(trackMaterialProvider);
-            console.log(`Active tracks: ${trackMaterialProvider.getTrackNames().join(', ')}`);
+            this.materialProvider = this.trackMaterialProvider;
+            setMaterialProvider(this.trackMaterialProvider);
+            console.log(`Active tracks: ${this.trackMaterialProvider.getTrackNames().join(', ')}`);
         }
     }
 
@@ -249,7 +253,7 @@ class IGVPanel extends Panel {
 
     getSessionState() {
         const checkedTracks = [];
-        
+
         for (let trackView of this.browser.trackViews) {
             if (trackView.materialProviderInput && trackView.materialProviderInput.checked) {
                 checkedTracks.push(trackView.track.name);
@@ -263,7 +267,7 @@ class IGVPanel extends Panel {
     async restoreSessionState(state) {
         // Handle backward compatibility: if state is a string (old format), convert to array
         const trackNames = Array.isArray(state) ? state : (state === 'none' ? [] : [state]);
-        
+
         if (trackNames.length === 0) {
             console.log('No tracks to restore for material provider');
             return;
@@ -294,8 +298,8 @@ class IGVPanel extends Panel {
 
         // Ensure final blended colors are applied
         if (tracksToRestore.length > 0) {
-            this.materialProvider = trackMaterialProvider;
-            setMaterialProvider(trackMaterialProvider);
+            this.materialProvider = this.trackMaterialProvider;
+            setMaterialProvider(this.trackMaterialProvider);
         }
 
         console.log(`Successfully restored ${tracksToRestore.length} tracks`);

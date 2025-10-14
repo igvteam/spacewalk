@@ -27,6 +27,11 @@ class ScaleBarService {
     }
 
     updateScaleBars(scaleBarBounds) {
+        // Guard against invalid dimensions
+        if (!isFinite(scaleBarBounds.width) || !isFinite(scaleBarBounds.height) ||
+            scaleBarBounds.width <= 0 || scaleBarBounds.height <= 0) {
+            return;
+        }
 
         // Position the horizontal scale bar container
         this.horizontalContainer.style.left = `${scaleBarBounds.west}px`;

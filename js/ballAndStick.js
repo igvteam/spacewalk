@@ -8,7 +8,7 @@ import { appleCrayonColorThreeJS } from "./utils/colorUtils.js"
 import EnsembleManager from './ensembleManager.js'
 import ConvexHull from "./utils/convexHull.js"
 import {getPositionArrayWithTrace} from "./utils/utils.js"
-import { disposeMaterial, removeAndDisposeFromScene } from './utils/disposalUtils.js'
+import { removeAndDisposeFromScene } from './utils/disposalUtils.js'
 
 let ballRadiusIndex = undefined;
 let ballRadiusTable = undefined;

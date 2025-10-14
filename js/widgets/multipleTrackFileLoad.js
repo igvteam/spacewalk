@@ -1,5 +1,5 @@
 import AlertSingleton from './alertSingleton.js'
-import {FileUtils, URIUtils, GoogleUtils, GoogleDrive, GooglePicker} from 'igv-utils'
+import {FileUtils, URIUtils} from 'igv-utils'
 
 class MultipleTrackFileLoad {
 
@@ -7,7 +7,6 @@ class MultipleTrackFileLoad {
                     localFileInput,
                     initializeDropbox,
                     dropboxButton,
-                    googleDriveButton,
                     fileLoadHandler,
                     multipleFileSelection
                 }) {
@@ -52,18 +51,6 @@ class MultipleTrackFileLoad {
 
         }
 
-        if (googleDriveButton) {
-
-            googleDriveButton.addEventListener('click', () => {
-                GooglePicker.createDropdownButtonPicker(multipleFileSelection,
-                    async responses => await this.loadPaths(responses.map(({
-                                                                               name,
-                                                                               url
-                                                                           }) => url)))
-            })
-
-        }
-
     }
 
     async loadPaths(paths) {
@@ -78,18 +65,11 @@ class MultipleTrackFileLoad {
 
         if (path instanceof File) {
             return path.name
-        } else if (GoogleUtils.isGoogleDriveURL(path)) {
-            const info = await GoogleDrive.getDriveFileInfo(path)
-            return info.name || info.originalFileName
         } else {
             const result = URIUtils.parseUri(path)
             return result.file
         }
 
-    }
-
-    static isGoogleDrivePath(path) {
-        return path instanceof File ? false : GoogleUtils.isGoogleDriveURL(path)
     }
 
 }
@@ -111,7 +91,7 @@ async function ingestPaths({paths, fileLoadHandler}) {
                 const key = createIndexLUTKey(name, extension)
                 indexLUT.set(key, {
                     indexURL: path,
-                    indexFilename: MultipleTrackFileLoad.isGoogleDrivePath(path) ? name : undefined
+                    indexFilename: undefined
                 })
             } else {
                 dataPaths.push(path)

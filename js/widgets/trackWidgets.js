@@ -27,8 +27,6 @@ function createTrackWidgetsWithTrackRegistry(igvMain,
                                              localFileInput,
                                              initializeDropbox,
                                              dropboxButton,
-                                             googleEnabled,
-                                             googleDriveButton,
                                              encodeTrackModalIds,
                                              urlModalId,
                                              selectModalIdOrUndefined,
@@ -60,16 +58,11 @@ function createTrackWidgetsWithTrackRegistry(igvMain,
         return true
     })
 
-    if (googleDriveButton && !googleEnabled) {
-        googleDriveButton.parentElement.style.display = 'none';
-    }
-
     const multipleTrackFileLoadConfig =
         {
             localFileInput,
             initializeDropbox,
             dropboxButton,
-            googleDriveButton: googleEnabled ? googleDriveButton : undefined,
             fileLoadHandler: trackLoadHandler,
             multipleFileSelection: true
         }

@@ -1,10 +1,8 @@
-import hic from 'juicebox.js'
 import {ensembleManager, juiceboxPanel} from "../app.js"
 import EnsembleManager from "../ensembleManager.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
-import {hideGlobalSpinner, showGlobalSpinner, transferRGBAMatrixToLiveMapCanvas} from "../utils/utils.js"
+import {hideGlobalSpinner, showGlobalSpinner} from "../utils/utils.js"
 import {clamp} from "../utils/mathUtils.js"
-import {compositeColors} from "../utils/colorUtils.js"
 import {enableLiveMaps} from "../utils/liveMapUtils.js"
 import {postMessageToWorker} from "../utils/webWorkerUtils.js"
 
@@ -109,45 +107,11 @@ class LiveContactMapService {
     }
 }
 
-async function renderLiveMapWithContactData(browser, state, liveContactMapDataSet, frequencies, frequencyRGBAList, liveMapTraceLength) {
-
-    browser.eventBus.post(hic.HICEvent('MapLoad', { dataset: liveContactMapDataSet, state }))
-
-    browser.locusGoto.doChangeLocus({ dataset: liveContactMapDataSet, state })
-
-    const zoomIndexA = state.zoom
-    const { chr1, chr2 } = state
-    const zoomData = liveContactMapDataSet.getZoomDataByIndex(chr1, chr2, zoomIndexA)
-
-    browser.contactMatrixView.checkColorScale_sw(browser, state, 'LIVE', liveContactMapDataSet, zoomData)
-
-    paintContactMapGBAMatrix(frequencies, frequencyRGBAList, browser.contactMatrixView.colorScale, browser.contactMatrixView.backgroundColor)
-
-    await transferRGBAMatrixToLiveMapCanvas(browser.contactMatrixView.ctx_live, frequencyRGBAList, liveMapTraceLength)
-
-}
-
-function paintContactMapGBAMatrix(frequencies, rgbaMatrix, colorScale, backgroundRGB) {
-
-    let i = 0
-    for (const frequency of frequencies) {
-
-        const { red, green, blue, alpha } = colorScale.getColor(frequency)
-        const foregroundRGBA = { r:red, g:green, b:blue, a:alpha }
-        const { r, g, b } = compositeColors(foregroundRGBA, backgroundRGB)
-
-        rgbaMatrix[i++] = r
-        rgbaMatrix[i++] = g
-        rgbaMatrix[i++] = b
-        rgbaMatrix[i++] = 255
-    }
-}
-
 function distanceThresholdEstimate(trace) {
     const { radius } = EnsembleManager.getTraceBounds(trace)
     return Math.floor(2 * radius / 4)
 }
 
-export { defaultDistanceThreshold, renderLiveMapWithContactData }
+export { defaultDistanceThreshold }
 
 export default LiveContactMapService
