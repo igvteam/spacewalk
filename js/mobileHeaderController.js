@@ -25,6 +25,14 @@ class MobileHeaderController {
         document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: true });
         document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
         
+        // Desktop clickable area to toggle header
+        const trigger = document.getElementById('mobile-header-trigger');
+        if (trigger) {
+            trigger.addEventListener('click', () => {
+                this.toggle();
+            });
+        }
+        
         // Hide header when user interacts with the 3D viewer
         const viewer = document.getElementById('spacewalk-threejs-canvas-container');
         if (viewer) {
@@ -33,6 +41,13 @@ class MobileHeaderController {
                     this.hide();
                 }
             }, { passive: true });
+            
+            // Desktop: hide header when clicking on 3D viewer
+            viewer.addEventListener('click', () => {
+                if (this.isVisible) {
+                    this.hide();
+                }
+            });
         }
         
         // Hide header after entering URL
@@ -120,8 +135,12 @@ class MobileHeaderController {
     
     // Show header initially for a few seconds so user knows it's there
     showInitially() {
-        this.show();
-        this.scheduleHide(3000); // Hide after 3 seconds
+        // Only show initially on mobile (not desktop)
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            this.show();
+            this.scheduleHide(3000); // Hide after 3 seconds
+        }
     }
 }
 

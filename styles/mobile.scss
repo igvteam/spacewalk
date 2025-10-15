@@ -47,37 +47,83 @@ html, body {
   &.visible {
     top: 0;
   }
+}
 
-  .mobile-header-content {
-    width: 100%;
+// Desktop clickable area to show header
+#mobile-header-trigger {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px; // Small clickable area at top
+  z-index: 1001; // Above header
+  cursor: pointer;
+  background: transparent;
+  
+  // Only show on desktop (not mobile)
+  @media (min-width: 768px) {
+    display: block;
+  }
+  
+  @media (max-width: 767px) {
+    display: none;
+  }
+  
+  // Visual indicator on hover
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  // Show a subtle indicator when header is hidden
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid rgba(255, 255, 255, 0.6);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
+.mobile-header-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h1 {
+    font-size: 1.2rem;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .mobile-url-input-container {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex: 1;
+    margin-left: 15px;
+    gap: 8px;
 
-    h1 {
-      font-size: 1.2rem;
-      margin: 0;
-      font-weight: 600;
+    #mobile-url-input {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.9rem;
+      padding: 6px 10px;
     }
 
-    .mobile-url-input-container {
-      display: flex;
-      flex: 1;
-      margin-left: 15px;
-      gap: 8px;
-
-      #mobile-url-input {
-        flex: 1;
-        min-width: 0;
-        font-size: 0.9rem;
-        padding: 6px 10px;
-      }
-
-      #mobile-load-button {
-        white-space: nowrap;
-        padding: 6px 16px;
-        font-size: 0.9rem;
-      }
+    #mobile-load-button {
+      white-space: nowrap;
+      padding: 6px 16px;
+      font-size: 0.9rem;
     }
   }
 }
