@@ -2,6 +2,7 @@ import GenomicNavigator from '../genomicNavigator.js'
 import { highlightColor } from "../utils/colorUtils.js"
 import SpacewalkEventBus from "../spacewalkEventBus.js"
 import { showGlobalSpinner, hideGlobalSpinner } from '../utils/utils.js'
+import { loadMobileSession, loadSessionFromURL, isSessionFile } from '../mobileSessionServices.js'
 
 /**
  * Minimal UI bootstrapper for mobile Spacewalk.
@@ -47,10 +48,18 @@ class MobileUIBootstrapper {
             try {
                 showGlobalSpinner();
 
-                // Use the same loading logic as desktop
-                await this.appContext.sceneManager.ingestEnsemblePath(url, '0', undefined);
-                const data = this.appContext.ensembleManager.createEventBusPayload();
-                SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data });
+                // Check if it's a session file
+                if (isSessionFile(url)) {
+                    console.log('Loading session file...');
+                    const sessionData = await loadSessionFromURL(url);
+                    await loadMobileSession(sessionData);
+                } else {
+                    // Regular data file (.sw)
+                    console.log('Loading data file...');
+                    await this.appContext.sceneManager.ingestEnsemblePath(url, '0', undefined);
+                    const data = this.appContext.ensembleManager.createEventBusPayload();
+                    SpacewalkEventBus.globalBus.post({ type: "DidLoadEnsembleFile", data });
+                }
 
                 // Clear the input after successful load
                 urlInput.value = '';

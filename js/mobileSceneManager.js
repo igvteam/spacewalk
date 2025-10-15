@@ -60,12 +60,48 @@ class MobileSceneManager {
         this.setupWithTrace(ensembleManager.currentTrace)
         
         // Mobile: default to BallAndStick unless it's a point cloud
-        const defaultRenderStyle = ensembleManager.isPointCloud ? PointCloud.renderStyle : BallAndStick.renderStyle;
+        const defaultRenderStyle = (ensembleManager.datasource && ensembleManager.isPointCloud) ? PointCloud.renderStyle : BallAndStick.renderStyle;
         this.configureRenderStyle(defaultRenderStyle)
 
         // Set material provider for mobile
         setMaterialProvider(this.colorRampMaterialProvider)
 
+    }
+
+    /**
+     * Restore camera state from session data
+     * @param {Object} cameraState - The camera state from session
+     */
+    restoreCameraState(cameraState) {
+        if (cameraState && cameraLightingRig) {
+            try {
+                cameraLightingRig.setState(cameraState)
+            } catch (error) {
+                console.warn('Could not restore camera state:', error)
+            }
+        }
+    }
+
+    /**
+     * Restore gnomon state from session data
+     * @param {Object} gnomonState - The gnomon state from session
+     */
+    restoreGnomonState(gnomonState) {
+        const gnomonInstance = this.getGnomon()
+        if (gnomonInstance && gnomonState) {
+            gnomonInstance.setState(gnomonState)
+        }
+    }
+
+    /**
+     * Restore ground plane state from session data
+     * @param {Object} groundPlaneState - The ground plane state from session
+     */
+    restoreGroundPlaneState(groundPlaneState) {
+        const groundPlaneInstance = this.getGroundPlane()
+        if (groundPlaneInstance && groundPlaneState) {
+            groundPlaneInstance.setState(groundPlaneState)
+        }
     }
 
     async ingestEnsembleGroup(ensembleGroupKey) {
@@ -75,7 +111,7 @@ class MobileSceneManager {
         this.setupWithTrace(ensembleManager.currentTrace)
         
         // Mobile: default to BallAndStick unless it's a point cloud
-        const defaultRenderStyle = ensembleManager.isPointCloud ? PointCloud.renderStyle : BallAndStick.renderStyle;
+        const defaultRenderStyle = (ensembleManager.datasource && ensembleManager.isPointCloud) ? PointCloud.renderStyle : BallAndStick.renderStyle;
         this.configureRenderStyle(defaultRenderStyle)
 
         // Set material provider for mobile
@@ -88,7 +124,7 @@ class MobileSceneManager {
         this.background = scene.background
         this.purgeScene()
 
-        if (ensembleManager.isPointCloud) {
+        if (ensembleManager.datasource && ensembleManager.isPointCloud) {
             pointCloud.configure(trace);
             pointCloud.addToScene(scene);
         } else {
