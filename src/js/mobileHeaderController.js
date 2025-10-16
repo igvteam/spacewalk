@@ -7,8 +7,6 @@ class MobileHeaderController {
     constructor(headerElement) {
         this.header = headerElement;
         this.isVisible = false;
-        this.hideTimeout = null;
-        this.hideDelay = 5000; // Hide after 5 seconds of inactivity
         
         // Touch tracking
         this.touchStartY = 0;
@@ -25,44 +23,17 @@ class MobileHeaderController {
         document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: true });
         document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
         
-        // Desktop clickable area to toggle header
-        const trigger = document.getElementById('mobile-header-trigger');
-        if (trigger) {
-            trigger.addEventListener('click', () => {
-                this.toggle();
-            });
-        }
+        // Trigger area handled by document click listener
         
-        // Hide header when user interacts with the 3D viewer
-        const viewer = document.getElementById('spacewalk-threejs-canvas-container');
-        if (viewer) {
-            viewer.addEventListener('touchstart', () => {
-                if (this.isVisible) {
-                    this.hide();
-                }
-            }, { passive: true });
-            
-            // Desktop: hide header when clicking on 3D viewer
-            viewer.addEventListener('click', () => {
-                if (this.isVisible) {
-                    this.hide();
-                }
-            });
-        }
+        // Hide header when user taps away (clicks or touches outside header)
+        document.addEventListener('click', this.handleDocumentClick.bind(this));
+        document.addEventListener('touchstart', this.handleDocumentTouch.bind(this), { passive: true });
         
-        // Hide header after entering URL
-        const urlInput = document.getElementById('mobile-url-input');
+        // Hide header after load button is clicked
         const loadButton = document.getElementById('mobile-load-button');
-        
-        if (urlInput) {
-            urlInput.addEventListener('blur', () => {
-                this.scheduleHide();
-            });
-        }
-        
         if (loadButton) {
             loadButton.addEventListener('click', () => {
-                this.scheduleHide(1000); // Hide after 1 second
+                this.hide();
             });
         }
     }
@@ -85,13 +56,37 @@ class MobileHeaderController {
         const swipeDistance = touchEndY - this.touchStartY;
         const swipeTime = touchEndTime - this.touchStartTime;
         
-        // Detect swipe down from near top of screen
+        // Detect swipe gestures from near top of screen
         const startedNearTop = this.touchStartY < 100;
-        const isSwipeDown = swipeDistance > this.swipeThreshold;
         const isFastEnough = swipeTime < this.swipeTimeThreshold;
         
-        if (startedNearTop && isSwipeDown && isFastEnough) {
-            this.toggle();
+        if (startedNearTop && isFastEnough) {
+            if (swipeDistance > this.swipeThreshold) {
+                // Swipe down - show header
+                this.show();
+            } else if (swipeDistance < -this.swipeThreshold) {
+                // Swipe up - hide header
+                this.hide();
+            }
+        }
+    }
+    
+    handleDocumentClick(e) {
+        const trigger = document.getElementById('mobile-header-trigger');
+        const isTriggerClick = trigger && trigger.contains(e.target);
+        
+        if (isTriggerClick) {
+            // Tap in header trigger area - show header
+            this.show();
+        } else if (this.isVisible && !this.header.contains(e.target)) {
+            // Tap outside header - hide header
+            this.hide();
+        }
+    }
+    
+    handleDocumentTouch(e) {
+        if (this.isVisible && !this.header.contains(e.target)) {
+            this.hide();
         }
     }
     
@@ -99,7 +94,6 @@ class MobileHeaderController {
         if (!this.isVisible) {
             this.header.classList.add('visible');
             this.isVisible = true;
-            this.scheduleHide();
         }
     }
     
@@ -107,7 +101,6 @@ class MobileHeaderController {
         if (this.isVisible) {
             this.header.classList.remove('visible');
             this.isVisible = false;
-            this.clearHideTimeout();
         }
     }
     
@@ -119,27 +112,12 @@ class MobileHeaderController {
         }
     }
     
-    scheduleHide(delay = this.hideDelay) {
-        this.clearHideTimeout();
-        this.hideTimeout = setTimeout(() => {
-            this.hide();
-        }, delay);
-    }
-    
-    clearHideTimeout() {
-        if (this.hideTimeout) {
-            clearTimeout(this.hideTimeout);
-            this.hideTimeout = null;
-        }
-    }
-    
-    // Show header initially for a few seconds so user knows it's there
+    // Show header initially so user knows it's there
     showInitially() {
         // Only show initially on mobile (not desktop)
         const isMobile = window.innerWidth < 768;
         if (isMobile) {
             this.show();
-            this.scheduleHide(3000); // Hide after 3 seconds
         }
     }
 }
