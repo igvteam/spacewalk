@@ -222,6 +222,11 @@ html, body {
       cursor: pointer;
       touch-action: pan-y;
 
+      // Optimize touch behavior for mobile
+      @media (max-width: 767px) {
+        touch-action: none; // Prevent any default touch behavior during interaction
+      }
+
       width: $spacewalk-trace-navigator-canvas-width;
       height: 100%;
 

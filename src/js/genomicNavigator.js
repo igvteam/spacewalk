@@ -44,11 +44,37 @@ class GenomicNavigator {
             // this.repaint()
         });
 
+        // Touch event listeners for mobile
+        canvasContainer.addEventListener('touchstart', event => {
+            event.stopPropagation()
+            event.preventDefault() // Prevent scrolling while dragging
+            this.onCanvasTouchStart(canvas, event)
+        }, { passive: false }); // passive: false needed for preventDefault
+
+        canvasContainer.addEventListener('touchmove', event => {
+            event.stopPropagation()
+            event.preventDefault()
+            this.onCanvasTouchMove(canvas, event)
+        }, { passive: false });
+
+        canvasContainer.addEventListener('touchend', event => {
+            event.stopPropagation()
+            this.onCanvasTouchEnd(canvas, event)
+        }, { passive: true });
+
+        canvasContainer.addEventListener('touchcancel', event => {
+            event.stopPropagation()
+            this.onCanvasTouchEnd(canvas, event)
+        }, { passive: true });
+
         const { r, g, b } = highlightColor
         this.highlightColor = rgb255String( rgb255(r*255, g*255, b*255) )
 
         this.header = canvasContainer.querySelector('#spacewalk-trace-navigator-header')
         this.footer = canvasContainer.querySelector('#spacewalk-trace-navigator-footer')
+
+        // Touch state tracking
+        this.isTouching = false;
 
         SpacewalkEventBus.globalBus.subscribe('DidSelectTrace', this);
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
@@ -111,6 +137,45 @@ class GenomicNavigator {
 
         }
 
+    }
+
+    onCanvasTouchStart(canvas, event) {
+        this.isTouching = true;
+        // Process first touch point immediately
+        if (event.touches && event.touches.length > 0) {
+            this.processTouchPosition(canvas, event.touches[0]);
+        }
+    }
+
+    onCanvasTouchMove(canvas, event) {
+        if (this.isTouching && event.touches && event.touches.length > 0) {
+            this.processTouchPosition(canvas, event.touches[0]);
+        }
+    }
+
+    onCanvasTouchEnd(canvas, event) {
+        this.isTouching = false;
+        // Clear highlight immediately when finger lifts
+        this.repaint();
+        // Post event to notify other components
+        SpacewalkEventBus.globalBus.post({ type: 'DidLeaveGenomicNavigator', data: 'DidLeaveGenomicNavigator' });
+    }
+
+    processTouchPosition(canvas, touch) {
+        if (this.ensembleManager.currentTrace) {
+            // Extract normalized Y coordinate from touch event
+            // getMouseXY works with {clientX, clientY} which touch provides
+            let { yNormalized } = getMouseXY(canvas, touch);
+            const interpolantList = [ 1.0 - yNormalized ];
+
+            const interpolantWindowList = this.ensembleManager.getGenomicInterpolantWindowList(interpolantList);
+
+            if (interpolantWindowList) {
+                SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this, interpolantList } });
+            } else {
+                SpacewalkEventBus.globalBus.post({ type: 'DidUpdateGenomicInterpolant', data: { poster: this } });
+            }
+        }
     }
 
     resize(sceneManagerContainer) {
