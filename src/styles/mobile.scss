@@ -69,10 +69,7 @@ html, body {
     display: none;
   }
   
-  // Visual indicator on hover
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
+  // No visual indicator on hover
   
   // Show a subtle indicator when header is hidden
   &::after {
