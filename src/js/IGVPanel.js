@@ -3,7 +3,7 @@ import SpacewalkEventBus from './spacewalkEventBus.js'
 import {setMaterialProvider} from './utils/utils.js';
 import Panel from './panel.js';
 import { getPathsWithTrackRegistry, updateTrackMenusWithTrackConfigurations } from './widgets/trackWidgets.js'
-import { spacewalkConfig } from "../spacewalk-config.js";
+import {spacewalkConfig} from "../../spacewalk-config.js"
 
 let resizeObserver
 let resizeTimeout

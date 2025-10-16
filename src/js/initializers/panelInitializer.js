@@ -4,7 +4,7 @@ import JuiceboxPanel from "../juicebox/juiceboxPanel.js"
 import LiveContactMapService, { defaultDistanceThreshold } from "../juicebox/liveContactMapService.js"
 import LiveDistanceMapService from "../juicebox/liveDistanceMapService.js"
 import configureContactMapLoaders from '../widgets/contactMapLoad.js'
-import { spacewalkConfig } from "../../spacewalk-config.js"
+import {spacewalkConfig} from "../../../spacewalk-config.js"
 
 /**
  * Initializer class responsible for setting up IGV and Juicebox panels

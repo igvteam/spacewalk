@@ -2,9 +2,9 @@
  * Entry point for Spacewalk application.
  */
 import App from "./app.js"
+import {isWebGL2Supported} from "./utils/utils"
 import 'juicebox.js/dist/css/juicebox.css'
 import '../styles/app.scss'
-import {isWebGL2Supported} from "./utils/utils"
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 

@@ -6,7 +6,6 @@ import { appleCrayonColorRGB255 } from "./utils/colorUtils.js"
 import { getUrlParams, loadSession, uncompressSessionURL } from "./sessionServices.js"
 import { showGlobalSpinner, hideGlobalSpinner } from './utils/utils.js'
 import { defaultColormapName } from "./utils/colorMapManager.js"
-import { spacewalkConfig } from "../spacewalk-config.js"
 import SceneManager from "./sceneManager.js"
 import ThreeJSInitializer from "./initializers/threeJSInitializer.js"
 import UIBootstrapper from "./initializers/uiBootstrapper.js"
@@ -112,7 +111,7 @@ class App {
         this.colorMapManager = new ColorMapManager();
         await this.colorMapManager.configure();
         this.colorRampMaterialProvider = new ColorRampMaterialProvider(defaultColormapName, this.colorMapManager);
-        
+
         // Update globals
         updateGlobals({
             ensembleManager: this.ensembleManager,

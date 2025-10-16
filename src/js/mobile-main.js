@@ -2,9 +2,9 @@
  * Entry point for Spacewalk mobile application.
  */
 import MobileApp from "./mobileApp.js"
+import { isWebGL2Supported } from "./utils/utils"
 import MobileHeaderController from "./mobileHeaderController.js"
 import '../styles/mobile.scss'
-import { isWebGL2Supported } from "./utils/utils"
 
 document.addEventListener("DOMContentLoaded", async (event) => {
 

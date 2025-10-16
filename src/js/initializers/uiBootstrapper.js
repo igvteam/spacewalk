@@ -13,7 +13,7 @@ import { configureDrag } from "../utils/drag.js"
 import ScaleBarService from "../scaleBarService.js"
 import GUIManager from "../guiManager.js"
 import { showRelease } from "../utils/release.js"
-import { spacewalkConfig } from "../../spacewalk-config.js"
+import {spacewalkConfig } from "../../../spacewalk-config.js"
 
 /**
  * Initializer class responsible for bootstrapping all UI widgets and controls.
