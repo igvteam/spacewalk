@@ -25,9 +25,8 @@ class MobileTraceSelectorController {
         document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: true });
         document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
         
-        // Hide widget when user taps away (clicks or touches outside widget)
+        // Handle trigger area clicks for desktop
         document.addEventListener('click', this.handleDocumentClick.bind(this));
-        document.addEventListener('touchstart', this.handleDocumentTouch.bind(this), { passive: true });
         
         // Hide widget when new file loads
         SpacewalkEventBus.globalBus.subscribe('DidLoadEnsembleFile', this);
@@ -74,16 +73,8 @@ class MobileTraceSelectorController {
         if (isTriggerClick) {
             // Tap in trace selector trigger area - show widget
             this.show();
-        } else if (this.isVisible && !this.widget.contains(e.target)) {
-            // Tap outside widget - hide widget
-            this.hide();
         }
-    }
-    
-    handleDocumentTouch(e) {
-        if (this.isVisible && !this.widget.contains(e.target)) {
-            this.hide();
-        }
+        // Removed tap-away dismissal - widget only dismisses via swipe down
     }
     
     receiveEvent({ type, data }) {
