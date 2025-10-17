@@ -92,6 +92,49 @@ html, body {
   }
 }
 
+// Desktop clickable area to show trace selector
+#mobile-trace-selector-trigger {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px; // Small clickable area at bottom
+  z-index: 1001; // Above trace selector
+  cursor: pointer;
+  background: transparent;
+  
+  // Only show on desktop (not mobile)
+  @media (min-width: 768px) {
+    display: block;
+  }
+  
+  @media (max-width: 767px) {
+    display: none;
+  }
+  
+  // No visual indicator on hover
+  
+  // Show a subtle indicator when trace selector is hidden
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid rgba(255, 255, 255, 0.6);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
 .mobile-header-content {
   width: 100%;
   display: flex;
@@ -285,5 +328,71 @@ html, body {
 // Hide Bootstrap elements we don't need
 .modal-backdrop {
   display: none !important;
+}
+
+// Mobile Trace Selector Widget
+#mobile-trace-selector {
+  position: fixed;
+  bottom: -200px;
+  left: 0;
+  right: 0;
+  background-color: #2a2a2a;
+  border-top: 2px solid #444;
+  transition: bottom 0.3s ease-in-out;
+  z-index: 1000;
+
+  &.visible {
+    bottom: 0;
+  }
+
+  .mobile-trace-selector-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .mobile-trace-selector-display {
+    flex-grow: 1;
+    background-color: white;
+    border-radius: 12px;
+    padding: 16px 24px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 200px;
+  }
+
+  .mobile-trace-selector-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+
+    &:active {
+      background-color: #e0e0e0;
+    }
+
+    i {
+      font-size: 20px;
+      color: #333;
+    }
+  }
 }
 

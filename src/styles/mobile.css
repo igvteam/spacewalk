@@ -89,9 +89,6 @@ html, body {
     display: none;
   }
 }
-#mobile-header-trigger:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
 #mobile-header-trigger::after {
   content: "";
   position: absolute;
@@ -223,6 +220,11 @@ html, body {
   touch-action: pan-y;
   width: 46px;
   height: 100%;
+}
+@media (max-width: 767px) {
+  #spacewalk-threejs-trace-navigator-container #spacewalk-trace-navigator-container #spacewalk-trace-navigator-widget {
+    touch-action: none;
+  }
 }
 #spacewalk-threejs-trace-navigator-container #spacewalk-trace-navigator-container #spacewalk-trace-navigator-widget canvas {
   display: block;

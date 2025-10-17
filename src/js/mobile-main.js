@@ -4,6 +4,8 @@
 import MobileApp from "./mobileApp.js"
 import { isWebGL2Supported } from "./utils/utils"
 import MobileHeaderController from "./mobileHeaderController.js"
+import MobileTraceSelector from "./mobileTraceSelector.js"
+import MobileTraceSelectorController from "./mobileTraceSelectorController.js"
 import '../styles/mobile.scss'
 
 document.addEventListener("DOMContentLoaded", async (event) => {
@@ -26,5 +28,19 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
     const mobileApp = new MobileApp();
     await mobileApp.initialize();
+
+    // Initialize mobile trace selector
+    const traceSelectorElement = document.getElementById('mobile-trace-selector');
+    const displayElement = document.getElementById('mobile-trace-selector-display');
+    const minusButton = document.getElementById('mobile-trace-selector-minus');
+    const plusButton = document.getElementById('mobile-trace-selector-plus');
+    
+    if (traceSelectorElement && displayElement && minusButton && plusButton) {
+        // Create trace selector controller
+        const traceSelectorController = new MobileTraceSelectorController(traceSelectorElement, mobileApp.ensembleManager);
+        
+        // Create trace selector
+        const traceSelector = new MobileTraceSelector(displayElement, minusButton, plusButton, mobileApp.ensembleManager);
+    }
 });
 

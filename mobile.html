@@ -24,6 +24,9 @@
   <!-- Desktop clickable area to show header -->
   <div id="mobile-header-trigger"></div>
 
+  <!-- Desktop clickable area to show trace selector -->
+  <div id="mobile-trace-selector-trigger"></div>
+
   <header id="mobile-header">
     <div class="mobile-header-content">
       <h1>Spacewalk</h1>
@@ -69,6 +72,19 @@
         <div id="spacewalk-spinner" class="spinner-border text-secondary" style="display:none; width: 8rem; height: 8rem;"></div>
       </div>
 
+    </div>
+
+    <!-- Mobile Trace Selector Widget -->
+    <div id="mobile-trace-selector">
+      <div class="mobile-trace-selector-content">
+        <button id="mobile-trace-selector-minus" class="mobile-trace-selector-button">
+          <i class="fas fa-minus"></i>
+        </button>
+        <div id="mobile-trace-selector-display" class="mobile-trace-selector-display"></div>
+        <button id="mobile-trace-selector-plus" class="mobile-trace-selector-button">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
     </div>
 
   </main>
