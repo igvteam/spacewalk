@@ -336,8 +336,7 @@ html, body {
   bottom: -200px;
   left: 0;
   right: 0;
-  background-color: #2a2a2a;
-  border-top: 2px solid #444;
+  background-color: transparent;
   transition: bottom 0.3s ease-in-out;
   z-index: 1000;
 
@@ -356,6 +355,7 @@ html, body {
   .mobile-trace-selector-display {
     flex-grow: 1;
     background-color: white;
+    border: 2px solid #333;
     border-radius: 12px;
     padding: 16px 24px;
     text-align: center;
@@ -374,7 +374,7 @@ html, body {
     height: 60px;
     border-radius: 50%;
     background-color: white;
-    border: none;
+    border: 2px solid #333;
     display: flex;
     align-items: center;
     justify-content: center;
