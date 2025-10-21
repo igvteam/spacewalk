@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1" />
     <meta name="description" content="Spacewalk Mobile - 3D Genome Visualization" />
@@ -18,77 +18,77 @@
 
     <!--  Spacewalk mobile entrypoint  -->
     <script type="module" src="src/js/mobile-main.js"></script>
-  </head>
-  <body>
+</head>
+<body>
 
-  <!-- Desktop clickable area to show header -->
-  <div id="mobile-header-trigger"></div>
+<!-- Desktop clickable area to show header -->
+<div id="mobile-header-trigger"></div>
 
-  <!-- Desktop clickable area to show trace selector -->
-  <div id="mobile-trace-selector-trigger"></div>
+<!-- Desktop clickable area to show trace selector -->
+<div id="mobile-trace-selector-trigger"></div>
 
-  <header id="mobile-header">
+<header id="mobile-header">
     <div class="mobile-header-content">
-      <h1>Spacewalk</h1>
-      <div class="mobile-url-input-container">
-        <input type="url" id="mobile-url-input" class="form-control" placeholder="Paste data URL" />
-        <button id="mobile-load-button" class="btn btn-primary">Load</button>
-      </div>
+        <h1>Spacewalk</h1>
+        <div class="mobile-url-input-container">
+            <input type="url" id="mobile-url-input" class="form-control" placeholder="Paste data URL" />
+            <button id="mobile-load-button" class="btn btn-primary">Load</button>
+        </div>
     </div>
-  </header>
+</header>
 
-  <main id="mobile-main">
+<main id="mobile-main">
 
     <div id="spacewalk-root-container">
 
-      <!-- three-js canvas | trace-navigator -->
-      <div id="spacewalk-threejs-trace-navigator-container">
-        <!-- three-js canvas container -->
-        <div id="spacewalk-threejs-canvas-container">
+        <!-- three-js canvas | trace-navigator -->
+        <div id="spacewalk-threejs-trace-navigator-container">
+            <!-- three-js canvas container -->
+            <div id="spacewalk-threejs-canvas-container">
 
-          <div id="spacewalk-threejs-canvas-center-dot" style="display: none;"></div>
+                <div id="spacewalk-threejs-canvas-center-dot" style="display: none;"></div>
 
+            </div>
+
+            <!-- trace navigator -->
+            <div id="spacewalk-trace-navigator-container">
+                <!-- header -->
+                <div id="spacewalk-trace-navigator-header"></div>
+
+                <!-- widget -->
+                <div id="spacewalk-trace-navigator-widget">
+                    <canvas id="spacewalk_color_ramp_canvas_highlight"></canvas>
+                    <canvas id="spacewalk_color_ramp_canvas_rgb"></canvas>
+                    <canvas id="spacewalk_color_ramp_canvas_alpha"></canvas>
+                </div>
+
+                <!-- footer -->
+                <div id="spacewalk-trace-navigator-footer"></div>
+            </div>
         </div>
 
-        <!-- trace navigator -->
-        <div id="spacewalk-trace-navigator-container">
-          <!-- header -->
-          <div id="spacewalk-trace-navigator-header"></div>
-
-          <!-- widget -->
-          <div id="spacewalk-trace-navigator-widget">
-            <canvas id="spacewalk_color_ramp_canvas_highlight"></canvas>
-            <canvas id="spacewalk_color_ramp_canvas_rgb"></canvas>
-            <canvas id="spacewalk_color_ramp_canvas_alpha"></canvas>
-          </div>
-
-          <!-- footer -->
-          <div id="spacewalk-trace-navigator-footer"></div>
+        <!-- general purpose spinner -->
+        <div class="spacewalk-spinner-container d-flex justify-content-center align-items-center" style="background-color:transparent;">
+            <div id="spacewalk-spinner" class="spinner-border text-secondary" style="display:none; width: 8rem; height: 8rem;"></div>
         </div>
-      </div>
-
-      <!-- general purpose spinner -->
-      <div class="spacewalk-spinner-container d-flex justify-content-center align-items-center" style="background-color:transparent;">
-        <div id="spacewalk-spinner" class="spinner-border text-secondary" style="display:none; width: 8rem; height: 8rem;"></div>
-      </div>
 
     </div>
 
     <!-- Mobile Trace Selector Widget -->
     <div id="mobile-trace-selector">
-      <div class="mobile-trace-selector-content">
-        <button id="mobile-trace-selector-minus" class="mobile-trace-selector-button">
-          <i class="fas fa-minus"></i>
-        </button>
-        <div id="mobile-trace-selector-display" class="mobile-trace-selector-display"></div>
-        <button id="mobile-trace-selector-plus" class="mobile-trace-selector-button">
-          <i class="fas fa-plus"></i>
-        </button>
-      </div>
+        <div class="mobile-trace-selector-content">
+            <button id="mobile-trace-selector-minus" class="mobile-trace-selector-button">
+                <i class="fas fa-minus"></i>
+            </button>
+            <div id="mobile-trace-selector-display" class="mobile-trace-selector-display"></div>
+            <button id="mobile-trace-selector-plus" class="mobile-trace-selector-button">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
     </div>
 
-  </main>
+</main>
 
-  </body>
+</body>
 </html>
 

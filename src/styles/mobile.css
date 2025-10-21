@@ -107,6 +107,44 @@ html, body {
   opacity: 1;
 }
 
+#mobile-trace-selector-trigger {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  z-index: 1001;
+  cursor: pointer;
+  background: transparent;
+}
+@media (min-width: 768px) {
+  #mobile-trace-selector-trigger {
+    display: block;
+  }
+}
+@media (max-width: 767px) {
+  #mobile-trace-selector-trigger {
+    display: none;
+  }
+}
+#mobile-trace-selector-trigger::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 4px solid rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+#mobile-trace-selector-trigger:hover::after {
+  opacity: 1;
+}
+
 .mobile-header-content {
   width: 100%;
   display: flex;
@@ -269,6 +307,64 @@ html, body {
 
 .modal-backdrop {
   display: none !important;
+}
+
+#mobile-trace-selector {
+  position: fixed;
+  bottom: -200px;
+  left: 0;
+  right: 0;
+  background-color: transparent;
+  transition: bottom 0.3s ease-in-out;
+  z-index: 1000;
+}
+#mobile-trace-selector.visible {
+  bottom: 0;
+}
+#mobile-trace-selector .mobile-trace-selector-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 20px;
+}
+#mobile-trace-selector .mobile-trace-selector-display {
+  flex-grow: 1;
+  background-color: white;
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 16px 24px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 200px;
+}
+#mobile-trace-selector .mobile-trace-selector-button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: white;
+  border: 2px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+#mobile-trace-selector .mobile-trace-selector-button:hover {
+  background-color: #f0f0f0;
+}
+#mobile-trace-selector .mobile-trace-selector-button:active {
+  background-color: #e0e0e0;
+}
+#mobile-trace-selector .mobile-trace-selector-button i {
+  font-size: 20px;
+  color: #333;
 }
 
 /*# sourceMappingURL=mobile.css.map */
