@@ -21,40 +21,35 @@
  *
  */
 
-import { igvxhr } from 'igv-utils';
+function tinyURLShortener({endpoint, apiKey, domain}) {
 
-function bitlyShortener(accessToken) {
+    endpoint = endpoint || "https://api.tinyurl.com/create";
 
-    if (!accessToken || accessToken === "BITLY_TOKEN") {
-        return undefined;
-    } else {
-        return async function (url) {
-            const api = "https://api-ssl.bitly.com/v3/shorten";
-            const devIP = "192.168.1.11";
-            if (url.startsWith("http://localhost")) {
-                url = url.replace("localhost", devIP);
-            }  // Dev hack
-            let endpoint = api + "?access_token=" + accessToken + "&longUrl=" + encodeURIComponent(url);
-            return igvxhr.loadJson(endpoint, {})
-                .then(function (json) {
-                    return json.data.url;
-                })
-        }
+    if (!apiKey) {
+        console.warn("TinyURL API key not provided. Custom domain will not work.");
+        return async function (url) { return url }
     }
 
-}
-
-function tinyURLShortener({endpoint}) {
-    endpoint = endpoint || "https://2et6uxfezb.execute-api.us-east-1.amazonaws.com/dev/tinyurl/"
     return async function (url) {
-        const enc = encodeURIComponent(url);
-        const response = await fetch(`${endpoint}${enc}`);
-        if (response.ok) {
-            return response.text();
-        } else {
-            throw new Error(response.statusText);
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}`},
+                body: JSON.stringify({ url, domain: domain || 't.3dg.io' })
+            });
+
+            if (response.ok) {
+                const json = await response.json();
+                return json.data.tiny_url;
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(`TinyURL API error: ${response.status} ${response.statusText} - ${errorData.message || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('TinyURL shortening failed:', error);
+            throw error;
         }
     }
 }
 
-export {bitlyShortener, tinyURLShortener}
+export {tinyURLShortener}

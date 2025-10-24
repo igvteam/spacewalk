@@ -1,6 +1,9 @@
 import { defineConfig } from "vite"
 
 export default defineConfig({
+    define: {
+        'process.env.TINYURL_API_KEY': JSON.stringify(process.env.TINYURL_API_KEY)
+    },
     build: {
         target: 'es2020'
     },
