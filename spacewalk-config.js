@@ -24,6 +24,13 @@ const spacewalkConfig =
                         items: 'https://aidenlab.org/juicebox/res/hicfiles.json'
                     }
             },
+        urlShortener:
+            {
+                provider: 'tinyURL',
+                apiKey: 'jBzvGNbBlrGy2znNaD0KYzk0ZLtAr71bIRvlsRhtCiu0OCTRKOd1tsMULQu2',
+                domain: 't.3dg.io',
+                endpoint: 'https://api.tinyurl.com/create' // Optional: defaults to TinyURL's API
+            }
 
     }
 

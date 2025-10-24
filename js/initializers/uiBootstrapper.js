@@ -62,7 +62,7 @@ class UIBootstrapper {
         this.initializeDragControls(container);
 
         // Initialize share widgets
-        createShareWidgets(shareWidgetConfigurator({ provider: 'tinyURL' }));
+        createShareWidgets(shareWidgetConfigurator(spacewalkConfig.urlShortener));
 
         // Show navbar
         document.querySelector('.navbar').style.display = '';

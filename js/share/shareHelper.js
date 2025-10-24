@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  *
  */
-import {bitlyShortener, tinyURLShortener} from "./urlShortener.js";
+import {tinyURLShortener} from "./urlShortener.js";
 
 let urlShortener;
 
@@ -33,8 +33,6 @@ function setURLShortener(obj) {
     } else if (obj.provider) {
         if ("tinyURL" === obj.provider) {
             fn = tinyURLShortener(obj);
-        } else if ("bitly" === obj.provider && obj.apiKey) {
-            fn = bitlyShortener(obj.apiKey);
         } else {
             const error = new Error(`Unknown URL shortener provider: ${obj.provider}`)
             console.error(error.message)
