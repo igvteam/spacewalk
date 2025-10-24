@@ -24,7 +24,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   define: {
-    __TINYURL_API_KEY__: JSON.stringify(process.env.TINYURL_API_KEY)
+    'process.env.TINYURL_API_KEY': JSON.stringify(process.env.TINYURL_API_KEY)
   },
   // ... your existing config
 })
@@ -37,7 +37,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   define: {
-    __TINYURL_API_KEY__: JSON.stringify(process.env.TINYURL_API_KEY)
+    'process.env.TINYURL_API_KEY': JSON.stringify(process.env.TINYURL_API_KEY)
   },
   build: {
     outDir: 'dist',
@@ -58,7 +58,7 @@ Modify `spacewalk-config.js` to use the injected environment variable:
 // spacewalk-config.js
 urlShortener: {
     provider: 'tinyURL',
-    apiKey: __TINYURL_API_KEY__, // This gets replaced at build time
+    apiKey: process.env.TINYURL_API_KEY || 'YOUR_TINYURL_API_KEY',
     domain: 't.3dg.io',
     endpoint: 'https://api.tinyurl.com/create'
 }
@@ -92,7 +92,7 @@ const spacewalkConfig = {
     },
     urlShortener: {
         provider: 'tinyURL',
-        apiKey: __TINYURL_API_KEY__, // This gets replaced at build time
+        apiKey: process.env.TINYURL_API_KEY || 'YOUR_TINYURL_API_KEY',
         domain: 't.3dg.io',
         endpoint: 'https://api.tinyurl.com/create'
     }
@@ -109,13 +109,13 @@ npm install dotenv
 
 ### 4. Update Package.json Scripts
 
-Add environment-aware build scripts:
+Add environment-aware scripts:
 
 ```json
 {
   "scripts": {
-    "build": "vite build",
-    "build:env": "node -r dotenv/config node_modules/.bin/vite build",
+    "dev": "node -r dotenv/config node_modules/.bin/vite",
+    "build": "node -r dotenv/config node_modules/.bin/vite build",
     "preview": "vite preview"
   }
 }
@@ -128,9 +128,8 @@ Add environment-aware build scripts:
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:env": "node -r dotenv/config node_modules/.bin/vite build",
+    "dev": "node -r dotenv/config node_modules/.bin/vite",
+    "build": "node -r dotenv/config node_modules/.bin/vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
@@ -154,6 +153,8 @@ Create a `.env` file in your project root:
 # .env
 TINYURL_API_KEY=jBzvGNbBlrGy2znNaD0KYzk0ZLtAr71bIRvlsRhtCiu0OCTRKOd1tsMULQu2
 ```
+
+**Important:** The `.env` file is automatically ignored by git (see `.gitignore`), so your API key won't be committed to the repository.
 
 **Example .env file:**
 ```bash
@@ -188,22 +189,30 @@ Modify `spacewalk-config.js`:
 ```javascript
 urlShortener: {
     provider: 'tinyURL',
-    apiKey: __TINYURL_API_KEY__, // This gets replaced at build time
+    apiKey: `__TINYURL_API_KEY__`, // This gets replaced at build time
     domain: 't.3dg.io',
     endpoint: 'https://api.tinyurl.com/create'
 }
 ```
 
-#### Step 5: Build the Application
+#### Step 5: Test the Application
+```bash
+# Start development server with environment variables
+npm run dev
+
+# The URL shortener should work immediately in development mode
+```
+
+#### Step 6: Build the Application
 ```bash
 # Build with environment variables
-npm run build:env
+npm run build
 
 # Verify the build worked
 ls dist/
 ```
 
-#### Step 6: Test the Build
+#### Step 7: Test the Build
 ```bash
 # Preview the built application
 npm run preview
@@ -224,7 +233,7 @@ grep -r "jBzvGNbBlrGy2znNaD0KYzk0ZLtAr71bIRvlsRhtCiu0OCTRKOd1tsMULQu2" dist/
 Create or update your `netlify.toml`:
 ```toml
 [build]
-  command = "npm run build:env"
+  command = "npm run build"
   publish = "dist"
 
 [build.environment]
@@ -234,7 +243,7 @@ Create or update your `netlify.toml`:
 **Example of complete netlify.toml:**
 ```toml
 [build]
-  command = "npm run build:env"
+  command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
 
@@ -349,16 +358,24 @@ set TINYURL_API_KEY=jBzvGNbBlrGy2znNaD0KYzk0ZLtAr71bIRvlsRhtCiu0OCTRKOd1tsMULQu2
 $env:TINYURL_API_KEY="jBzvGNbBlrGy2znNaD0KYzk0ZLtAr71bIRvlsRhtCiu0OCTRKOd1tsMULQu2"
 ```
 
-#### Step 3: Build the Application
+#### Step 3: Test the Application
+```bash
+# Start development server with environment variables
+npm run dev
+
+# The URL shortener should work immediately in development mode
+```
+
+#### Step 4: Build the Application
 ```bash
 # Build with environment variables
-npm run build:env
+npm run build
 
 # Verify the build
 ls dist/
 ```
 
-#### Step 4: Test the Build
+#### Step 5: Test the Build
 ```bash
 # Preview the application
 npm run preview
@@ -367,7 +384,7 @@ npm run preview
 grep -r "jBzvGNbBlrGy2znNaD0KYzk0ZLtAr71bIRvlsRhtCiu0OCTRKOd1tsMULQu2" dist/
 ```
 
-#### Step 5: Deploy to Web Server
+#### Step 6: Deploy to Web Server
 ```bash
 # Copy the dist/ folder to your web server directory
 cp -r dist/* /var/www/html/
@@ -425,7 +442,7 @@ sudo chmod -R 755 /var/www/html/
 echo "Deployment complete!"
 ```
 
-#### Step 6: Verify Deployment
+#### Step 7: Verify Deployment
 1. Open the application in a web browser
 2. Test the URL shortening functionality
 3. Verify that shortened URLs use your custom domain `t.3dg.io`
@@ -436,6 +453,11 @@ echo "Deployment complete!"
 - The API key is embedded in the built JavaScript files
 - Anyone with access to the application can extract the key
 - Consider the security implications for your specific use case
+
+### Git Repository Security
+- The `.env` file is automatically ignored by git (see `.gitignore`)
+- Never commit API keys to your repository
+- Use `.env.example` files to document required environment variables
 
 ### Mitigation Strategies
 1. **Access Control**: Ensure only authorized users can access the application
@@ -480,8 +502,8 @@ Error: TinyURL API error: 401 Unauthorized
 # No results found
 ```
 **Solution**:
-1. Check that `__TINYURL_API_KEY__` is used in `spacewalk-config.js` (not `process.env.TINYURL_API_KEY`)
-2. Verify the Vite config has the correct define statement
+1. Check that `process.env.TINYURL_API_KEY` is used in `spacewalk-config.js`
+2. Verify the Vite config has the correct define statement: `'process.env.TINYURL_API_KEY': JSON.stringify(process.env.TINYURL_API_KEY)`
 3. Ensure the environment variable is set before building
 
 ### Debug Steps
@@ -498,16 +520,16 @@ echo %TINYURL_API_KEY%
 #### Step 2: Check Build Configuration
 ```bash
 # Verify vite.config.mjs has the define statement
-grep -n "__TINYURL_API_KEY__" vite.config.mjs
+grep -n "process.env.TINYURL_API_KEY" vite.config.mjs
 
-# Verify spacewalk-config.js uses the injected variable
-grep -n "__TINYURL_API_KEY__" spacewalk-config.js
+# Verify spacewalk-config.js uses the environment variable
+grep -n "process.env.TINYURL_API_KEY" spacewalk-config.js
 ```
 
 #### Step 3: Test the Build Process
 ```bash
 # Build with verbose output
-npm run build:env -- --debug
+npm run build -- --debug
 
 # Check build output
 ls -la dist/
@@ -534,7 +556,7 @@ find dist/ -name "*.js" -exec grep -l "jBzvGNbBlrGy2znNaD0KYzk0ZLtAr71bIRvlsRhtC
 #### Check Vite Build Logs
 ```bash
 # Build with detailed logging
-npm run build:env -- --logLevel info
+npm run build -- --logLevel info
 ```
 
 #### Test Environment Variable Loading
