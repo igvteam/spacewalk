@@ -2,6 +2,8 @@
 
 Spacewalk is an interactive 3D visualization application for super-resolution microscopy data. Spacewalk supports integrated genomic analysis via a fully featured IGV genomics browser [igv.js](https://github.com/igvteam/igv.js) and Juicebox Hi-C map viewer [juicebox.js](https://github.com/igvteam/juicebox.js)
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/de85ff21-f4d0-47fe-8ca4-e1fc421b3dc4/deploy-status)](https://app.netlify.com/projects/spacewalk-site/deploys)
+
 ## Try It Now
 
 Spacewalk is hosted at [Aiden  Lab](https://aidenlab.org). Launch the main by clicking [here](https://aidenlab.org/spacewalk).
