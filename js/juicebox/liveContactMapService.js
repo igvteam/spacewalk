@@ -9,6 +9,33 @@ import {postMessageToWorker} from "../utils/webWorkerUtils.js"
 const maxDistanceThreshold = 1e4
 const defaultDistanceThreshold = 256
 
+/**
+ * Convert Float32Array contact frequencies to contact record format
+ * @param {Float32Array} contactFrequencies - Array of contact frequencies (traceLength * traceLength)
+ * @param {number} traceLength - Length of the trace
+ * @returns {Array<Object>} Array of contact records with {bin1, bin2, counts, getKey()}
+ */
+function convertContactFrequencyArrayToRecords(contactFrequencies, traceLength) {
+    const records = [];
+    for (let bin1 = 0; bin1 < traceLength; bin1++) {
+        for (let bin2 = bin1; bin2 < traceLength; bin2++) {
+            const index = bin1 * traceLength + bin2;
+            const count = contactFrequencies[index];
+            if (count > 0) {
+                records.push({
+                    bin1: bin1,
+                    bin2: bin2,
+                    counts: count,
+                    getKey: function() {
+                        return `${bin1}_${bin2}`;
+                    }
+                });
+            }
+        }
+    }
+    return records;
+}
+
 class LiveContactMapService {
 
     constructor (distanceThreshold) {
@@ -37,8 +64,10 @@ class LiveContactMapService {
 
         if ("DidLoadEnsembleFile" === type) {
 
-            const ctx = juiceboxPanel.browser.contactMatrixView.ctx_live
-            ctx.transferFromImageBitmap(null)
+            // Safety check: ctx_live may not exist yet if browser isn't fully initialized
+            if (juiceboxPanel?.browser?.contactMatrixView?.ctx_live) {
+                juiceboxPanel.browser.contactMatrixView.ctx_live.transferFromImageBitmap(null)
+            }
 
             this.contactFrequencies = undefined
             this.rgbaMatrix = undefined
@@ -98,7 +127,15 @@ class LiveContactMapService {
             }
 
             this.contactFrequencies = result.workerValuesBuffer
-            juiceboxPanel.createContactRecordList(this.contactFrequencies, traceLength)
+            
+            // Update LiveMapDataset with new contact records
+            if (juiceboxPanel.browser.activeDataset && 
+                juiceboxPanel.browser.activeDataset.datasetType === 'livemap') {
+                const contactRecords = convertContactFrequencyArrayToRecords(this.contactFrequencies, traceLength);
+                // Get binSize from the dataset's bpResolutions
+                const binSize = juiceboxPanel.browser.activeDataset.bpResolutions[0];
+                juiceboxPanel.browser.activeDataset.updateContactRecords(contactRecords, binSize);
+            }
 
             await juiceboxPanel.renderLiveMapWithContactData(this.contactFrequencies, this.rgbaMatrix, traceLength)
 
