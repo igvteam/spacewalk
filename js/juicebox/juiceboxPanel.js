@@ -2,20 +2,17 @@ import hic from 'juicebox.js'
 import SpacewalkEventBus from '../spacewalkEventBus.js'
 import Panel from '../panel.js'
 import { ballAndStick, liveContactMapService, liveDistanceMapService, ensembleManager, ribbon, igvPanel, genomicNavigator } from '../app.js'
-// LiveMapDataset is now part of juicebox.js and will be used via browser.loadLiveMapDataset()
 import { renderLiveMapWithDistanceData } from './liveDistanceMapService.js'
 import {appleCrayonColorRGB255, rgb255String, compositeColors} from "../utils/colorUtils"
 import {transferRGBAMatrixToLiveMapCanvas} from "../utils/utils.js"
 
-// Helper function to create ImageBitmap (polyfill if needed)
-async function createImageBitmap(...args) {
-    if (window.createImageBitmap) {
-        return window.createImageBitmap(...args)
-    } else {
-        // Fallback for browsers without createImageBitmap
-        throw new Error('createImageBitmap not supported')
-    }
-}
+// async function createImageBitmap(...args) {
+//     if (window.createImageBitmap) {
+//         return window.createImageBitmap(...args)
+//     } else {
+//         throw new Error('createImageBitmap not supported')
+//     }
+// }
 
 // Store reference to the singleton JuiceboxPanel instance for event handlers
 let juiceboxPanelInstance = null;
@@ -118,7 +115,7 @@ class JuiceboxPanel extends Panel {
     initializeLiveMapContexts() {
         const browser = this.browser
         const rootElement = browser.rootElement
-        
+
         // Find or create container divs for live map canvases
         let liveContactContainer = rootElement.querySelector(`#${browser.id}-live-contact-map-canvas-container`)
         if (!liveContactContainer) {
@@ -132,7 +129,7 @@ class JuiceboxPanel extends Panel {
             const viewport = browser.layoutController.getContactMatrixViewport()
             viewport.parentNode.insertBefore(liveContactContainer, viewport.nextSibling)
         }
-        
+
         // Get or create live contact map canvas
         let canvas = liveContactContainer.querySelector(`#${browser.id}-live-contact-map-canvas`)
         if (!canvas) {
@@ -142,12 +139,12 @@ class JuiceboxPanel extends Panel {
             canvas.style.height = '100%'
             liveContactContainer.appendChild(canvas)
         }
-        
+
         const ctx_live = canvas.getContext('bitmaprenderer')
         if (!ctx_live) {
             console.warn('bitmaprenderer context not available for live contact map')
         }
-        
+
         // Find or create container for live distance map canvas
         let liveDistanceContainer = rootElement.querySelector(`#${browser.id}-live-distance-map-canvas-container`)
         if (!liveDistanceContainer) {
@@ -160,7 +157,7 @@ class JuiceboxPanel extends Panel {
             // Insert after live contact container
             liveContactContainer.parentNode.insertBefore(liveDistanceContainer, liveContactContainer.nextSibling)
         }
-        
+
         // Get or create live distance map canvas
         canvas = liveDistanceContainer.querySelector(`#${browser.id}-live-distance-map-canvas`)
         if (!canvas) {
@@ -170,39 +167,35 @@ class JuiceboxPanel extends Panel {
             canvas.style.height = '100%'
             liveDistanceContainer.appendChild(canvas)
         }
-        
+
         const ctx_live_distance = canvas.getContext('bitmaprenderer')
         if (!ctx_live_distance) {
             console.warn('bitmaprenderer context not available for live distance map')
         }
-        
+
         // Set contexts on ContactMatrixView
         browser.contactMatrixView.setLiveMapContexts(ctx_live, ctx_live_distance)
-        
+
         // Update canvas sizes to match viewport when viewport is resized
-        this.updateLiveMapCanvasSizes()
+        this.updateLiveMapCanvasSizes(this.browser.contactMatrixView)
     }
-    
+
     /**
      * Update live map canvas sizes to match the main canvas viewport
      * Uses viewport dimensions directly, matching the old approach where width/height
      * were passed directly from the ContactMatrixView viewport.
      */
-    updateLiveMapCanvasSizes() {
-        const browser = this.browser
-        const contactMatrixView = browser.contactMatrixView
-        
-        // Get viewport dimensions directly - this matches the old approach
-        // where width and height were passed directly from the viewport
+    updateLiveMapCanvasSizes(contactMatrixView) {
+
         const width = contactMatrixView.viewportElement.offsetWidth
         const height = contactMatrixView.viewportElement.offsetHeight
-        
+
         // Ensure we have valid dimensions
         if (width === 0 || height === 0) {
             console.warn(`Viewport dimensions are invalid: ${width}x${height}. Canvas sizes not updated.`)
             return
         }
-        
+
         if (contactMatrixView.ctx_live) {
             const canvas = contactMatrixView.ctx_live.canvas
             canvas.width = width
@@ -212,7 +205,7 @@ class JuiceboxPanel extends Panel {
             canvas.style.height = `${height}px`
             console.log(`Updated ctx_live canvas size: ${canvas.width}x${canvas.height}`)
         }
-        
+
         if (contactMatrixView.ctx_live_distance) {
             const canvas = contactMatrixView.ctx_live_distance.canvas
             canvas.width = width
@@ -452,11 +445,10 @@ class JuiceboxPanel extends Panel {
         const dataset = browser.activeDataset
 
         if (!state || !dataset) {
-            console.warn('Live map state or dataset not available')
+            console.warn('renderLiveMapWithContactData(...) - Live map state or dataset not available')
             return
         }
 
-        // Update locus if needed
         const { chr, genomicStart, genomicEnd } = ensembleManager.locus
         try {
             await browser.parseGotoInput(`${chr}:${genomicStart}-${genomicEnd}`)
@@ -465,7 +457,7 @@ class JuiceboxPanel extends Panel {
         }
 
         // Update canvas sizes to match current viewport
-        this.updateLiveMapCanvasSizes()
+        this.updateLiveMapCanvasSizes(this.browser.contactMatrixView)
 
         // Trigger color scale check (will use standard checkColorScale method)
         await browser.contactMatrixView.update()
@@ -477,20 +469,18 @@ class JuiceboxPanel extends Panel {
         const ctx_live = browser.contactMatrixView.ctx_live
         if (ctx_live) {
             const canvas = ctx_live.canvas
-            
-            // Ensure canvas has valid dimensions
+
             if (canvas.width === 0 || canvas.height === 0) {
                 console.warn(`Canvas dimensions are invalid: ${canvas.width}x${canvas.height}. Updating sizes...`)
-                this.updateLiveMapCanvasSizes()
-                // Check again after update
+                this.updateLiveMapCanvasSizes(this.browser.contactMatrixView)
                 if (canvas.width === 0 || canvas.height === 0) {
                     console.error(`Cannot render: canvas dimensions are still invalid: ${canvas.width}x${canvas.height}`)
                     return
                 }
             }
-            
+
             console.log(`Transferring RGBA matrix: matrixDimension=${liveMapTraceLength}, canvas size=${canvas.width}x${canvas.height}`)
-            
+
             // Scale the matrix to match canvas size if needed
             if (liveMapTraceLength !== canvas.width || liveMapTraceLength !== canvas.height) {
                 // Create a temporary canvas at source size
@@ -500,26 +490,22 @@ class JuiceboxPanel extends Panel {
                 const tempCtx = tempCanvas.getContext('2d')
                 const imageData = new ImageData(contactFrequencyArray, liveMapTraceLength, liveMapTraceLength)
                 tempCtx.putImageData(imageData, 0, 0)
-                
+
                 // Create an offscreen canvas at target size and scale the image
                 const scaledCanvas = document.createElement('canvas')
                 scaledCanvas.width = canvas.width
                 scaledCanvas.height = canvas.height
                 const scaledCtx = scaledCanvas.getContext('2d')
-                // Use imageSmoothingEnabled: false for pixelated scaling
                 scaledCtx.imageSmoothingEnabled = false
                 scaledCtx.drawImage(tempCanvas, 0, 0, liveMapTraceLength, liveMapTraceLength, 0, 0, canvas.width, canvas.height)
-                
-                // Verify scaled canvas has valid dimensions before creating ImageBitmap
+
                 if (scaledCanvas.width > 0 && scaledCanvas.height > 0) {
-                    // Create image bitmap from scaled canvas
                     const imageBitmap = await createImageBitmap(scaledCanvas)
                     ctx_live.transferFromImageBitmap(imageBitmap)
                 } else {
                     console.error(`Cannot create ImageBitmap: scaled canvas dimensions are invalid: ${scaledCanvas.width}x${scaledCanvas.height}`)
                 }
             } else {
-                // Direct transfer if dimensions match
                 await transferRGBAMatrixToLiveMapCanvas(ctx_live, contactFrequencyArray, liveMapTraceLength)
             }
         } else {
@@ -596,7 +582,6 @@ function isLiveMapSupported() {
     }
 }
 
-
 function tabEventHandler(event) {
     tabAssessment(juiceboxPanelInstance.browser, event.target);
 }
@@ -611,7 +596,7 @@ function tabAssessment(browser, activeTabButton) {
     const hicContainer = viewport
     const liveContactContainer = mainContainer.querySelector(`#${browser.id}-live-contact-map-canvas-container`)
     const liveDistanceContainer = mainContainer.querySelector(`#${browser.id}-live-distance-map-canvas-container`)
-    
+
     // Hide all containers
     if (hicContainer) hicContainer.style.display = 'none'
     if (liveContactContainer) liveContactContainer.style.display = 'none'
