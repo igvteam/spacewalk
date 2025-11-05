@@ -118,6 +118,18 @@ class JuiceboxPanel extends Panel {
             // Session contains a Hi-C file, switch back to Hi-C dataset and show Hi-C tab
             this.browser.setActiveDataset(this.hicDataset, this.hicState)
             this.hicMapTab.show()
+            
+            // Apply Spacewalk locus after switching to Hi-C dataset
+            // This ensures the map displays the correct region from Spacewalk
+            if (ensembleManager && ensembleManager.locus) {
+                const { chr, genomicStart, genomicEnd } = ensembleManager.locus
+                try {
+                    await this.browser.parseGotoInput(`${chr}:${genomicStart}-${genomicEnd}`)
+                } catch (error) {
+                    console.warn('Error applying Spacewalk locus to Hi-C map:', error.message)
+                }
+            }
+            
             // Ensure Hi-C map is repainted after session load
             setTimeout(() => {
                 const activeTabButton = this.container.querySelector('button.nav-link.active')
