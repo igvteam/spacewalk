@@ -5,14 +5,7 @@ import { ballAndStick, liveContactMapService, liveDistanceMapService, ensembleMa
 import { renderLiveMapWithDistanceData } from './liveDistanceMapService.js'
 import {appleCrayonColorRGB255, rgb255String, compositeColors} from "../utils/colorUtils"
 import {transferRGBAMatrixToLiveMapCanvas} from "../utils/utils.js"
-
-// async function createImageBitmap(...args) {
-//     if (window.createImageBitmap) {
-//         return window.createImageBitmap(...args)
-//     } else {
-//         throw new Error('createImageBitmap not supported')
-//     }
-// }
+import {spacewalkConfig} from "../../spacewalk-config"
 
 // Store reference to the singleton JuiceboxPanel instance for event handlers
 let juiceboxPanelInstance = null;
@@ -69,17 +62,7 @@ class JuiceboxPanel extends Panel {
             session = Object.assign({ queryParametersSupported: false }, config)
         } else {
             const { width, height } = config
-            session =
-                {
-                    browsers:
-                        [
-                            {
-                                width,
-                                height,
-                                queryParametersSupported: false
-                            }
-                        ]
-                }
+            session = { browsers: [ { width, height, queryParametersSupported: false } ] }
         }
 
         await this.loadSession(session)
@@ -91,6 +74,11 @@ class JuiceboxPanel extends Panel {
         this.detachMouseHandlers()
 
         try {
+            const [ browser ] = session.browsers
+            if ('{}' === browser) {
+                const { width, height} = spacewalkConfig.juiceboxConfig
+                session = { browsers: [ { width, height, queryParametersSupported: false } ] }
+            }
             await hic.restoreSession(document.querySelector('#spacewalk_juicebox_root_container'), session)
         } catch (e) {
             const error = new Error(`Error loading Juicebox Session ${ e.message }`)
@@ -102,7 +90,7 @@ class JuiceboxPanel extends Panel {
 
         // Check if session has a url property (indicating a Hi-C file)
         const hasHicFile = session.url || (session.browsers && session.browsers[0]?.url)
-        
+
         // Store reference to Hi-C dataset before loading live map (if it exists)
         if (hasHicFile && this.browser.activeDataset && this.browser.activeDataset.datasetType !== 'livemap') {
             this.hicDataset = this.browser.activeDataset
@@ -156,7 +144,7 @@ class JuiceboxPanel extends Panel {
     initializeLiveMapContexts() {
         const browser = this.browser
         const viewport = browser.layoutController.getContactMatrixViewport()
-        
+
         if (!viewport) {
             console.warn('Viewport not found, cannot initialize live map contexts')
             return
@@ -704,6 +692,16 @@ function tabAssessment(browser, activeTabButton, panel) {
         default:
             console.log('Unknown tab is active');
             break;
+    }
+}
+
+function isJSONString(str) {
+    if (typeof str !== "string") return false;
+    try {
+        const parsed = JSON.parse(str);
+        return typeof parsed === "object" && parsed !== null;
+    } catch (e) {
+        return false;
     }
 }
 
