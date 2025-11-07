@@ -24,7 +24,7 @@
     "hdf5-indexed-reader": "github:jrobinso/hdf5-indexed-reader#v0.5.4",
     "igv": "github:igvteam/igv.js#spacewalk",
     "igv-utils": "github:igvteam/igv-utils#v1.5.8",
-    "juicebox.js": "github:igvteam/juicebox.js#spacewalk-refactor",
+    "juicebox.js": "github:igvteam/juicebox.js#v3.0.0-spacewalk",
     "quickhull3d": "^3.1.1",
     "sass": "^1.92.1",
     "three": "^0.180.0",
